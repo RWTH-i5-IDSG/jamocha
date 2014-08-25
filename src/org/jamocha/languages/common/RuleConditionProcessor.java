@@ -38,8 +38,8 @@ import org.jamocha.languages.common.ConditionalElement.TemplatePatternConditiona
 import org.jamocha.languages.common.ConditionalElement.TestConditionalElement;
 
 /**
+ * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  * @author Christoph Terwelp <christoph.terwelp@rwth-aachen.de>
- *
  */
 public class RuleConditionProcessor {
 
@@ -116,7 +116,7 @@ public class RuleConditionProcessor {
 			final int numOrs = orLists.size();
 			if (0 == numOrs) {
 				// no (or )s, nothing to do
-				ces = Arrays.asList(ce);
+				ces = Collections.singletonList(ce);
 				return;
 			}
 			// wrap the part without the (or )s into shared element wrapper
@@ -137,8 +137,8 @@ public class RuleConditionProcessor {
 			// the elements of CEs will always be AndFunctionConditionalElements acting as a list
 			// while the construction of CEs is incomplete, thus we start by adding the shared part
 			this.ces =
-					new ArrayList<>(Arrays.asList(new AndFunctionConditionalElement(Arrays
-							.asList(shared))));
+					Collections.singletonList(new AndFunctionConditionalElement(Collections
+							.singletonList(shared)));
 			// for every (or ) occurrence we need to duplicate the list of CEs and combine them with
 			// the (or ) elements
 			orLists.forEach(orList -> {
