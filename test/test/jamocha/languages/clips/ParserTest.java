@@ -99,16 +99,11 @@ public class ParserTest {
 
 	private static Set<SingleFactVariable> getFactVariablesForCE(final ConditionalElement ce) {
 		return SymbolCollector.newHashSet().collect(ce).getSymbols().stream()
-				.map(s -> s.getFactVariable()).filter(Optional::isPresent).map(Optional::get)
+				.map(Symbol::getFactVariable).filter(Optional::isPresent).map(Optional::get)
 				.collect(toSet());
 	}
 
 	private static Symbol getSymbol(final RuleCondition condition, final String image) {
-		// final SymbolCollector<ArrayList<Symbol>> symbolCollector =
-		// SymbolCollector.newArrayList();
-		// condition.getConditionalElements().forEach(ce -> ce.accept(symbolCollector));
-		// Stream.concat(symbolCollector.getSymbols().stream(),
-		// condition.getSingleFactVariables().stream().map(SingleFactVariable::getSymbol))
 		final Symbol[] array =
 				toArray(SymbolCollector.newHashSet().collect(condition).getSymbols().stream()
 						.distinct().filter(s -> s.getImage().equals(image)), Symbol[]::new);
