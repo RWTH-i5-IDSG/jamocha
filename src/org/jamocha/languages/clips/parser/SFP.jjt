@@ -682,6 +682,7 @@ void FunctionCall() #void:
 		|	WhileFunc()
 		|	LoopForCountFunc()
 		|	AnyFunction()
+		|	EqualsFunction()
 		|	SwitchCaseFunc()
 		)
 	<RBRACE>
@@ -698,6 +699,25 @@ SimpleNode AnyFunction() :
 {
  	(
  		Symbol()
+ 		(
+ 			Expression()
+ 		)*
+ 	)
+
+	{ return jjtThis; }
+}
+
+
+
+/**
+*		Equals Function (as = is not a symbol)
+**/
+
+SimpleNode EqualsFunction() :
+{}
+{
+ 	(
+ 		<EQUALS>
  		(
  			Expression()
  		)*
