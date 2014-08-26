@@ -555,6 +555,194 @@ public class RuleConditionProcessorTest {
 	}
 
 	@Test
+	public void complexOrWithinExists() throws ParseException {
+		final String input =
+				"(templ1 (slot1 ?x)) (or (test (> ?x 1)) (test (< ?x 2)) (exists (and (or (templ1 (slot1 ?y)) (templ2 (slot1 ?y)) ) (test (= ?x ?y)) )) )";
+		final List<ConditionalElement> conditionalElements = clipsToCondition(input);
+
+		final ConditionalElement tpce1x, tpce1y, tpce2y, test1, test2, test3;
+		assertThat(conditionalElements, hasSize(2));
+		{
+			{
+				final ConditionalElement tpce = conditionalElements.get(0);
+				assertThat(tpce, instanceOf(TemplatePatternConditionalElement.class));
+				tpce1x = tpce;
+			}
+			final ConditionalElement outerOrCE = conditionalElements.get(1);
+			assertThat(outerOrCE, instanceOf(OrFunctionConditionalElement.class));
+			final List<ConditionalElement> outerOrChildren = outerOrCE.getChildren();
+			assertThat(outerOrChildren, hasSize(3));
+			{
+				final ConditionalElement test = outerOrChildren.get(0);
+				assertThat(test, instanceOf(TestConditionalElement.class));
+				test1 = test;
+			}
+			{
+				final ConditionalElement test = outerOrChildren.get(1);
+				assertThat(test, instanceOf(TestConditionalElement.class));
+				test2 = test;
+			}
+			{
+				final ConditionalElement existsCE = outerOrChildren.get(2);
+				assertThat(existsCE, instanceOf(ExistentialConditionalElement.class));
+				final List<ConditionalElement> existsChildren = existsCE.getChildren();
+				assertThat(existsChildren, hasSize(1));
+				final ConditionalElement andCE = existsChildren.get(0);
+				assertThat(andCE, instanceOf(AndFunctionConditionalElement.class));
+				final List<ConditionalElement> andChildren = andCE.getChildren();
+				assertThat(andChildren, hasSize(2));
+				{
+					final ConditionalElement innerOrCE = andChildren.get(0);
+					assertThat(innerOrCE, instanceOf(OrFunctionConditionalElement.class));
+					final List<ConditionalElement> innerOrChildren = innerOrCE.getChildren();
+					assertThat(innerOrChildren, hasSize(2));
+					{
+						{
+							final ConditionalElement tpce = innerOrChildren.get(0);
+							assertThat(tpce, instanceOf(TemplatePatternConditionalElement.class));
+							tpce1y = tpce;
+						}
+						{
+							final ConditionalElement tpce = innerOrChildren.get(1);
+							assertThat(tpce, instanceOf(TemplatePatternConditionalElement.class));
+							tpce2y = tpce;
+						}
+					}
+				}
+				{
+					final ConditionalElement test = andChildren.get(1);
+					assertThat(test, instanceOf(TestConditionalElement.class));
+					test3 = test;
+				}
+			}
+		}
+
+		final ConditionalElementFormatter cef =
+				new ConditionalElementFormatter(SymbolCollector.newHashSet()
+						.collect(conditionalElements).toSlotVariablesByFactVariable());
+
+		assertThat(cef.format(tpce1x),
+				RegexMatcher.matches("\\(template templ1 Dummy:\\d* \\(slot1 \\?x\\)\\)"));
+		assertThat(cef.format(tpce1y),
+				RegexMatcher.matches("\\(template templ1 Dummy:\\d* \\(slot1 \\?y\\)\\)"));
+		assertThat(cef.format(tpce2y),
+				RegexMatcher.matches("\\(template templ2 Dummy:\\d* \\(slot1 \\?y\\)\\)"));
+		assertThat(cef.format(test1), RegexMatcher.matches("\\(test \\(> \\?x 1\\)\\)"));
+		assertThat(cef.format(test2), RegexMatcher.matches("\\(test \\(< \\?x 2\\)\\)"));
+		assertThat(cef.format(test3), RegexMatcher.matches("\\(test \\(= \\?x \\?y\\)\\)"));
+
+		RuleConditionProcessor.flatten(conditionalElements);
+
+		final SharedConditionalElementWrapper sharedTpce, sharedTest;
+
+		assertThat(conditionalElements, hasSize(1));
+		final ConditionalElement outerOrCE = conditionalElements.get(0);
+		assertThat(outerOrCE, instanceOf(OrFunctionConditionalElement.class));
+		final List<ConditionalElement> outerOrChildren = outerOrCE.getChildren();
+		assertThat(outerOrChildren, hasSize(4));
+		{
+			final ConditionalElement outerAndCE = outerOrChildren.get(0);
+			assertThat(outerAndCE, instanceOf(AndFunctionConditionalElement.class));
+			final List<ConditionalElement> outerAndChildren = outerAndCE.getChildren();
+			assertThat(outerAndChildren, hasSize(2));
+			{
+				final ConditionalElement sharedCE = outerAndChildren.get(0);
+				assertThat(sharedCE, instanceOf(SharedConditionalElementWrapper.class));
+				sharedTpce = (SharedConditionalElementWrapper) sharedCE;
+				final ConditionalElement tpce = sharedTpce.getCe();
+				assertThat(tpce, instanceOf(TemplatePatternConditionalElement.class));
+				assertSame(tpce1x, tpce);
+			}
+			{
+				final ConditionalElement test = outerAndChildren.get(1);
+				assertThat(test, instanceOf(TestConditionalElement.class));
+				assertSame(test1, test);
+			}
+		}
+		{
+			final ConditionalElement outerAndCE = outerOrChildren.get(1);
+			assertThat(outerAndCE, instanceOf(AndFunctionConditionalElement.class));
+			final List<ConditionalElement> outerAndChildren = outerAndCE.getChildren();
+			assertThat(outerAndChildren, hasSize(2));
+			{
+				final ConditionalElement sharedCE = outerAndChildren.get(0);
+				assertThat(sharedCE, instanceOf(SharedConditionalElementWrapper.class));
+				assertSame(sharedTpce, sharedCE);
+			}
+			{
+				final ConditionalElement test = outerAndChildren.get(1);
+				assertThat(test, instanceOf(TestConditionalElement.class));
+				assertSame(test2, test);
+			}
+		}
+		{
+			final ConditionalElement outerAndCE = outerOrChildren.get(2);
+			assertThat(outerAndCE, instanceOf(AndFunctionConditionalElement.class));
+			final List<ConditionalElement> outerAndChildren = outerAndCE.getChildren();
+			assertThat(outerAndChildren, hasSize(2));
+			{
+				final ConditionalElement sharedCE = outerAndChildren.get(0);
+				assertThat(sharedCE, instanceOf(SharedConditionalElementWrapper.class));
+				assertSame(sharedTpce, sharedCE);
+			}
+			{
+				final ConditionalElement existsCE = outerAndChildren.get(1);
+				assertThat(existsCE, instanceOf(ExistentialConditionalElement.class));
+				final List<ConditionalElement> existsChildren = existsCE.getChildren();
+				assertThat(existsChildren, hasSize(1));
+				final ConditionalElement innerAndCE = existsChildren.get(0);
+				assertThat(innerAndCE, instanceOf(AndFunctionConditionalElement.class));
+				final List<ConditionalElement> innerAndChildren = innerAndCE.getChildren();
+				assertThat(innerAndChildren, hasSize(2));
+				{
+					final ConditionalElement shared = innerAndChildren.get(0);
+					assertThat(shared, instanceOf(SharedConditionalElementWrapper.class));
+					sharedTest = (SharedConditionalElementWrapper) shared;
+					final ConditionalElement test = sharedTest.getCe();
+					assertThat(test, instanceOf(TestConditionalElement.class));
+					assertSame(test3, test);
+				}
+				{
+					final ConditionalElement tpce = innerAndChildren.get(1);
+					assertThat(tpce, instanceOf(TemplatePatternConditionalElement.class));
+					assertSame(tpce1y, tpce);
+				}
+			}
+		}
+		{
+			final ConditionalElement outerAndCE = outerOrChildren.get(2);
+			assertThat(outerAndCE, instanceOf(AndFunctionConditionalElement.class));
+			final List<ConditionalElement> outerAndChildren = outerAndCE.getChildren();
+			assertThat(outerAndChildren, hasSize(2));
+			{
+				final ConditionalElement sharedCE = outerAndChildren.get(0);
+				assertThat(sharedCE, instanceOf(SharedConditionalElementWrapper.class));
+				assertSame(sharedTpce, sharedCE);
+			}
+			{
+				final ConditionalElement existsCE = outerAndChildren.get(1);
+				assertThat(existsCE, instanceOf(ExistentialConditionalElement.class));
+				final List<ConditionalElement> existsChildren = existsCE.getChildren();
+				assertThat(existsChildren, hasSize(1));
+				final ConditionalElement innerAndCE = existsChildren.get(0);
+				assertThat(innerAndCE, instanceOf(AndFunctionConditionalElement.class));
+				final List<ConditionalElement> innerAndChildren = innerAndCE.getChildren();
+				assertThat(innerAndChildren, hasSize(2));
+				{
+					final ConditionalElement shared = innerAndChildren.get(0);
+					assertThat(shared, instanceOf(SharedConditionalElementWrapper.class));
+					assertSame(sharedTest, shared);
+				}
+				{
+					final ConditionalElement tpce = innerAndChildren.get(1);
+					assertThat(tpce, instanceOf(TemplatePatternConditionalElement.class));
+					assertSame(tpce1y, tpce);
+				}
+			}
+		}
+	}
+
+	@Test
 	public void complexOrWithinNotExists() throws ParseException {
 		final String input =
 				"(templ1 (slot1 ?x)) (or (test (> ?x 1)) (test (< ?x 2)) (not (and (or (templ1 (slot1 ?y)) (templ2 (slot1 ?y)) ) (test (= ?x ?y)) )) )";
