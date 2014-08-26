@@ -421,7 +421,18 @@ public class ParserTest {
 		final List<ConditionalElement> conditionalElements = condition.getConditionalElements();
 		assertEquals(1, conditionalElements.size());
 		{
-			final ConditionalElement conditionalElement = conditionalElements.get(0);
+			final ConditionalElement conditionalElement;
+			{
+				final ConditionalElement andCE = conditionalElements.get(0);
+				assertThat(andCE, instanceOf(AndFunctionConditionalElement.class));
+				final List<ConditionalElement> andChildren = andCE.getChildren();
+				assertThat(andChildren, hasSize(2));
+				final ConditionalElement tpce = andChildren.get(0);
+				assertThat(tpce, instanceOf(TemplatePatternConditionalElement.class));
+				assertSame(network.getTemplate("f1"), ((TemplatePatternConditionalElement) tpce)
+						.getFactVariable().getTemplate());
+				conditionalElement = andChildren.get(1);
+			}
 			assertThat(conditionalElement, instanceOf(OrFunctionConditionalElement.class));
 			final List<ConditionalElement> children =
 					((OrFunctionConditionalElement) conditionalElement).getChildren();
