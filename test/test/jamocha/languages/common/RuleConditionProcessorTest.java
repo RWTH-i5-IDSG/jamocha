@@ -72,14 +72,10 @@ import test.jamocha.util.RegexMatcher;
  */
 public class RuleConditionProcessorTest {
 
-	private static String ruleName = "rule1";
-	private static String templateName = "templ1";
-	private static String slot1Name = "slot1";
-
-	private static String templateString = "(deftemplate " + templateName + " (slot " + slot1Name
-			+ " (type INTEGER)))\n";
-	private static String preRule = "(defrule " + ruleName;
-	private static String postRule = "=> )\n";
+	private final static String templateString =
+			"(deftemplate templ1 (slot slot1 (type INTEGER)))\n";
+	private final static String preRule = "(defrule rule1";
+	private final static String postRule = "=> )\n";
 
 	private static Queue<Warning> run(final SFPParser parser, final SFPVisitorImpl visitor)
 			throws ParseException {
@@ -100,13 +96,13 @@ public class RuleConditionProcessorTest {
 		final NetworkMockup ptn = new NetworkMockup();
 		final SFPVisitorImpl visitor = new SFPVisitorImpl(ptn, ptn);
 		run(parser, visitor);
-		final Defrule rule = ptn.getRule(ruleName);
+		final Defrule rule = ptn.getRule("rule1");
 		return rule.getCondition().getConditionalElements();
 	}
 
 	@Test
 	public void trivialTest() throws ParseException {
-		final String input = "(" + templateName + " (" + slot1Name + " 10))";
+		final String input = "(templ1 (slot1 10))";
 		final List<ConditionalElement> conditionalElements = clipsToCondition(input);
 		RuleConditionProcessor.flatten(conditionalElements);
 
@@ -117,7 +113,7 @@ public class RuleConditionProcessorTest {
 		assertThat(andChildren, hasSize(2));
 		final ConditionalElement tpce = andChildren.get(0);
 		assertThat(tpce, instanceOf(TemplatePatternConditionalElement.class));
-		assertEquals(templateName, ((TemplatePatternConditionalElement) tpce).getFactVariable()
+		assertEquals("templ1", ((TemplatePatternConditionalElement) tpce).getFactVariable()
 				.getTemplate().getName());
 		final ConditionalElement testce = andChildren.get(1);
 		assertThat(testce, instanceOf(TestConditionalElement.class));
@@ -134,8 +130,8 @@ public class RuleConditionProcessorTest {
 		assertThat(positiveSlotVariables, hasSize(1));
 		final SingleSlotVariable singleSlotVariable = positiveSlotVariables.get(0);
 		final Template slotTemplate = singleSlotVariable.getFactVariable().getTemplate();
-		assertEquals(templateName, slotTemplate.getName());
-		assertEquals(slot1Name, slotTemplate.getSlotName(singleSlotVariable.getSlot()));
+		assertEquals("templ1", slotTemplate.getName());
+		assertEquals("slot1", slotTemplate.getSlotName(singleSlotVariable.getSlot()));
 		final FunctionWithArguments constantLeaf = args[1];
 		assertThat(constantLeaf, instanceOf(ConstantLeaf.class));
 		assertEquals(SlotType.LONG, ((ConstantLeaf) constantLeaf).getType());
@@ -144,8 +140,7 @@ public class RuleConditionProcessorTest {
 
 	@Test
 	public void surroundingAddTest() throws ParseException {
-		final String input =
-				"(" + templateName + " (" + slot1Name + " ?x)) (test (> ?x 10)) (test (< ?x 15))";
+		final String input = "(templ1 (slot1 ?x)) (test (> ?x 10)) (test (< ?x 15))";
 		final List<ConditionalElement> conditionalElements = clipsToCondition(input);
 
 		assertThat(conditionalElements, hasSize(3));
@@ -157,10 +152,8 @@ public class RuleConditionProcessorTest {
 				new ConditionalElementFormatter(SymbolCollector.newHashSet()
 						.collect(conditionalElements).toSlotVariablesByFactVariable());
 
-		assertThat(
-				cef.format(templ1),
-				RegexMatcher.matches("\\(template " + templateName + " Dummy:\\d* \\(" + slot1Name
-						+ " \\?x\\)\\)"));
+		assertThat(cef.format(templ1),
+				RegexMatcher.matches("\\(template templ1 Dummy:\\d* \\(slot1 \\?x\\)\\)"));
 		assertThat(cef.format(test10), RegexMatcher.matches("\\(test \\(> \\?x 10\\)\\)"));
 		assertThat(cef.format(test15), RegexMatcher.matches("\\(test \\(< \\?x 15\\)\\)"));
 
@@ -193,10 +186,8 @@ public class RuleConditionProcessorTest {
 				new ConditionalElementFormatter(SymbolCollector.newHashSet()
 						.collect(conditionalElements).toSlotVariablesByFactVariable());
 
-		assertThat(
-				cef.format(templ1),
-				RegexMatcher.matches("\\(template " + templateName + " Dummy:\\d* \\(" + slot1Name
-						+ " \\?x\\)\\)"));
+		assertThat(cef.format(templ1),
+				RegexMatcher.matches("\\(template templ1 Dummy:\\d* \\(slot1 \\?x\\)\\)"));
 		assertThat(cef.format(test10), RegexMatcher.matches("\\(test \\(> \\?x 10\\)\\)"));
 		assertThat(cef.format(test15), RegexMatcher.matches("\\(test \\(< \\?x 15\\)\\)"));
 
@@ -248,10 +239,8 @@ public class RuleConditionProcessorTest {
 				new ConditionalElementFormatter(SymbolCollector.newHashSet()
 						.collect(conditionalElements).toSlotVariablesByFactVariable());
 
-		assertThat(
-				cef.format(templ1),
-				RegexMatcher.matches("\\(template " + templateName + " Dummy:\\d* \\(" + slot1Name
-						+ " \\?x\\)\\)"));
+		assertThat(cef.format(templ1),
+				RegexMatcher.matches("\\(template templ1 Dummy:\\d* \\(slot1 \\?x\\)\\)"));
 		assertThat(cef.format(test10), RegexMatcher.matches("\\(test \\(> \\?x 10\\)\\)"));
 		assertThat(cef.format(test15), RegexMatcher.matches("\\(test \\(< \\?x 15\\)\\)"));
 		assertThat(cef.format(test16), RegexMatcher.matches("\\(test \\(< \\?x 16\\)\\)"));
@@ -322,10 +311,8 @@ public class RuleConditionProcessorTest {
 				new ConditionalElementFormatter(SymbolCollector.newHashSet()
 						.collect(conditionalElements).toSlotVariablesByFactVariable());
 
-		assertThat(
-				cef.format(templ1),
-				RegexMatcher.matches("\\(template " + templateName + " Dummy:\\d* \\(" + slot1Name
-						+ " \\?x\\)\\)"));
+		assertThat(cef.format(templ1),
+				RegexMatcher.matches("\\(template templ1 Dummy:\\d* \\(slot1 \\?x\\)\\)"));
 		assertThat(cef.format(test1), RegexMatcher.matches("\\(test \\(< \\?x 1\\)\\)"));
 		assertThat(cef.format(test2), RegexMatcher.matches("\\(test \\(< \\?x 2\\)\\)"));
 		assertThat(cef.format(test3), RegexMatcher.matches("\\(test \\(< \\?x 3\\)\\)"));
@@ -509,14 +496,10 @@ public class RuleConditionProcessorTest {
 				new ConditionalElementFormatter(SymbolCollector.newHashSet()
 						.collect(conditionalElements).toSlotVariablesByFactVariable());
 
-		assertThat(
-				cef.format(tpce1),
-				RegexMatcher.matches("\\(template " + templateName + " Dummy:\\d* \\(" + slot1Name
-						+ " Dummy:\\d*\\)\\)"));
-		assertThat(
-				cef.format(tpce2),
-				RegexMatcher.matches("\\(template " + templateName + " Dummy:\\d* \\(" + slot1Name
-						+ " Dummy:\\d*\\)\\)"));
+		assertThat(cef.format(tpce1),
+				RegexMatcher.matches("\\(template templ1 Dummy:\\d* \\(slot1 Dummy:\\d*\\)\\)"));
+		assertThat(cef.format(tpce2),
+				RegexMatcher.matches("\\(template templ1 Dummy:\\d* \\(slot1 Dummy:\\d*\\)\\)"));
 		assertThat(cef.format(test1), RegexMatcher.matches("\\(test \\(= Dummy:\\d* 1\\)\\)"));
 		assertThat(cef.format(test2), RegexMatcher.matches("\\(test \\(= Dummy:\\d* 2\\)\\)"));
 
