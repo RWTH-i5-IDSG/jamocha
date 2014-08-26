@@ -14,6 +14,8 @@
  */
 package org.jamocha.languages.common;
 
+import java.util.ArrayList;
+
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
@@ -32,18 +34,25 @@ import org.jamocha.languages.common.ScopeStack.Symbol;
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
 @Getter
-@AllArgsConstructor
 @EqualsAndHashCode
 public class SingleFactVariable {
 	@NonNull
 	final Symbol symbol;
 	@NonNull
 	final Template template;
+	final ArrayList<SingleSlotVariable> slotVariables = new ArrayList<>();
+
+	public SingleFactVariable(final Symbol symbol, final Template template) {
+		this.symbol = symbol;
+		this.template = template;
+		symbol.setFactVariable(this);
+	}
 
 	public SingleSlotVariable newSingleSlotVariable(final Symbol symbol, final SlotAddress slot,
 			final boolean negated) {
 		final SingleSlotVariable instance = new SingleSlotVariable(symbol, slot, negated);
 		symbol.addSlotVariable(instance);
+		this.slotVariables.add(instance);
 		return instance;
 	}
 
