@@ -57,6 +57,7 @@ import org.jamocha.function.fwa.Modify;
 import org.jamocha.function.fwa.PredicateWithArguments;
 import org.jamocha.function.fwa.PredicateWithArgumentsComposite;
 import org.jamocha.function.fwa.Retract;
+import org.jamocha.function.impls.predicates.Equals;
 import org.jamocha.languages.clips.parser.ExistentialStack.ScopedExistentialStack;
 import org.jamocha.languages.clips.parser.errors.ClipsNameClashError;
 import org.jamocha.languages.clips.parser.errors.ClipsNoSlotForThatNameError;
@@ -85,6 +86,7 @@ import org.jamocha.languages.clips.parser.generated.SFPDefruleConstruct;
 import org.jamocha.languages.clips.parser.generated.SFPDefrulesConstruct;
 import org.jamocha.languages.clips.parser.generated.SFPDeftemplateConstruct;
 import org.jamocha.languages.clips.parser.generated.SFPEquals;
+import org.jamocha.languages.clips.parser.generated.SFPEqualsFunction;
 import org.jamocha.languages.clips.parser.generated.SFPExistsCE;
 import org.jamocha.languages.clips.parser.generated.SFPExpression;
 import org.jamocha.languages.clips.parser.generated.SFPFactAddressType;
@@ -1189,6 +1191,11 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 		}
 
 		@Override
+		public default Object visit(final SFPEqualsFunction node, final Object data) {
+			return handleFunctionCall(node, data);
+		}
+
+		@Override
 		public default Object visit(final SFPSwitchCaseFunc node, final Object data) {
 			return handleFunctionCall(node, data);
 		}
@@ -1346,6 +1353,25 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 							(Predicate) function, toArray(arguments, FunctionWithArguments[]::new))
 							: new FunctionWithArgumentsComposite(function, toArray(arguments,
 									FunctionWithArguments[]::new));
+			return data;
+		}
+
+		// EqualsFunction() : ( <EQUALS> ( Expression() )* )
+		@Override
+		public Object visit(final SFPEqualsFunction node, final Object data) {
+			assert node.jjtGetNumChildren() > 0;
+			final List<FunctionWithArguments> arguments =
+					SelectiveSFPVisitor
+							.stream(node, 0)
+							.map(n -> SelectiveSFPVisitor.sendVisitor(new SFPExpressionVisitor(
+									this.mapper, this.sideEffectsAllowed), n, data).expression)
+							.collect(Collectors.toList());
+			final SlotType[] argTypes =
+					toArray(arguments.stream().map(e -> e.getReturnType()), SlotType[]::new);
+			final Predicate function = FunctionDictionary.lookupPredicate(Equals.inClips, argTypes);
+			this.expression =
+					new PredicateWithArgumentsComposite(function, toArray(arguments,
+							FunctionWithArguments[]::new));
 			return data;
 		}
 
