@@ -1464,6 +1464,14 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 							actionList = visitor.actionList.get();
 						}
 					}
+					if (!existentialStack.templateCEContained) {
+						ces.add(0,
+								new InitialFactConditionalElement(new SingleFactVariable(scope
+										.createDummy(), initialFact)));
+					}
+					existentialStack.getConditionalElements().addAll(ces);
+					this.defrule =
+							new Defrule(symbol.getImage(), comment, existentialStack, actionList);
 					SymbolCollector
 							.newHashSet()
 							.collect(existentialStack)
@@ -1479,14 +1487,6 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 											.add(new Warning(
 													"Two different symbols were created for the same variable name leading to different variables, namely "
 															+ e.getKey())));
-					if (!existentialStack.templateCEContained) {
-						ces.add(0,
-								new InitialFactConditionalElement(new SingleFactVariable(scope
-										.createDummy(), initialFact)));
-					}
-					existentialStack.getConditionalElements().addAll(ces);
-					this.defrule =
-							new Defrule(symbol.getImage(), comment, existentialStack, actionList);
 				}
 				return data;
 			}
