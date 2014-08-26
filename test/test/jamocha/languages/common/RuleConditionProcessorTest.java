@@ -30,7 +30,6 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
-import java.util.StringJoiner;
 import java.util.stream.Stream;
 
 import org.jamocha.dn.ConstructCache.Defrule;
@@ -73,9 +72,9 @@ import test.jamocha.util.RegexMatcher;
 public class RuleConditionProcessorTest {
 
 	private final static String templateString =
-			"(deftemplate templ1 (slot slot1 (type INTEGER)))\n";
-	private final static String preRule = "(defrule rule1";
-	private final static String postRule = "=> )\n";
+			"(deftemplate templ1 (slot slot1 (type INTEGER)))\n(deftemplate templ2 (slot slot1 (type INTEGER)))\n";
+	private final static String preRule = "(defrule rule1 ";
+	private final static String postRule = " => )\n";
 
 	private static Queue<Warning> run(final SFPParser parser, final SFPVisitorImpl visitor)
 			throws ParseException {
@@ -90,8 +89,8 @@ public class RuleConditionProcessorTest {
 	private static List<ConditionalElement> clipsToCondition(final String condition)
 			throws ParseException {
 		final StringReader parserInput =
-				new StringReader(new StringJoiner(" ").add(templateString).add(preRule)
-						.add(condition).add(postRule).toString());
+				new StringReader(new StringBuilder().append(templateString).append(preRule)
+						.append(condition).append(postRule).toString());
 		final SFPParser parser = new SFPParser(parserInput);
 		final NetworkMockup ptn = new NetworkMockup();
 		final SFPVisitorImpl visitor = new SFPVisitorImpl(ptn, ptn);
