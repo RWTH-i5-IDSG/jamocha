@@ -16,8 +16,8 @@ package test.jamocha.languages.clips;
 
 import static java.util.stream.Collectors.toSet;
 import static org.hamcrest.CoreMatchers.instanceOf;
-import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.isIn;
 import static org.jamocha.util.ToArray.toArray;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -605,8 +605,8 @@ public class ParserTest {
 					(NegatedExistentialConditionalElement) conditionalElement;
 			assertEquals(x1.getFactVariable(), y.getFactVariable());
 
-			assertThat(getFactVariablesForCE(negatedExistentialConditionalElement),
-					contains(x1.getFactVariable()));
+			assertThat(x1.getFactVariable(),
+					isIn(getFactVariablesForCE(negatedExistentialConditionalElement)));
 			final List<ConditionalElement> negChildren =
 					negatedExistentialConditionalElement.getChildren();
 			assertThat(negChildren, hasSize(1));
@@ -614,17 +614,30 @@ public class ParserTest {
 			assertThat(negChild, instanceOf(AndFunctionConditionalElement.class));
 			final List<ConditionalElement> andChildren =
 					((AndFunctionConditionalElement) negChild).getChildren();
-			assertThat(andChildren, hasSize(2));
+			assertThat(andChildren, hasSize(3));
 			{
 				final ConditionalElement child = andChildren.get(0);
-				assertThat(child, instanceOf(NegatedExistentialConditionalElement.class));
-				final NegatedExistentialConditionalElement innerNegExCE =
-						(NegatedExistentialConditionalElement) child;
-				assertThat(innerNegExCE.getChildren(), hasSize(0));
-				assertThat(getFactVariablesForCE(innerNegExCE), contains(x2.getFactVariable()));
+				assertThat(child, instanceOf(TemplatePatternConditionalElement.class));
+				final TemplatePatternConditionalElement tpce =
+						(TemplatePatternConditionalElement) child;
+				assertThat(tpce.getChildren(), hasSize(0));
+				assertSame(x1.getFactVariable(), tpce.getFactVariable());
+				assertSame(y.getFactVariable(), tpce.getFactVariable());
 			}
 			{
 				final ConditionalElement child = andChildren.get(1);
+				assertThat(child, instanceOf(NegatedExistentialConditionalElement.class));
+				final NegatedExistentialConditionalElement innerNegExCE =
+						(NegatedExistentialConditionalElement) child;
+				assertThat(innerNegExCE.getChildren(), hasSize(1));
+				assertThat(x2.getFactVariable(), isIn(getFactVariablesForCE(innerNegExCE)));
+				final ConditionalElement tpce = innerNegExCE.getChildren().get(0);
+				assertThat(tpce, instanceOf(TemplatePatternConditionalElement.class));
+				assertSame(x2.getFactVariable(),
+						((TemplatePatternConditionalElement) tpce).getFactVariable());
+			}
+			{
+				final ConditionalElement child = andChildren.get(2);
 				assertThat(child, instanceOf(TestConditionalElement.class));
 				final TestConditionalElement testCE = (TestConditionalElement) child;
 				assertThat(testCE.getChildren(), hasSize(0));
