@@ -156,6 +156,17 @@ public class ParserTest {
 		run(parser, visitor);
 	}
 
+	@Test(expected = NameClashError.class)
+	public void testDefruleAssignedPatternCENameReuse() throws ParseException {
+		final Reader parserInput =
+				new StringReader("(deftemplate f1 (slot s1 (type INTEGER)))\n"
+						+ "(defrule r1 ?x <- (f1) ?x <- (f1) =>)\n");
+		final SFPParser parser = new SFPParser(parserInput);
+		final NetworkMockup network = new NetworkMockup();
+		final SFPVisitorImpl visitor = new SFPVisitorImpl(network, network);
+		run(parser, visitor);
+	}
+
 	@Test(expected = VariableNotDeclaredError.class)
 	public void testDefruleUndeclaredVariable() throws ParseException {
 		final Reader parserInput =

@@ -1053,6 +1053,11 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 			final Symbol symbol =
 					SelectiveSFPVisitor.sendVisitor(new SFPSingleVariableVisitor(),
 							node.jjtGetChild(0), data).symbol;
+			if (symbol.getFactVariable().isPresent()) {
+				throw new ClipsNameClashError("Variable " + symbol.getImage()
+						+ " has already been used as left hand side of an Assigned Pattern CE!",
+						node);
+			}
 			this.resultCE =
 					SelectiveSFPVisitor.sendVisitor(new SFPConditionalElementVisitor(contextStack,
 							symbol), node.jjtGetChild(1), data).resultCE;
