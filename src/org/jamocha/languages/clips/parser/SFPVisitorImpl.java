@@ -670,8 +670,19 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 			// AmpersandConnectedConstraint(): ( Term() ( <AMPERSAND> Term() )* )
 			@Override
 			public Object visit(final SFPAmpersandConnectedConstraint node, final Object data) {
-				return handleConnectedConstraint(node, data, SFPTermVisitor::new,
-						AndFunctionConditionalElement::new);
+				return handleConnectedConstraint(
+						node,
+						data,
+						new SFPConstraintVisitorSupplier<SFPVisitorImpl.SFPConditionalElementVisitor.SFPTermVisitor>() {
+							@Override
+							public SFPTermVisitor create(SFPConditionalElementVisitor parent,
+									Consumer<ConditionalElement> constraintAdder,
+									Template template, SlotAddress slot,
+									Optional<SingleSlotVariable> constraintVariable) {
+								return new SFPTermVisitor(parent, constraintAdder, template, slot,
+										constraintVariable);
+							}
+						}, AndFunctionConditionalElement::new);
 			}
 		}
 
@@ -690,9 +701,20 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 
 			@Override
 			public Object visit(final SFPLineConnectedConstraint node, final Object data) {
-				return handleConnectedConstraint(node, data,
-						SFPAmpersandConnectedConstraintVisitor::new,
-						OrFunctionConditionalElement::new);
+				return handleConnectedConstraint(
+						node,
+						data,
+						new SFPConstraintVisitorSupplier<SFPVisitorImpl.SFPConditionalElementVisitor.SFPAmpersandConnectedConstraintVisitor>() {
+							@Override
+							public SFPAmpersandConnectedConstraintVisitor create(
+									SFPConditionalElementVisitor parent,
+									Consumer<ConditionalElement> constraintAdder,
+									Template template, SlotAddress slot,
+									Optional<SingleSlotVariable> constraintVariable) {
+								return new SFPAmpersandConnectedConstraintVisitor(parent,
+										constraintAdder, template, slot, constraintVariable);
+							}
+						}, OrFunctionConditionalElement::new);
 			}
 
 			@Override
