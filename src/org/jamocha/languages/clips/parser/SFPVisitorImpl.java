@@ -105,6 +105,7 @@ import org.jamocha.languages.clips.parser.generated.SFPModify;
 import org.jamocha.languages.clips.parser.generated.SFPNegation;
 import org.jamocha.languages.clips.parser.generated.SFPNotFunction;
 import org.jamocha.languages.clips.parser.generated.SFPOrFunction;
+import org.jamocha.languages.clips.parser.generated.SFPOrderedLHSFactBody;
 import org.jamocha.languages.clips.parser.generated.SFPParser;
 import org.jamocha.languages.clips.parser.generated.SFPParserTreeConstants;
 import org.jamocha.languages.clips.parser.generated.SFPRHSPattern;
@@ -800,6 +801,15 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 				SelectiveSFPVisitor.sendVisitor(new SFPUnorderedLHSFactBodyElementsVisitor(parent,
 						constraintAdder, template), node.jjtGetChild(0), data);
 				return data;
+			}
+
+			@Override
+			public Object visit(final SFPOrderedLHSFactBody node, final Object data) {
+				if (0 == node.jjtGetNumChildren()) {
+					// empty constraint list recognized as OrderedLHSFactBody by compiler, ignore
+					return data;
+				}
+				return SelectiveSFPVisitor.super.visit(node, data);
 			}
 		}
 
