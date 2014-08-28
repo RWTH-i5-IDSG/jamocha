@@ -16,6 +16,7 @@ package test.jamocha.util;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -27,6 +28,7 @@ import org.jamocha.dn.SideEffectFunctionToNetwork;
 import org.jamocha.dn.memory.Fact;
 import org.jamocha.dn.memory.FactIdentifier;
 import org.jamocha.dn.memory.MemoryFact;
+import org.jamocha.dn.memory.SlotType;
 import org.jamocha.dn.memory.Template;
 import org.jamocha.dn.memory.Template.Slot;
 import org.jamocha.function.fwa.Assert.TemplateContainer;
@@ -41,6 +43,7 @@ public class NetworkMockup implements ParserToNetwork, SideEffectFunctionToNetwo
 
 	Map<String, Template> templates = new HashMap<>();
 	Map<String, Defrule> rules = new HashMap<>();
+	EnumMap<SlotType, Object> defaultValues = new EnumMap<>(SlotType.class);
 
 	@Override
 	public Template defTemplate(String name, String description, Slot... slots) {
@@ -111,7 +114,7 @@ public class NetworkMockup implements ParserToNetwork, SideEffectFunctionToNetwo
 	}
 
 	@Override
-	public void retractFacts(FactIdentifier... array) {	
+	public void retractFacts(FactIdentifier... array) {
 	}
 
 	@Override
@@ -129,4 +132,13 @@ public class NetworkMockup implements ParserToNetwork, SideEffectFunctionToNetwo
 		return null;
 	}
 
+	@Override
+	public Object getDefaultValue(SlotType type) {
+		return this.defaultValues.get(type);
+	}
+
+	@Override
+	public void initialiseDefaultValues(EnumMap<SlotType, Object> defaultValues) {
+		this.defaultValues.putAll(defaultValues);
+	}
 }

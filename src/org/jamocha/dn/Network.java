@@ -18,6 +18,8 @@ import static org.jamocha.util.ToArray.toArray;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.EnumMap;
+import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
@@ -48,6 +50,7 @@ import org.jamocha.dn.memory.MemoryFact;
 import org.jamocha.dn.memory.MemoryFactory;
 import org.jamocha.dn.memory.MemoryHandlerMain;
 import org.jamocha.dn.memory.MemoryHandlerPlusTemp;
+import org.jamocha.dn.memory.SlotType;
 import org.jamocha.dn.memory.Template;
 import org.jamocha.dn.memory.Template.Slot;
 import org.jamocha.dn.nodes.AlphaNode;
@@ -133,6 +136,8 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 
 	@Getter
 	private final ConstructCache constructCache = new ConstructCache();
+
+	private final EnumMap<SlotType, Object> defaultValues = new EnumMap<>(SlotType.class);
 
 	@Getter(AccessLevel.PRIVATE)
 	private static int loggerDiscriminator = 0;
@@ -439,13 +444,25 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 						.map(TemplateContainer::toFact), Fact[]::new));
 	}
 
+	@Override
+	public void initialiseDefaultValues(final EnumMap<SlotType, Object> defaultValues) {
+		assert defaultValues.keySet().containsAll(EnumSet.allOf(SlotType.class));
+		this.defaultValues.putAll(defaultValues);
+	}
+
+	@Override
+	public Object getDefaultValue(final SlotType type) {
+		return this.defaultValues.get(type);
+	}
+
 	private List<List<PathFilter>> compileRule(RuleCondition condition) {
 		final List<ConditionalElement> conditionalElements = condition.getConditionalElements();
 		// Preprocess CEs
 		RuleConditionProcessor.flatten(conditionalElements);
 		assert conditionalElements.size() == 1;
 		// Transform TestCEs to PathFilters and collect them
-		return conditionalElements.get(0).accept(new PathFilterCollector.OrPathFilterCollector()).getPathFilters();
+		return conditionalElements.get(0).accept(new PathFilterCollector.OrPathFilterCollector())
+				.getPathFilters();
 	}
 
 	/**

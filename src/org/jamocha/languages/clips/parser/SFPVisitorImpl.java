@@ -17,9 +17,11 @@ package org.jamocha.languages.clips.parser;
 import static java.util.stream.Collectors.toCollection;
 import static org.jamocha.util.ToArray.toArray;
 
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.EnumMap;
 import java.util.EnumSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -183,6 +185,45 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 		this.sideEffectFunctionToNetwork = sideEffectFunctionToNetwork;
 		this.initialFact = parserToNetwork.defTemplate("initial-fact", "");
 		parserToNetwork.defFacts("initial-fact", "", new TemplateContainer(initialFact));
+		{
+			final Template dummyFact =
+					parserToNetwork.defTemplate("dummy-fact",
+							"used as default value for FACT-ADDRESS");
+			final FactIdentifier dummyFactIdentifier =
+					new Assert(sideEffectFunctionToNetwork,
+							new TemplateContainer[] { new TemplateContainer(dummyFact) })
+							.evaluate();
+			final EnumMap<SlotType, Object> defaultValues = new EnumMap<>(SlotType.class);
+			for (final SlotType type : EnumSet.allOf(SlotType.class)) {
+				switch (type) {
+				case BOOLEAN:
+					defaultValues.put(type, Boolean.FALSE);
+					break;
+				case DATETIME:
+					defaultValues.put(type, ZonedDateTime.now());
+					break;
+				case DOUBLE:
+					defaultValues.put(type, Double.valueOf(0.0));
+					break;
+				case LONG:
+					defaultValues.put(type, Long.valueOf(0));
+					break;
+				case NIL:
+					defaultValues.put(type, null);
+					break;
+				case STRING:
+					defaultValues.put(type, "");
+					break;
+				case SYMBOL:
+					defaultValues.put(type, scope.getOrCreateSymbol("nil"));
+					break;
+				case FACTADDRESS:
+					defaultValues.put(type, dummyFactIdentifier);
+					break;
+				}
+			}
+			this.parserToNetwork.initialiseDefaultValues(defaultValues);
+		}
 	}
 
 	@Override
