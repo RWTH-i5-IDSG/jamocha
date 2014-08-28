@@ -167,8 +167,8 @@ public class Assert implements FunctionWithArguments {
 	}
 
 	@Override
-	public Function<Object> lazyEvaluate(final Function<?>... params) {
-		return new GenericWithArgumentsComposite.LazyObject(GenericWithArgumentsComposite
+	public Function<FactIdentifier> lazyEvaluate(final Function<?>... params) {
+		return new GenericWithArgumentsComposite.LazyObject<>(GenericWithArgumentsComposite
 				.staticLazyEvaluate(
 						fs -> {
 							final FactIdentifier[] assertFacts =
@@ -180,7 +180,7 @@ public class Assert implements FunctionWithArguments {
 	}
 
 	@Override
-	public Object evaluate(final Object... params) {
+	public FactIdentifier evaluate(final Object... params) {
 		return GenericWithArgumentsComposite.staticEvaluate(this::lazyEvaluate, params);
 	}
 

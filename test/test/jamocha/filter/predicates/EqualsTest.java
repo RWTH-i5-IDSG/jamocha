@@ -64,48 +64,48 @@ public class EqualsTest {
 	@Theory
 	public void testLongPos(@ListOfLongs Long left, @ListOfLongs Long right) {
 		assumeThat(left, is(equalTo(right)));
-		assertTrue(eqL.evaluate(new LazyObject(left), new LazyObject(right)));
+		assertTrue(eqL.evaluate(new LazyObject<>(left), new LazyObject<>(right)));
 	}
 
 	@Theory
 	public void testLongNeg(@ListOfLongs Long left, @ListOfLongs Long right) {
 		assumeThat(left, is(not(equalTo(right))));
-		assertFalse(eqL.evaluate(new LazyObject(left), new LazyObject(right)));
+		assertFalse(eqL.evaluate(new LazyObject<>(left), new LazyObject<>(right)));
 	}
 
 	@Theory
 	public void testDoublePos(@ListOfDoubles Double left, @ListOfDoubles Double right) {
 		assumeThat(left, is(equalTo(right)));
-		assertTrue(eqD.evaluate(new LazyObject(left), new LazyObject(right)));
+		assertTrue(eqD.evaluate(new LazyObject<>(left), new LazyObject<>(right)));
 	}
 
 	@Theory
 	public void testDoubleNeg(@ListOfDoubles Double left, @ListOfDoubles Double right) {
 		assumeThat(left, is(not(equalTo(right))));
-		assertFalse(eqD.evaluate(new LazyObject(left), new LazyObject(right)));
+		assertFalse(eqD.evaluate(new LazyObject<>(left), new LazyObject<>(right)));
 	}
 
 	@Theory
 	public void testStringPos(@ListOfStrings String left, @ListOfStrings String right) {
 		assumeThat(left, is(equalTo(right)));
-		assertTrue(eqS.evaluate(new LazyObject(left), new LazyObject(right)));
+		assertTrue(eqS.evaluate(new LazyObject<>(left), new LazyObject<>(right)));
 	}
 
 	@Theory
 	public void testStringNeg(@ListOfStrings String left, @ListOfStrings String right) {
 		assumeThat(left, is(not(equalTo(right))));
-		assertFalse(eqS.evaluate(new LazyObject(left), new LazyObject(right)));
+		assertFalse(eqS.evaluate(new LazyObject<>(left), new LazyObject<>(right)));
 	}
 
 	@Theory
 	public void testBooleanPos(@ListOfBooleans Boolean left, @ListOfBooleans Boolean right) {
 		assumeThat(left, is(equalTo(right)));
-		assertTrue(eqB.evaluate(new LazyObject(left), new LazyObject(right)));
+		assertTrue(eqB.evaluate(new LazyObject<>(left), new LazyObject<>(right)));
 	}
 
 	@Theory
 	public void testBooleanNeg(@ListOfBooleans Boolean left, @ListOfBooleans Boolean right) {
 		assumeThat(left, is(not(equalTo(right))));
-		assertFalse(eqB.evaluate(new LazyObject(left), new LazyObject(right)));
+		assertFalse(eqB.evaluate(new LazyObject<>(left), new LazyObject<>(right)));
 	}
 }

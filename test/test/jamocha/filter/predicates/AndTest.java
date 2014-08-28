@@ -42,10 +42,10 @@ public class AndTest {
 	public void testAnd() {
 		Predicate and =
 				FunctionDictionary.lookupPredicate(And.inClips, SlotType.BOOLEAN, SlotType.BOOLEAN);
-		assertTrue(and.evaluate(new LazyObject(true), new LazyObject(true)));
-		assertFalse(and.evaluate(new LazyObject(true), new LazyObject(false)));
-		assertFalse(and.evaluate(new LazyObject(false), new LazyObject(true)));
-		assertFalse(and.evaluate(new LazyObject(false), new LazyObject(false)));
+		assertTrue(and.evaluate(new LazyObject<>(true), new LazyObject<>(true)));
+		assertFalse(and.evaluate(new LazyObject<>(true), new LazyObject<>(false)));
+		assertFalse(and.evaluate(new LazyObject<>(false), new LazyObject<>(true)));
+		assertFalse(and.evaluate(new LazyObject<>(false), new LazyObject<>(false)));
 	}
 
 }

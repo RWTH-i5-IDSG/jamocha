@@ -111,8 +111,8 @@ public abstract class GenericWithArgumentsComposite<R, F extends Function<? exte
 
 	@RequiredArgsConstructor
 	@ToString
-	public static class LazyObject implements Function<Object> {
-		final Object value;
+	public static class LazyObject<T> implements Function<T> {
+		final T value;
 
 		@Override
 		public SlotType[] getParamTypes() {
@@ -131,7 +131,7 @@ public abstract class GenericWithArgumentsComposite<R, F extends Function<? exte
 		}
 
 		@Override
-		public Object evaluate(final Function<?>... params) {
+		public T evaluate(final Function<?>... params) {
 			return this.value;
 		}
 
@@ -198,7 +198,7 @@ public abstract class GenericWithArgumentsComposite<R, F extends Function<? exte
 	static <R, F extends Function<? extends R>> R staticEvaluate(
 			final java.util.function.Function<Function<?>[], F> function, final Object[] params) {
 		return function
-				.apply(Arrays.stream(params).map(LazyObject::new).toArray(LazyObject[]::new))
+				.apply(Arrays.stream(params).map(LazyObject<Object>::new).toArray(LazyObject[]::new))
 				.evaluate();
 	}
 

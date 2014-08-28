@@ -56,13 +56,13 @@ public class PlusTest {
 	@Theory
 	public void testLong(@LotsOfRandomLongs Long left, @LotsOfRandomLongs Long right) {
 		assertThat((Long) (left + right),
-				is((Long) (plusL.evaluate(new LazyObject(left), new LazyObject(right)))));
+				is((Long) (plusL.evaluate(new LazyObject<>(left), new LazyObject<>(right)))));
 	}
 
 	@Theory
 	public void testDouble(@LotsOfRandomDoubles Double left, @LotsOfRandomDoubles Double right) {
 		assertThat((Double) (left + right),
-				is((Double) (plusD.evaluate(new LazyObject(left), new LazyObject(right)))));
+				is((Double) (plusD.evaluate(new LazyObject<>(left), new LazyObject<>(right)))));
 	}
 
 }

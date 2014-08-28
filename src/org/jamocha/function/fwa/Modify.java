@@ -153,11 +153,11 @@ public class Modify implements FunctionWithArguments {
 	}
 
 	@Override
-	public Function<Object> lazyEvaluate(final Function<?>... params) {
+	public Function<FactIdentifier> lazyEvaluate(final Function<?>... params) {
 		final FunctionWithArguments[] array = new FunctionWithArguments[args.length + 1];
 		array[0] = this.targetFact;
 		System.arraycopy(args, 0, array, 1, args.length);
-		return new GenericWithArgumentsComposite.LazyObject(GenericWithArgumentsComposite
+		return new GenericWithArgumentsComposite.LazyObject<>(GenericWithArgumentsComposite
 				.staticLazyEvaluate(fs -> {
 					final FactIdentifier factIdentifier = Retract.toFactIdentifier(fs[0]);
 					final Fact fact = network.getMemoryFact(factIdentifier).toMutableFact();

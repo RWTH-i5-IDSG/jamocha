@@ -32,13 +32,13 @@ import org.jamocha.function.fwa.GenericWithArgumentsComposite.LazyObject;
 public class ConstantLeaf implements FunctionWithArguments {
 	final Object value;
 	final SlotType type;
-	final LazyObject lazyObject;
+	final LazyObject<?> lazyObject;
 
 	public ConstantLeaf(final Object value, final SlotType type) {
 		super();
 		this.value = value;
 		this.type = type;
-		this.lazyObject = new LazyObject(value);
+		this.lazyObject = new LazyObject<>(value);
 	}
 
 	@Override

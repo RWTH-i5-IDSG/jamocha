@@ -19,6 +19,10 @@ import java.time.format.DateTimeFormatterBuilder;
 import java.time.temporal.ChronoField;
 import java.util.Arrays;
 
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+
 import org.jamocha.languages.common.ScopeStack.Symbol;
 
 /**
@@ -26,6 +30,8 @@ import org.jamocha.languages.common.ScopeStack.Symbol;
  * 
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
+@Getter
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public enum SlotType {
 	/**
 	 * Enum value for integer types.
@@ -61,14 +67,6 @@ public enum SlotType {
 	SYMBOL(Symbol.class);
 
 	final private Class<?> javaClass;
-
-	private SlotType(final Class<?> javaClazz) {
-		this.javaClass = javaClazz;
-	}
-
-	public Class<?> getJavaClass() {
-		return this.javaClass;
-	}
 
 	/**
 	 * Static instance of an empty array of types. Can e.g. be used by functions without parameters
