@@ -55,6 +55,7 @@ import test.jamocha.filter.FilterMockup.PathAndSlotAddress;
 import test.jamocha.util.AssertsAndRetracts;
 import test.jamocha.util.FunctionBuilder;
 import test.jamocha.util.PredicateBuilder;
+import test.jamocha.util.Slots;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
@@ -98,13 +99,11 @@ public class TokenProcessingTest {
 						Integer.MAX_VALUE, scheduler);
 		final Template student =
 				MemoryFactory.getMemoryFactory().newTemplate("Student", "Student",
-						new Slot(SlotType.STRING, "Name"), new Slot(SlotType.LONG, "Semester"),
-						new Slot(SlotType.STRING, "Studiengang"),
-						new Slot(SlotType.STRING, "Hobby"));
+						Slots.newString("Name"), Slots.newLong("Semester"),
+						Slots.newString("Studiengang"), Slots.newString("Hobby"));
 		final Template prof =
-				MemoryFactory.getMemoryFactory()
-						.newTemplate("Prof", "Prof", new Slot(SlotType.STRING, "Name"),
-								new Slot(SlotType.STRING, "Studiengang"));
+				MemoryFactory.getMemoryFactory().newTemplate("Prof", "Prof",
+						Slots.newString("Name"), Slots.newString("Studiengang"));
 		final Set<Path> existentialYoungStudent = new HashSet<>();
 		final Set<Path> negatedExistentialMatchingProf = new HashSet<>();
 		final Path oldStudent = new Path(student), youngStudent = new Path(student), matchingProf =
@@ -231,10 +230,10 @@ public class TokenProcessingTest {
 				new Network(org.jamocha.dn.memory.javaimpl.MemoryFactory.getMemoryFactory(),
 						Integer.MAX_VALUE, scheduler);
 		final Template t1 =
-				MemoryFactory.getMemoryFactory().newTemplate("", "", new Slot(SlotType.STRING, ""),
-						new Slot(SlotType.LONG, "")), t2 =
-				MemoryFactory.getMemoryFactory().newTemplate("", "", new Slot(SlotType.STRING, ""),
-						new Slot(SlotType.BOOLEAN, ""));
+				MemoryFactory.getMemoryFactory().newTemplate("", "", Slot.STRING,
+						Slot.LONG), t2 =
+				MemoryFactory.getMemoryFactory().newTemplate("", "", Slot.STRING,
+						Slot.BOOLEAN);
 		final Path p1 = new Path(t1), p2 = new Path(t2);
 		final SlotAddress s1 = new SlotAddress(0), s2 = new SlotAddress(1);
 
@@ -313,10 +312,10 @@ public class TokenProcessingTest {
 				new Network(org.jamocha.dn.memory.javaimpl.MemoryFactory.getMemoryFactory(),
 						Integer.MAX_VALUE, scheduler);
 		final Template t1 =
-				MemoryFactory.getMemoryFactory().newTemplate("", "", new Slot(SlotType.STRING, ""),
-						new Slot(SlotType.LONG, "")), t2 =
-				MemoryFactory.getMemoryFactory().newTemplate("", "", new Slot(SlotType.STRING, ""),
-						new Slot(SlotType.BOOLEAN, ""));
+				MemoryFactory.getMemoryFactory().newTemplate("", "", Slot.STRING,
+						Slot.LONG), t2 =
+				MemoryFactory.getMemoryFactory().newTemplate("", "", Slot.STRING,
+						Slot.BOOLEAN);
 		final Path p1 = new Path(t1), p2 = new Path(t2);
 		final SlotAddress s1 = new SlotAddress(0), s2 = new SlotAddress(1);
 
@@ -402,9 +401,8 @@ public class TokenProcessingTest {
 						Integer.MAX_VALUE, scheduler);
 		final Template student =
 				MemoryFactory.getMemoryFactory().newTemplate("Student", "Student",
-						new Slot(SlotType.STRING, "Name"), new Slot(SlotType.LONG, "Semester"),
-						new Slot(SlotType.STRING, "Studiengang"),
-						new Slot(SlotType.STRING, "Hobby"));
+						Slots.newString("Name"), Slots.newLong("Semester"),
+						Slots.newString("Studiengang"), Slots.newString("Hobby"));
 		final Path oldStudent = new Path(student), youngStudent = new Path(student);
 		final SlotAddress studentSem = new SlotAddress(1), studentSG = new SlotAddress(2);
 
@@ -468,13 +466,11 @@ public class TokenProcessingTest {
 						Integer.MAX_VALUE, scheduler);
 		final Template student =
 				MemoryFactory.getMemoryFactory().newTemplate("Student", "Student",
-						new Slot(SlotType.STRING, "Name"), new Slot(SlotType.LONG, "Semester"),
-						new Slot(SlotType.STRING, "Studiengang"),
-						new Slot(SlotType.STRING, "Hobby"));
+						Slots.newString("Name"), Slots.newLong("Semester"),
+						Slots.newString("Studiengang"), Slots.newString("Hobby"));
 		final Template prof =
-				MemoryFactory.getMemoryFactory()
-						.newTemplate("Prof", "Prof", new Slot(SlotType.STRING, "Name"),
-								new Slot(SlotType.STRING, "Studiengang"));
+				MemoryFactory.getMemoryFactory().newTemplate("Prof", "Prof",
+						Slots.newString("Name"), Slots.newString("Studiengang"));
 		final Path oldStudent = new Path(student), youngStudent = new Path(student), matchingProf =
 				new Path(prof);
 		final SlotAddress studentSem = new SlotAddress(1), studentSG = new SlotAddress(2), studentHobby =
@@ -565,13 +561,11 @@ public class TokenProcessingTest {
 						Integer.MAX_VALUE, scheduler);
 		final Template student =
 				MemoryFactory.getMemoryFactory().newTemplate("Student", "Student",
-						new Slot(SlotType.STRING, "Name"), new Slot(SlotType.LONG, "Semester"),
-						new Slot(SlotType.STRING, "Studiengang"),
-						new Slot(SlotType.STRING, "Hobby"));
+						Slots.newString("Name"), Slots.newLong("Semester"),
+						Slots.newString("Studiengang"), Slots.newString("Hobby"));
 		final Template prof =
-				MemoryFactory.getMemoryFactory()
-						.newTemplate("Prof", "Prof", new Slot(SlotType.STRING, "Name"),
-								new Slot(SlotType.STRING, "Studiengang"));
+				MemoryFactory.getMemoryFactory().newTemplate("Prof", "Prof",
+						Slots.newString("Name"), Slots.newString("Studiengang"));
 		final Path oldStudent = new Path(student), youngStudent = new Path(student), matchingProf =
 				new Path(prof);
 		final SlotAddress studentSem = new SlotAddress(1), studentSG = new SlotAddress(2), studentHobby =
@@ -645,11 +639,11 @@ public class TokenProcessingTest {
 				new Network(org.jamocha.dn.memory.javaimpl.MemoryFactory.getMemoryFactory(),
 						Integer.MAX_VALUE, scheduler);
 		final Template t1 =
-				MemoryFactory.getMemoryFactory().newTemplate("", "", new Slot(SlotType.LONG, ""),
-						new Slot(SlotType.STRING, ""));
+				MemoryFactory.getMemoryFactory().newTemplate("", "", Slot.LONG,
+						Slot.STRING);
 		final Template t2 =
-				MemoryFactory.getMemoryFactory().newTemplate("", "", new Slot(SlotType.DOUBLE, ""),
-						new Slot(SlotType.STRING, ""));
+				MemoryFactory.getMemoryFactory().newTemplate("", "", Slot.DOUBLE,
+						Slot.STRING);
 		final Path p1 = new Path(t1);
 		final Path p2 = new Path(t2);
 		final SlotAddress slotStr = new SlotAddress(1);
@@ -700,8 +694,8 @@ public class TokenProcessingTest {
 				new Network(org.jamocha.dn.memory.javaimpl.MemoryFactory.getMemoryFactory(),
 						Integer.MAX_VALUE, scheduler);
 		final Template t1 =
-				MemoryFactory.getMemoryFactory().newTemplate("", "", new Slot(SlotType.LONG, ""),
-						new Slot(SlotType.STRING, ""), new Slot(SlotType.BOOLEAN, ""));
+				MemoryFactory.getMemoryFactory().newTemplate("", "", Slot.LONG,
+						Slot.STRING, Slot.BOOLEAN);
 		final Path p1 = new Path(t1);
 		final SlotAddress slotLong = new SlotAddress(0), slotBool = new SlotAddress(2);
 
@@ -752,8 +746,8 @@ public class TokenProcessingTest {
 				new Network(org.jamocha.dn.memory.javaimpl.MemoryFactory.getMemoryFactory(),
 						Integer.MAX_VALUE, scheduler);
 		final Template t1 =
-				MemoryFactory.getMemoryFactory().newTemplate("", "", new Slot(SlotType.LONG, ""),
-						new Slot(SlotType.STRING, ""), new Slot(SlotType.BOOLEAN, ""));
+				MemoryFactory.getMemoryFactory().newTemplate("", "", Slot.LONG,
+						Slot.STRING, Slot.BOOLEAN);
 		final Path p1 = new Path(t1);
 
 		final FilterMockup filter =
@@ -839,8 +833,8 @@ public class TokenProcessingTest {
 				new Network(org.jamocha.dn.memory.javaimpl.MemoryFactory.getMemoryFactory(),
 						Integer.MAX_VALUE, scheduler);
 		final Template t1 =
-				MemoryFactory.getMemoryFactory().newTemplate("", "", new Slot(SlotType.LONG, ""),
-						new Slot(SlotType.STRING, ""), new Slot(SlotType.BOOLEAN, ""));
+				MemoryFactory.getMemoryFactory().newTemplate("", "", Slot.LONG,
+						Slot.STRING, Slot.BOOLEAN);
 		final Path p1 = new Path(t1);
 
 		final FilterMockup filter =
@@ -890,8 +884,8 @@ public class TokenProcessingTest {
 				new Network(org.jamocha.dn.memory.javaimpl.MemoryFactory.getMemoryFactory(),
 						Integer.MAX_VALUE, scheduler);
 		final Template t1 =
-				MemoryFactory.getMemoryFactory().newTemplate("", "", new Slot(SlotType.LONG, ""),
-						new Slot(SlotType.STRING, ""), new Slot(SlotType.BOOLEAN, ""));
+				MemoryFactory.getMemoryFactory().newTemplate("", "", Slot.LONG, Slot.STRING,
+						Slot.BOOLEAN);
 		final Path p1 = new Path(t1);
 		final SlotAddress slotLong = new SlotAddress(0), slotBool = new SlotAddress(2);
 

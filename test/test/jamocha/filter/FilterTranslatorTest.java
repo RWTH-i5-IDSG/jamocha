@@ -46,8 +46,8 @@ import test.jamocha.util.SlotAddressMockup;
 public class FilterTranslatorTest {
 	final Predicate equals = FunctionDictionary.lookupPredicate("=", DOUBLE, DOUBLE);
 	final Predicate boolEq = FunctionDictionary.lookupPredicate("=", BOOLEAN, BOOLEAN);
-	final Template template = MemoryFactory.getMemoryFactory().newTemplate("", "",
-			new Slot(DOUBLE, ""), new Slot(DOUBLE, ""));
+	final Template template = MemoryFactory.getMemoryFactory().newTemplate("", "", Slot.DOUBLE,
+			Slot.DOUBLE);
 	final SlotAddressMockup s1 = new SlotAddressMockup(0), s2 = new SlotAddressMockup(1);
 	final FactAddressMockup f1 = new FactAddressMockup(0), f2 = new FactAddressMockup(1),
 			f3 = new FactAddressMockup(2), f4 = new FactAddressMockup(3);

@@ -45,8 +45,8 @@ public class PathCollectorTest {
 
 	final Predicate equals = FunctionDictionary.lookupPredicate("=", DOUBLE, DOUBLE);
 	final Predicate boolEq = FunctionDictionary.lookupPredicate("=", BOOLEAN, BOOLEAN);
-	final Template template = MemoryFactory.getMemoryFactory().newTemplate("", "",
-			new Slot(DOUBLE, ""), new Slot(DOUBLE, ""));
+	final Template template = MemoryFactory.getMemoryFactory().newTemplate("", "", Slot.DOUBLE,
+			Slot.DOUBLE);
 	final SlotAddressMockup s1 = new SlotAddressMockup(0), s2 = new SlotAddressMockup(1);
 	final Path p1 = new Path(template), p2 = new Path(template), p3 = new Path(template),
 			p4 = new Path(template);

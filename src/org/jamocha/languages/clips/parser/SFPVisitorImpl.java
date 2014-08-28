@@ -180,6 +180,8 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 
 	final Template initialFact;
 
+	final EnumMap<SlotType, Object> defaultValues = new EnumMap<>(SlotType.class);
+
 	public SFPVisitorImpl(final ParserToNetwork parserToNetwork,
 			final SideEffectFunctionToNetwork sideEffectFunctionToNetwork) {
 		this.parserToNetwork = parserToNetwork;
@@ -194,7 +196,6 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 					new Assert(sideEffectFunctionToNetwork,
 							new TemplateContainer[] { new TemplateContainer(dummyFact) })
 							.evaluate();
-			final EnumMap<SlotType, Object> defaultValues = new EnumMap<>(SlotType.class);
 			for (final SlotType type : EnumSet.allOf(SlotType.class)) {
 				switch (type) {
 				case BOOLEAN:
@@ -223,7 +224,6 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 					break;
 				}
 			}
-			this.parserToNetwork.initialiseDefaultValues(defaultValues);
 		}
 	}
 
@@ -511,7 +511,10 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 			final SlotType type =
 					SelectiveSFPVisitor.sendVisitor(new SFPTemplateAttributeVisitor(),
 							node.jjtGetChild(1), data).slotType;
-			this.slot = new Slot(type, name.getImage());
+			// TBD: as soon as constraints are fully implemented, add the default-functionality,
+			// especially ?DERIVE
+			this.slot =
+					Slot.newSlot(type, name.getImage(), SFPVisitorImpl.this.defaultValues.get(type));
 			return data;
 		}
 	}

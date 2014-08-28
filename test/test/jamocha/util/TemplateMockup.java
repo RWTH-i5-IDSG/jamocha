@@ -39,7 +39,7 @@ public class TemplateMockup implements Template {
 	final String description;
 	final List<Slot> slots;
 	final SlotAddress[] slotAddresses;
-	
+
 	public TemplateMockup(String name, String description, List<Slot> slots) {
 		this.name = name;
 		this.description = description;
@@ -176,4 +176,8 @@ public class TemplateMockup implements Template {
 		return null;
 	}
 
+	@Override
+	public Slot getSlot(final SlotAddress slotAddress) {
+		return this.slots.get(((SlotAddressMockup) slotAddress).index);
+	}
 }

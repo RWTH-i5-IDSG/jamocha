@@ -110,7 +110,7 @@ public class NetworkMockup implements ParserToNetwork, SideEffectFunctionToNetwo
 
 	@Override
 	public FactIdentifier[] assertFacts(Fact... array) {
-		return null;
+		return new FactIdentifier[] { null };
 	}
 
 	@Override
@@ -130,15 +130,5 @@ public class NetworkMockup implements ParserToNetwork, SideEffectFunctionToNetwo
 	@Override
 	public TypedFilter getTypedFilter() {
 		return null;
-	}
-
-	@Override
-	public Object getDefaultValue(SlotType type) {
-		return this.defaultValues.get(type);
-	}
-
-	@Override
-	public void initialiseDefaultValues(EnumMap<SlotType, Object> defaultValues) {
-		this.defaultValues.putAll(defaultValues);
 	}
 }

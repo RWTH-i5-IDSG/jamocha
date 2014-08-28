@@ -14,13 +14,14 @@
  */
 package org.jamocha.dn.memory.javaimpl;
 
+import static org.jamocha.util.ToArray.toArray;
+
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.OptionalInt;
-import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import lombok.Getter;
@@ -42,32 +43,29 @@ public class Template implements org.jamocha.dn.memory.Template {
 	 * Template holding exactly one {@link SlotType#STRING} type.
 	 */
 	final public static Template STRING = new Template("STRING",
-			"Simple template holding exactly one string type.", new Slot(SlotType.STRING,
-					"String slot"));
+			"Simple template holding exactly one string type.", Slot.STRING);
 	/**
 	 * Template holding exactly one {@link SlotType#BOOLEAN} type.
 	 */
 	final public static Template BOOLEAN = new Template("BOOLEAN",
-			"Simple template holding exactly one boolean type.", new Slot(SlotType.BOOLEAN,
-					"Boolean slot"));
+			"Simple template holding exactly one boolean type.", Slot.BOOLEAN);
 	/**
 	 * Template holding exactly one {@link SlotType#DOUBLE} type.
 	 */
 	final public static Template DOUBLE = new Template("DOUBLE",
-			"Simple template holding exactly one double type.", new Slot(SlotType.DOUBLE,
-					"Double slot"));
+			"Simple template holding exactly one double type.", Slot.DOUBLE);
 	/**
 	 * Template holding exactly one {@link SlotType#LONG} type.
 	 */
 	final public static Template LONG = new Template("LONG",
-			"Simple template holding exactly one long type.", new Slot(SlotType.LONG, "Long slot"));
+			"Simple template holding exactly one long type.", Slot.LONG);
 
 	@Getter(onMethod = @__(@Override))
 	final String name;
 	@Getter(onMethod = @__(@Override))
 	final String description;
 	@Getter(onMethod = @__(@Override))
-	final Collection<Slot> slots;
+	final List<Slot> slots;
 	final HashMap<String, SlotAddress> slotNames = new HashMap<>();
 	final SlotType[] slotTypes;
 	@Getter(onMethod = @__(@Override))
@@ -78,8 +76,9 @@ public class Template implements org.jamocha.dn.memory.Template {
 		this.description = description;
 		this.slots = Arrays.asList(slots);
 		this.slotTypes = Arrays.stream(slots).map(s -> s.getSlotType()).toArray(SlotType[]::new);
-		IntStream.range(0, slots.length).forEach(
-				i -> this.slotNames.put(slots[i].getName(), new SlotAddress(i)));
+		for (int i = 0; i < slots.length; ++i) {
+			this.slotNames.put(slots[i].getName(), new SlotAddress(i));
+		}
 		instanceMarker = MarkerType.createChild(Template.templateMarker, name);
 	}
 
@@ -91,7 +90,6 @@ public class Template implements org.jamocha.dn.memory.Template {
 	public SlotType getSlotType(final int index) {
 		return this.slotTypes[index];
 	}
-	
 
 	@Override
 	public String getSlotName(org.jamocha.dn.memory.SlotAddress slotAddress) {
@@ -102,7 +100,7 @@ public class Template implements org.jamocha.dn.memory.Template {
 		}
 		return null;
 	}
-	
+
 	public String getSlotName(final int index) {
 		for (Entry<String, SlotAddress> entry : this.slotNames.entrySet()) {
 			if (entry.getValue().getIndex() == index) {
@@ -111,10 +109,15 @@ public class Template implements org.jamocha.dn.memory.Template {
 		}
 		return null;
 	}
-	
+
 	@Override
 	public SlotAddress getSlotAddress(final String name) {
 		return this.slotNames.get(name);
+	}
+
+	@Override
+	public Slot getSlot(final org.jamocha.dn.memory.SlotAddress slotAddress) {
+		return this.slots.get(((SlotAddress) slotAddress).index);
 	}
 
 	@Override
@@ -163,12 +166,25 @@ public class Template implements org.jamocha.dn.memory.Template {
 	@Override
 	public FunctionWithArguments[] applyDefaultsAndOrder(
 			final Map<org.jamocha.dn.memory.SlotAddress, FunctionWithArguments> values) {
-		// TBD defaults
-		final FunctionWithArguments[] ret = new FunctionWithArguments[this.slotTypes.length];
-		// as long as no default are implemented, check for complete specification of the values
-		assert values.keySet().containsAll(this.slotNames.values());
 		assert this.slotNames.values().containsAll(values.keySet());
-		values.forEach((s, f) -> ret[((SlotAddress) s).index] = f);
-		return ret;
+		return toArray(
+				this.slotNames
+						.values()
+						.stream()
+						.sorted()
+						.map(slotAddress -> {
+							if (values.containsKey(slotAddress)) {
+								return values.get(slotAddress);
+							}
+							final org.jamocha.dn.memory.Template.Default defaultValue =
+									this.slots.get(slotAddress.index).getDefaultValue();
+							if (DefaultType.NONE == defaultValue.getDefaultType()) {
+								throw new IllegalArgumentException("No value given for slot "
+										+ this.slots.get(slotAddress.index).getName()
+										+ " in template " + getName()
+										+ ", but the slot has no default value!");
+							}
+							return defaultValue.getValue();
+						}), FunctionWithArguments[]::new);
 	}
 }

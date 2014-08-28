@@ -17,10 +17,12 @@ package org.jamocha.dn.memory;
 import java.util.Collection;
 import java.util.Map;
 
+import lombok.Data;
 import lombok.Value;
 
 import org.apache.logging.log4j.Marker;
 import org.apache.logging.log4j.MarkerManager;
+import org.jamocha.function.fwa.ConstantLeaf;
 import org.jamocha.function.fwa.FunctionWithArguments;
 
 /**
@@ -39,6 +41,78 @@ public interface Template {
 	public static class Slot {
 		final SlotType slotType;
 		final String name;
+		final Default defaultValue;
+		final SlotConstraint[] slotConstraints;
+
+		public Slot(final SlotType slotType, final String name, final Default defaultValue,
+				final SlotConstraint... slotConstraints) {
+			this.slotType = slotType;
+			this.name = name;
+			this.defaultValue = defaultValue;
+			this.slotConstraints = slotConstraints;
+		}
+
+		public static Slot newSlot(final SlotType slotType, final String name,
+				final Object defaultValue, final SlotConstraint... slotConstraints) {
+			return new Slot(slotType, name, Default.staticDefault(new ConstantLeaf(defaultValue,
+					slotType)), slotConstraints);
+		}
+
+		public static final Slot LONG = Slot.newSlot(SlotType.LONG, "Long slot", Long.valueOf(0L));
+		public static final Slot DOUBLE = Slot.newSlot(SlotType.DOUBLE, "Double slot",
+				Double.valueOf(0.0));
+		public static final Slot STRING = Slot.newSlot(SlotType.STRING, "String slot", "");
+		public static final Slot BOOLEAN = Slot.newSlot(SlotType.BOOLEAN, "Boolean slot",
+				Boolean.FALSE);
+	}
+
+	public static enum DefaultType {
+		NONE, STATIC, DYNAMIC;
+	}
+
+	@Data
+	public abstract static class Default {
+		final DefaultType defaultType;
+
+		public abstract FunctionWithArguments getValue();
+
+		static final FunctionWithArguments nullFWA = new ConstantLeaf(null, SlotType.NIL);
+		static final Default none = new Default(DefaultType.NONE) {
+			@Override
+			public FunctionWithArguments getValue() {
+				return nullFWA;
+			}
+		};
+
+		public static Default noDefault() {
+			return none;
+		}
+
+		public static Default staticDefault(final FunctionWithArguments value) {
+			return new Default(DefaultType.STATIC) {
+				@Override
+				public FunctionWithArguments getValue() {
+					return value;
+				}
+			};
+		}
+
+		public static Default dynamicDefault(final FunctionWithArguments value) {
+			return new Default(DefaultType.DYNAMIC) {
+				@Override
+				public FunctionWithArguments getValue() {
+					return new ConstantLeaf(value.evaluate(), value.getReturnType());
+				}
+			};
+		}
+	}
+
+	public static enum ConstraintType {
+		TYPE, ALLOWED_CONSTANTS, RANGE, CARDINALITY;
+	}
+
+	public static class SlotConstraint {
+
 	}
 
 	/**
@@ -65,6 +139,13 @@ public interface Template {
 	public Collection<Slot> getSlots();
 
 	/**
+	 * Returns the slot object corresponding to the slot address given.
+	 * 
+	 * @return the slot object corresponding to the slot address given
+	 */
+	public Slot getSlot(final SlotAddress slotAddress);
+
+	/**
 	 * Gets the {@link SlotType} corresponding to the position specified by the given index.
 	 * 
 	 * @param index
@@ -72,7 +153,7 @@ public interface Template {
 	 * @return {@link SlotType} corresponding to the position specified by the given index
 	 */
 	public SlotType getSlotType(final SlotAddress slotAddress);
-	
+
 	/**
 	 * Gets the name corresponding to the position specified by the given index.
 	 * 
