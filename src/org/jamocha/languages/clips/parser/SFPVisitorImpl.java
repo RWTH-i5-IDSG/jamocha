@@ -42,6 +42,7 @@ import org.jamocha.dn.ConstructCache.Defrule;
 import org.jamocha.dn.Network;
 import org.jamocha.dn.ParserToNetwork;
 import org.jamocha.dn.SideEffectFunctionToNetwork;
+import org.jamocha.dn.memory.FactIdentifier;
 import org.jamocha.dn.memory.SlotAddress;
 import org.jamocha.dn.memory.SlotType;
 import org.jamocha.dn.memory.Template;
