@@ -121,14 +121,6 @@ public class Template implements org.jamocha.dn.memory.Template {
 	}
 
 	@Override
-	public Fact newFact(final Object... values) {
-		for (int i = 0; i < this.slotTypes.length; ++i) {
-			assert this.slotTypes[i].getJavaClass().isInstance(values[i]);
-		}
-		return new Fact(this, values);
-	}
-
-	@Override
 	public Object getValue(final MemoryFact fact, final org.jamocha.dn.memory.SlotAddress slot) {
 		return ((org.jamocha.dn.memory.javaimpl.Fact) fact).getValue(slot);
 	}
@@ -139,18 +131,34 @@ public class Template implements org.jamocha.dn.memory.Template {
 		return fact.getValue(((SlotAddress) slot).index);
 	}
 
+	private void checkTypeAndConstraints(int i, final Object value) {
+		final Slot slot = this.slots.get(i);
+		assert slot.getSlotType().getJavaClass().isInstance(value);
+		for (final SlotConstraint slotConstraint : slot.getSlotConstraints()) {
+			if (!slotConstraint.matchesConstraint(value)) {
+				throw new IllegalArgumentException();
+			}
+		}
+	}
+
 	@Override
 	public void setValue(final org.jamocha.dn.memory.Fact fact,
 			final org.jamocha.dn.memory.SlotAddress slot, final Object value) {
-		assert getSlotType(slot).getJavaClass().isInstance(value);
+		checkTypeAndConstraints(((SlotAddress) slot).index, value);
 		fact.setValue(((SlotAddress) slot).index, value);
 	}
 
 	@Override
+	public Fact newFact(final Object... values) {
+		for (int i = 0; i < this.slotTypes.length; ++i) {
+			checkTypeAndConstraints(i, values[i]);
+		}
+		return new Fact(this, values);
+	}
+
+	@Override
 	public Fact newFact(final Map<org.jamocha.dn.memory.SlotAddress, Object> values) {
-		values.forEach((s, o) -> {
-			assert this.slotTypes[((SlotAddress) s).index].getJavaClass().isInstance(o);
-		});
+		values.forEach((s, o) -> checkTypeAndConstraints(((SlotAddress) s).index, o));
 		final Stream<Entry<org.jamocha.dn.memory.SlotAddress, Object>> stream =
 				values.entrySet().stream();
 		assert !stream
