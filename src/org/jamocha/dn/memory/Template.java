@@ -15,6 +15,7 @@
 package org.jamocha.dn.memory;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 import lombok.Data;
@@ -88,31 +89,109 @@ public interface Template {
 			return none;
 		}
 
+		static class StaticDefault extends Default {
+			final FunctionWithArguments value;
+
+			public StaticDefault(final FunctionWithArguments value) {
+				super(DefaultType.STATIC);
+				this.value = new ConstantLeaf(value.evaluate(), value.getReturnType());
+			}
+
+			@Override
+			public FunctionWithArguments getValue() {
+				return value;
+			}
+		}
+
 		public static Default staticDefault(final FunctionWithArguments value) {
-			return new Default(DefaultType.STATIC) {
-				@Override
-				public FunctionWithArguments getValue() {
-					return value;
-				}
-			};
+			return new StaticDefault(value);
+		}
+
+		static class DynamicDefault extends Default {
+			final FunctionWithArguments value;
+
+			public DynamicDefault(final FunctionWithArguments value) {
+				super(DefaultType.DYNAMIC);
+				this.value = value;
+			}
+
+			@Override
+			public FunctionWithArguments getValue() {
+				return value;
+			}
 		}
 
 		public static Default dynamicDefault(final FunctionWithArguments value) {
-			return new Default(DefaultType.DYNAMIC) {
-				@Override
-				public FunctionWithArguments getValue() {
-					return new ConstantLeaf(value.evaluate(), value.getReturnType());
-				}
-			};
+			return new DynamicDefault(value);
 		}
 	}
 
 	public static enum ConstraintType {
-		TYPE, ALLOWED_CONSTANTS, RANGE, CARDINALITY;
+		ALLOWED_CONSTANTS, RANGE, CARDINALITY;
 	}
 
-	public static class SlotConstraint {
+	@Data
+	public static abstract class SlotConstraint {
+		final ConstraintType constraintType;
 
+		public abstract boolean matchesConstraint(final FunctionWithArguments value);
+
+		public abstract FunctionWithArguments derivedDefaultValue();
+
+		public static SlotConstraint integerRange(final Long from, final Long to) {
+			return new SlotConstraint(ConstraintType.RANGE) {
+				@Override
+				public boolean matchesConstraint(final FunctionWithArguments value) {
+					final Long evaluated = (Long) value.evaluate();
+					if (null != from && from > evaluated)
+						return false;
+					if (null != to && to < evaluated)
+						return false;
+					return true;
+				}
+
+				@Override
+				public FunctionWithArguments derivedDefaultValue() {
+					return new ConstantLeaf(from, SlotType.LONG);
+				}
+			};
+		}
+
+		public static SlotConstraint doubleRange(final Double from, final Double to) {
+			return new SlotConstraint(ConstraintType.RANGE) {
+				@Override
+				public boolean matchesConstraint(final FunctionWithArguments value) {
+					final Double evaluated = (Double) value.evaluate();
+					if (null != from && from > evaluated)
+						return false;
+					if (null != to && to < evaluated)
+						return false;
+					return true;
+				}
+
+				@Override
+				public FunctionWithArguments derivedDefaultValue() {
+					return new ConstantLeaf(from, SlotType.DOUBLE);
+				}
+			};
+		}
+
+		public static SlotConstraint allowedConstants(final SlotType type, final List<?> values) {
+			final ConstantLeaf defaultValue = new ConstantLeaf(values.get(0), type);
+			return new SlotConstraint(ConstraintType.ALLOWED_CONSTANTS) {
+				@Override
+				public boolean matchesConstraint(final FunctionWithArguments value) {
+					return values.contains(value.evaluate());
+				}
+
+				@Override
+				public FunctionWithArguments derivedDefaultValue() {
+					return defaultValue;
+				}
+			};
+		}
+
+		// TBD cardinality
 	}
 
 	/**

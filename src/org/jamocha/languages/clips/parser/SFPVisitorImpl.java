@@ -15,6 +15,7 @@
 package org.jamocha.languages.clips.parser;
 
 import static java.util.stream.Collectors.toCollection;
+import static java.util.stream.Collectors.toList;
 import static org.jamocha.util.ToArray.toArray;
 
 import java.time.ZonedDateTime;
@@ -71,23 +72,30 @@ import org.jamocha.languages.clips.parser.errors.ClipsVariableNotDeclaredError;
 import org.jamocha.languages.clips.parser.generated.Node;
 import org.jamocha.languages.clips.parser.generated.ParseException;
 import org.jamocha.languages.clips.parser.generated.SFPActionList;
+import org.jamocha.languages.clips.parser.generated.SFPAllowedConstantAttribute;
 import org.jamocha.languages.clips.parser.generated.SFPAmpersandConnectedConstraint;
 import org.jamocha.languages.clips.parser.generated.SFPAndFunction;
 import org.jamocha.languages.clips.parser.generated.SFPAnyFunction;
 import org.jamocha.languages.clips.parser.generated.SFPAssertFunc;
 import org.jamocha.languages.clips.parser.generated.SFPAssignedPatternCE;
+import org.jamocha.languages.clips.parser.generated.SFPAttributes;
 import org.jamocha.languages.clips.parser.generated.SFPBooleanType;
+import org.jamocha.languages.clips.parser.generated.SFPCardinalityAttribute;
 import org.jamocha.languages.clips.parser.generated.SFPColon;
 import org.jamocha.languages.clips.parser.generated.SFPConnectedConstraint;
 import org.jamocha.languages.clips.parser.generated.SFPConstant;
 import org.jamocha.languages.clips.parser.generated.SFPConstructDescription;
 import org.jamocha.languages.clips.parser.generated.SFPDateTime;
 import org.jamocha.languages.clips.parser.generated.SFPDateTimeType;
+import org.jamocha.languages.clips.parser.generated.SFPDefaultAttribute;
+import org.jamocha.languages.clips.parser.generated.SFPDefaultAttributes;
 import org.jamocha.languages.clips.parser.generated.SFPDeffunctionConstruct;
 import org.jamocha.languages.clips.parser.generated.SFPDefruleBody;
 import org.jamocha.languages.clips.parser.generated.SFPDefruleConstruct;
 import org.jamocha.languages.clips.parser.generated.SFPDefrulesConstruct;
 import org.jamocha.languages.clips.parser.generated.SFPDeftemplateConstruct;
+import org.jamocha.languages.clips.parser.generated.SFPDeriveAttribute;
+import org.jamocha.languages.clips.parser.generated.SFPDynamicAttribute;
 import org.jamocha.languages.clips.parser.generated.SFPEquals;
 import org.jamocha.languages.clips.parser.generated.SFPEqualsFunction;
 import org.jamocha.languages.clips.parser.generated.SFPExistsCE;
@@ -96,16 +104,19 @@ import org.jamocha.languages.clips.parser.generated.SFPFactAddressType;
 import org.jamocha.languages.clips.parser.generated.SFPFalse;
 import org.jamocha.languages.clips.parser.generated.SFPFindFactByFactFunc;
 import org.jamocha.languages.clips.parser.generated.SFPFloat;
+import org.jamocha.languages.clips.parser.generated.SFPFloatList;
 import org.jamocha.languages.clips.parser.generated.SFPFloatType;
 import org.jamocha.languages.clips.parser.generated.SFPForallCE;
 import org.jamocha.languages.clips.parser.generated.SFPIfElseFunc;
 import org.jamocha.languages.clips.parser.generated.SFPInteger;
+import org.jamocha.languages.clips.parser.generated.SFPIntegerList;
 import org.jamocha.languages.clips.parser.generated.SFPIntegerType;
 import org.jamocha.languages.clips.parser.generated.SFPLHSSlot;
 import org.jamocha.languages.clips.parser.generated.SFPLineConnectedConstraint;
 import org.jamocha.languages.clips.parser.generated.SFPLoopForCountFunc;
 import org.jamocha.languages.clips.parser.generated.SFPModify;
 import org.jamocha.languages.clips.parser.generated.SFPNegation;
+import org.jamocha.languages.clips.parser.generated.SFPNoneAttribute;
 import org.jamocha.languages.clips.parser.generated.SFPNotFunction;
 import org.jamocha.languages.clips.parser.generated.SFPOrFunction;
 import org.jamocha.languages.clips.parser.generated.SFPOrderedLHSFactBody;
@@ -113,15 +124,19 @@ import org.jamocha.languages.clips.parser.generated.SFPParser;
 import org.jamocha.languages.clips.parser.generated.SFPParserTreeConstants;
 import org.jamocha.languages.clips.parser.generated.SFPRHSPattern;
 import org.jamocha.languages.clips.parser.generated.SFPRHSSlot;
+import org.jamocha.languages.clips.parser.generated.SFPRangeAttribute;
+import org.jamocha.languages.clips.parser.generated.SFPRangeSpecification;
 import org.jamocha.languages.clips.parser.generated.SFPRetractFunc;
 import org.jamocha.languages.clips.parser.generated.SFPSingleSlotDefinition;
 import org.jamocha.languages.clips.parser.generated.SFPSingleVariable;
 import org.jamocha.languages.clips.parser.generated.SFPSlotDefinition;
 import org.jamocha.languages.clips.parser.generated.SFPStart;
 import org.jamocha.languages.clips.parser.generated.SFPString;
+import org.jamocha.languages.clips.parser.generated.SFPStringList;
 import org.jamocha.languages.clips.parser.generated.SFPStringType;
 import org.jamocha.languages.clips.parser.generated.SFPSwitchCaseFunc;
 import org.jamocha.languages.clips.parser.generated.SFPSymbol;
+import org.jamocha.languages.clips.parser.generated.SFPSymbolList;
 import org.jamocha.languages.clips.parser.generated.SFPSymbolType;
 import org.jamocha.languages.clips.parser.generated.SFPTemplatePatternCE;
 import org.jamocha.languages.clips.parser.generated.SFPTerm;
@@ -130,6 +145,7 @@ import org.jamocha.languages.clips.parser.generated.SFPTrue;
 import org.jamocha.languages.clips.parser.generated.SFPTypeAttribute;
 import org.jamocha.languages.clips.parser.generated.SFPTypeSpecification;
 import org.jamocha.languages.clips.parser.generated.SFPUnorderedLHSFactBody;
+import org.jamocha.languages.clips.parser.generated.SFPVariableType;
 import org.jamocha.languages.clips.parser.generated.SFPWhileFunc;
 import org.jamocha.languages.clips.parser.generated.SimpleNode;
 import org.jamocha.languages.common.AssertTemplateContainerBuilder;
@@ -147,6 +163,7 @@ import org.jamocha.languages.common.ScopeStack;
 import org.jamocha.languages.common.ScopeStack.Symbol;
 import org.jamocha.languages.common.SingleFactVariable;
 import org.jamocha.languages.common.SingleFactVariable.SingleSlotVariable;
+import org.jamocha.languages.common.SlotBuilder;
 import org.jamocha.languages.common.Warning;
 
 /**
@@ -294,7 +311,7 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 		@Override
 		public Object visit(final SFPFloat node, final Object data) {
 			if (!this.allowed.contains(SlotType.DOUBLE))
-				return SFPVisitorImpl.this.visit(node, data);
+				throw new ClipsTypeMismatchError(null, node);
 			this.type = SlotType.DOUBLE;
 			this.value = Double.parseDouble(node.jjtGetValue().toString());
 			return data;
@@ -303,7 +320,7 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 		@Override
 		public Object visit(final SFPInteger node, final Object data) {
 			if (!this.allowed.contains(SlotType.LONG))
-				return SFPVisitorImpl.this.visit(node, data);
+				throw new ClipsTypeMismatchError(null, node);
 			this.type = SlotType.LONG;
 			this.value = Long.parseLong(node.jjtGetValue().toString());
 			return data;
@@ -312,7 +329,7 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 		@Override
 		public Object visit(final SFPSymbol node, final Object data) {
 			if (!this.allowed.contains(SlotType.SYMBOL))
-				return SFPVisitorImpl.this.visit(node, data);
+				throw new ClipsTypeMismatchError(null, node);
 			this.type = SlotType.SYMBOL;
 			this.value = SelectiveSFPVisitor.sendVisitor(new SFPSymbolVisitor(), node, data).symbol;
 			return data;
@@ -321,7 +338,7 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 		@Override
 		public Object visit(final SFPTrue node, final Object data) {
 			if (!this.allowed.contains(SlotType.BOOLEAN))
-				return SFPVisitorImpl.this.visit(node, data);
+				throw new ClipsTypeMismatchError(null, node);
 			this.type = SlotType.BOOLEAN;
 			this.value = true;
 			return data;
@@ -330,7 +347,7 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 		@Override
 		public Object visit(final SFPFalse node, final Object data) {
 			if (!this.allowed.contains(SlotType.BOOLEAN))
-				return SFPVisitorImpl.this.visit(node, data);
+				throw new ClipsTypeMismatchError(null, node);
 			this.type = SlotType.BOOLEAN;
 			this.value = false;
 			return data;
@@ -339,7 +356,7 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 		@Override
 		public Object visit(final SFPString node, final Object data) {
 			if (!this.allowed.contains(SlotType.STRING))
-				return SFPVisitorImpl.this.visit(node, data);
+				throw new ClipsTypeMismatchError(null, node);
 			this.type = SlotType.STRING;
 			this.value = SelectiveSFPVisitor.sendVisitor(new SFPStringVisitor(), node, data).string;
 			return data;
@@ -348,10 +365,14 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 		@Override
 		public Object visit(final SFPDateTime node, final Object data) {
 			if (!this.allowed.contains(SlotType.DATETIME))
-				return SFPVisitorImpl.this.visit(node, data);
+				throw new ClipsTypeMismatchError(null, node);
 			this.type = SlotType.DATETIME;
 			this.value = SlotType.convert(node.jjtGetValue().toString());
 			return data;
+		}
+
+		public ConstantLeaf toFWA() {
+			return new ConstantLeaf(value, type);
 		}
 
 		// unsupported Nil
@@ -467,8 +488,9 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 		// unsupported VariableType
 	}
 
+	@RequiredArgsConstructor
 	class SFPTemplateAttributeVisitor implements SelectiveSFPVisitor {
-		SlotType slotType;
+		final SlotBuilder slotBuilder;
 
 		// <template-attribute> ::= <default-attribute> | <constraint-attribute>
 		// <LBRACE> ( DefaultAttribute() | DynamicAttribute() | ConstraintAttribute() ) <RBRACE>
@@ -487,9 +509,189 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 						.dumpAndThrowMe(node, IllegalArgumentException::new,
 								"Restriction of template fields to multiple types is not supported at the moment!");
 			}
-			this.slotType =
-					SelectiveSFPVisitor.sendVisitor(new SFPTypeSpecificationVisitor(),
-							node.jjtGetChild(0), data).type;
+			this.slotBuilder.setType(SelectiveSFPVisitor.sendVisitor(
+					new SFPTypeSpecificationVisitor(), node.jjtGetChild(0), data).type);
+			return data;
+		}
+
+		class SFPAllowedConstantAttributeElementsVisitor implements SelectiveSFPVisitor {
+			private Object handle(final SimpleNode node, final Object data, final SlotType type) {
+				assert 0 > node.jjtGetNumChildren();
+				if (1 == node.jjtGetNumChildren()
+						&& SFPParserTreeConstants.JJTVARIABLETYPE == node.jjtGetChild(0).getId()) {
+					return data;
+				}
+				SFPTemplateAttributeVisitor.this.slotBuilder.setAllowedConstaintsConstraint(
+						type,
+						SelectiveSFPVisitor
+								.stream(node, 0)
+								.map(n -> SelectiveSFPVisitor.sendVisitor(
+										new SFPValueVisitor(type), n, data).value)
+								.collect(toList()));
+				return data;
+			}
+
+			@Override
+			public Object visit(final SFPSymbolList node, final Object data) {
+				return handle(node, data, SlotType.SYMBOL);
+			}
+
+			@Override
+			public Object visit(final SFPStringList node, final Object data) {
+				return handle(node, data, SlotType.STRING);
+			}
+
+			@Override
+			public Object visit(final SFPIntegerList node, final Object data) {
+				return handle(node, data, SlotType.LONG);
+			}
+
+			@Override
+			public Object visit(final SFPFloatList node, final Object data) {
+				return handle(node, data, SlotType.DOUBLE);
+			}
+		}
+
+		// AllowedConstantAttribute() : (SymbolList() | StringList() | LexemeList() | IntegerList()
+		// | FloatList() | NumberList() | ValueList() )
+		// SymbolList() : ( ( <SYMBOL> )+ | VariableType() )
+		// StringList() : ( ( <STRING> )+ | VariableType() )
+		// ...
+		// ValueList() : ( ( Constant() )+ | VariableType() )
+		@Override
+		public Object visit(final SFPAllowedConstantAttribute node, final Object data) {
+			assert 1 == node.jjtGetNumChildren();
+			SelectiveSFPVisitor.sendVisitor(new SFPAllowedConstantAttributeElementsVisitor(),
+					node.jjtGetChild(0), data);
+			return data;
+		}
+
+		class SFPRangeAttributeElementsVisitor implements SelectiveSFPVisitor {
+			ConstantLeaf number;
+
+			@Override
+			public Object visit(final SFPRangeSpecification node, final Object data) {
+				this.number =
+						SelectiveSFPVisitor.sendVisitor(new SFPRangeSpecificationElementsVisitor(),
+								node.jjtGetChild(0), data).number;
+				return data;
+			}
+		}
+
+		class SFPRangeSpecificationElementsVisitor implements SelectiveSFPVisitor {
+			ConstantLeaf number;
+
+			@Override
+			public Object visit(final SFPFloat node, final Object data) {
+				this.number =
+						SelectiveSFPVisitor.sendVisitor(new SFPValueVisitor(), node, data).toFWA();
+				return data;
+			}
+
+			@Override
+			public Object visit(final SFPInteger node, final Object data) {
+				this.number =
+						SelectiveSFPVisitor.sendVisitor(new SFPValueVisitor(), node, data).toFWA();
+				return data;
+			}
+
+			@Override
+			public Object visit(final SFPVariableType node, final Object data) {
+				this.number = null;
+				return data;
+			}
+		}
+
+		// RangeAttribute() : ( <RANGE> RangeSpecification() RangeSpecification() )
+		// RangeSpecification() : ( Number() | VariableType() )
+		@Override
+		public Object visit(final SFPRangeAttribute node, final Object data) {
+			assert 2 == node.jjtGetNumChildren();
+			final ConstantLeaf from =
+					SelectiveSFPVisitor.sendVisitor(new SFPRangeAttributeElementsVisitor(),
+							node.jjtGetChild(0), data).number;
+			final ConstantLeaf to =
+					SelectiveSFPVisitor.sendVisitor(new SFPRangeAttributeElementsVisitor(),
+							node.jjtGetChild(1), data).number;
+			SFPTemplateAttributeVisitor.this.slotBuilder.setRangeConstraint(from, to);
+			return data;
+		}
+
+		// CardinalityAttribute() : <CARDINALITY> CardinalitySpecification()
+		// CardinalitySpecification() )
+		// CardinalitySpecification() : ( Integer() | VariableType() )
+		@Override
+		public Object visit(final SFPCardinalityAttribute node, final Object data) {
+			// TBD cardinality
+			return SelectiveSFPVisitor.super.visit(node, data);
+		}
+
+		@RequiredArgsConstructor
+		class SFPAttributesVisitor implements SelectiveSFPVisitor {
+			final Consumer<FunctionWithArguments> defaultConsumer;
+
+			@Override
+			public Object visit(final SFPAttributes node, final Object data) {
+				if (1 != node.jjtGetNumChildren()) {
+					throw SelectiveSFPVisitor.dumpAndThrowMe(node, IllegalArgumentException::new,
+							"multi slots are not supported at the moment!");
+				}
+				defaultConsumer
+						.accept(SelectiveSFPVisitor.sendVisitor(new SFPExpressionVisitor(
+								SymbolToFunctionWithArguments.bySymbol(), false), node
+								.jjtGetChild(0), data).expression);
+				return data;
+			}
+		}
+
+		class SFPDefaultAttributeElementsVisitor implements SelectiveSFPVisitor {
+
+			@Override
+			public Object visit(final SFPDefaultAttributes node, final Object data) {
+				assert 1 == node.jjtGetNumChildren();
+				SelectiveSFPVisitor.sendVisitor(new SFPAttributesVisitor(
+						SFPTemplateAttributeVisitor.this.slotBuilder::setStaticDefault), node
+						.jjtGetChild(0), data);
+				return data;
+			}
+
+			@Override
+			public Object visit(final SFPDeriveAttribute node, final Object data) {
+				assert 0 == node.jjtGetNumChildren();
+				SFPTemplateAttributeVisitor.this.slotBuilder.setDeriveDefault();
+				return data;
+			}
+
+			@Override
+			public Object visit(final SFPNoneAttribute node, final Object data) {
+				assert 0 == node.jjtGetNumChildren();
+				SFPTemplateAttributeVisitor.this.slotBuilder.setNoDefault();
+				return data;
+			}
+		}
+
+		// DefaultAttribute() : <DEFAULT_ATR> ( DeriveAttribute() | NoneAttribute() |
+		// DefaultAttributes() )
+		// DefaultAttributes() : Attributes()
+		// Attributes() : ( Expression() )*
+		// DeriveAttribute() : <ATR_DERIVE>
+		// NoneAttribute() : <ATR_NONE>
+		@Override
+		public Object visit(final SFPDefaultAttribute node, final Object data) {
+			assert 1 == node.jjtGetNumChildren();
+			SelectiveSFPVisitor.sendVisitor(new SFPDefaultAttributeElementsVisitor(),
+					node.jjtGetChild(0), data);
+			return data;
+		}
+
+		// default-dynamic
+		// DynamicAttribute() : <DYNAMIC_ATR> ( Attributes() )
+		@Override
+		public Object visit(final SFPDynamicAttribute node, final Object data) {
+			assert 1 == node.jjtGetNumChildren();
+			SelectiveSFPVisitor.sendVisitor(new SFPAttributesVisitor(
+					SFPTemplateAttributeVisitor.this.slotBuilder::setDynamicDefault), node
+					.jjtGetChild(0), data);
 			return data;
 		}
 	}
@@ -508,13 +710,11 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 			final Symbol name =
 					SelectiveSFPVisitor.sendVisitor(new SFPSymbolVisitor(), node.jjtGetChild(0),
 							data).symbol;
-			final SlotType type =
-					SelectiveSFPVisitor.sendVisitor(new SFPTemplateAttributeVisitor(),
-							node.jjtGetChild(1), data).slotType;
-			// TBD: as soon as constraints are fully implemented, add the default-functionality,
-			// especially ?DERIVE
-			this.slot =
-					Slot.newSlot(type, name.getImage(), SFPVisitorImpl.this.defaultValues.get(type));
+			final SlotBuilder slotBuilder = new SlotBuilder(name.getImage());
+			SelectiveSFPVisitor.stream(node, 1).forEach(
+					n -> SelectiveSFPVisitor.sendVisitor(new SFPTemplateAttributeVisitor(
+							slotBuilder), n, data));
+			this.slot = slotBuilder.build(SFPVisitorImpl.this.defaultValues);
 			return data;
 		}
 	}
