@@ -134,20 +134,24 @@ public interface Template {
 	public static abstract class SlotConstraint {
 		final ConstraintType constraintType;
 
-		public abstract boolean matchesConstraint(final FunctionWithArguments value);
+		public abstract boolean matchesConstraint(final Object value);
 
 		public abstract FunctionWithArguments derivedDefaultValue();
 
 		public static SlotConstraint integerRange(final Long from, final Long to) {
 			return new SlotConstraint(ConstraintType.RANGE) {
 				@Override
-				public boolean matchesConstraint(final FunctionWithArguments value) {
-					final Long evaluated = (Long) value.evaluate();
-					if (null != from && from > evaluated)
+				public boolean matchesConstraint(final Object value) {
+					try {
+						final Long typedValue = (Long) value;
+						if (null != from && from > typedValue)
+							return false;
+						if (null != to && to < typedValue)
+							return false;
+						return true;
+					} catch (final ClassCastException e) {
 						return false;
-					if (null != to && to < evaluated)
-						return false;
-					return true;
+					}
 				}
 
 				@Override
@@ -160,13 +164,17 @@ public interface Template {
 		public static SlotConstraint doubleRange(final Double from, final Double to) {
 			return new SlotConstraint(ConstraintType.RANGE) {
 				@Override
-				public boolean matchesConstraint(final FunctionWithArguments value) {
-					final Double evaluated = (Double) value.evaluate();
-					if (null != from && from > evaluated)
+				public boolean matchesConstraint(final Object value) {
+					try {
+						final Double typedValue = (Double) value;
+						if (null != from && from > typedValue)
+							return false;
+						if (null != to && to < typedValue)
+							return false;
+						return true;
+					} catch (final ClassCastException e) {
 						return false;
-					if (null != to && to < evaluated)
-						return false;
-					return true;
+					}
 				}
 
 				@Override
@@ -180,8 +188,8 @@ public interface Template {
 			final ConstantLeaf defaultValue = new ConstantLeaf(values.get(0), type);
 			return new SlotConstraint(ConstraintType.ALLOWED_CONSTANTS) {
 				@Override
-				public boolean matchesConstraint(final FunctionWithArguments value) {
-					return values.contains(value.evaluate());
+				public boolean matchesConstraint(final Object value) {
+					return values.contains(value);
 				}
 
 				@Override
