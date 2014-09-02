@@ -1,19 +1,16 @@
 /*
  * Copyright 2002-2014 The Jamocha Team
  * 
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *   http://www.jamocha.org/
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
  * 
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
+ * 
+ * http://www.jamocha.org/
+ * 
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
  */
 package org.jamocha.dn.compiler;
 
@@ -37,7 +34,6 @@ import org.jamocha.filter.Path;
 import org.jamocha.filter.PathCollector;
 import org.jamocha.filter.PathFilter;
 import org.jamocha.filter.PathFilter.PathFilterElement;
-import org.jamocha.function.fwa.PredicateWithArguments;
 import org.jamocha.languages.common.ConditionalElement;
 import org.jamocha.languages.common.ConditionalElement.AndFunctionConditionalElement;
 import org.jamocha.languages.common.ConditionalElement.ExistentialConditionalElement;
@@ -62,7 +58,7 @@ public class PathFilterCollector implements DefaultConditionalElementsVisitor {
 	@Getter
 	private List<PathFilter> pathFilters = null;
 
-	public PathFilterCollector(Map<SingleFactVariable, Path> paths) {
+	public PathFilterCollector(final Map<SingleFactVariable, Path> paths) {
 		this.paths = paths;
 		this.negated = false;
 	}
@@ -109,7 +105,7 @@ public class PathFilterCollector implements DefaultConditionalElementsVisitor {
 
 		// Construct Hashmap from Paths to Filters
 		final Map<Path, Set<PathFilter>> path2Filters = new HashMap<>();
-		for (Entry<PathFilter, Set<Path>> filterAndPaths : filter2Paths.entrySet()) {
+		for (final Entry<PathFilter, Set<Path>> filterAndPaths : filter2Paths.entrySet()) {
 			for (final Path path : filterAndPaths.getValue()) {
 				Set<PathFilter> value = path2Filters.get(path);
 				if (value == null) {
@@ -144,8 +140,7 @@ public class PathFilterCollector implements DefaultConditionalElementsVisitor {
 				collectPaths.addAll(newCollectPaths);
 				// search for all filters containing the new found paths
 				newCollectFilters =
-						newCollectPaths.stream()
-								.flatMap(path -> path2Filters.get(path).stream())
+						newCollectPaths.stream().flatMap(path -> path2Filters.get(path).stream())
 								.collect(Collectors.toSet());
 				// remove already known filters
 				newCollectFilters.removeAll(collectFilters);
@@ -170,7 +165,7 @@ public class PathFilterCollector implements DefaultConditionalElementsVisitor {
 				// search for all existential Paths used by the new Filters
 				final Set<Path> newCollectExistentialPaths =
 						newCollectFilters.stream()
-								.flatMap((PathFilter f) -> filter2Paths.get(f).stream())
+								.flatMap((final PathFilter f) -> filter2Paths.get(f).stream())
 								.collect(Collectors.toSet());
 				// removed already known paths
 				newCollectExistentialPaths.retainAll(existentialPaths);
@@ -190,31 +185,30 @@ public class PathFilterCollector implements DefaultConditionalElementsVisitor {
 				// remove them from the set of unassigned filters
 				reductionSet.removeAll(newCollectFilters);
 			}
-			List<PathFilterElement> filterElements = new ArrayList<>();
+			final List<PathFilterElement> filterElements = new ArrayList<>();
 			for (final PathFilter filter : collectFilters) {
 				filterElements.addAll(Arrays.asList(filter.getFilterElements()));
 			}
 
 			if (isPositive)
-				resultFilters.add(new PathFilter(collectExistentialPaths, new HashSet<>(),
-						toArray(filterElements, PathFilterElement[]::new)));
+				resultFilters.add(new PathFilter(collectExistentialPaths, new HashSet<>(), toArray(
+						filterElements, PathFilterElement[]::new)));
 			else
-				resultFilters.add(new PathFilter(new HashSet<>(), collectExistentialPaths,
-						toArray(filterElements, PathFilterElement[]::new)));
+				resultFilters.add(new PathFilter(new HashSet<>(), collectExistentialPaths, toArray(
+						filterElements, PathFilterElement[]::new)));
 		}
 
 		return resultFilters;
 	}
 
 	@Override
-	public void defaultAction(ConditionalElement ce) {
+	public void defaultAction(final ConditionalElement ce) {
 		// Just ignore. InittialFactCEs and TemplateCEs already did their job during
 		// FactVariable collection
 	}
 
 	@Override
-	public void visit(AndFunctionConditionalElement ce) {
-		pathFilters = new ArrayList<>();
+	public void visit(final AndFunctionConditionalElement ce) {
 		pathFilters = ce.getChildren().stream()
 		// Process all children CEs
 				.map(child -> child.accept(new PathFilterCollector(paths)).getPathFilters())
@@ -223,34 +217,33 @@ public class PathFilterCollector implements DefaultConditionalElementsVisitor {
 	}
 
 	@Override
-	public void visit(OrFunctionConditionalElement ce) {
+	public void visit(final OrFunctionConditionalElement ce) {
 		throw new Error("There should not be any OrFunctionCEs at this level.");
 	}
 
 	@Override
-	public void visit(ExistentialConditionalElement ce) {
+	public void visit(final ExistentialConditionalElement ce) {
 		assert ce.getChildren().size() == 1;
 		this.pathFilters = processExistentialCondition(ce.getChildren().get(0), paths, true);
 	}
 
 	@Override
-	public void visit(NegatedExistentialConditionalElement ce) {
+	public void visit(final NegatedExistentialConditionalElement ce) {
 		assert ce.getChildren().size() == 1;
 		this.pathFilters = processExistentialCondition(ce.getChildren().get(0), paths, false);
 	}
 
 	@Override
-	public void visit(NotFunctionConditionalElement ce) {
+	public void visit(final NotFunctionConditionalElement ce) {
 		assert ce.getChildren().size() == 1;
-		// Call a PathFilterCollector for the child of the NotFunctionCE with toggeled negated
-		// flag.
+		// Call a PathFilterCollector for the child of the NotFunctionCE with toggled negated flag.
 		this.pathFilters =
 				ce.getChildren().get(0).accept(new PathFilterCollector(paths, !negated))
 						.getPathFilters();
 	}
 
 	@Override
-	public void visit(SharedConditionalElementWrapper ce) {
+	public void visit(final SharedConditionalElementWrapper ce) {
 		// Just ignore the SharedCEWrapper and continue with the inner CE.
 		// TODO maybe it will be required to mark the resulting PathFilters for later
 		// optimization
@@ -258,13 +251,12 @@ public class PathFilterCollector implements DefaultConditionalElementsVisitor {
 	}
 
 	@Override
-	public void visit(TestConditionalElement ce) {
-		// FIXME just copied from old version
-		PredicateWithArguments pwa = ce.getPredicateWithArguments();
-		pwa.accept(new SymbolToPathTranslator(paths));
-		this.pathFilters = Arrays.asList(new PathFilter(new PathFilter.PathFilterElement(pwa)));
+	public void visit(final TestConditionalElement ce) {
+		this.pathFilters =
+				Arrays.asList(new PathFilter(new PathFilter.PathFilterElement(
+						SymbolToPathTranslator.translate(ce.getPredicateWithArguments(), paths))));
 	}
-	
+
 	/*
 	 * Collect all PathFilters inside all children of an OrFunctionConditionalElement, returning a
 	 * List of Lists. Each inner List contains the PathFilters of one child.
@@ -275,7 +267,7 @@ public class PathFilterCollector implements DefaultConditionalElementsVisitor {
 		private List<List<PathFilter>> pathFilters = null;
 
 		@Override
-		public void defaultAction(ConditionalElement ce) {
+		public void defaultAction(final ConditionalElement ce) {
 			// If there is no OrFunctionConditionalElement just proceed with the CE as it were
 			// the only child of an OrFunctionConditionalElement.
 			pathFilters =
@@ -285,7 +277,7 @@ public class PathFilterCollector implements DefaultConditionalElementsVisitor {
 		}
 
 		@Override
-		public void visit(OrFunctionConditionalElement ce) {
+		public void visit(final OrFunctionConditionalElement ce) {
 			// For each child of the OrCE ...
 			pathFilters =
 					ce.getChildren()
