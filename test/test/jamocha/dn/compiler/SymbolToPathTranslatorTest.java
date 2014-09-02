@@ -14,29 +14,26 @@
  */
 package test.jamocha.dn.compiler;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
 
 import java.io.StringReader;
 import java.util.List;
 import java.util.Queue;
 import java.util.StringJoiner;
 
-import javax.accessibility.AccessibleRelationSet;
-
 import org.hamcrest.Matchers;
 import org.jamocha.dn.ConstructCache.Defrule;
 import org.jamocha.dn.compiler.FactVariableCollector;
 import org.jamocha.dn.compiler.SymbolToPathTranslator;
 import org.jamocha.function.fwa.FunctionWithArguments;
-import org.jamocha.function.fwa.FunctionWithArgumentsComposite;
-import org.jamocha.function.impls.predicates.Greater;
 import org.jamocha.languages.clips.parser.SFPVisitorImpl;
 import org.jamocha.languages.clips.parser.generated.ParseException;
 import org.jamocha.languages.clips.parser.generated.SFPParser;
 import org.jamocha.languages.clips.parser.generated.SFPStart;
 import org.jamocha.languages.common.ConditionalElement;
-import org.jamocha.languages.common.Warning;
 import org.jamocha.languages.common.ConditionalElement.TestConditionalElement;
+import org.jamocha.languages.common.Warning;
 import org.junit.Test;
 
 import test.jamocha.util.NetworkMockup;
