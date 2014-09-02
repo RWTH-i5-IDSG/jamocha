@@ -15,9 +15,10 @@
 package org.jamocha.dn.compiler;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import lombok.Getter;
@@ -41,7 +42,7 @@ public class FactVariableCollector implements DefaultConditionalElementsVisitor 
 	@Getter
 	private List<SingleFactVariable> factVariables;
 
-	public static Map<SingleFactVariable, Path> collectPaths(ConditionalElement ce) {
+	public static Map<SingleFactVariable, Path> collectPaths(final ConditionalElement ce) {
 		// Collect all FactVariables defined in the CEs TemplateCEs and InitialFactCEs
 		return ce
 				.accept(new FactVariableCollector())
@@ -50,41 +51,43 @@ public class FactVariableCollector implements DefaultConditionalElementsVisitor 
 				// Create Paths with the corresponding Templates
 				// for all collected FactVariables
 				.collect(
-						Collectors.toMap(variable -> variable,
-								(SingleFactVariable variable) -> new Path(variable.getTemplate())));
+						Collectors.toMap(
+								Function.identity(),
+								(final SingleFactVariable variable) -> new Path(variable
+										.getTemplate())));
 	}
 
 	@Override
-	public void defaultAction(ConditionalElement ce) {
+	public void defaultAction(final ConditionalElement ce) {
 		// Just ignore all other ConditionalElements
-		factVariables = new ArrayList<>();
+		this.factVariables = Collections.emptyList();
 	}
 
 	@Override
-	public void visit(OrFunctionConditionalElement ce) {
+	public void visit(final OrFunctionConditionalElement ce) {
 		throw new Error("There should not be any Or ConditionalElements at this level.");
 	}
 
 	@Override
-	public void visit(AndFunctionConditionalElement ce) {
-		factVariables =
+	public void visit(final AndFunctionConditionalElement ce) {
+		this.factVariables =
 				ce.getChildren().stream()
 						.map(child -> child.accept(new FactVariableCollector()).getFactVariables())
 						.flatMap(List::stream).collect(Collectors.toCollection(ArrayList::new));
 	}
 
 	@Override
-	public void visit(SharedConditionalElementWrapper ce) {
+	public void visit(final SharedConditionalElementWrapper ce) {
 		ce.getCe().accept(this);
 	}
 
 	@Override
-	public void visit(TemplatePatternConditionalElement ce) {
-		factVariables = Arrays.asList(ce.getFactVariable());
+	public void visit(final TemplatePatternConditionalElement ce) {
+		this.factVariables = Collections.singletonList(ce.getFactVariable());
 	}
 
 	@Override
-	public void visit(InitialFactConditionalElement ce) {
-		factVariables = Arrays.asList(ce.getInitialFactVariable());
+	public void visit(final InitialFactConditionalElement ce) {
+		this.factVariables = Collections.singletonList(ce.getInitialFactVariable());
 	}
 }
