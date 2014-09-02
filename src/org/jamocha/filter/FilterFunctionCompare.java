@@ -34,18 +34,13 @@ import org.jamocha.dn.nodes.Node;
 import org.jamocha.dn.nodes.SlotInFactAddress;
 import org.jamocha.filter.AddressFilter.AddressFilterElement;
 import org.jamocha.function.CommutativeFunction;
-import org.jamocha.function.fwa.Assert;
 import org.jamocha.function.fwa.ConstantLeaf;
+import org.jamocha.function.fwa.DefaultFunctionWithArgumentsVisitor;
 import org.jamocha.function.fwa.FunctionWithArguments;
 import org.jamocha.function.fwa.FunctionWithArgumentsComposite;
-import org.jamocha.function.fwa.FunctionWithArgumentsVisitor;
 import org.jamocha.function.fwa.GenericWithArgumentsComposite;
-import org.jamocha.function.fwa.Modify;
-import org.jamocha.function.fwa.PathLeaf;
-import org.jamocha.function.fwa.PredicateWithArgumentsComposite;
-import org.jamocha.function.fwa.Retract;
-import org.jamocha.function.fwa.SymbolLeaf;
 import org.jamocha.function.fwa.PathLeaf.ParameterLeaf;
+import org.jamocha.function.fwa.PredicateWithArgumentsComposite;
 
 /**
  * Compares the Filters.
@@ -84,68 +79,14 @@ public class FilterFunctionCompare {
 		return this.equal;
 	}
 
-	private abstract class SelectiveFWAVisitor implements FunctionWithArgumentsVisitor {
+	private abstract class InvalidatingFWAVisitor implements DefaultFunctionWithArgumentsVisitor {
 		@Override
-		public void visit(ConstantLeaf constantLeaf) {
-			invalidate();
-		}
-
-		@Override
-		public void visit(ParameterLeaf parameterLeaf) {
-			invalidate();
-		}
-
-		@Override
-		public void visit(PathLeaf pathLeaf) {
-			invalidate();
-		}
-
-		@Override
-		public void visit(PredicateWithArgumentsComposite predicateWithArgumentsComposite) {
-			invalidate();
-		}
-
-		@Override
-		public void visit(FunctionWithArgumentsComposite functionWithArgumentsComposite) {
-			invalidate();
-		}
-
-		@Override
-		public void visit(Assert fwa) {
-			invalidate();
-		}
-
-		@Override
-		public void visit(Modify fwa) {
-			invalidate();
-		}
-
-		@Override
-		public void visit(Retract fwa) {
-			invalidate();
-		}
-
-		@Override
-		public void visit(Assert.TemplateContainer fwa) {
-			invalidate();
-		}
-
-		@Override
-		public void visit(Modify.SlotAndValue fwa) {
-			invalidate();
-		}
-
-		@Override
-		public void visit(SymbolLeaf fwa) {
-			invalidate();
-		}
-
-		public void invalidate() {
+		public void defaultAction(final FunctionWithArguments function) {
 			FilterFunctionCompare.this.invalidate();
 		}
 	}
 
-	private class FunctionTypeIdentificationVisitor extends SelectiveFWAVisitor {
+	private class FunctionTypeIdentificationVisitor extends InvalidatingFWAVisitor {
 		final FunctionWithArguments fwa;
 
 		private FunctionTypeIdentificationVisitor(final FunctionWithArguments fwa) {
@@ -173,7 +114,7 @@ public class FilterFunctionCompare {
 		}
 	};
 
-	private class ParameterLeafVisitor extends SelectiveFWAVisitor {
+	private class ParameterLeafVisitor extends InvalidatingFWAVisitor {
 		final ParameterLeaf parameterLeaf;
 
 		private ParameterLeafVisitor(final ParameterLeaf parameterLeaf) {
@@ -199,7 +140,7 @@ public class FilterFunctionCompare {
 		}
 	};
 
-	private class ConstantLeafVisitor extends SelectiveFWAVisitor {
+	private class ConstantLeafVisitor extends InvalidatingFWAVisitor {
 		final ConstantLeaf constantLeaf;
 
 		private ConstantLeafVisitor(final ConstantLeaf constantLeaf) {
@@ -214,7 +155,7 @@ public class FilterFunctionCompare {
 		}
 	};
 
-	private class CompositeVisitor extends SelectiveFWAVisitor {
+	private class CompositeVisitor extends InvalidatingFWAVisitor {
 		final GenericWithArgumentsComposite<?, ?> composite;
 
 		private CompositeVisitor(final GenericWithArgumentsComposite<?, ?> composite) {

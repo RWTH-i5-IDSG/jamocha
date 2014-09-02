@@ -22,6 +22,7 @@ import org.jamocha.function.Function;
 import org.jamocha.function.FunctionDictionary;
 import org.jamocha.function.Predicate;
 import org.jamocha.function.fwa.Assert;
+import org.jamocha.function.fwa.DefaultFunctionWithArgumentsVisitor;
 import org.jamocha.function.fwa.FunctionWithArguments;
 import org.jamocha.function.fwa.FunctionWithArgumentsComposite;
 import org.jamocha.function.fwa.FunctionWithArgumentsVisitor;
@@ -136,52 +137,10 @@ public class UniformFunctionTranslator {
 		}
 	}
 
-	static interface SelectiveFunctionWithArgumentsVisitor extends FunctionWithArgumentsVisitor {
+	static interface SelectiveFunctionWithArgumentsVisitor extends
+			DefaultFunctionWithArgumentsVisitor {
 		@Override
-		public default void visit(
-				final org.jamocha.function.fwa.FunctionWithArgumentsComposite functionWithArgumentsComposite) {
-		}
-
-		@Override
-		public default void visit(
-				final org.jamocha.function.fwa.PredicateWithArgumentsComposite predicateWithArgumentsComposite) {
-		}
-
-		@Override
-		public default void visit(final org.jamocha.function.fwa.ConstantLeaf constantLeaf) {
-		}
-
-		@Override
-		public default void visit(
-				final org.jamocha.function.fwa.PathLeaf.ParameterLeaf parameterLeaf) {
-		}
-
-		@Override
-		public default void visit(final org.jamocha.function.fwa.PathLeaf pathLeaf) {
-		}
-
-		@Override
-		public default void visit(final org.jamocha.function.fwa.Assert fwa) {
-		}
-
-		@Override
-		public default void visit(final org.jamocha.function.fwa.Assert.TemplateContainer fwa) {
-		}
-
-		@Override
-		public default void visit(final org.jamocha.function.fwa.Modify fwa) {
-		}
-
-		@Override
-		public default void visit(final org.jamocha.function.fwa.Modify.SlotAndValue fwa) {
-		}
-
-		@Override
-		public default void visit(final org.jamocha.function.fwa.Retract fwa) {
-		}
-
-		@Override
-		public default void visit(final org.jamocha.function.fwa.SymbolLeaf fwa) {
+		default void defaultAction(FunctionWithArguments function) {
 		}
 	}
 
