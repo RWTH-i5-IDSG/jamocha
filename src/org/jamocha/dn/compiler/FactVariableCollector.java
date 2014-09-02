@@ -1,19 +1,16 @@
 /*
  * Copyright 2002-2014 The Jamocha Team
  * 
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *   http://www.jamocha.org/
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
  * 
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
+ * 
+ * http://www.jamocha.org/
+ * 
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
  */
 package org.jamocha.dn.compiler;
 
@@ -42,7 +39,7 @@ import org.jamocha.languages.common.SingleFactVariable;
 public class FactVariableCollector implements DefaultConditionalElementsVisitor {
 
 	@Getter
-	private List<SingleFactVariable> factVariables = null;
+	private List<SingleFactVariable> factVariables;
 
 	public static Map<SingleFactVariable, Path> collectPaths(ConditionalElement ce) {
 		// Collect all FactVariables defined in the CEs TemplateCEs and InitialFactCEs
@@ -53,15 +50,14 @@ public class FactVariableCollector implements DefaultConditionalElementsVisitor 
 				// Create Paths with the corresponding Templates
 				// for all collected FactVariables
 				.collect(
-						Collectors.toMap(
-								variable -> variable,
-								(SingleFactVariable variable) -> new Path(variable
-										.getTemplate())));
+						Collectors.toMap(variable -> variable,
+								(SingleFactVariable variable) -> new Path(variable.getTemplate())));
 	}
 
 	@Override
 	public void defaultAction(ConditionalElement ce) {
 		// Just ignore all other ConditionalElements
+		factVariables = new ArrayList<>();
 	}
 
 	@Override
@@ -71,9 +67,10 @@ public class FactVariableCollector implements DefaultConditionalElementsVisitor 
 
 	@Override
 	public void visit(AndFunctionConditionalElement ce) {
-		ce.getChildren().stream()
-				.map(child -> child.accept(new FactVariableCollector()).getFactVariables())
-				.flatMap(List::stream).collect(Collectors.toCollection(ArrayList::new));
+		factVariables =
+				ce.getChildren().stream()
+						.map(child -> child.accept(new FactVariableCollector()).getFactVariables())
+						.flatMap(List::stream).collect(Collectors.toCollection(ArrayList::new));
 	}
 
 	@Override
