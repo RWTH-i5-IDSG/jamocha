@@ -14,17 +14,20 @@
  */
 package org.jamocha.dn.compiler;
 
+import static java.util.stream.Collectors.toCollection;
+import static java.util.stream.Collectors.toSet;
 import static org.jamocha.util.ToArray.toArray;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import lombok.Getter;
@@ -63,6 +66,10 @@ public class PathFilterCollector implements DefaultConditionalElementsVisitor {
 		this.negated = false;
 	}
 
+	private <T extends ConditionalElement> PathFilterCollector collect(final T ce) {
+		return ce.accept(this);
+	}
+
 	public static List<PathFilter> processExistentialCondition(final ConditionalElement ce,
 			final Map<SingleFactVariable, Path> fact2Path, final boolean isPositive) {
 		// FIXME Fix to work if we only have existential Paths
@@ -82,50 +89,40 @@ public class PathFilterCollector implements DefaultConditionalElementsVisitor {
 
 		// Generate PathFilters from CE
 		final List<PathFilter> filters =
-				ce.accept(new PathFilterCollector(combinedFact2Path)).getPathFilters();
+				new PathFilterCollector(combinedFact2Path).collect(ce).getPathFilters();
 
 		// Collect all used Paths for every PathFilter
 		final Map<PathFilter, Set<Path>> filter2Paths =
 				filters.stream().collect(
-						Collectors.toMap(filter -> filter, filter -> PathCollector.newHashSet()
+						Collectors.toMap(Function.identity(), filter -> PathCollector.newHashSet()
 								.collect(filter).getPaths()));
 
 		// Split PathFilters into those only using existential Paths and those also using non
 		// existential Paths
-		final Map<Boolean, List<PathFilter>> tmp =
+		final Map<Boolean, LinkedList<PathFilter>> tmp =
 				filters.stream().collect(
-						Collectors.partitioningBy(filter -> existentialPaths
-								.containsAll(filter2Paths.get(filter))));
-		final List<PathFilter> nonPureExistentialFilters = tmp.get(false);
-		final List<PathFilter> pureExistentialFilters = tmp.get(true);
+						Collectors.partitioningBy(
+								filter -> existentialPaths.containsAll(filter2Paths.get(filter)),
+								toCollection(LinkedList::new)));
+		final LinkedList<PathFilter> nonPureExistentialFilters = tmp.get(Boolean.FALSE);
+		final LinkedList<PathFilter> pureExistentialFilters = tmp.get(Boolean.TRUE);
 
 		// Add all pureExistentialFilters to result List because they don't have to be combined
 		// or ordered
 		final List<PathFilter> resultFilters = new ArrayList<>(pureExistentialFilters);
 
-		// Construct Hashmap from Paths to Filters
+		// Construct HashMap from Paths to Filters
 		final Map<Path, Set<PathFilter>> path2Filters = new HashMap<>();
-		for (final Entry<PathFilter, Set<Path>> filterAndPaths : filter2Paths.entrySet()) {
-			for (final Path path : filterAndPaths.getValue()) {
-				Set<PathFilter> value = path2Filters.get(path);
-				if (value == null) {
-					value = new HashSet<>();
-					path2Filters.put(path, value);
-				}
-				value.add(filterAndPaths.getKey());
-			}
-		}
+		filter2Paths.forEach((pathFilter, paths) -> paths.forEach(path -> path2Filters
+				.computeIfAbsent(path, x -> new HashSet<>()).add(pathFilter)));
 
 		// Find connected components of the existential Paths
 		final Set<Set<Path>> joinedExistentialPaths = new HashSet<>();
 		// While there are unjoined Filters continue
-		final Set<PathFilter> reductionSet = new HashSet<>(pureExistentialFilters);
-		while (!reductionSet.isEmpty()) {
+		while (!pureExistentialFilters.isEmpty()) {
 			// Take one arbitrary filter
-			final Iterator<PathFilter> i = reductionSet.iterator();
-			final Set<PathFilter> collectFilters = new HashSet<>();
-			collectFilters.add(i.next());
-			i.remove();
+			final LinkedList<PathFilter> collectFilters =
+					new LinkedList<>(Collections.singletonList(pureExistentialFilters.poll()));
 			Set<PathFilter> newCollectFilters = new HashSet<>(collectFilters);
 			final Set<Path> collectPaths = new HashSet<>();
 			// While we found new PathFilters in the last round
@@ -141,13 +138,13 @@ public class PathFilterCollector implements DefaultConditionalElementsVisitor {
 				// search for all filters containing the new found paths
 				newCollectFilters =
 						newCollectPaths.stream().flatMap(path -> path2Filters.get(path).stream())
-								.collect(Collectors.toSet());
+								.collect(toSet());
 				// remove already known filters
 				newCollectFilters.removeAll(collectFilters);
 				// add them all to the collect set
 				collectFilters.addAll(newCollectFilters);
 				// remove them from the set of unassigned filters
-				reductionSet.removeAll(newCollectFilters);
+				pureExistentialFilters.removeAll(newCollectFilters);
 			}
 			// added the join set to the result
 			joinedExistentialPaths.add(collectPaths);
@@ -155,10 +152,9 @@ public class PathFilterCollector implements DefaultConditionalElementsVisitor {
 
 		// Combine nonPureExistentialFilters if necessary and add them to result List
 		while (!nonPureExistentialFilters.isEmpty()) {
-			final Iterator<PathFilter> i = nonPureExistentialFilters.iterator();
-			final List<PathFilter> collectFilters = Arrays.asList(i.next());
-			i.remove();
-			List<PathFilter> newCollectFilters = new ArrayList<>(collectFilters);
+			final List<PathFilter> collectFilters =
+					new ArrayList<>(Collections.singletonList(nonPureExistentialFilters.poll()));
+			Set<PathFilter> newCollectFilters = new HashSet<>(collectFilters);
 			final Set<Path> collectExistentialPaths = new HashSet<>();
 
 			while (!newCollectFilters.isEmpty()) {
@@ -166,7 +162,7 @@ public class PathFilterCollector implements DefaultConditionalElementsVisitor {
 				final Set<Path> newCollectExistentialPaths =
 						newCollectFilters.stream()
 								.flatMap((final PathFilter f) -> filter2Paths.get(f).stream())
-								.collect(Collectors.toSet());
+								.collect(toSet());
 				// removed already known paths
 				newCollectExistentialPaths.retainAll(existentialPaths);
 				newCollectExistentialPaths.removeAll(collectExistentialPaths);
@@ -175,15 +171,14 @@ public class PathFilterCollector implements DefaultConditionalElementsVisitor {
 				// search for all filters containing the new found paths
 				newCollectFilters =
 						newCollectExistentialPaths.stream()
-								.flatMap(path -> path2Filters.get(path).stream())
-								.collect(Collectors.toList());
+								.flatMap(path -> path2Filters.get(path).stream()).collect(toSet());
 				// remove already known filters
 				newCollectFilters.retainAll(nonPureExistentialFilters);
 				newCollectFilters.removeAll(collectFilters);
 				// add them all to the collect set
 				collectFilters.addAll(newCollectFilters);
 				// remove them from the set of unassigned filters
-				reductionSet.removeAll(newCollectFilters);
+				nonPureExistentialFilters.removeAll(newCollectFilters);
 			}
 			final List<PathFilterElement> filterElements = new ArrayList<>();
 			for (final PathFilter filter : collectFilters) {
@@ -253,7 +248,7 @@ public class PathFilterCollector implements DefaultConditionalElementsVisitor {
 	@Override
 	public void visit(final TestConditionalElement ce) {
 		this.pathFilters =
-				Arrays.asList(new PathFilter(new PathFilter.PathFilterElement(
+				Collections.singletonList(new PathFilter(new PathFilter.PathFilterElement(
 						SymbolToPathTranslator.translate(ce.getPredicateWithArguments(), paths))));
 	}
 
@@ -271,7 +266,7 @@ public class PathFilterCollector implements DefaultConditionalElementsVisitor {
 			// If there is no OrFunctionConditionalElement just proceed with the CE as it were
 			// the only child of an OrFunctionConditionalElement.
 			pathFilters =
-					Arrays.asList(ce.accept(
+					Collections.singletonList(ce.accept(
 							new PathFilterCollector(FactVariableCollector.collectPaths(ce)))
 							.getPathFilters());
 		}
