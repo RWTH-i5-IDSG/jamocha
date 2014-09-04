@@ -23,6 +23,9 @@ import lombok.Getter;
 
 import org.jamocha.function.FunctionNormaliser;
 import org.jamocha.function.fwa.PredicateWithArguments;
+import org.jamocha.function.fwa.PredicateWithArgumentsComposite;
+import org.jamocha.function.impls.predicates.DummyPredicate;
+import org.jamocha.visitor.Visitable;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
@@ -34,9 +37,32 @@ public class PathFilter extends Filter<PathFilter.PathFilterElement> {
 	@Getter
 	protected final Set<Path> positiveExistentialPaths, negativeExistentialPaths;
 
-	public static class PathFilterElement extends Filter.FilterElement {
+	public static class PathFilterElement extends Filter.FilterElement implements
+			Visitable<PathFilterElementVisitor> {
 		public PathFilterElement(final PredicateWithArguments function) {
 			super(function);
+		}
+
+		@Override
+		public <V extends PathFilterElementVisitor> V accept(final V visitor) {
+			visitor.visit(this);
+			return visitor;
+		}
+	}
+
+	@Getter
+	public static class DummyPathFilterElement extends PathFilterElement {
+		final Path[] paths;
+
+		public DummyPathFilterElement(final Path... paths) {
+			super(new PredicateWithArgumentsComposite(DummyPredicate.instance));
+			this.paths = paths;
+		}
+
+		@Override
+		public <V extends PathFilterElementVisitor> V accept(final V visitor) {
+			visitor.visit(this);
+			return visitor;
 		}
 	}
 
