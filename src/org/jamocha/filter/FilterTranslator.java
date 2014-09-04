@@ -14,11 +14,18 @@
  */
 package org.jamocha.filter;
 
+import static java.util.Arrays.stream;
+import static org.jamocha.util.ToArray.toArray;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Set;
 import java.util.function.IntFunction;
 import java.util.stream.Collectors;
+
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 import org.jamocha.dn.memory.CounterColumn;
 import org.jamocha.dn.memory.CounterColumnMatcher;
@@ -29,16 +36,17 @@ import org.jamocha.filter.AddressFilter.ExistentialAddressFilterElement;
 import org.jamocha.filter.PathFilter.PathFilterElement;
 import org.jamocha.function.fwa.Assert;
 import org.jamocha.function.fwa.ConstantLeaf;
+import org.jamocha.function.fwa.DefaultFunctionWithArgumentsVisitor;
 import org.jamocha.function.fwa.FunctionWithArguments;
 import org.jamocha.function.fwa.FunctionWithArgumentsComposite;
 import org.jamocha.function.fwa.FunctionWithArgumentsVisitor;
 import org.jamocha.function.fwa.Modify;
 import org.jamocha.function.fwa.PathLeaf;
+import org.jamocha.function.fwa.PathLeaf.ParameterLeaf;
 import org.jamocha.function.fwa.PredicateWithArguments;
 import org.jamocha.function.fwa.PredicateWithArgumentsComposite;
 import org.jamocha.function.fwa.Retract;
 import org.jamocha.function.fwa.SymbolLeaf;
-import org.jamocha.function.fwa.PathLeaf.ParameterLeaf;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
@@ -60,13 +68,10 @@ public class FilterTranslator {
 
 	private static AddressFilterElement[] translateFEs(final PathFilter pathFilter,
 			final CounterColumnMatcher filterElementToCounterColumn) {
-		final PathFilterElement[] pathFEs = pathFilter.getFilterElements();
-		final AddressFilterElement[] addrFEs = new AddressFilterElement[pathFEs.length];
-		for (int i = 0; i < pathFEs.length; i++) {
-			final PathFilterElement pathFE = pathFEs[i];
-			addrFEs[i] = translate(pathFE, filterElementToCounterColumn.getCounterColumn(pathFE));
-		}
-		return addrFEs;
+		return toArray(
+				stream(pathFilter.getFilterElements()).map(
+						fe -> translate(fe, filterElementToCounterColumn.getCounterColumn(fe))),
+				AddressFilterElement[]::new);
 	}
 
 	static Set<FactAddress> toFactAddressSet(final Set<Path> existentialPaths) {
@@ -81,8 +86,7 @@ public class FilterTranslator {
 				pathFilterElement.getFunction()
 						.accept(new PredicateWithArgumentsTranslator(addresses))
 						.getFunctionWithArguments();
-		final SlotInFactAddress[] addressArray =
-				addresses.toArray(new SlotInFactAddress[addresses.size()]);
+		final SlotInFactAddress[] addressArray = toArray(addresses, SlotInFactAddress[]::new);
 		if (null == counterColumn)
 			return new AddressFilterElement(predicateWithArguments, addressArray);
 		return new ExistentialAddressFilterElement(predicateWithArguments, addressArray,
@@ -116,17 +120,12 @@ public class FilterTranslator {
 	/**
 	 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
 	 */
-	private static class PredicateWithArgumentsTranslator implements FunctionWithArgumentsVisitor {
+	@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+	private static class PredicateWithArgumentsTranslator implements
+			DefaultFunctionWithArgumentsVisitor {
 		private final Collection<SlotInFactAddress> addresses;
+		@Getter
 		private PredicateWithArguments functionWithArguments;
-
-		private PredicateWithArgumentsTranslator(final Collection<SlotInFactAddress> addresses) {
-			this.addresses = addresses;
-		}
-
-		public PredicateWithArguments getFunctionWithArguments() {
-			return this.functionWithArguments;
-		}
 
 		@Override
 		public void visit(final PredicateWithArgumentsComposite predicateWithArgumentsComposite) {
@@ -137,61 +136,7 @@ public class FilterTranslator {
 		}
 
 		@Override
-		public void visit(final FunctionWithArgumentsComposite functionWithArgumentsComposite) {
-			throw new UnsupportedOperationException(
-					"PredicateWithArgumentsTranslator is only to be used with PredicateWithArguments!");
-		}
-
-		@Override
-		public void visit(final ConstantLeaf constantLeaf) {
-			throw new UnsupportedOperationException(
-					"PredicateWithArgumentsTranslator is only to be used with PredicateWithArguments!");
-		}
-
-		@Override
-		public void visit(final ParameterLeaf parameterLeaf) {
-			throw new UnsupportedOperationException(
-					"PredicateWithArgumentsTranslator is only to be used with PredicateWithArguments!");
-		}
-
-		@Override
-		public void visit(final PathLeaf pathLeaf) {
-			throw new UnsupportedOperationException(
-					"PredicateWithArgumentsTranslator is only to be used with PredicateWithArguments!");
-		}
-
-		@Override
-		public void visit(final Assert fwa) {
-			throw new UnsupportedOperationException(
-					"PredicateWithArgumentsTranslator is only to be used with PredicateWithArguments!");
-		}
-
-		@Override
-		public void visit(final Assert.TemplateContainer fwa) {
-			throw new UnsupportedOperationException(
-					"PredicateWithArgumentsTranslator is only to be used with PredicateWithArguments!");
-		}
-
-		@Override
-		public void visit(final Retract fwa) {
-			throw new UnsupportedOperationException(
-					"PredicateWithArgumentsTranslator is only to be used with PredicateWithArguments!");
-		}
-
-		@Override
-		public void visit(final Modify fwa) {
-			throw new UnsupportedOperationException(
-					"PredicateWithArgumentsTranslator is only to be used with PredicateWithArguments!");
-		}
-
-		@Override
-		public void visit(final Modify.SlotAndValue fwa) {
-			throw new UnsupportedOperationException(
-					"PredicateWithArgumentsTranslator is only to be used with PredicateWithArguments!");
-		}
-
-		@Override
-		public void visit(final SymbolLeaf fwa) {
+		public void defaultAction(final FunctionWithArguments function) {
 			throw new UnsupportedOperationException(
 					"PredicateWithArgumentsTranslator is only to be used with PredicateWithArguments!");
 		}
