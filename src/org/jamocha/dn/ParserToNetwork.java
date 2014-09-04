@@ -21,6 +21,8 @@ import org.jamocha.dn.ConstructCache.Defrule;
 import org.jamocha.dn.memory.Template;
 import org.jamocha.dn.memory.Template.Slot;
 import org.jamocha.function.fwa.Assert;
+import org.jamocha.languages.common.ScopeStack;
+import org.jamocha.languages.common.SingleFactVariable;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
@@ -46,4 +48,8 @@ public interface ParserToNetwork {
 	Collection<Deffacts> getDeffacts();
 
 	void reset();
+
+	ScopeStack getScope();
+
+	SingleFactVariable getInitialFactVariable();
 }

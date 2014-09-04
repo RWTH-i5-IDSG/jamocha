@@ -189,13 +189,10 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 	 * <li>rules, functions, and template may use the same names</li>
 	 * </ul>
 	 */
-	final ScopeStack scope = new ScopeStack();
 	final Queue<Warning> warnings = new LinkedList<>();
 
 	final ParserToNetwork parserToNetwork;
 	final SideEffectFunctionToNetwork sideEffectFunctionToNetwork;
-
-	final Template initialFact;
 
 	final EnumMap<SlotType, Object> defaultValues = new EnumMap<>(SlotType.class);
 
@@ -203,8 +200,6 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 			final SideEffectFunctionToNetwork sideEffectFunctionToNetwork) {
 		this.parserToNetwork = parserToNetwork;
 		this.sideEffectFunctionToNetwork = sideEffectFunctionToNetwork;
-		this.initialFact = parserToNetwork.defTemplate("initial-fact", "");
-		parserToNetwork.defFacts("initial-fact", "", new TemplateContainer(initialFact));
 		{
 			final Template dummyFact =
 					parserToNetwork.defTemplate("dummy-fact",
@@ -234,7 +229,8 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 					defaultValues.put(type, "");
 					break;
 				case SYMBOL:
-					defaultValues.put(type, scope.getOrCreateSymbol("nil"));
+					defaultValues.put(type, this.parserToNetwork.getScope()
+							.getOrCreateSymbol("nil"));
 					break;
 				case FACTADDRESS:
 					defaultValues.put(type, dummyFactIdentifier);
@@ -266,7 +262,8 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 		@Override
 		public Object visit(final SFPSymbol node, final Object data) {
 			this.symbol =
-					SFPVisitorImpl.this.scope.getOrCreateSymbol(node.jjtGetValue().toString());
+					SFPVisitorImpl.this.parserToNetwork.getScope().getOrCreateSymbol(
+							node.jjtGetValue().toString());
 			return data;
 		}
 	}
@@ -751,7 +748,8 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 		public Object visit(final SFPSingleVariable node, final Object data) {
 			assert node.jjtGetNumChildren() == 0;
 			this.symbol =
-					SFPVisitorImpl.this.scope.getOrCreateSymbol(node.jjtGetValue().toString());
+					SFPVisitorImpl.this.parserToNetwork.getScope().getOrCreateSymbol(
+							node.jjtGetValue().toString());
 			return data;
 		}
 	}
@@ -813,7 +811,8 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 								data);
 				if (!constraintVariable.isPresent()) {
 					// create dummy variable
-					final Symbol dummy = SFPVisitorImpl.this.scope.createDummy();
+					final Symbol dummy =
+							SFPVisitorImpl.this.parserToNetwork.getScope().createDummy();
 					final SingleSlotVariable dummyVar =
 							parent.factVariable.newSingleSlotVariable(dummy, slot, false);
 					constraintVariable = Optional.of(dummyVar);
@@ -851,7 +850,8 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 				assert 1 == node.jjtGetNumChildren();
 				if (!constraintVariable.isPresent()) {
 					// create dummy variable
-					final Symbol dummy = SFPVisitorImpl.this.scope.createDummy();
+					final Symbol dummy =
+							SFPVisitorImpl.this.parserToNetwork.getScope().createDummy();
 					final SingleSlotVariable dummyVar =
 							parent.factVariable.newSingleSlotVariable(dummy, slot, false);
 					constraintVariable = Optional.of(dummyVar);
@@ -1148,7 +1148,8 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 				this.factVariable = new SingleFactVariable(possibleFactVariable, template);
 				this.possibleFactVariable.setFactVariable(this.factVariable);
 			} else {
-				this.factVariable = new SingleFactVariable(scope.createDummy(), template);
+				this.factVariable =
+						new SingleFactVariable(parserToNetwork.getScope().createDummy(), template);
 			}
 			final TemplatePatternConditionalElement templCE =
 					new TemplatePatternConditionalElement(factVariable);
@@ -1220,7 +1221,8 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 		public Object visit(final SFPNotFunction node, final Object data) {
 			// not has multiple meanings: boolean operator, not exists operator
 			assert node.jjtGetNumChildren() == 1;
-			try (final ScopeCloser scopeCloser = new ScopeCloser(SFPVisitorImpl.this.scope);
+			try (final ScopeCloser scopeCloser =
+					new ScopeCloser(SFPVisitorImpl.this.parserToNetwork.getScope());
 					final ScopedExistentialStack scopedExistentialStack =
 							new ScopedExistentialStack(contextStack, this, ExistentialState.NEGATED)) {
 				final SFPConditionalElementVisitor visitor =
@@ -1259,7 +1261,8 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 		@Override
 		public Object visit(final SFPExistsCE node, final Object data) {
 			assert node.jjtGetNumChildren() > 0;
-			try (final ScopeCloser scopeCloser = new ScopeCloser(SFPVisitorImpl.this.scope);
+			try (final ScopeCloser scopeCloser =
+					new ScopeCloser(SFPVisitorImpl.this.parserToNetwork.getScope());
 					final ScopedExistentialStack scopedExistentialStack =
 							new ScopedExistentialStack(contextStack, this,
 									ExistentialState.EXISTENTIAL)) {
@@ -1752,7 +1755,8 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 					throw new ClipsNameClashError(symbol.getImage(), node, "Rule "
 							+ symbol.getImage() + " already defined!");
 				}
-				try (final ScopeCloser scopeCloser = new ScopeCloser(SFPVisitorImpl.this.scope)) {
+				try (final ScopeCloser scopeCloser =
+						new ScopeCloser(SFPVisitorImpl.this.parserToNetwork.getScope())) {
 					final ExistentialStack existentialStack = new ExistentialStack();
 					String comment = null;
 					final ArrayList<ConditionalElement> ces = new ArrayList<>();
@@ -1774,8 +1778,8 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 					}
 					if (!existentialStack.templateCEContained) {
 						ces.add(0,
-								new InitialFactConditionalElement(new SingleFactVariable(scope
-										.createDummy(), initialFact)));
+								new InitialFactConditionalElement(parserToNetwork
+										.getInitialFactVariable()));
 					}
 					existentialStack.getConditionalElements().addAll(ces);
 					this.defrule =

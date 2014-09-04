@@ -16,7 +16,6 @@ package test.jamocha.util;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -28,10 +27,11 @@ import org.jamocha.dn.SideEffectFunctionToNetwork;
 import org.jamocha.dn.memory.Fact;
 import org.jamocha.dn.memory.FactIdentifier;
 import org.jamocha.dn.memory.MemoryFact;
-import org.jamocha.dn.memory.SlotType;
 import org.jamocha.dn.memory.Template;
 import org.jamocha.dn.memory.Template.Slot;
 import org.jamocha.function.fwa.Assert.TemplateContainer;
+import org.jamocha.languages.common.ScopeStack;
+import org.jamocha.languages.common.SingleFactVariable;
 import org.jamocha.logging.LogFormatter;
 import org.jamocha.logging.TypedFilter;
 
@@ -43,7 +43,14 @@ public class NetworkMockup implements ParserToNetwork, SideEffectFunctionToNetwo
 
 	Map<String, Template> templates = new HashMap<>();
 	Map<String, Defrule> rules = new HashMap<>();
-	EnumMap<SlotType, Object> defaultValues = new EnumMap<>(SlotType.class);
+	final ScopeStack scope = new ScopeStack();
+	final SingleFactVariable initialFactVariable;
+
+	public NetworkMockup() {
+		final Template initialFact = defTemplate("initial-fact", "");
+		defFacts("initial-fact", "", new TemplateContainer(initialFact));
+		this.initialFactVariable = new SingleFactVariable(scope.createDummy(), initialFact);
+	}
 
 	@Override
 	public Template defTemplate(String name, String description, Slot... slots) {
@@ -130,5 +137,15 @@ public class NetworkMockup implements ParserToNetwork, SideEffectFunctionToNetwo
 	@Override
 	public TypedFilter getTypedFilter() {
 		return null;
+	}
+
+	@Override
+	public SingleFactVariable getInitialFactVariable() {
+		return initialFactVariable;
+	}
+
+	@Override
+	public ScopeStack getScope() {
+		return scope;
 	}
 }
