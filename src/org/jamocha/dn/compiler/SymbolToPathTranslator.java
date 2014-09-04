@@ -58,7 +58,7 @@ public class SymbolToPathTranslator implements FunctionWithArgumentsVisitor {
 	}
 
 	private void handleGWAC(final GenericWithArgumentsComposite<?, ?> gwac) {
-		FunctionWithArguments[] args = gwac.getArgs();
+		final FunctionWithArguments[] args = gwac.getArgs();
 		for (int i = 0; i < args.length; i++) {
 			args[i] = args[i].accept(new SymbolToPathTranslator(paths)).getResult();
 		}
@@ -66,57 +66,57 @@ public class SymbolToPathTranslator implements FunctionWithArgumentsVisitor {
 	}
 
 	@Override
-	public void visit(FunctionWithArgumentsComposite functionWithArgumentsComposite) {
+	public void visit(final FunctionWithArgumentsComposite functionWithArgumentsComposite) {
 		handleGWAC(functionWithArgumentsComposite);
 	}
 
 	@Override
-	public void visit(PredicateWithArgumentsComposite predicateWithArgumentsComposite) {
+	public void visit(final PredicateWithArgumentsComposite predicateWithArgumentsComposite) {
 		handleGWAC(predicateWithArgumentsComposite);
 	}
 
 	@Override
-	public void visit(ConstantLeaf constantLeaf) {
+	public void visit(final ConstantLeaf constantLeaf) {
 		result = constantLeaf;
 	}
 
 	@Override
-	public void visit(ParameterLeaf parameterLeaf) {
+	public void visit(final ParameterLeaf parameterLeaf) {
 		throw new Error("ParameterLeaf should not exists at this stage");
 	}
 
 	@Override
-	public void visit(PathLeaf pathLeaf) {
+	public void visit(final PathLeaf pathLeaf) {
 		throw new Error("PathLeaf should not exists at this stage");
 	}
 
 	@Override
-	public void visit(Assert fwa) {
+	public void visit(final Assert fwa) {
 		throw new Error("Assert in predicate");
 	}
 
 	@Override
-	public void visit(TemplateContainer fwa) {
+	public void visit(final TemplateContainer fwa) {
 		throw new Error("TemplateContainer should not exists at this stage");
 	}
 
 	@Override
-	public void visit(Retract fwa) {
+	public void visit(final Retract fwa) {
 		throw new Error("Retract in predicate");
 	}
 
 	@Override
-	public void visit(Modify fwa) {
+	public void visit(final Modify fwa) {
 		throw new Error("Modify in predicate");
 	}
 
 	@Override
-	public void visit(SlotAndValue fwa) {
+	public void visit(final SlotAndValue fwa) {
 		throw new Error("SlotAndValue in predicate");
 	}
 
 	@Override
-	public void visit(SymbolLeaf fwa) {
+	public void visit(final SymbolLeaf fwa) {
 		assert (fwa.getSymbol().getPositiveSlotVariables().size() > 0);
 		final SingleSlotVariable variable = fwa.getSymbol().getPositiveSlotVariables().get(0);
 		final Path path = this.paths.get(variable.getFactVariable());
