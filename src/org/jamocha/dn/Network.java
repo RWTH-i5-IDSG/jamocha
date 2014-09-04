@@ -271,24 +271,13 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 
 		// check candidates for possible node sharing
 		candidateLoop: for (final Node candidate : candidates) {
-			final AddressFilter candidateFilter = candidate.getFilter();
-
 			// check if filter matches
 			if (!FilterFunctionCompare.equals(candidate, normalisedFilter))
 				continue candidateLoop;
+			
+			// FIXME fix FilterFunctionCompare.equals to return path->address mapping if possible otherwise null.
+			// check for null to continue.
 
-			final FactAddress[] addressesInTarget =
-					FactAddressCollector.newLinkedHashSet().collect(candidateFilter)
-							.getAddressesArray();
-			assert addressesInTarget.length == paths.length;
-			for (int i = 0; i < addressesInTarget.length; ++i) {
-				final FactAddress address = addressesInTarget[i];
-				final Path path = paths[i];
-				// de-localize address
-				if (candidate.delocalizeAddress(address).getAddress() != path
-						.getFactAddressInCurrentlyLowestNode())
-					continue candidateLoop;
-			}
 			candidate.shareNode(paths);
 			return true;
 		}
@@ -300,10 +289,11 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 		assert filterPathNodes.size() > 0;
 		final Iterator<Node> filterPathNodesIterator = filterPathNodes.iterator();
 
+		// TODO existential edges??? 
 		// add all children of the first node
-		final Collection<Edge> firstNodesOutgoingPositiveEdges =
+		final Collection<Edge> firstNodesOutgoingEdges =
 				filterPathNodesIterator.next().getOutgoingEdges();
-		for (final Edge edge : firstNodesOutgoingPositiveEdges) {
+		for (final Edge edge : firstNodesOutgoingEdges) {
 			try {
 				candidates.add(edge.getTargetNode());
 			} catch (final UnsupportedOperationException e) {
@@ -355,6 +345,7 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 				}
 		}
 		final Node lowestNode = allPaths.iterator().next().getCurrentlyLowestNode();
+		assert allPaths.stream().map(Path::getCurrentlyLowestNode).distinct().count() == 1;
 		return new TerminalNode(this, lowestNode);
 	}
 

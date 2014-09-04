@@ -290,6 +290,8 @@ public class FilterFunctionCompare {
 	}
 
 	public static boolean equals(final Node targetNode, final PathFilter pathFilter) {
+		// FIXME see: Network.tryToShareNode()
+		
 		final LinkedHashSet<Path> paths =
 				PathCollector.newLinkedHashSet().collect(pathFilter).getPaths();
 		final Edge[] edges = targetNode.getIncomingEdges();
@@ -309,10 +311,11 @@ public class FilterFunctionCompare {
 				}
 				continue edgeloop;
 			}
+			throw new Error("For one edge no paths were found.");
 		}
 		assert paths.isEmpty();
 		final AddressFilter translatedFilter = FilterTranslator.translate(pathFilter, a -> null);
-		final AddressFilter targetFilter = targetNode.getFilter().getNormalisedVersion();
+		final AddressFilter targetFilter = targetNode.getFilter();
 		final boolean equal = equals(translatedFilter, targetFilter);
 		for (final Path path : joinedPaths) {
 			path.restoreCache();

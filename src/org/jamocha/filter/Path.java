@@ -143,7 +143,7 @@ public class Path {
 
 	@Override
 	public String toString() {
-		return "Path";
+		return "Path"+this.hashCode();
 	}
 
 	public void cachedOverride(final Node currentlyLowestNode,

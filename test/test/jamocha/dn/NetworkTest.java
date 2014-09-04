@@ -21,6 +21,8 @@ import static org.junit.Assert.assertTrue;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.LinkedHashSet;
+import java.util.TooManyListenersException;
+import java.util.stream.Collectors;
 
 import org.jamocha.dn.Network;
 import org.jamocha.dn.PlainScheduler;
@@ -36,6 +38,8 @@ import org.jamocha.filter.PathFilter;
 import org.jamocha.function.Function;
 import org.jamocha.function.FunctionDictionary;
 import org.jamocha.function.Predicate;
+import org.jamocha.function.impls.predicates.Greater;
+import org.jamocha.function.impls.predicates.Less;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -569,5 +573,46 @@ public class NetworkTest {
 		assertEquals(matchingProf1.getCurrentlyLowestNode(), matchingProf2.getCurrentlyLowestNode());
 		assertEquals(matchingProf1.getFactAddressInCurrentlyLowestNode(),
 				matchingProf2.getFactAddressInCurrentlyLowestNode());
+	}
+
+	@Test
+	public void testBuildRuleSelfJoin() {
+		final PlainScheduler scheduler = new PlainScheduler();
+		final Network network = new Network(Integer.MAX_VALUE, scheduler);
+
+		final Template student =
+				MemoryFactory.getMemoryFactory().newTemplate("Student", "Student",
+						Slots.newString("Name"), Slots.newLong("Semester"),
+						Slots.newString("Studiengang"), Slots.newString("Hobby"));
+		final Path oldStudent1 = new Path(student), youngStudent1 = new Path(student), oldStudent2 =
+				new Path(student), youngStudent2 = new Path(student);
+		final SlotAddress studentSem = new SlotAddress(1);
+
+		final Predicate lessLongLong =
+				FunctionDictionary.lookupPredicate(Less.inClips, SlotType.LONG, SlotType.LONG);
+		final Predicate greaterLongLong =
+				FunctionDictionary.lookupPredicate(Greater.inClips, SlotType.LONG, SlotType.LONG);
+
+		final PathFilter[] filterOne =
+				new PathFilter[] { new PathFilter(new PredicateBuilder(lessLongLong)
+						.addPath(youngStudent1, studentSem).addPath(oldStudent1, studentSem)
+						.buildPFE()) };
+		final PathFilter[] filterTwo =
+				new PathFilter[] { new PathFilter(new PredicateBuilder(greaterLongLong)
+						.addPath(youngStudent2, studentSem).addPath(oldStudent2, studentSem)
+						.buildPFE()) };
+		network.buildRule(filterTwo);
+		network.buildRule(filterOne);
+
+		assertEquals(oldStudent1.getCurrentlyLowestNode(), oldStudent2.getCurrentlyLowestNode());
+		assertEquals(oldStudent1.getFactAddressInCurrentlyLowestNode(),
+				oldStudent2.getFactAddressInCurrentlyLowestNode());
+		
+		assertNotEquals(oldStudent1.getFactAddressInCurrentlyLowestNode(),
+				youngStudent2.getFactAddressInCurrentlyLowestNode());
+
+		assertEquals(youngStudent1.getCurrentlyLowestNode(), youngStudent2.getCurrentlyLowestNode());
+		assertEquals(youngStudent1.getFactAddressInCurrentlyLowestNode(),
+				youngStudent2.getFactAddressInCurrentlyLowestNode());
 	}
 }
