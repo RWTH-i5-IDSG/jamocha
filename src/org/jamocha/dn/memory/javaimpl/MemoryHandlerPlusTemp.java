@@ -549,7 +549,8 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 			final boolean existential = (counterColumn != null);
 			/*
 			 * requirement: if filter element is existential, all edges on the stack except
-			 * originEdge are existential as well (meaning all regular parts have been join already)
+			 * originEdge are existential as well (meaning all regular parts have been joined
+			 * already)
 			 */
 
 			// determine new edges
