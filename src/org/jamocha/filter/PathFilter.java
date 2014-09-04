@@ -87,6 +87,25 @@ public class PathFilter extends Filter<PathFilter.PathFilterElement> {
 	}
 
 	/**
+	 * Constructs the filter using the given filter elements. The existential paths are treated as
+	 * positive existential paths if isPositive is true and as negative existential paths if
+	 * isPositive is false.
+	 * 
+	 * @param isPositive
+	 *            whether the existential paths are positive
+	 * @param existentialPaths
+	 *            set of all existential paths that are part of the filter or have been joined to
+	 *            such paths
+	 * @param filterElements
+	 *            filter elements to be used in the filter
+	 */
+	public PathFilter(final boolean isPositive, final Set<Path> existentialPaths,
+			final PathFilterElement... filterElements) {
+		this(isPositive ? existentialPaths : new HashSet<>(), isPositive ? new HashSet<Path>()
+				: existentialPaths, filterElements);
+	}
+
+	/**
 	 * Constructs the filter using the given filter elements without any existential paths.
 	 * 
 	 * @param filterElements

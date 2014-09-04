@@ -40,7 +40,7 @@ import org.apache.logging.log4j.core.layout.PatternLayout;
 import org.apache.logging.log4j.core.util.Charsets;
 import org.jamocha.dn.ConstructCache.Deffacts;
 import org.jamocha.dn.ConstructCache.Defrule;
-import org.jamocha.dn.compiler.PathFilterCollector;
+import org.jamocha.dn.compiler.PathFilterConsolidator;
 import org.jamocha.dn.memory.Fact;
 import org.jamocha.dn.memory.FactAddress;
 import org.jamocha.dn.memory.FactIdentifier;
@@ -456,8 +456,8 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 		RuleConditionProcessor.flatten(conditionalElements);
 		assert conditionalElements.size() == 1;
 		// Transform TestCEs to PathFilters and collect them
-		return conditionalElements.get(0).accept(new PathFilterCollector.OrPathFilterCollector())
-				.getPathFilters();
+		return new PathFilterConsolidator(initialFactVariable).consolidate(
+				conditionalElements.get(0)).getPathFilters();
 	}
 
 	/**
