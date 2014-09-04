@@ -28,11 +28,14 @@ public class Predicates {
 
 	static {
 		FunctionDictionary.addImpl(org.jamocha.function.impls.predicates.And.class);
+		FunctionDictionary.addImpl(org.jamocha.function.impls.predicates.DummyPredicate.class);
 		FunctionDictionary.addImpl(org.jamocha.function.impls.predicates.Equals.class);
 		FunctionDictionary.addImpl(org.jamocha.function.impls.predicates.Greater.class);
 		FunctionDictionary.addImpl(org.jamocha.function.impls.predicates.GreaterOrEqual.class);
 		FunctionDictionary.addImpl(org.jamocha.function.impls.predicates.Less.class);
 		FunctionDictionary.addImpl(org.jamocha.function.impls.predicates.LessOrEqual.class);
+		FunctionDictionary.addImpl(org.jamocha.function.impls.predicates.Not.class);
+		FunctionDictionary.addImpl(org.jamocha.function.impls.predicates.Or.class);
 	}
 
 }
