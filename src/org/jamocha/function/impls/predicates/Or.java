@@ -29,7 +29,7 @@ import org.jamocha.function.impls.FunctionVisitor;
  * @see FunctionDictionary
  */
 public abstract class Or extends Predicate implements CommutativeFunction<Boolean> {
-	public static String inClips = "or";
+	public static final String inClips = "or";
 
 	@Override
 	public String inClips() {

@@ -29,7 +29,7 @@ import org.jamocha.function.impls.FunctionVisitor;
  * @see FunctionDictionary
  */
 public abstract class And extends Predicate implements CommutativeFunction<Boolean> {
-	public static String inClips = "and";
+	public static final String inClips = "and";
 
 	@Override
 	public String inClips() {

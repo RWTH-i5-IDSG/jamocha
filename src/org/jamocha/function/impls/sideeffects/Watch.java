@@ -29,7 +29,7 @@ import org.jamocha.logging.Type;
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
 public abstract class Watch implements Function<Object> {
-	public static String inClips = "watch";
+	public static final String inClips = "watch";
 
 	@Override
 	public SlotType getReturnType() {

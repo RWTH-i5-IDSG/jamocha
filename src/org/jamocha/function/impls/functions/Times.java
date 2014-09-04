@@ -28,7 +28,7 @@ import org.jamocha.function.FunctionDictionary;
  * @see FunctionDictionary
  */
 public abstract class Times<R> implements CommutativeFunction<R> {
-	public static String inClips = "*";
+	public static final String inClips = "*";
 
 	@Override
 	public String inClips() {

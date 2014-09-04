@@ -27,7 +27,7 @@ import org.jamocha.logging.Type;
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
 public abstract class Ppdeftemplate implements Function<Object> {
-	public static String inClips = "ppdeftemplate";
+	public static final String inClips = "ppdeftemplate";
 
 	@Override
 	public SlotType getReturnType() {

@@ -24,7 +24,7 @@ import org.jamocha.function.impls.FunctionVisitor;
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
 public abstract class Facts implements Function<Object> {
-	public static String inClips = "facts";
+	public static final String inClips = "facts";
 
 	@Override
 	public String inClips() {

@@ -24,7 +24,7 @@ import org.jamocha.function.impls.FunctionVisitor;
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
 public abstract class ListDeftemplates implements Function<Object> {
-	public static String inClips = "list-deftemplates";
+	public static final String inClips = "list-deftemplates";
 
 	@Override
 	public SlotType getReturnType() {

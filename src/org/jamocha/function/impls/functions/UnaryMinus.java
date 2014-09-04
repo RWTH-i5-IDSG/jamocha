@@ -27,7 +27,7 @@ import org.jamocha.function.impls.FunctionVisitor;
  * @see FunctionDictionary
  */
 public abstract class UnaryMinus<R> implements Function<R> {
-	public static String inClips = "-";
+	public static final String inClips = "-";
 
 	@Override
 	public String inClips() {

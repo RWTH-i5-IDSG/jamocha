@@ -31,7 +31,7 @@ import org.jamocha.function.impls.FunctionVisitor;
  * 
  */
 public abstract class Equals extends Predicate implements CommutativeFunction<Boolean> {
-	public static String inClips = "=";
+	public static final String inClips = "=";
 
 	@Override
 	public String inClips() {
