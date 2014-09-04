@@ -64,6 +64,11 @@ public interface DefaultFunctionVisitor extends FunctionVisitor {
 	}
 
 	@Override
+	default void visit(final org.jamocha.function.impls.predicates.DummyPredicate predicate) {
+		defaultAction(predicate);
+	}
+
+	@Override
 	default void visit(final org.jamocha.function.impls.predicates.Equals predicate) {
 		defaultAction(predicate);
 	}

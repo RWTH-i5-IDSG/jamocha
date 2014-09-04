@@ -38,6 +38,8 @@ public interface FunctionVisitor extends Visitor {
 	// predicates
 	void visit(final org.jamocha.function.impls.predicates.And predicate);
 
+	void visit(final org.jamocha.function.impls.predicates.DummyPredicate predicate);
+
 	void visit(final org.jamocha.function.impls.predicates.Equals predicate);
 
 	void visit(final org.jamocha.function.impls.predicates.Greater predicate);
