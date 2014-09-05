@@ -14,20 +14,27 @@
  */
 package org.jamocha.filter;
 
+import static java.util.stream.Collectors.groupingBy;
+
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
+import lombok.Value;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.jamocha.dn.memory.FactAddress;
 import org.jamocha.dn.nodes.Edge;
 import org.jamocha.dn.nodes.Node;
@@ -289,38 +296,155 @@ public class FilterFunctionCompare {
 		return new FilterFunctionCompare(targetFilterElement, compareFilterElement).equal;
 	}
 
-	public static boolean equals(final Node targetNode, final PathFilter pathFilter) {
-		// FIXME see: Network.tryToShareNode()
-		
-		final LinkedHashSet<Path> paths =
-				PathCollector.newLinkedHashSet().collect(pathFilter).getPaths();
-		final Edge[] edges = targetNode.getIncomingEdges();
-		final Set<Path> joinedPaths = new HashSet<>();
-		edgeloop: for (final Edge edge : edges) {
-			for (final Iterator<Path> iterator = paths.iterator(); iterator.hasNext();) {
-				final Path currentPath = iterator.next();
-				if (currentPath.getCurrentlyLowestNode() != edge.getSourceNode()) {
-					continue;
+	static void swap(final int[] list, final int i, final int j) {
+		final int tmp = list[i];
+		list[i] = list[j];
+		list[j] = tmp;
+	}
+
+	static class Permutation<T> {
+		final List<T> list;
+		final int[] p;
+		final int length;
+
+		public Permutation(final List<T> list) {
+			this.length = list.size();
+			this.list = list;
+			this.p = new int[this.length];
+			Arrays.parallelSetAll(p, i -> i);
+		}
+
+		public boolean nextPermutation() {
+			if (length < 2)
+				return false;
+			int i = length - 1;
+			while (true) {
+				final int ii = i--;
+				// find neighbors with p[n] < p[n+1]
+				if (p[i] < p[ii]) {
+					int j = length - 1;
+					// find the last list[m] < p[n]
+					while (p[i] >= p[j]) {
+						--j;
+					}
+					// Swap p[n] and p[m], and reverse from m+1 to the end
+					swap(p, i, j);
+					ArrayUtils.reverse(p, ii, length);
+					Collections.swap(list, i, j);
+					Collections.reverse(list.subList(ii, length));
+					return true;
 				}
-				for (final Path path : currentPath.getJoinedWith()) {
-					final FactAddress localizedAddress =
-							edge.localizeAddress(path.getFactAddressInCurrentlyLowestNode());
-					path.cachedOverride(targetNode, localizedAddress, joinedPaths);
-					joinedPaths.add(path);
-					paths.remove(path);
+				// Neighbors in descending order
+				// Is that true for the whole sequence?
+				if (0 == i) {
+					// Reverse the sequence to its original order
+					ArrayUtils.reverse(p);
+					Collections.reverse(list);
+					return false;
 				}
-				continue edgeloop;
 			}
-			throw new Error("For one edge no paths were found.");
 		}
-		assert paths.isEmpty();
-		final AddressFilter translatedFilter = FilterTranslator.translate(pathFilter, a -> null);
-		final AddressFilter targetFilter = targetNode.getFilter();
-		final boolean equal = equals(translatedFilter, targetFilter);
-		for (final Path path : joinedPaths) {
-			path.restoreCache();
+	}
+
+	public static void main(String[] args) {
+		final List<Integer> toPermute = new ArrayList<>(Arrays.asList(2, 3, 4, 5, 6, 7, 8));
+		final ComponentwisePermutation<Integer> componentwisePermutation =
+				new ComponentwisePermutation<>(Arrays.asList(toPermute.subList(0, 2),
+						toPermute.subList(3, 7)));
+		do {
+			System.out.println(ArrayUtils.toString(toPermute.toArray()));
+		} while (componentwisePermutation.nextPermutation());
+	}
+
+	static class ComponentwisePermutation<T> {
+		final List<Permutation<T>> permutators;
+
+		public ComponentwisePermutation(final List<List<T>> sublists) {
+			this.permutators = new ArrayList<>(sublists.size());
+			for (final List<T> list : sublists) {
+				permutators.add(new Permutation<T>(list));
+			}
 		}
-		return equal;
+
+		public boolean nextPermutation() {
+			if (this.permutators.isEmpty()) {
+				return false;
+			}
+			for (final Iterator<Permutation<T>> iter = permutators.iterator(); iter.hasNext();) {
+				final Permutation<T> element = iter.next();
+				if (element.nextPermutation())
+					return true;
+				if (!iter.hasNext())
+					return false;
+			}
+			return true;
+		}
+	}
+
+	@Value
+	static class Range {
+		final int start, end;
+	}
+
+	public static Map<Path, FactAddress> equals(final Node targetNode, final PathFilter pathFilter) {
+		final List<Path> pathsPermutation = new LinkedList<>();
+		final ComponentwisePermutation<Path> componentwisePermutation;
+		{
+			final Map<Node, List<Path>> pathsByNode =
+					PathCollector.newHashSet().collect(pathFilter).getPaths().stream()
+							.collect(groupingBy(path -> path.getCurrentlyLowestNode()));
+			final List<Range> ranges = new ArrayList<>(pathsByNode.size());
+			for (final Entry<Node, List<Path>> entry : pathsByNode.entrySet()) {
+				final List<Path> newPaths = entry.getValue();
+				final int start = pathsPermutation.size();
+				pathsPermutation.addAll(newPaths);
+				final int end = pathsPermutation.size();
+				if (end - start > 1) {
+					ranges.add(new Range(start, end));
+				}
+			}
+			final List<List<Path>> sublists = new ArrayList<>(ranges.size());
+			for (final Range range : ranges) {
+				sublists.add(pathsPermutation.subList(range.start, range.end));
+			}
+			componentwisePermutation = new ComponentwisePermutation<>(sublists);
+		}
+		do {
+			final List<Path> paths = new ArrayList<>(pathsPermutation);
+			final Map<Path, FactAddress> result = new HashMap<>();
+			final Edge[] edges = targetNode.getIncomingEdges();
+			final Set<Path> joinedPaths = new HashSet<>();
+			edgeloop: for (final Edge edge : edges) {
+				for (final Iterator<Path> iterator = paths.iterator(); iterator.hasNext();) {
+					final Path currentPath = iterator.next();
+					if (currentPath.getCurrentlyLowestNode() != edge.getSourceNode()) {
+						continue;
+					}
+					for (final Path path : currentPath.getJoinedWith()) {
+						final FactAddress localizedAddress =
+								edge.localizeAddress(path.getFactAddressInCurrentlyLowestNode());
+						path.cachedOverride(targetNode, localizedAddress, joinedPaths);
+						result.put(path, localizedAddress);
+						joinedPaths.add(path);
+						paths.remove(path);
+					}
+					continue edgeloop;
+				}
+				throw new Error("For one edge no paths were found.");
+			}
+			assert paths.isEmpty();
+			final AddressFilter translatedFilter =
+					FilterTranslator.translate(pathFilter, a -> null);
+			final AddressFilter targetFilter = targetNode.getFilter();
+			final boolean equal = equals(translatedFilter, targetFilter);
+			for (final Path path : joinedPaths) {
+				path.restoreCache();
+			}
+			if (equal) {
+				return result;
+			}
+		} while (componentwisePermutation.nextPermutation());
+		return null;
 	}
 
 	public static boolean equals(final AddressFilter targetFilter,

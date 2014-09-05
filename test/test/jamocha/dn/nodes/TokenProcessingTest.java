@@ -19,6 +19,7 @@ import static org.junit.Assert.assertThat;
 import static test.jamocha.util.AssertsAndRetracts.countAssertsAndRetractsInConflictSet;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -230,10 +231,8 @@ public class TokenProcessingTest {
 				new Network(org.jamocha.dn.memory.javaimpl.MemoryFactory.getMemoryFactory(),
 						Integer.MAX_VALUE, scheduler);
 		final Template t1 =
-				MemoryFactory.getMemoryFactory().newTemplate("", "", Slot.STRING,
-						Slot.LONG), t2 =
-				MemoryFactory.getMemoryFactory().newTemplate("", "", Slot.STRING,
-						Slot.BOOLEAN);
+				MemoryFactory.getMemoryFactory().newTemplate("", "", Slot.STRING, Slot.LONG), t2 =
+				MemoryFactory.getMemoryFactory().newTemplate("", "", Slot.STRING, Slot.BOOLEAN);
 		final Path p1 = new Path(t1), p2 = new Path(t2);
 		final SlotAddress s1 = new SlotAddress(0), s2 = new SlotAddress(1);
 
@@ -312,10 +311,8 @@ public class TokenProcessingTest {
 				new Network(org.jamocha.dn.memory.javaimpl.MemoryFactory.getMemoryFactory(),
 						Integer.MAX_VALUE, scheduler);
 		final Template t1 =
-				MemoryFactory.getMemoryFactory().newTemplate("", "", Slot.STRING,
-						Slot.LONG), t2 =
-				MemoryFactory.getMemoryFactory().newTemplate("", "", Slot.STRING,
-						Slot.BOOLEAN);
+				MemoryFactory.getMemoryFactory().newTemplate("", "", Slot.STRING, Slot.LONG), t2 =
+				MemoryFactory.getMemoryFactory().newTemplate("", "", Slot.STRING, Slot.BOOLEAN);
 		final Path p1 = new Path(t1), p2 = new Path(t2);
 		final SlotAddress s1 = new SlotAddress(0), s2 = new SlotAddress(1);
 
@@ -639,11 +636,9 @@ public class TokenProcessingTest {
 				new Network(org.jamocha.dn.memory.javaimpl.MemoryFactory.getMemoryFactory(),
 						Integer.MAX_VALUE, scheduler);
 		final Template t1 =
-				MemoryFactory.getMemoryFactory().newTemplate("", "", Slot.LONG,
-						Slot.STRING);
+				MemoryFactory.getMemoryFactory().newTemplate("", "", Slot.LONG, Slot.STRING);
 		final Template t2 =
-				MemoryFactory.getMemoryFactory().newTemplate("", "", Slot.DOUBLE,
-						Slot.STRING);
+				MemoryFactory.getMemoryFactory().newTemplate("", "", Slot.DOUBLE, Slot.STRING);
 		final Path p1 = new Path(t1);
 		final Path p2 = new Path(t2);
 		final SlotAddress slotStr = new SlotAddress(1);
@@ -694,8 +689,8 @@ public class TokenProcessingTest {
 				new Network(org.jamocha.dn.memory.javaimpl.MemoryFactory.getMemoryFactory(),
 						Integer.MAX_VALUE, scheduler);
 		final Template t1 =
-				MemoryFactory.getMemoryFactory().newTemplate("", "", Slot.LONG,
-						Slot.STRING, Slot.BOOLEAN);
+				MemoryFactory.getMemoryFactory().newTemplate("", "", Slot.LONG, Slot.STRING,
+						Slot.BOOLEAN);
 		final Path p1 = new Path(t1);
 		final SlotAddress slotLong = new SlotAddress(0), slotBool = new SlotAddress(2);
 
@@ -746,8 +741,8 @@ public class TokenProcessingTest {
 				new Network(org.jamocha.dn.memory.javaimpl.MemoryFactory.getMemoryFactory(),
 						Integer.MAX_VALUE, scheduler);
 		final Template t1 =
-				MemoryFactory.getMemoryFactory().newTemplate("", "", Slot.LONG,
-						Slot.STRING, Slot.BOOLEAN);
+				MemoryFactory.getMemoryFactory().newTemplate("", "", Slot.LONG, Slot.STRING,
+						Slot.BOOLEAN);
 		final Path p1 = new Path(t1);
 
 		final FilterMockup filter =
@@ -756,7 +751,7 @@ public class TokenProcessingTest {
 		final RootNode rootNode = network.getRootNode();
 		// create OTN
 		final ObjectTypeNode otn = new ObjectTypeNode(network, t1);
-		otn.shareNode(p1);
+		otn.shareNode(Collections.emptyMap(), p1);
 		// append to root node
 		rootNode.putOTN(otn);
 		// create & append alpha
@@ -833,8 +828,8 @@ public class TokenProcessingTest {
 				new Network(org.jamocha.dn.memory.javaimpl.MemoryFactory.getMemoryFactory(),
 						Integer.MAX_VALUE, scheduler);
 		final Template t1 =
-				MemoryFactory.getMemoryFactory().newTemplate("", "", Slot.LONG,
-						Slot.STRING, Slot.BOOLEAN);
+				MemoryFactory.getMemoryFactory().newTemplate("", "", Slot.LONG, Slot.STRING,
+						Slot.BOOLEAN);
 		final Path p1 = new Path(t1);
 
 		final FilterMockup filter =
@@ -843,7 +838,7 @@ public class TokenProcessingTest {
 		final RootNode rootNode = network.getRootNode();
 		// create OTN
 		final ObjectTypeNode otn = new ObjectTypeNode(network, t1);
-		otn.shareNode(p1);
+		otn.shareNode(Collections.emptyMap(), p1);
 		// append to root node
 		rootNode.putOTN(otn);
 		// create & append alpha

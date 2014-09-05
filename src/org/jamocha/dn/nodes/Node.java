@@ -415,6 +415,6 @@ public abstract class Node {
 	 * @param paths
 	 *            {@link Path}s to share the node with
 	 */
-	public abstract void shareNode(final Path... paths);
+	public abstract void shareNode(final Map<Path, FactAddress> map, final Path... paths);
 
 }

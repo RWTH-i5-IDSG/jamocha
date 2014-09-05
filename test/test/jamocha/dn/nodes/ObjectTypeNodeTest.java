@@ -19,6 +19,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Set;
 
 import org.jamocha.dn.Network;
@@ -77,7 +78,7 @@ public class ObjectTypeNodeTest {
 		Path p1 = new Path(Template.STRING);
 		Path p2 = new Path(Template.STRING);
 		ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK, Template.STRING);
-		otn.shareNode(p1, p2);
+		otn.shareNode(Collections.emptyMap(), p1, p2);
 		assertEquals(otn, p1.getCurrentlyLowestNode());
 		Set<Path> joinedWith = p1.getJoinedWith();
 		assertEquals(1, joinedWith.size());
@@ -94,11 +95,11 @@ public class ObjectTypeNodeTest {
 	public void testGetTemplate() {
 		Path p1 = new Path(Template.STRING);
 		ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK, Template.STRING);
-		otn.shareNode(p1);
+		otn.shareNode(Collections.emptyMap(), p1);
 		assertEquals(Template.STRING, otn.getTemplate());
 		p1 = new Path(Template.DOUBLE);
 		otn = new ObjectTypeNode(Network.DEFAULTNETWORK, Template.DOUBLE);
-		otn.shareNode(p1);
+		otn.shareNode(Collections.emptyMap(), p1);
 		assertEquals(Template.DOUBLE, otn.getTemplate());
 	}
 
@@ -110,7 +111,7 @@ public class ObjectTypeNodeTest {
 	public void testAssertFact() {
 		Path p1 = new Path(Template.STRING);
 		ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK, Template.STRING);
-		otn.shareNode(p1);
+		otn.shareNode(Collections.emptyMap(), p1);
 		otn.assertFact(Template.STRING.newFact("TestValue 1"));
 	}
 
@@ -122,7 +123,7 @@ public class ObjectTypeNodeTest {
 	public void testRetractFact() {
 		Path p1 = new Path(Template.STRING);
 		ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK, Template.STRING);
-		otn.shareNode(p1);
+		otn.shareNode(Collections.emptyMap(), p1);
 		otn.retractFact(otn.assertFact(Template.STRING.newFact("TestValue 1")));
 	}
 
@@ -133,7 +134,7 @@ public class ObjectTypeNodeTest {
 	public void testGetOutgoingEdges() {
 		final Path p1 = new Path(Template.STRING);
 		ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK, Template.STRING);
-		otn.shareNode(p1);
+		otn.shareNode(Collections.emptyMap(), p1);
 		final Collection<? extends Edge> outgoingEdges = otn.getOutgoingEdges();
 		assertNotNull(outgoingEdges);
 		assertEquals(0, outgoingEdges.size());
@@ -146,7 +147,7 @@ public class ObjectTypeNodeTest {
 	public void testGetMemory() {
 		Path p1 = new Path(Template.STRING);
 		ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK, Template.STRING);
-		otn.shareNode(p1);
+		otn.shareNode(Collections.emptyMap(), p1);
 		assertEquals(0, otn.getMemory().size());
 	}
 
@@ -157,7 +158,7 @@ public class ObjectTypeNodeTest {
 	public void testGetNumberOfOutgoingEdges() {
 		Path p1 = new Path(Template.STRING);
 		ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK, Template.STRING);
-		otn.shareNode(p1);
+		otn.shareNode(Collections.emptyMap(), p1);
 		assertEquals(0, otn.getNumberOfOutgoingEdges());
 	}
 
@@ -169,7 +170,7 @@ public class ObjectTypeNodeTest {
 	public void testDelocalizeAddress() {
 		Path p1 = new Path(Template.STRING);
 		ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK, Template.STRING);
-		otn.shareNode(p1);
+		otn.shareNode(Collections.emptyMap(), p1);
 		otn.delocalizeAddress(p1.getFactAddressInCurrentlyLowestNode());
 	}
 
@@ -180,8 +181,7 @@ public class ObjectTypeNodeTest {
 	public void testGetIncomingEdges() {
 		Path p1 = new Path(Template.STRING);
 		ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK, Template.STRING);
-		otn.shareNode(p1);
+		otn.shareNode(Collections.emptyMap(), p1);
 		otn.getIncomingEdges();
 	}
-
 }

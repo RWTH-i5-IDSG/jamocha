@@ -272,13 +272,12 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 		// check candidates for possible node sharing
 		candidateLoop: for (final Node candidate : candidates) {
 			// check if filter matches
-			if (!FilterFunctionCompare.equals(candidate, normalisedFilter))
+			final Map<Path, FactAddress> map =
+					FilterFunctionCompare.equals(candidate, normalisedFilter);
+			if (null == map)
 				continue candidateLoop;
-			
-			// FIXME fix FilterFunctionCompare.equals to return path->address mapping if possible otherwise null.
-			// check for null to continue.
 
-			candidate.shareNode(paths);
+			candidate.shareNode(map, paths);
 			return true;
 		}
 		return false;
@@ -289,7 +288,7 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 		assert filterPathNodes.size() > 0;
 		final Iterator<Node> filterPathNodesIterator = filterPathNodes.iterator();
 
-		// TODO existential edges??? 
+		// TODO existential edges???
 		// add all children of the first node
 		final Collection<Edge> firstNodesOutgoingEdges =
 				filterPathNodesIterator.next().getOutgoingEdges();

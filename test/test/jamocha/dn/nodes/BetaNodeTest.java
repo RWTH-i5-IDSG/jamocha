@@ -20,6 +20,8 @@ import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertSame;
 
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -99,7 +101,7 @@ public class BetaNodeTest {
 		Path p2 = new Path(Template.STRING);
 		Path p3 = new Path(Template.STRING);
 		ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK, Template.STRING);
-		otn.shareNode(p1, p2, p3);
+		otn.shareNode(Collections.emptyMap(), p1, p2, p3);
 		BetaNode beta =
 				new BetaNode(Network.DEFAULTNETWORK, new FilterMockup(true, new PathAndSlotAddress(
 						p1, s1), new PathAndSlotAddress(p2, s1)));
@@ -128,22 +130,29 @@ public class BetaNodeTest {
 	 */
 	@Test
 	public void testNodeSharing() {
-		Path p1 = new Path(Template.STRING);
-		Path p2 = new Path(Template.STRING);
-		Path p3 = new Path(Template.STRING);
-		Path p4 = new Path(Template.STRING);
-		Path p5 = new Path(Template.STRING);
-		Path p6 = new Path(Template.STRING);
-		Path p7 = new Path(Template.STRING);
-		Path p8 = new Path(Template.STRING);
-		ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK, Template.STRING);
-		otn.shareNode(p1, p2, p3, p4, p5, p6, p7, p8);
-		BetaNode beta =
+		final Path p1 = new Path(Template.STRING);
+		final Path p2 = new Path(Template.STRING);
+		final Path p3 = new Path(Template.STRING);
+		final Path p4 = new Path(Template.STRING);
+		final Path p5 = new Path(Template.STRING);
+		final Path p6 = new Path(Template.STRING);
+		final Path p7 = new Path(Template.STRING);
+		final Path p8 = new Path(Template.STRING);
+		final ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK, Template.STRING);
+		otn.shareNode(Collections.emptyMap(), p1, p2, p3, p4, p5, p6, p7, p8);
+		final BetaNode beta =
 				new BetaNode(Network.DEFAULTNETWORK, new FilterMockup(true, new PathAndSlotAddress(
 						p1, s1), new PathAndSlotAddress(p2, s1)));
 		assertSame(otn, p3.getCurrentlyLowestNode());
 		assertSame(otn, p4.getCurrentlyLowestNode());
-		beta.shareNode(p3, p4);
+		final FactAddress factAddressOne = p1.getFactAddressInCurrentlyLowestNode();
+		final FactAddress factAddressTwo = p2.getFactAddressInCurrentlyLowestNode();
+		{
+			final HashMap<Path, FactAddress> map = new HashMap<Path, FactAddress>();
+			map.put(p3, factAddressOne);
+			map.put(p4, factAddressTwo);
+			beta.shareNode(map, p3, p4);
+		}
 		assertSame(beta, p1.getCurrentlyLowestNode());
 		assertSame(beta, p2.getCurrentlyLowestNode());
 		assertSame(beta, p3.getCurrentlyLowestNode());
@@ -152,7 +161,7 @@ public class BetaNodeTest {
 				p3.getFactAddressInCurrentlyLowestNode());
 		assertSame(p2.getFactAddressInCurrentlyLowestNode(),
 				p4.getFactAddressInCurrentlyLowestNode());
-		BetaNode betaB =
+		final BetaNode betaB =
 				new BetaNode(Network.DEFAULTNETWORK, new FilterMockup(true, new PathAndSlotAddress(
 						p1, s1), new PathAndSlotAddress(p3, s1)));
 		assertSame(betaB, p1.getCurrentlyLowestNode());
@@ -163,9 +172,26 @@ public class BetaNodeTest {
 				p3.getFactAddressInCurrentlyLowestNode());
 		assertNotSame(p2.getFactAddressInCurrentlyLowestNode(),
 				p4.getFactAddressInCurrentlyLowestNode());
-		beta.shareNode(p5, p6);
-		beta.shareNode(p7, p8);
-		betaB.shareNode(p5, p7);
+		{
+			final HashMap<Path, FactAddress> map = new HashMap<Path, FactAddress>();
+			map.put(p5, factAddressOne);
+			map.put(p6, factAddressTwo);
+			beta.shareNode(map, p5, p6);
+		}
+		{
+			final HashMap<Path, FactAddress> map = new HashMap<Path, FactAddress>();
+			map.put(p7, factAddressOne);
+			map.put(p8, factAddressTwo);
+			beta.shareNode(map, p7, p8);
+		}
+		{
+			final HashMap<Path, FactAddress> map = new HashMap<Path, FactAddress>();
+			map.put(p5, p1.getFactAddressInCurrentlyLowestNode());
+			map.put(p6, p2.getFactAddressInCurrentlyLowestNode());
+			map.put(p7, p3.getFactAddressInCurrentlyLowestNode());
+			map.put(p8, p4.getFactAddressInCurrentlyLowestNode());
+			betaB.shareNode(map, p5, p7);
+		}
 		assertSame(betaB, p5.getCurrentlyLowestNode());
 		assertSame(betaB, p6.getCurrentlyLowestNode());
 		assertSame(betaB, p7.getCurrentlyLowestNode());
@@ -224,7 +250,7 @@ public class BetaNodeTest {
 		final Path p1 = new Path(Template.STRING);
 		final Path p2 = new Path(Template.STRING);
 		final ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK, Template.STRING);
-		otn.shareNode(p1, p2);
+		otn.shareNode(Collections.emptyMap(), p1, p2);
 		final FactAddress fa1 = p1.getFactAddressInCurrentlyLowestNode();
 		final FactAddress fa2 = p2.getFactAddressInCurrentlyLowestNode();
 		final BetaNode beta =
@@ -245,7 +271,7 @@ public class BetaNodeTest {
 		Path p1 = new Path(Template.STRING);
 		Path p2 = new Path(Template.STRING);
 		ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK, Template.STRING);
-		otn.shareNode(p);
+		otn.shareNode(Collections.emptyMap(), p);
 		Set<Path> joinedWith = new HashSet<>();
 		joinedWith.add(p1);
 		p1.setCurrentlyLowestNode(otn);
@@ -256,7 +282,7 @@ public class BetaNodeTest {
 		p2.setCurrentlyLowestNode(otn);
 		p2.setFactAddressInCurrentlyLowestNode(new org.jamocha.dn.memory.javaimpl.FactAddress(0));
 		p2.setJoinedWith(joinedWith);
-		otn.shareNode(p1, p2);
+		otn.shareNode(Collections.emptyMap(), p1, p2);
 		BetaNode beta =
 				new BetaNode(Network.DEFAULTNETWORK, new FilterMockup(true, new PathAndSlotAddress(
 						p1, s1), new PathAndSlotAddress(p2, s1)));
@@ -267,5 +293,4 @@ public class BetaNodeTest {
 		assertEquals(otn, incomingEdges[0].getSourceNode());
 		assertEquals(otn, incomingEdges[1].getSourceNode());
 	}
-
 }

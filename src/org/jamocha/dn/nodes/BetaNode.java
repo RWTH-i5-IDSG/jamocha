@@ -15,11 +15,12 @@
 
 package org.jamocha.dn.nodes;
 
-import java.util.LinkedHashSet;
+import static org.jamocha.util.ToArray.toArray;
+
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 
 import org.jamocha.dn.Network;
 import org.jamocha.dn.memory.FactAddress;
@@ -129,41 +130,20 @@ public class BetaNode extends Node {
 	}
 
 	@Override
-	public void shareNode(final Path... paths) {
+	public void shareNode(final Map<Path, FactAddress> map, final Path... paths) {
 		assert 0 < this.incomingEdges.length;
-		// assertion below does not work as the address filter in the node does not contain paths
-		// any more
-		// assert PathCollector.newHashSet().collect(this.getFilter()).getPaths().size() ==
-		// paths.length;
-		final LinkedHashSet<Path> pathSet = new LinkedHashSet<>();
-		for (final Path path : paths) {
-			pathSet.add(path);
-		}
-		final boolean used[] = new boolean[this.incomingEdges.length];
-		while (!pathSet.isEmpty()) {
-			final Path path = pathSet.iterator().next();
-			final Node currentlyLowestNode = path.getCurrentlyLowestNode();
-			final Set<Path> joinedWith = path.getJoinedWith();
-			int i;
-			for (i = 0; i < this.incomingEdges.length; ++i) {
-				final Edge edge = this.incomingEdges[i];
-				if (edge.getSourceNode() != currentlyLowestNode || used[i] == true)
-					continue;
-				for (final Path join : joinedWith) {
-					final FactAddress localizedAddress =
-							edge.localizeAddress(join.getFactAddressInCurrentlyLowestNode());
-					join.setCurrentlyLowestNode(this);
-					join.setFactAddressInCurrentlyLowestNode(localizedAddress);
-					pathSet.remove(join);
-				}
-				used[i] = true;
-				break;
+		final Path[] distinctPaths =
+				toArray(Arrays.stream(paths).flatMap(p -> p.getJoinedWith().stream()).distinct(),
+						Path[]::new);
+		for (final Path path : distinctPaths) {
+			final FactAddress factAddress = map.get(path);
+			if (null == factAddress) {
+				throw new Error("Missing FactAddress for a path in the given map!");
 			}
-			if (this.incomingEdges.length == i) {
-				throw new Error("Tried to share a node with paths that do not match!");
-			}
+			path.setFactAddressInCurrentlyLowestNode(factAddress);
+			path.setCurrentlyLowestNode(this);
 		}
-		if (paths.length > 0)
-			Path.setJoinedWithForAll(paths);
+		if (distinctPaths.length > 0)
+			Path.setJoinedWithForAll(distinctPaths);
 	}
 }

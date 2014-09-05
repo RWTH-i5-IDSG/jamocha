@@ -175,7 +175,7 @@ public class MemoryHandlerTempTest {
 		}
 
 		@Override
-		public void shareNode(final Path... paths) {
+		public void shareNode(final Map<Path, FactAddress> map, final Path... paths) {
 		}
 
 	}

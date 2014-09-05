@@ -132,7 +132,7 @@ public class AlphaNode extends Node {
 	}
 
 	@Override
-	public void shareNode(final Path... paths) {
+	public void shareNode(final Map<Path, FactAddress> map, final Path... paths) {
 		assert null != paths;
 		assert 1 == paths.length;
 		final Path path = paths[0];
@@ -140,6 +140,7 @@ public class AlphaNode extends Node {
 		final Entry<FactAddress, AddressPredecessor> entry =
 				this.delocalizeMap.entrySet().iterator().next();
 		assert path.getFactAddressInCurrentlyLowestNode() == entry.getValue().getAddress();
+		assert map.get(path) == entry.getKey();
 		path.setCurrentlyLowestNode(this);
 		path.setFactAddressInCurrentlyLowestNode(entry.getKey());
 	}

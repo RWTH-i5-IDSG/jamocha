@@ -16,6 +16,7 @@
 package org.jamocha.dn.nodes;
 
 import java.util.Arrays;
+import java.util.Map;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.jamocha.dn.Network;
@@ -102,7 +103,7 @@ public class ObjectTypeNode extends AlphaNode {
 	}
 
 	@Override
-	public void shareNode(final Path... paths) {
+	public void shareNode(final Map<Path, FactAddress> map, final Path... paths) {
 		for (final Path path : paths) {
 			path.setCurrentlyLowestNode(this);
 			path.setFactAddressInCurrentlyLowestNode(this.factAddress);

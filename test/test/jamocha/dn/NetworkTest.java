@@ -21,8 +21,6 @@ import static org.junit.Assert.assertTrue;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.LinkedHashSet;
-import java.util.TooManyListenersException;
-import java.util.stream.Collectors;
 
 import org.jamocha.dn.Network;
 import org.jamocha.dn.PlainScheduler;
@@ -594,25 +592,22 @@ public class NetworkTest {
 				FunctionDictionary.lookupPredicate(Greater.inClips, SlotType.LONG, SlotType.LONG);
 
 		final PathFilter[] filterOne =
-				new PathFilter[] { new PathFilter(new PredicateBuilder(lessLongLong)
+				new PathFilter[] { new PathFilter(new PredicateBuilder(greaterLongLong)
 						.addPath(youngStudent1, studentSem).addPath(oldStudent1, studentSem)
 						.buildPFE()) };
 		final PathFilter[] filterTwo =
-				new PathFilter[] { new PathFilter(new PredicateBuilder(greaterLongLong)
+				new PathFilter[] { new PathFilter(new PredicateBuilder(lessLongLong)
 						.addPath(youngStudent2, studentSem).addPath(oldStudent2, studentSem)
 						.buildPFE()) };
-		network.buildRule(filterTwo);
 		network.buildRule(filterOne);
+		network.buildRule(filterTwo);
 
+		assertEquals(oldStudent1.getCurrentlyLowestNode(), youngStudent1.getCurrentlyLowestNode());
 		assertEquals(oldStudent1.getCurrentlyLowestNode(), oldStudent2.getCurrentlyLowestNode());
+		assertEquals(oldStudent1.getCurrentlyLowestNode(), youngStudent2.getCurrentlyLowestNode());
 		assertEquals(oldStudent1.getFactAddressInCurrentlyLowestNode(),
-				oldStudent2.getFactAddressInCurrentlyLowestNode());
-		
-		assertNotEquals(oldStudent1.getFactAddressInCurrentlyLowestNode(),
 				youngStudent2.getFactAddressInCurrentlyLowestNode());
-
-		assertEquals(youngStudent1.getCurrentlyLowestNode(), youngStudent2.getCurrentlyLowestNode());
 		assertEquals(youngStudent1.getFactAddressInCurrentlyLowestNode(),
-				youngStudent2.getFactAddressInCurrentlyLowestNode());
+				oldStudent2.getFactAddressInCurrentlyLowestNode());
 	}
 }

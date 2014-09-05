@@ -142,7 +142,7 @@ public class RootNode {
 	public void addPaths(final Network network, final Path... paths) {
 		for (final Path path : paths) {
 			this.templateToOTN.computeIfAbsent(path.getTemplate(),
-					t -> new ObjectTypeNode(network, t)).shareNode(path);
+					t -> new ObjectTypeNode(network, t)).shareNode(Collections.emptyMap(), path);
 		}
 	}
 }
