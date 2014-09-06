@@ -390,11 +390,15 @@ public class FilterFunctionCompare {
 		final List<Path> pathsPermutation = new LinkedList<>();
 		final ComponentwisePermutation<Path> componentwisePermutation;
 		{
-			final Map<Node, List<Path>> pathsByNode =
-					PathCollector.newHashSet().collect(pathFilter).getPaths().stream()
-							.collect(groupingBy(path -> path.getCurrentlyLowestNode()));
+			final Map<FactAddress, List<Path>> pathsByNode =
+					PathCollector
+							.newHashSet()
+							.collect(pathFilter)
+							.getPaths()
+							.stream()
+							.collect(groupingBy(path -> path.getFactAddressInCurrentlyLowestNode()));
 			final List<Range> ranges = new ArrayList<>(pathsByNode.size());
-			for (final Entry<Node, List<Path>> entry : pathsByNode.entrySet()) {
+			for (final Entry<FactAddress, List<Path>> entry : pathsByNode.entrySet()) {
 				final List<Path> newPaths = entry.getValue();
 				final int start = pathsPermutation.size();
 				pathsPermutation.addAll(newPaths);
