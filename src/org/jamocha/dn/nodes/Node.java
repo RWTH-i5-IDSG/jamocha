@@ -15,6 +15,8 @@
 
 package org.jamocha.dn.nodes;
 
+import static org.jamocha.util.ToArray.toArray;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -275,7 +277,7 @@ public abstract class Node {
 			joinedPaths.addAll(joinedWith);
 		}
 
-		this.incomingEdges = edges.toArray(new Edge[edges.size()]);
+		this.incomingEdges = toArray(edges, Edge[]::new);
 		// create new main memory
 		// this also produces translation maps on all our edges
 		final MemoryHandlerMainAndCounterColumnMatcher memoryHandlerMainAndCounterColumnMatcher =

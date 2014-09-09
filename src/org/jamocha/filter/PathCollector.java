@@ -14,6 +14,8 @@
  */
 package org.jamocha.filter;
 
+import static org.jamocha.util.ToArray.toArray;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -29,12 +31,12 @@ import org.jamocha.function.fwa.FunctionWithArguments;
 import org.jamocha.function.fwa.FunctionWithArgumentsComposite;
 import org.jamocha.function.fwa.FunctionWithArgumentsVisitor;
 import org.jamocha.function.fwa.Modify;
+import org.jamocha.function.fwa.Modify.SlotAndValue;
 import org.jamocha.function.fwa.PathLeaf;
+import org.jamocha.function.fwa.PathLeaf.ParameterLeaf;
 import org.jamocha.function.fwa.PredicateWithArgumentsComposite;
 import org.jamocha.function.fwa.Retract;
 import org.jamocha.function.fwa.SymbolLeaf;
-import org.jamocha.function.fwa.Modify.SlotAndValue;
-import org.jamocha.function.fwa.PathLeaf.ParameterLeaf;
 
 /**
  * Collects all paths used within the filter.
@@ -102,7 +104,7 @@ public class PathCollector<T extends Collection<Path>> implements PathFilterElem
 	 * @return the addresses
 	 */
 	public Path[] getPathsArray() {
-		return getPaths().toArray(new Path[getPaths().size()]);
+		return toArray(getPaths(), Path[]::new);
 	}
 
 	class PathCollectorInFWA implements FunctionWithArgumentsVisitor {

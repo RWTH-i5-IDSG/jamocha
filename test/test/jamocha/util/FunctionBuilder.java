@@ -14,6 +14,8 @@
  */
 package test.jamocha.util;
 
+import static org.jamocha.util.ToArray.toArray;
+
 import org.jamocha.function.Function;
 import org.jamocha.function.fwa.FunctionWithArguments;
 import org.jamocha.function.fwa.FunctionWithArgumentsComposite;
@@ -33,7 +35,7 @@ public class FunctionBuilder extends GenericBuilder<Object, Function<?>, Functio
 		if (this.function.getParamTypes().length != this.args.size()) {
 			throw new IllegalArgumentException("Wrong number of arguments!");
 		}
-		return new FunctionWithArgumentsComposite(this.function,
-				this.args.toArray(new FunctionWithArguments[this.args.size()]));
+		return new FunctionWithArgumentsComposite(this.function, toArray(this.args,
+				FunctionWithArguments[]::new));
 	}
 }

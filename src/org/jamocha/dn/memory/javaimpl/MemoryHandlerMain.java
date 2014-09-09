@@ -14,6 +14,8 @@
  */
 package org.jamocha.dn.memory.javaimpl;
 
+import static org.jamocha.util.ToArray.toArray;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -103,8 +105,8 @@ public class MemoryHandlerMain extends MemoryHandlerBase implements
 				edge.setAddressMap(addressMap);
 			}
 		}
-		final Template[] templArray = template.toArray(new Template[template.size()]);
-		final FactAddress[] addrArray = addresses.toArray(new FactAddress[addresses.size()]);
+		final Template[] templArray = toArray(template, Template[]::new);
+		final FactAddress[] addrArray = toArray(addresses, FactAddress[]::new);
 
 		final PathFilterElementToCounterColumn pathFilterElementToCounterColumn =
 				new PathFilterElementToCounterColumn();
@@ -226,7 +228,7 @@ public class MemoryHandlerMain extends MemoryHandlerBase implements
 				}
 			}
 		}
-		return partList.toArray(new AddressFilterElement[partList.size()]);
+		return toArray(partList, AddressFilterElement[]::new);
 	}
 
 	/**

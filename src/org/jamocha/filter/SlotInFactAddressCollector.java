@@ -14,6 +14,8 @@
  */
 package org.jamocha.filter;
 
+import static org.jamocha.util.ToArray.toArray;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -82,7 +84,7 @@ public class SlotInFactAddressCollector<T extends Collection<SlotInFactAddress>>
 	 * @return the addresses
 	 */
 	public SlotInFactAddress[] getAddressesArray() {
-		return getAddresses().toArray(new SlotInFactAddress[getAddresses().size()]);
+		return toArray(getAddresses(), SlotInFactAddress[]::new);
 	}
 
 }

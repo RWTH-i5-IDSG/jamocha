@@ -75,7 +75,7 @@ public class Template implements org.jamocha.dn.memory.Template {
 		this.name = name;
 		this.description = description;
 		this.slots = Arrays.asList(slots);
-		this.slotTypes = Arrays.stream(slots).map(s -> s.getSlotType()).toArray(SlotType[]::new);
+		this.slotTypes = toArray(Arrays.stream(slots).map(s -> s.getSlotType()), SlotType[]::new);
 		for (int i = 0; i < slots.length; ++i) {
 			this.slotNames.put(slots[i].getName(), new SlotAddress(i));
 		}

@@ -14,6 +14,7 @@
  */
 package test.jamocha.dn;
 
+import static org.jamocha.util.ToArray.toArray;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
@@ -132,7 +133,7 @@ public class NetworkTest {
 						PathCollector.newLinkedHashSet().collect(filter).getPaths();
 				allPaths.addAll(paths);
 			}
-			final Path[] pathArray = allPaths.toArray(new Path[allPaths.size()]);
+			final Path[] pathArray = toArray(allPaths, Path[]::new);
 			rootNode.addPaths(network, pathArray);
 		}
 
@@ -151,7 +152,7 @@ public class NetworkTest {
 						PathCollector.newLinkedHashSet().collect(filter).getPaths();
 				allPaths.addAll(paths);
 			}
-			final Path[] pathArray = allPaths.toArray(new Path[allPaths.size()]);
+			final Path[] pathArray = toArray(allPaths, Path[]::new);
 			rootNode.addPaths(network, pathArray);
 		}
 
@@ -203,7 +204,7 @@ public class NetworkTest {
 						PathCollector.newLinkedHashSet().collect(filter).getPaths();
 				allPaths.addAll(paths);
 			}
-			final Path[] pathArray = allPaths.toArray(new Path[allPaths.size()]);
+			final Path[] pathArray = toArray(allPaths, Path[]::new);
 			rootNode.addPaths(network, pathArray);
 		}
 
@@ -259,7 +260,7 @@ public class NetworkTest {
 						PathCollector.newLinkedHashSet().collect(filter).getPaths();
 				allPaths.addAll(paths);
 			}
-			final Path[] pathArray = allPaths.toArray(new Path[allPaths.size()]);
+			final Path[] pathArray = toArray(allPaths, Path[]::new);
 			rootNode.addPaths(network, pathArray);
 		}
 
@@ -335,7 +336,7 @@ public class NetworkTest {
 						PathCollector.newLinkedHashSet().collect(filter).getPaths();
 				allPaths.addAll(paths);
 			}
-			final Path[] pathArray = allPaths.toArray(new Path[allPaths.size()]);
+			final Path[] pathArray = toArray(allPaths, Path[]::new);
 			rootNode.addPaths(network, pathArray);
 		}
 

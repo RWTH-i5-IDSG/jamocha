@@ -14,6 +14,7 @@
  */
 package test.jamocha.filter;
 
+import static org.jamocha.util.ToArray.toArray;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static test.jamocha.util.CounterColumnMatcherMockup.counterColumnMatcherMockup;
@@ -58,11 +59,11 @@ public class FilterMockup extends PathFilter {
 
 	private static PathFilterElement createDummyPathFilterElement(final boolean returnValue,
 			final PathAndSlotAddress... pathAndSlotAddresses) {
-		final ArrayList<? extends SlotType> slotTypesC =
+		final ArrayList<SlotType> slotTypesC =
 				Arrays.stream(pathAndSlotAddresses).map((final PathAndSlotAddress pasa) -> {
 					return pasa.slotAddress.getSlotType(pasa.path.getTemplate());
 				}).collect(Collectors.toCollection(ArrayList::new));
-		final SlotType[] slotTypes = slotTypesC.toArray(new SlotType[slotTypesC.size()]);
+		final SlotType[] slotTypes = toArray(slotTypesC, SlotType[]::new);
 		final PredicateBuilder predicateBuilder =
 				new PredicateBuilder(new org.jamocha.function.Predicate() {
 					@Override

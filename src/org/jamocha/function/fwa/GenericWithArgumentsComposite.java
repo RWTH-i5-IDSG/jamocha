@@ -15,6 +15,7 @@
 package org.jamocha.function.fwa;
 
 import static java.util.stream.Collectors.joining;
+import static org.jamocha.util.ToArray.toArray;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -86,7 +87,7 @@ public abstract class GenericWithArgumentsComposite<R, F extends Function<? exte
 				types.add(type);
 			}
 		}
-		return types.toArray(new SlotType[types.size()]);
+		return toArray(types, SlotType[]::new);
 	}
 
 	private SlotType[] calculateParamTypes() {
@@ -197,8 +198,8 @@ public abstract class GenericWithArgumentsComposite<R, F extends Function<? exte
 
 	static <R, F extends Function<? extends R>> R staticEvaluate(
 			final java.util.function.Function<Function<?>[], F> function, final Object[] params) {
-		return function
-				.apply(Arrays.stream(params).map(LazyObject<Object>::new).toArray(LazyObject[]::new))
+		return function.apply(
+				toArray(Arrays.stream(params).map(LazyObject<Object>::new), LazyObject[]::new))
 				.evaluate();
 	}
 

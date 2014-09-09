@@ -14,6 +14,8 @@
  */
 package org.jamocha.filter;
 
+import static org.jamocha.util.ToArray.toArray;
+
 import java.util.Arrays;
 import java.util.function.IntFunction;
 
@@ -49,9 +51,11 @@ public class UniformFunctionTranslator {
 	private static class DeepCopy implements FunctionWithArgumentsVisitor {
 		FunctionWithArguments result;
 
+		@SuppressWarnings("unchecked")
 		private static <T extends FunctionWithArguments> T[] copyArgs(final T[] args,
 				final IntFunction<T[]> gen) {
-			return Arrays.stream(args).map(fwa -> fwa.accept(new DeepCopy()).result).toArray(gen);
+			return toArray(Arrays.stream(args).map(fwa -> (T) fwa.accept(new DeepCopy()).result),
+					gen);
 		}
 
 		private static FunctionWithArguments[] copyArgs(final FunctionWithArguments[] args) {
@@ -392,12 +396,12 @@ public class UniformFunctionTranslator {
 		@Override
 		public void visit(final org.jamocha.function.impls.functions.Plus<?> function) {
 			result =
-					new FunctionWithArgumentsComposite(function, Arrays
-							.stream(lowerGwac.getArgs())
-							.map((final FunctionWithArguments fwa) -> {
-								return new FunctionWithArgumentsComposite(upperGwac.getFunction(),
-										fwa);
-							}).toArray(FunctionWithArguments[]::new));
+					new FunctionWithArgumentsComposite(function, toArray(
+							Arrays.stream(lowerGwac.getArgs()).map(
+									(final FunctionWithArguments fwa) -> {
+										return new FunctionWithArgumentsComposite(upperGwac
+												.getFunction(), fwa);
+									}), FunctionWithArguments[]::new));
 		}
 	}
 

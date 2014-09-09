@@ -14,6 +14,8 @@
  */
 package org.jamocha.filter;
 
+import static org.jamocha.util.ToArray.toArray;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -78,7 +80,7 @@ public class FactAddressCollector<T extends Collection<FactAddress>> {
 	 * @return the addresses
 	 */
 	public FactAddress[] getAddressesArray() {
-		return getAddresses().toArray(new FactAddress[getAddresses().size()]);
+		return toArray(getAddresses(), FactAddress[]::new);
 	}
 
 }
