@@ -57,8 +57,6 @@ import org.jamocha.dn.nodes.Node;
 import org.jamocha.dn.nodes.ObjectTypeNode;
 import org.jamocha.dn.nodes.RootNode;
 import org.jamocha.dn.nodes.TerminalNode;
-import org.jamocha.filter.AddressFilter;
-import org.jamocha.filter.FactAddressCollector;
 import org.jamocha.filter.FilterFunctionCompare;
 import org.jamocha.filter.Path;
 import org.jamocha.filter.PathCollector;
