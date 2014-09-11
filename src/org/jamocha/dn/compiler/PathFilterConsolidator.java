@@ -16,6 +16,7 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -58,8 +59,7 @@ public class PathFilterConsolidator implements DefaultConditionalElementsVisitor
 		// If there is no OrFunctionConditionalElement just proceed with the CE as it were
 		// the only child of an OrFunctionConditionalElement.
 		pathFilters =
-				Collections.singletonList(ce.accept(
-						new NoORsPFC(initialFactVariable, FactVariableCollector.collectPaths(ce)))
+				Collections.singletonList(NoORsPFC.consolidate(initialFactVariable, ce)
 						.getPathFilters());
 	}
 
@@ -67,12 +67,9 @@ public class PathFilterConsolidator implements DefaultConditionalElementsVisitor
 	public void visit(final OrFunctionConditionalElement ce) {
 		// For each child of the OrCE ...
 		pathFilters =
-				ce.getChildren()
-						.stream()
-						.map(child -> child.accept(
-						// ... collect all PathFilters in the child
-								new NoORsPFC(initialFactVariable, FactVariableCollector
-										.collectPaths(child))).getPathFilters())
+				ce.getChildren().stream().map(child ->
+				// ... collect all PathFilters in the child
+						NoORsPFC.consolidate(initialFactVariable, child).getPathFilters())
 						.collect(Collectors.toCollection(ArrayList::new));
 	}
 
@@ -80,7 +77,7 @@ public class PathFilterConsolidator implements DefaultConditionalElementsVisitor
 	 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
 	 * @author Christoph Terwelp <christoph.terwelp@rwth-aachen.de>
 	 */
-	@RequiredArgsConstructor
+	@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 	static class NoORsPFC implements DefaultConditionalElementsVisitor {
 
 		private final SingleFactVariable initialFactVariable;
@@ -88,11 +85,38 @@ public class PathFilterConsolidator implements DefaultConditionalElementsVisitor
 		private final boolean negated;
 
 		@Getter
-		private List<PathFilter> pathFilters = null;
+		private List<PathFilter> pathFilters = Collections.emptyList();
 
-		public NoORsPFC(final SingleFactVariable initialFactVariable,
+		private NoORsPFC(final SingleFactVariable initialFactVariable,
 				final Map<SingleFactVariable, Path> paths) {
 			this(initialFactVariable, paths, false);
+		}
+
+		public static NoORsPFC consolidate(final SingleFactVariable initialFactVariable,
+				final ConditionalElement ce) {
+			final Map<SingleFactVariable, Path> pathMap = FactVariableCollector.collectPaths(ce);
+			final NoORsPFC instance = new NoORsPFC(initialFactVariable, pathMap).collect(ce);
+			final List<PathFilter> pathFilters = instance.getPathFilters();
+			final PathCollector<HashSet<Path>> collector = PathCollector.newHashSet();
+			for (final PathFilter filter : pathFilters) {
+				collector.collect(filter);
+			}
+			final Set<Path> unusedPaths = new HashSet<>(pathMap.values());
+			unusedPaths.removeAll(collector.getPaths());
+			if (unusedPaths.isEmpty()) {
+				return instance;
+			}
+			final PathFilter pathFilter =
+					new PathFilter(new PathFilter.DummyPathFilterElement(toArray(unusedPaths,
+							Path[]::new)));
+			try {
+				pathFilters.add(pathFilter);
+			} catch (final UnsupportedOperationException ex) {
+				instance.pathFilters = new ArrayList<>(pathFilters.size() + 1);
+				instance.pathFilters.addAll(pathFilters);
+				instance.pathFilters.add(pathFilter);
+			}
+			return instance;
 		}
 
 		private <T extends ConditionalElement> NoORsPFC collect(final T ce) {

@@ -54,8 +54,8 @@ import org.junit.Test;
 import test.jamocha.util.NetworkMockup;
 
 /**
+ * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  * @author Christoph Terwelp <christoph.terwelp@rwth-aachen.de>
- *
  */
 public class SymbolToPathTranslatorTest {
 
