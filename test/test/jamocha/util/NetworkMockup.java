@@ -31,25 +31,23 @@ import org.jamocha.dn.memory.Template;
 import org.jamocha.dn.memory.Template.Slot;
 import org.jamocha.function.fwa.Assert.TemplateContainer;
 import org.jamocha.languages.common.ScopeStack;
-import org.jamocha.languages.common.SingleFactVariable;
 import org.jamocha.logging.LogFormatter;
 import org.jamocha.logging.TypedFilter;
 
 /**
  * @author Christoph Terwelp <christoph.terwelp@rwth-aachen.de>
- *
+ * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
 public class NetworkMockup implements ParserToNetwork, SideEffectFunctionToNetwork {
 
 	Map<String, Template> templates = new HashMap<>();
 	Map<String, Defrule> rules = new HashMap<>();
 	final ScopeStack scope = new ScopeStack();
-	final SingleFactVariable initialFactVariable;
+	final Template initialFactTemplate;
 
 	public NetworkMockup() {
-		final Template initialFact = defTemplate("initial-fact", "");
-		defFacts("initial-fact", "", new TemplateContainer(initialFact));
-		this.initialFactVariable = new SingleFactVariable(scope.createDummy(), initialFact);
+		this.initialFactTemplate = defTemplate("initial-fact", "");
+		defFacts("initial-fact", "", new TemplateContainer(initialFactTemplate));
 	}
 
 	@Override
@@ -140,8 +138,8 @@ public class NetworkMockup implements ParserToNetwork, SideEffectFunctionToNetwo
 	}
 
 	@Override
-	public SingleFactVariable getInitialFactVariable() {
-		return initialFactVariable;
+	public Template getInitialFactTemplate() {
+		return initialFactTemplate;
 	}
 
 	@Override

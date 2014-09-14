@@ -67,7 +67,6 @@ import org.jamocha.languages.common.ConditionalElement;
 import org.jamocha.languages.common.RuleCondition;
 import org.jamocha.languages.common.RuleConditionProcessor;
 import org.jamocha.languages.common.ScopeStack;
-import org.jamocha.languages.common.SingleFactVariable;
 import org.jamocha.logging.LogFormatter;
 import org.jamocha.logging.TypedFilter;
 
@@ -150,7 +149,7 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 	private final ScopeStack scope = new ScopeStack();
 
 	@Getter(onMethod = @__(@Override))
-	private final SingleFactVariable initialFactVariable;
+	private final Template initialFactTemplate;
 
 	/**
 	 * Creates a new network object.
@@ -169,9 +168,8 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 		this.scheduler = scheduler;
 		this.rootNode = new RootNode();
 		this.logFormatter = logFormatter;
-		final Template initialFact = defTemplate("initial-fact", "");
-		defFacts("initial-fact", "", new TemplateContainer(initialFact));
-		this.initialFactVariable = new SingleFactVariable(scope.createDummy(), initialFact);
+		this.initialFactTemplate = defTemplate("initial-fact", "");
+		defFacts("initial-fact", "", new TemplateContainer(initialFactTemplate));
 		{
 			// there seem to be two different log levels: one in the logger (aka in the
 			// PrivateConfig of the logger) and one in the LoggerConfig (which may be shared); the
