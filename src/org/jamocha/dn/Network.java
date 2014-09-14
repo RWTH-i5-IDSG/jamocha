@@ -442,8 +442,8 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 		RuleConditionProcessor.flatten(conditionalElements);
 		assert conditionalElements.size() == 1;
 		// Transform TestCEs to PathFilters and collect them
-		return new PathFilterConsolidator(initialFactVariable).consolidate(
-				conditionalElements.get(0)).getPathFilters();
+		return new PathFilterConsolidator().consolidate(conditionalElements.get(0))
+				.getPathFilters();
 	}
 
 	/**

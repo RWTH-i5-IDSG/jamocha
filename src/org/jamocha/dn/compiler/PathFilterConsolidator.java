@@ -27,6 +27,7 @@ import org.jamocha.filter.PathFilter.PathFilterElement;
 import org.jamocha.languages.common.ConditionalElement;
 import org.jamocha.languages.common.ConditionalElement.AndFunctionConditionalElement;
 import org.jamocha.languages.common.ConditionalElement.ExistentialConditionalElement;
+import org.jamocha.languages.common.ConditionalElement.InitialFactConditionalElement;
 import org.jamocha.languages.common.ConditionalElement.NegatedExistentialConditionalElement;
 import org.jamocha.languages.common.ConditionalElement.NotFunctionConditionalElement;
 import org.jamocha.languages.common.ConditionalElement.OrFunctionConditionalElement;
@@ -42,10 +43,7 @@ import org.jamocha.languages.common.SingleFactVariable;
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  * @author Christoph Terwelp <christoph.terwelp@rwth-aachen.de>
  */
-@RequiredArgsConstructor
 public class PathFilterConsolidator implements DefaultConditionalElementsVisitor {
-
-	private final SingleFactVariable initialFactVariable;
 
 	@Getter
 	private List<List<PathFilter>> pathFilters = null;
@@ -56,6 +54,8 @@ public class PathFilterConsolidator implements DefaultConditionalElementsVisitor
 
 	@Override
 	public void defaultAction(final ConditionalElement ce) {
+		// If we are to need the initial fact variable, there should be one within the CE
+		final SingleFactVariable initialFactVariable = SomeInitialFactFinder.find(ce);
 		// If there is no OrFunctionConditionalElement just proceed with the CE as it were
 		// the only child of an OrFunctionConditionalElement.
 		pathFilters =
@@ -65,6 +65,8 @@ public class PathFilterConsolidator implements DefaultConditionalElementsVisitor
 
 	@Override
 	public void visit(final OrFunctionConditionalElement ce) {
+		// If we are to need the initial fact variable, there should be one within the CE
+		final SingleFactVariable initialFactVariable = SomeInitialFactFinder.find(ce);
 		// For each child of the OrCE ...
 		pathFilters =
 				ce.getChildren().stream().map(child ->
@@ -347,6 +349,24 @@ public class PathFilterConsolidator implements DefaultConditionalElementsVisitor
 					Collections.singletonList(new PathFilter(
 							new PathFilter.PathFilterElement(SymbolToPathTranslator.translate(
 									ce.getPredicateWithArguments(), paths))));
+		}
+	}
+
+	private static class SomeInitialFactFinder implements DefaultConditionalElementsVisitor {
+		SingleFactVariable initialFactVariable = null;
+
+		static SingleFactVariable find(final ConditionalElement ce) {
+			return ce.accept(new SomeInitialFactFinder()).initialFactVariable;
+		}
+
+		@Override
+		public void defaultAction(final ConditionalElement ce) {
+			ce.getChildren().forEach(c -> c.accept(this));
+		}
+
+		@Override
+		public void visit(final InitialFactConditionalElement ce) {
+			this.initialFactVariable = ce.getInitialFactVariable();
 		}
 	}
 }
