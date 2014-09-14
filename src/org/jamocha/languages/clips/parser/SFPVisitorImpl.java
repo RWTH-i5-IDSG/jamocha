@@ -1151,8 +1151,10 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 				this.factVariable =
 						new SingleFactVariable(parserToNetwork.getScope().createDummy(), template);
 			}
-			final TemplatePatternConditionalElement templCE =
-					new TemplatePatternConditionalElement(factVariable);
+			final ConditionalElement templCE =
+					parserToNetwork.getInitialFactTemplate() == template ? new InitialFactConditionalElement(
+							this.factVariable) : new TemplatePatternConditionalElement(
+							this.factVariable);
 			final ArrayList<ConditionalElement> constraints = new ArrayList<>();
 			constraints.add(templCE);
 			SelectiveSFPVisitor.stream(node, 1).forEach(
@@ -1161,6 +1163,7 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 			if (constraints.size() == 1) {
 				this.resultCE = Optional.of(templCE);
 			} else {
+				assert parserToNetwork.getInitialFactTemplate() != template;
 				this.resultCE = Optional.of(new AndFunctionConditionalElement(constraints));
 			}
 			return data;
@@ -1778,8 +1781,9 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 					}
 					if (!existentialStack.templateCEContained) {
 						ces.add(0,
-								new InitialFactConditionalElement(parserToNetwork
-										.getInitialFactVariable()));
+								new InitialFactConditionalElement(new SingleFactVariable(
+										parserToNetwork.getScope().createDummy(), parserToNetwork
+												.getInitialFactTemplate())));
 					}
 					existentialStack.getConditionalElements().addAll(ces);
 					this.defrule =
