@@ -64,6 +64,6 @@ public interface DefaultConditionalElementsVisitor extends ConditionalElementsVi
 
 	@Override
 	public default void visit(final ConditionalElement.SharedConditionalElementWrapper ce) {
-		defaultAction(ce.getCe());
+		ce.getCe().accept(this);
 	}
 }
