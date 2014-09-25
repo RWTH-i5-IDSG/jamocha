@@ -17,6 +17,7 @@ package test.jamocha.dn.compiler;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertThat;
 
 import java.io.StringReader;
@@ -122,5 +123,45 @@ public class PathFilterConsolidatorTest {
 		assertEquals(1, paths.length);
 		final Path path = paths[0];
 		assertEquals("initial-fact", path.getTemplate().getName());
+	}
+
+	@Test
+	public void testSimpleOr() throws ParseException {
+		final String input = "(or (templ1 (slot1 ?x)) (templ1 (slot1 ?y)))";
+		final List<List<PathFilter>> filterPartitions = clipsToFilters(input);
+		assertThat(filterPartitions, hasSize(2));
+		final Path compare;
+		{
+			final List<PathFilter> filters = filterPartitions.get(0);
+			assertThat(filters, hasSize(1));
+			final PathFilter filter = filters.get(0);
+			assertThat(filter.getPositiveExistentialPaths(), hasSize(0));
+			assertThat(filter.getNegativeExistentialPaths(), hasSize(0));
+			final PathFilterElement[] filterElements = filter.getFilterElements();
+			assertEquals(1, filterElements.length);
+			final PathFilterElement filterElement = filterElements[0];
+			assertThat(filterElement, instanceOf(DummyPathFilterElement.class));
+			final Path[] paths = ((DummyPathFilterElement) filterElement).getPaths();
+			assertEquals(1, paths.length);
+			final Path path = paths[0];
+			assertEquals("templ1", path.getTemplate().getName());
+			compare = path;
+		}
+		{
+			final List<PathFilter> filters = filterPartitions.get(1);
+			assertThat(filters, hasSize(1));
+			final PathFilter filter = filters.get(0);
+			assertThat(filter.getPositiveExistentialPaths(), hasSize(0));
+			assertThat(filter.getNegativeExistentialPaths(), hasSize(0));
+			final PathFilterElement[] filterElements = filter.getFilterElements();
+			assertEquals(1, filterElements.length);
+			final PathFilterElement filterElement = filterElements[0];
+			assertThat(filterElement, instanceOf(DummyPathFilterElement.class));
+			final Path[] paths = ((DummyPathFilterElement) filterElement).getPaths();
+			assertEquals(1, paths.length);
+			final Path path = paths[0];
+			assertEquals("templ1", path.getTemplate().getName());
+			assertNotSame(compare, path);
+		}
 	}
 }
