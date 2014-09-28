@@ -30,6 +30,7 @@ import org.jamocha.logging.Type;
  */
 public abstract class Watch implements Function<Object> {
 	public static final String inClips = "watch";
+	private static final SlotType[] paramTypes = new SlotType[] { SlotType.SYMBOL };
 
 	@Override
 	public SlotType getReturnType() {
@@ -47,15 +48,15 @@ public abstract class Watch implements Function<Object> {
 		return inClips;
 	}
 
+	@Override
+	public SlotType[] getParamTypes() {
+		return paramTypes;
+	}
+
 	static {
-		FunctionDictionary.addVarArgsGeneratorWithSideEffects(inClips, SlotType.SYMBOL, (
+		FunctionDictionary.addFixedArgsGeneratorWithSideEffects(inClips, paramTypes, (
 				final SideEffectFunctionToNetwork network, final SlotType[] paramTypes) -> {
 			return new Watch() {
-				@Override
-				public SlotType[] getParamTypes() {
-					return paramTypes;
-				}
-
 				@Override
 				public Object evaluate(final Function<?>... params) {
 					final Symbol type = (Symbol) params[0].evaluate();

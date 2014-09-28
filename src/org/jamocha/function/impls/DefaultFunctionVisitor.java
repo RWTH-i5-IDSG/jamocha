@@ -110,12 +110,7 @@ public interface DefaultFunctionVisitor extends FunctionVisitor {
 	}
 
 	@Override
-	default void visit(final org.jamocha.function.impls.sideeffects.Watch function) {
-		defaultAction(function);
-	}
-
-	@Override
-	default void visit(final org.jamocha.function.impls.sideeffects.Unwatch function) {
+	default void visit(final org.jamocha.function.impls.sideeffects.ListDeftemplates function) {
 		defaultAction(function);
 	}
 
@@ -125,7 +120,22 @@ public interface DefaultFunctionVisitor extends FunctionVisitor {
 	}
 
 	@Override
-	default void visit(final org.jamocha.function.impls.sideeffects.ListDeftemplates function) {
+	default void visit(final org.jamocha.function.impls.sideeffects.Printout function) {
+		defaultAction(function);
+	}
+
+	@Override
+	default void visit(final org.jamocha.function.impls.sideeffects.Run function) {
+		defaultAction(function);
+	}
+
+	@Override
+	default void visit(final org.jamocha.function.impls.sideeffects.Unwatch function) {
+		defaultAction(function);
+	}
+
+	@Override
+	default void visit(final org.jamocha.function.impls.sideeffects.Watch function) {
 		defaultAction(function);
 	}
 }

@@ -16,19 +16,15 @@ package org.jamocha.function.impls.sideeffects;
 
 import org.jamocha.dn.SideEffectFunctionToNetwork;
 import org.jamocha.dn.memory.SlotType;
-import org.jamocha.dn.memory.Template;
 import org.jamocha.function.Function;
 import org.jamocha.function.FunctionDictionary;
 import org.jamocha.function.impls.FunctionVisitor;
-import org.jamocha.languages.common.ScopeStack.Symbol;
-import org.jamocha.logging.Type;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
-public abstract class Ppdeftemplate implements Function<Object> {
-	public static final String inClips = "ppdeftemplate";
-	private static final SlotType[] paramTypes = new SlotType[] { SlotType.SYMBOL };
+public abstract class Run implements Function<Object> {
+	public static final String inClips = "run";
 
 	@Override
 	public SlotType getReturnType() {
@@ -46,25 +42,35 @@ public abstract class Ppdeftemplate implements Function<Object> {
 		return inClips;
 	}
 
-	@Override
-	public SlotType[] getParamTypes() {
-		return paramTypes;
-	}
-
 	static {
-		FunctionDictionary.addFixedArgsGeneratorWithSideEffects(inClips, paramTypes, (
+		FunctionDictionary.addFixedArgsGeneratorWithSideEffects(inClips, SlotType.empty, (
 				final SideEffectFunctionToNetwork network, final SlotType[] paramTypes) -> {
-			return new Ppdeftemplate() {
+			return new Run() {
+				@Override
+				public SlotType[] getParamTypes() {
+					return SlotType.empty;
+				}
+
 				@Override
 				public Object evaluate(final Function<?>... params) {
-					final Symbol type = (Symbol) params[0].evaluate();
-					final Template template = network.getTemplate(type.getImage());
-					if (null == template) {
-						network.getLogFormatter().messageUnknownSymbol(network, Type.TEMPLATE,
-								type.getImage());
-					} else {
-						network.getLogFormatter().messageTemplateDetails(network, template);
-					}
+					// TODO run!
+					return null;
+				}
+			};
+		});
+		final SlotType[] oneInt = new SlotType[] { SlotType.LONG };
+		FunctionDictionary.addFixedArgsGeneratorWithSideEffects(inClips, oneInt, (
+				final SideEffectFunctionToNetwork network, final SlotType[] paramTypes) -> {
+			return new Run() {
+				@Override
+				public SlotType[] getParamTypes() {
+					return oneInt;
+				}
+
+				@Override
+				public Object evaluate(final Function<?>... params) {
+					// TODO run!
+					// (Long) params[0].evaluate()
 					return null;
 				}
 			};

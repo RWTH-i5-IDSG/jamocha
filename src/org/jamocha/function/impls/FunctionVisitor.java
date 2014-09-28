@@ -57,11 +57,15 @@ public interface FunctionVisitor extends Visitor {
 	// side effects
 	void visit(final org.jamocha.function.impls.sideeffects.Facts function);
 
-	void visit(final org.jamocha.function.impls.sideeffects.Watch function);
-
-	void visit(final org.jamocha.function.impls.sideeffects.Unwatch function);
+	void visit(final org.jamocha.function.impls.sideeffects.ListDeftemplates function);
 
 	void visit(final org.jamocha.function.impls.sideeffects.Ppdeftemplate function);
 
-	void visit(final org.jamocha.function.impls.sideeffects.ListDeftemplates function);
+	void visit(final org.jamocha.function.impls.sideeffects.Printout function);
+
+	void visit(final org.jamocha.function.impls.sideeffects.Run function);
+
+	void visit(final org.jamocha.function.impls.sideeffects.Unwatch function);
+
+	void visit(final org.jamocha.function.impls.sideeffects.Watch function);
 }

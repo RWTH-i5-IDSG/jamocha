@@ -231,7 +231,7 @@ public class ClipsLogFormatter implements LogFormatter {
 	}
 
 	@Override
-	public String formatTypeValue(Type type, Object value) {
+	public String formatTypeValue(final Type type, final Object value) {
 		switch (type) {
 		case LONG:
 		case DOUBLE:

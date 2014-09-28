@@ -30,7 +30,6 @@ import org.jamocha.function.fwa.Modify;
 import org.jamocha.function.fwa.Modify.SlotAndValue;
 import org.jamocha.function.fwa.PathLeaf;
 import org.jamocha.function.fwa.PathLeaf.ParameterLeaf;
-import org.jamocha.function.fwa.PredicateWithArguments;
 import org.jamocha.function.fwa.PredicateWithArgumentsComposite;
 import org.jamocha.function.fwa.Retract;
 import org.jamocha.function.fwa.SymbolLeaf;
@@ -51,7 +50,7 @@ public class SymbolToPathTranslator implements FunctionWithArgumentsVisitor {
 		this.paths = paths;
 	}
 
-	public static PredicateWithArguments translate(final PredicateWithArguments toTranslate,
+	public static <T extends FunctionWithArguments> T translate(final T toTranslate,
 			final Map<SingleFactVariable, Path> paths) {
 		toTranslate.accept(new SymbolToPathTranslator(paths));
 		return toTranslate;

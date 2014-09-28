@@ -56,7 +56,7 @@ public class FunctionDictionary {
 			new HashMap<>();
 	private static final HashMap<CombinedClipsAndParams, FunctionWithSideEffectsGenerator> fixedArgsGeneratorsWithSideEffects =
 			new HashMap<>();
-	private static final HashMap<CombinedClipsAndParams, FunctionWithSideEffectsGenerator> varArgsGeneratorsWithSideEffects =
+	private static final HashMap<String, FunctionWithSideEffectsGenerator> varArgsGeneratorsWithSideEffects =
 			new HashMap<>();
 
 	static {
@@ -89,12 +89,16 @@ public class FunctionDictionary {
 	}
 
 	/**
-	 * Adds a {@link Function} implementation to the lookup-map (will overwrite existing
-	 * implementations with the same name and argument types).
+	 * Adds a {@link Function} implementation to the lookup-map.
 	 * 
 	 * @param impl
 	 *            implementation to add
-	 * @return implementation to add
+	 * @return implementation added
+	 * @throws IllegalArgumentException
+	 *             if there already is an existing implementations with the same name (
+	 *             {@link Function#inClips()}) and parameter types ({@link Function#getParamTypes()}
+	 *             ) or if the function given returns a boolean but does not derive from
+	 *             {@link Predicate}
 	 */
 	public static <R, F extends Function<R>> F addImpl(final F impl) {
 		checkPredicate(impl);
@@ -113,27 +117,71 @@ public class FunctionDictionary {
 		}
 	}
 
-	public static void addGenerator(final String string, final SlotType types,
+	/**
+	 * Adds a generator for a {@link Function} implementation to the lookup-map. The generator will
+	 * be able to generate a function implementation for two or more parameters of the given
+	 * {@code parameterType}.
+	 * 
+	 * @param inClips
+	 *            CLIPS representation of the function name
+	 * @param parameterType
+	 *            type of the parameters
+	 * @param varargsFunctionGenerator
+	 *            generator to be registered
+	 * @throws IllegalArgumentException
+	 *             if there already is an existing generator for the same name ({@code inClips}) and
+	 *             parameter type ({@code parameterType})
+	 */
+	public static void addGenerator(final String inClips, final SlotType parameterType,
 			final VarargsFunctionGenerator varargsFunctionGenerator) {
-		if (null != generators.put(new CombinedClipsAndParams(string, new SlotType[] { types }),
-				varargsFunctionGenerator)) {
-			throw new IllegalArgumentException("Function " + string + " already defined!");
+		if (null != generators.put(new CombinedClipsAndParams(inClips,
+				new SlotType[] { parameterType }), varargsFunctionGenerator)) {
+			throw new IllegalArgumentException("Function " + inClips + " already defined!");
 		}
 	}
 
-	public static void addFixedArgsGeneratorWithSideEffects(final String string,
-			final SlotType[] types, final FunctionWithSideEffectsGenerator varargsFunctionGenerator) {
-		if (null != fixedArgsGeneratorsWithSideEffects.put(
-				new CombinedClipsAndParams(string, types), varargsFunctionGenerator)) {
-			throw new IllegalArgumentException("Function " + string + " already defined!");
+	/**
+	 * Adds a generator for a {@link Function} implementation with side-effects to the lookup-map.
+	 * The generator will be able to generate a function implementation for parameters of the given
+	 * {@code parameterTypes}.
+	 * 
+	 * @param inClips
+	 *            CLIPS representation of the function name
+	 * @param parameterTypes
+	 *            types of the parameters
+	 * @param varargsFunctionGenerator
+	 *            generator to be registered
+	 * @throws IllegalArgumentException
+	 *             if there already is an existing generator for the same name ({@code inClips}) and
+	 *             parameter types ({@code parameterTypes})
+	 */
+	public static void addFixedArgsGeneratorWithSideEffects(final String inClips,
+			final SlotType[] parameterTypes,
+			final FunctionWithSideEffectsGenerator varargsFunctionGenerator) {
+		if (null != fixedArgsGeneratorsWithSideEffects.put(new CombinedClipsAndParams(inClips,
+				parameterTypes), varargsFunctionGenerator)) {
+			throw new IllegalArgumentException("Function " + inClips + " already defined!");
 		}
 	}
 
-	public static void addVarArgsGeneratorWithSideEffects(final String string,
-			final SlotType types, final FunctionWithSideEffectsGenerator varargsFunctionGenerator) {
-		if (null != varArgsGeneratorsWithSideEffects.put(new CombinedClipsAndParams(string,
-				new SlotType[] { types }), varargsFunctionGenerator)) {
-			throw new IllegalArgumentException("Function " + string + " already defined!");
+	/**
+	 * Adds a generator for a {@link Function} implementation with side-effects to the lookup-map.
+	 * The generator will either generate a function implementation for the parameter types passed
+	 * to {@link FunctionWithSideEffectsGenerator#generate(SideEffectFunctionToNetwork, SlotType[])}
+	 * or return null if the parameter types are incompatible.
+	 * 
+	 * @param inClips
+	 *            CLIPS representation of the function name
+	 * @param varargsFunctionGenerator
+	 *            generator to be registered
+	 * @throws IllegalArgumentException
+	 *             if there already is an existing generator for the same name ({@code inClips}) and
+	 *             parameter types ({@code parameterTypes})
+	 */
+	public static void addVarArgsGeneratorWithSideEffects(final String inClips,
+			final FunctionWithSideEffectsGenerator varargsFunctionGenerator) {
+		if (null != varArgsGeneratorsWithSideEffects.put(inClips, varargsFunctionGenerator)) {
+			throw new IllegalArgumentException("Function " + inClips + " already defined!");
 		}
 	}
 
@@ -202,6 +250,21 @@ public class FunctionDictionary {
 		return (Predicate) function;
 	}
 
+	/**
+	 * Looks up an implementation for the {@link Predicate} identified by its string representation
+	 * in CLIPS and its parameter types.
+	 * 
+	 * @param network
+	 *            network instance to be used to deliver the side-effects
+	 * @param inClips
+	 *            string representation of the predicate in CLIPS
+	 * @param params
+	 *            parameter types
+	 * @return a matching @{link Function} implementation
+	 * @throws UnsupportedOperationException
+	 *             iff no {@link Function} implementation was found for the given string
+	 *             representation and parameter types
+	 */
 	@SuppressWarnings("unchecked")
 	public static <T> Function<T> lookupWithSideEffects(final SideEffectFunctionToNetwork network,
 			final String inClips, final SlotType... params) {
@@ -223,18 +286,10 @@ public class FunctionDictionary {
 					}
 				}
 			}
-			// assert that all param types are the same
-			for (final SlotType param : params) {
-				if (param != params[0])
-					throw new UnsupportedOperationException(unsupportedMsg(inClips, params));
-			}
 			// try variable argument number with side effects
 			{
 				final FunctionWithSideEffectsGenerator varargsFunctionGenerator =
-						varArgsGeneratorsWithSideEffects
-								.get(new CombinedClipsAndParams(inClips,
-										0 == params.length ? SlotType.empty
-												: new SlotType[] { params[0] }));
+						varArgsGeneratorsWithSideEffects.get(inClips);
 				if (null != varargsFunctionGenerator) {
 					final Function<T> generated =
 							(Function<T>) varargsFunctionGenerator.generate(network, params);
