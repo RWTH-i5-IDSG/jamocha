@@ -18,8 +18,10 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
+import lombok.RequiredArgsConstructor;
 import lombok.Value;
 
+import org.jamocha.dn.ConstructCache.Defrule;
 import org.jamocha.dn.memory.MemoryHandlerTerminal.Assert;
 import org.jamocha.dn.memory.MemoryHandlerTerminal.AssertOrRetract;
 import org.jamocha.dn.memory.MemoryHandlerTerminal.Retract;
@@ -30,7 +32,10 @@ import org.jamocha.dn.nodes.TerminalNode;
  * 
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
-public class ConflictSet implements Iterable<ConflictSet.NodeAndToken> {
+@RequiredArgsConstructor
+public class ConflictSet implements Iterable<ConflictSet.RuleAndToken> {
+
+	final ConstructCache constructCache;
 
 	/**
 	 * Combination of {@link TerminalNode} and {@link AssertOrRetract}.
@@ -38,12 +43,12 @@ public class ConflictSet implements Iterable<ConflictSet.NodeAndToken> {
 	 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
 	 */
 	@Value
-	public static class NodeAndToken {
-		TerminalNode terminal;
+	public static class RuleAndToken {
+		Defrule.Translated rule;
 		AssertOrRetract<?> token;
 	}
 
-	final List<NodeAndToken> nodesAndTokens = new LinkedList<>();
+	final List<RuleAndToken> nodesAndTokens = new LinkedList<>();
 
 	/**
 	 * Adds an {@link Assert} belonging to {@link TerminalNode}.
@@ -54,7 +59,10 @@ public class ConflictSet implements Iterable<ConflictSet.NodeAndToken> {
 	 *            {@link Assert} to add
 	 */
 	public void addAssert(final TerminalNode terminal, final Assert plus) {
-		this.nodesAndTokens.add(new NodeAndToken(terminal, plus));
+		for (final Defrule.Translated translated : this.constructCache
+				.getRulesForTerminalNode(terminal)) {
+			this.nodesAndTokens.add(new RuleAndToken(translated, plus));
+		}
 	}
 
 	/**
@@ -66,7 +74,10 @@ public class ConflictSet implements Iterable<ConflictSet.NodeAndToken> {
 	 *            {@link Retract} to add
 	 */
 	public void addRetract(final TerminalNode terminal, final Retract minus) {
-		this.nodesAndTokens.add(new NodeAndToken(terminal, minus));
+		for (final Defrule.Translated translated : this.constructCache
+				.getRulesForTerminalNode(terminal)) {
+			this.nodesAndTokens.add(new RuleAndToken(translated, minus));
+		}
 	}
 
 	/**
@@ -80,9 +91,9 @@ public class ConflictSet implements Iterable<ConflictSet.NodeAndToken> {
 	 * Deletes all asserts and retracts with duals.
 	 */
 	public void deleteRevokedEntries() {
-		final Iterator<NodeAndToken> iterator = this.nodesAndTokens.iterator();
+		final Iterator<RuleAndToken> iterator = this.nodesAndTokens.iterator();
 		while (iterator.hasNext()) {
-			final NodeAndToken nodeAndToken = iterator.next();
+			final RuleAndToken nodeAndToken = iterator.next();
 			final AssertOrRetract<?> token = nodeAndToken.getToken();
 			if (token.isRevokedOrMinus()) {
 				iterator.remove();
@@ -91,7 +102,7 @@ public class ConflictSet implements Iterable<ConflictSet.NodeAndToken> {
 	}
 
 	@Override
-	public Iterator<NodeAndToken> iterator() {
+	public Iterator<RuleAndToken> iterator() {
 		return this.nodesAndTokens.iterator();
 	}
 }

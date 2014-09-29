@@ -26,6 +26,7 @@ import java.util.Queue;
 import java.util.Set;
 
 import org.jamocha.dn.ConstructCache.Defrule;
+import org.jamocha.dn.ConstructCache.Defrule.Translated;
 import org.jamocha.dn.compiler.PathFilterConsolidator;
 import org.jamocha.filter.Path;
 import org.jamocha.filter.PathFilter;
@@ -64,8 +65,7 @@ public class PathFilterConsolidatorTest {
 		}
 	}
 
-	private static List<List<PathFilter>> clipsToFilters(final String condition)
-			throws ParseException {
+	private static List<Translated> clipsToFilters(final String condition) throws ParseException {
 		final StringReader parserInput =
 				new StringReader(new StringBuilder().append(templateString).append(preRule)
 						.append(condition).append(postRule).toString());
@@ -78,16 +78,15 @@ public class PathFilterConsolidatorTest {
 				rule.getCondition().getConditionalElements();
 		RuleConditionProcessor.flatten(conditionalElements);
 		assertThat(conditionalElements, hasSize(1));
-		return new PathFilterConsolidator().consolidate(conditionalElements.get(0))
-				.getPathFilters();
+		return new PathFilterConsolidator(rule).consolidate();
 	}
 
 	@Test
 	public void testSimpleVariableBinding() throws ParseException {
 		final String input = "(templ1 (slot1 ?x))";
-		final List<List<PathFilter>> filterPartitions = clipsToFilters(input);
+		final List<Translated> filterPartitions = clipsToFilters(input);
 		assertThat(filterPartitions, hasSize(1));
-		final List<PathFilter> filters = filterPartitions.get(0);
+		final List<PathFilter> filters = filterPartitions.get(0).getCondition();
 		assertThat(filters, hasSize(1));
 		final PathFilter filter = filters.get(0);
 		assertThat(filter.getPositiveExistentialPaths(), hasSize(0));
@@ -105,9 +104,9 @@ public class PathFilterConsolidatorTest {
 	@Test
 	public void testSimpleExistential() throws ParseException {
 		final String input = "(and (initial-fact) (exists (templ1 (slot1 ?x))))";
-		final List<List<PathFilter>> filterPartitions = clipsToFilters(input);
+		final List<Translated> filterPartitions = clipsToFilters(input);
 		assertThat(filterPartitions, hasSize(1));
-		final List<PathFilter> filters = filterPartitions.get(0);
+		final List<PathFilter> filters = filterPartitions.get(0).getCondition();
 		assertThat(filters, hasSize(1));
 		final PathFilter filter = filters.get(0);
 		final Set<Path> positiveExistentialPaths = filter.getPositiveExistentialPaths();
@@ -128,11 +127,11 @@ public class PathFilterConsolidatorTest {
 	@Test
 	public void testSimpleOr() throws ParseException {
 		final String input = "(or (templ1 (slot1 ?x)) (templ1 (slot1 ?y)))";
-		final List<List<PathFilter>> filterPartitions = clipsToFilters(input);
+		final List<Translated> filterPartitions = clipsToFilters(input);
 		assertThat(filterPartitions, hasSize(2));
 		final Path compare;
 		{
-			final List<PathFilter> filters = filterPartitions.get(0);
+			final List<PathFilter> filters = filterPartitions.get(0).getCondition();
 			assertThat(filters, hasSize(1));
 			final PathFilter filter = filters.get(0);
 			assertThat(filter.getPositiveExistentialPaths(), hasSize(0));
@@ -148,7 +147,7 @@ public class PathFilterConsolidatorTest {
 			compare = path;
 		}
 		{
-			final List<PathFilter> filters = filterPartitions.get(1);
+			final List<PathFilter> filters = filterPartitions.get(1).getCondition();
 			assertThat(filters, hasSize(1));
 			final PathFilter filter = filters.get(0);
 			assertThat(filter.getPositiveExistentialPaths(), hasSize(0));

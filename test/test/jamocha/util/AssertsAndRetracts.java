@@ -20,7 +20,7 @@ import java.util.List;
 import lombok.Value;
 
 import org.jamocha.dn.ConflictSet;
-import org.jamocha.dn.ConflictSet.NodeAndToken;
+import org.jamocha.dn.ConflictSet.RuleAndToken;
 import org.jamocha.dn.memory.MemoryHandlerTerminal.Assert;
 import org.jamocha.dn.memory.MemoryHandlerTerminal.AssertOrRetractVisitor;
 import org.jamocha.dn.memory.MemoryHandlerTerminal.Retract;
@@ -32,7 +32,7 @@ public class AssertsAndRetracts {
 	public static AssertsAndRetracts countAssertsAndRetractsInConflictSet(final ConflictSet cs) {
 		final List<Assert> asserts = new ArrayList<>();
 		final List<Retract> retracts = new ArrayList<>();
-		for (final NodeAndToken nat : cs) {
+		for (final RuleAndToken nat : cs) {
 			nat.getToken().accept(new AssertOrRetractVisitor() {
 				@Override
 				public void visit(final Retract mem) {

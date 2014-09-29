@@ -40,6 +40,7 @@ import org.apache.logging.log4j.core.layout.PatternLayout;
 import org.apache.logging.log4j.core.util.Charsets;
 import org.jamocha.dn.ConstructCache.Deffacts;
 import org.jamocha.dn.ConstructCache.Defrule;
+import org.jamocha.dn.ConstructCache.Defrule.Translated;
 import org.jamocha.dn.compiler.PathFilterConsolidator;
 import org.jamocha.dn.memory.Fact;
 import org.jamocha.dn.memory.FactAddress;
@@ -63,8 +64,6 @@ import org.jamocha.filter.PathCollector;
 import org.jamocha.filter.PathFilter;
 import org.jamocha.function.fwa.Assert.TemplateContainer;
 import org.jamocha.languages.clips.ClipsLogFormatter;
-import org.jamocha.languages.common.ConditionalElement;
-import org.jamocha.languages.common.RuleCondition;
 import org.jamocha.languages.common.RuleConditionProcessor;
 import org.jamocha.languages.common.ScopeStack;
 import org.jamocha.logging.LogFormatter;
@@ -128,7 +127,7 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 	 * 
 	 * @return conflict set
 	 */
-	private final ConflictSet conflictSet = new ConflictSet();
+	private final ConflictSet conflictSet;
 
 	@Getter
 	private final ConstructCache constructCache = new ConstructCache();
@@ -166,6 +165,7 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 		this.memoryFactory = memoryFactory;
 		this.tokenQueueCapacity = tokenQueueCapacity;
 		this.scheduler = scheduler;
+		this.conflictSet = new ConflictSet(this.constructCache);
 		this.rootNode = new RootNode();
 		this.logFormatter = logFormatter;
 		this.initialFactTemplate = defTemplate("initial-fact", "");
@@ -266,12 +266,12 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 		final PathFilter normalisedFilter = filter.normalise();
 
 		// check candidates for possible node sharing
-		candidateLoop: for (final Node candidate : candidates) {
+		for (final Node candidate : candidates) {
 			// check if filter matches
 			final Map<Path, FactAddress> map =
 					FilterFunctionCompare.equals(candidate, normalisedFilter);
 			if (null == map)
-				continue candidateLoop;
+				continue;
 
 			candidate.shareNode(map, paths);
 			return true;
@@ -321,6 +321,18 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 	 * @return created TerminalNode for the constructed rule
 	 */
 	public TerminalNode buildRule(final PathFilter... filters) {
+		return buildRule(Arrays.asList(filters));
+	}
+
+	/**
+	 * Creates network nodes for one rule, consisting of the passed filters.
+	 * 
+	 * @param filters
+	 *            list of filters in order of implementation in the network. Each filter is
+	 *            implemented in a separate node. Node-Sharing is used if possible
+	 * @return created TerminalNode for the constructed rule
+	 */
+	public TerminalNode buildRule(final List<PathFilter> filters) {
 		final LinkedHashSet<Path> allPaths = new LinkedHashSet<>();
 		{
 			for (final PathFilter filter : filters) {
@@ -408,11 +420,12 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 	@Override
 	public void defRules(final Defrule... defrules) {
 		for (final Defrule defrule : defrules) {
-			// TODO compile
-			this.constructCache.addRule(defrule);
-			for (List<PathFilter> filters : this.compileRule(defrule.getCondition())) {
-				this.buildRule(toArray(filters, PathFilter[]::new));
+			this.compileRule(defrule);
+			for (final Translated translated : defrule.getTranslatedVersions()) {
+				translated.setTerminalNode(this.buildRule(translated.getCondition()));
 			}
+			// add the rule and the contained translated versions to the construct cache
+			this.constructCache.addRule(defrule);
 		}
 	}
 
@@ -436,14 +449,11 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 						.map(TemplateContainer::toFact), Fact[]::new));
 	}
 
-	private List<List<PathFilter>> compileRule(RuleCondition condition) {
-		final List<ConditionalElement> conditionalElements = condition.getConditionalElements();
+	private void compileRule(final Defrule rule) {
 		// Preprocess CEs
-		RuleConditionProcessor.flatten(conditionalElements);
-		assert conditionalElements.size() == 1;
-		// Transform TestCEs to PathFilters and collect them
-		return new PathFilterConsolidator().consolidate(conditionalElements.get(0))
-				.getPathFilters();
+		RuleConditionProcessor.flatten(rule.getCondition());
+		// Transform TestCEs to PathFilters
+		new PathFilterConsolidator(rule).consolidate();
 	}
 
 	/**

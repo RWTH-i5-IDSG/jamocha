@@ -20,6 +20,8 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
+import org.jamocha.dn.ConstructCache.Defrule;
+import org.jamocha.dn.ConstructCache.Defrule.Translated;
 import org.jamocha.filter.Path;
 import org.jamocha.filter.PathCollector;
 import org.jamocha.filter.PathFilter;
@@ -43,13 +45,16 @@ import org.jamocha.languages.common.SingleFactVariable;
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  * @author Christoph Terwelp <christoph.terwelp@rwth-aachen.de>
  */
+@RequiredArgsConstructor
 public class PathFilterConsolidator implements DefaultConditionalElementsVisitor {
 
+	private final Defrule rule;
 	@Getter
-	private List<List<PathFilter>> pathFilters = null;
+	private List<Defrule.Translated> translateds = null;
 
-	public PathFilterConsolidator consolidate(final ConditionalElement ce) {
-		return ce.accept(this);
+	public List<Defrule.Translated> consolidate() {
+		assert rule.getCondition().getConditionalElements().size() == 1;
+		return rule.getCondition().getConditionalElements().get(0).accept(this).translateds;
 	}
 
 	@Override
@@ -58,9 +63,8 @@ public class PathFilterConsolidator implements DefaultConditionalElementsVisitor
 		final SingleFactVariable initialFactVariable = SomeInitialFactFinder.find(ce);
 		// If there is no OrFunctionConditionalElement just proceed with the CE as it were
 		// the only child of an OrFunctionConditionalElement.
-		pathFilters =
-				Collections.singletonList(NoORsPFC.consolidate(initialFactVariable, ce)
-						.getPathFilters());
+		translateds =
+				Collections.singletonList(NoORsPFC.consolidate(rule, initialFactVariable, ce));
 	}
 
 	@Override
@@ -68,11 +72,12 @@ public class PathFilterConsolidator implements DefaultConditionalElementsVisitor
 		// If we are to need the initial fact variable, there should be one within the CE
 		final SingleFactVariable initialFactVariable = SomeInitialFactFinder.find(ce);
 		// For each child of the OrCE ...
-		pathFilters =
+		this.translateds =
 				ce.getChildren().stream().map(child ->
 				// ... collect all PathFilters in the child
-						NoORsPFC.consolidate(initialFactVariable, child).getPathFilters())
+						NoORsPFC.consolidate(rule, initialFactVariable, child))
 						.collect(Collectors.toCollection(ArrayList::new));
+
 	}
 
 	/**
@@ -87,15 +92,15 @@ public class PathFilterConsolidator implements DefaultConditionalElementsVisitor
 		private final boolean negated;
 
 		@Getter
-		private List<PathFilter> pathFilters = Collections.emptyList();
+		private List<PathFilter> pathFilters = new ArrayList<>();
 
 		private NoORsPFC(final SingleFactVariable initialFactVariable,
 				final Map<SingleFactVariable, Path> paths) {
 			this(initialFactVariable, paths, false);
 		}
 
-		public static NoORsPFC consolidate(final SingleFactVariable initialFactVariable,
-				final ConditionalElement ce) {
+		public static Translated consolidate(final Defrule rule,
+				final SingleFactVariable initialFactVariable, final ConditionalElement ce) {
 			final Map<SingleFactVariable, Path> pathMap = FactVariableCollector.collectPaths(ce);
 			final NoORsPFC instance = new NoORsPFC(initialFactVariable, pathMap).collect(ce);
 			final List<PathFilter> pathFilters = instance.getPathFilters();
@@ -105,20 +110,18 @@ public class PathFilterConsolidator implements DefaultConditionalElementsVisitor
 			}
 			final Set<Path> unusedPaths = new HashSet<>(pathMap.values());
 			unusedPaths.removeAll(collector.getPaths());
+			final Translated translated =
+					rule.newTranslated(
+							instance.getPathFilters(),
+							rule.getActionList().stream()
+									.map(fwa -> SymbolToPathTranslator.translate(fwa, pathMap))
+									.collect(toCollection(ArrayList::new)));
 			if (unusedPaths.isEmpty()) {
-				return instance;
+				return translated;
 			}
-			final PathFilter pathFilter =
-					new PathFilter(new PathFilter.DummyPathFilterElement(toArray(unusedPaths,
-							Path[]::new)));
-			try {
-				pathFilters.add(pathFilter);
-			} catch (final UnsupportedOperationException ex) {
-				instance.pathFilters = new ArrayList<>(pathFilters.size() + 1);
-				instance.pathFilters.addAll(pathFilters);
-				instance.pathFilters.add(pathFilter);
-			}
-			return instance;
+			pathFilters.add(new PathFilter(new PathFilter.DummyPathFilterElement(toArray(
+					unusedPaths, Path[]::new))));
+			return translated;
 		}
 
 		private <T extends ConditionalElement> NoORsPFC collect(final T ce) {
@@ -345,10 +348,8 @@ public class PathFilterConsolidator implements DefaultConditionalElementsVisitor
 
 		@Override
 		public void visit(final TestConditionalElement ce) {
-			this.pathFilters =
-					Collections.singletonList(new PathFilter(
-							new PathFilter.PathFilterElement(SymbolToPathTranslator.translate(
-									ce.getPredicateWithArguments(), paths))));
+			this.pathFilters.add(new PathFilter(new PathFilter.PathFilterElement(
+					SymbolToPathTranslator.translate(ce.getPredicateWithArguments(), paths))));
 		}
 	}
 
