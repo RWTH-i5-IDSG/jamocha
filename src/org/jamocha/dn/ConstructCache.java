@@ -103,7 +103,7 @@ public class ConstructCache {
 	}
 
 	public Set<Defrule.Translated> getRulesForTerminalNode(final TerminalNode terminal) {
-		return this.terminalNode2Rules.get(terminal);
+		return this.terminalNode2Rules.computeIfAbsent(terminal, t -> new HashSet<>());
 	}
 
 	public Set<TerminalNode> getTerminalNodesForRule(final Defrule rule) {
