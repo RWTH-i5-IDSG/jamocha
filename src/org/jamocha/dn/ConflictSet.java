@@ -16,7 +16,6 @@ package org.jamocha.dn;
 
 import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.List;
 
 import lombok.RequiredArgsConstructor;
 import lombok.Value;
@@ -48,7 +47,7 @@ public class ConflictSet implements Iterable<ConflictSet.RuleAndToken> {
 		AssertOrRetract<?> token;
 	}
 
-	final List<RuleAndToken> nodesAndTokens = new LinkedList<>();
+	final LinkedList<RuleAndToken> rulesAndTokens = new LinkedList<>();
 
 	/**
 	 * Adds an {@link Assert} belonging to {@link TerminalNode}.
@@ -61,7 +60,7 @@ public class ConflictSet implements Iterable<ConflictSet.RuleAndToken> {
 	public void addAssert(final TerminalNode terminal, final Assert plus) {
 		for (final Defrule.Translated translated : this.constructCache
 				.getRulesForTerminalNode(terminal)) {
-			this.nodesAndTokens.add(new RuleAndToken(translated, plus));
+			this.rulesAndTokens.add(new RuleAndToken(translated, plus));
 		}
 	}
 
@@ -76,7 +75,7 @@ public class ConflictSet implements Iterable<ConflictSet.RuleAndToken> {
 	public void addRetract(final TerminalNode terminal, final Retract minus) {
 		for (final Defrule.Translated translated : this.constructCache
 				.getRulesForTerminalNode(terminal)) {
-			this.nodesAndTokens.add(new RuleAndToken(translated, minus));
+			this.rulesAndTokens.add(new RuleAndToken(translated, minus));
 		}
 	}
 
@@ -84,14 +83,14 @@ public class ConflictSet implements Iterable<ConflictSet.RuleAndToken> {
 	 * Deletes all asserts and retracts.
 	 */
 	public void flush() {
-		this.nodesAndTokens.clear();
+		this.rulesAndTokens.clear();
 	}
 
 	/**
-	 * Deletes all asserts and retracts with duals.
+	 * Deletes all revoked asserts and all retracts.
 	 */
 	public void deleteRevokedEntries() {
-		final Iterator<RuleAndToken> iterator = this.nodesAndTokens.iterator();
+		final Iterator<RuleAndToken> iterator = this.rulesAndTokens.iterator();
 		while (iterator.hasNext()) {
 			final RuleAndToken nodeAndToken = iterator.next();
 			final AssertOrRetract<?> token = nodeAndToken.getToken();
@@ -103,6 +102,10 @@ public class ConflictSet implements Iterable<ConflictSet.RuleAndToken> {
 
 	@Override
 	public Iterator<RuleAndToken> iterator() {
-		return this.nodesAndTokens.iterator();
+		return this.rulesAndTokens.iterator();
+	}
+
+	public boolean remove(final RuleAndToken ruleAndToken) {
+		return this.rulesAndTokens.remove(ruleAndToken);
 	}
 }

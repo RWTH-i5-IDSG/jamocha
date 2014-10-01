@@ -15,12 +15,15 @@
 package org.jamocha.dn;
 
 import static java.util.stream.Collectors.toSet;
+import static org.jamocha.util.ToArray.toArray;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import lombok.AccessLevel;
@@ -28,13 +31,20 @@ import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.Value;
 
+import org.jamocha.dn.compiler.SymbolToPathTranslator;
+import org.jamocha.dn.memory.MemoryHandlerTerminal.AssertOrRetract;
 import org.jamocha.dn.memory.Template;
+import org.jamocha.dn.nodes.SlotInFactAddress;
 import org.jamocha.dn.nodes.TerminalNode;
+import org.jamocha.filter.Path;
 import org.jamocha.filter.PathFilter;
 import org.jamocha.function.Function;
 import org.jamocha.function.fwa.Assert;
 import org.jamocha.function.fwa.FunctionWithArguments;
+import org.jamocha.function.fwatransformer.FWADeepCopy;
+import org.jamocha.function.fwatransformer.FWAPathToAddressTranslator;
 import org.jamocha.languages.common.RuleCondition;
+import org.jamocha.languages.common.SingleFactVariable;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
@@ -55,16 +65,28 @@ public class ConstructCache {
 	}
 
 	@Value
+	@RequiredArgsConstructor
 	public static class Defrule {
 		final String name;
 		final String description;
+		final int salience;
 		final RuleCondition condition;
-		final ArrayList<FunctionWithArguments> actionList;
+		final FunctionWithArguments[] actionList;
 		final ArrayList<Translated> translatedVersions = new ArrayList<>();
 
+		public Defrule(final String name, final String description, final int salience,
+				final RuleCondition condition, final ArrayList<FunctionWithArguments> actionList) {
+			this(name, description, salience, condition, toArray(actionList,
+					FunctionWithArguments[]::new));
+		}
+
 		public Translated newTranslated(final List<PathFilter> condition,
-				final List<FunctionWithArguments> actionList) {
-			final Translated translated = new Translated(condition, actionList);
+				final Map<SingleFactVariable, Path> pathTranslationMap) {
+			final Translated translated =
+					new Translated(condition, new ActionList(toArray(
+							Arrays.stream(actionList).map(
+									fwa -> SymbolToPathTranslator.translate(FWADeepCopy.copy(fwa),
+											pathTranslationMap)), FunctionWithArguments[]::new)));
 			translatedVersions.add(translated);
 			return translated;
 		}
@@ -73,11 +95,55 @@ public class ConstructCache {
 		@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 		public class Translated {
 			final List<PathFilter> condition;
-			final Collection<FunctionWithArguments> actionList;
+			final ActionList actionList;
 			TerminalNode terminalNode;
 
 			public Defrule getParent() {
 				return Defrule.this;
+			}
+
+			public void setTerminalNode(final TerminalNode terminalNode) {
+				this.terminalNode = terminalNode;
+				this.actionList.translatePathToAddress();
+			}
+		}
+
+		@Value
+		public static class ActionList {
+			@Data
+			private static class FWAWithAddresses {
+				final FunctionWithArguments fwa;
+				SlotInFactAddress[] addresses;
+			}
+
+			final FWAWithAddresses[] actions;
+
+			public ActionList(final FunctionWithArguments[] actions) {
+				this.actions =
+						toArray(Arrays.stream(actions).map(FWAWithAddresses::new),
+								FWAWithAddresses[]::new);
+			}
+
+			public void translatePathToAddress() {
+				for (final FWAWithAddresses action : actions) {
+					final ArrayList<SlotInFactAddress> addresses = new ArrayList<>();
+					FWAPathToAddressTranslator.translate(action.fwa, addresses);
+					action.addresses = toArray(addresses, SlotInFactAddress[]::new);
+				}
+			}
+
+			public void evaluate(final AssertOrRetract<?> token) {
+				for (final FWAWithAddresses action : actions) {
+					final SlotInFactAddress[] addresses = action.addresses;
+					final Object[] params = new Object[addresses.length];
+					for (int i = 0; i < addresses.length; ++i) {
+						final SlotInFactAddress slotInFactAddress = addresses[i];
+						params[i] =
+								token.getValue(slotInFactAddress.getFactAddress(),
+										slotInFactAddress.getSlotAddress());
+					}
+					action.fwa.evaluate(params);
+				}
 			}
 		}
 	}

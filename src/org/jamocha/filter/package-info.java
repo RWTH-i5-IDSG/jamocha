@@ -17,7 +17,7 @@
  * {@link org.jamocha.function.fwa.PathLeaf PathLeaf}. In doing so, we combine Functions, Constants
  * and Paths. After all {@link org.jamocha.filter.Path paths} used have been mapped to their
  * corresponding addresses, we can transform (
- * {@link org.jamocha.filter.FilterTranslator#translate(PathFilter, org.jamocha.dn.memory.CounterColumnMatcher)}
+ * {@link org.jamocha.filter.PathFilterToAddressFilterTranslator#translate(PathFilter, org.jamocha.dn.memory.CounterColumnMatcher)}
  * ) the filter to contain only {@link org.jamocha.function.fwa.GenericWithArgumentsComposite
  * GenericWithArgumentsComposite}, {@link org.jamocha.function.fwa.ConstantLeaf ConstantLeaf} ,
  * {@link org.jamocha.function.fwa.PathLeaf.ParameterLeaf ParameterLeaf}. During this step, the

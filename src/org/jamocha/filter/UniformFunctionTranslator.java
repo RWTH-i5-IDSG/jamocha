@@ -17,22 +17,18 @@ package org.jamocha.filter;
 import static org.jamocha.util.ToArray.toArray;
 
 import java.util.Arrays;
-import java.util.function.IntFunction;
 
 import org.jamocha.dn.memory.SlotType;
 import org.jamocha.function.Function;
 import org.jamocha.function.FunctionDictionary;
 import org.jamocha.function.Predicate;
-import org.jamocha.function.fwa.Assert;
 import org.jamocha.function.fwa.DefaultFunctionWithArgumentsVisitor;
 import org.jamocha.function.fwa.FunctionWithArguments;
 import org.jamocha.function.fwa.FunctionWithArgumentsComposite;
-import org.jamocha.function.fwa.FunctionWithArgumentsVisitor;
 import org.jamocha.function.fwa.GenericWithArgumentsComposite;
-import org.jamocha.function.fwa.Modify;
-import org.jamocha.function.fwa.Modify.SlotAndValue;
 import org.jamocha.function.fwa.PredicateWithArguments;
 import org.jamocha.function.fwa.PredicateWithArgumentsComposite;
+import org.jamocha.function.fwatransformer.FWADeepCopy;
 import org.jamocha.function.impls.DefaultFunctionVisitor;
 
 /**
@@ -42,103 +38,11 @@ public class UniformFunctionTranslator {
 	public static PredicateWithArguments translate(
 			final PredicateWithArguments predicateWithArguments) {
 		final PredicateWithArguments copy =
-				(PredicateWithArguments) predicateWithArguments.accept(new DeepCopy()).result;
+				(PredicateWithArguments) predicateWithArguments.accept(new FWADeepCopy())
+						.getResult();
 		final PredicateWithArguments transformed =
 				(PredicateWithArguments) copy.accept(new UpperLevelFWATranslator(copy)).result;
 		return transformed;
-	}
-
-	private static class DeepCopy implements FunctionWithArgumentsVisitor {
-		FunctionWithArguments result;
-
-		@SuppressWarnings("unchecked")
-		private static <T extends FunctionWithArguments> T[] copyArgs(final T[] args,
-				final IntFunction<T[]> gen) {
-			return toArray(Arrays.stream(args).map(fwa -> (T) fwa.accept(new DeepCopy()).result),
-					gen);
-		}
-
-		private static FunctionWithArguments[] copyArgs(final FunctionWithArguments[] args) {
-			return copyArgs(args, FunctionWithArguments[]::new);
-		}
-
-		@Override
-		public void visit(
-				final org.jamocha.function.fwa.PredicateWithArgumentsComposite predicateWithArgumentsComposite) {
-			this.result =
-					new org.jamocha.function.fwa.PredicateWithArgumentsComposite(
-							predicateWithArgumentsComposite.getFunction(),
-							copyArgs(predicateWithArgumentsComposite.getArgs()));
-		}
-
-		@Override
-		public void visit(
-				final org.jamocha.function.fwa.FunctionWithArgumentsComposite functionWithArgumentsComposite) {
-			this.result =
-					new org.jamocha.function.fwa.FunctionWithArgumentsComposite(
-							functionWithArgumentsComposite.getFunction(),
-							copyArgs(functionWithArgumentsComposite.getArgs()));
-		}
-
-		@Override
-		public void visit(final org.jamocha.function.fwa.ConstantLeaf constantLeaf) {
-			this.result =
-					new org.jamocha.function.fwa.ConstantLeaf(constantLeaf.getValue(),
-							constantLeaf.getReturnType());
-		}
-
-		@Override
-		public void visit(final org.jamocha.function.fwa.PathLeaf.ParameterLeaf parameterLeaf) {
-			this.result =
-					new org.jamocha.function.fwa.PathLeaf.ParameterLeaf(parameterLeaf.getType(),
-							parameterLeaf.hash());
-		}
-
-		@Override
-		public void visit(final org.jamocha.function.fwa.PathLeaf pathLeaf) {
-			this.result =
-					new org.jamocha.function.fwa.PathLeaf(pathLeaf.getPath(), pathLeaf.getSlot());
-		}
-
-		@Override
-		public void visit(final org.jamocha.function.fwa.Assert fwa) {
-			this.result =
-					new org.jamocha.function.fwa.Assert(fwa.getNetwork(), copyArgs(fwa.getArgs(),
-							Assert.TemplateContainer[]::new));
-		}
-
-		@Override
-		public void visit(final org.jamocha.function.fwa.Assert.TemplateContainer fwa) {
-			this.result =
-					new org.jamocha.function.fwa.Assert.TemplateContainer(fwa.getTemplate(),
-							copyArgs(fwa.getArgs()));
-		}
-
-		@Override
-		public void visit(final org.jamocha.function.fwa.Modify fwa) {
-			this.result =
-					new org.jamocha.function.fwa.Modify(fwa.getNetwork(), fwa.getTargetFact()
-							.accept(new DeepCopy()).result, copyArgs(fwa.getArgs(),
-							Modify.SlotAndValue[]::new));
-		}
-
-		@Override
-		public void visit(final org.jamocha.function.fwa.Retract fwa) {
-			this.result =
-					new org.jamocha.function.fwa.Retract(fwa.getNetwork(), copyArgs(fwa.getArgs()));
-		}
-
-		@Override
-		public void visit(final org.jamocha.function.fwa.SymbolLeaf fwa) {
-			this.result = new org.jamocha.function.fwa.SymbolLeaf(fwa.getSymbol());
-		}
-
-		@Override
-		public void visit(SlotAndValue fwa) {
-			this.result =
-					new SlotAndValue(fwa.getSlotName(),
-							fwa.getValue().accept(new DeepCopy()).result);
-		}
 	}
 
 	static interface SelectiveFunctionWithArgumentsVisitor extends

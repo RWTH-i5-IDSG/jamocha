@@ -41,7 +41,7 @@ import org.jamocha.dn.memory.MemoryHandlerTemp;
 import org.jamocha.dn.memory.Template;
 import org.jamocha.filter.AddressFilter;
 import org.jamocha.filter.AddressFilter.AddressFilterElement;
-import org.jamocha.filter.FilterTranslator;
+import org.jamocha.filter.PathFilterToAddressFilterTranslator;
 import org.jamocha.filter.Path;
 import org.jamocha.filter.PathCollector;
 import org.jamocha.filter.PathFilter;
@@ -297,7 +297,7 @@ public abstract class Node {
 			}
 		}
 		this.filter =
-				FilterTranslator.translate(filter,
+				PathFilterToAddressFilterTranslator.translate(filter,
 						memoryHandlerMainAndCounterColumnMatcher.getFilterElementToCounterColumn());
 		for (final Edge edge : this.incomingEdges) {
 			edge.setFilter(this.filter);

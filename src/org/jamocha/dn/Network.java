@@ -23,6 +23,7 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -38,6 +39,7 @@ import org.apache.logging.log4j.core.config.Configuration;
 import org.apache.logging.log4j.core.config.LoggerConfig;
 import org.apache.logging.log4j.core.layout.PatternLayout;
 import org.apache.logging.log4j.core.util.Charsets;
+import org.jamocha.dn.ConflictSet.RuleAndToken;
 import org.jamocha.dn.ConstructCache.Deffacts;
 import org.jamocha.dn.ConstructCache.Defrule;
 import org.jamocha.dn.ConstructCache.Defrule.Translated;
@@ -321,18 +323,6 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 	 * @return created TerminalNode for the constructed rule
 	 */
 	public TerminalNode buildRule(final PathFilter... filters) {
-		return buildRule(Arrays.asList(filters));
-	}
-
-	/**
-	 * Creates network nodes for one rule, consisting of the passed filters.
-	 * 
-	 * @param filters
-	 *            list of filters in order of implementation in the network. Each filter is
-	 *            implemented in a separate node. Node-Sharing is used if possible
-	 * @return created TerminalNode for the constructed rule
-	 */
-	public TerminalNode buildRule(final List<PathFilter> filters) {
 		final LinkedHashSet<Path> allPaths = new LinkedHashSet<>();
 		{
 			for (final PathFilter filter : filters) {
@@ -422,7 +412,8 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 		for (final Defrule defrule : defrules) {
 			this.compileRule(defrule);
 			for (final Translated translated : defrule.getTranslatedVersions()) {
-				translated.setTerminalNode(this.buildRule(translated.getCondition()));
+				translated.setTerminalNode(buildRule(toArray(translated.getCondition(),
+						PathFilter[]::new)));
 			}
 			// add the rule and the contained translated versions to the construct cache
 			this.constructCache.addRule(defrule);
@@ -447,6 +438,22 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 				this.constructCache.getDeffacts().stream()
 						.flatMap(def -> def.getContainers().stream())
 						.map(TemplateContainer::toFact), Fact[]::new));
+	}
+
+	@Override
+	public void run(final long maxNumRules) {
+		long numRules = 0;
+		conflictSet.deleteRevokedEntries();
+		do {
+			final Optional<RuleAndToken> optional =
+					ConflictResolutionStrategy.random.pick(conflictSet);
+			if (!optional.isPresent())
+				break;
+			final RuleAndToken ruleAndToken = optional.get();
+			ruleAndToken.getRule().getActionList().evaluate(ruleAndToken.getToken());
+			conflictSet.remove(ruleAndToken);
+			++numRules;
+		} while (maxNumRules != 0 && numRules < maxNumRules);
 	}
 
 	private void compileRule(final Defrule rule) {

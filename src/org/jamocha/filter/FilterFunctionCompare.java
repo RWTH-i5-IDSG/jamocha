@@ -438,7 +438,7 @@ public class FilterFunctionCompare {
 			}
 			assert paths.isEmpty();
 			final AddressFilter translatedFilter =
-					FilterTranslator.translate(pathFilter, a -> null);
+					PathFilterToAddressFilterTranslator.translate(pathFilter, a -> null);
 			final AddressFilter targetFilter = targetNode.getFilter();
 			final boolean equal = equals(translatedFilter, targetFilter);
 			for (final Path path : joinedPaths) {

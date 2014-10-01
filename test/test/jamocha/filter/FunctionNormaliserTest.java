@@ -23,7 +23,7 @@ import org.jamocha.dn.memory.SlotType;
 import org.jamocha.filter.AddressFilter;
 import org.jamocha.filter.Filter;
 import org.jamocha.filter.FilterFunctionCompare;
-import org.jamocha.filter.FilterTranslator;
+import org.jamocha.filter.PathFilterToAddressFilterTranslator;
 import org.jamocha.filter.PathFilter;
 import org.jamocha.filter.PathFilter.PathFilterElement;
 import org.jamocha.filter.UniformFunctionTranslator;
@@ -1111,13 +1111,13 @@ public class FunctionNormaliserTest {
 				new PathFilter(new PathFilterElement(
 						UniformFunctionTranslator.translate(originalPredicate)));
 		final AddressFilter addrOrignal =
-				FilterTranslator.translate(original,
+				PathFilterToAddressFilterTranslator.translate(original,
 						CounterColumnMatcherMockup.counterColumnMatcherMockup);
 		final AddressFilter addrOrignalTranslated =
-				FilterTranslator.translate(originalTranslated,
+				PathFilterToAddressFilterTranslator.translate(originalTranslated,
 						CounterColumnMatcherMockup.counterColumnMatcherMockup);
 		final AddressFilter addrCompare =
-				FilterTranslator.translate(compare,
+				PathFilterToAddressFilterTranslator.translate(compare,
 						CounterColumnMatcherMockup.counterColumnMatcherMockup);
 		assertSame(evalFirstFE(original), evalFirstFE(original.normalise()));
 		assertSame(evalFirstFE(original), evalFirstFE(addrOrignal));
@@ -1205,8 +1205,8 @@ public class FunctionNormaliserTest {
 												new FunctionBuilder(timesLL).addLong(5L)
 														.addLong(6L).build()).build()).buildPFE())
 						.normalise();
-		assertTrue(FilterFunctionCompare.equals(FilterTranslator.translate(compare,
-				CounterColumnMatcherMockup.counterColumnMatcherMockup), FilterTranslator.translate(
+		assertTrue(FilterFunctionCompare.equals(PathFilterToAddressFilterTranslator.translate(compare,
+				CounterColumnMatcherMockup.counterColumnMatcherMockup), PathFilterToAddressFilterTranslator.translate(
 				original, CounterColumnMatcherMockup.counterColumnMatcherMockup)));
 	}
 }

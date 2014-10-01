@@ -87,6 +87,7 @@ import org.jamocha.languages.clips.parser.generated.SFPConstant;
 import org.jamocha.languages.clips.parser.generated.SFPConstructDescription;
 import org.jamocha.languages.clips.parser.generated.SFPDateTime;
 import org.jamocha.languages.clips.parser.generated.SFPDateTimeType;
+import org.jamocha.languages.clips.parser.generated.SFPDeclaration;
 import org.jamocha.languages.clips.parser.generated.SFPDefaultAttribute;
 import org.jamocha.languages.clips.parser.generated.SFPDefaultAttributes;
 import org.jamocha.languages.clips.parser.generated.SFPDeffunctionConstruct;
@@ -127,6 +128,7 @@ import org.jamocha.languages.clips.parser.generated.SFPRHSSlot;
 import org.jamocha.languages.clips.parser.generated.SFPRangeAttribute;
 import org.jamocha.languages.clips.parser.generated.SFPRangeSpecification;
 import org.jamocha.languages.clips.parser.generated.SFPRetractFunc;
+import org.jamocha.languages.clips.parser.generated.SFPSalience;
 import org.jamocha.languages.clips.parser.generated.SFPSingleSlotDefinition;
 import org.jamocha.languages.clips.parser.generated.SFPSingleVariable;
 import org.jamocha.languages.clips.parser.generated.SFPSlotDefinition;
@@ -1343,13 +1345,41 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 		Optional<String> comment = Optional.empty();
 		@NonNull
 		Optional<ArrayList<FunctionWithArguments>> actionList = Optional.empty();
+		int salience = 0;
+
+		class SFPRulePropertyElementsVisitor implements SelectiveSFPVisitor {
+			// SimpleNode Salience() : <SALIENCE> Expression()
+			@Override
+			public Object visit(final SFPSalience node, final Object data) {
+				assert 1 == node.jjtGetNumChildren();
+				final FunctionWithArguments expression =
+						SelectiveSFPVisitor.sendVisitor(new SFPExpressionVisitor(
+								SymbolToFunctionWithArguments.bySymbol(), false), node
+								.jjtGetChild(0), data).expression;
+				assert expression.getReturnType() == SlotType.LONG;
+				assert Arrays.equals(expression.getParamTypes(), SlotType.empty);
+				SFPDefruleConstructElementVisitor.this.salience =
+						((Long) expression.evaluate()).intValue();
+				return data;
+			}
+		}
 
 		public SFPDefruleConstructElementVisitor(final ExistentialStack contextStack,
 				final Symbol possibleFactVariable) {
 			super(contextStack, possibleFactVariable);
 		}
 
-		// TBD Declaration
+		// SimpleNode Declaration() : <LBRACE> <DECLARE> ( RuleProperty() )+ <RBRACE>
+		// void RuleProperty(): <LBRACE> ( Salience() | AutoFocus() | SlowCompile() | RuleVersion()
+		// | TemporalValidityDeclaration() ) <RBRACE>
+		@Override
+		public Object visit(final SFPDeclaration node, final Object data) {
+			assert node.jjtGetNumChildren() > 0;
+			SelectiveSFPVisitor.stream(node, 0).forEach(
+					n -> SelectiveSFPVisitor.sendVisitor(new SFPRulePropertyElementsVisitor(), n,
+							data));
+			return data;
+		}
 
 		// <defrule-construct> ::= (defrule <rule-name> [<comment>] [<declaration>]
 		// <conditional-element>* => <expression>*)
@@ -1762,6 +1792,7 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 						new ScopeCloser(SFPVisitorImpl.this.parserToNetwork.getScope())) {
 					final ExistentialStack existentialStack = new ExistentialStack();
 					String comment = null;
+					int salience = 0;
 					final ArrayList<ConditionalElement> ces = new ArrayList<>();
 					ArrayList<FunctionWithArguments> actionList = null;
 					for (int i = 1; i < node.jjtGetNumChildren(); ++i) {
@@ -1777,6 +1808,8 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 						} else if (visitor.actionList.isPresent()) {
 							assert null == actionList;
 							actionList = visitor.actionList.get();
+						} else if (visitor.salience != 0) {
+							salience = visitor.salience;
 						}
 					}
 					if (!existentialStack.templateCEContained) {
@@ -1787,7 +1820,8 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 					}
 					existentialStack.getConditionalElements().addAll(ces);
 					this.defrule =
-							new Defrule(symbol.getImage(), comment, existentialStack, actionList);
+							new Defrule(symbol.getImage(), comment, salience, existentialStack,
+									actionList);
 					SymbolCollector
 							.newHashSet()
 							.collect(existentialStack)

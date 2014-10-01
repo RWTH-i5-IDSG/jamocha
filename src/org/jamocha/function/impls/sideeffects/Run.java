@@ -53,7 +53,7 @@ public abstract class Run implements Function<Object> {
 
 				@Override
 				public Object evaluate(final Function<?>... params) {
-					// TODO run!
+					network.run(0);
 					return null;
 				}
 			};
@@ -69,8 +69,7 @@ public abstract class Run implements Function<Object> {
 
 				@Override
 				public Object evaluate(final Function<?>... params) {
-					// TODO run!
-					// (Long) params[0].evaluate()
+					network.run((Long) params[0].evaluate());
 					return null;
 				}
 			};

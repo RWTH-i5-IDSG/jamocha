@@ -26,7 +26,7 @@ import org.jamocha.dn.nodes.Node;
 import org.jamocha.dn.nodes.SlotInFactAddress;
 import org.jamocha.filter.AddressFilter.AddressFilterElement;
 import org.jamocha.filter.Filter;
-import org.jamocha.filter.FilterTranslator;
+import org.jamocha.filter.PathFilterToAddressFilterTranslator;
 import org.jamocha.filter.Path;
 import org.jamocha.function.Function;
 
@@ -34,7 +34,7 @@ import org.jamocha.function.Function;
  * A parameter of a {@link Function} may be a slot of a {@link Fact}. The corresponding
  * {@link SlotAddress} and {@link Path} are stored in this class. As soon as the {@link Node}
  * representing the surrounding {@link Filter} has been created, the {@link Filter} is
- * {@link FilterTranslator#translate(org.jamocha.filter.PathFilter, org.jamocha.dn.memory.CounterColumnMatcher)
+ * {@link PathFilterToAddressFilterTranslator#translate(org.jamocha.filter.PathFilter, org.jamocha.dn.memory.CounterColumnMatcher)
  * translated} and all {@link PathLeaf PathLeafs} are replaced with {@link ParameterLeaf
  * ParameterLeafs}.
  * 

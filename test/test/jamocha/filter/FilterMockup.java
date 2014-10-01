@@ -28,7 +28,7 @@ import lombok.Value;
 import org.jamocha.dn.memory.SlotAddress;
 import org.jamocha.dn.memory.SlotType;
 import org.jamocha.filter.AddressFilter;
-import org.jamocha.filter.FilterTranslator;
+import org.jamocha.filter.PathFilterToAddressFilterTranslator;
 import org.jamocha.filter.Path;
 import org.jamocha.filter.PathFilter;
 import org.jamocha.function.Function;
@@ -128,7 +128,7 @@ public class FilterMockup extends PathFilter {
 		@Theory
 		public void testAlwaysTrue(@SomeStuff Object... obj) {
 			final AddressFilter alwaysTrue =
-					FilterTranslator.translate(FilterMockup.alwaysTrue(),
+					PathFilterToAddressFilterTranslator.translate(FilterMockup.alwaysTrue(),
 							counterColumnMatcherMockup);
 			for (final FilterElement filterElement : alwaysTrue.getFilterElements()) {
 				assertTrue(filterElement.getFunction().evaluate(obj));
@@ -141,7 +141,7 @@ public class FilterMockup extends PathFilter {
 		@Theory
 		public void testAlwaysFalse(@SomeStuff Object... obj) {
 			final AddressFilter alwaysFalse =
-					FilterTranslator.translate(FilterMockup.alwaysFalse(),
+					PathFilterToAddressFilterTranslator.translate(FilterMockup.alwaysFalse(),
 							counterColumnMatcherMockup);
 			for (final FilterElement filterElement : alwaysFalse.getFilterElements()) {
 				assertFalse(filterElement.getFunction().evaluate(obj));

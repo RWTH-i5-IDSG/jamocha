@@ -146,4 +146,8 @@ public class NetworkMockup implements ParserToNetwork, SideEffectFunctionToNetwo
 	public ScopeStack getScope() {
 		return scope;
 	}
+
+	@Override
+	public void run(long maxNumRules) {
+	}
 }

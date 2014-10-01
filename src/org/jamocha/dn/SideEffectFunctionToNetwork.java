@@ -56,4 +56,6 @@ public interface SideEffectFunctionToNetwork {
 	Logger getInteractiveEventsLogger();
 
 	TypedFilter getTypedFilter();
+
+	void run(final long maxNumRules);
 }

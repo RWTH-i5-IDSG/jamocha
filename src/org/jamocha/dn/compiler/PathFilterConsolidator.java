@@ -110,12 +110,7 @@ public class PathFilterConsolidator implements DefaultConditionalElementsVisitor
 			}
 			final Set<Path> unusedPaths = new HashSet<>(pathMap.values());
 			unusedPaths.removeAll(collector.getPaths());
-			final Translated translated =
-					rule.newTranslated(
-							instance.getPathFilters(),
-							rule.getActionList().stream()
-									.map(fwa -> SymbolToPathTranslator.translate(fwa, pathMap))
-									.collect(toCollection(ArrayList::new)));
+			final Translated translated = rule.newTranslated(pathFilters, pathMap);
 			if (unusedPaths.isEmpty()) {
 				return translated;
 			}
