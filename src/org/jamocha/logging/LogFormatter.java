@@ -55,6 +55,8 @@ public interface LogFormatter {
 
 	String formatSlotValue(final SlotType type, final Object value);
 
+	String formatSlotValue(final SlotType type, final Object value, final boolean quoteString);
+
 	String formatType(final Type type);
 
 	String formatTypeValue(final Type type, final Object value);

@@ -198,9 +198,17 @@ public class ClipsLogFormatter implements LogFormatter {
 
 	@Override
 	public String formatSlotValue(final SlotType type, final Object value) {
+		return formatSlotValue(type, value, true);
+	}
+
+	@Override
+	public String formatSlotValue(final SlotType type, final Object value, final boolean quoteString) {
 		switch (type) {
 		case STRING:
-			return "\"" + Objects.toString(value) + "\"";
+			if (quoteString)
+				return "\"" + Objects.toString(value) + "\"";
+			else
+				return Objects.toString(value);
 		case FACTADDRESS:
 			return (null == value) ? "FALSE" : "<Fact-" + ((FactIdentifier) value).getId() + ">";
 		default:

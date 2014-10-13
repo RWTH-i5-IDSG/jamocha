@@ -89,7 +89,7 @@ public abstract class Printout implements Function<Object> {
 										"Java doesn't support vertical tabs!");
 							}
 						}
-						sb.append(logFormatter.formatSlotValue(type, value));
+						sb.append(logFormatter.formatSlotValue(type, value, false));
 					}
 					System.out.print(sb.toString());
 					return null;
