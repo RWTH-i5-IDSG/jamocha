@@ -50,10 +50,10 @@ public class SymbolToPathTranslator implements FunctionWithArgumentsVisitor {
 		this.paths = paths;
 	}
 
+	@SuppressWarnings("unchecked")
 	public static <T extends FunctionWithArguments> T translate(final T toTranslate,
 			final Map<SingleFactVariable, Path> paths) {
-		toTranslate.accept(new SymbolToPathTranslator(paths));
-		return toTranslate;
+		return (T) toTranslate.accept(new SymbolToPathTranslator(paths)).result;
 	}
 
 	private void handleGWAC(final GenericWithArgumentsComposite<?, ?> gwac) {
