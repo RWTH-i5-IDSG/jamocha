@@ -27,6 +27,7 @@ import org.jamocha.logging.LogFormatter;
  */
 public abstract class Printout implements Function<Object> {
 	public static final String inClips = "printout";
+	public static final String linebreak = System.getProperty("line.separator");
 
 	@Override
 	public SlotType getReturnType() {
@@ -75,7 +76,7 @@ public abstract class Printout implements Function<Object> {
 						if (type == SlotType.SYMBOL) {
 							switch (((Symbol) value).getImage()) {
 							case "crlf":
-								sb.append(System.getProperty("line.separator"));
+								sb.append(linebreak);
 								continue;
 							case "ff":
 								sb.append("\f");
