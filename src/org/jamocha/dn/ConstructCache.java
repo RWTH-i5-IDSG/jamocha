@@ -112,8 +112,12 @@ public class ConstructCache {
 		public static class ActionList {
 			@Data
 			private static class FWAWithAddresses {
-				final FunctionWithArguments fwa;
+				FunctionWithArguments fwa;
 				SlotInFactAddress[] addresses;
+
+				public FWAWithAddresses(final FunctionWithArguments fwa) {
+					this.fwa = fwa;
+				}
 			}
 
 			final FWAWithAddresses[] actions;
@@ -127,7 +131,7 @@ public class ConstructCache {
 			public void translatePathToAddress() {
 				for (final FWAWithAddresses action : actions) {
 					final ArrayList<SlotInFactAddress> addresses = new ArrayList<>();
-					FWAPathToAddressTranslator.translate(action.fwa, addresses);
+					action.fwa = FWAPathToAddressTranslator.translate(action.fwa, addresses);
 					action.addresses = toArray(addresses, SlotInFactAddress[]::new);
 				}
 			}
