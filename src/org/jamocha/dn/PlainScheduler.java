@@ -17,6 +17,8 @@ package org.jamocha.dn;
 import java.util.LinkedList;
 import java.util.Queue;
 
+import org.jamocha.dn.nodes.Node.TokenQueue;
+
 /**
  * {@link Scheduler} to process {@linkplain Runnable runnables} in order of arrival in only one
  * {@link Thread thread}. The Scheduler has to be started by calling {@link #run()}.
@@ -29,7 +31,7 @@ public class PlainScheduler implements Scheduler, Runnable {
 	final Queue<Runnable> workQueue = new LinkedList<>();
 
 	@Override
-	public void enqueue(final Runnable runnable) {
+	public void enqueue(final TokenQueue runnable) {
 		this.workQueue.add(runnable);
 	}
 
@@ -57,4 +59,20 @@ public class PlainScheduler implements Scheduler, Runnable {
 		return true;
 	}
 
+	@Override
+	public void signalNewJob() {
+	}
+
+	@Override
+	public void signalFinishedJob() {
+	}
+
+	@Override
+	public boolean hasUnfinishedJobs() {
+		return false;
+	}
+
+	@Override
+	public void waitForNoUnfinishedJobs() {
+	}
 }

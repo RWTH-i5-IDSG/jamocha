@@ -33,6 +33,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 import org.jamocha.dn.Network;
+import org.jamocha.dn.Scheduler;
 import org.jamocha.dn.Token;
 import org.jamocha.dn.memory.FactAddress;
 import org.jamocha.dn.memory.MemoryHandlerMain;
@@ -183,6 +184,7 @@ public abstract class Node {
 	public class TokenQueue implements Runnable {
 		final static int tokenQueueCapacity = Integer.MAX_VALUE;
 		final Queue<Token> tokenQueue = new LinkedList<>();
+		final Scheduler scheduler;
 
 		/**
 		 * Adds a token to the queue, enqueues the queue in the scheduler if the queue was empty.
@@ -193,8 +195,9 @@ public abstract class Node {
 		synchronized public void enqueue(final Token token) {
 			final boolean empty = this.tokenQueue.isEmpty();
 			this.tokenQueue.add(token);
+			this.scheduler.signalNewJob();
 			if (empty) {
-				Node.this.network.getScheduler().enqueue(this);
+				this.scheduler.enqueue(this);
 			}
 		}
 
@@ -209,14 +212,15 @@ public abstract class Node {
 			assert null != token; // queue shouldn't have been in the work queue
 			try {
 				token.run();
+				this.scheduler.signalFinishedJob();
 				synchronized (this) {
 					this.tokenQueue.remove();
 					if (!this.tokenQueue.isEmpty()) {
-						Node.this.network.getScheduler().enqueue(this);
+						this.scheduler.enqueue(this);
 					}
 				}
 			} catch (final CouldNotAcquireLockException ex) {
-				Node.this.network.getScheduler().enqueue(this);
+				this.scheduler.enqueue(this);
 			}
 		}
 	}
@@ -227,7 +231,7 @@ public abstract class Node {
 	@Deprecated
 	protected Node(final Network network, final Node... parents) {
 		this.network = network;
-		this.tokenQueue = new TokenQueue();
+		this.tokenQueue = new TokenQueue(network.getScheduler());
 		this.incomingEdges = new Edge[parents.length];
 		final Map<Edge, Set<Path>> edgesAndPaths = new HashMap<>();
 		for (int i = 0; i < parents.length; i++) {
@@ -243,7 +247,7 @@ public abstract class Node {
 
 	protected Node(final Network network, final Template template, final Path... paths) {
 		this.network = network;
-		this.tokenQueue = new TokenQueue();
+		this.tokenQueue = new TokenQueue(network.getScheduler());
 		this.incomingEdges = new Edge[0];
 		this.memory = network.getMemoryFactory().newMemoryHandlerMain(template, paths);
 		this.filter = AddressFilter.empty;
@@ -251,7 +255,7 @@ public abstract class Node {
 
 	public Node(final Network network, final PathFilter filter) {
 		this.network = network;
-		this.tokenQueue = new TokenQueue();
+		this.tokenQueue = new TokenQueue(network.getScheduler());
 		final LinkedHashSet<Path> paths =
 				PathCollector.newLinkedHashSet().collect(filter).getPaths();
 		final Map<Edge, Set<Path>> edgesAndPaths = new HashMap<>();

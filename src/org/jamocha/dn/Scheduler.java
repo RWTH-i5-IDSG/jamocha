@@ -14,6 +14,8 @@
  */
 package org.jamocha.dn;
 
+import org.jamocha.dn.nodes.Node.TokenQueue;
+
 /**
  * This interface declares a scheduler usable by any {@link Network network}. It should take
  * {@link Runnable Runnables} and {@link Runnable#run() run} them (optional in separate threads).
@@ -30,6 +32,14 @@ public interface Scheduler {
 	 * @param runnable
 	 *            the {@link Runnable} to add to the schedulers queue
 	 */
-	public abstract void enqueue(final Runnable runnable);
+	public void enqueue(final TokenQueue runnable);
+
+	public void signalFinishedJob();
+
+	public boolean hasUnfinishedJobs();
+
+	public void waitForNoUnfinishedJobs();
+
+	public void signalNewJob();
 
 }

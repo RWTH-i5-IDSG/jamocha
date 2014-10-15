@@ -51,6 +51,7 @@ import org.jamocha.dn.memory.MemoryFact;
 import org.jamocha.dn.memory.MemoryFactory;
 import org.jamocha.dn.memory.MemoryHandlerMain;
 import org.jamocha.dn.memory.MemoryHandlerPlusTemp;
+import org.jamocha.dn.memory.MemoryHandlerTerminal.Assert;
 import org.jamocha.dn.memory.Template;
 import org.jamocha.dn.memory.Template.Slot;
 import org.jamocha.dn.nodes.AlphaNode;
@@ -443,17 +444,20 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 	@Override
 	public void run(final long maxNumRules) {
 		long numRules = 0;
-		conflictSet.deleteRevokedEntries();
 		do {
+			this.scheduler.waitForNoUnfinishedJobs();
+			conflictSet.deleteRevokedEntries();
 			final Optional<RuleAndToken> optional =
-					ConflictResolutionStrategy.random.pick(conflictSet);
+					ConflictResolutionStrategy.random.pick(this.conflictSet);
 			if (!optional.isPresent())
 				break;
 			final RuleAndToken ruleAndToken = optional.get();
+			this.logFormatter.messageRuleFiring(this, ruleAndToken.getRule(),
+					(Assert) ruleAndToken.getToken());
 			ruleAndToken.getRule().getActionList().evaluate(ruleAndToken.getToken());
-			conflictSet.remove(ruleAndToken);
+			this.conflictSet.remove(ruleAndToken);
 			++numRules;
-		} while (maxNumRules == 0 || numRules < maxNumRules);
+		} while (0L == maxNumRules || numRules < maxNumRules);
 	}
 
 	private void compileRule(final Defrule rule) {
