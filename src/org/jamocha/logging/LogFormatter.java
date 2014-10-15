@@ -14,10 +14,13 @@
  */
 package org.jamocha.logging;
 
+import org.jamocha.dn.ConstructCache.Defrule.Translated;
 import org.jamocha.dn.SideEffectFunctionToNetwork;
 import org.jamocha.dn.memory.Fact;
 import org.jamocha.dn.memory.FactIdentifier;
 import org.jamocha.dn.memory.MemoryFact;
+import org.jamocha.dn.memory.MemoryHandlerTerminal.Assert;
+import org.jamocha.dn.memory.MemoryHandlerTerminal.Retract;
 import org.jamocha.dn.memory.SlotType;
 import org.jamocha.dn.memory.Template;
 
@@ -41,6 +44,15 @@ public interface LogFormatter {
 	void messageFactRetractions(final SideEffectFunctionToNetwork network,
 			final FactIdentifier[] factsToRetract);
 
+	void messageRuleActivation(final SideEffectFunctionToNetwork network,
+			final Translated translated, final Assert plus);
+
+	void messageRuleDeactivation(final SideEffectFunctionToNetwork network,
+			final Translated translated, final Retract minus);
+
+	void messageRuleFiring(final SideEffectFunctionToNetwork network, final Translated translated,
+			final Assert plus);
+
 	void messageArgumentTypeMismatch(final SideEffectFunctionToNetwork network,
 			final String function, final int paramIndex, final Type expected);
 
@@ -60,4 +72,5 @@ public interface LogFormatter {
 	String formatType(final Type type);
 
 	String formatTypeValue(final Type type, final Object value);
+
 }

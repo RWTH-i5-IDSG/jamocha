@@ -31,6 +31,7 @@ import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.Value;
 
+import org.apache.logging.log4j.Marker;
 import org.jamocha.dn.compiler.SymbolToPathTranslator;
 import org.jamocha.dn.memory.MemoryHandlerTerminal.AssertOrRetract;
 import org.jamocha.dn.memory.Template;
@@ -45,6 +46,7 @@ import org.jamocha.function.fwatransformer.FWADeepCopy;
 import org.jamocha.function.fwatransformer.FWAPathToAddressTranslator;
 import org.jamocha.languages.common.RuleCondition;
 import org.jamocha.languages.common.SingleFactVariable;
+import org.jamocha.logging.MarkerType;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
@@ -65,7 +67,6 @@ public class ConstructCache {
 	}
 
 	@Value
-	@RequiredArgsConstructor
 	public static class Defrule {
 		final String name;
 		final String description;
@@ -73,11 +74,24 @@ public class ConstructCache {
 		final RuleCondition condition;
 		final FunctionWithArguments[] actionList;
 		final ArrayList<Translated> translatedVersions = new ArrayList<>();
+		final Marker fireMarker;
+		final Marker activationMarker;
 
 		public Defrule(final String name, final String description, final int salience,
 				final RuleCondition condition, final ArrayList<FunctionWithArguments> actionList) {
 			this(name, description, salience, condition, toArray(actionList,
 					FunctionWithArguments[]::new));
+		}
+
+		public Defrule(final String name, final String description, final int salience,
+				final RuleCondition condition, final FunctionWithArguments[] actionList) {
+			this.name = name;
+			this.description = description;
+			this.salience = salience;
+			this.condition = condition;
+			this.actionList = actionList;
+			this.fireMarker = MarkerType.RULES.createChild(name);
+			this.activationMarker = MarkerType.ACTIVATIONS.createChild(name);
 		}
 
 		public Translated newTranslated(final List<PathFilter> condition,

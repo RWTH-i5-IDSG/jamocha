@@ -78,14 +78,14 @@ public abstract class Watch implements Function<Object> {
 						}
 						network.getTypedFilter().watch(MarkerType.FACTS, markers);
 						break;
+					case "rules":
+					case "activations":
 					case "compilations":
 					case "statistics":
 					case "focus":
 					case "messages":
 					case "deffunctions":
 					case "globals":
-					case "rules":
-					case "activations":
 					case "instances":
 					case "slots":
 					case "message-handlers":

@@ -22,7 +22,6 @@ import lombok.Data;
 import lombok.Value;
 
 import org.apache.logging.log4j.Marker;
-import org.apache.logging.log4j.MarkerManager;
 import org.jamocha.function.fwa.ConstantLeaf;
 import org.jamocha.function.fwa.FunctionWithArguments;
 
@@ -35,8 +34,6 @@ import org.jamocha.function.fwa.FunctionWithArguments;
  * @see Fact
  */
 public interface Template {
-
-	public final static Marker templateMarker = MarkerManager.getMarker("TEMPLATE");
 
 	@Value
 	public static class Slot {

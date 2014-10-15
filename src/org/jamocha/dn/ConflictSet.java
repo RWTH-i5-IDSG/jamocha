@@ -34,6 +34,7 @@ import org.jamocha.dn.nodes.TerminalNode;
 @RequiredArgsConstructor
 public class ConflictSet implements Iterable<ConflictSet.RuleAndToken> {
 
+	final SideEffectFunctionToNetwork network;
 	final ConstructCache constructCache;
 
 	/**
@@ -60,6 +61,7 @@ public class ConflictSet implements Iterable<ConflictSet.RuleAndToken> {
 	public void addAssert(final TerminalNode terminal, final Assert plus) {
 		for (final Defrule.Translated translated : this.constructCache
 				.getRulesForTerminalNode(terminal)) {
+			network.getLogFormatter().messageRuleActivation(network, translated, plus);
 			this.rulesAndTokens.add(new RuleAndToken(translated, plus));
 		}
 	}
@@ -75,6 +77,7 @@ public class ConflictSet implements Iterable<ConflictSet.RuleAndToken> {
 	public void addRetract(final TerminalNode terminal, final Retract minus) {
 		for (final Defrule.Translated translated : this.constructCache
 				.getRulesForTerminalNode(terminal)) {
+			network.getLogFormatter().messageRuleDeactivation(network, translated, minus);
 			this.rulesAndTokens.add(new RuleAndToken(translated, minus));
 		}
 	}

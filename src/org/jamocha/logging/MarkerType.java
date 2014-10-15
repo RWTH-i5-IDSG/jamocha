@@ -18,17 +18,18 @@ import lombok.RequiredArgsConstructor;
 
 import org.apache.logging.log4j.Marker;
 import org.apache.logging.log4j.MarkerManager;
-import org.jamocha.dn.memory.Template;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
 @RequiredArgsConstructor
 public enum MarkerType {
-	FACTS(Template.templateMarker);
+	FACTS(MarkerManager.getMarker("FACTS")), RULES(MarkerManager.getMarker("RULES")), ACTIVATIONS(
+			MarkerManager.getMarker("ACTIVATIONS"));
 	final Marker commonMarker;
 
-	public static Marker createChild(final Marker parent, final String name) {
-		return MarkerManager.getMarker(name).setParents(parent);
+	public Marker createChild(final String name) {
+		return MarkerManager.getMarker(commonMarker.getName() + ":" + name)
+				.setParents(commonMarker);
 	}
 }
