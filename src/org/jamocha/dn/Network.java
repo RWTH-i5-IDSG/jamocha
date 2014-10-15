@@ -453,7 +453,7 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 			ruleAndToken.getRule().getActionList().evaluate(ruleAndToken.getToken());
 			conflictSet.remove(ruleAndToken);
 			++numRules;
-		} while (maxNumRules != 0 && numRules < maxNumRules);
+		} while (maxNumRules == 0 || numRules < maxNumRules);
 	}
 
 	private void compileRule(final Defrule rule) {
