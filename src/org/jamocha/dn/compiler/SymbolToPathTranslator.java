@@ -83,7 +83,8 @@ public class SymbolToPathTranslator implements FunctionWithArgumentsVisitor {
 
 	@Override
 	public void visit(final PathLeaf pathLeaf) {
-		throw new Error("PathLeaf should not exists at this stage");
+		// FIXME can we ignore this because of shared nodes?
+		//throw new Error("PathLeaf should not exists at this stage");
 	}
 
 	@Override
