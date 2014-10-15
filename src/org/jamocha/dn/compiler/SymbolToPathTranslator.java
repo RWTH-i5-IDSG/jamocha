@@ -20,14 +20,11 @@ import lombok.Getter;
 
 import org.jamocha.filter.Path;
 import org.jamocha.function.fwa.Assert;
-import org.jamocha.function.fwa.Assert.TemplateContainer;
 import org.jamocha.function.fwa.ConstantLeaf;
 import org.jamocha.function.fwa.FunctionWithArguments;
 import org.jamocha.function.fwa.FunctionWithArgumentsComposite;
 import org.jamocha.function.fwa.FunctionWithArgumentsVisitor;
-import org.jamocha.function.fwa.GenericWithArgumentsComposite;
 import org.jamocha.function.fwa.Modify;
-import org.jamocha.function.fwa.Modify.SlotAndValue;
 import org.jamocha.function.fwa.PathLeaf;
 import org.jamocha.function.fwa.PathLeaf.ParameterLeaf;
 import org.jamocha.function.fwa.PredicateWithArgumentsComposite;
@@ -56,22 +53,22 @@ public class SymbolToPathTranslator implements FunctionWithArgumentsVisitor {
 		return (T) toTranslate.accept(new SymbolToPathTranslator(paths)).result;
 	}
 
-	private void handleGWAC(final GenericWithArgumentsComposite<?, ?> gwac) {
-		final FunctionWithArguments[] args = gwac.getArgs();
-		for (int i = 0; i < args.length; i++) {
-			args[i] = args[i].accept(new SymbolToPathTranslator(paths)).getResult();
+	private <T extends FunctionWithArguments> void handleArgs(final FunctionWithArguments fwa,
+			final T[] args) {
+		for (int i = 0; i < args.length; ++i) {
+			args[i] = translate(args[i], paths);
 		}
-		this.result = gwac;
+		this.result = fwa;
 	}
 
 	@Override
-	public void visit(final FunctionWithArgumentsComposite functionWithArgumentsComposite) {
-		handleGWAC(functionWithArgumentsComposite);
+	public void visit(final FunctionWithArgumentsComposite fwa) {
+		handleArgs(fwa, fwa.getArgs());
 	}
 
 	@Override
-	public void visit(final PredicateWithArgumentsComposite predicateWithArgumentsComposite) {
-		handleGWAC(predicateWithArgumentsComposite);
+	public void visit(final PredicateWithArgumentsComposite fwa) {
+		handleArgs(fwa, fwa.getArgs());
 	}
 
 	@Override
@@ -91,27 +88,27 @@ public class SymbolToPathTranslator implements FunctionWithArgumentsVisitor {
 
 	@Override
 	public void visit(final Assert fwa) {
-		throw new Error("Assert in predicate");
+		handleArgs(fwa, fwa.getArgs());
 	}
 
 	@Override
-	public void visit(final TemplateContainer fwa) {
-		throw new Error("TemplateContainer should not exists at this stage");
+	public void visit(final Assert.TemplateContainer fwa) {
+		handleArgs(fwa, fwa.getArgs());
 	}
 
 	@Override
 	public void visit(final Retract fwa) {
-		throw new Error("Retract in predicate");
+		handleArgs(fwa, fwa.getArgs());
 	}
 
 	@Override
 	public void visit(final Modify fwa) {
-		throw new Error("Modify in predicate");
+		handleArgs(fwa, fwa.getArgs());
 	}
 
 	@Override
-	public void visit(final SlotAndValue fwa) {
-		throw new Error("SlotAndValue in predicate");
+	public void visit(final Modify.SlotAndValue fwa) {
+		this.result = new Modify.SlotAndValue(fwa.getSlotName(), translate(fwa.getValue(), paths));
 	}
 
 	@Override
