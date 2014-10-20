@@ -58,28 +58,27 @@ public class ThreadPoolScheduler implements Scheduler {
 		this.unfinishedJobs.incrementAndGet();
 	}
 
-	@Override
-	public void signalFinishedJob() {
-		this.lock.lock();
-		try {
-			this.unfinishedJobs.decrementAndGet();
-			if (!hasUnfinishedJobs()) {
-				this.empty.signal();
-			}
-		} finally {
-			this.lock.unlock();
-		}
+	private static boolean hasUnfinishedJobs(final long counter) {
+		return 0L != counter;
 	}
 
 	@Override
-	public boolean hasUnfinishedJobs() {
-		return 0L != unfinishedJobs.longValue();
+	public void signalFinishedJob() {
+		final long newCounter = this.unfinishedJobs.decrementAndGet();
+		if (!hasUnfinishedJobs(newCounter)) {
+			this.lock.lock();
+			try {
+				this.empty.signal();
+			} finally {
+				this.lock.unlock();
+			}
+		}
 	}
 
 	@Override
 	public void waitForNoUnfinishedJobs() {
 		this.lock.lock();
-		while (hasUnfinishedJobs()) {
+		while (hasUnfinishedJobs(unfinishedJobs.longValue())) {
 			try {
 				this.empty.await();
 				return;

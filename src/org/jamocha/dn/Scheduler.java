@@ -36,8 +36,6 @@ public interface Scheduler {
 
 	public void signalFinishedJob();
 
-	public boolean hasUnfinishedJobs();
-
 	public void waitForNoUnfinishedJobs();
 
 	public void signalNewJob();

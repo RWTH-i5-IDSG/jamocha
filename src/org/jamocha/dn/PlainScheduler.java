@@ -68,11 +68,6 @@ public class PlainScheduler implements Scheduler, Runnable {
 	}
 
 	@Override
-	public boolean hasUnfinishedJobs() {
-		return false;
-	}
-
-	@Override
 	public void waitForNoUnfinishedJobs() {
 	}
 }
