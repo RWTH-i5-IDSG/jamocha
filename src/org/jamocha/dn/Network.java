@@ -458,6 +458,7 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 			this.conflictSet.remove(ruleAndToken);
 			++numRules;
 		} while (0L == maxNumRules || numRules < maxNumRules);
+		this.scheduler.waitForNoUnfinishedJobs();
 	}
 
 	private void compileRule(final Defrule rule) {
