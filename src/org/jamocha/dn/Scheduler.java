@@ -39,5 +39,9 @@ public interface Scheduler {
 	public void waitForNoUnfinishedJobs();
 
 	public void signalNewJob();
+	
+	public void shutdown();
+	
+	public void shutdownNow();
 
 }

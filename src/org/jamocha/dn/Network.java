@@ -466,6 +466,14 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 		} while (0L == maxNumRules || numRules < maxNumRules);
 		this.scheduler.waitForNoUnfinishedJobs();
 	}
+	
+	public void shutdown() {
+		scheduler.shutdown();
+	}
+	
+	public void shutdownNow() {
+		scheduler.shutdownNow();
+	}
 
 	private void compileRule(final Defrule rule) {
 		// Preprocess CEs

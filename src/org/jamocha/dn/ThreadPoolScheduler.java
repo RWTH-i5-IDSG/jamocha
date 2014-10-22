@@ -14,7 +14,7 @@
  */
 package org.jamocha.dn;
 
-import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.Condition;
@@ -32,7 +32,7 @@ import org.jamocha.dn.nodes.Node.TokenQueue;
  */
 public class ThreadPoolScheduler implements Scheduler {
 
-	final Executor executor;
+	final ExecutorService executor;
 	final AtomicLong unfinishedJobs = new AtomicLong();
 
 	final Lock lock = new ReentrantLock();
@@ -61,7 +61,18 @@ public class ThreadPoolScheduler implements Scheduler {
 	private static boolean hasUnfinishedJobs(final long counter) {
 		return 0L != counter;
 	}
+	
+	@Override
+	public void shutdown() {
+		this.executor.shutdown();
+	}
+	
+	@Override
+	public void shutdownNow() {
+		this.executor.shutdownNow();
+	}
 
+	// TODO check if this is to complex. maybe it suffices to just count the TokenQueues in the executor. BTW we wait for the empty signal inside the lock and send it inside the lock.
 	@Override
 	public void signalFinishedJob() {
 		final long newCounter = this.unfinishedJobs.decrementAndGet();

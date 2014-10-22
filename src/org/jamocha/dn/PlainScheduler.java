@@ -70,4 +70,14 @@ public class PlainScheduler implements Scheduler, Runnable {
 	@Override
 	public void waitForNoUnfinishedJobs() {
 	}
+	
+	@Override
+	public void shutdown() {
+		
+	}
+	
+	@Override
+	public void shutdownNow() {
+		
+	}
 }

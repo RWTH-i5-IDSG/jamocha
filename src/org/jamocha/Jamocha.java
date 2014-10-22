@@ -49,5 +49,9 @@ public class Jamocha {
 			n.jjtAccept(visitor, null);
 		}
 	}
+	
+	public void shutdown() {
+		network.shutdown();
+	}
 
 }
