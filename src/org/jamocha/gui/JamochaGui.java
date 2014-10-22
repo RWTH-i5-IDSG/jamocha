@@ -14,17 +14,10 @@
  */
 package org.jamocha.gui;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.prefs.Preferences;
-
-import org.jamocha.Jamocha;
-import org.jamocha.languages.clips.parser.generated.ParseException;
 
 import javafx.application.Application;
 import javafx.geometry.Insets;
@@ -42,10 +35,14 @@ import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Stage;
 
+import org.jamocha.Jamocha;
+import org.jamocha.languages.clips.parser.generated.ParseException;
+
 /**
  * @author Christoph Terwelp <christoph.terwelp@rwth-aachen.de>
  *
  */
+@SuppressWarnings("restriction")
 public class JamochaGui extends Application {
 	
 	static File file = null;
@@ -148,6 +145,7 @@ public class JamochaGui extends Application {
 		primaryStage.show();
 	}
 	
+	@Override
 	public void stop() {
 		saveState(primaryStage);
 	}
