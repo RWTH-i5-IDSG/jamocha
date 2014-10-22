@@ -14,7 +14,10 @@
  */
 package org.jamocha.function.impls.sideeffects;
 
+import java.util.Arrays;
+
 import org.apache.logging.log4j.Marker;
+import org.jamocha.dn.ConstructCache.Defrule;
 import org.jamocha.dn.SideEffectFunctionToNetwork;
 import org.jamocha.dn.memory.SlotType;
 import org.jamocha.dn.memory.Template;
@@ -53,53 +56,83 @@ public abstract class Watch implements Function<Object> {
 		return paramTypes;
 	}
 
+	static <T> void parseArguments(final SideEffectFunctionToNetwork network,
+			final MarkerType markerType, final Type type,
+			final java.util.function.Function<String, T> nameToInstance,
+			final java.util.function.Function<T, Marker> instanceToMarker,
+			final java.util.function.BiConsumer<MarkerType, Marker[]> watchOrUnwatch,
+			final Function<?>... params) {
+		final Marker[] markers = new Marker[params.length - 1];
+		for (int i = 1; i < params.length; ++i) {
+			final String name = ((Symbol) params[i].evaluate()).getImage();
+			final T t = nameToInstance.apply(name);
+			if (null == t) {
+				network.getLogFormatter().messageArgumentTypeMismatch(network, inClips, i, type);
+				return;
+			}
+			markers[i - 1] = instanceToMarker.apply(t);
+		}
+		watchOrUnwatch.accept(markerType, markers);
+	}
+
+	private static <T> void watch(final SideEffectFunctionToNetwork network,
+			final MarkerType markerType, final Type type,
+			final java.util.function.Function<String, T> nameToInstance,
+			final java.util.function.Function<T, Marker> instanceToMarker,
+			final Function<?>... params) {
+		parseArguments(network, markerType, type, nameToInstance, instanceToMarker,
+				network.getTypedFilter()::watch, params);
+	}
+
 	static {
-		FunctionDictionary.addFixedArgsGeneratorWithSideEffects(inClips, paramTypes, (
-				final SideEffectFunctionToNetwork network, final SlotType[] paramTypes) -> {
-			return new Watch() {
-				@Override
-				public Object evaluate(final Function<?>... params) {
-					final Symbol type = (Symbol) params[0].evaluate();
-					switch (type.getImage()) {
-					case "all":
-						network.getTypedFilter().watchAll();
-						break;
-					case "facts":
-						final Marker[] markers = new Marker[params.length - 1];
-						for (int i = 1; i < params.length; ++i) {
-							final String string = ((Symbol) params[i].evaluate()).getImage();
-							final Template template = network.getTemplate(string);
-							if (null == template) {
-								network.getLogFormatter().messageArgumentTypeMismatch(network,
-										inClips(), i, Type.TEMPLATE);
-								return null;
-							}
-							markers[i - 1] = template.getInstanceMarker();
-						}
-						network.getTypedFilter().watch(MarkerType.FACTS, markers);
-						break;
-					case "rules":
-					case "activations":
-					case "compilations":
-					case "statistics":
-					case "focus":
-					case "messages":
-					case "deffunctions":
-					case "globals":
-					case "instances":
-					case "slots":
-					case "message-handlers":
-					case "generic-functions":
-					case "methods":
-						throw new UnsupportedOperationException("Unsupported yet: "
-								+ type.getImage());
-					default:
-						network.getLogFormatter().messageArgumentTypeMismatch(network, inClips(),
-								1, Type.WATCHABLE_SYMBOL);
+		FunctionDictionary.addVarArgsGeneratorWithSideEffects(
+				inClips,
+				(final SideEffectFunctionToNetwork network, final SlotType[] paramTypes) -> {
+					if (paramTypes.length < 1
+							|| !Arrays.equals(paramTypes,
+									SlotType.nCopies(SlotType.SYMBOL, paramTypes.length))) {
+						return null;
 					}
-					return null;
-				}
-			};
-		});
+					return new Watch() {
+						@Override
+						public Object evaluate(final Function<?>... params) {
+							final Symbol type = (Symbol) params[0].evaluate();
+							switch (type.getImage()) {
+							case "all":
+								network.getTypedFilter().watchAll();
+								break;
+							case "facts":
+								watch(network, MarkerType.FACTS, Type.TEMPLATE,
+										network::getTemplate, Template::getInstanceMarker, params);
+								break;
+							case "rules":
+								watch(network, MarkerType.RULES, Type.WATCHABLE_SYMBOL,
+										network::getRule, Defrule::getFireMarker, params);
+								break;
+							case "activations":
+								watch(network, MarkerType.ACTIVATIONS, Type.WATCHABLE_SYMBOL,
+										network::getRule, Defrule::getActivationMarker, params);
+								break;
+							case "compilations":
+							case "statistics":
+							case "focus":
+							case "messages":
+							case "deffunctions":
+							case "globals":
+							case "instances":
+							case "slots":
+							case "message-handlers":
+							case "generic-functions":
+							case "methods":
+								throw new UnsupportedOperationException("Unsupported yet: "
+										+ type.getImage());
+							default:
+								network.getLogFormatter().messageArgumentTypeMismatch(network,
+										inClips(), 1, Type.WATCHABLE_SYMBOL);
+							}
+							return null;
+						}
+					};
+				});
 	}
 }
