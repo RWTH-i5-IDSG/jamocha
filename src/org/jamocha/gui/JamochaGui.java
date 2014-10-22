@@ -17,6 +17,8 @@ package org.jamocha.gui;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.io.PrintStream;
 import java.util.prefs.Preferences;
 
 import javafx.application.Application;
@@ -34,6 +36,7 @@ import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Stage;
+import lombok.AllArgsConstructor;
 
 import org.jamocha.Jamocha;
 import org.jamocha.languages.clips.parser.generated.ParseException;
@@ -42,13 +45,14 @@ import org.jamocha.languages.clips.parser.generated.ParseException;
  * @author Christoph Terwelp <christoph.terwelp@rwth-aachen.de>
  *
  */
-@SuppressWarnings("restriction")
 public class JamochaGui extends Application {
 
 	static File file = null;
 	private TextArea log;
 	private Stage primaryStage = null;
 	private Jamocha jamocha;
+	final private PrintStream out = System.out;
+	final private PrintStream err = System.err;
 
 	private Scene generateScene() {
 		GridPane grid = new GridPane();
@@ -82,8 +86,16 @@ public class JamochaGui extends Application {
 		return scene;
 	}
 
-	private void log(String text) {
-		log.appendText(text + "\n");
+	@AllArgsConstructor
+	private class LogOutputStream extends OutputStream {
+
+		final private TextArea textArea;
+
+		@Override
+		public void write(int b) throws IOException {
+			textArea.appendText(String.valueOf((char) b));
+		}
+
 	}
 
 	private void loadState(Stage primaryStage) {
@@ -110,10 +122,11 @@ public class JamochaGui extends Application {
 			jamocha.parse(fileInputStream);
 			fileInputStream.close();
 		} catch (IOException | ParseException e) {
-			for (StackTraceElement stackTraceElement : e.getStackTrace()) {
-				log(stackTraceElement.toString());
-				e.printStackTrace();
-			}
+			e.printStackTrace();
+			e.printStackTrace(this.err);
+		} catch (Exception e) {
+			e.printStackTrace();
+			e.printStackTrace(this.err);
 		}
 	}
 
@@ -132,25 +145,30 @@ public class JamochaGui extends Application {
 			file = fileChooser.showOpenDialog(primaryStage);
 		}
 
-		if (file != null) {
-			log("Opening file: \"" + file.getName() + "\"");
-			loadFile(file);
-		} else {
-			log("No file selected!");
-		}
-
 		primaryStage.setMinWidth(800);
 		primaryStage.setMinHeight(600);
 		primaryStage.setTitle("Jamocha");
 		primaryStage.setScene(scene);
 		loadState(primaryStage);
 		primaryStage.show();
+		PrintStream out = new PrintStream(new LogOutputStream(log));
+		System.setOut(out);
+		System.setErr(out);
+
+		if (file != null) {
+			System.out.println("Opening file: \"" + file.getName() + "\"");
+			loadFile(file);
+		} else {
+			System.out.println("No file selected!");
+		}
 	}
-	
+
 	@Override
 	public void stop() {
 		saveState(primaryStage);
 		jamocha.shutdown();
+		System.setOut(this.out);
+		System.setErr(this.err);
 	}
 
 	public static void main(String[] args) {

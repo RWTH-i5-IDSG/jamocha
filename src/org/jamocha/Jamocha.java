@@ -21,6 +21,7 @@ import java.io.InputStream;
 import java.util.Queue;
 
 import org.jamocha.dn.Network;
+import org.jamocha.dn.PlainScheduler;
 import org.jamocha.languages.clips.parser.SFPVisitorImpl;
 import org.jamocha.languages.clips.parser.generated.ParseException;
 import org.jamocha.languages.clips.parser.generated.SFPParser;
@@ -36,7 +37,7 @@ public class Jamocha {
 	Network network;
 	
 	public Jamocha() {
-		network = new Network();
+		network = new Network(Integer.MAX_VALUE, new PlainScheduler());
 	}
 	
 	public Queue<Warning> parse(InputStream inputStream) throws ParseException {
