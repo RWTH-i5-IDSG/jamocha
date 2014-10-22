@@ -15,7 +15,9 @@
 package org.jamocha.dn.memory.javaimpl;
 
 import org.apache.commons.lang3.tuple.Pair;
+import org.jamocha.dn.memory.FactIdentifier;
 import org.jamocha.dn.memory.MemoryFact;
+import org.jamocha.dn.memory.MemoryFactToFactIdentifier;
 import org.jamocha.dn.memory.Template;
 import org.jamocha.dn.nodes.CouldNotAcquireLockException;
 import org.jamocha.dn.nodes.Edge;
@@ -28,11 +30,13 @@ import org.jamocha.filter.AddressFilter;
  */
 public class MemoryHandlerMainWithExistentials extends MemoryHandlerMain {
 
+	final boolean[] existential;
 	JamochaArray<Row> allRows = new JamochaArray<>();
 
 	MemoryHandlerMainWithExistentials(final Template[] template, final Counter counter,
-			final FactAddress[] addresses) {
+			final FactAddress[] addresses, final boolean[] existential) {
 		super(template, counter, addresses);
+		this.existential = existential;
 	}
 
 	@Override
@@ -69,5 +73,18 @@ public class MemoryHandlerMainWithExistentials extends MemoryHandlerMain {
 	@Override
 	public org.jamocha.dn.memory.MemoryHandlerMinusTemp newMinusToken(final MemoryFact... facts) {
 		return MemoryHandlerMinusTemp.newRootTemp(this, facts);
+	}
+
+	@Override
+	public FactIdentifier[] getFactIdentifiers(
+			MemoryFactToFactIdentifier memoryFactToFactIdentifier, int row) {
+		final FactIdentifier[] factIdentifiers =
+				super.getFactIdentifiers(memoryFactToFactIdentifier, row);
+		for (int i = 0; i < existential.length; i++) {
+			if (existential[i]) {
+				factIdentifiers[i] = null;
+			}
+		}
+		return factIdentifiers;
 	}
 }

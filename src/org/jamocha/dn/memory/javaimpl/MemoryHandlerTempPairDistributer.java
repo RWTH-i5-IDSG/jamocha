@@ -19,6 +19,8 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 
 import org.jamocha.dn.memory.FactAddress;
+import org.jamocha.dn.memory.FactIdentifier;
+import org.jamocha.dn.memory.MemoryFactToFactIdentifier;
 import org.jamocha.dn.memory.MemoryHandler;
 import org.jamocha.dn.memory.SlotAddress;
 import org.jamocha.dn.memory.Template;
@@ -54,6 +56,12 @@ public class MemoryHandlerTempPairDistributer implements org.jamocha.dn.memory.M
 
 	@Override
 	public Object getValue(final FactAddress address, final SlotAddress slot, final int row) {
+		throw new UnsupportedOperationException(unsupported);
+	}
+
+	@Override
+	public FactIdentifier[] getFactIdentifiers(
+			MemoryFactToFactIdentifier memoryFactToFactIdentifier, int row) {
 		throw new UnsupportedOperationException(unsupported);
 	}
 

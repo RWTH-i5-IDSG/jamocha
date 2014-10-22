@@ -14,6 +14,9 @@
  */
 package org.jamocha.languages.clips;
 
+import static java.util.stream.Collectors.joining;
+
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Objects;
 
@@ -129,13 +132,33 @@ public class ClipsLogFormatter implements LogFormatter {
 	@Override
 	public void messageRuleActivation(final SideEffectFunctionToNetwork network,
 			final Translated translated, final Assert plus) {
-		network.getInteractiveEventsLogger().info(translated.getParent().getActivationMarker(),
-				"Rule " + translated.getParent().getName() + " activated!");
+		network.getInteractiveEventsLogger().info(
+				translated.getParent().getActivationMarker(),
+				new StringBuilder()
+						.append("==> Activation\t")
+						.append(translated.getParent().getName())
+						.append(": ")
+						.append(Arrays
+								.stream(plus.getFactIdentifiers(network
+										.getMemoryFactToFactIdentifier()))
+								.map(fi -> null == fi ? "*" : formatTypeValue(Type.FACT, fi))
+								.collect(joining(","))));
 	}
 
 	@Override
 	public void messageRuleDeactivation(final SideEffectFunctionToNetwork network,
 			final Translated translated, final Retract minus) {
+		network.getInteractiveEventsLogger().info(
+				translated.getParent().getActivationMarker(),
+				new StringBuilder()
+						.append("==> Activation\t")
+						.append(translated.getParent().getName())
+						.append(": ")
+						.append(Arrays
+								.stream(minus.getFactIdentifiers(network
+										.getMemoryFactToFactIdentifier()))
+								.map(fi -> null == fi ? "*" : formatTypeValue(Type.FACT, fi))
+								.collect(joining(","))));
 		network.getInteractiveEventsLogger().info(translated.getParent().getActivationMarker(),
 				"Rule " + translated.getParent().getName() + " deactivated!");
 	}

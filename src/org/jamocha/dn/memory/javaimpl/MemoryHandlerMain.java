@@ -19,7 +19,6 @@ import static org.jamocha.util.ToArray.toArray;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
@@ -86,6 +85,7 @@ public class MemoryHandlerMain extends MemoryHandlerBase implements
 			final PathFilter filter, final Map<Edge, Set<Path>> edgesAndPaths) {
 		final ArrayList<Template> template = new ArrayList<>();
 		final ArrayList<FactAddress> addresses = new ArrayList<>();
+		final HashMap<FactAddress, FactAddress> newAddressesCache = new HashMap<>();
 		if (!edgesAndPaths.isEmpty()) {
 			final Edge[] incomingEdges =
 					edgesAndPaths.entrySet().iterator().next().getKey().getTargetNode()
@@ -100,6 +100,7 @@ public class MemoryHandlerMain extends MemoryHandlerBase implements
 				for (final FactAddress oldFactAddress : memoryHandlerMain.addresses) {
 					final FactAddress newFactAddress = new FactAddress(addresses.size());
 					addressMap.put(oldFactAddress, newFactAddress);
+					newAddressesCache.put(oldFactAddress, newFactAddress);
 					addresses.add(newFactAddress);
 				}
 				edge.setAddressMap(addressMap);
@@ -115,6 +116,7 @@ public class MemoryHandlerMain extends MemoryHandlerBase implements
 				!filter.getPositiveExistentialPaths().isEmpty()
 						|| !filter.getNegativeExistentialPaths().isEmpty();
 		if (containsExistentials) {
+			final boolean[] existential = new boolean[templArray.length];
 			// gather existential paths
 			final HashSet<Path> existentialPaths = new HashSet<>();
 			existentialPaths.addAll(filter.getPositiveExistentialPaths());
@@ -122,17 +124,21 @@ public class MemoryHandlerMain extends MemoryHandlerBase implements
 
 			int index = 0;
 			for (final PathFilterElement pathFilterElement : filter.getFilterElements()) {
-				final LinkedHashSet<Path> paths =
-						PathCollector.newLinkedHashSet().collect(pathFilterElement).getPaths();
+				final HashSet<Path> paths =
+						PathCollector.newHashSet().collect(pathFilterElement).getPaths();
 				paths.retainAll(existentialPaths);
 				if (0 == paths.size())
 					continue;
+				for (final Path path : paths) {
+					existential[((FactAddress) newAddressesCache.get(path
+							.getFactAddressInCurrentlyLowestNode())).index] = true;
+				}
 				pathFilterElementToCounterColumn.putFilterElementToCounterColumn(pathFilterElement,
 						new CounterColumn(index++));
 			}
 			return new MemoryHandlerMainAndCounterColumnMatcher(
 					new MemoryHandlerMainWithExistentials(templArray, Counter.newCounter(filter,
-							pathFilterElementToCounterColumn), addrArray),
+							pathFilterElementToCounterColumn), addrArray, existential),
 					pathFilterElementToCounterColumn);
 		}
 		return new MemoryHandlerMainAndCounterColumnMatcher(new MemoryHandlerMain(templArray,

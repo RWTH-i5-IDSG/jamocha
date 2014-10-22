@@ -14,6 +14,8 @@
  */
 package org.jamocha.dn.memory.javaimpl;
 
+import static org.jamocha.util.ToArray.toArray;
+
 import java.util.Arrays;
 
 import lombok.AllArgsConstructor;
@@ -21,6 +23,8 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
 import org.jamocha.dn.memory.FactAddress;
+import org.jamocha.dn.memory.FactIdentifier;
+import org.jamocha.dn.memory.MemoryFactToFactIdentifier;
 import org.jamocha.dn.memory.MemoryHandler;
 import org.jamocha.dn.memory.SlotAddress;
 import org.jamocha.dn.memory.Template;
@@ -60,5 +64,13 @@ public class MemoryHandlerBase implements MemoryHandler {
 	public String toString() {
 		return "MemoryHandlerBase(template=" + Arrays.deepToString(this.template) + ", facts="
 				+ Arrays.deepToString(this.validRows.toArray()) + ")";
+	}
+
+	@Override
+	public FactIdentifier[] getFactIdentifiers(
+			MemoryFactToFactIdentifier memoryFactToFactIdentifier, int row) {
+		return toArray(
+				Arrays.stream(validRows.get(row).getFactTuple()).map(
+						memoryFactToFactIdentifier::getFactIdentifier), FactIdentifier[]::new);
 	}
 }

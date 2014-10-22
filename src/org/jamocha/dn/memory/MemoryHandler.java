@@ -52,4 +52,17 @@ public interface MemoryHandler {
 	 * @see SlotAddress
 	 */
 	public Object getValue(final FactAddress address, final SlotAddress slot, final int row);
+
+	/**
+	 * Returns an array of fact identifiers corresponding to the facts in the specified row. Null
+	 * entries indicate existential parts.
+	 * 
+	 * @param memoryFactToFactIdentifier
+	 *            {@link MemoryFact} to {@link FactIdentifier} mapper
+	 * @param row
+	 *            row to map
+	 * @return fact identifiers corresponding to the facts in the specified row
+	 */
+	public FactIdentifier[] getFactIdentifiers(
+			final MemoryFactToFactIdentifier memoryFactToFactIdentifier, final int row);
 }

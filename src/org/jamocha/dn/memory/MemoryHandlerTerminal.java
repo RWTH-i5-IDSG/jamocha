@@ -120,6 +120,21 @@ public interface MemoryHandlerTerminal extends Iterable<Assert> {
 		public Object getValue(final FactAddress address, final SlotAddress slot) {
 			return this.mem.getValue(address, slot, 0);
 		}
+
+		/**
+		 * Returns an array of fact identifiers corresponding to the facts in the token. Null
+		 * entries indicate existential parts.
+		 * 
+		 * @param memoryFactToFactIdentifier
+		 *            {@link MemoryFact} to {@link FactIdentifier} mapper
+		 * @param row
+		 *            row to map
+		 * @return fact identifiers corresponding to the facts in the token
+		 */
+		public FactIdentifier[] getFactIdentifiers(
+				final MemoryFactToFactIdentifier memoryFactToFactIdentifier) {
+			return this.mem.getFactIdentifiers(memoryFactToFactIdentifier, 0);
+		}
 	}
 
 	/**

@@ -23,12 +23,14 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.WeakHashMap;
 import java.util.stream.IntStream;
 
 import org.jamocha.dn.Network;
 import org.jamocha.dn.memory.Fact;
 import org.jamocha.dn.memory.FactIdentifier;
 import org.jamocha.dn.memory.MemoryFact;
+import org.jamocha.dn.memory.MemoryFactToFactIdentifier;
 import org.jamocha.dn.memory.Template;
 import org.jamocha.filter.Path;
 
@@ -38,7 +40,7 @@ import org.jamocha.filter.Path;
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  * @author Christoph Terwelp <christoph.terwelp@rwth-aachen.de>
  */
-public class RootNode {
+public class RootNode implements MemoryFactToFactIdentifier {
 
 	/**
 	 * Maps from {@link Template} to corresponding {@link ObjectTypeNode}
@@ -46,6 +48,8 @@ public class RootNode {
 	private final Map<Template, ObjectTypeNode> templateToOTN = new HashMap<>();
 
 	private final Map<FactIdentifier, MemoryFact> facts = new HashMap<>();
+	// store weak MemoryFact references mapping them to their FactIdentifiers
+	private final Map<MemoryFact, FactIdentifier> factIdentifiers = new WeakHashMap<>();
 	private int factIdentifierCounter = 0;
 
 	/**
@@ -73,6 +77,7 @@ public class RootNode {
 			final FactIdentifier factIdentifier = new FactIdentifier(id);
 			factIdentifiers[i] = factIdentifier;
 			this.facts.put(factIdentifier, memoryFact);
+			this.factIdentifiers.put(memoryFact, factIdentifier);
 		}
 		return factIdentifiers;
 	}
@@ -104,6 +109,11 @@ public class RootNode {
 
 	public MemoryFact getMemoryFact(final FactIdentifier factIdentifier) {
 		return this.facts.get(factIdentifier);
+	}
+
+	@Override
+	public FactIdentifier getFactIdentifier(final MemoryFact memoryFact) {
+		return this.factIdentifiers.get(memoryFact);
 	}
 
 	public Map<FactIdentifier, MemoryFact> getMemoryFacts() {

@@ -48,6 +48,7 @@ import org.jamocha.dn.memory.Fact;
 import org.jamocha.dn.memory.FactAddress;
 import org.jamocha.dn.memory.FactIdentifier;
 import org.jamocha.dn.memory.MemoryFact;
+import org.jamocha.dn.memory.MemoryFactToFactIdentifier;
 import org.jamocha.dn.memory.MemoryFactory;
 import org.jamocha.dn.memory.MemoryHandlerMain;
 import org.jamocha.dn.memory.MemoryHandlerPlusTemp;
@@ -368,6 +369,11 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 	@Override
 	public Map<FactIdentifier, MemoryFact> getMemoryFacts() {
 		return getRootNode().getMemoryFacts();
+	}
+
+	@Override
+	public MemoryFactToFactIdentifier getMemoryFactToFactIdentifier() {
+		return getRootNode();
 	}
 
 	@Override
