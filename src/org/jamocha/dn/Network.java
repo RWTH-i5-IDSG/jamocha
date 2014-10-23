@@ -324,7 +324,8 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 	 *            implemented in a separate node. Node-Sharing is used if possible
 	 * @return created TerminalNode for the constructed rule
 	 */
-	public TerminalNode buildRule(final PathFilter... filters) {
+	public TerminalNode buildRule(final Defrule.TranslatedPath translatedPath,
+			final PathFilter... filters) {
 		final LinkedHashSet<Path> allPaths = new LinkedHashSet<>();
 		{
 			for (final PathFilter filter : filters) {
@@ -345,7 +346,7 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 		}
 		final Node lowestNode = allPaths.iterator().next().getCurrentlyLowestNode();
 		assert allPaths.stream().map(Path::getCurrentlyLowestNode).distinct().count() == 1;
-		return new TerminalNode(this, lowestNode);
+		return new TerminalNode(this, lowestNode, translatedPath);
 	}
 
 	@Override
@@ -419,8 +420,7 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 		for (final Defrule defrule : defrules) {
 			this.compileRule(defrule);
 			for (final TranslatedPath translated : defrule.getTranslatedPathVersions()) {
-				translated.setTerminalNode(buildRule(toArray(translated.getCondition(),
-						PathFilter[]::new)));
+				buildRule(translated, toArray(translated.getCondition(), PathFilter[]::new));
 			}
 			// add the rule and the contained translated versions to the construct cache
 			this.constructCache.addRule(defrule);

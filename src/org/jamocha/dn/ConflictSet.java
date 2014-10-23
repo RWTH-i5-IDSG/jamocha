@@ -21,6 +21,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.Value;
 
 import org.jamocha.dn.ConstructCache.Defrule;
+import org.jamocha.dn.ConstructCache.Defrule.Translated;
 import org.jamocha.dn.memory.MemoryHandlerTerminal.Assert;
 import org.jamocha.dn.memory.MemoryHandlerTerminal.AssertOrRetract;
 import org.jamocha.dn.memory.MemoryHandlerTerminal.Retract;
@@ -59,11 +60,9 @@ public class ConflictSet implements Iterable<ConflictSet.RuleAndToken> {
 	 *            {@link Assert} to add
 	 */
 	public void addAssert(final TerminalNode terminal, final Assert plus) {
-		for (final Defrule.Translated translated : this.constructCache
-				.getRulesForTerminalNode(terminal)) {
-			network.getLogFormatter().messageRuleActivation(network, translated, plus);
-			this.rulesAndTokens.add(new RuleAndToken(translated, plus));
-		}
+		final Translated rule = terminal.getRule();
+		network.getLogFormatter().messageRuleActivation(network, rule, plus);
+		this.rulesAndTokens.add(new RuleAndToken(rule, plus));
 	}
 
 	/**
@@ -75,11 +74,9 @@ public class ConflictSet implements Iterable<ConflictSet.RuleAndToken> {
 	 *            {@link Retract} to add
 	 */
 	public void addRetract(final TerminalNode terminal, final Retract minus) {
-		for (final Defrule.Translated translated : this.constructCache
-				.getRulesForTerminalNode(terminal)) {
-			network.getLogFormatter().messageRuleDeactivation(network, translated, minus);
-			this.rulesAndTokens.add(new RuleAndToken(translated, minus));
-		}
+		final Translated rule = terminal.getRule();
+		network.getLogFormatter().messageRuleDeactivation(network, rule, minus);
+		this.rulesAndTokens.add(new RuleAndToken(rule, minus));
 	}
 
 	/**

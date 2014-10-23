@@ -148,11 +148,10 @@ public class TokenProcessingTest {
 								new PredicateBuilder(eqStrStr).addPath(oldStudent, studentSG)
 										.addPath(matchingProf, profSG).buildPFE()) };
 
-		final TerminalNode terminal = network.buildRule(filter);
-		network.getConstructCache()
-				.getRulesForTerminalNode(terminal)
-				.add(new Defrule("dummyrule", "", 0, (RuleCondition) null, new ArrayList<>())
-						.newTranslated(Arrays.asList(filter), (Map<SingleFactVariable, Path>) null));
+		final TerminalNode terminal =
+				network.buildRule(new Defrule("dummyrule", "", 0, (RuleCondition) null,
+						new ArrayList<>()).newTranslated(Arrays.asList(filter),
+						(Map<SingleFactVariable, Path>) null), filter);
 
 		final RootNode rootNode = network.getRootNode();
 
@@ -263,11 +262,10 @@ public class TokenProcessingTest {
 										new PredicateBuilder(eqBoolBool).addBoolean(false)
 												.addPath(p2, s2).build()).buildPFE()) };
 
-		final TerminalNode terminal = network.buildRule(filter);
-		network.getConstructCache()
-				.getRulesForTerminalNode(terminal)
-				.add(new Defrule("dummyrule", "", 0, (RuleCondition) null, new ArrayList<>())
-						.newTranslated(Arrays.asList(filter), (Map<SingleFactVariable, Path>) null));
+		final TerminalNode terminal =
+				network.buildRule(new Defrule("dummyrule", "", 0, (RuleCondition) null,
+						new ArrayList<>()).newTranslated(Arrays.asList(filter),
+						(Map<SingleFactVariable, Path>) null), filter);
 		final RootNode rootNode = network.getRootNode();
 		final ConflictSet conflictSet = network.getConflictSet();
 
@@ -348,11 +346,10 @@ public class TokenProcessingTest {
 								new PredicateBuilder(eqBoolBool).addBoolean(false).addPath(p2, s2)
 										.build()).buildPFE()) };
 
-		final TerminalNode terminal = network.buildRule(filter);
-		network.getConstructCache()
-				.getRulesForTerminalNode(terminal)
-				.add(new Defrule("dummyrule", "", 0, (RuleCondition) null, new ArrayList<>())
-						.newTranslated(Arrays.asList(filter), (Map<SingleFactVariable, Path>) null));
+		final TerminalNode terminal =
+				network.buildRule(new Defrule("dummyrule", "", 0, (RuleCondition) null,
+						new ArrayList<>()).newTranslated(Arrays.asList(filter),
+						(Map<SingleFactVariable, Path>) null), filter);
 		final RootNode rootNode = network.getRootNode();
 		final ConflictSet conflictSet = network.getConflictSet();
 
@@ -434,11 +431,8 @@ public class TokenProcessingTest {
 						.buildPFE(), new PredicateBuilder(eqStrStr)
 						.addPath(youngStudent, studentSG).addPath(oldStudent, studentSG).buildPFE()) };
 
-		final TerminalNode terminal = network.buildRule(filter);
-		network.getConstructCache()
-				.getRulesForTerminalNode(terminal)
-				.add(new Defrule("dummyrule", "", 0, (RuleCondition) null, new ArrayList<>())
-						.newTranslated(Arrays.asList(filter), (Map<SingleFactVariable, Path>) null));
+		network.buildRule(new Defrule("dummyrule", "", 0, (RuleCondition) null, new ArrayList<>())
+				.newTranslated(Arrays.asList(filter), (Map<SingleFactVariable, Path>) null), filter);
 		final RootNode rootNode = network.getRootNode();
 		final ConflictSet conflictSet = network.getConflictSet();
 
@@ -517,11 +511,8 @@ public class TokenProcessingTest {
 								.addPath(youngStudent, studentSG).addPath(matchingProf, profSG)
 								.buildPFE()) };
 
-		final TerminalNode terminal = network.buildRule(filter);
-		network.getConstructCache()
-				.getRulesForTerminalNode(terminal)
-				.add(new Defrule("dummyrule", "", 0, (RuleCondition) null, new ArrayList<>())
-						.newTranslated(Arrays.asList(filter), (Map<SingleFactVariable, Path>) null));
+		network.buildRule(new Defrule("dummyrule", "", 0, (RuleCondition) null, new ArrayList<>())
+				.newTranslated(Arrays.asList(filter), (Map<SingleFactVariable, Path>) null), filter);
 		final RootNode rootNode = network.getRootNode();
 		final ConflictSet conflictSet = network.getConflictSet();
 
@@ -617,11 +608,8 @@ public class TokenProcessingTest {
 								.addPath(youngStudent, studentSG).addPath(matchingProf, profSG)
 								.buildPFE()) };
 
-		final TerminalNode terminal = network.buildRule(filter);
-		network.getConstructCache()
-				.getRulesForTerminalNode(terminal)
-				.add(new Defrule("dummyrule", "", 0, (RuleCondition) null, new ArrayList<>())
-						.newTranslated(Arrays.asList(filter), (Map<SingleFactVariable, Path>) null));
+		network.buildRule(new Defrule("dummyrule", "", 0, (RuleCondition) null, new ArrayList<>())
+				.newTranslated(Arrays.asList(filter), (Map<SingleFactVariable, Path>) null), filter);
 		final RootNode rootNode = network.getRootNode();
 		final ConflictSet conflictSet = network.getConflictSet();
 
@@ -684,11 +672,8 @@ public class TokenProcessingTest {
 		final PathFilter filter =
 				new PathFilter(new PredicateBuilder(eqStrStr).addPath(p1, slotStr)
 						.addPath(p2, slotStr).buildPFE());
-		final TerminalNode terminal = network.buildRule(filter);
-		network.getConstructCache()
-				.getRulesForTerminalNode(terminal)
-				.add(new Defrule("dummyrule", "", 0, (RuleCondition) null, new ArrayList<>())
-						.newTranslated(Arrays.asList(filter), (Map<SingleFactVariable, Path>) null));
+		network.buildRule(new Defrule("dummyrule", "", 0, (RuleCondition) null, new ArrayList<>())
+				.newTranslated(Arrays.asList(filter), (Map<SingleFactVariable, Path>) null), filter);
 		final RootNode rootNode = network.getRootNode();
 
 		rootNode.assertFacts(t1.newFact(12L, "Micky"));
@@ -745,11 +730,8 @@ public class TokenProcessingTest {
 								new FunctionBuilder(lessLongLong).addPath(p1, slotLong)
 										.addConstant(3L, SlotType.LONG).build()).buildPFE());
 
-		final TerminalNode terminal = network.buildRule(filter);
-		network.getConstructCache()
-				.getRulesForTerminalNode(terminal)
-				.add(new Defrule("dummyrule", "", 0, (RuleCondition) null, new ArrayList<>())
-						.newTranslated(Arrays.asList(filter), (Map<SingleFactVariable, Path>) null));
+		network.buildRule(new Defrule("dummyrule", "", 0, (RuleCondition) null, new ArrayList<>())
+				.newTranslated(Arrays.asList(filter), (Map<SingleFactVariable, Path>) null), filter);
 
 		// false == 5 < 3
 		network.getRootNode().assertFacts(t1.newFact(5L, "5L&FALSE", false));
@@ -800,11 +782,9 @@ public class TokenProcessingTest {
 		// create & append alpha
 		final AlphaNode alphaNode = new AlphaNode(network, filter);
 		// create & append terminal
-		final TerminalNode terminal = new TerminalNode(network, alphaNode);
-		network.getConstructCache()
-				.getRulesForTerminalNode(terminal)
-				.add(new Defrule("dummyrule", "", 0, (RuleCondition) null, new ArrayList<>())
-						.newTranslated(Arrays.asList(filter), (Map<SingleFactVariable, Path>) null));
+		new TerminalNode(network, alphaNode, new Defrule("dummyrule", "", 0, (RuleCondition) null,
+				new ArrayList<>()).newTranslated(Arrays.asList(filter),
+				(Map<SingleFactVariable, Path>) null));
 
 		AssertsAndRetracts assertsAndRetracts;
 
@@ -891,11 +871,9 @@ public class TokenProcessingTest {
 		// create & append alpha
 		final AlphaNode alphaNode = new AlphaNode(network, filter);
 		// create & append terminal
-		final TerminalNode terminal = new TerminalNode(network, alphaNode);
-		network.getConstructCache()
-				.getRulesForTerminalNode(terminal)
-				.add(new Defrule("dummyrule", "", 0, (RuleCondition) null, new ArrayList<>())
-						.newTranslated(Arrays.asList(filter), (Map<SingleFactVariable, Path>) null));
+		new TerminalNode(network, alphaNode, new Defrule("dummyrule", "", 0, (RuleCondition) null,
+				new ArrayList<>()).newTranslated(Arrays.asList(filter),
+				(Map<SingleFactVariable, Path>) null));
 
 		rootNode.assertFacts(t1.newFact(5L, "5L&FALSE", false));
 		rootNode.assertFacts(t1.newFact(5L, "5L&TRUE", true));
@@ -946,11 +924,8 @@ public class TokenProcessingTest {
 								new FunctionBuilder(lessLongLong).addPath(p1, slotLong)
 										.addConstant(3L, SlotType.LONG).build()).buildPFE());
 
-		final TerminalNode terminal = network.buildRule(filter);
-		network.getConstructCache()
-				.getRulesForTerminalNode(terminal)
-				.add(new Defrule("dummyrule", "", 0, (RuleCondition) null, new ArrayList<>())
-						.newTranslated(Arrays.asList(filter), (Map<SingleFactVariable, Path>) null));
+		network.buildRule(new Defrule("dummyrule", "", 0, (RuleCondition) null, new ArrayList<>())
+				.newTranslated(Arrays.asList(filter), (Map<SingleFactVariable, Path>) null), filter);
 		final RootNode rootNode = network.getRootNode();
 
 		// false == 5 < 3

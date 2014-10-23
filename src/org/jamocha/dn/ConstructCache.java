@@ -14,17 +14,14 @@
  */
 package org.jamocha.dn;
 
-import static java.util.stream.Collectors.toSet;
 import static org.jamocha.util.ToArray.toArray;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import lombok.AccessLevel;
 import lombok.Data;
@@ -36,7 +33,6 @@ import org.jamocha.dn.compiler.SymbolToPathTranslator;
 import org.jamocha.dn.memory.MemoryHandlerTerminal.AssertOrRetract;
 import org.jamocha.dn.memory.Template;
 import org.jamocha.dn.nodes.SlotInFactAddress;
-import org.jamocha.dn.nodes.TerminalNode;
 import org.jamocha.filter.Path;
 import org.jamocha.filter.PathFilter;
 import org.jamocha.function.Function;
@@ -56,8 +52,6 @@ public class ConstructCache {
 	final private HashMap<String, Function<?>> functions = new HashMap<>();
 	final private HashMap<String, Defrule> rules = new HashMap<>();
 	final private HashMap<String, Deffacts> deffacts = new HashMap<>();
-	final private HashMap<TerminalNode, Set<Defrule.Translated>> terminalNode2Rules =
-			new HashMap<>();
 
 	@Value
 	public static class Deffacts {
@@ -196,19 +190,6 @@ public class ConstructCache {
 
 	public void addRule(final Defrule rule) {
 		this.rules.put(rule.getName(), rule);
-		for (final Defrule.Translated translated : rule.getTranslatedVersions()) {
-			this.terminalNode2Rules.computeIfAbsent(translated.getTerminalNode(),
-					t -> new HashSet<>()).add(translated);
-		}
-	}
-
-	public Set<Defrule.Translated> getRulesForTerminalNode(final TerminalNode terminal) {
-		return this.terminalNode2Rules.computeIfAbsent(terminal, t -> new HashSet<>());
-	}
-
-	public Set<TerminalNode> getTerminalNodesForRule(final Defrule rule) {
-		return rule.getTranslatedVersions().stream().map(Defrule.Translated::getTerminalNode)
-				.collect(toSet());
 	}
 
 	public Defrule getRule(final String name) {
