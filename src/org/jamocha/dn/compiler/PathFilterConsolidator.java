@@ -116,8 +116,8 @@ public class PathFilterConsolidator implements DefaultConditionalElementsVisitor
 			if (collectedPaths.containsAll(allPaths)) {
 				return translated;
 			}
-			pathFilters.add(new PathFilter(new PathFilter.DummyPathFilterElement(toArray(
-					collectedPaths.isEmpty() ? allPaths : collectedPaths, Path[]::new))));
+			pathFilters.add(new PathFilter(new PathFilter.DummyPathFilterElement(toArray(allPaths,
+					Path[]::new))));
 			return translated;
 		}
 
