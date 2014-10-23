@@ -47,8 +47,8 @@ public interface LogFormatter {
 	void messageRuleActivation(final SideEffectFunctionToNetwork network,
 			final Translated translated, final Assert plus);
 
-	void messageRuleDeactivation(final SideEffectFunctionToNetwork network,
-			final Translated translated, final Retract minus);
+	void messageRuleDeactivation(final SideEffectFunctionToNetwork network, final Translated rule,
+			final Retract minus);
 
 	void messageRuleFiring(final SideEffectFunctionToNetwork network, final Translated translated,
 			final Assert plus);

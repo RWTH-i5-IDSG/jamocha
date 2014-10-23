@@ -21,7 +21,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 import org.jamocha.dn.ConstructCache.Defrule;
-import org.jamocha.dn.ConstructCache.Defrule.Translated;
+import org.jamocha.dn.ConstructCache.Defrule.TranslatedPath;
 import org.jamocha.filter.Path;
 import org.jamocha.filter.PathCollector;
 import org.jamocha.filter.PathFilter;
@@ -50,9 +50,9 @@ public class PathFilterConsolidator implements DefaultConditionalElementsVisitor
 
 	private final Defrule rule;
 	@Getter
-	private List<Defrule.Translated> translateds = null;
+	private List<Defrule.TranslatedPath> translateds = null;
 
-	public List<Defrule.Translated> consolidate() {
+	public List<Defrule.TranslatedPath> consolidate() {
 		assert rule.getCondition().getConditionalElements().size() == 1;
 		return rule.getCondition().getConditionalElements().get(0).accept(this).translateds;
 	}
@@ -99,7 +99,7 @@ public class PathFilterConsolidator implements DefaultConditionalElementsVisitor
 			this(initialFactVariable, paths, false);
 		}
 
-		public static Translated consolidate(final Defrule rule,
+		public static TranslatedPath consolidate(final Defrule rule,
 				final SingleFactVariable initialFactVariable, final ConditionalElement ce) {
 			final Map<SingleFactVariable, Path> pathMap = FactVariableCollector.collectPaths(ce);
 			final NoORsPFC instance = new NoORsPFC(initialFactVariable, pathMap).collect(ce);
@@ -110,7 +110,7 @@ public class PathFilterConsolidator implements DefaultConditionalElementsVisitor
 			}
 			final Set<Path> unusedPaths = new HashSet<>(pathMap.values());
 			unusedPaths.removeAll(collector.getPaths());
-			final Translated translated = rule.newTranslated(pathFilters, pathMap);
+			final TranslatedPath translated = rule.newTranslated(pathFilters, pathMap);
 			if (unusedPaths.isEmpty()) {
 				return translated;
 			}

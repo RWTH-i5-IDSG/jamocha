@@ -73,6 +73,7 @@ public class ConstructCache {
 		final int salience;
 		final RuleCondition condition;
 		final FunctionWithArguments[] actionList;
+		final ArrayList<TranslatedPath> translatedPathVersions = new ArrayList<>();
 		final ArrayList<Translated> translatedVersions = new ArrayList<>();
 		final Marker fireMarker;
 		final Marker activationMarker;
@@ -94,30 +95,45 @@ public class ConstructCache {
 			this.activationMarker = MarkerType.ACTIVATIONS.createChild(name);
 		}
 
-		public Translated newTranslated(final List<PathFilter> condition,
+		public TranslatedPath newTranslated(final List<PathFilter> condition,
 				final Map<SingleFactVariable, Path> pathTranslationMap) {
-			final Translated translated =
-					new Translated(condition, new ActionList(toArray(
+			final TranslatedPath translated =
+					new TranslatedPath(condition, new ActionList(toArray(
 							Arrays.stream(actionList).map(
 									fwa -> SymbolToPathTranslator.translate(FWADeepCopy.copy(fwa),
 											pathTranslationMap)), FunctionWithArguments[]::new)));
-			translatedVersions.add(translated);
+			translatedPathVersions.add(translated);
 			return translated;
 		}
 
 		@Data
 		@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-		public class Translated {
+		public class TranslatedPath {
 			final List<PathFilter> condition;
 			final ActionList actionList;
-			TerminalNode terminalNode;
 
 			public Defrule getParent() {
 				return Defrule.this;
 			}
 
-			public void setTerminalNode(final TerminalNode terminalNode) {
-				this.terminalNode = terminalNode;
+			public Translated translatePathToAddress() {
+				return new Translated(condition, actionList);
+			}
+		}
+
+		@Data
+		public class Translated {
+			final List<PathFilter> condition;
+			final ActionList actionList;
+
+			public Defrule getParent() {
+				return Defrule.this;
+			}
+
+			private Translated(List<PathFilter> condition, ActionList actionList) {
+				super();
+				this.condition = condition;
+				this.actionList = actionList;
 				this.actionList.translatePathToAddress();
 			}
 		}

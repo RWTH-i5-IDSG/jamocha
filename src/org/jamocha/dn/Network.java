@@ -42,7 +42,7 @@ import org.apache.logging.log4j.core.util.Charsets;
 import org.jamocha.dn.ConflictSet.RuleAndToken;
 import org.jamocha.dn.ConstructCache.Deffacts;
 import org.jamocha.dn.ConstructCache.Defrule;
-import org.jamocha.dn.ConstructCache.Defrule.Translated;
+import org.jamocha.dn.ConstructCache.Defrule.TranslatedPath;
 import org.jamocha.dn.compiler.PathFilterConsolidator;
 import org.jamocha.dn.memory.Fact;
 import org.jamocha.dn.memory.FactAddress;
@@ -418,7 +418,7 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 	public void defRules(final Defrule... defrules) {
 		for (final Defrule defrule : defrules) {
 			this.compileRule(defrule);
-			for (final Translated translated : defrule.getTranslatedVersions()) {
+			for (final TranslatedPath translated : defrule.getTranslatedPathVersions()) {
 				translated.setTerminalNode(buildRule(toArray(translated.getCondition(),
 						PathFilter[]::new)));
 			}

@@ -23,6 +23,7 @@ import java.util.Map.Entry;
 import lombok.Getter;
 
 import org.jamocha.dn.ConflictSet;
+import org.jamocha.dn.ConstructCache.Defrule;
 import org.jamocha.dn.Network;
 import org.jamocha.dn.memory.FactAddress;
 import org.jamocha.dn.memory.MemoryHandlerMinusTemp;
@@ -163,12 +164,21 @@ public class TerminalNode {
 	@Getter
 	final protected Edge edge;
 	final protected Map<FactAddress, AddressPredecessor> delocalizeMap = new HashMap<>();
+	/**
+	 * Returns the rule corresponding to the {@link TerminalNode}.
+	 * 
+	 * @return the rule corresponding to the {@link TerminalNode}
+	 */
+	@Getter
+	final protected Defrule.Translated rule;
 
-	public TerminalNode(final Network network, final Node parent) {
+	public TerminalNode(final Network network, final Node parent,
+			final Defrule.TranslatedPath translatedPath) {
 		this.network = network;
 		this.memory = parent.getMemory().newMemoryHandlerTerminal();
 		this.edge = new TerminalEdgeImpl(parent, this);
 		parent.acceptRegularEdgeToChild(edge);
+		this.rule = translatedPath.translatePathToAddress();
 	}
 
 	/**
