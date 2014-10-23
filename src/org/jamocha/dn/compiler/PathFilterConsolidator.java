@@ -104,18 +104,20 @@ public class PathFilterConsolidator implements DefaultConditionalElementsVisitor
 			final Map<SingleFactVariable, Path> pathMap = FactVariableCollector.collectPaths(ce);
 			final NoORsPFC instance = new NoORsPFC(initialFactVariable, pathMap).collect(ce);
 			final List<PathFilter> pathFilters = instance.getPathFilters();
-			final PathCollector<HashSet<Path>> collector = PathCollector.newHashSet();
-			for (final PathFilter filter : pathFilters) {
-				collector.collect(filter);
-			}
-			final Set<Path> unusedPaths = new HashSet<>(pathMap.values());
-			unusedPaths.removeAll(collector.getPaths());
+
+			final Set<Path> allPaths = new HashSet<>(pathMap.values());
+			final Set<Path> collectedPaths =
+					(pathFilters.isEmpty() ? Collections.<Path> emptySet() : PathCollector
+							.newHashSet().collect(pathFilters.get(pathFilters.size() - 1))
+							.getPaths().stream().flatMap((p) -> p.getJoinedWith().stream())
+							.collect(toSet()));
+
 			final TranslatedPath translated = rule.newTranslated(pathFilters, pathMap);
-			if (unusedPaths.isEmpty()) {
+			if (collectedPaths.containsAll(allPaths)) {
 				return translated;
 			}
 			pathFilters.add(new PathFilter(new PathFilter.DummyPathFilterElement(toArray(
-					unusedPaths, Path[]::new))));
+					collectedPaths.isEmpty() ? allPaths : collectedPaths, Path[]::new))));
 			return translated;
 		}
 
