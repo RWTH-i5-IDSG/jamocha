@@ -24,7 +24,10 @@ import java.util.prefs.Preferences;
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.geometry.Side;
 import javafx.scene.Scene;
+import javafx.scene.control.Tab;
+import javafx.scene.control.TabPane;
 import javafx.scene.control.TextArea;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
@@ -54,38 +57,27 @@ public class JamochaGui extends Application {
 	final private PrintStream out = System.out;
 	final private PrintStream err = System.err;
 
-	private Scene generateScene() {
-		GridPane grid = new GridPane();
-		grid.setAlignment(Pos.CENTER);
-		grid.setHgap(10);
-		grid.setVgap(10);
-		grid.setPadding(new Insets(25, 25, 25, 25));
-
-		Text scenetitle = new Text("Welcome to Jamocha");
-		scenetitle.setFont(Font.font("Tahoma", FontWeight.NORMAL, 20));
-		GridPane.setMargin(scenetitle, new Insets(0, 25, 0, 0));
-		grid.add(scenetitle, 0, 1);
+	private Scene generateScene() {	
+		TabPane tabPane = new TabPane();
+		tabPane.setSide(Side.LEFT);
 
 		log = new TextArea();
-		log.setEditable(false);
+		log.setEditable(false);	
+		Tab logTab = new Tab("Log");
+		logTab.setContent(log);
+		logTab.setClosable(false);
+		
+		Tab networkTab = new Tab("Network");
+		networkTab.setClosable(false);
+		
+		tabPane.getTabs().addAll(logTab, networkTab);
 
-		grid.add(log, 1, 0, 1, 2);
-		ColumnConstraints columnConstraints = new ColumnConstraints();
-		columnConstraints.setFillWidth(true);
-		columnConstraints.setHgrow(Priority.ALWAYS);
-		grid.getColumnConstraints().addAll(new ColumnConstraints(), columnConstraints);
-
-		RowConstraints rowConstraints = new RowConstraints();
-		rowConstraints.setFillHeight(true);
-		rowConstraints.setVgrow(Priority.ALWAYS);
-		grid.getRowConstraints().add(rowConstraints);
-
-		Scene scene = new Scene(grid);
-		grid.prefHeightProperty().bind(scene.heightProperty());
-		grid.prefWidthProperty().bind(scene.widthProperty());
+		Scene scene = new Scene(tabPane);
+		tabPane.prefHeightProperty().bind(scene.heightProperty());
+		tabPane.prefWidthProperty().bind(scene.widthProperty());
 		return scene;
 	}
-
+	
 	@AllArgsConstructor
 	private class LogOutputStream extends OutputStream {
 
