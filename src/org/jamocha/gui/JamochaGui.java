@@ -22,20 +22,14 @@ import java.io.PrintStream;
 import java.util.prefs.Preferences;
 
 import javafx.application.Application;
-import javafx.geometry.Insets;
-import javafx.geometry.Pos;
 import javafx.geometry.Side;
+import javafx.scene.Group;
 import javafx.scene.Scene;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TextArea;
-import javafx.scene.layout.ColumnConstraints;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.RowConstraints;
-import javafx.scene.text.Font;
-import javafx.scene.text.FontWeight;
-import javafx.scene.text.Text;
+import javafx.scene.shape.Polygon;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Stage;
@@ -69,6 +63,13 @@ public class JamochaGui extends Application {
 		
 		Tab networkTab = new Tab("Network");
 		networkTab.setClosable(false);
+		ScrollPane scrollPane = new ScrollPane();
+		networkTab.setContent(scrollPane);
+		
+		
+		Group g = new Group();
+		scrollPane.setContent(g);
+		g.getChildren().add(new Polygon(5000.0, 0.0, 1000.0, 10.0, 10.0, 0.0));
 		
 		tabPane.getTabs().addAll(logTab, networkTab);
 
