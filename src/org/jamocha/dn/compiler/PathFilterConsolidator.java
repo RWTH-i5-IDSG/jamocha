@@ -102,13 +102,14 @@ public class PathFilterConsolidator implements DefaultConditionalElementsVisitor
 		public static TranslatedPath consolidate(final Defrule rule,
 				final SingleFactVariable initialFactVariable, final ConditionalElement ce) {
 			final Map<SingleFactVariable, Path> pathMap = FactVariableCollector.collectPaths(ce);
+			final Set<Path> allPaths = new HashSet<>(pathMap.values());
 			final NoORsPFC instance = new NoORsPFC(initialFactVariable, pathMap).collect(ce);
 			final List<PathFilter> pathFilters = instance.getPathFilters();
 
-			final Set<Path> allPaths = new HashSet<>(pathMap.values());
 			final Set<Path> collectedPaths =
 					(pathFilters.isEmpty() ? Collections.<Path> emptySet() : PathCollector
-							.newHashSet().collect(pathFilters.get(pathFilters.size() - 1))
+							.newHashSet()
+							.collectOnlyNonExistential(pathFilters.get(pathFilters.size() - 1))
 							.getPaths().stream().flatMap((p) -> p.getJoinedWith().stream())
 							.collect(toSet()));
 
@@ -116,6 +117,7 @@ public class PathFilterConsolidator implements DefaultConditionalElementsVisitor
 			if (collectedPaths.containsAll(allPaths)) {
 				return translated;
 			}
+			allPaths.addAll(collectedPaths);
 			pathFilters.add(new PathFilter(new PathFilter.DummyPathFilterElement(toArray(allPaths,
 					Path[]::new))));
 			return translated;
