@@ -326,15 +326,14 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 	 */
 	public TerminalNode buildRule(final Defrule.TranslatedPath translatedPath,
 			final PathFilter... filters) {
-		final LinkedHashSet<Path> allPaths = new LinkedHashSet<>();
+		final LinkedHashSet<Path> allPaths;
 		{
+			final PathCollector<LinkedHashSet<Path>> collector = PathCollector.newLinkedHashSet();
 			for (final PathFilter filter : filters) {
-				final LinkedHashSet<Path> paths =
-						PathCollector.newLinkedHashSet().collect(filter).getPaths();
-				allPaths.addAll(paths);
+				collector.collect(filter);
 			}
-			final Path[] pathArray = toArray(allPaths, Path[]::new);
-			this.rootNode.addPaths(this, pathArray);
+			this.rootNode.addPaths(this, collector.getPathsArray());
+			allPaths = collector.getPaths();
 		}
 		for (final PathFilter filter : filters) {
 			if (!tryToShareNode(filter))
@@ -466,11 +465,11 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 		} while (0L == maxNumRules || numRules < maxNumRules);
 		this.scheduler.waitForNoUnfinishedJobs();
 	}
-	
+
 	public void shutdown() {
 		scheduler.shutdown();
 	}
-	
+
 	public void shutdownNow() {
 		scheduler.shutdownNow();
 	}
