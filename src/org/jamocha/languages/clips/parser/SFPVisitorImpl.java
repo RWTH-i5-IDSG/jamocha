@@ -1830,7 +1830,9 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 							.forEach(
 									e -> SFPVisitorImpl.this.warnings
 											.add(new Warning(
-													"Two different symbols were created for the same variable name leading to different variables, namely "
+													"Two different symbols were created in rule "
+															+ symbol.getImage()
+															+ " for the same variable name leading to different variables, namely "
 															+ e.getKey())));
 				}
 				return data;
