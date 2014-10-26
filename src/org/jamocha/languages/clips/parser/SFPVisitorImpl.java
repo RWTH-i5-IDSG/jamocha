@@ -169,11 +169,6 @@ import org.jamocha.languages.common.SlotBuilder;
 import org.jamocha.languages.common.Warning;
 
 /**
- * Needs consideration: how to treat
- * <ul>
- * <li></li>
- * </ul>
- * 
  * This class is final to prevent accidental derived classes. All inner classes shall share the same
  * outer instance giving them access to its attributes.
  *
