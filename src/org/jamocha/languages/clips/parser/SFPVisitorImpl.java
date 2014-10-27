@@ -1746,12 +1746,6 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 					String comment = null;
 					int salience = 0;
 					final ArrayList<ConditionalElement> ces = new ArrayList<>();
-
-					// can we just always add an initial-fact and ignore it if its not needed?
-					ces.add(new InitialFactConditionalElement(new SingleFactVariable(
-							parserToNetwork.getScope().createDummy(), parserToNetwork
-									.getInitialFactTemplate())));
-
 					ArrayList<FunctionWithArguments> actionList = null;
 					for (int i = 1; i < node.jjtGetNumChildren(); ++i) {
 						final SFPDefruleConstructElementVisitor visitor =
@@ -1770,12 +1764,12 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 							salience = visitor.salience;
 						}
 					}
-					// if (!existentialStack.templateCEContained) {
-					// ces.add(0,
-					// new InitialFactConditionalElement(new SingleFactVariable(
-					// parserToNetwork.getScope().createDummy(), parserToNetwork
-					// .getInitialFactTemplate())));
-					// }
+					if (!existentialStack.templateCEContained) {
+						ces.add(0,
+								new InitialFactConditionalElement(new SingleFactVariable(
+										parserToNetwork.getScope().createDummy(), parserToNetwork
+												.getInitialFactTemplate())));
+					}
 					existentialStack.getConditionalElements().addAll(ces);
 					this.defrule =
 							new Defrule(symbol.getImage(), comment, salience, existentialStack,

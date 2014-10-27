@@ -47,11 +47,10 @@ public class FactVariableCollector implements DefaultConditionalElementsVisitor 
 	public static Pair<Path, Map<SingleFactVariable, Path>> collectPaths(
 			final Template initialFactTemplate, final ConditionalElement ce) {
 		final FactVariableCollector instance = new FactVariableCollector();
-		final Path initialFactPath =
-				null != initialFactTemplate ? new Path(initialFactTemplate) : null;
 		// Collect all FactVariables defined in the CEs TemplateCEs and InitialFactCEs
 		final List<SingleFactVariable> factVariables = ce.accept(instance).getFactVariables();
 		// if there is an initial fact, the path to be used may not be null
+		final Path initialFactPath = new Path(initialFactTemplate);
 		assert !factVariables.stream().anyMatch(sfv -> sfv.getTemplate() == initialFactTemplate)
 				|| null != initialFactPath;
 		return Pair.of(
