@@ -68,13 +68,12 @@ public class FactVariableCollectorTest {
 		}
 	}
 
-	private static List<ConditionalElement> clipsToCondition(final String condition)
-			throws ParseException {
+	private static List<ConditionalElement> clipsToCondition(final NetworkMockup ptn,
+			final String condition) throws ParseException {
 		final StringReader parserInput =
 				new StringReader(new StringJoiner(" ").add(templateString).add(template2String)
 						.add(template3String).add(preRule).add(condition).add(postRule).toString());
 		final SFPParser parser = new SFPParser(parserInput);
-		final NetworkMockup ptn = new NetworkMockup();
 		final SFPVisitorImpl visitor = new SFPVisitorImpl(ptn, ptn);
 		run(parser, visitor);
 		final Defrule rule = ptn.getRule(ruleName);
@@ -86,10 +85,12 @@ public class FactVariableCollectorTest {
 		final String input =
 				"(and (" + templateName + " (" + slot1Name
 						+ " ?x)) (test (> ?x 10)) (test (< ?x 15)))";
-		final List<ConditionalElement> conditionalElements = clipsToCondition(input);
+		final NetworkMockup ptn = new NetworkMockup();
+		final List<ConditionalElement> conditionalElements = clipsToCondition(ptn, input);
 		assertEquals(1, conditionalElements.size());
 		final Map<SingleFactVariable, Path> variables =
-				FactVariableCollector.collectPaths(conditionalElements.get(0));
+				FactVariableCollector.collectPaths(ptn.getInitialFactTemplate(),
+						conditionalElements.get(0)).getRight();
 		assertEquals(1, variables.size());
 		Entry<SingleFactVariable, Path> entry = variables.entrySet().iterator().next();
 		assertEquals("Dummy", entry.getKey().getSymbol().getImage());
@@ -100,9 +101,11 @@ public class FactVariableCollectorTest {
 	@Test
 	public void aLitteMoreComplexTest() throws ParseException {
 		final String input =
-				"(and (" + templateName + " (" + slot1Name + " ?x)) (and ?y <- (" + template2Name + " (" + slot1Name + " ?x)) ("
-						+ template3Name + " (" + slot1Name + " ?x))) (test (> ?x 10)) (test (< ?x 15)))";
-		final List<ConditionalElement> conditionalElements = clipsToCondition(input);
+				"(and (" + templateName + " (" + slot1Name + " ?x)) (and ?y <- (" + template2Name
+						+ " (" + slot1Name + " ?x)) (" + template3Name + " (" + slot1Name
+						+ " ?x))) (test (> ?x 10)) (test (< ?x 15)))";
+		final NetworkMockup ptn = new NetworkMockup();
+		final List<ConditionalElement> conditionalElements = clipsToCondition(ptn, input);
 		assertEquals(1, conditionalElements.size());
 		// FIXME see above
 		final List<SingleFactVariable> variables =

@@ -30,6 +30,8 @@ import java.util.Map;
 import java.util.Queue;
 
 import org.jamocha.dn.ConstructCache.Defrule;
+import org.jamocha.dn.ParserToNetwork;
+import org.jamocha.dn.SideEffectFunctionToNetwork;
 import org.jamocha.dn.compiler.FactVariableCollector;
 import org.jamocha.dn.compiler.SymbolToPathTranslator;
 import org.jamocha.filter.Path;
@@ -76,13 +78,12 @@ public class SymbolToPathTranslatorTest {
 		}
 	}
 
-	private static List<ConditionalElement> clipsToCondition(final String condition)
-			throws ParseException {
+	private static <T extends SideEffectFunctionToNetwork & ParserToNetwork> List<ConditionalElement> clipsToCondition(
+			final T ptn, final String condition) throws ParseException {
 		final StringReader parserInput =
 				new StringReader(new StringBuilder().append(templateString).append(preRule)
 						.append(condition).append(postRule).toString());
 		final SFPParser parser = new SFPParser(parserInput);
-		final NetworkMockup ptn = new NetworkMockup();
 		final SFPVisitorImpl visitor = new SFPVisitorImpl(ptn, ptn);
 		run(parser, visitor);
 		final Defrule rule = ptn.getRule("rule1");
@@ -94,10 +95,12 @@ public class SymbolToPathTranslatorTest {
 	@Test
 	public void simpleTest() throws ParseException {
 		final String input = "(and (templ1 (slot1 ?x)) (test (> ?x 10)))";
-		final List<ConditionalElement> conditionalElements = clipsToCondition(input);
+		final NetworkMockup ptn = new NetworkMockup();
+		final List<ConditionalElement> conditionalElements = clipsToCondition(ptn, input);
 		assertThat(conditionalElements, hasSize(1));
 		final ConditionalElement andCe = conditionalElements.get(0);
-		final Map<SingleFactVariable, Path> paths = FactVariableCollector.collectPaths(andCe);
+		final Map<SingleFactVariable, Path> paths =
+				FactVariableCollector.collectPaths(ptn.getInitialFactTemplate(), andCe).getRight();
 		final List<ConditionalElement> andChildren = andCe.getChildren();
 		assertThat(andChildren, hasSize(2));
 		final SingleFactVariable xFactVar;
@@ -127,10 +130,12 @@ public class SymbolToPathTranslatorTest {
 	@Test
 	public void samePathInAndTest() throws ParseException {
 		final String input = "(and (templ1 (slot1 ?x)) (test (> ?x 10)) (test (< ?x 20)))";
-		final List<ConditionalElement> conditionalElements = clipsToCondition(input);
+		final NetworkMockup ptn = new NetworkMockup();
+		final List<ConditionalElement> conditionalElements = clipsToCondition(ptn, input);
 		assertThat(conditionalElements, hasSize(1));
 		final ConditionalElement andCe = conditionalElements.get(0);
-		final Map<SingleFactVariable, Path> paths = FactVariableCollector.collectPaths(andCe);
+		final Map<SingleFactVariable, Path> paths =
+				FactVariableCollector.collectPaths(ptn.getInitialFactTemplate(), andCe).getRight();
 		final List<ConditionalElement> andChildren = andCe.getChildren();
 		assertThat(andChildren, hasSize(3));
 		final SingleFactVariable xFactVar;
@@ -176,7 +181,8 @@ public class SymbolToPathTranslatorTest {
 	@Test
 	public void differentPathsInOrTest() throws ParseException {
 		final String input = "(and (templ1 (slot1 ?x)) (or (test (> ?x 10)) (test (< ?x 20))))";
-		final List<ConditionalElement> conditionalElements = clipsToCondition(input);
+		final NetworkMockup ptn = new NetworkMockup();
+		final List<ConditionalElement> conditionalElements = clipsToCondition(ptn, input);
 		assertThat(conditionalElements, hasSize(1));
 		final ConditionalElement orCe = conditionalElements.get(0);
 		final List<ConditionalElement> orChildren = orCe.getChildren();
@@ -184,7 +190,9 @@ public class SymbolToPathTranslatorTest {
 		final Path firstPath;
 		{
 			final ConditionalElement andCe = orChildren.get(0);
-			final Map<SingleFactVariable, Path> paths = FactVariableCollector.collectPaths(andCe);
+			final Map<SingleFactVariable, Path> paths =
+					FactVariableCollector.collectPaths(ptn.getInitialFactTemplate(), andCe)
+							.getRight();
 			final List<ConditionalElement> andChildren = andCe.getChildren();
 			assertThat(andChildren, hasSize(2));
 			final SingleFactVariable xFactVar;
@@ -218,7 +226,9 @@ public class SymbolToPathTranslatorTest {
 		}
 		{
 			final ConditionalElement andCe = orChildren.get(1);
-			final Map<SingleFactVariable, Path> paths = FactVariableCollector.collectPaths(andCe);
+			final Map<SingleFactVariable, Path> paths =
+					FactVariableCollector.collectPaths(ptn.getInitialFactTemplate(), andCe)
+							.getRight();
 			final List<ConditionalElement> andChildren = andCe.getChildren();
 			assertThat(andChildren, hasSize(2));
 			final SingleFactVariable xFactVar;
@@ -255,9 +265,10 @@ public class SymbolToPathTranslatorTest {
 	@Test(expected = Error.class)
 	public void testCantUseFactVariableCollectorOnOrCE() throws ParseException {
 		final String input = "(and (templ1 (slot1 ?x)) (or (test (> ?x 10)) (test (< ?x 20))))";
-		final List<ConditionalElement> conditionalElements = clipsToCondition(input);
+		final NetworkMockup ptn = new NetworkMockup();
+		final List<ConditionalElement> conditionalElements = clipsToCondition(ptn, input);
 		assertThat(conditionalElements, hasSize(1));
 		final ConditionalElement orCe = conditionalElements.get(0);
-		FactVariableCollector.collectPaths(orCe);
+		FactVariableCollector.collectPaths(ptn.getInitialFactTemplate(), orCe).getRight();
 	}
 }
