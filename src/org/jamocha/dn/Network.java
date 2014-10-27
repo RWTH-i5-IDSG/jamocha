@@ -477,7 +477,7 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 		// Preprocess CEs
 		RuleConditionProcessor.flatten(rule.getCondition());
 		// Transform TestCEs to PathFilters
-		new PathFilterConsolidator(rule).consolidate();
+		new PathFilterConsolidator(this.initialFactTemplate, rule).consolidate();
 	}
 
 	/**

@@ -23,6 +23,8 @@ import java.util.stream.Collectors;
 
 import lombok.Getter;
 
+import org.apache.commons.lang3.tuple.Pair;
+import org.jamocha.dn.memory.Template;
 import org.jamocha.filter.Path;
 import org.jamocha.languages.common.ConditionalElement;
 import org.jamocha.languages.common.ConditionalElement.AndFunctionConditionalElement;
@@ -42,19 +44,26 @@ public class FactVariableCollector implements DefaultConditionalElementsVisitor 
 	@Getter
 	private List<SingleFactVariable> factVariables;
 
-	public static Map<SingleFactVariable, Path> collectPaths(final ConditionalElement ce) {
+	public static Pair<Path, Map<SingleFactVariable, Path>> collectPaths(
+			final Template initialFactTemplate, final ConditionalElement ce) {
+		final FactVariableCollector instance = new FactVariableCollector();
+		final Path initialFactPath =
+				null != initialFactTemplate ? new Path(initialFactTemplate) : null;
 		// Collect all FactVariables defined in the CEs TemplateCEs and InitialFactCEs
-		return ce
-				.accept(new FactVariableCollector())
-				.getFactVariables()
-				.stream()
-				// Create Paths with the corresponding Templates
-				// for all collected FactVariables
-				.collect(
-						Collectors.toMap(
-								Function.identity(),
-								(final SingleFactVariable variable) -> new Path(variable
-										.getTemplate())));
+		final List<SingleFactVariable> factVariables = ce.accept(instance).getFactVariables();
+		// if there is an initial fact, the path to be used may not be null
+		assert !factVariables.stream().anyMatch(sfv -> sfv.getTemplate() == initialFactTemplate)
+				|| null != initialFactPath;
+		return Pair.of(
+				initialFactPath,
+				factVariables.stream()
+				// Create Paths with the corresponding Templates for all collected
+				// FactVariables
+						.collect(
+								Collectors.toMap(Function.identity(), (
+										final SingleFactVariable variable) -> (variable
+										.getTemplate() == initialFactTemplate ? initialFactPath
+										: new Path(variable.getTemplate())))));
 	}
 
 	@Override

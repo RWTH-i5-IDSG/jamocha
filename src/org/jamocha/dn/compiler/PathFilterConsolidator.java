@@ -20,8 +20,10 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.jamocha.dn.ConstructCache.Defrule;
 import org.jamocha.dn.ConstructCache.Defrule.TranslatedPath;
+import org.jamocha.dn.memory.Template;
 import org.jamocha.filter.Path;
 import org.jamocha.filter.PathCollector;
 import org.jamocha.filter.PathFilter;
@@ -29,7 +31,6 @@ import org.jamocha.filter.PathFilter.PathFilterElement;
 import org.jamocha.languages.common.ConditionalElement;
 import org.jamocha.languages.common.ConditionalElement.AndFunctionConditionalElement;
 import org.jamocha.languages.common.ConditionalElement.ExistentialConditionalElement;
-import org.jamocha.languages.common.ConditionalElement.InitialFactConditionalElement;
 import org.jamocha.languages.common.ConditionalElement.NegatedExistentialConditionalElement;
 import org.jamocha.languages.common.ConditionalElement.NotFunctionConditionalElement;
 import org.jamocha.languages.common.ConditionalElement.OrFunctionConditionalElement;
@@ -48,6 +49,7 @@ import org.jamocha.languages.common.SingleFactVariable;
 @RequiredArgsConstructor
 public class PathFilterConsolidator implements DefaultConditionalElementsVisitor {
 
+	private final Template initialFactTemplate;
 	private final Defrule rule;
 	@Getter
 	private List<Defrule.TranslatedPath> translateds = null;
@@ -59,25 +61,20 @@ public class PathFilterConsolidator implements DefaultConditionalElementsVisitor
 
 	@Override
 	public void defaultAction(final ConditionalElement ce) {
-		// If we are to need the initial fact variable, there should be one within the CE
-		final SingleFactVariable initialFactVariable = SomeInitialFactFinder.find(ce);
 		// If there is no OrFunctionConditionalElement just proceed with the CE as it were
 		// the only child of an OrFunctionConditionalElement.
 		translateds =
-				Collections.singletonList(NoORsPFC.consolidate(rule, initialFactVariable, ce));
+				Collections.singletonList(NoORsPFC.consolidate(initialFactTemplate, rule, ce));
 	}
 
 	@Override
 	public void visit(final OrFunctionConditionalElement ce) {
-		// If we are to need the initial fact variable, there should be one within the CE
-		final SingleFactVariable initialFactVariable = SomeInitialFactFinder.find(ce);
 		// For each child of the OrCE ...
 		this.translateds =
 				ce.getChildren().stream().map(child ->
 				// ... collect all PathFilters in the child
-						NoORsPFC.consolidate(rule, initialFactVariable, child))
+						NoORsPFC.consolidate(initialFactTemplate, rule, child))
 						.collect(Collectors.toCollection(ArrayList::new));
-
 	}
 
 	/**
@@ -87,23 +84,28 @@ public class PathFilterConsolidator implements DefaultConditionalElementsVisitor
 	@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 	static class NoORsPFC implements DefaultConditionalElementsVisitor {
 
-		private final SingleFactVariable initialFactVariable;
+		private final Template initialFactTemplate;
+		private final Path initialFactPath;
 		private final Map<SingleFactVariable, Path> paths;
 		private final boolean negated;
 
 		@Getter
 		private List<PathFilter> pathFilters = new ArrayList<>();
 
-		private NoORsPFC(final SingleFactVariable initialFactVariable,
+		private NoORsPFC(final Template initialFactTemplate, final Path initialFactPath,
 				final Map<SingleFactVariable, Path> paths) {
-			this(initialFactVariable, paths, false);
+			this(initialFactTemplate, initialFactPath, paths, false);
 		}
 
-		public static TranslatedPath consolidate(final Defrule rule,
-				final SingleFactVariable initialFactVariable, final ConditionalElement ce) {
-			final Map<SingleFactVariable, Path> pathMap = FactVariableCollector.collectPaths(ce);
+		public static TranslatedPath consolidate(final Template initialFactTemplate,
+				final Defrule rule, final ConditionalElement ce) {
+			final Pair<Path, Map<SingleFactVariable, Path>> initialFactAndPathMap =
+					FactVariableCollector.collectPaths(initialFactTemplate, ce);
+			final Map<SingleFactVariable, Path> pathMap = initialFactAndPathMap.getRight();
 			final Set<Path> allPaths = new HashSet<>(pathMap.values());
-			final NoORsPFC instance = new NoORsPFC(initialFactVariable, pathMap).collect(ce);
+			final NoORsPFC instance =
+					new NoORsPFC(initialFactTemplate, initialFactAndPathMap.getLeft(), pathMap)
+							.collect(ce);
 			final List<PathFilter> pathFilters = instance.getPathFilters();
 
 			final Set<Path> collectedPaths =
@@ -127,12 +129,14 @@ public class PathFilterConsolidator implements DefaultConditionalElementsVisitor
 			return ce.accept(this);
 		}
 
-		static List<PathFilter> processExistentialCondition(
-				final SingleFactVariable initialFactVariable, final ConditionalElement ce,
+		static List<PathFilter> processExistentialCondition(final Template initialFactTemplate,
+				final Path initialFactPath, final ConditionalElement ce,
 				final Map<SingleFactVariable, Path> fact2Path, final boolean isPositive) {
 			// Collect the existential FactVariables and corresponding paths from the existentialCE
+			final Pair<Path, Map<SingleFactVariable, Path>> initialFactAndPathMap =
+					FactVariableCollector.collectPaths(initialFactTemplate, ce);
 			final Map<SingleFactVariable, Path> existentialFact2Path =
-					FactVariableCollector.collectPaths(ce);
+					initialFactAndPathMap.getRight();
 
 			// combine existential FactVariables and Paths with non existential ones for PathFilter
 			// generation
@@ -145,8 +149,8 @@ public class PathFilterConsolidator implements DefaultConditionalElementsVisitor
 
 			// Generate PathFilters from CE (recurse)
 			final List<PathFilter> filters =
-					new NoORsPFC(initialFactVariable, combinedFact2Path).collect(ce)
-							.getPathFilters();
+					new NoORsPFC(initialFactTemplate, initialFactAndPathMap.getLeft(),
+							combinedFact2Path).collect(ce).getPathFilters();
 
 			// Collect all used Paths for every PathFilter
 			final Map<PathFilter, Set<Path>> filter2Paths =
@@ -171,10 +175,9 @@ public class PathFilterConsolidator implements DefaultConditionalElementsVisitor
 			if (nonPureExistentialFilters.isEmpty()) {
 				// if there are only existential filters, append one combining them with an initial
 				// fact path
+				assert null != initialFactPath;
 				resultFilters.add(new PathFilter(isPositive, existentialPaths,
-						new PathFilter.DummyPathFilterElement(fact2Path.computeIfAbsent(
-								initialFactVariable,
-								(x) -> new Path(initialFactVariable.getTemplate())))));
+						new PathFilter.DummyPathFilterElement(initialFactPath)));
 				return resultFilters;
 			}
 
@@ -299,7 +302,8 @@ public class PathFilterConsolidator implements DefaultConditionalElementsVisitor
 					ce.getChildren()
 							.stream()
 							// Process all children CEs
-							.map(child -> child.accept(new NoORsPFC(initialFactVariable, paths))
+							.map(child -> child.accept(
+									new NoORsPFC(initialFactTemplate, initialFactPath, paths))
 									.getPathFilters())
 							// merge Lists
 							.flatMap(List::stream).collect(Collectors.toCollection(ArrayList::new));
@@ -314,16 +318,16 @@ public class PathFilterConsolidator implements DefaultConditionalElementsVisitor
 		public void visit(final ExistentialConditionalElement ce) {
 			assert ce.getChildren().size() == 1;
 			this.pathFilters =
-					processExistentialCondition(initialFactVariable, ce.getChildren().get(0),
-							paths, true);
+					processExistentialCondition(initialFactTemplate, initialFactPath, ce
+							.getChildren().get(0), paths, true);
 		}
 
 		@Override
 		public void visit(final NegatedExistentialConditionalElement ce) {
 			assert ce.getChildren().size() == 1;
 			this.pathFilters =
-					processExistentialCondition(initialFactVariable, ce.getChildren().get(0),
-							paths, false);
+					processExistentialCondition(initialFactTemplate, initialFactPath, ce
+							.getChildren().get(0), paths, false);
 		}
 
 		@Override
@@ -332,9 +336,10 @@ public class PathFilterConsolidator implements DefaultConditionalElementsVisitor
 			// Call a PathFilterCollector for the child of the NotFunctionCE with toggled negated
 			// flag.
 			this.pathFilters =
-					ce.getChildren().get(0)
-							.accept(new NoORsPFC(initialFactVariable, paths, !negated))
-							.getPathFilters();
+					ce.getChildren()
+							.get(0)
+							.accept(new NoORsPFC(initialFactTemplate, initialFactPath, paths,
+									!negated)).getPathFilters();
 		}
 
 		@Override
@@ -349,24 +354,6 @@ public class PathFilterConsolidator implements DefaultConditionalElementsVisitor
 		public void visit(final TestConditionalElement ce) {
 			this.pathFilters.add(new PathFilter(new PathFilter.PathFilterElement(
 					SymbolToPathTranslator.translate(ce.getPredicateWithArguments(), paths))));
-		}
-	}
-
-	private static class SomeInitialFactFinder implements DefaultConditionalElementsVisitor {
-		SingleFactVariable initialFactVariable = null;
-
-		static SingleFactVariable find(final ConditionalElement ce) {
-			return ce.accept(new SomeInitialFactFinder()).initialFactVariable;
-		}
-
-		@Override
-		public void defaultAction(final ConditionalElement ce) {
-			ce.getChildren().forEach(c -> c.accept(this));
-		}
-
-		@Override
-		public void visit(final InitialFactConditionalElement ce) {
-			this.initialFactVariable = ce.getInitialFactVariable();
 		}
 	}
 }
