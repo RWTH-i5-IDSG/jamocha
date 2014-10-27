@@ -1205,8 +1205,9 @@ public class FunctionNormaliserTest {
 												new FunctionBuilder(timesLL).addLong(5L)
 														.addLong(6L).build()).build()).buildPFE())
 						.normalise();
-		assertTrue(FilterFunctionCompare.equals(PathFilterToAddressFilterTranslator.translate(compare,
-				CounterColumnMatcherMockup.counterColumnMatcherMockup), PathFilterToAddressFilterTranslator.translate(
-				original, CounterColumnMatcherMockup.counterColumnMatcherMockup)));
+		assertTrue(FilterFunctionCompare.equals(PathFilterToAddressFilterTranslator.translate(
+				compare, CounterColumnMatcherMockup.counterColumnMatcherMockup),
+				PathFilterToAddressFilterTranslator.translate(original,
+						CounterColumnMatcherMockup.counterColumnMatcherMockup)));
 	}
 }

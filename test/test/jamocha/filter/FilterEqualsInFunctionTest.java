@@ -151,10 +151,12 @@ public class FilterEqualsInFunctionTest {
 		pg = new PathFilter(g);
 		assertTrue(FilterFunctionCompare.equals(PathFilterToAddressFilterTranslator.translate(pf,
 				counterColumnMatcherMockup),
-				PathFilterToAddressFilterTranslator.translate(pg, counterColumnMatcherMockup).getNormalisedVersion()));
+				PathFilterToAddressFilterTranslator.translate(pg, counterColumnMatcherMockup)
+						.getNormalisedVersion()));
 		assertTrue(FilterFunctionCompare.equals(PathFilterToAddressFilterTranslator.translate(pg,
 				counterColumnMatcherMockup),
-				PathFilterToAddressFilterTranslator.translate(pf, counterColumnMatcherMockup).getNormalisedVersion()));
+				PathFilterToAddressFilterTranslator.translate(pf, counterColumnMatcherMockup)
+						.getNormalisedVersion()));
 		g =
 				new PredicateBuilder(equals)
 						.addFunction(
@@ -165,10 +167,12 @@ public class FilterEqualsInFunctionTest {
 		pg = new PathFilter(g);
 		assertTrue(FilterFunctionCompare.equals(PathFilterToAddressFilterTranslator.translate(pf,
 				counterColumnMatcherMockup),
-				PathFilterToAddressFilterTranslator.translate(pg, counterColumnMatcherMockup).getNormalisedVersion()));
+				PathFilterToAddressFilterTranslator.translate(pg, counterColumnMatcherMockup)
+						.getNormalisedVersion()));
 		assertTrue(FilterFunctionCompare.equals(PathFilterToAddressFilterTranslator.translate(pg,
 				counterColumnMatcherMockup),
-				PathFilterToAddressFilterTranslator.translate(pf, counterColumnMatcherMockup).getNormalisedVersion()));
+				PathFilterToAddressFilterTranslator.translate(pf, counterColumnMatcherMockup)
+						.getNormalisedVersion()));
 	}
 
 	@Test

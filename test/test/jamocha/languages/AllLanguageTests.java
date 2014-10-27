@@ -28,7 +28,8 @@ import org.junit.runners.Suite.SuiteClasses;
  * @author Christoph Terwelp <christoph.terwelp@rwth-aachen.de>
  */
 @RunWith(Suite.class)
-@SuiteClasses({ test.jamocha.languages.clips.AllClipsTests.class, test.jamocha.languages.common.AllCommonTests.class })
+@SuiteClasses({ test.jamocha.languages.clips.AllClipsTests.class,
+		test.jamocha.languages.common.AllCommonTests.class })
 public class AllLanguageTests {
 
 }

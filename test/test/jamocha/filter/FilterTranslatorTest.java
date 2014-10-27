@@ -135,56 +135,70 @@ public class FilterTranslatorTest {
 		assertArrayEquals(
 				new SlotInFactAddress[] { new SlotInFactAddress(f1, s1),
 						new SlotInFactAddress(f1, s2) },
-				SlotInFactAddressCollector.newArrayList()
-						.collect(PathFilterToAddressFilterTranslator.translate(a, counterColumnMatcherMockup))
-						.getAddressesArray());
+				SlotInFactAddressCollector
+						.newArrayList()
+						.collect(
+								PathFilterToAddressFilterTranslator.translate(a,
+										counterColumnMatcherMockup)).getAddressesArray());
 		assertArrayEquals(
 				new SlotInFactAddress[] { new SlotInFactAddress(f2, s1),
 						new SlotInFactAddress(f2, s2), new SlotInFactAddress(f1, s1),
 						new SlotInFactAddress(f2, s2) },
-				SlotInFactAddressCollector.newArrayList()
-						.collect(PathFilterToAddressFilterTranslator.translate(b, counterColumnMatcherMockup))
-						.getAddressesArray());
+				SlotInFactAddressCollector
+						.newArrayList()
+						.collect(
+								PathFilterToAddressFilterTranslator.translate(b,
+										counterColumnMatcherMockup)).getAddressesArray());
 		assertArrayEquals(
 				new SlotInFactAddress[] { new SlotInFactAddress(f1, s1),
 						new SlotInFactAddress(f2, s2), new SlotInFactAddress(f2, s1),
 						new SlotInFactAddress(f3, s2) },
-				SlotInFactAddressCollector.newArrayList()
-						.collect(PathFilterToAddressFilterTranslator.translate(c, counterColumnMatcherMockup))
-						.getAddressesArray());
+				SlotInFactAddressCollector
+						.newArrayList()
+						.collect(
+								PathFilterToAddressFilterTranslator.translate(c,
+										counterColumnMatcherMockup)).getAddressesArray());
 		assertArrayEquals(
 				new SlotInFactAddress[] { new SlotInFactAddress(f1, s1),
 						new SlotInFactAddress(f3, s2), new SlotInFactAddress(f3, s1),
 						new SlotInFactAddress(f1, s2) },
-				SlotInFactAddressCollector.newArrayList()
-						.collect(PathFilterToAddressFilterTranslator.translate(d, counterColumnMatcherMockup))
-						.getAddressesArray());
+				SlotInFactAddressCollector
+						.newArrayList()
+						.collect(
+								PathFilterToAddressFilterTranslator.translate(d,
+										counterColumnMatcherMockup)).getAddressesArray());
 		assertArrayEquals(
 				new SlotInFactAddress[] { new SlotInFactAddress(f1, s1),
 						new SlotInFactAddress(f1, s2), new SlotInFactAddress(f2, s1),
 						new SlotInFactAddress(f2, s2), new SlotInFactAddress(f3, s1),
 						new SlotInFactAddress(f3, s2), new SlotInFactAddress(f4, s1),
 						new SlotInFactAddress(f4, s2) },
-				SlotInFactAddressCollector.newArrayList()
-						.collect(PathFilterToAddressFilterTranslator.translate(e, counterColumnMatcherMockup))
-						.getAddressesArray());
+				SlotInFactAddressCollector
+						.newArrayList()
+						.collect(
+								PathFilterToAddressFilterTranslator.translate(e,
+										counterColumnMatcherMockup)).getAddressesArray());
 		assertArrayEquals(
 				new SlotInFactAddress[] { new SlotInFactAddress(f1, s1),
 						new SlotInFactAddress(f3, s2), new SlotInFactAddress(f3, s1),
 						new SlotInFactAddress(f2, s2), new SlotInFactAddress(f4, s1),
 						new SlotInFactAddress(f2, s2), new SlotInFactAddress(f2, s1),
 						new SlotInFactAddress(f1, s2) },
-				SlotInFactAddressCollector.newArrayList()
-						.collect(PathFilterToAddressFilterTranslator.translate(f, counterColumnMatcherMockup))
-						.getAddressesArray());
+				SlotInFactAddressCollector
+						.newArrayList()
+						.collect(
+								PathFilterToAddressFilterTranslator.translate(f,
+										counterColumnMatcherMockup)).getAddressesArray());
 		assertArrayEquals(
 				new SlotInFactAddress[] { new SlotInFactAddress(f1, s1),
 						new SlotInFactAddress(f3, s2), new SlotInFactAddress(f3, s2),
 						new SlotInFactAddress(f4, s1), new SlotInFactAddress(f4, s1),
 						new SlotInFactAddress(f2, s2), new SlotInFactAddress(f2, s1),
 						new SlotInFactAddress(f1, s2) },
-				SlotInFactAddressCollector.newArrayList()
-						.collect(PathFilterToAddressFilterTranslator.translate(g, counterColumnMatcherMockup))
-						.getAddressesArray());
+				SlotInFactAddressCollector
+						.newArrayList()
+						.collect(
+								PathFilterToAddressFilterTranslator.translate(g,
+										counterColumnMatcherMockup)).getAddressesArray());
 	}
 }

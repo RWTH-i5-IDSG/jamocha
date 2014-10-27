@@ -185,12 +185,12 @@ public class PathCollectorTest {
 	public void testNewLinkedList() {
 		assertArrayEquals(new Path[] { p1, p1 }, PathCollector.newLinkedList().collectAll(a)
 				.getPathsArray());
-		assertArrayEquals(new Path[] { p2, p2, p1, p2 }, PathCollector.newLinkedList().collectAll(b)
-				.getPathsArray());
-		assertArrayEquals(new Path[] { p1, p2, p2, p3 }, PathCollector.newLinkedList().collectAll(c)
-				.getPathsArray());
-		assertArrayEquals(new Path[] { p1, p3, p3, p1 }, PathCollector.newLinkedList().collectAll(d)
-				.getPathsArray());
+		assertArrayEquals(new Path[] { p2, p2, p1, p2 }, PathCollector.newLinkedList()
+				.collectAll(b).getPathsArray());
+		assertArrayEquals(new Path[] { p1, p2, p2, p3 }, PathCollector.newLinkedList()
+				.collectAll(c).getPathsArray());
+		assertArrayEquals(new Path[] { p1, p3, p3, p1 }, PathCollector.newLinkedList()
+				.collectAll(d).getPathsArray());
 		assertArrayEquals(new Path[] { p1, p1, p2, p2, p3, p3, p4, p4 }, PathCollector
 				.newLinkedList().collectAll(e).getPathsArray());
 		assertArrayEquals(new Path[] { p1, p3, p3, p2, p4, p2, p2, p1 }, PathCollector
