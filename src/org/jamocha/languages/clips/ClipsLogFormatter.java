@@ -107,7 +107,7 @@ public class ClipsLogFormatter implements LogFormatter {
 				continue;
 			}
 			interactiveEventsLogger.info(memoryFact.getTemplate().getInstanceMarker(),
-					"==> f-{}\t{}", fi.getId(), memoryFact);
+					"==> f-{}\t{}", fi.getId(), formatFact(memoryFact.toMutableFact()));
 		}
 	}
 
@@ -123,8 +123,8 @@ public class ClipsLogFormatter implements LogFormatter {
 			}
 			final Marker instanceMarker = memoryFact.getTemplate().getInstanceMarker();
 			if (interactiveEventsLogger.isInfoEnabled(instanceMarker)) {
-				interactiveEventsLogger
-						.info(instanceMarker, "<== f-{}\t{}", fi.getId(), memoryFact);
+				interactiveEventsLogger.info(instanceMarker, "<== f-{}\t{}", fi.getId(),
+						formatFact(memoryFact.toMutableFact()));
 			}
 		}
 	}
