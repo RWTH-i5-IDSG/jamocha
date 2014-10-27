@@ -92,7 +92,6 @@ public class ThreadPoolScheduler implements Scheduler {
 		while (hasUnfinishedJobs(unfinishedJobs.longValue())) {
 			try {
 				this.empty.await();
-				return;
 			} catch (final InterruptedException e) {
 				// ignore
 			} finally {
