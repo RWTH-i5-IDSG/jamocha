@@ -14,8 +14,9 @@
  */
 package org.jamocha.gui;
 
+import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
@@ -35,6 +36,7 @@ import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Stage;
 import lombok.AllArgsConstructor;
 
+import org.apache.commons.io.IOUtils;
 import org.jamocha.Jamocha;
 import org.jamocha.languages.clips.parser.generated.ParseException;
 
@@ -56,7 +58,6 @@ public class JamochaGui extends Application {
 		tabPane.setSide(Side.LEFT);
 
 		log = new TextArea();
-		log.setEditable(false);
 		Tab logTab = new Tab("Log");
 		logTab.setContent(log);
 		logTab.setClosable(false);
@@ -86,8 +87,7 @@ public class JamochaGui extends Application {
 		@Override
 		public void write(int b) throws IOException {
 			textArea.appendText(String.valueOf((char) b));
-		}
-
+		}	
 	}
 
 	private void loadState(Stage primaryStage) {
@@ -109,9 +109,12 @@ public class JamochaGui extends Application {
 	}
 
 	private void loadFile(File file) {
-		try (final FileInputStream fileInputStream = new FileInputStream(file)) {
-			jamocha.parse(fileInputStream);
-			fileInputStream.close();
+		try (final BufferedReader bufferedReader = new BufferedReader(new FileReader(file))) {
+			String line;
+			while (null != (line = bufferedReader.readLine())) {
+				System.out.println(line);
+				jamocha.parse(IOUtils.toInputStream(line, "UTF-8"));
+			}
 		} catch (IOException | ParseException e) {
 			e.printStackTrace();
 			e.printStackTrace(this.err);
