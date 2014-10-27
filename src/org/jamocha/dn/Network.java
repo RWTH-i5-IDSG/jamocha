@@ -169,7 +169,7 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 		this.memoryFactory = memoryFactory;
 		this.tokenQueueCapacity = tokenQueueCapacity;
 		this.scheduler = scheduler;
-		this.conflictSet = new ConflictSet(this, this.constructCache);
+		this.conflictSet = new ConflictSet(this);
 		this.rootNode = new RootNode();
 		this.logFormatter = logFormatter;
 		this.initialFactTemplate = defTemplate("initial-fact", "");

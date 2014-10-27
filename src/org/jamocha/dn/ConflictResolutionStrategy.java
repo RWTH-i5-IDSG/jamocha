@@ -14,10 +14,12 @@
  */
 package org.jamocha.dn;
 
+import java.util.Arrays;
 import java.util.Optional;
 import java.util.stream.StreamSupport;
 
 import org.apache.commons.lang3.RandomUtils;
+import org.jamocha.dn.ConflictSet.RuleAndToken;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
@@ -26,14 +28,19 @@ public interface ConflictResolutionStrategy {
 
 	public Optional<ConflictSet.RuleAndToken> pick(final ConflictSet conflictSet);
 
-	public static ConflictResolutionStrategy random =
-			(final ConflictSet conflictSet) -> 0 == conflictSet.rulesAndTokens.size() ? Optional
-					.empty() : Optional.of(conflictSet.rulesAndTokens.get(RandomUtils.nextInt(0,
-					conflictSet.rulesAndTokens.size())));
+	public static ConflictResolutionStrategy random = new ConflictResolutionStrategy() {
+
+		@Override
+		public Optional<RuleAndToken> pick(ConflictSet conflictSet) {
+			final RuleAndToken[] rulesAndTokens = conflictSet.getRulesAndTokens();
+			return 0 == rulesAndTokens.length ? Optional.empty() : Optional
+					.of(rulesAndTokens[RandomUtils.nextInt(0, rulesAndTokens.length)]);
+		}
+	};
 
 	public static ConflictResolutionStrategy maxSalience =
-			(final ConflictSet conflictSet) -> StreamSupport
-					.stream(conflictSet.spliterator(), true).max(
-							(a, b) -> Integer.compare(a.getRule().getParent().getSalience(), b
-									.getRule().getParent().getSalience()));
+			(final ConflictSet conflictSet) -> StreamSupport.stream(
+					Arrays.stream(conflictSet.getRulesAndTokens()).spliterator(), true).max(
+					(a, b) -> Integer.compare(a.getRule().getParent().getSalience(), b.getRule()
+							.getParent().getSalience()));
 }

@@ -14,6 +14,8 @@
  */
 package org.jamocha.dn;
 
+import static org.jamocha.util.ToArray.toArray;
+
 import java.util.Iterator;
 import java.util.LinkedList;
 
@@ -33,10 +35,9 @@ import org.jamocha.dn.nodes.TerminalNode;
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
 @RequiredArgsConstructor
-public class ConflictSet implements Iterable<ConflictSet.RuleAndToken> {
+public class ConflictSet {
 
-	final SideEffectFunctionToNetwork network;
-	final ConstructCache constructCache;
+	private final SideEffectFunctionToNetwork network;
 
 	/**
 	 * Combination of {@link TerminalNode} and {@link AssertOrRetract}.
@@ -49,7 +50,7 @@ public class ConflictSet implements Iterable<ConflictSet.RuleAndToken> {
 		AssertOrRetract<?> token;
 	}
 
-	final LinkedList<RuleAndToken> rulesAndTokens = new LinkedList<>();
+	private final LinkedList<RuleAndToken> rulesAndTokens = new LinkedList<>();
 
 	/**
 	 * Adds an {@link Assert} belonging to {@link TerminalNode}.
@@ -59,7 +60,7 @@ public class ConflictSet implements Iterable<ConflictSet.RuleAndToken> {
 	 * @param plus
 	 *            {@link Assert} to add
 	 */
-	public void addAssert(final TerminalNode terminal, final Assert plus) {
+	synchronized public void addAssert(final TerminalNode terminal, final Assert plus) {
 		final Translated rule = terminal.getRule();
 		network.getLogFormatter().messageRuleActivation(network, rule, plus);
 		this.rulesAndTokens.add(new RuleAndToken(rule, plus));
@@ -73,7 +74,7 @@ public class ConflictSet implements Iterable<ConflictSet.RuleAndToken> {
 	 * @param minus
 	 *            {@link Retract} to add
 	 */
-	public void addRetract(final TerminalNode terminal, final Retract minus) {
+	synchronized public void addRetract(final TerminalNode terminal, final Retract minus) {
 		final Translated rule = terminal.getRule();
 		network.getLogFormatter().messageRuleDeactivation(network, rule, minus);
 		this.rulesAndTokens.add(new RuleAndToken(rule, minus));
@@ -82,14 +83,14 @@ public class ConflictSet implements Iterable<ConflictSet.RuleAndToken> {
 	/**
 	 * Deletes all asserts and retracts.
 	 */
-	public void flush() {
+	synchronized public void flush() {
 		this.rulesAndTokens.clear();
 	}
 
 	/**
 	 * Deletes all revoked asserts and all retracts.
 	 */
-	public void deleteRevokedEntries() {
+	synchronized public void deleteRevokedEntries() {
 		final Iterator<RuleAndToken> iterator = this.rulesAndTokens.iterator();
 		while (iterator.hasNext()) {
 			final RuleAndToken nodeAndToken = iterator.next();
@@ -100,12 +101,11 @@ public class ConflictSet implements Iterable<ConflictSet.RuleAndToken> {
 		}
 	}
 
-	@Override
-	public Iterator<RuleAndToken> iterator() {
-		return this.rulesAndTokens.iterator();
+	synchronized public RuleAndToken[] getRulesAndTokens() {
+		return toArray(this.rulesAndTokens, RuleAndToken[]::new);
 	}
 
-	public boolean remove(final RuleAndToken ruleAndToken) {
+	synchronized public boolean remove(final RuleAndToken ruleAndToken) {
 		return this.rulesAndTokens.remove(ruleAndToken);
 	}
 }
