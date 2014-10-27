@@ -51,26 +51,25 @@ public class JamochaGui extends Application {
 	final private PrintStream out = System.out;
 	final private PrintStream err = System.err;
 
-	private Scene generateScene() {	
+	private Scene generateScene() {
 		TabPane tabPane = new TabPane();
 		tabPane.setSide(Side.LEFT);
 
 		log = new TextArea();
-		log.setEditable(false);	
+		log.setEditable(false);
 		Tab logTab = new Tab("Log");
 		logTab.setContent(log);
 		logTab.setClosable(false);
-		
+
 		Tab networkTab = new Tab("Network");
 		networkTab.setClosable(false);
 		ScrollPane scrollPane = new ScrollPane();
 		networkTab.setContent(scrollPane);
-		
-		
+
 		Group g = new Group();
 		scrollPane.setContent(g);
 		g.getChildren().add(new Polygon(5000.0, 0.0, 1000.0, 10.0, 10.0, 0.0));
-		
+
 		tabPane.getTabs().addAll(logTab, networkTab);
 
 		Scene scene = new Scene(tabPane);
@@ -78,7 +77,7 @@ public class JamochaGui extends Application {
 		tabPane.prefWidthProperty().bind(scene.widthProperty());
 		return scene;
 	}
-	
+
 	@AllArgsConstructor
 	private class LogOutputStream extends OutputStream {
 
@@ -110,8 +109,7 @@ public class JamochaGui extends Application {
 	}
 
 	private void loadFile(File file) {
-		try {
-			FileInputStream fileInputStream = new FileInputStream(file);
+		try (final FileInputStream fileInputStream = new FileInputStream(file)) {
 			jamocha.parse(fileInputStream);
 			fileInputStream.close();
 		} catch (IOException | ParseException e) {
@@ -144,15 +142,16 @@ public class JamochaGui extends Application {
 		primaryStage.setScene(scene);
 		loadState(primaryStage);
 		primaryStage.show();
-		PrintStream out = new PrintStream(new LogOutputStream(log));
-		System.setOut(out);
-		System.setErr(out);
+		try (final PrintStream out = new PrintStream(new LogOutputStream(log))) {
+			System.setOut(out);
+			System.setErr(out);
 
-		if (file != null) {
-			System.out.println("Opening file: \"" + file.getName() + "\"");
-			loadFile(file);
-		} else {
-			System.out.println("No file selected!");
+			if (file != null) {
+				System.out.println("Opening file: \"" + file.getName() + "\"");
+				loadFile(file);
+			} else {
+				System.out.println("No file selected!");
+			}
 		}
 	}
 
