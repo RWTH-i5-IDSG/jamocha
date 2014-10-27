@@ -14,10 +14,15 @@
  */
 package test.jamocha.util;
 
+import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.EnumMap;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
+
+import lombok.Getter;
 
 import org.apache.logging.log4j.Logger;
 import org.jamocha.dn.ConstructCache.Deffacts;
@@ -28,6 +33,7 @@ import org.jamocha.dn.memory.Fact;
 import org.jamocha.dn.memory.FactIdentifier;
 import org.jamocha.dn.memory.MemoryFact;
 import org.jamocha.dn.memory.MemoryFactToFactIdentifier;
+import org.jamocha.dn.memory.SlotType;
 import org.jamocha.dn.memory.Template;
 import org.jamocha.dn.memory.Template.Slot;
 import org.jamocha.function.fwa.Assert.TemplateContainer;
@@ -46,9 +52,49 @@ public class NetworkMockup implements ParserToNetwork, SideEffectFunctionToNetwo
 	final ScopeStack scope = new ScopeStack();
 	final Template initialFactTemplate;
 
+	@Getter(onMethod = @__(@Override))
+	final EnumMap<SlotType, Object> defaultValues = new EnumMap<>(SlotType.class);
+
 	public NetworkMockup() {
 		this.initialFactTemplate = defTemplate("initial-fact", "");
 		defFacts("initial-fact", "", new TemplateContainer(initialFactTemplate));
+
+		{
+			final Template dummyFact =
+					this.defTemplate("dummy-fact", "used as default value for FACT-ADDRESS");
+			final FactIdentifier dummyFactIdentifier =
+					new org.jamocha.function.fwa.Assert(this,
+							new TemplateContainer[] { new TemplateContainer(dummyFact) })
+							.evaluate();
+			for (final SlotType type : EnumSet.allOf(SlotType.class)) {
+				switch (type) {
+				case BOOLEAN:
+					defaultValues.put(type, Boolean.FALSE);
+					break;
+				case DATETIME:
+					defaultValues.put(type, ZonedDateTime.now());
+					break;
+				case DOUBLE:
+					defaultValues.put(type, Double.valueOf(0.0));
+					break;
+				case LONG:
+					defaultValues.put(type, Long.valueOf(0));
+					break;
+				case NIL:
+					defaultValues.put(type, null);
+					break;
+				case STRING:
+					defaultValues.put(type, "");
+					break;
+				case SYMBOL:
+					defaultValues.put(type, this.getScope().getOrCreateSymbol("nil"));
+					break;
+				case FACTADDRESS:
+					defaultValues.put(type, dummyFactIdentifier);
+					break;
+				}
+			}
+		}
 	}
 
 	@Override

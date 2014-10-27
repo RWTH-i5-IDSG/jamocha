@@ -15,9 +15,11 @@
 package org.jamocha.dn;
 
 import java.util.Collection;
+import java.util.EnumMap;
 
 import org.jamocha.dn.ConstructCache.Deffacts;
 import org.jamocha.dn.ConstructCache.Defrule;
+import org.jamocha.dn.memory.SlotType;
 import org.jamocha.dn.memory.Template;
 import org.jamocha.dn.memory.Template.Slot;
 import org.jamocha.function.fwa.Assert;
@@ -51,4 +53,6 @@ public interface ParserToNetwork {
 	ScopeStack getScope();
 
 	Template getInitialFactTemplate();
+	
+	EnumMap<SlotType, Object> getDefaultValues();
 }

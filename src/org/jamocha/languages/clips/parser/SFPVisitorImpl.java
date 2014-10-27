@@ -18,11 +18,9 @@ import static java.util.stream.Collectors.toCollection;
 import static java.util.stream.Collectors.toList;
 import static org.jamocha.util.ToArray.toArray;
 
-import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.EnumMap;
 import java.util.EnumSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -43,7 +41,6 @@ import org.jamocha.dn.ConstructCache.Defrule;
 import org.jamocha.dn.Network;
 import org.jamocha.dn.ParserToNetwork;
 import org.jamocha.dn.SideEffectFunctionToNetwork;
-import org.jamocha.dn.memory.FactIdentifier;
 import org.jamocha.dn.memory.SlotAddress;
 import org.jamocha.dn.memory.SlotType;
 import org.jamocha.dn.memory.Template;
@@ -191,50 +188,10 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 	final ParserToNetwork parserToNetwork;
 	final SideEffectFunctionToNetwork sideEffectFunctionToNetwork;
 
-	final EnumMap<SlotType, Object> defaultValues = new EnumMap<>(SlotType.class);
-
 	public SFPVisitorImpl(final ParserToNetwork parserToNetwork,
 			final SideEffectFunctionToNetwork sideEffectFunctionToNetwork) {
 		this.parserToNetwork = parserToNetwork;
 		this.sideEffectFunctionToNetwork = sideEffectFunctionToNetwork;
-		{
-			final Template dummyFact =
-					parserToNetwork.defTemplate("dummy-fact",
-							"used as default value for FACT-ADDRESS");
-			final FactIdentifier dummyFactIdentifier =
-					new Assert(sideEffectFunctionToNetwork,
-							new TemplateContainer[] { new TemplateContainer(dummyFact) })
-							.evaluate();
-			for (final SlotType type : EnumSet.allOf(SlotType.class)) {
-				switch (type) {
-				case BOOLEAN:
-					defaultValues.put(type, Boolean.FALSE);
-					break;
-				case DATETIME:
-					defaultValues.put(type, ZonedDateTime.now());
-					break;
-				case DOUBLE:
-					defaultValues.put(type, Double.valueOf(0.0));
-					break;
-				case LONG:
-					defaultValues.put(type, Long.valueOf(0));
-					break;
-				case NIL:
-					defaultValues.put(type, null);
-					break;
-				case STRING:
-					defaultValues.put(type, "");
-					break;
-				case SYMBOL:
-					defaultValues.put(type, this.parserToNetwork.getScope()
-							.getOrCreateSymbol("nil"));
-					break;
-				case FACTADDRESS:
-					defaultValues.put(type, dummyFactIdentifier);
-					break;
-				}
-			}
-		}
 	}
 
 	@Override
@@ -708,7 +665,7 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 			SelectiveSFPVisitor.stream(node, 1).forEach(
 					n -> SelectiveSFPVisitor.sendVisitor(new SFPTemplateAttributeVisitor(
 							slotBuilder), n, data));
-			this.slot = slotBuilder.build(SFPVisitorImpl.this.defaultValues);
+			this.slot = slotBuilder.build(SFPVisitorImpl.this.parserToNetwork.getDefaultValues());
 			return data;
 		}
 	}

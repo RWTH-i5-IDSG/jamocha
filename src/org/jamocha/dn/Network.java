@@ -16,8 +16,11 @@ package org.jamocha.dn;
 
 import static org.jamocha.util.ToArray.toArray;
 
+import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.EnumMap;
+import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
@@ -52,6 +55,7 @@ import org.jamocha.dn.memory.MemoryFactToFactIdentifier;
 import org.jamocha.dn.memory.MemoryFactory;
 import org.jamocha.dn.memory.MemoryHandlerMain;
 import org.jamocha.dn.memory.MemoryHandlerPlusTemp;
+import org.jamocha.dn.memory.SlotType;
 import org.jamocha.dn.memory.MemoryHandlerTerminal.Assert;
 import org.jamocha.dn.memory.Template;
 import org.jamocha.dn.memory.Template.Slot;
@@ -153,6 +157,9 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 
 	@Getter(onMethod = @__(@Override))
 	private final Template initialFactTemplate;
+	
+	@Getter(onMethod = @__(@Override))
+	final EnumMap<SlotType, Object> defaultValues = new EnumMap<>(SlotType.class);
 
 	/**
 	 * Creates a new network object.
@@ -174,6 +181,46 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 		this.logFormatter = logFormatter;
 		this.initialFactTemplate = defTemplate("initial-fact", "");
 		defFacts("initial-fact", "", new TemplateContainer(initialFactTemplate));
+		
+		{
+			final Template dummyFact =
+					this.defTemplate("dummy-fact",
+							"used as default value for FACT-ADDRESS");
+			final FactIdentifier dummyFactIdentifier =
+					new org.jamocha.function.fwa.Assert(this,
+							new TemplateContainer[] { new TemplateContainer(dummyFact) })
+							.evaluate();
+			for (final SlotType type : EnumSet.allOf(SlotType.class)) {
+				switch (type) {
+				case BOOLEAN:
+					defaultValues.put(type, Boolean.FALSE);
+					break;
+				case DATETIME:
+					defaultValues.put(type, ZonedDateTime.now());
+					break;
+				case DOUBLE:
+					defaultValues.put(type, Double.valueOf(0.0));
+					break;
+				case LONG:
+					defaultValues.put(type, Long.valueOf(0));
+					break;
+				case NIL:
+					defaultValues.put(type, null);
+					break;
+				case STRING:
+					defaultValues.put(type, "");
+					break;
+				case SYMBOL:
+					defaultValues.put(type, this.getScope()
+							.getOrCreateSymbol("nil"));
+					break;
+				case FACTADDRESS:
+					defaultValues.put(type, dummyFactIdentifier);
+					break;
+				}
+			}
+		}
+		
 		{
 			// there seem to be two different log levels: one in the logger (aka in the
 			// PrivateConfig of the logger) and one in the LoggerConfig (which may be shared); the
