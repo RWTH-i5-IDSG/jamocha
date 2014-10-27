@@ -65,7 +65,8 @@ public class PathFilterConsolidatorTest {
 		}
 	}
 
-	private static List<TranslatedPath> clipsToFilters(final String condition) throws ParseException {
+	private static List<TranslatedPath> clipsToFilters(final String condition)
+			throws ParseException {
 		final StringReader parserInput =
 				new StringReader(new StringBuilder().append(templateString).append(preRule)
 						.append(condition).append(postRule).toString());
@@ -78,7 +79,7 @@ public class PathFilterConsolidatorTest {
 				rule.getCondition().getConditionalElements();
 		RuleConditionProcessor.flatten(conditionalElements);
 		assertThat(conditionalElements, hasSize(1));
-		return new PathFilterConsolidator(rule).consolidate();
+		return new PathFilterConsolidator(ptn.getInitialFactTemplate(), rule).consolidate();
 	}
 
 	@Test
