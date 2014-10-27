@@ -60,14 +60,6 @@ public class PlainScheduler implements Scheduler, Runnable {
 	}
 
 	@Override
-	public void signalNewJob() {
-	}
-
-	@Override
-	public void signalFinishedJob() {
-	}
-
-	@Override
 	public void waitForNoUnfinishedJobs() {
 		run();
 	}

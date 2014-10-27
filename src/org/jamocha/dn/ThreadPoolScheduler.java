@@ -50,40 +50,37 @@ public class ThreadPoolScheduler implements Scheduler {
 
 	@Override
 	public void enqueue(final TokenQueue runnable) {
-		this.executor.execute(runnable);
-	}
-
-	@Override
-	public void signalNewJob() {
 		this.unfinishedJobs.incrementAndGet();
+		this.executor.execute(new Runnable() {
+			@Override
+			public void run() {
+				runnable.run();
+				final long newCounter = unfinishedJobs.decrementAndGet();
+				if (!hasUnfinishedJobs(newCounter)) {
+					System.out.println("counter is 0");
+					lock.lock();
+					try {
+						empty.signal();
+					} finally {
+						lock.unlock();
+					}
+				}
+			}
+		});
 	}
 
 	private static boolean hasUnfinishedJobs(final long counter) {
 		return 0L != counter;
 	}
-	
+
 	@Override
 	public void shutdown() {
 		this.executor.shutdown();
 	}
-	
+
 	@Override
 	public void shutdownNow() {
 		this.executor.shutdownNow();
-	}
-
-	// TODO check if this is to complex. maybe it suffices to just count the TokenQueues in the executor. BTW we wait for the empty signal inside the lock and send it inside the lock.
-	@Override
-	public void signalFinishedJob() {
-		final long newCounter = this.unfinishedJobs.decrementAndGet();
-		if (!hasUnfinishedJobs(newCounter)) {
-			this.lock.lock();
-			try {
-				this.empty.signal();
-			} finally {
-				this.lock.unlock();
-			}
-		}
 	}
 
 	@Override

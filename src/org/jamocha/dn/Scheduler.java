@@ -34,11 +34,7 @@ public interface Scheduler {
 	 */
 	public void enqueue(final TokenQueue runnable);
 
-	public void signalFinishedJob();
-
 	public void waitForNoUnfinishedJobs();
-
-	public void signalNewJob();
 	
 	public void shutdown();
 	

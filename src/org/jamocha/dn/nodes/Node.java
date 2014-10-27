@@ -195,7 +195,6 @@ public abstract class Node {
 		synchronized public void enqueue(final Token token) {
 			final boolean empty = this.tokenQueue.isEmpty();
 			this.tokenQueue.add(token);
-			this.scheduler.signalNewJob();
 			if (empty) {
 				this.scheduler.enqueue(this);
 			}
@@ -212,7 +211,6 @@ public abstract class Node {
 			assert null != token; // queue shouldn't have been in the work queue
 			try {
 				token.run();
-				this.scheduler.signalFinishedJob();
 				synchronized (this) {
 					this.tokenQueue.remove();
 					if (!this.tokenQueue.isEmpty()) {
