@@ -257,7 +257,7 @@ public abstract class Node {
 		this.network = network;
 		this.tokenQueue = new TokenQueue(network.getScheduler());
 		final LinkedHashSet<Path> paths =
-				PathCollector.newLinkedHashSet().collect(filter).getPaths();
+				PathCollector.newLinkedHashSet().collectAll(filter).getPaths();
 		final Map<Edge, Set<Path>> edgesAndPaths = new HashMap<>();
 		final ArrayList<Edge> edges = new ArrayList<>();
 		final Set<Path> joinedPaths = new HashSet<>();

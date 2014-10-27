@@ -127,13 +127,13 @@ public class PathCollectorTest {
 	 */
 	@Test
 	public void testNewHashSet() {
-		assertThat(PathCollector.newHashSet().collect(a).getPaths(), hasItems(p1));
-		assertThat(PathCollector.newHashSet().collect(b).getPaths(), hasItems(p1, p2));
-		assertThat(PathCollector.newHashSet().collect(c).getPaths(), hasItems(p1, p2, p3));
-		assertThat(PathCollector.newHashSet().collect(d).getPaths(), hasItems(p1, p3));
-		assertThat(PathCollector.newHashSet().collect(e).getPaths(), hasItems(p1, p2, p3, p4));
-		assertThat(PathCollector.newHashSet().collect(f).getPaths(), hasItems(p1, p2, p3, p4));
-		assertThat(PathCollector.newHashSet().collect(g).getPaths(), hasItems(p1, p2, p3, p4));
+		assertThat(PathCollector.newHashSet().collectAll(a).getPaths(), hasItems(p1));
+		assertThat(PathCollector.newHashSet().collectAll(b).getPaths(), hasItems(p1, p2));
+		assertThat(PathCollector.newHashSet().collectAll(c).getPaths(), hasItems(p1, p2, p3));
+		assertThat(PathCollector.newHashSet().collectAll(d).getPaths(), hasItems(p1, p3));
+		assertThat(PathCollector.newHashSet().collectAll(e).getPaths(), hasItems(p1, p2, p3, p4));
+		assertThat(PathCollector.newHashSet().collectAll(f).getPaths(), hasItems(p1, p2, p3, p4));
+		assertThat(PathCollector.newHashSet().collectAll(g).getPaths(), hasItems(p1, p2, p3, p4));
 	}
 
 	/**
@@ -141,20 +141,20 @@ public class PathCollectorTest {
 	 */
 	@Test
 	public void testNewLinkedHashSet() {
-		assertArrayEquals(new Path[] { p1 }, PathCollector.newLinkedHashSet().collect(a)
+		assertArrayEquals(new Path[] { p1 }, PathCollector.newLinkedHashSet().collectAll(a)
 				.getPathsArray());
-		assertArrayEquals(new Path[] { p2, p1 }, PathCollector.newLinkedHashSet().collect(b)
+		assertArrayEquals(new Path[] { p2, p1 }, PathCollector.newLinkedHashSet().collectAll(b)
 				.getPathsArray());
-		assertArrayEquals(new Path[] { p1, p2, p3 }, PathCollector.newLinkedHashSet().collect(c)
+		assertArrayEquals(new Path[] { p1, p2, p3 }, PathCollector.newLinkedHashSet().collectAll(c)
 				.getPathsArray());
-		assertArrayEquals(new Path[] { p1, p3 }, PathCollector.newLinkedHashSet().collect(d)
+		assertArrayEquals(new Path[] { p1, p3 }, PathCollector.newLinkedHashSet().collectAll(d)
 				.getPathsArray());
 		assertArrayEquals(new Path[] { p1, p2, p3, p4 }, PathCollector.newLinkedHashSet()
-				.collect(e).getPathsArray());
+				.collectAll(e).getPathsArray());
 		assertArrayEquals(new Path[] { p1, p3, p2, p4 }, PathCollector.newLinkedHashSet()
-				.collect(f).getPathsArray());
+				.collectAll(f).getPathsArray());
 		assertArrayEquals(new Path[] { p1, p3, p4, p2 }, PathCollector.newLinkedHashSet()
-				.collect(g).getPathsArray());
+				.collectAll(g).getPathsArray());
 	}
 
 	/**
@@ -162,20 +162,20 @@ public class PathCollectorTest {
 	 */
 	@Test
 	public void testNewArrayList() {
-		assertArrayEquals(new Path[] { p1, p1 }, PathCollector.newArrayList().collect(a)
+		assertArrayEquals(new Path[] { p1, p1 }, PathCollector.newArrayList().collectAll(a)
 				.getPathsArray());
-		assertArrayEquals(new Path[] { p2, p2, p1, p2 }, PathCollector.newArrayList().collect(b)
+		assertArrayEquals(new Path[] { p2, p2, p1, p2 }, PathCollector.newArrayList().collectAll(b)
 				.getPathsArray());
-		assertArrayEquals(new Path[] { p1, p2, p2, p3 }, PathCollector.newArrayList().collect(c)
+		assertArrayEquals(new Path[] { p1, p2, p2, p3 }, PathCollector.newArrayList().collectAll(c)
 				.getPathsArray());
-		assertArrayEquals(new Path[] { p1, p3, p3, p1 }, PathCollector.newArrayList().collect(d)
+		assertArrayEquals(new Path[] { p1, p3, p3, p1 }, PathCollector.newArrayList().collectAll(d)
 				.getPathsArray());
 		assertArrayEquals(new Path[] { p1, p1, p2, p2, p3, p3, p4, p4 }, PathCollector
-				.newArrayList().collect(e).getPathsArray());
+				.newArrayList().collectAll(e).getPathsArray());
 		assertArrayEquals(new Path[] { p1, p3, p3, p2, p4, p2, p2, p1 }, PathCollector
-				.newArrayList().collect(f).getPathsArray());
+				.newArrayList().collectAll(f).getPathsArray());
 		assertArrayEquals(new Path[] { p1, p3, p3, p4, p4, p2, p2, p1 }, PathCollector
-				.newArrayList().collect(g).getPathsArray());
+				.newArrayList().collectAll(g).getPathsArray());
 	}
 
 	/**
@@ -183,20 +183,20 @@ public class PathCollectorTest {
 	 */
 	@Test
 	public void testNewLinkedList() {
-		assertArrayEquals(new Path[] { p1, p1 }, PathCollector.newLinkedList().collect(a)
+		assertArrayEquals(new Path[] { p1, p1 }, PathCollector.newLinkedList().collectAll(a)
 				.getPathsArray());
-		assertArrayEquals(new Path[] { p2, p2, p1, p2 }, PathCollector.newLinkedList().collect(b)
+		assertArrayEquals(new Path[] { p2, p2, p1, p2 }, PathCollector.newLinkedList().collectAll(b)
 				.getPathsArray());
-		assertArrayEquals(new Path[] { p1, p2, p2, p3 }, PathCollector.newLinkedList().collect(c)
+		assertArrayEquals(new Path[] { p1, p2, p2, p3 }, PathCollector.newLinkedList().collectAll(c)
 				.getPathsArray());
-		assertArrayEquals(new Path[] { p1, p3, p3, p1 }, PathCollector.newLinkedList().collect(d)
+		assertArrayEquals(new Path[] { p1, p3, p3, p1 }, PathCollector.newLinkedList().collectAll(d)
 				.getPathsArray());
 		assertArrayEquals(new Path[] { p1, p1, p2, p2, p3, p3, p4, p4 }, PathCollector
-				.newLinkedList().collect(e).getPathsArray());
+				.newLinkedList().collectAll(e).getPathsArray());
 		assertArrayEquals(new Path[] { p1, p3, p3, p2, p4, p2, p2, p1 }, PathCollector
-				.newLinkedList().collect(f).getPathsArray());
+				.newLinkedList().collectAll(f).getPathsArray());
 		assertArrayEquals(new Path[] { p1, p3, p3, p4, p4, p2, p2, p1 }, PathCollector
-				.newLinkedList().collect(g).getPathsArray());
+				.newLinkedList().collectAll(g).getPathsArray());
 	}
 
 }

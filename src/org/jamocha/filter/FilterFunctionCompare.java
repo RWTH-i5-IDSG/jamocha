@@ -393,7 +393,7 @@ public class FilterFunctionCompare {
 			final Map<FactAddress, List<Path>> pathsByNode =
 					PathCollector
 							.newHashSet()
-							.collect(pathFilter)
+							.collectAll(pathFilter)
 							.getPaths()
 							.stream()
 							.collect(groupingBy(path -> path.getFactAddressInCurrentlyLowestNode()));

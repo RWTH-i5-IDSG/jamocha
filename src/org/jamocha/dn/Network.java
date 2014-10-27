@@ -253,7 +253,7 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 	 *             {@link Node}
 	 */
 	public boolean tryToShareNode(final PathFilter filter) throws IllegalArgumentException {
-		final Path[] paths = PathCollector.newLinkedHashSet().collect(filter).getPathsArray();
+		final Path[] paths = PathCollector.newLinkedHashSet().collectAll(filter).getPathsArray();
 
 		// collect the nodes of the paths
 		final LinkedHashSet<Node> filterPathNodes = new LinkedHashSet<>();
@@ -330,14 +330,14 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 		{
 			final PathCollector<LinkedHashSet<Path>> collector = PathCollector.newLinkedHashSet();
 			for (final PathFilter filter : filters) {
-				collector.collect(filter);
+				collector.collectAll(filter);
 			}
 			this.rootNode.addPaths(this, collector.getPathsArray());
 			allPaths = collector.getPaths();
 		}
 		for (final PathFilter filter : filters) {
 			if (!tryToShareNode(filter))
-				if (PathCollector.newLinkedHashSet().collect(filter).getPaths().size() == 1) {
+				if (PathCollector.newLinkedHashSet().collectAll(filter).getPaths().size() == 1) {
 					new AlphaNode(this, filter);
 				} else {
 					new BetaNode(this, filter);

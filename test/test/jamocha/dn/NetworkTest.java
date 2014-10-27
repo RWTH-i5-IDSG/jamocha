@@ -138,7 +138,7 @@ public class NetworkTest {
 			final LinkedHashSet<Path> allPaths = new LinkedHashSet<>();
 			for (PathFilter filter : filterTwo) {
 				final LinkedHashSet<Path> paths =
-						PathCollector.newLinkedHashSet().collect(filter).getPaths();
+						PathCollector.newLinkedHashSet().collectAll(filter).getPaths();
 				allPaths.addAll(paths);
 			}
 			final Path[] pathArray = toArray(allPaths, Path[]::new);
@@ -157,7 +157,7 @@ public class NetworkTest {
 			final LinkedHashSet<Path> allPaths = new LinkedHashSet<>();
 			for (PathFilter filter : filterThree) {
 				final LinkedHashSet<Path> paths =
-						PathCollector.newLinkedHashSet().collect(filter).getPaths();
+						PathCollector.newLinkedHashSet().collectAll(filter).getPaths();
 				allPaths.addAll(paths);
 			}
 			final Path[] pathArray = toArray(allPaths, Path[]::new);
@@ -211,7 +211,7 @@ public class NetworkTest {
 			final LinkedHashSet<Path> allPaths = new LinkedHashSet<>();
 			for (PathFilter filter : filterTwo) {
 				final LinkedHashSet<Path> paths =
-						PathCollector.newLinkedHashSet().collect(filter).getPaths();
+						PathCollector.newLinkedHashSet().collectAll(filter).getPaths();
 				allPaths.addAll(paths);
 			}
 			final Path[] pathArray = toArray(allPaths, Path[]::new);
@@ -269,7 +269,7 @@ public class NetworkTest {
 			final LinkedHashSet<Path> allPaths = new LinkedHashSet<>();
 			for (PathFilter filter : filterTwo) {
 				final LinkedHashSet<Path> paths =
-						PathCollector.newLinkedHashSet().collect(filter).getPaths();
+						PathCollector.newLinkedHashSet().collectAll(filter).getPaths();
 				allPaths.addAll(paths);
 			}
 			final Path[] pathArray = toArray(allPaths, Path[]::new);
@@ -347,7 +347,7 @@ public class NetworkTest {
 			final LinkedHashSet<Path> allPaths = new LinkedHashSet<>();
 			for (PathFilter filter : filterTwo) {
 				final LinkedHashSet<Path> paths =
-						PathCollector.newLinkedHashSet().collect(filter).getPaths();
+						PathCollector.newLinkedHashSet().collectAll(filter).getPaths();
 				allPaths.addAll(paths);
 			}
 			final Path[] pathArray = toArray(allPaths, Path[]::new);

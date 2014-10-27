@@ -152,7 +152,7 @@ public class PathFilterConsolidator implements DefaultConditionalElementsVisitor
 			final Map<PathFilter, Set<Path>> filter2Paths =
 					filters.stream().collect(
 							Collectors.toMap(Function.identity(), filter -> PathCollector
-									.newHashSet().collect(filter).getPaths()));
+									.newHashSet().collectAll(filter).getPaths()));
 
 			// Split PathFilters into those only using existential Paths and those also using non
 			// existential Paths

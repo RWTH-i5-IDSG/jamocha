@@ -53,14 +53,10 @@ public class PathCollector<T extends Collection<Path>> implements PathFilterElem
 		this.paths = paths;
 	}
 
-	// TODO refactor name to collectAll, eclipse just wont let me do it right now
-	public PathCollector<T> collect(final PathFilter filter) {
+	public PathCollector<T> collectAll(final PathFilter filter) {
 		this.paths.addAll(filter.getPositiveExistentialPaths());
 		this.paths.addAll(filter.getNegativeExistentialPaths());
-		for (final PathFilterElement filterElement : filter.getFilterElements()) {
-			collect(filterElement);
-		}
-		return this;
+		return collectOnlyNonExistential(filter);
 	}
 
 	public PathCollector<T> collectOnlyNonExistential(final PathFilter filter) {
