@@ -168,15 +168,13 @@ public class Assert implements FunctionWithArguments {
 
 	@Override
 	public Function<FactIdentifier> lazyEvaluate(final Function<?>... params) {
-		return new GenericWithArgumentsComposite.LazyObject<>(GenericWithArgumentsComposite
-				.staticLazyEvaluate(
-						fs -> {
-							final FactIdentifier[] assertFacts =
-									network.assertFacts(toArray(
-											Arrays.stream(fs).map(f -> (Fact) f.evaluate()),
-											Fact[]::new));
-							return assertFacts[assertFacts.length - 1];
-						}, "assert", args, params).evaluate());
+		return GenericWithArgumentsComposite.staticLazyEvaluate(
+				fs -> {
+					final FactIdentifier[] assertFacts =
+							network.assertFacts(toArray(
+									Arrays.stream(fs).map(f -> (Fact) f.evaluate()), Fact[]::new));
+					return assertFacts[assertFacts.length - 1];
+				}, "assert", args, params);
 	}
 
 	@Override
