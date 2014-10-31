@@ -24,13 +24,11 @@ import java.util.prefs.Preferences;
 
 import javafx.application.Application;
 import javafx.geometry.Side;
-import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TextArea;
-import javafx.scene.shape.Polygon;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Stage;
@@ -38,6 +36,7 @@ import lombok.AllArgsConstructor;
 
 import org.apache.commons.io.IOUtils;
 import org.jamocha.Jamocha;
+import org.jamocha.gui.network.NetworkVisualisation;
 import org.jamocha.languages.clips.parser.generated.ParseException;
 
 /**
@@ -66,11 +65,11 @@ public class JamochaGui extends Application {
 		networkTab.setClosable(false);
 		ScrollPane scrollPane = new ScrollPane();
 		networkTab.setContent(scrollPane);
-
-		Group g = new Group();
-		scrollPane.setContent(g);
-		g.getChildren().add(new Polygon(5000.0, 0.0, 1000.0, 10.0, 10.0, 0.0));
-
+			
+		NetworkVisualisation networkVisualisation = new NetworkVisualisation(jamocha.getNetwork());
+		networkVisualisation.update();
+		scrollPane.setContent(networkVisualisation);
+		
 		tabPane.getTabs().addAll(logTab, networkTab);
 
 		Scene scene = new Scene(tabPane);

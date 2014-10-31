@@ -20,6 +20,8 @@ package org.jamocha;
 import java.io.InputStream;
 import java.util.Queue;
 
+import lombok.Getter;
+
 import org.jamocha.dn.Network;
 import org.jamocha.dn.PlainScheduler;
 import org.jamocha.languages.clips.parser.SFPVisitorImpl;
@@ -34,7 +36,8 @@ import org.jamocha.languages.common.Warning;
  */
 public class Jamocha {
 	
-	Network network;
+	@Getter
+	final private Network network;
 	
 	public Jamocha() {
 		network = new Network(Integer.MAX_VALUE, new PlainScheduler());

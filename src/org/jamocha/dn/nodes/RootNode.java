@@ -19,6 +19,7 @@ import static java.util.stream.Collectors.groupingBy;
 import static org.jamocha.util.ToArray.toArray;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -138,6 +139,10 @@ public class RootNode implements MemoryFactToFactIdentifier {
 	 */
 	public void removeOTN(final ObjectTypeNode otn) {
 		this.templateToOTN.remove(otn.template);
+	}
+	
+	public Collection<ObjectTypeNode> getOTNs() {
+		return this.templateToOTN.values();
 	}
 
 	/**
