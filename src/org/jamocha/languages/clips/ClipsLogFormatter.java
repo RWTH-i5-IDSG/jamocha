@@ -257,6 +257,8 @@ public class ClipsLogFormatter implements LogFormatter {
 			return Objects.toString(value);
 		case FACTADDRESS:
 			return (null == value) ? "FALSE" : "<Fact-" + ((FactIdentifier) value).getId() + ">";
+		case NIL:
+			return null;
 		default:
 			return Objects.toString(value);
 		}
