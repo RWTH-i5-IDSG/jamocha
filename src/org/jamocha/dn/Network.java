@@ -42,9 +42,6 @@ import org.apache.logging.log4j.core.appender.ConsoleAppender;
 import org.apache.logging.log4j.core.appender.ConsoleAppender.Target;
 import org.apache.logging.log4j.core.config.Configuration;
 import org.apache.logging.log4j.core.config.LoggerConfig;
-import org.apache.logging.log4j.core.layout.PatternLayout;
-import org.apache.logging.log4j.core.pattern.RegexReplacement;
-import org.apache.logging.log4j.core.util.Charsets;
 import org.jamocha.dn.ConflictSet.RuleAndToken;
 import org.jamocha.dn.ConstructCache.Deffacts;
 import org.jamocha.dn.ConstructCache.Defrule;
@@ -77,6 +74,7 @@ import org.jamocha.function.fwa.Assert.TemplateContainer;
 import org.jamocha.languages.clips.ClipsLogFormatter;
 import org.jamocha.languages.common.RuleConditionProcessor;
 import org.jamocha.languages.common.ScopeStack;
+import org.jamocha.logging.LayoutAdapter;
 import org.jamocha.logging.LogFormatter;
 import org.jamocha.logging.OutstreamAppender;
 import org.jamocha.logging.TypedFilter;
@@ -238,10 +236,7 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 					config.getLoggerConfig(this.getInteractiveEventsLogger().getName());
 			// the normal constructor is private, thus we have to use the plugin-level access
 			final Appender appender =
-					ConsoleAppender.createAppender(PatternLayout.createLayout(
-							// PatternLayout.SIMPLE_CONVERSION_PATTERN
-							PatternLayout.DEFAULT_CONVERSION_PATTERN, config,
-							(RegexReplacement) null, Charsets.UTF_8, true, true, "", ""),
+					ConsoleAppender.createAppender(LayoutAdapter.createLayout(config),
 							(Filter) null, Target.SYSTEM_OUT.name(), "consoleAppender", "true",
 							"true");
 			// loggerConfig.getAppenders().forEach((n, a) -> loggerConfig.removeAppender(n));
@@ -547,11 +542,8 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 		final LoggerConfig loggerConfig =
 				config.getLoggerConfig(this.getInteractiveEventsLogger().getName());
 		loggerConfig.addAppender(
-				new OutstreamAppender(name, out, PatternLayout.createLayout(
-						plain ? PatternLayout.DEFAULT_CONVERSION_PATTERN
-								: PatternLayout.SIMPLE_CONVERSION_PATTERN, config,
-						(RegexReplacement) null, Charsets.UTF_8, true, true, "", ""), null, true),
-				Level.ALL, (Filter) null);
+				new OutstreamAppender(name, out, LayoutAdapter.createLayout(config, plain), null,
+						true), Level.ALL, (Filter) null);
 		// This causes all loggers to re-fetch information from their LoggerConfig
 		ctx.updateLoggers();
 	}
