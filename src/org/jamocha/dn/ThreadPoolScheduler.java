@@ -57,7 +57,6 @@ public class ThreadPoolScheduler implements Scheduler {
 				runnable.run();
 				final long newCounter = unfinishedJobs.decrementAndGet();
 				if (!hasUnfinishedJobs(newCounter)) {
-					System.out.println("counter is 0");
 					lock.lock();
 					try {
 						empty.signal();
