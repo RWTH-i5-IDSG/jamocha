@@ -16,6 +16,7 @@ package org.jamocha.dn;
 
 import static org.jamocha.util.ToArray.toArray;
 
+import java.io.OutputStream;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.Collection;
@@ -35,12 +36,14 @@ import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.core.Appender;
+import org.apache.logging.log4j.core.Filter;
 import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.appender.ConsoleAppender;
 import org.apache.logging.log4j.core.appender.ConsoleAppender.Target;
 import org.apache.logging.log4j.core.config.Configuration;
 import org.apache.logging.log4j.core.config.LoggerConfig;
 import org.apache.logging.log4j.core.layout.PatternLayout;
+import org.apache.logging.log4j.core.pattern.RegexReplacement;
 import org.apache.logging.log4j.core.util.Charsets;
 import org.jamocha.dn.ConflictSet.RuleAndToken;
 import org.jamocha.dn.ConstructCache.Deffacts;
@@ -55,8 +58,8 @@ import org.jamocha.dn.memory.MemoryFactToFactIdentifier;
 import org.jamocha.dn.memory.MemoryFactory;
 import org.jamocha.dn.memory.MemoryHandlerMain;
 import org.jamocha.dn.memory.MemoryHandlerPlusTemp;
-import org.jamocha.dn.memory.SlotType;
 import org.jamocha.dn.memory.MemoryHandlerTerminal.Assert;
+import org.jamocha.dn.memory.SlotType;
 import org.jamocha.dn.memory.Template;
 import org.jamocha.dn.memory.Template.Slot;
 import org.jamocha.dn.nodes.AlphaNode;
@@ -75,6 +78,7 @@ import org.jamocha.languages.clips.ClipsLogFormatter;
 import org.jamocha.languages.common.RuleConditionProcessor;
 import org.jamocha.languages.common.ScopeStack;
 import org.jamocha.logging.LogFormatter;
+import org.jamocha.logging.OutstreamAppender;
 import org.jamocha.logging.TypedFilter;
 
 /**
@@ -157,7 +161,7 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 
 	@Getter(onMethod = @__(@Override))
 	private final Template initialFactTemplate;
-	
+
 	@Getter(onMethod = @__(@Override))
 	final EnumMap<SlotType, Object> defaultValues = new EnumMap<>(SlotType.class);
 
@@ -181,11 +185,10 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 		this.logFormatter = logFormatter;
 		this.initialFactTemplate = defTemplate("initial-fact", "");
 		defFacts("initial-fact", "", new TemplateContainer(initialFactTemplate));
-		
+
 		{
 			final Template dummyFact =
-					this.defTemplate("dummy-fact",
-							"used as default value for FACT-ADDRESS");
+					this.defTemplate("dummy-fact", "used as default value for FACT-ADDRESS");
 			final FactIdentifier dummyFactIdentifier =
 					new org.jamocha.function.fwa.Assert(this,
 							new TemplateContainer[] { new TemplateContainer(dummyFact) })
@@ -211,8 +214,7 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 					defaultValues.put(type, "");
 					break;
 				case SYMBOL:
-					defaultValues.put(type, this.getScope()
-							.getOrCreateSymbol("nil"));
+					defaultValues.put(type, this.getScope().getOrCreateSymbol("nil"));
 					break;
 				case FACTADDRESS:
 					defaultValues.put(type, dummyFactIdentifier);
@@ -220,7 +222,7 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 				}
 			}
 		}
-		
+
 		{
 			// there seem to be two different log levels: one in the logger (aka in the
 			// PrivateConfig of the logger) and one in the LoggerConfig (which may be shared); the
@@ -238,14 +240,15 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 			final Appender appender =
 					ConsoleAppender.createAppender(PatternLayout.createLayout(
 							// PatternLayout.SIMPLE_CONVERSION_PATTERN
-							PatternLayout.DEFAULT_CONVERSION_PATTERN, config, null, Charsets.UTF_8,
-							true, true, "", ""), null, Target.SYSTEM_OUT.name(), "consoleAppender",
-							"true", "true");
+							PatternLayout.DEFAULT_CONVERSION_PATTERN, config,
+							(RegexReplacement) null, Charsets.UTF_8, true, true, "", ""),
+							(Filter) null, Target.SYSTEM_OUT.name(), "consoleAppender", "true",
+							"true");
 			// loggerConfig.getAppenders().forEach((n, a) -> loggerConfig.removeAppender(n));
 			// loggerConfig.setAdditive(false);
 			loggerConfig.setLevel(Level.ALL);
 			loggerConfig.addFilter(typedFilter);
-			loggerConfig.addAppender(appender, Level.ALL, null);
+			loggerConfig.addAppender(appender, Level.ALL, (Filter) null);
 			config.getLoggerConfig(LogManager.ROOT_LOGGER_NAME).setLevel(Level.INFO);
 			// This causes all loggers to re-fetch information from their LoggerConfig
 			ctx.updateLoggers();
@@ -525,6 +528,32 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 		RuleConditionProcessor.flatten(rule.getCondition());
 		// Transform TestCEs to PathFilters
 		new PathFilterConsolidator(this.initialFactTemplate, rule).consolidate();
+	}
+
+	/**
+	 * Adds an appender to the logging framework.
+	 * 
+	 * @param name
+	 *            name of the appender
+	 * @param out
+	 *            output stream
+	 * @param plain
+	 *            true for just the content, false for log-style additional infos in front of the
+	 *            content
+	 */
+	public void addAppender(final String name, final OutputStream out, final boolean plain) {
+		final LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
+		final Configuration config = ctx.getConfiguration();
+		final LoggerConfig loggerConfig =
+				config.getLoggerConfig(this.getInteractiveEventsLogger().getName());
+		loggerConfig.addAppender(
+				new OutstreamAppender(name, out, PatternLayout.createLayout(
+						plain ? PatternLayout.DEFAULT_CONVERSION_PATTERN
+								: PatternLayout.SIMPLE_CONVERSION_PATTERN, config,
+						(RegexReplacement) null, Charsets.UTF_8, true, true, "", ""), null, true),
+				Level.ALL, (Filter) null);
+		// This causes all loggers to re-fetch information from their LoggerConfig
+		ctx.updateLoggers();
 	}
 
 	/**
