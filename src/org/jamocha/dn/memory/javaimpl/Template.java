@@ -79,7 +79,7 @@ public class Template implements org.jamocha.dn.memory.Template {
 		for (int i = 0; i < slots.length; ++i) {
 			this.slotNames.put(slots[i].getName(), new SlotAddress(i));
 		}
-		instanceMarker = MarkerType.RULES.createChild(name);
+		instanceMarker = MarkerType.FACTS.createChild(name);
 	}
 
 	@Override
