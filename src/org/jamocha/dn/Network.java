@@ -528,22 +528,19 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 	/**
 	 * Adds an appender to the logging framework.
 	 * 
-	 * @param name
-	 *            name of the appender
 	 * @param out
 	 *            output stream
 	 * @param plain
 	 *            true for just the content, false for log-style additional infos in front of the
 	 *            content
 	 */
-	public void addAppender(final String name, final OutputStream out, final boolean plain) {
+	public void addAppender(final OutputStream out, final boolean plain) {
 		final LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
 		final Configuration config = ctx.getConfiguration();
 		final LoggerConfig loggerConfig =
 				config.getLoggerConfig(this.getInteractiveEventsLogger().getName());
-		loggerConfig.addAppender(
-				new OutstreamAppender(name, out, LayoutAdapter.createLayout(config, plain), null,
-						true), Level.ALL, (Filter) null);
+		loggerConfig.addAppender(OutstreamAppender.newInstance(out,
+				LayoutAdapter.createLayout(config, plain), null, true), Level.ALL, (Filter) null);
 		// This causes all loggers to re-fetch information from their LoggerConfig
 		ctx.updateLoggers();
 	}

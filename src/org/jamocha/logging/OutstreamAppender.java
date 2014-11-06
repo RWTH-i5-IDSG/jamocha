@@ -29,24 +29,23 @@ import org.apache.logging.log4j.core.appender.OutputStreamManager;
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
 public class OutstreamAppender extends AbstractOutputStreamAppender<OutputStreamManager> {
+	static int instanceCount = 0;
+
 	private OutstreamAppender(final String name, final Layout<? extends Serializable> layout,
 			final Filter filter, final OutputStreamManager manager, final boolean ignoreExceptions) {
 		super(name, layout, filter, ignoreExceptions, true, manager);
 	}
 
-	private OutstreamAppender(final String name, final Layout<? extends Serializable> layout,
-			final Filter filter, final OutputStreamManager manager) {
-		super(name, layout, filter, true, true, manager);
-	}
-
-	public OutstreamAppender(final String name, final OutputStream outputStream,
+	public static OutstreamAppender newInstance(final OutputStream outputStream,
 			final Layout<? extends Serializable> layout, final Filter filter) {
-		this(name, outputStream, layout, filter, false);
+		return newInstance(outputStream, layout, filter, false);
 	}
 
-	public OutstreamAppender(final String name, final OutputStream outputStream,
+	public static OutstreamAppender newInstance(final OutputStream outputStream,
 			final Layout<? extends Serializable> layout, final Filter filter, final boolean follow) {
-		this(name, layout, filter, getManager(follow, name, outputStream, layout));
+		final String name = "OutstreamAppender" + ++instanceCount;
+		return new OutstreamAppender(name, layout, filter, getManager(follow, name, outputStream,
+				layout), true);
 	}
 
 	@Value
