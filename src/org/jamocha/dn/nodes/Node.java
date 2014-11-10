@@ -18,6 +18,7 @@ package org.jamocha.dn.nodes;
 import static org.jamocha.util.ToArray.toArray;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -26,6 +27,7 @@ import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.Queue;
 import java.util.Set;
 
@@ -42,10 +44,10 @@ import org.jamocha.dn.memory.MemoryHandlerTemp;
 import org.jamocha.dn.memory.Template;
 import org.jamocha.filter.AddressFilter;
 import org.jamocha.filter.AddressFilter.AddressFilterElement;
-import org.jamocha.filter.PathFilterToAddressFilterTranslator;
 import org.jamocha.filter.Path;
 import org.jamocha.filter.PathCollector;
 import org.jamocha.filter.PathFilter;
+import org.jamocha.filter.PathFilterToAddressFilterTranslator;
 
 /**
  * Base class for all node types
@@ -165,7 +167,7 @@ public abstract class Node {
 	/**
 	 * {@link TokenQueue} of the node, populated by incoming edges.
 	 */
-	final protected TokenQueue tokenQueue;
+	protected TokenQueue tokenQueue;
 
 	/**
 	 * Returns the filter that has originally been set to all inputs.
@@ -181,10 +183,16 @@ public abstract class Node {
 	 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
 	 */
 	@RequiredArgsConstructor
-	public class TokenQueue implements Runnable {
+	public abstract class TokenQueue implements Runnable {
 		final static int tokenQueueCapacity = Integer.MAX_VALUE;
-		final Queue<Token> tokenQueue = new LinkedList<>();
 		final Scheduler scheduler;
+		final Queue<Token> tokenQueue;
+
+		public TokenQueue(final Scheduler scheduler) {
+			this(scheduler, new LinkedList<>());
+		}
+
+		abstract public TokenQueue activate();
 
 		/**
 		 * Adds a token to the queue, enqueues the queue in the scheduler if the queue was empty.
@@ -192,13 +200,7 @@ public abstract class Node {
 		 * @param token
 		 *            {@link Token} to enqueue
 		 */
-		synchronized public void enqueue(final Token token) {
-			final boolean empty = this.tokenQueue.isEmpty();
-			this.tokenQueue.add(token);
-			if (empty) {
-				this.scheduler.enqueue(this);
-			}
-		}
+		abstract public void enqueue(final Token token);
 
 		/**
 		 * Calls {@link Token#run()} for the first {@link Token} in the queue and removes it from
@@ -206,21 +208,82 @@ public abstract class Node {
 		 * run.
 		 */
 		@Override
+		abstract public void run();
+	}
+
+	public class InactiveTokenQueue extends TokenQueue {
+
+		public InactiveTokenQueue(Scheduler scheduler) {
+			super(scheduler);
+		}
+
+		@Override
+		public synchronized ActiveTokenQueue activate() {
+			return new ActiveTokenQueue(scheduler, this.tokenQueue);
+		}
+
+		@Override
+		public synchronized void enqueue(Token token) {
+			this.tokenQueue.add(token);
+		}
+
+		@Override
 		public void run() {
-			final Token token = this.tokenQueue.peek();
-			assert null != token; // queue shouldn't have been in the work queue
-			try {
-				token.run();
-				synchronized (this) {
-					this.tokenQueue.remove();
-					if (!this.tokenQueue.isEmpty()) {
-						this.scheduler.enqueue(this);
-					}
+		}
+
+		class ActiveTokenQueue extends TokenQueue {
+
+			ActiveTokenQueue(final Scheduler scheduler, final Queue<Token> tokenQueue) {
+				super(scheduler, tokenQueue);
+				if (!tokenQueue.isEmpty()) {
+					this.scheduler.enqueue(this);
 				}
-			} catch (final CouldNotAcquireLockException ex) {
-				this.scheduler.enqueue(this);
+			}
+
+			@Override
+			public synchronized ActiveTokenQueue activate() {
+				return this;
+			}
+
+			/**
+			 * Adds a token to the queue, enqueues the queue in the scheduler if the queue was
+			 * empty.
+			 * 
+			 * @param token
+			 *            {@link Token} to enqueue
+			 */
+			@Override
+			synchronized public void enqueue(final Token token) {
+				final boolean empty = this.tokenQueue.isEmpty();
+				this.tokenQueue.add(token);
+				if (empty) {
+					this.scheduler.enqueue(this);
+				}
+			}
+
+			/**
+			 * Calls {@link Token#run()} for the first {@link Token} in the queue and removes it
+			 * from the queue if the call was successful. Re-queues itself if there are more tokens
+			 * to be run.
+			 */
+			@Override
+			public void run() {
+				final Token token = this.tokenQueue.peek();
+				assert null != token; // queue shouldn't have been in the work queue
+				try {
+					token.run();
+					synchronized (this) {
+						this.tokenQueue.remove();
+						if (!this.tokenQueue.isEmpty()) {
+							this.scheduler.enqueue(this);
+						}
+					}
+				} catch (final CouldNotAcquireLockException ex) {
+					this.scheduler.enqueue(this);
+				}
 			}
 		}
+
 	}
 
 	/**
@@ -229,7 +292,7 @@ public abstract class Node {
 	@Deprecated
 	protected Node(final Network network, final Node... parents) {
 		this.network = network;
-		this.tokenQueue = new TokenQueue(network.getScheduler());
+		this.tokenQueue = new InactiveTokenQueue(network.getScheduler());
 		this.incomingEdges = new Edge[parents.length];
 		final Map<Edge, Set<Path>> edgesAndPaths = new HashMap<>();
 		for (int i = 0; i < parents.length; i++) {
@@ -245,7 +308,7 @@ public abstract class Node {
 
 	protected Node(final Network network, final Template template, final Path... paths) {
 		this.network = network;
-		this.tokenQueue = new TokenQueue(network.getScheduler());
+		this.tokenQueue = new InactiveTokenQueue(network.getScheduler());
 		this.incomingEdges = new Edge[0];
 		this.memory = network.getMemoryFactory().newMemoryHandlerMain(template, paths);
 		this.filter = AddressFilter.empty;
@@ -253,7 +316,7 @@ public abstract class Node {
 
 	public Node(final Network network, final PathFilter filter) {
 		this.network = network;
-		this.tokenQueue = new TokenQueue(network.getScheduler());
+		this.tokenQueue = new InactiveTokenQueue(network.getScheduler());
 		final LinkedHashSet<Path> paths =
 				PathCollector.newLinkedHashSet().collectAll(filter).getPaths();
 		final Map<Edge, Set<Path>> edgesAndPaths = new HashMap<>();
@@ -303,6 +366,19 @@ public abstract class Node {
 						memoryHandlerMainAndCounterColumnMatcher.getFilterElementToCounterColumn());
 		for (final Edge edge : this.incomingEdges) {
 			edge.setFilter(this.filter);
+		}
+
+		// Create new PlusToken if no preceding Node has not empty memory
+		final Optional<Edge> optMinEdge =
+				Arrays.stream(this.incomingEdges)
+						.filter(e -> !e.getSourceNode().outgoingExistentialEdges.contains(e))
+						.min((a, b) -> Integer.compare(a.getSourceNode().getMemory().size(), b
+								.getSourceNode().getMemory().size()));
+		assert optMinEdge.isPresent();
+		final Edge minEdge = optMinEdge.get();
+		final MemoryHandlerMain minEdgeMemory = minEdge.getSourceNode().getMemory();
+		if (minEdgeMemory.size() > 0) {
+			minEdge.enqueueMemory(minEdgeMemory.newNewNodeToken());
 		}
 	}
 
@@ -421,4 +497,7 @@ public abstract class Node {
 	 */
 	public abstract void shareNode(final Map<Path, FactAddress> map, final Path... paths);
 
+	public void activateTokenQueue() {
+		this.tokenQueue = this.tokenQueue.activate();
+	}
 }

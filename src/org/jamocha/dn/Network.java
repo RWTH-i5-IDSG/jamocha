@@ -18,6 +18,7 @@ import static org.jamocha.util.ToArray.toArray;
 
 import java.io.OutputStream;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.EnumMap;
@@ -393,17 +394,22 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 			this.rootNode.addPaths(this, collector.getPathsArray());
 			allPaths = collector.getPaths();
 		}
+		final ArrayList<Node> nodes = new ArrayList<>();
 		for (final PathFilter filter : filters) {
 			if (!tryToShareNode(filter))
 				if (PathCollector.newLinkedHashSet().collectAll(filter).getPaths().size() == 1) {
-					new AlphaNode(this, filter);
+					nodes.add( new AlphaNode(this, filter));
 				} else {
-					new BetaNode(this, filter);
+					nodes.add( new BetaNode(this, filter));
 				}
 		}
 		final Node lowestNode = allPaths.iterator().next().getCurrentlyLowestNode();
 		assert allPaths.stream().map(Path::getCurrentlyLowestNode).distinct().count() == 1;
-		return new TerminalNode(this, lowestNode, translatedPath);
+		final TerminalNode terminalNode = new TerminalNode(this, lowestNode, translatedPath);
+		for (final Node node : nodes) {
+			node.activateTokenQueue();
+		}
+		return terminalNode;
 	}
 
 	@Override
