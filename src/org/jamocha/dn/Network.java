@@ -183,7 +183,7 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 		this.logFormatter = logFormatter;
 		this.initialFactTemplate = defTemplate("initial-fact", "");
 		defFacts("initial-fact", "", new TemplateContainer(initialFactTemplate));
-
+		reset();
 		{
 			final Template dummyFact =
 					this.defTemplate("dummy-fact", "used as default value for FACT-ADDRESS");
