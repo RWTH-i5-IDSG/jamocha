@@ -445,7 +445,6 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 		final List<TemplateContainer> conList = Arrays.asList(containers);
 		final Deffacts deffacts = new Deffacts(name, description, conList);
 		this.constructCache.addDeffacts(deffacts);
-		assertFacts(toArray(conList.stream().map(TemplateContainer::toFact), Fact[]::new));
 		return deffacts;
 	}
 
