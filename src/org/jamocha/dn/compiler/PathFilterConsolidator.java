@@ -176,8 +176,11 @@ public class PathFilterConsolidator implements DefaultConditionalElementsVisitor
 				// if there are only existential filters, append one combining them with an initial
 				// fact path
 				assert null != initialFactPath;
+				final ArrayList<Path> paths = new ArrayList<>();
+				paths.addAll(existentialPaths);
+				paths.add(initialFactPath);
 				resultFilters.add(new PathFilter(isPositive, existentialPaths,
-						new PathFilter.DummyPathFilterElement(initialFactPath)));
+						new PathFilter.DummyPathFilterElement(toArray(paths, Path[]::new))));
 				return resultFilters;
 			}
 
@@ -283,7 +286,8 @@ public class PathFilterConsolidator implements DefaultConditionalElementsVisitor
 				unprocessedExistentialPaths.removeAll(processedExistentialPaths);
 				if (!unprocessedExistentialPaths.isEmpty()) {
 					resultFilters.add(new PathFilter(isPositive, unprocessedExistentialPaths,
-							new PathFilter.DummyPathFilterElement()));
+							new PathFilter.DummyPathFilterElement(toArray(
+									unprocessedExistentialPaths, Path[]::new))));
 				}
 			}
 
