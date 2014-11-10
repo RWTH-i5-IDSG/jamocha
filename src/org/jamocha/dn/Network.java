@@ -70,6 +70,7 @@ import org.jamocha.filter.FilterFunctionCompare;
 import org.jamocha.filter.Path;
 import org.jamocha.filter.PathCollector;
 import org.jamocha.filter.PathFilter;
+import org.jamocha.function.FunctionDictionary;
 import org.jamocha.function.fwa.Assert.TemplateContainer;
 import org.jamocha.languages.clips.ClipsLogFormatter;
 import org.jamocha.languages.common.RuleConditionProcessor;
@@ -158,7 +159,7 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 	private final ScopeStack scope = new ScopeStack();
 
 	@Getter(onMethod = @__(@Override))
-	private final Template initialFactTemplate;
+	private Template initialFactTemplate;
 
 	@Getter(onMethod = @__(@Override))
 	final EnumMap<SlotType, Object> defaultValues = new EnumMap<>(SlotType.class);
@@ -181,16 +182,10 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 		this.conflictSet = new ConflictSet(this);
 		this.rootNode = new RootNode();
 		this.logFormatter = logFormatter;
-		this.initialFactTemplate = defTemplate("initial-fact", "");
-		defFacts("initial-fact", "", new TemplateContainer(initialFactTemplate));
+		createInitialDeffact();
+		createDummyTemplate();
 		reset();
 		{
-			final Template dummyFact =
-					this.defTemplate("dummy-fact", "used as default value for FACT-ADDRESS");
-			final FactIdentifier dummyFactIdentifier =
-					new org.jamocha.function.fwa.Assert(this,
-							new TemplateContainer[] { new TemplateContainer(dummyFact) })
-							.evaluate();
 			for (final SlotType type : EnumSet.allOf(SlotType.class)) {
 				switch (type) {
 				case BOOLEAN:
@@ -215,12 +210,13 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 					defaultValues.put(type, this.getScope().getOrCreateSymbol("nil"));
 					break;
 				case FACTADDRESS:
-					defaultValues.put(type, dummyFactIdentifier);
+					// should be handled by createDummyFact()
+					assert null != defaultValues.get(SlotType.FACTADDRESS);
 					break;
 				}
 			}
 		}
-
+		FunctionDictionary.load();
 		{
 			// there seem to be two different log levels: one in the logger (aka in the
 			// PrivateConfig of the logger) and one in the LoggerConfig (which may be shared); the
@@ -248,6 +244,23 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 			// This causes all loggers to re-fetch information from their LoggerConfig
 			ctx.updateLoggers();
 		}
+	}
+
+	private void createInitialDeffact() {
+		this.initialFactTemplate = defTemplate("initial-fact", "");
+		defFacts("initial-fact", "", new TemplateContainer(initialFactTemplate));
+	}
+
+	private void createDummyTemplate() {
+		this.defTemplate("dummy-fact", "used as default value for FACT-ADDRESS");
+	}
+
+	private void createDummyFact() {
+		final FactIdentifier[] factIdentifiers =
+				assertFacts(new TemplateContainer(this.constructCache.getTemplate("dummy-fact"))
+						.toFact());
+		assert 1 == factIdentifiers.length;
+		this.defaultValues.put(SlotType.FACTADDRESS, factIdentifiers[0]);
 	}
 
 	/**
@@ -483,6 +496,7 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 	@Override
 	public void reset() {
 		getRootNode().reset();
+		createDummyFact();
 		// assert all deffacts
 		assertFacts(toArray(
 				this.constructCache.getDeffacts().stream()
@@ -492,7 +506,12 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 
 	@Override
 	public void clear() {
-		// TODO perform a clear
+		this.rootNode.clear();
+		this.conflictSet.flush();
+		this.constructCache.clear();
+		createInitialDeffact();
+		createDummyTemplate();
+		reset();
 	}
 
 	@Override

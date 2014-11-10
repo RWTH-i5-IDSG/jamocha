@@ -211,4 +211,11 @@ public class ConstructCache {
 	public Collection<Deffacts> getDeffacts() {
 		return this.deffacts.values();
 	}
+
+	public void clear() {
+		this.deffacts.clear();
+		this.functions.clear();
+		this.rules.clear();
+		this.template.clear();
+	}
 }

@@ -140,9 +140,25 @@ public class RootNode implements MemoryFactToFactIdentifier {
 	public void removeOTN(final ObjectTypeNode otn) {
 		this.templateToOTN.remove(otn.template);
 	}
-	
+
+	/**
+	 * Returns a collection of all child OTNs.
+	 * 
+	 * @return a collection of all child OTNs
+	 */
 	public Collection<ObjectTypeNode> getOTNs() {
 		return this.templateToOTN.values();
+	}
+
+	/**
+	 * Removes all OTNs, deletes all facts in the root node, and resets the fact identifier counter
+	 * to zero.
+	 */
+	public void clear() {
+		this.templateToOTN.clear();
+		this.facts.clear();
+		this.factIdentifiers.clear();
+		this.factIdentifierCounter = 0;
 	}
 
 	/**
