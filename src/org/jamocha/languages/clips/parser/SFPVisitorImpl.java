@@ -1550,7 +1550,7 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 
 			@Override
 			public Object visit(final SFPRHSPattern node, final Object data) {
-				assert node.jjtGetNumChildren() > 1;
+				assert node.jjtGetNumChildren() > 0;
 				final Symbol symbol =
 						SelectiveSFPVisitor.sendVisitor(new SFPSymbolVisitor(),
 								node.jjtGetChild(0), data).symbol;
