@@ -183,6 +183,19 @@ public class MemoryHandlerMain extends MemoryHandlerBase implements
 	}
 
 	@Override
+	public org.jamocha.dn.memory.MemoryHandlerPlusTemp newNewNodeToken() {
+		final int outgoingPlusRows =
+				this.validOutgoingPlusTokens.stream().mapToInt(token -> token.validRows.size())
+						.sum();
+		final JamochaArray<Row> rows =
+				new JamochaArray<>(validRows, validRows.size() + outgoingPlusRows);
+		for (final MemoryHandlerPlusTemp plus : this.validOutgoingPlusTokens) {
+			rows.addAll(plus.validRows);
+		}
+		return MemoryHandlerPlusTemp.newNewNodeTemp(this.template, rows);
+	}
+
+	@Override
 	public Pair<? extends org.jamocha.dn.memory.MemoryHandlerPlusTemp, MemoryFact[]> newPlusToken(
 			final Node otn, final org.jamocha.dn.memory.Fact... facts) {
 		return MemoryHandlerPlusTemp.newRootTemp(this, otn, facts);

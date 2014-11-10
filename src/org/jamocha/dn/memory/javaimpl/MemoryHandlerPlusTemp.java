@@ -93,6 +93,8 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 			this.valid = false;
 		} else if (omitSemaphore || numChildren == 0) {
 			this.lock = null;
+			if (null == this.originatingMainHandler)
+				return;
 			originatingMainHandler.getValidOutgoingPlusTokens().add(this);
 			// commit and invalidate the token
 			commitAndInvalidate();
@@ -151,6 +153,11 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 			}
 		}
 		return true;
+	}
+
+	public static MemoryHandlerPlusTemp newNewNodeTemp(final Template[] template,
+			final JamochaArray<Row> rows) {
+		return new MemoryHandlerPlusTemp(template, (MemoryHandlerMain) null, rows, 0, true);
 	}
 
 	@Override

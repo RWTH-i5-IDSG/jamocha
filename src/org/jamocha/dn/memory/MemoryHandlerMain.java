@@ -104,6 +104,14 @@ public interface MemoryHandlerMain extends MemoryHandler {
 			throws CouldNotAcquireLockException;
 
 	/**
+	 * TODO comment
+	 * 
+	 * @return
+	 * @throws CouldNotAcquireLockException
+	 */
+	public MemoryHandlerPlusTemp newNewNodeToken();
+
+	/**
 	 * Creates a new {@link MemoryHandlerPlusTemp} that contains the facts given.
 	 * 
 	 * @param otn
@@ -112,8 +120,8 @@ public interface MemoryHandlerMain extends MemoryHandler {
 	 *            {@link Fact facts} to store in the {@link MemoryHandlerPlusTemp token}
 	 * @return {@link MemoryHandlerPlusTemp token} containing the facts given
 	 */
-	public Pair<? extends MemoryHandlerPlusTemp, MemoryFact[]> newPlusToken(
-			final Node otn, final Fact... facts);
+	public Pair<? extends MemoryHandlerPlusTemp, MemoryFact[]> newPlusToken(final Node otn,
+			final Fact... facts);
 
 	/**
 	 * Creates a new {@link MemoryHandlerMinusTemp} that contains the facts given.
