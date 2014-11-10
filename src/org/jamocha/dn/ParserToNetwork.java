@@ -48,11 +48,9 @@ public interface ParserToNetwork {
 
 	Collection<Deffacts> getDeffacts();
 
-	void reset();
-
 	ScopeStack getScope();
 
 	Template getInitialFactTemplate();
-	
+
 	EnumMap<SlotType, Object> getDefaultValues();
 }

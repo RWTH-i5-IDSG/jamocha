@@ -63,4 +63,6 @@ public interface SideEffectFunctionToNetwork {
 	void run(final long maxNumRules);
 
 	void clear();
+
+	void reset();
 }
