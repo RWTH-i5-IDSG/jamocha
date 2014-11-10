@@ -87,7 +87,11 @@ public class AlphaNodeTest {
 	 */
 	@Test
 	public void testAlphaNode() {
-		new AlphaNode(Network.DEFAULTNETWORK, FilterMockup.alwaysFalse());
+		Path p1 = new Path(Template.STRING);
+		ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK, Template.STRING);
+		otn.shareNode(Collections.emptyMap(), p1);
+		new AlphaNode(Network.DEFAULTNETWORK, new FilterMockup(false,
+				new PathAndSlotAddress(p1, s1)));
 	}
 
 	/**

@@ -81,6 +81,14 @@ public class BetaNodeTest {
 	@After
 	public void tearDown() throws Exception {
 	}
+	
+	public BetaNode createDummyBetaNode() {
+		Path p1 = new Path(Template.STRING);
+		ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK, Template.STRING);
+		otn.shareNode(Collections.emptyMap(), p1);
+		return new BetaNode(Network.DEFAULTNETWORK, new FilterMockup(true, new PathAndSlotAddress(
+				p1, s1)));
+	}
 
 	/**
 	 * Test method for
@@ -88,8 +96,7 @@ public class BetaNodeTest {
 	 */
 	@Test
 	public void testBetaNode() {
-		@SuppressWarnings("unused")
-		BetaNode beta = new BetaNode(Network.DEFAULTNETWORK, FilterMockup.alwaysTrue());
+		createDummyBetaNode();
 	}
 
 	/**
@@ -215,7 +222,7 @@ public class BetaNodeTest {
 	 */
 	@Test
 	public void testGetOutgoingEdges() {
-		BetaNode beta = new BetaNode(Network.DEFAULTNETWORK, FilterMockup.alwaysTrue());
+		BetaNode beta = createDummyBetaNode();
 		final Collection<? extends Edge> outgoingEdges = beta.getOutgoingEdges();
 		assertNotNull(outgoingEdges);
 		assertEquals(0, outgoingEdges.size());
@@ -226,7 +233,7 @@ public class BetaNodeTest {
 	 */
 	@Test
 	public void testGetMemory() {
-		BetaNode beta = new BetaNode(Network.DEFAULTNETWORK, FilterMockup.alwaysTrue());
+		BetaNode beta = createDummyBetaNode();
 		final MemoryHandlerMain memory = beta.getMemory();
 		assertNotNull(memory);
 		assertEquals(0, memory.size());
@@ -237,7 +244,7 @@ public class BetaNodeTest {
 	 */
 	@Test
 	public void testNumChildren() {
-		BetaNode beta = new BetaNode(Network.DEFAULTNETWORK, FilterMockup.alwaysTrue());
+		BetaNode beta = createDummyBetaNode();
 		assertEquals(0, beta.getNumberOfOutgoingEdges());
 	}
 
