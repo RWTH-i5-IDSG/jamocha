@@ -135,7 +135,7 @@ public class SystemTest {
 			assertThat(output, not(isEmptyString()));
 			final String[] lines = output.split("\\v");
 			assertThat(lines, arrayWithSize(1));
-			assertEquals(lines[0], "==> f-2\t(t1 (s1 2))");
+			assertEquals("==> f-2\t(t1 (s1 2))", lines[0]);
 			out.reset();
 		}
 	}
@@ -177,7 +177,7 @@ public class SystemTest {
 			assertTrue(returnValues.getRight().isEmpty());
 			final String[] lines = out.toString().split("\\v");
 			assertThat(lines, arrayWithSize(1));
-			assertEquals(lines[0], "==> f-2\t(t1 (s1 2))");
+			assertEquals("==> f-2\t(t1 (s1 2))", lines[0]);
 			out.reset();
 		}
 		{
@@ -191,7 +191,7 @@ public class SystemTest {
 			assertTrue(returnValues.getRight().isEmpty());
 			final String[] lines = out.toString().split("\\v");
 			assertThat(lines, arrayWithSize(1));
-			assertEquals(lines[0], "==> f-3\t(t1 (s1 5))");
+			assertEquals("==> f-3\t(t1 (s1 5))", lines[0]);
 			out.reset();
 		}
 		{
@@ -200,9 +200,128 @@ public class SystemTest {
 			assertTrue(returnValues.getRight().isEmpty());
 			final String[] lines = out.toString().split("\\v");
 			assertThat(lines, arrayWithSize(1));
-			assertEquals(lines[0], "==> f-4\t(t1 (s1 999))");
+			assertEquals("==> f-4\t(t1 (s1 999))", lines[0]);
 			out.reset();
 		}
 	}
 
+	@Test
+	public void testSimpleNegatedExistentialRule() throws ParseException {
+		final Network network = new Network();
+		final ByteArrayOutputStream out = new ByteArrayOutputStream();
+		network.addAppender(out, true);
+		{
+			final Pair<Queue<Object>, Queue<Warning>> returnValues =
+					run(network, "(unwatch all)\n(watch facts)\n");
+			assertTrue(returnValues.getLeft().isEmpty());
+			assertTrue(returnValues.getRight().isEmpty());
+			assertThat(out.toString(), isEmptyString());
+		}
+		{
+			final Pair<Queue<Object>, Queue<Warning>> returnValues =
+					run(network, "(deftemplate t1 (slot s1 (type INTEGER)))\n");
+			assertTrue(returnValues.getLeft().isEmpty());
+			assertTrue(returnValues.getRight().isEmpty());
+			assertThat(out.toString(), isEmptyString());
+		}
+		{
+			final Pair<Queue<Object>, Queue<Warning>> returnValues =
+					run(network, "(defrule r1 (not (t1)) => (assert (t1 (s1 999))) )\n");
+			assertTrue(returnValues.getLeft().isEmpty());
+			assertTrue(returnValues.getRight().isEmpty());
+			assertThat(out.toString(), isEmptyString());
+		}
+		{
+			final Pair<Queue<Object>, Queue<Warning>> returnValues = run(network, "(run)\n");
+			assertTrue(returnValues.getLeft().isEmpty());
+			assertTrue(returnValues.getRight().isEmpty());
+			final String[] lines = out.toString().split("\\v");
+			assertThat(lines, arrayWithSize(1));
+			assertEquals("==> f-2\t(t1 (s1 999))", lines[0]);
+			out.reset();
+		}
+		{
+			final Pair<Queue<Object>, Queue<Warning>> returnValues = run(network, "(retract 2)\n");
+			assertTrue(returnValues.getLeft().isEmpty());
+			assertTrue(returnValues.getRight().isEmpty());
+			final String[] lines = out.toString().split("\\v");
+			assertThat(lines, arrayWithSize(1));
+			assertEquals("<== f-2\t(t1 (s1 999))", lines[0]);
+			out.reset();
+		}
+		{
+			final Pair<Queue<Object>, Queue<Warning>> returnValues = run(network, "(run)\n");
+			assertTrue(returnValues.getLeft().isEmpty());
+			assertTrue(returnValues.getRight().isEmpty());
+			final String[] lines = out.toString().split("\\v");
+			assertThat(lines, arrayWithSize(1));
+			assertEquals("==> f-3\t(t1 (s1 999))", lines[0]);
+			out.reset();
+		}
+	}
+
+	// @Test
+	// public void testExistentialRule() throws ParseException {
+	// final Network network = new Network();
+	// final ByteArrayOutputStream out = new ByteArrayOutputStream();
+	// network.addAppender(out, true);
+	// {
+	// final Pair<Queue<Object>, Queue<Warning>> returnValues =
+	// run(network, "(unwatch all)\n(watch facts)\n");
+	// assertTrue(returnValues.getLeft().isEmpty());
+	// assertTrue(returnValues.getRight().isEmpty());
+	// assertThat(out.toString(), isEmptyString());
+	// }
+	// {
+	// final Pair<Queue<Object>, Queue<Warning>> returnValues =
+	// run(network, "(deftemplate t1 (slot s1 (type INTEGER)))\n");
+	// assertTrue(returnValues.getLeft().isEmpty());
+	// assertTrue(returnValues.getRight().isEmpty());
+	// assertThat(out.toString(), isEmptyString());
+	// }
+	// {
+	// final Pair<Queue<Object>, Queue<Warning>> returnValues =
+	// run(network, "(defrule r1 (t1 (s1 5)) => (assert (t1 (s1 999))) )\n");
+	// assertTrue(returnValues.getLeft().isEmpty());
+	// assertTrue(returnValues.getRight().isEmpty());
+	// assertThat(out.toString(), isEmptyString());
+	// }
+	// {
+	// final Pair<Queue<Object>, Queue<Warning>> returnValues =
+	// run(network, "(assert (t1 (s1 2)))\n");
+	// final Queue<Object> values = returnValues.getLeft();
+	// assertThat(values, hasSize(1));
+	// final Object value = values.iterator().next();
+	// assertThat(value, instanceOf(String.class));
+	// assertTrue(String.valueOf(value).equals("<Fact-2>"));
+	// assertTrue(returnValues.getRight().isEmpty());
+	// final String[] lines = out.toString().split("\\v");
+	// assertThat(lines, arrayWithSize(1));
+	// assertEquals("==> f-2\t(t1 (s1 2))", lines[0]);
+	// out.reset();
+	// }
+	// {
+	// final Pair<Queue<Object>, Queue<Warning>> returnValues =
+	// run(network, "(assert (t1 (s1 5)))\n");
+	// final Queue<Object> values = returnValues.getLeft();
+	// assertThat(values, hasSize(1));
+	// final Object value = values.iterator().next();
+	// assertThat(value, instanceOf(String.class));
+	// assertTrue(String.valueOf(value).equals("<Fact-3>"));
+	// assertTrue(returnValues.getRight().isEmpty());
+	// final String[] lines = out.toString().split("\\v");
+	// assertThat(lines, arrayWithSize(1));
+	// assertEquals("==> f-3\t(t1 (s1 5))", lines[0]);
+	// out.reset();
+	// }
+	// {
+	// final Pair<Queue<Object>, Queue<Warning>> returnValues = run(network, "(run)\n");
+	// assertTrue(returnValues.getLeft().isEmpty());
+	// assertTrue(returnValues.getRight().isEmpty());
+	// final String[] lines = out.toString().split("\\v");
+	// assertThat(lines, arrayWithSize(1));
+	// assertEquals("==> f-4\t(t1 (s1 999))", lines[0]);
+	// out.reset();
+	// }
+	// }
 }
