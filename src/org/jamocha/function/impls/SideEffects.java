@@ -26,10 +26,12 @@ import org.jamocha.function.FunctionDictionary;
  */
 public class SideEffects {
 	static {
+		FunctionDictionary.addImpl(org.jamocha.function.impls.sideeffects.Clear.class);
 		FunctionDictionary.addImpl(org.jamocha.function.impls.sideeffects.Facts.class);
 		FunctionDictionary.addImpl(org.jamocha.function.impls.sideeffects.ListDeftemplates.class);
 		FunctionDictionary.addImpl(org.jamocha.function.impls.sideeffects.Ppdeftemplate.class);
 		FunctionDictionary.addImpl(org.jamocha.function.impls.sideeffects.Printout.class);
+		FunctionDictionary.addImpl(org.jamocha.function.impls.sideeffects.Reset.class);
 		FunctionDictionary.addImpl(org.jamocha.function.impls.sideeffects.Run.class);
 		FunctionDictionary.addImpl(org.jamocha.function.impls.sideeffects.Unwatch.class);
 		FunctionDictionary.addImpl(org.jamocha.function.impls.sideeffects.Watch.class);
