@@ -492,6 +492,11 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 	}
 
 	@Override
+	public void clear() {
+		// TODO perform a clear
+	}
+
+	@Override
 	public void run(final long maxNumRules) {
 		long numRules = 0;
 		do {

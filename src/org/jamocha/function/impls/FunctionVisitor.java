@@ -63,6 +63,8 @@ public interface FunctionVisitor extends Visitor {
 
 	void visit(final org.jamocha.function.impls.sideeffects.Printout function);
 
+	void visit(final org.jamocha.function.impls.sideeffects.Clear function);
+
 	void visit(final org.jamocha.function.impls.sideeffects.Run function);
 
 	void visit(final org.jamocha.function.impls.sideeffects.Unwatch function);

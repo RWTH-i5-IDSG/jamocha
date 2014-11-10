@@ -35,7 +35,7 @@ public interface SideEffectFunctionToNetwork {
 	Map<FactIdentifier, MemoryFact> getMemoryFacts();
 
 	MemoryFact getMemoryFact(final FactIdentifier id);
-	
+
 	MemoryFactToFactIdentifier getMemoryFactToFactIdentifier();
 
 	Template getTemplate(final String name);
@@ -61,4 +61,6 @@ public interface SideEffectFunctionToNetwork {
 	TypedFilter getTypedFilter();
 
 	void run(final long maxNumRules);
+
+	void clear();
 }
