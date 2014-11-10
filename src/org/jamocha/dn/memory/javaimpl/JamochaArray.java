@@ -37,6 +37,14 @@ public class JamochaArray<T> implements RandomAccess, Iterable<T> {
 		this.values = new Object[initialSize];
 	}
 
+	public JamochaArray(final JamochaArray<T> original) {
+		this(original, 0, original.size);
+	}
+
+	public JamochaArray(final JamochaArray<T> original, final int initialSize) {
+		this(original, 0, original.size, initialSize);
+	}
+
 	public JamochaArray(final JamochaArray<T> original, final int toExclusive, final int initialSize) {
 		this(original, 0, toExclusive, initialSize);
 	}
@@ -64,6 +72,10 @@ public class JamochaArray<T> implements RandomAccess, Iterable<T> {
 							oldLength * 2);
 		}
 		values[size++] = value;
+	}
+
+	public void addAll(final JamochaArray<T> source) {
+		add(source, 0, source.size);
 	}
 
 	public void add(final JamochaArray<T> source, final int fromInclusive, final int length) {
