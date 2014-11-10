@@ -577,7 +577,7 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 				TR = loop(new FunctionPointer() {
 					@Override
 					public void apply(final JamochaArray<Row> TR, final StackElement originElement) {
-						final int paramLength = addresses.length;
+						final int paramLength = predicate.getParamTypes().length;
 						final Object params[] = new Object[paramLength];
 						// determine parameters
 						for (int i = 0; i < paramLength; ++i) {
@@ -610,7 +610,7 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 				TR = loop(new FunctionPointer() {
 					@Override
 					public void apply(final JamochaArray<Row> TR, final StackElement originElement) {
-						final int paramLength = addresses.length;
+						final int paramLength = predicate.getParamTypes().length;
 						final Object params[] = new Object[paramLength];
 						// determine parameters
 						for (int i = 0; i < paramLength; ++i) {
@@ -825,7 +825,7 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 					final SlotInFactAddress[] addresses = filterElement.getAddressesInTarget();
 					final CounterColumn counterColumn =
 							(CounterColumn) filterElement.getCounterColumn();
-					final int paramLength = addresses.length;
+					final int paramLength = predicate.getParamTypes().length;
 					final Object params[] = new Object[paramLength];
 					// determine parameters using facts in the token where possible
 					for (int i = 0; i < paramLength; ++i) {
