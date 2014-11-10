@@ -151,7 +151,7 @@ public class ClipsLogFormatter implements LogFormatter {
 		network.getInteractiveEventsLogger().info(
 				translated.getParent().getActivationMarker(),
 				new StringBuilder()
-						.append("==> Activation\t")
+						.append("==> Deactivation\t")
 						.append(translated.getParent().getName())
 						.append(": ")
 						.append(Arrays
@@ -159,8 +159,6 @@ public class ClipsLogFormatter implements LogFormatter {
 										.getMemoryFactToFactIdentifier()))
 								.map(fi -> null == fi ? "*" : formatTypeValue(Type.FACT, fi))
 								.collect(joining(","))));
-		network.getInteractiveEventsLogger().info(translated.getParent().getActivationMarker(),
-				"Rule " + translated.getParent().getName() + " deactivated!");
 	}
 
 	@Override
