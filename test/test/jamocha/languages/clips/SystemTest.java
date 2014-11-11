@@ -14,14 +14,17 @@
  */
 package test.jamocha.languages.clips;
 
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.Matchers.arrayContaining;
 import static org.hamcrest.Matchers.arrayWithSize;
+import static org.hamcrest.Matchers.either;
+import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.isEmptyString;
 import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
 
 import java.io.ByteArrayOutputStream;
 import java.io.StringReader;
@@ -111,15 +114,15 @@ public class SystemTest {
 		{
 			final Pair<Queue<Object>, Queue<Warning>> returnValues =
 					run(network, "(unwatch all)\n(watch facts)\n");
-			assertTrue(returnValues.getLeft().isEmpty());
-			assertTrue(returnValues.getRight().isEmpty());
+			assertThat(returnValues.getLeft(), empty());
+			assertThat(returnValues.getRight(), empty());
 			assertThat(out.toString(), isEmptyString());
 		}
 		{
 			final Pair<Queue<Object>, Queue<Warning>> returnValues =
 					run(network, "(deftemplate t1 (slot s1 (type INTEGER)))\n");
-			assertTrue(returnValues.getLeft().isEmpty());
-			assertTrue(returnValues.getRight().isEmpty());
+			assertThat(returnValues.getLeft(), empty());
+			assertThat(returnValues.getRight(), empty());
 			assertThat(out.toString(), isEmptyString());
 		}
 		{
@@ -129,8 +132,8 @@ public class SystemTest {
 			assertThat(values, hasSize(1));
 			final Object value = values.iterator().next();
 			assertThat(value, instanceOf(String.class));
-			assertTrue(String.valueOf(value).equals("<Fact-2>"));
-			assertTrue(returnValues.getRight().isEmpty());
+			assertEquals("<Fact-2>", value);
+			assertThat(returnValues.getRight(), empty());
 			final String output = out.toString();
 			assertThat(output, not(isEmptyString()));
 			final String[] lines = output.split("\\v");
@@ -148,22 +151,22 @@ public class SystemTest {
 		{
 			final Pair<Queue<Object>, Queue<Warning>> returnValues =
 					run(network, "(unwatch all)\n(watch facts)\n");
-			assertTrue(returnValues.getLeft().isEmpty());
-			assertTrue(returnValues.getRight().isEmpty());
+			assertThat(returnValues.getLeft(), empty());
+			assertThat(returnValues.getRight(), empty());
 			assertThat(out.toString(), isEmptyString());
 		}
 		{
 			final Pair<Queue<Object>, Queue<Warning>> returnValues =
 					run(network, "(deftemplate t1 (slot s1 (type INTEGER)))\n");
-			assertTrue(returnValues.getLeft().isEmpty());
-			assertTrue(returnValues.getRight().isEmpty());
+			assertThat(returnValues.getLeft(), empty());
+			assertThat(returnValues.getRight(), empty());
 			assertThat(out.toString(), isEmptyString());
 		}
 		{
 			final Pair<Queue<Object>, Queue<Warning>> returnValues =
 					run(network, "(defrule r1 (t1 (s1 5)) => (assert (t1 (s1 999))) )\n");
-			assertTrue(returnValues.getLeft().isEmpty());
-			assertTrue(returnValues.getRight().isEmpty());
+			assertThat(returnValues.getLeft(), empty());
+			assertThat(returnValues.getRight(), empty());
 			assertThat(out.toString(), isEmptyString());
 		}
 		{
@@ -173,8 +176,8 @@ public class SystemTest {
 			assertThat(values, hasSize(1));
 			final Object value = values.iterator().next();
 			assertThat(value, instanceOf(String.class));
-			assertTrue(String.valueOf(value).equals("<Fact-2>"));
-			assertTrue(returnValues.getRight().isEmpty());
+			assertEquals("<Fact-2>", value);
+			assertThat(returnValues.getRight(), empty());
 			final String[] lines = out.toString().split("\\v");
 			assertThat(lines, arrayWithSize(1));
 			assertEquals("==> f-2\t(t1 (s1 2))", lines[0]);
@@ -187,8 +190,8 @@ public class SystemTest {
 			assertThat(values, hasSize(1));
 			final Object value = values.iterator().next();
 			assertThat(value, instanceOf(String.class));
-			assertTrue(String.valueOf(value).equals("<Fact-3>"));
-			assertTrue(returnValues.getRight().isEmpty());
+			assertEquals("<Fact-3>", value);
+			assertThat(returnValues.getRight(), empty());
 			final String[] lines = out.toString().split("\\v");
 			assertThat(lines, arrayWithSize(1));
 			assertEquals("==> f-3\t(t1 (s1 5))", lines[0]);
@@ -196,8 +199,8 @@ public class SystemTest {
 		}
 		{
 			final Pair<Queue<Object>, Queue<Warning>> returnValues = run(network, "(run)\n");
-			assertTrue(returnValues.getLeft().isEmpty());
-			assertTrue(returnValues.getRight().isEmpty());
+			assertThat(returnValues.getLeft(), empty());
+			assertThat(returnValues.getRight(), empty());
 			final String[] lines = out.toString().split("\\v");
 			assertThat(lines, arrayWithSize(1));
 			assertEquals("==> f-4\t(t1 (s1 999))", lines[0]);
@@ -213,28 +216,28 @@ public class SystemTest {
 		{
 			final Pair<Queue<Object>, Queue<Warning>> returnValues =
 					run(network, "(unwatch all)\n(watch facts)\n");
-			assertTrue(returnValues.getLeft().isEmpty());
-			assertTrue(returnValues.getRight().isEmpty());
+			assertThat(returnValues.getLeft(), empty());
+			assertThat(returnValues.getRight(), empty());
 			assertThat(out.toString(), isEmptyString());
 		}
 		{
 			final Pair<Queue<Object>, Queue<Warning>> returnValues =
 					run(network, "(deftemplate t1 (slot s1 (type INTEGER)))\n");
-			assertTrue(returnValues.getLeft().isEmpty());
-			assertTrue(returnValues.getRight().isEmpty());
+			assertThat(returnValues.getLeft(), empty());
+			assertThat(returnValues.getRight(), empty());
 			assertThat(out.toString(), isEmptyString());
 		}
 		{
 			final Pair<Queue<Object>, Queue<Warning>> returnValues =
 					run(network, "(defrule r1 (not (t1)) => (assert (t1 (s1 999))) )\n");
-			assertTrue(returnValues.getLeft().isEmpty());
-			assertTrue(returnValues.getRight().isEmpty());
+			assertThat(returnValues.getLeft(), empty());
+			assertThat(returnValues.getRight(), empty());
 			assertThat(out.toString(), isEmptyString());
 		}
 		{
 			final Pair<Queue<Object>, Queue<Warning>> returnValues = run(network, "(run)\n");
-			assertTrue(returnValues.getLeft().isEmpty());
-			assertTrue(returnValues.getRight().isEmpty());
+			assertThat(returnValues.getLeft(), empty());
+			assertThat(returnValues.getRight(), empty());
 			final String[] lines = out.toString().split("\\v");
 			assertThat(lines, arrayWithSize(1));
 			assertEquals("==> f-2\t(t1 (s1 999))", lines[0]);
@@ -242,8 +245,8 @@ public class SystemTest {
 		}
 		{
 			final Pair<Queue<Object>, Queue<Warning>> returnValues = run(network, "(retract 2)\n");
-			assertTrue(returnValues.getLeft().isEmpty());
-			assertTrue(returnValues.getRight().isEmpty());
+			assertThat(returnValues.getLeft(), empty());
+			assertThat(returnValues.getRight(), empty());
 			final String[] lines = out.toString().split("\\v");
 			assertThat(lines, arrayWithSize(1));
 			assertEquals("<== f-2\t(t1 (s1 999))", lines[0]);
@@ -251,8 +254,8 @@ public class SystemTest {
 		}
 		{
 			final Pair<Queue<Object>, Queue<Warning>> returnValues = run(network, "(run)\n");
-			assertTrue(returnValues.getLeft().isEmpty());
-			assertTrue(returnValues.getRight().isEmpty());
+			assertThat(returnValues.getLeft(), empty());
+			assertThat(returnValues.getRight(), empty());
 			final String[] lines = out.toString().split("\\v");
 			assertThat(lines, arrayWithSize(1));
 			assertEquals("==> f-3\t(t1 (s1 999))", lines[0]);
@@ -260,68 +263,68 @@ public class SystemTest {
 		}
 	}
 
-	// @Test
-	// public void testExistentialRule() throws ParseException {
-	// final Network network = new Network();
-	// final ByteArrayOutputStream out = new ByteArrayOutputStream();
-	// network.addAppender(out, true);
-	// {
-	// final Pair<Queue<Object>, Queue<Warning>> returnValues =
-	// run(network, "(unwatch all)\n(watch facts)\n");
-	// assertTrue(returnValues.getLeft().isEmpty());
-	// assertTrue(returnValues.getRight().isEmpty());
-	// assertThat(out.toString(), isEmptyString());
-	// }
-	// {
-	// final Pair<Queue<Object>, Queue<Warning>> returnValues =
-	// run(network, "(deftemplate t1 (slot s1 (type INTEGER)))\n");
-	// assertTrue(returnValues.getLeft().isEmpty());
-	// assertTrue(returnValues.getRight().isEmpty());
-	// assertThat(out.toString(), isEmptyString());
-	// }
-	// {
-	// final Pair<Queue<Object>, Queue<Warning>> returnValues =
-	// run(network, "(defrule r1 (t1 (s1 5)) => (assert (t1 (s1 999))) )\n");
-	// assertTrue(returnValues.getLeft().isEmpty());
-	// assertTrue(returnValues.getRight().isEmpty());
-	// assertThat(out.toString(), isEmptyString());
-	// }
-	// {
-	// final Pair<Queue<Object>, Queue<Warning>> returnValues =
-	// run(network, "(assert (t1 (s1 2)))\n");
-	// final Queue<Object> values = returnValues.getLeft();
-	// assertThat(values, hasSize(1));
-	// final Object value = values.iterator().next();
-	// assertThat(value, instanceOf(String.class));
-	// assertTrue(String.valueOf(value).equals("<Fact-2>"));
-	// assertTrue(returnValues.getRight().isEmpty());
-	// final String[] lines = out.toString().split("\\v");
-	// assertThat(lines, arrayWithSize(1));
-	// assertEquals("==> f-2\t(t1 (s1 2))", lines[0]);
-	// out.reset();
-	// }
-	// {
-	// final Pair<Queue<Object>, Queue<Warning>> returnValues =
-	// run(network, "(assert (t1 (s1 5)))\n");
-	// final Queue<Object> values = returnValues.getLeft();
-	// assertThat(values, hasSize(1));
-	// final Object value = values.iterator().next();
-	// assertThat(value, instanceOf(String.class));
-	// assertTrue(String.valueOf(value).equals("<Fact-3>"));
-	// assertTrue(returnValues.getRight().isEmpty());
-	// final String[] lines = out.toString().split("\\v");
-	// assertThat(lines, arrayWithSize(1));
-	// assertEquals("==> f-3\t(t1 (s1 5))", lines[0]);
-	// out.reset();
-	// }
-	// {
-	// final Pair<Queue<Object>, Queue<Warning>> returnValues = run(network, "(run)\n");
-	// assertTrue(returnValues.getLeft().isEmpty());
-	// assertTrue(returnValues.getRight().isEmpty());
-	// final String[] lines = out.toString().split("\\v");
-	// assertThat(lines, arrayWithSize(1));
-	// assertEquals("==> f-4\t(t1 (s1 999))", lines[0]);
-	// out.reset();
-	// }
-	// }
+	@SuppressWarnings("unchecked")
+	@Test
+	public void testNodeSharingAllButTerminal() throws ParseException {
+		final Network network = new Network();
+		final ByteArrayOutputStream out = new ByteArrayOutputStream();
+		network.addAppender(out, true);
+		{
+			final Pair<Queue<Object>, Queue<Warning>> returnValues =
+					run(network, "(unwatch all)\n(watch facts)\n");
+			assertThat(returnValues.getLeft(), empty());
+			assertThat(returnValues.getRight(), empty());
+			assertThat(out.toString(), isEmptyString());
+		}
+		{
+			final Pair<Queue<Object>, Queue<Warning>> returnValues =
+					run(network, "(deftemplate t1 (slot s1 (type INTEGER)))\n");
+			assertThat(returnValues.getLeft(), empty());
+			assertThat(returnValues.getRight(), empty());
+			assertThat(out.toString(), isEmptyString());
+		}
+		{
+			final Pair<Queue<Object>, Queue<Warning>> returnValues =
+					run(network, "(defrule r1 (t1 (s1 5)) => (assert (t1 (s1 999))) )\n");
+			assertThat(returnValues.getLeft(), empty());
+			assertThat(returnValues.getRight(), empty());
+			assertThat(out.toString(), isEmptyString());
+		}
+		{
+			final Pair<Queue<Object>, Queue<Warning>> returnValues =
+					run(network, "(assert (t1 (s1 5)))\n");
+			final Queue<Object> values = returnValues.getLeft();
+			assertThat(values, hasSize(1));
+			final Object value = values.iterator().next();
+			assertThat(value, instanceOf(String.class));
+			assertEquals("<Fact-2>", value);
+			assertThat(returnValues.getRight(), empty());
+			final String[] lines = out.toString().split("\\v");
+			assertThat(lines, arrayWithSize(1));
+			assertEquals("==> f-2\t(t1 (s1 5))", lines[0]);
+			out.reset();
+		}
+		{
+			final Pair<Queue<Object>, Queue<Warning>> returnValues =
+					run(network, "(defrule r2 (t1 (s1 5)) => (assert (t1 (s1 888))) )\n");
+			assertThat(returnValues.getLeft(), empty());
+			assertThat(returnValues.getRight(), empty());
+			assertThat(out.toString(), isEmptyString());
+		}
+		{
+			final Pair<Queue<Object>, Queue<Warning>> returnValues = run(network, "(run)\n");
+			assertThat(returnValues.getLeft(), empty());
+			assertThat(returnValues.getRight(), empty());
+			final String[] lines = out.toString().split("\\v");
+			assertThat(lines, arrayWithSize(2));
+			assertThat(
+					lines,
+					either(
+							arrayContaining(equalTo("==> f-3\t(t1 (s1 888))"),
+									equalTo("==> f-4\t(t1 (s1 999))"))).or(
+							arrayContaining(equalTo("==> f-3\t(t1 (s1 999))"),
+									equalTo("==> f-4\t(t1 (s1 888))"))));
+			out.reset();
+		}
+	}
 }
