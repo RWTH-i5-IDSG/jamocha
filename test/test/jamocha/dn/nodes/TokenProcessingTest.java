@@ -786,6 +786,9 @@ public class TokenProcessingTest {
 				new ArrayList<>()).newTranslated(Arrays.asList(filter),
 				(Map<SingleFactVariable, Path>) null));
 
+		otn.activateTokenQueue();
+		alphaNode.activateTokenQueue();
+
 		AssertsAndRetracts assertsAndRetracts;
 
 		rootNode.assertFacts(t1.newFact(5L, "5L&FALSE", false));
@@ -874,6 +877,8 @@ public class TokenProcessingTest {
 		new TerminalNode(network, alphaNode, new Defrule("dummyrule", "", 0, (RuleCondition) null,
 				new ArrayList<>()).newTranslated(Arrays.asList(filter),
 				(Map<SingleFactVariable, Path>) null));
+		otn.activateTokenQueue();
+		alphaNode.activateTokenQueue();
 
 		rootNode.assertFacts(t1.newFact(5L, "5L&FALSE", false));
 		rootNode.assertFacts(t1.newFact(5L, "5L&TRUE", true));
