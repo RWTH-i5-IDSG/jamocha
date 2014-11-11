@@ -9,3 +9,6 @@ tests/reports/*
 *.pdf
 /target/
 /generated/
+.idea/workspace.xml
+.idea/tasks.xml
+

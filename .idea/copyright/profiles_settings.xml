@@ -1,0 +1,8 @@
+<component name="CopyrightManager">
+  <settings default="Jamocha">
+    <module2copyright>
+      <element module="All" copyright="Jamocha" />
+    </module2copyright>
+    <LanguageOptions name="JAVA" />
+  </settings>
+</component>
