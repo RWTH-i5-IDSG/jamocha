@@ -14,17 +14,23 @@
  */
 package test.jamocha.dn.compiler;
 
+import static org.hamcrest.Matchers.arrayContainingInAnyOrder;
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.instanceOf;
+import static org.jamocha.util.ToArray.toArray;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertThat;
 
 import java.io.StringReader;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Queue;
 import java.util.Set;
 
+import org.hamcrest.Matcher;
+import org.hamcrest.Matchers;
 import org.jamocha.dn.ConstructCache.Defrule;
 import org.jamocha.dn.ConstructCache.Defrule.TranslatedPath;
 import org.jamocha.dn.compiler.PathFilterConsolidator;
@@ -120,9 +126,12 @@ public class PathFilterConsolidatorTest {
 		final PathFilterElement filterElement = filterElements[0];
 		assertThat(filterElement, instanceOf(DummyPathFilterElement.class));
 		final Path[] paths = ((DummyPathFilterElement) filterElement).getPaths();
-		assertEquals(1, paths.length);
-		final Path path = paths[0];
-		assertEquals("initial-fact", path.getTemplate().getName());
+		assertEquals(2, paths.length);
+		assertThat(
+				toArray(Arrays.stream(paths).map(path -> path.getTemplate().getName()),
+						String[]::new),
+				arrayContainingInAnyOrder(Arrays.<Matcher<? super String>> asList(
+						equalTo("initial-fact"), equalTo("templ1"))));
 	}
 
 	@Test
