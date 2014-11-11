@@ -49,6 +49,8 @@ import org.junit.Test;
  */
 public class SystemTest {
 
+	final String linesep = System.lineSeparator();
+
 	/**
 	 * @throws java.lang.Exception
 	 */
@@ -136,7 +138,7 @@ public class SystemTest {
 			assertThat(returnValues.getRight(), empty());
 			final String output = out.toString();
 			assertThat(output, not(isEmptyString()));
-			final String[] lines = output.split("\\v");
+			final String[] lines = output.split(linesep);
 			assertThat(lines, arrayWithSize(1));
 			assertEquals("==> f-2\t(t1 (s1 2))", lines[0]);
 			out.reset();
@@ -178,7 +180,7 @@ public class SystemTest {
 			assertThat(value, instanceOf(String.class));
 			assertEquals("<Fact-2>", value);
 			assertThat(returnValues.getRight(), empty());
-			final String[] lines = out.toString().split("\\v");
+			final String[] lines = out.toString().split(linesep);
 			assertThat(lines, arrayWithSize(1));
 			assertEquals("==> f-2\t(t1 (s1 2))", lines[0]);
 			out.reset();
@@ -192,7 +194,7 @@ public class SystemTest {
 			assertThat(value, instanceOf(String.class));
 			assertEquals("<Fact-3>", value);
 			assertThat(returnValues.getRight(), empty());
-			final String[] lines = out.toString().split("\\v");
+			final String[] lines = out.toString().split(linesep);
 			assertThat(lines, arrayWithSize(1));
 			assertEquals("==> f-3\t(t1 (s1 5))", lines[0]);
 			out.reset();
@@ -201,7 +203,7 @@ public class SystemTest {
 			final Pair<Queue<Object>, Queue<Warning>> returnValues = run(network, "(run)\n");
 			assertThat(returnValues.getLeft(), empty());
 			assertThat(returnValues.getRight(), empty());
-			final String[] lines = out.toString().split("\\v");
+			final String[] lines = out.toString().split(linesep);
 			assertThat(lines, arrayWithSize(1));
 			assertEquals("==> f-4\t(t1 (s1 999))", lines[0]);
 			out.reset();
@@ -238,7 +240,7 @@ public class SystemTest {
 			final Pair<Queue<Object>, Queue<Warning>> returnValues = run(network, "(run)\n");
 			assertThat(returnValues.getLeft(), empty());
 			assertThat(returnValues.getRight(), empty());
-			final String[] lines = out.toString().split("\\v");
+			final String[] lines = out.toString().split(linesep);
 			assertThat(lines, arrayWithSize(1));
 			assertEquals("==> f-2\t(t1 (s1 999))", lines[0]);
 			out.reset();
@@ -247,7 +249,7 @@ public class SystemTest {
 			final Pair<Queue<Object>, Queue<Warning>> returnValues = run(network, "(retract 2)\n");
 			assertThat(returnValues.getLeft(), empty());
 			assertThat(returnValues.getRight(), empty());
-			final String[] lines = out.toString().split("\\v");
+			final String[] lines = out.toString().split(linesep);
 			assertThat(lines, arrayWithSize(1));
 			assertEquals("<== f-2\t(t1 (s1 999))", lines[0]);
 			out.reset();
@@ -256,7 +258,7 @@ public class SystemTest {
 			final Pair<Queue<Object>, Queue<Warning>> returnValues = run(network, "(run)\n");
 			assertThat(returnValues.getLeft(), empty());
 			assertThat(returnValues.getRight(), empty());
-			final String[] lines = out.toString().split("\\v");
+			final String[] lines = out.toString().split(linesep);
 			assertThat(lines, arrayWithSize(1));
 			assertEquals("==> f-3\t(t1 (s1 999))", lines[0]);
 			out.reset();
@@ -299,7 +301,7 @@ public class SystemTest {
 			assertThat(value, instanceOf(String.class));
 			assertEquals("<Fact-2>", value);
 			assertThat(returnValues.getRight(), empty());
-			final String[] lines = out.toString().split("\\v");
+			final String[] lines = out.toString().split(linesep);
 			assertThat(lines, arrayWithSize(1));
 			assertEquals("==> f-2\t(t1 (s1 5))", lines[0]);
 			out.reset();
@@ -315,7 +317,7 @@ public class SystemTest {
 			final Pair<Queue<Object>, Queue<Warning>> returnValues = run(network, "(run)\n");
 			assertThat(returnValues.getLeft(), empty());
 			assertThat(returnValues.getRight(), empty());
-			final String[] lines = out.toString().split("\\v");
+			final String[] lines = out.toString().split(linesep);
 			assertThat(lines, arrayWithSize(2));
 			assertThat(
 					lines,
