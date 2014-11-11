@@ -30,7 +30,6 @@ import java.util.Queue;
 import java.util.Set;
 
 import org.hamcrest.Matcher;
-import org.hamcrest.Matchers;
 import org.jamocha.dn.ConstructCache.Defrule;
 import org.jamocha.dn.ConstructCache.Defrule.TranslatedPath;
 import org.jamocha.dn.compiler.PathFilterConsolidator;
