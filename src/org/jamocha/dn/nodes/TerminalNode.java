@@ -26,6 +26,7 @@ import org.jamocha.dn.ConflictSet;
 import org.jamocha.dn.ConstructCache.Defrule;
 import org.jamocha.dn.Network;
 import org.jamocha.dn.memory.FactAddress;
+import org.jamocha.dn.memory.MemoryHandlerMain;
 import org.jamocha.dn.memory.MemoryHandlerMinusTemp;
 import org.jamocha.dn.memory.MemoryHandlerPlusTemp;
 import org.jamocha.dn.memory.MemoryHandlerTemp;
@@ -175,10 +176,14 @@ public class TerminalNode {
 	public TerminalNode(final Network network, final Node parent,
 			final Defrule.TranslatedPath translatedPath) {
 		this.network = network;
-		this.memory = parent.getMemory().newMemoryHandlerTerminal();
+		final MemoryHandlerMain parentMemory = parent.getMemory();
+		this.memory = parentMemory.newMemoryHandlerTerminal();
+		this.rule = translatedPath.translatePathToAddress();
 		this.edge = new TerminalEdgeImpl(parent, this);
 		parent.acceptRegularEdgeToChild(edge);
-		this.rule = translatedPath.translatePathToAddress();
+		if (parentMemory.size() > 0) {
+			parentMemory.newNewNodeToken().enqueueInEdge(edge);
+		}
 	}
 
 	/**
