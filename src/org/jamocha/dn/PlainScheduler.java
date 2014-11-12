@@ -25,12 +25,14 @@ import java.util.List;
  *
  * @author Christoph Terwelp <christoph.terwelp@rwth-aachen.de>
  */
-public class PlainScheduler implements Scheduler, Runnable {
+public class PlainScheduler implements Scheduler {
 
     final LinkedList<TokenQueue> workQueue = new LinkedList<>();
 
     private interface State {
         void run();
+
+        void runOne();
     }
 
     final private State ACTIVE_STATE = new State() {
@@ -41,12 +43,24 @@ public class PlainScheduler implements Scheduler, Runnable {
                 workQueue.poll().run();
             }
         }
+
+        @Override
+        public void runOne() {
+            if (!workQueue.isEmpty()) {
+                workQueue.poll().run();
+            }
+        }
     };
 
     final private State INACTIVE_STATE = new State() {
 
         @Override
         public void run() {
+
+        }
+
+        @Override
+        public void runOne() {
 
         }
     };
@@ -72,9 +86,19 @@ public class PlainScheduler implements Scheduler, Runnable {
      * Processes all enqueued {@link Runnable Runnables} in order of arrival and return when queue
      * is empty.
      */
-    @Override
     public void run() {
         state.run();
+    }
+
+    /**
+     * Process the first enqueued {@link Runnable}
+     */
+    public void runOne() {
+        state.runOne();
+    }
+
+    public boolean isEmpty() {
+        return workQueue.isEmpty();
     }
 
     /**
