@@ -14,6 +14,13 @@
  */
 package org.jamocha.dn;
 
+import org.jamocha.dn.nodes.Node.TokenQueue;
+
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Queue;
+import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicLong;
@@ -21,78 +28,143 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-import org.jamocha.dn.nodes.Node.TokenQueue;
-
 /**
  * {@link Scheduler} to process {@link Runnable Runnables} using a thread pool of fixed size.
- * 
+ *
  * @author Christoph Terwelp <christoph.terwelp@rwth-aachen.de>
- * 
  * @see Executors#newFixedThreadPool(int)
  */
 public class ThreadPoolScheduler implements Scheduler {
 
-	final ExecutorService executor;
-	final AtomicLong unfinishedJobs = new AtomicLong();
+    ExecutorService executor;
+    final int nThreads;
+    final AtomicLong unfinishedJobs = new AtomicLong();
 
-	final Lock lock = new ReentrantLock();
-	final Condition empty = lock.newCondition();
+    final Lock lock = new ReentrantLock();
+    final Condition empty = lock.newCondition();
 
-	/**
-	 * Creates a scheduler with a thread pool with the given size.
-	 * 
-	 * @param nThreads
-	 *            the size of the thread pool
-	 */
-	public ThreadPoolScheduler(final int nThreads) {
-		this.executor = Executors.newFixedThreadPool(nThreads);
-	}
+    private interface State {
+        void enqueue(final TokenQueue runnable);
+        void pushJobs();
+    }
 
-	@Override
-	public void enqueue(final TokenQueue runnable) {
-		this.unfinishedJobs.incrementAndGet();
-		this.executor.execute(new Runnable() {
-			@Override
-			public void run() {
-				runnable.run();
-				final long newCounter = unfinishedJobs.decrementAndGet();
-				if (!hasUnfinishedJobs(newCounter)) {
-					lock.lock();
-					try {
-						empty.signal();
-					} finally {
-						lock.unlock();
-					}
-				}
-			}
-		});
-	}
+    final private State ACTIVE_STATE = new State() {
 
-	private static boolean hasUnfinishedJobs(final long counter) {
-		return 0L != counter;
-	}
+        @Override
+        public void enqueue(final TokenQueue runnable) {
+            unfinishedJobs.incrementAndGet();
+            executor.execute(() -> {
+                runnable.run();
+                final long newCounter = unfinishedJobs.decrementAndGet();
+                if (!hasUnfinishedJobs(newCounter)) {
+                    lock.lock();
+                    try {
+                        empty.signal();
+                    } finally {
+                        lock.unlock();
+                    }
+                }
+            });
+        }
 
-	@Override
-	public void shutdown() {
-		this.executor.shutdown();
-	}
+        @Override
+        public void pushJobs() {
+        }
 
-	@Override
-	public void shutdownNow() {
-		this.executor.shutdownNow();
-	}
+    };
 
-	@Override
-	public void waitForNoUnfinishedJobs() {
-		this.lock.lock();
-		while (hasUnfinishedJobs(unfinishedJobs.longValue())) {
-			try {
-				this.empty.await();
-			} catch (final InterruptedException e) {
-				// ignore
-			} finally {
-				this.lock.unlock();
-			}
-		}
-	}
+    private State state = ACTIVE_STATE;
+
+    /**
+     * Creates a scheduler with a thread pool with the given size.
+     *
+     * @param nThreads the size of the thread pool
+     */
+    public ThreadPoolScheduler(final int nThreads) {
+        this.nThreads = nThreads;
+        this.executor = createExecutor();
+    }
+
+    private ExecutorService createExecutor() {
+       return Executors.newFixedThreadPool(nThreads);
+    }
+
+    @Override
+    public void enqueue(final TokenQueue runnable) {
+        state.enqueue(runnable);
+    }
+
+    @Override
+    public void activate() {
+        final State oldState = state;
+        state = ACTIVE_STATE;
+        if (null == executor) executor = createExecutor();
+        // push jobs collected during inactivity
+        oldState.pushJobs();
+    }
+
+    @Override
+    public void deactivate() {
+        // check if state is active
+        if (ACTIVE_STATE != state) return;
+        // shutdown executor service and save queue
+        final List<TokenQueue> oldQueue = (List<TokenQueue>)(List<?>) this.executor.shutdownNow();
+        // create inactive state with new queue
+        state = new State() {
+
+            final Queue<TokenQueue> queue = new LinkedList<>();
+
+            synchronized State enqueueAll(final Collection<TokenQueue> runnables) {
+                queue.addAll(runnables);
+                return this;
+            }
+
+            @Override
+            public synchronized void enqueue(final TokenQueue runnable) {
+                queue.add(runnable);
+            }
+
+            @Override
+            public synchronized void pushJobs() {
+                for (TokenQueue tokenQueue : queue) {
+                    ThreadPoolScheduler.this.enqueue(tokenQueue);
+                }
+            }
+
+        }
+                // enqueue all jobs from old queue
+                .enqueueAll(oldQueue);
+        // lower unfinishedJobs counter by jobs from old queue
+        unfinishedJobs.addAndGet(-1 * oldQueue.size());
+        // only return if scheduler is idle
+        waitForNoUnfinishedJobs();
+    }
+
+    private static boolean hasUnfinishedJobs(final long counter) {
+        return 0L != counter;
+    }
+
+    @Override
+    public void shutdown() {
+        this.executor.shutdown();
+    }
+
+    @Override
+    public List<TokenQueue> shutdownNow() {
+        return (List<TokenQueue>)(List<?>) this.executor.shutdownNow();
+    }
+
+    @Override
+    public void waitForNoUnfinishedJobs() {
+        this.lock.lock();
+        while (hasUnfinishedJobs(unfinishedJobs.longValue())) {
+            try {
+                this.empty.await();
+            } catch (final InterruptedException e) {
+                // ignore
+            } finally {
+                this.lock.unlock();
+            }
+        }
+    }
 }
