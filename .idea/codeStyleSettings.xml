@@ -6,7 +6,12 @@
         <option name="GENERATE_FINAL_LOCALS" value="true" />
         <option name="GENERATE_FINAL_PARAMETERS" value="true" />
         <option name="JD_PARAM_DESCRIPTION_ON_NEW_LINE" value="true" />
+        <XML>
+          <option name="XML_LEGACY_SETTINGS_IMPORTED" value="true" />
+        </XML>
         <codeStyleSettings language="JAVA">
+          <option name="KEEP_LINE_BREAKS" value="false" />
+          <option name="KEEP_FIRST_COLUMN_COMMENT" value="false" />
           <indentOptions>
             <option name="USE_TAB_CHARACTER" value="true" />
             <option name="SMART_TABS" value="true" />
