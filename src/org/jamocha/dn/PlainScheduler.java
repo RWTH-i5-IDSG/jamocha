@@ -27,104 +27,104 @@ import java.util.List;
  */
 public class PlainScheduler implements Scheduler {
 
-    final LinkedList<TokenQueue> workQueue = new LinkedList<>();
+	final LinkedList<TokenQueue> workQueue = new LinkedList<>();
 
-    private interface State {
-        void run();
+	private interface State {
+		void run();
 
-        void runOne();
-    }
+		void runOne();
+	}
 
-    final private State ACTIVE_STATE = new State() {
+	final private State ACTIVE_STATE = new State() {
 
-        @Override
-        public void run() {
-            while (!workQueue.isEmpty()) {
-                workQueue.poll().run();
-            }
-        }
+		@Override
+		public void run() {
+			while (!workQueue.isEmpty()) {
+				workQueue.poll().run();
+			}
+		}
 
-        @Override
-        public void runOne() {
-            if (!workQueue.isEmpty()) {
-                workQueue.poll().run();
-            }
-        }
-    };
+		@Override
+		public void runOne() {
+			if (!workQueue.isEmpty()) {
+				workQueue.poll().run();
+			}
+		}
+	};
 
-    final private State INACTIVE_STATE = new State() {
+	final private State INACTIVE_STATE = new State() {
 
-        @Override
-        public void run() {
+		@Override
+		public void run() {
 
-        }
+		}
 
-        @Override
-        public void runOne() {
+		@Override
+		public void runOne() {
 
-        }
-    };
+		}
+	};
 
-    private State state = ACTIVE_STATE;
+	private State state = ACTIVE_STATE;
 
-    @Override
-    public void enqueue(final TokenQueue runnable) {
-        this.workQueue.add(runnable);
-    }
+	@Override
+	public void enqueue(final TokenQueue runnable) {
+		this.workQueue.add(runnable);
+	}
 
-    @Override
-    public void activate() {
-        state = ACTIVE_STATE;
-    }
+	@Override
+	public void activate() {
+		state = ACTIVE_STATE;
+	}
 
-    @Override
-    public void deactivate() {
-        state = INACTIVE_STATE;
-    }
+	@Override
+	public void deactivate() {
+		state = INACTIVE_STATE;
+	}
 
-    /**
-     * Processes all enqueued {@link Runnable Runnables} in order of arrival and return when queue
-     * is empty.
-     */
-    public void run() {
-        state.run();
-    }
+	/**
+	 * Processes all enqueued {@link Runnable Runnables} in order of arrival and return when queue
+	 * is empty.
+	 */
+	public void run() {
+		state.run();
+	}
 
-    /**
-     * Process the first enqueued {@link Runnable}
-     */
-    public void runOne() {
-        state.runOne();
-    }
+	/**
+	 * Process the first enqueued {@link Runnable}
+	 */
+	public void runOne() {
+		state.runOne();
+	}
 
-    public boolean isEmpty() {
-        return workQueue.isEmpty();
-    }
+	public boolean isEmpty() {
+		return workQueue.isEmpty();
+	}
 
-    /**
-     * If there is a {@link Runnable} in the queue, process the first and return true, otherwise
-     * return false.
-     *
-     * @return true iff a {@link Runnable} was processed
-     */
-    public boolean runOneJob() {
-        if (this.workQueue.isEmpty())
-            return false;
-        this.workQueue.poll().run();
-        return true;
-    }
+	/**
+	 * If there is a {@link Runnable} in the queue, process the first and return true, otherwise
+	 * return false.
+	 *
+	 * @return true iff a {@link Runnable} was processed
+	 */
+	public boolean runOneJob() {
+		if (this.workQueue.isEmpty())
+			return false;
+		this.workQueue.poll().run();
+		return true;
+	}
 
-    @Override
-    public void waitForNoUnfinishedJobs() {
-        run();
-    }
+	@Override
+	public void waitForNoUnfinishedJobs() {
+		run();
+	}
 
-    @Override
-    public void shutdown() {
-    }
+	@Override
+	public void shutdown() {
+	}
 
-    @Override
-    public List<TokenQueue> shutdownNow() {
-        return workQueue;
-    }
+	@Override
+	public List<TokenQueue> shutdownNow() {
+		return workQueue;
+	}
 }

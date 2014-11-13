@@ -22,44 +22,46 @@ import java.util.List;
  * This interface declares a scheduler usable by any {@link Network network}. It should take
  * {@link Runnable Runnables} and {@link Runnable#run() run} them (optional in separate threads).
  *
+ * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  * @author Christoph Terwelp <christoph.terwelp@rwth-aachen.de>
  * @see Runnable
  */
 public interface Scheduler {
 
-    /**
-     * Add a {@link Runnable} to be processed by the scheduler.
-     *
-     * @param runnable the {@link Runnable} to add to the schedulers queue
-     */
-    public void enqueue(final TokenQueue runnable);
+	/**
+	 * Add a {@link Runnable} to be processed by the scheduler.
+	 *
+	 * @param runnable
+	 * 		the {@link Runnable} to add to the schedulers queue
+	 */
+	public void enqueue(final TokenQueue runnable);
 
-    /**
-     * Activate scheduler. In active state the scheduler may process {@link TokenQueue TokenQueues}.
-     */
-    public void activate();
+	/**
+	 * Activate scheduler. In active state the scheduler may process {@link TokenQueue TokenQueues}.
+	 */
+	public void activate();
 
-    /**
-     * Deactivate scheduler. In inactive state the scheduler may not process any {@link TokenQueue TokenQueues).
-     * Running TokenQueues are finished before method returns.
-     */
-    public void deactivate();
+	/**
+	 * Deactivate scheduler. In inactive state the scheduler may not process any {@link TokenQueue TokenQueues).
+	 * Running TokenQueues are finished before method returns.
+	 */
+	public void deactivate();
 
-    /**
-     * Methods returns only if TokenQueue queue is empty.
-     */
-    public void waitForNoUnfinishedJobs();
+	/**
+	 * Methods returns only if the queue of {@link TokenQueue}s is empty.
+	 */
+	public void waitForNoUnfinishedJobs();
 
-    /**
-     * Initiate shutdown of the scheduler. All enqueued jobs can still be processed. No new jobs are enqueued.
-     */
-    public void shutdown();
+	/**
+	 * Initiate shutdown of the scheduler. All enqueued jobs can still be processed. No new jobs are enqueued.
+	 */
+	public void shutdown();
 
-    /**
-     * Forces shutdown of the scheduler. Only running jobs are finished.
-     *
-     * @return the current {@link TokenQueue} queue.
-     */
-    public List<TokenQueue> shutdownNow();
+	/**
+	 * Forces shutdown of the scheduler. Only running jobs are finished.
+	 *
+	 * @return the current {@link TokenQueue} queue.
+	 */
+	public List<TokenQueue> shutdownNow();
 
 }
