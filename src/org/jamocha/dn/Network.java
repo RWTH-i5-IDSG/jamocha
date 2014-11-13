@@ -96,7 +96,7 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 
 	/**
 	 * -- GETTER --
-	 * <p>
+	 * 
 	 * Gets the memoryFactory to generate the nodes {@link MemoryHandlerMain} and
 	 * {@link MemoryHandlerPlusTemp}.
 	 *
@@ -106,7 +106,7 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 
 	/**
 	 * -- GETTER --
-	 * <p>
+	 * 
 	 * Gets the capacity of the token queues in all token processing {@link Node nodes}.
 	 *
 	 * @return the capacity for token queues
@@ -115,7 +115,7 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 
 	/**
 	 * -- GETTER --
-	 * <p>
+	 * 
 	 * Gets the scheduler handling the dispatching of token processing to different threads.
 	 *
 	 * @return the networks scheduler
@@ -124,7 +124,7 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 
 	/**
 	 * -- GETTER --
-	 * <p>
+	 * 
 	 * Gets the {@link RootNode} of the network.
 	 *
 	 * @return the {@link RootNode} of the network
@@ -133,7 +133,7 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 
 	/**
 	 * -- GETTER --
-	 * <p>
+	 * 
 	 * Gets the {@link ConflictSet conflict set}.
 	 *
 	 * @return conflict set
