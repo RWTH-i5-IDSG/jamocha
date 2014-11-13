@@ -184,6 +184,7 @@ public class MemoryHandlerMain extends MemoryHandlerBase implements
 
 	@Override
 	public org.jamocha.dn.memory.MemoryHandlerPlusTemp newNewNodeToken() {
+		this.lock.readLock().lock();
 		final int outgoingPlusRows =
 				this.validOutgoingPlusTokens.stream().mapToInt(token -> token.validRows.size())
 						.sum();
@@ -192,6 +193,7 @@ public class MemoryHandlerMain extends MemoryHandlerBase implements
 		for (final MemoryHandlerPlusTemp plus : this.validOutgoingPlusTokens) {
 			rows.addAll(plus.validRows);
 		}
+		this.lock.readLock().unlock();
 		return MemoryHandlerPlusTemp.newNewNodeTemp(this.template, rows);
 	}
 

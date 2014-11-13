@@ -180,10 +180,10 @@ public class TerminalNode {
 		this.memory = parentMemory.newMemoryHandlerTerminal();
 		this.rule = translatedPath.translatePathToAddress();
 		this.edge = new TerminalEdgeImpl(parent, this);
+		parent.deactivateTokenQueue();
 		parent.acceptRegularEdgeToChild(edge);
-		if (parentMemory.size() > 0) {
-			parentMemory.newNewNodeToken().enqueueInEdge(edge);
-		}
+		parentMemory.newNewNodeToken().enqueueInEdge(edge);
+		parent.activateTokenQueue();
 	}
 
 	/**

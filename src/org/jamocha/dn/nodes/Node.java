@@ -413,10 +413,14 @@ public abstract class Node {
 		final Optional<Edge> optMinEdge = Arrays.stream(this.incomingEdges).filter(e -> !e.getSourceNode().outgoingExistentialEdges.contains(e)).min((a, b) -> Integer.compare(a.getSourceNode().getMemory().size(), b.getSourceNode().getMemory().size()));
 		assert optMinEdge.isPresent();
 		final Edge minEdge = optMinEdge.get();
-		final MemoryHandlerMain minEdgeMemory = minEdge.getSourceNode().getMemory();
-		if (minEdgeMemory.size() > 0) {
-			minEdge.enqueueMemory(minEdgeMemory.newNewNodeToken());
+		final Node sourceNode = minEdge.getSourceNode();
+		final MemoryHandlerMain minEdgeMemory = sourceNode.getMemory();
+		sourceNode.deactivateTokenQueue();
+		final MemoryHandlerPlusTemp mem = minEdgeMemory.newNewNodeToken();
+		if (mem.size() > 0) {
+			minEdge.enqueueMemory(mem);
 		}
+		sourceNode.activateTokenQueue();
 	}
 
 	/**
