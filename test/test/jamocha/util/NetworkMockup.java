@@ -152,7 +152,6 @@ public class NetworkMockup implements ParserToNetwork, SideEffectFunctionToNetwo
 
 	@Override
 	public void clear() {
-		// TODO is this correct / enough ?
 		this.templates.clear();
 		this.rules.clear();
 	}
