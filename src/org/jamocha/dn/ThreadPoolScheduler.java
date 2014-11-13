@@ -20,7 +20,6 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
-import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicLong;
@@ -31,140 +30,143 @@ import java.util.concurrent.locks.ReentrantLock;
 /**
  * {@link Scheduler} to process {@link Runnable Runnables} using a thread pool of fixed size.
  *
+ * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  * @author Christoph Terwelp <christoph.terwelp@rwth-aachen.de>
  * @see Executors#newFixedThreadPool(int)
  */
 public class ThreadPoolScheduler implements Scheduler {
 
-    ExecutorService executor;
-    final int nThreads;
-    final AtomicLong unfinishedJobs = new AtomicLong();
+	ExecutorService executor;
+	final int nThreads;
+	final AtomicLong unfinishedJobs = new AtomicLong();
 
-    final Lock lock = new ReentrantLock();
-    final Condition empty = lock.newCondition();
+	final Lock lock = new ReentrantLock();
+	final Condition empty = lock.newCondition();
 
-    private interface State {
-        void enqueue(final TokenQueue runnable);
-        void pushJobs();
-    }
+	private interface State {
+		void enqueue(final TokenQueue runnable);
 
-    final private State ACTIVE_STATE = new State() {
+		void pushJobs();
+	}
 
-        @Override
-        public void enqueue(final TokenQueue runnable) {
-            unfinishedJobs.incrementAndGet();
-            executor.execute(() -> {
-                runnable.run();
-                final long newCounter = unfinishedJobs.decrementAndGet();
-                if (!hasUnfinishedJobs(newCounter)) {
-                    lock.lock();
-                    try {
-                        empty.signal();
-                    } finally {
-                        lock.unlock();
-                    }
-                }
-            });
-        }
+	final private State ACTIVE_STATE = new State() {
 
-        @Override
-        public void pushJobs() {
-        }
+		@Override
+		public void enqueue(final TokenQueue runnable) {
+			unfinishedJobs.incrementAndGet();
+			executor.execute(() -> {
+				runnable.run();
+				final long newCounter = unfinishedJobs.decrementAndGet();
+				if (!hasUnfinishedJobs(newCounter)) {
+					lock.lock();
+					try {
+						empty.signal();
+					} finally {
+						lock.unlock();
+					}
+				}
+			});
+		}
 
-    };
+		@Override
+		public void pushJobs() {
+		}
 
-    private State state = ACTIVE_STATE;
+	};
 
-    /**
-     * Creates a scheduler with a thread pool with the given size.
-     *
-     * @param nThreads the size of the thread pool
-     */
-    public ThreadPoolScheduler(final int nThreads) {
-        this.nThreads = nThreads;
-        this.executor = createExecutor();
-    }
+	private State state = ACTIVE_STATE;
 
-    private ExecutorService createExecutor() {
-       return Executors.newFixedThreadPool(nThreads);
-    }
+	/**
+	 * Creates a scheduler with a thread pool with the given size.
+	 *
+	 * @param nThreads
+	 * 		the size of the thread pool
+	 */
+	public ThreadPoolScheduler(final int nThreads) {
+		this.nThreads = nThreads;
+		this.executor = createExecutor();
+	}
 
-    @Override
-    public void enqueue(final TokenQueue runnable) {
-        state.enqueue(runnable);
-    }
+	private ExecutorService createExecutor() {
+		return Executors.newFixedThreadPool(nThreads);
+	}
 
-    @Override
-    public void activate() {
-        final State oldState = state;
-        state = ACTIVE_STATE;
-        if (null == executor) executor = createExecutor();
-        // push jobs collected during inactivity
-        oldState.pushJobs();
-    }
+	@Override
+	public void enqueue(final TokenQueue runnable) {
+		state.enqueue(runnable);
+	}
 
-    @Override
-    public void deactivate() {
-        // check if state is active
-        if (ACTIVE_STATE != state) return;
-        // shutdown executor service and save queue
-        final List<TokenQueue> oldQueue = (List<TokenQueue>)(List<?>) this.executor.shutdownNow();
-        // create inactive state with new queue
-        state = new State() {
+	@Override
+	public void activate() {
+		final State oldState = state;
+		state = ACTIVE_STATE;
+		if (null == executor) executor = createExecutor();
+		// push jobs collected during inactivity
+		oldState.pushJobs();
+	}
 
-            final Queue<TokenQueue> queue = new LinkedList<>();
+	@Override
+	public void deactivate() {
+		// check if state is active
+		if (ACTIVE_STATE != state) return;
+		// shutdown executor service and save queue
+		final List<TokenQueue> oldQueue = (List<TokenQueue>) (List<?>) this.executor.shutdownNow();
+		// create inactive state with new queue
+		state = new State() {
 
-            synchronized State enqueueAll(final Collection<TokenQueue> runnables) {
-                queue.addAll(runnables);
-                return this;
-            }
+			final Queue<TokenQueue> queue = new LinkedList<>();
 
-            @Override
-            public synchronized void enqueue(final TokenQueue runnable) {
-                queue.add(runnable);
-            }
+			synchronized State enqueueAll(final Collection<TokenQueue> runnables) {
+				queue.addAll(runnables);
+				return this;
+			}
 
-            @Override
-            public synchronized void pushJobs() {
-                for (TokenQueue tokenQueue : queue) {
-                    ThreadPoolScheduler.this.enqueue(tokenQueue);
-                }
-            }
+			@Override
+			public synchronized void enqueue(final TokenQueue runnable) {
+				queue.add(runnable);
+			}
 
-        }
-                // enqueue all jobs from old queue
-                .enqueueAll(oldQueue);
-        // lower unfinishedJobs counter by jobs from old queue
-        unfinishedJobs.addAndGet(-1 * oldQueue.size());
-        // only return if scheduler is idle
-        waitForNoUnfinishedJobs();
-    }
+			@Override
+			public synchronized void pushJobs() {
+				for (final TokenQueue tokenQueue : queue) {
+					ThreadPoolScheduler.this.enqueue(tokenQueue);
+				}
+			}
 
-    private static boolean hasUnfinishedJobs(final long counter) {
-        return 0L != counter;
-    }
+		}
+				// enqueue all jobs from old queue
+				.enqueueAll(oldQueue);
+		// lower unfinishedJobs counter by jobs from old queue
+		unfinishedJobs.addAndGet(-1 * oldQueue.size());
+		// only return if scheduler is idle
+		waitForNoUnfinishedJobs();
+	}
 
-    @Override
-    public void shutdown() {
-        this.executor.shutdown();
-    }
+	private static boolean hasUnfinishedJobs(final long counter) {
+		return 0L != counter;
+	}
 
-    @Override
-    public List<TokenQueue> shutdownNow() {
-        return (List<TokenQueue>)(List<?>) this.executor.shutdownNow();
-    }
+	@Override
+	public void shutdown() {
+		this.executor.shutdown();
+	}
 
-    @Override
-    public void waitForNoUnfinishedJobs() {
-        this.lock.lock();
-        while (hasUnfinishedJobs(unfinishedJobs.longValue())) {
-            try {
-                this.empty.await();
-            } catch (final InterruptedException e) {
-                // ignore
-            } finally {
-                this.lock.unlock();
-            }
-        }
-    }
+	@Override
+	public List<TokenQueue> shutdownNow() {
+		return (List<TokenQueue>) (List<?>) this.executor.shutdownNow();
+	}
+
+	@Override
+	public void waitForNoUnfinishedJobs() {
+		this.lock.lock();
+		while (hasUnfinishedJobs(unfinishedJobs.longValue())) {
+			try {
+				this.empty.await();
+			} catch (final InterruptedException e) {
+				// ignore
+			} finally {
+				this.lock.unlock();
+			}
+		}
+	}
 }
