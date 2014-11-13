@@ -443,7 +443,9 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 	@Override
 	public Template defTemplate(final String name, final String description, final Slot... slots) {
 		final Template template = getMemoryFactory().newTemplate(name, description, slots);
-		getRootNode().putOTN(new ObjectTypeNode(this, template));
+		final ObjectTypeNode otn = new ObjectTypeNode(this, template);
+		getRootNode().putOTN(otn);
+		otn.activateTokenQueue();
 		this.constructCache.addTemplate(template);
 		return template;
 	}

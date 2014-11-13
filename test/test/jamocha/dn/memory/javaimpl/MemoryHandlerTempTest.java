@@ -89,6 +89,7 @@ public class MemoryHandlerTempTest {
 			public EdgeMockup(final Node sourceNode, final Node targetNode, final int offset) {
 				super(sourceNode, targetNode, AddressFilter.empty);
 				this.offset = offset;
+				activateTokenQueue();
 			}
 
 			@Override
