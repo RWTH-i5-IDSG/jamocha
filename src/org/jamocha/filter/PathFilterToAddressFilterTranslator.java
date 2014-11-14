@@ -83,11 +83,13 @@ public class PathFilterToAddressFilterTranslator {
 			final SlotInFactAddress[] addressArray = toArray(addresses, SlotInFactAddress[]::new);
 			final CounterColumn counterColumn =
 					counterColumnMatcher.getCounterColumn(pathFilterElement);
-			if (null == counterColumn)
+			if (null == counterColumn) {
 				this.result = new AddressFilterElement(predicateWithArguments, addressArray);
-			this.result =
+			} else {
+				this.result =
 					new ExistentialAddressFilterElement(predicateWithArguments, addressArray,
 							counterColumn);
+			}
 		}
 
 		@Override
@@ -100,11 +102,13 @@ public class PathFilterToAddressFilterTranslator {
 							SlotInFactAddress[]::new);
 			final CounterColumn counterColumn =
 					counterColumnMatcher.getCounterColumn(pathFilterElement);
-			if (null == counterColumn)
+			if (null == counterColumn) {
 				this.result = new AddressFilterElement(predicateWithArguments, addressArray);
-			this.result =
+			} else {
+				this.result =
 					new ExistentialAddressFilterElement(predicateWithArguments, addressArray,
 							counterColumn);
+			}
 		}
 	}
 }
