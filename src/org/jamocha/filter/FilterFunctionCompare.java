@@ -40,12 +40,15 @@ import org.jamocha.dn.nodes.Edge;
 import org.jamocha.dn.nodes.Node;
 import org.jamocha.dn.nodes.SlotInFactAddress;
 import org.jamocha.filter.AddressFilter.AddressFilterElement;
+import org.jamocha.filter.PathFilter.DummyPathFilterElement;
+import org.jamocha.filter.PathFilter.PathFilterElement;
 import org.jamocha.function.CommutativeFunction;
 import org.jamocha.function.fwa.ConstantLeaf;
 import org.jamocha.function.fwa.DefaultFunctionWithArgumentsVisitor;
 import org.jamocha.function.fwa.FunctionWithArguments;
 import org.jamocha.function.fwa.FunctionWithArgumentsComposite;
 import org.jamocha.function.fwa.GenericWithArgumentsComposite;
+import org.jamocha.function.fwa.PathLeaf;
 import org.jamocha.function.fwa.PathLeaf.ParameterLeaf;
 import org.jamocha.function.fwa.PredicateWithArgumentsComposite;
 
@@ -54,7 +57,247 @@ import org.jamocha.function.fwa.PredicateWithArgumentsComposite;
  * 
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
-public class FilterFunctionCompare {
+public abstract class FilterFunctionCompare {
+
+	abstract FunctionTypeIdentificationVisitor newFunctionTypeIdentificationVisitor(
+			final FunctionWithArguments fwa);
+
+	private static class AddressFilterFunctionCompare extends FilterFunctionCompare {
+		final AddressContainer targetAddressContainer;
+		final AddressContainer compareAddressContainer;
+
+		private AddressFilterFunctionCompare(final AddressFilterElement targetFilterElement,
+				final AddressFilterElement compareFilterElement) {
+
+			super();
+			this.targetAddressContainer = new AddressContainer(targetFilterElement);
+			this.compareAddressContainer = new AddressContainer(compareFilterElement);
+			targetFilterElement.getFunction().accept(
+					newFunctionTypeIdentificationVisitor(compareFilterElement.getFunction()));
+		}
+
+		@Override
+		FunctionTypeIdentificationVisitor newFunctionTypeIdentificationVisitor(
+				final FunctionWithArguments fwa) {
+			return new AddressFunctionTypeIdentificationVisitor(fwa);
+		};
+
+		private class AddressFunctionTypeIdentificationVisitor extends
+				FunctionTypeIdentificationVisitor {
+
+			private AddressFunctionTypeIdentificationVisitor(final FunctionWithArguments fwa) {
+				super(fwa);
+			}
+
+			@Override
+			public void visit(final ParameterLeaf parameterLeaf) {
+				this.fwa.accept(new ParameterLeafVisitor(parameterLeaf));
+			}
+		}
+
+		private class ParameterLeafVisitor extends InvalidatingFWAVisitor {
+			final ParameterLeaf compareParameterLeaf;
+
+			private ParameterLeafVisitor(final ParameterLeaf parameterLeaf) {
+				this.compareParameterLeaf = parameterLeaf;
+			}
+
+			@Override
+			public void visit(final ParameterLeaf targetParameterLeaf) {
+				if (this.compareParameterLeaf.getType() != targetParameterLeaf.getType()) {
+					invalidate();
+				}
+				try {
+					final SlotInFactAddress compareAddress =
+							AddressFilterFunctionCompare.this.compareAddressContainer
+									.getNextAddress();
+					final SlotInFactAddress targetAddress =
+							AddressFilterFunctionCompare.this.targetAddressContainer
+									.getNextAddress();
+					if (!compareAddress.equals(targetAddress)) {
+						invalidate();
+					}
+				} catch (final IndexOutOfBoundsException e) {
+					invalidate();
+				}
+			}
+		};
+	}
+
+	private static class PathFilterCompare {
+
+		private final Map<Path, Path> pathMap = new HashMap<>();
+
+		boolean equal = true;
+
+		private boolean comparePaths(Path comparePath, Path targetPath) {
+			final Path mappedPath = pathMap.get(comparePath);
+			if (null != mappedPath) {
+				return mappedPath == targetPath;
+			}
+			if (comparePath.template != targetPath.template) {
+				return false;
+			}
+			pathMap.put(comparePath, targetPath);
+			return true;
+		}
+
+		private PathFilterCompare(final PathFilter targetFilter, final PathFilter compareFilter) {
+			super();
+			final PathFilterElement[] targetFEs = targetFilter.normalise().getFilterElements();
+			final PathFilterElement[] compareFEs = compareFilter.normalise().getFilterElements();
+			if (targetFEs.length != compareFEs.length) {
+				equal = false;
+				return;
+			}
+			for (int i = 0; i < targetFEs.length; i++) {
+				;
+				if (!new PathFilterFirstTypeIdentificationVisitor().collect(targetFEs[i]).collect(
+						compareFEs[i])) {
+					equal = false;
+					return;
+				}
+			}
+		}
+
+		private class PathFilterFirstTypeIdentificationVisitor implements PathFilterElementVisitor {
+
+			PathFilterSecondTypeIndentificationVisitor result;
+
+			public PathFilterSecondTypeIndentificationVisitor collect(PathFilterElement fe) {
+				return fe.accept(this).result;
+			}
+
+			@Override
+			public void visit(PathFilterElement fe) {
+				result = new NoDummyPathFilterSecondTypeIdentificationVisitor(fe);
+			}
+
+			@Override
+			public void visit(DummyPathFilterElement fe) {
+				result = new DummyPathFilterSecondTypeIdentificationVisitor(fe);
+			}
+
+			private abstract class PathFilterSecondTypeIndentificationVisitor implements
+					PathFilterElementVisitor {
+				boolean equal = true;
+
+				abstract public boolean collect(PathFilterElement fe);
+			}
+
+			private class NoDummyPathFilterSecondTypeIdentificationVisitor extends
+					PathFilterSecondTypeIndentificationVisitor {
+
+				final PathFilterElement targetFilterElement;
+
+				public NoDummyPathFilterSecondTypeIdentificationVisitor(PathFilterElement fe) {
+					this.targetFilterElement = fe;
+				}
+
+				@Override
+				public boolean collect(PathFilterElement fe) {
+					return fe.accept(this).equal;
+				}
+
+				@Override
+				public void visit(PathFilterElement fe) {
+					equal = new PathFilterFunctionCompare(this.targetFilterElement, fe).equal;
+				}
+
+				@Override
+				public void visit(DummyPathFilterElement fe) {
+					equal = false;
+				}
+
+			}
+
+			private class DummyPathFilterSecondTypeIdentificationVisitor extends
+					PathFilterSecondTypeIndentificationVisitor {
+
+				final DummyPathFilterElement targetFilterElement;
+
+				public DummyPathFilterSecondTypeIdentificationVisitor(DummyPathFilterElement dfe) {
+					this.targetFilterElement = dfe;
+				}
+
+				@Override
+				public boolean collect(PathFilterElement fe) {
+					return fe.accept(this).equal;
+				}
+
+				@Override
+				public void visit(PathFilterElement compareFilterElement) {
+					equal = false;
+				}
+
+				@Override
+				public void visit(DummyPathFilterElement compareFilterElement) {
+					final Path[] targetPaths = targetFilterElement.getPaths();
+					final Path[] comparePaths = compareFilterElement.getPaths();
+					if (targetPaths.length != comparePaths.length) {
+						equal = false;
+						return;
+					}
+					for (int i = 0; i < targetPaths.length; i++) {
+						if (!comparePaths(comparePaths[i], targetPaths[i])) {
+							equal = false;
+							return;
+						}
+					}
+				}
+
+			}
+
+		}
+
+		private class PathFilterFunctionCompare extends FilterFunctionCompare {
+
+			private PathFilterFunctionCompare(final PathFilterElement targetFilterElement,
+					final PathFilterElement compareFilterElement) {
+				super();
+				targetFilterElement.getFunction().accept(
+						newFunctionTypeIdentificationVisitor(compareFilterElement.getFunction()));
+			}
+
+			@Override
+			FunctionTypeIdentificationVisitor newFunctionTypeIdentificationVisitor(
+					final FunctionWithArguments fwa) {
+				return new PathFunctionTypeIdentificationVisitor(fwa);
+			};
+
+			private class PathFunctionTypeIdentificationVisitor extends
+					FunctionTypeIdentificationVisitor {
+				private PathFunctionTypeIdentificationVisitor(final FunctionWithArguments fwa) {
+					super(fwa);
+				}
+
+				@Override
+				public void visit(final PathLeaf pathLeaf) {
+					this.fwa.accept(new PathLeafVisitor(pathLeaf));
+				}
+			}
+
+			private class PathLeafVisitor extends InvalidatingFWAVisitor {
+				final PathLeaf comparePathLeaf;
+
+				private PathLeafVisitor(final PathLeaf pathLeaf) {
+					this.comparePathLeaf = pathLeaf;
+				}
+
+				@Override
+				public void visit(final PathLeaf targetPathLeaf) {
+					if (comparePathLeaf.getSlot() != targetPathLeaf.getSlot()) {
+						invalidate();
+						return;
+					}
+					if (!comparePaths(comparePathLeaf.getPath(), targetPathLeaf.getPath()))
+						invalidate();
+				}
+			};
+		}
+
+	}
+
 	@RequiredArgsConstructor
 	static class AddressContainer {
 		final AddressFilterElement addressFilterElement;
@@ -65,20 +308,9 @@ public class FilterFunctionCompare {
 		}
 	}
 
-	final AddressContainer targetAddressContainer;
-	final AddressContainer compareAddressContainer;
 	boolean equal = true;
 
-	private FilterFunctionCompare(final AddressFilterElement targetFilterElement,
-			final AddressFilterElement compareFilterElement) {
-		super();
-		this.targetAddressContainer = new AddressContainer(targetFilterElement);
-		this.compareAddressContainer = new AddressContainer(compareFilterElement);
-		targetFilterElement.getFunction().accept(
-				new FunctionTypeIdentificationVisitor(compareFilterElement.getFunction()));
-	}
-
-	private void invalidate() {
+	void invalidate() {
 		this.equal = false;
 	}
 
@@ -93,16 +325,11 @@ public class FilterFunctionCompare {
 		}
 	}
 
-	private class FunctionTypeIdentificationVisitor extends InvalidatingFWAVisitor {
+	private abstract class FunctionTypeIdentificationVisitor extends InvalidatingFWAVisitor {
 		final FunctionWithArguments fwa;
 
 		private FunctionTypeIdentificationVisitor(final FunctionWithArguments fwa) {
 			this.fwa = fwa;
-		}
-
-		@Override
-		public void visit(final ParameterLeaf parameterLeaf) {
-			this.fwa.accept(new ParameterLeafVisitor(parameterLeaf));
 		}
 
 		@Override
@@ -118,32 +345,6 @@ public class FilterFunctionCompare {
 		@Override
 		public void visit(final ConstantLeaf constantLeaf) {
 			this.fwa.accept(new ConstantLeafVisitor(constantLeaf));
-		}
-	};
-
-	private class ParameterLeafVisitor extends InvalidatingFWAVisitor {
-		final ParameterLeaf parameterLeaf;
-
-		private ParameterLeafVisitor(final ParameterLeaf parameterLeaf) {
-			this.parameterLeaf = parameterLeaf;
-		}
-
-		@Override
-		public void visit(final ParameterLeaf parameterLeaf) {
-			if (this.parameterLeaf.getType() != parameterLeaf.getType()) {
-				invalidate();
-			}
-			try {
-				final SlotInFactAddress compareAddress =
-						FilterFunctionCompare.this.compareAddressContainer.getNextAddress();
-				final SlotInFactAddress targetAddress =
-						FilterFunctionCompare.this.targetAddressContainer.getNextAddress();
-				if (!compareAddress.equals(targetAddress)) {
-					invalidate();
-				}
-			} catch (final IndexOutOfBoundsException e) {
-				invalidate();
-			}
 		}
 	};
 
@@ -260,7 +461,7 @@ public class FilterFunctionCompare {
 			for (int i = 0; i < addressArgs.length; i++) {
 				final FunctionWithArguments addressFWA = addressArgs[i];
 				final FunctionWithArguments pathFWA = pathArgs[i];
-				pathFWA.accept(new FunctionTypeIdentificationVisitor(addressFWA));
+				pathFWA.accept(newFunctionTypeIdentificationVisitor(addressFWA));
 				if (!FilterFunctionCompare.this.isValid())
 					return;
 			}
@@ -293,7 +494,7 @@ public class FilterFunctionCompare {
 
 	public static boolean equals(final AddressFilterElement targetFilterElement,
 			final AddressFilterElement compareFilterElement) {
-		return new FilterFunctionCompare(targetFilterElement, compareFilterElement).equal;
+		return new AddressFilterFunctionCompare(targetFilterElement, compareFilterElement).equal;
 	}
 
 	static void swap(final int[] list, final int i, final int j) {
@@ -457,11 +658,17 @@ public class FilterFunctionCompare {
 				targetFilter.getNormalisedVersion().getFilterElements();
 		final AddressFilterElement[] translatedFEs =
 				translatedFilter.getNormalisedVersion().getFilterElements();
+		if (targetFEs.length != translatedFEs.length)
+			return false;
 		for (int i = 0; i < targetFEs.length; i++) {
 			if (!equals(targetFEs[i], translatedFEs[i])) {
 				return false;
 			}
 		}
 		return true;
+	}
+
+	public static boolean equals(final PathFilter targetFilter, final PathFilter compareFilter) {
+		return new PathFilterCompare(targetFilter, compareFilter).equal;
 	}
 }
