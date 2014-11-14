@@ -14,6 +14,10 @@
         <XML>
           <option name="XML_LEGACY_SETTINGS_IMPORTED" value="true" />
         </XML>
+        <codeStyleSettings language="ECMA Script Level 4">
+          <option name="WRAP_COMMENTS" value="true" />
+          <option name="PARENT_SETTINGS_INSTALLED" value="true" />
+        </codeStyleSettings>
         <codeStyleSettings language="JAVA">
           <option name="KEEP_LINE_BREAKS" value="false" />
           <option name="KEEP_FIRST_COLUMN_COMMENT" value="false" />
@@ -42,6 +46,14 @@
             <option name="USE_TAB_CHARACTER" value="true" />
             <option name="SMART_TABS" value="true" />
           </indentOptions>
+        </codeStyleSettings>
+        <codeStyleSettings language="JavaScript">
+          <option name="WRAP_COMMENTS" value="true" />
+          <option name="PARENT_SETTINGS_INSTALLED" value="true" />
+        </codeStyleSettings>
+        <codeStyleSettings language="TypeScript">
+          <option name="WRAP_COMMENTS" value="true" />
+          <option name="PARENT_SETTINGS_INSTALLED" value="true" />
         </codeStyleSettings>
       </value>
     </option>
