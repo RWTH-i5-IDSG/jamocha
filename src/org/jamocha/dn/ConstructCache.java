@@ -68,7 +68,6 @@ public class ConstructCache {
 		final RuleCondition condition;
 		final FunctionWithArguments[] actionList;
 		final ArrayList<TranslatedPath> translatedPathVersions = new ArrayList<>();
-		final ArrayList<Translated> translatedVersions = new ArrayList<>();
 		final Marker fireMarker;
 		final Marker activationMarker;
 
