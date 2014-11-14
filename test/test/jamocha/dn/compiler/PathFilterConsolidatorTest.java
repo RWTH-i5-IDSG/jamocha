@@ -126,11 +126,9 @@ public class PathFilterConsolidatorTest {
 		assertThat(filterElement, instanceOf(DummyPathFilterElement.class));
 		final Path[] paths = ((DummyPathFilterElement) filterElement).getPaths();
 		assertEquals(2, paths.length);
-		assertThat(
-				toArray(Arrays.stream(paths).map(path -> path.getTemplate().getName()),
-						String[]::new),
-				arrayContainingInAnyOrder(Arrays.<Matcher<? super String>> asList(
-						equalTo("initial-fact"), equalTo("templ1"))));
+		assertThat(toArray(Arrays.stream(paths).map(path -> path.getTemplate().getName()), String[]::new),
+				arrayContainingInAnyOrder(
+						Arrays.<Matcher<? super String>>asList(equalTo("initial-fact"), equalTo("templ1"))));
 	}
 
 	@Test
@@ -170,6 +168,30 @@ public class PathFilterConsolidatorTest {
 			final Path path = paths[0];
 			assertEquals("templ1", path.getTemplate().getName());
 			assertNotSame(compare, path);
+		}
+	}
+
+	@Test
+	public void testNoUnnecessaryDummy() throws ParseException {
+		final String input = "(and (templ1 (slot1 ?x)) (templ2 (slot1 ?y)) (templ3 (slot1 ?z)) (test (< ?x ?y)) (test (> ?y ?z)) )";
+		final List<TranslatedPath> filterPartitions = clipsToFilters(input);
+		assertThat(filterPartitions, hasSize(1));
+		{
+			final List<PathFilter> filters = filterPartitions.get(0).getCondition();
+			assertThat(filters, hasSize(2));
+//			{
+//				final PathFilter filter = filters.get(0);
+//				assertThat(filter.getPositiveExistentialPaths(), hasSize(0));
+//				assertThat(filter.getNegativeExistentialPaths(), hasSize(0));
+//				final PathFilterElement[] filterElements = filter.getFilterElements();
+//				assertEquals(1, filterElements.length);
+//				final PathFilterElement filterElement = filterElements[0];
+//				assertThat(filterElement, instanceOf(DummyPathFilterElement.class));
+//				final Path[] paths = ((DummyPathFilterElement) filterElement).getPaths();
+//				assertEquals(1, paths.length);
+//				final Path path = paths[0];
+//				assertEquals("templ1", path.getTemplate().getName());
+//			}
 		}
 	}
 }
