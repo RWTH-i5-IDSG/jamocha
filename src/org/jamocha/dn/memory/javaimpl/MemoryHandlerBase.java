@@ -48,8 +48,8 @@ public class MemoryHandlerBase implements MemoryHandler {
 	 */
 	@Override
 	public Object getValue(final FactAddress address, final SlotAddress slot, final int row) {
-		return validRows.get(row).getFactTuple()[((org.jamocha.dn.memory.javaimpl.FactAddress) address)
-				.getIndex()].getValue(slot);
+		return validRows.get(row).getFactTuple()[((org.jamocha.dn.memory.javaimpl.FactAddress) address).getIndex()]
+				.getValue(slot);
 	}
 
 	/**
@@ -67,10 +67,10 @@ public class MemoryHandlerBase implements MemoryHandler {
 	}
 
 	@Override
-	public FactIdentifier[] getFactIdentifiers(
-			final MemoryFactToFactIdentifier memoryFactToFactIdentifier, final int row) {
+	public FactIdentifier[] getFactIdentifiers(final MemoryFactToFactIdentifier memoryFactToFactIdentifier,
+			final int row) {
 		return toArray(
-				Arrays.stream(validRows.get(row).getFactTuple()).map(
-						memoryFactToFactIdentifier::getFactIdentifier), FactIdentifier[]::new);
+				Arrays.stream(validRows.get(row).getFactTuple()).map(memoryFactToFactIdentifier::getFactIdentifier),
+				FactIdentifier[]::new);
 	}
 }

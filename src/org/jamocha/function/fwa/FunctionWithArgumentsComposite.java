@@ -21,10 +21,8 @@ import org.jamocha.function.Function;
  * 
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
-public class FunctionWithArgumentsComposite extends
-		GenericWithArgumentsComposite<Object, Function<?>> {
-	public FunctionWithArgumentsComposite(final Function<?> function,
-			final FunctionWithArguments... args) {
+public class FunctionWithArgumentsComposite extends GenericWithArgumentsComposite<Object, Function<?>> {
+	public FunctionWithArgumentsComposite(final Function<?> function, final FunctionWithArguments... args) {
 		super(function, args);
 	}
 

@@ -161,8 +161,7 @@ public class TemplateMockup implements Template {
 	 * @see org.jamocha.dn.memory.Template#applyDefaultsAndOrder(java.util.Map)
 	 */
 	@Override
-	public FunctionWithArguments[] applyDefaultsAndOrder(
-			final Map<SlotAddress, FunctionWithArguments> values) {
+	public FunctionWithArguments[] applyDefaultsAndOrder(final Map<SlotAddress, FunctionWithArguments> values) {
 		return null;
 	}
 

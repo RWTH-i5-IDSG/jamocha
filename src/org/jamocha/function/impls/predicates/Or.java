@@ -54,24 +54,23 @@ public abstract class Or extends Predicate implements CommutativeFunction<Boolea
 				return (Boolean) params[0].evaluate() || (Boolean) params[1].evaluate();
 			}
 		});
-		FunctionDictionary.addGenerator(inClips, SlotType.BOOLEAN,
-				(final SlotType[] paramTypes) -> {
-					return new Or() {
-						@Override
-						public SlotType[] getParamTypes() {
-							return paramTypes;
-						}
+		FunctionDictionary.addGenerator(inClips, SlotType.BOOLEAN, (final SlotType[] paramTypes) -> {
+			return new Or() {
+				@Override
+				public SlotType[] getParamTypes() {
+					return paramTypes;
+				}
 
-						@Override
-						public Boolean evaluate(final Function<?>... params) {
-							for (final Function<?> param : params) {
-								if ((Boolean) param.evaluate()) {
-									return Boolean.TRUE;
-								}
-							}
-							return Boolean.FALSE;
+				@Override
+				public Boolean evaluate(final Function<?>... params) {
+					for (final Function<?> param : params) {
+						if ((Boolean) param.evaluate()) {
+							return Boolean.TRUE;
 						}
-					};
-				});
+					}
+					return Boolean.FALSE;
+				}
+			};
+		});
 	}
 }

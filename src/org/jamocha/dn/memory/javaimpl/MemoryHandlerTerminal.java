@@ -35,8 +35,7 @@ public class MemoryHandlerTerminal implements org.jamocha.dn.memory.MemoryHandle
 	final Queue<Assert> plusTokenCache = new LinkedList<Assert>();
 
 	@Override
-	public void addPlusMemory(final TerminalNode terminalNode,
-			final org.jamocha.dn.memory.MemoryHandlerPlusTemp mem) {
+	public void addPlusMemory(final TerminalNode terminalNode, final org.jamocha.dn.memory.MemoryHandlerPlusTemp mem) {
 		for (final MemoryHandler handler : mem.splitIntoChunksOfSize(1)) {
 			final Assert plus = new Assert(handler);
 			this.plusTokenCache.add(plus);
@@ -45,15 +44,13 @@ public class MemoryHandlerTerminal implements org.jamocha.dn.memory.MemoryHandle
 	}
 
 	@Override
-	public void addMinusMemory(final TerminalNode terminalNode,
-			final org.jamocha.dn.memory.MemoryHandlerMinusTemp mem) {
+	public void addMinusMemory(final TerminalNode terminalNode, final org.jamocha.dn.memory.MemoryHandlerMinusTemp mem) {
 		if (!(mem instanceof MemoryHandlerMinusTempComplete)) {
 			// handle partial minus token
 			final MemoryHandlerMinusTemp minusTemp = (MemoryHandlerMinusTemp) mem;
 			final FactAddress[] factAddresses = minusTemp.factAddresses;
 			for (final Row minusRow : minusTemp.validRows) {
-				for (final Iterator<Assert> tokenIterator = this.plusTokenCache.iterator(); tokenIterator
-						.hasNext();) {
+				for (final Iterator<Assert> tokenIterator = this.plusTokenCache.iterator(); tokenIterator.hasNext();) {
 					final AssertOrRetract<?> token = tokenIterator.next();
 					final MemoryHandlerBase tokenMem = (MemoryHandlerBase) token.getMem();
 					final Row tokenRow = tokenMem.validRows.get(0);

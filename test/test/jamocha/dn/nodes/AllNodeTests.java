@@ -13,8 +13,7 @@ import org.junit.runners.Suite.SuiteClasses;
  * @author Kai Schwarz <kai.schwarz@rwth-aachen.de>
  */
 @RunWith(Suite.class)
-@SuiteClasses({ AlphaNodeTest.class, BetaNodeTest.class, ObjectTypeNodeTest.class,
-		TokenProcessingTest.class })
+@SuiteClasses({ AlphaNodeTest.class, BetaNodeTest.class, ObjectTypeNodeTest.class, TokenProcessingTest.class })
 public class AllNodeTests {
 
 }

@@ -9,9 +9,9 @@
  * {@link org.jamocha.filter.impls}.<br />
  * In a {@link org.jamocha.filter.Filter.FilterElement filter element}, these predicates are stored
  * as {@link org.jamocha.function.fwa.FunctionWithArguments functions with arguments}.
- * {@link org.jamocha.function.fwa.FunctionWithArguments FunctionWithArguments} is an interface for a
- * {@link org.jamocha.function.Function} bundled with its Arguments. A Filter is constructed using the
- * following classes implementing this interface:
+ * {@link org.jamocha.function.fwa.FunctionWithArguments FunctionWithArguments} is an interface for
+ * a {@link org.jamocha.function.Function} bundled with its Arguments. A Filter is constructed using
+ * the following classes implementing this interface:
  * {@link org.jamocha.function.fwa.GenericWithArgumentsComposite GenericWithArgumentsComposite},
  * {@link org.jamocha.function.fwa.ConstantLeaf ConstantLeaf} ,
  * {@link org.jamocha.function.fwa.PathLeaf PathLeaf}. In doing so, we combine Functions, Constants

@@ -48,8 +48,7 @@ public class AlphaNode extends Node {
 	protected class AlphaEdgeImpl extends EdgeImpl {
 		FactAddress addressInTarget = null;
 
-		public AlphaEdgeImpl(final Node sourceNode, final Node targetNode,
-				final AddressFilter filter) {
+		public AlphaEdgeImpl(final Node sourceNode, final Node targetNode, final AddressFilter filter) {
 			super(sourceNode, targetNode, filter);
 		}
 
@@ -63,11 +62,9 @@ public class AlphaNode extends Node {
 		public void setAddressMap(final Map<? extends FactAddress, ? extends FactAddress> map) {
 			assert map != null;
 			assert map.size() == 1;
-			final Entry<? extends FactAddress, ? extends FactAddress> entry =
-					map.entrySet().iterator().next();
+			final Entry<? extends FactAddress, ? extends FactAddress> entry = map.entrySet().iterator().next();
 			this.addressInTarget = entry.getValue();
-			this.targetNode.delocalizeMap.put(this.addressInTarget, new AddressPredecessor(this,
-					entry.getKey()));
+			this.targetNode.delocalizeMap.put(this.addressInTarget, new AddressPredecessor(this, entry.getKey()));
 		}
 
 		@Override
@@ -77,10 +74,8 @@ public class AlphaNode extends Node {
 		}
 
 		@Override
-		public void processPlusToken(final MemoryHandlerTemp memory)
-				throws CouldNotAcquireLockException {
-			final MemoryHandlerTemp mem =
-					this.targetNode.memory.processTokenInAlpha(memory, this, this.filter);
+		public void processPlusToken(final MemoryHandlerTemp memory) throws CouldNotAcquireLockException {
+			final MemoryHandlerTemp mem = this.targetNode.memory.processTokenInAlpha(memory, this, this.filter);
 			if (mem.size() == 0) {
 				return;
 			}
@@ -90,10 +85,8 @@ public class AlphaNode extends Node {
 		}
 
 		@Override
-		public void processMinusToken(final MemoryHandlerTemp memory)
-				throws CouldNotAcquireLockException {
-			final MemoryHandlerTemp mem =
-					this.targetNode.memory.processTokenInAlpha(memory, this, this.filter);
+		public void processMinusToken(final MemoryHandlerTemp memory) throws CouldNotAcquireLockException {
+			final MemoryHandlerTemp mem = this.targetNode.memory.processTokenInAlpha(memory, this, this.filter);
 			if (mem.size() == 0) {
 				return;
 			}
@@ -137,8 +130,7 @@ public class AlphaNode extends Node {
 		assert 1 == paths.length;
 		final Path path = paths[0];
 		assert 1 == this.delocalizeMap.size();
-		final Entry<FactAddress, AddressPredecessor> entry =
-				this.delocalizeMap.entrySet().iterator().next();
+		final Entry<FactAddress, AddressPredecessor> entry = this.delocalizeMap.entrySet().iterator().next();
 		assert path.getFactAddressInCurrentlyLowestNode() == entry.getValue().getAddress();
 		assert map.get(path) == entry.getKey();
 		path.setCurrentlyLowestNode(this);

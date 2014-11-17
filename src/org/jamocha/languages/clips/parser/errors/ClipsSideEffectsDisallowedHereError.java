@@ -28,33 +28,32 @@ public class ClipsSideEffectsDisallowedHereError extends SideEffectsDisallowedHe
 	@Getter
 	final SimpleNode context;
 
-	public ClipsSideEffectsDisallowedHereError(final String methodWithSideEffects,
-			final SimpleNode context) {
+	public ClipsSideEffectsDisallowedHereError(final String methodWithSideEffects, final SimpleNode context) {
 		super(methodWithSideEffects);
 		this.context = context;
 	}
 
-	public ClipsSideEffectsDisallowedHereError(final String methodWithSideEffects,
-			final SimpleNode context, final String message, final Throwable cause,
-			final boolean enableSuppression, final boolean writableStackTrace) {
+	public ClipsSideEffectsDisallowedHereError(final String methodWithSideEffects, final SimpleNode context,
+			final String message, final Throwable cause, final boolean enableSuppression,
+			final boolean writableStackTrace) {
 		super(methodWithSideEffects, message, cause, enableSuppression, writableStackTrace);
 		this.context = context;
 	}
 
-	public ClipsSideEffectsDisallowedHereError(final String methodWithSideEffects,
-			final SimpleNode context, final String message, final Throwable cause) {
+	public ClipsSideEffectsDisallowedHereError(final String methodWithSideEffects, final SimpleNode context,
+			final String message, final Throwable cause) {
 		super(methodWithSideEffects, message, cause);
 		this.context = context;
 	}
 
-	public ClipsSideEffectsDisallowedHereError(final String methodWithSideEffects,
-			final SimpleNode context, final String message) {
+	public ClipsSideEffectsDisallowedHereError(final String methodWithSideEffects, final SimpleNode context,
+			final String message) {
 		super(methodWithSideEffects, message);
 		this.context = context;
 	}
 
-	public ClipsSideEffectsDisallowedHereError(final String methodWithSideEffects,
-			final SimpleNode context, final Throwable cause) {
+	public ClipsSideEffectsDisallowedHereError(final String methodWithSideEffects, final SimpleNode context,
+			final Throwable cause) {
 		super(methodWithSideEffects, cause);
 		this.context = context;
 	}

@@ -91,8 +91,8 @@ public class SystemTest {
 		return stackTraceElement.getClassName() + "::" + stackTraceElement.getMethodName();
 	}
 
-	private static Pair<Queue<Object>, Queue<Warning>> run(final Network network,
-			final String parserInput) throws ParseException {
+	private static Pair<Queue<Object>, Queue<Warning>> run(final Network network, final String parserInput)
+			throws ParseException {
 		final SFPParser parser = new SFPParser(new StringReader(parserInput));
 		final SFPVisitorImpl visitor = new SFPVisitorImpl(network, network);
 		final Queue<Object> values = new LinkedList<>();
@@ -114,8 +114,7 @@ public class SystemTest {
 		final ByteArrayOutputStream out = new ByteArrayOutputStream();
 		network.addAppender(out, true);
 		{
-			final Pair<Queue<Object>, Queue<Warning>> returnValues =
-					run(network, "(unwatch all)\n(watch facts)\n");
+			final Pair<Queue<Object>, Queue<Warning>> returnValues = run(network, "(unwatch all)\n(watch facts)\n");
 			assertThat(returnValues.getLeft(), empty());
 			assertThat(returnValues.getRight(), empty());
 			assertThat(out.toString(), isEmptyString());
@@ -128,8 +127,7 @@ public class SystemTest {
 			assertThat(out.toString(), isEmptyString());
 		}
 		{
-			final Pair<Queue<Object>, Queue<Warning>> returnValues =
-					run(network, "(assert (t1 (s1 2)))\n");
+			final Pair<Queue<Object>, Queue<Warning>> returnValues = run(network, "(assert (t1 (s1 2)))\n");
 			final Queue<Object> values = returnValues.getLeft();
 			assertThat(values, hasSize(1));
 			final Object value = values.iterator().next();
@@ -151,8 +149,7 @@ public class SystemTest {
 		final ByteArrayOutputStream out = new ByteArrayOutputStream();
 		network.addAppender(out, true);
 		{
-			final Pair<Queue<Object>, Queue<Warning>> returnValues =
-					run(network, "(unwatch all)\n(watch facts)\n");
+			final Pair<Queue<Object>, Queue<Warning>> returnValues = run(network, "(unwatch all)\n(watch facts)\n");
 			assertThat(returnValues.getLeft(), empty());
 			assertThat(returnValues.getRight(), empty());
 			assertThat(out.toString(), isEmptyString());
@@ -172,8 +169,7 @@ public class SystemTest {
 			assertThat(out.toString(), isEmptyString());
 		}
 		{
-			final Pair<Queue<Object>, Queue<Warning>> returnValues =
-					run(network, "(assert (t1 (s1 2)))\n");
+			final Pair<Queue<Object>, Queue<Warning>> returnValues = run(network, "(assert (t1 (s1 2)))\n");
 			final Queue<Object> values = returnValues.getLeft();
 			assertThat(values, hasSize(1));
 			final Object value = values.iterator().next();
@@ -186,8 +182,7 @@ public class SystemTest {
 			out.reset();
 		}
 		{
-			final Pair<Queue<Object>, Queue<Warning>> returnValues =
-					run(network, "(assert (t1 (s1 5)))\n");
+			final Pair<Queue<Object>, Queue<Warning>> returnValues = run(network, "(assert (t1 (s1 5)))\n");
 			final Queue<Object> values = returnValues.getLeft();
 			assertThat(values, hasSize(1));
 			final Object value = values.iterator().next();
@@ -216,8 +211,7 @@ public class SystemTest {
 		final ByteArrayOutputStream out = new ByteArrayOutputStream();
 		network.addAppender(out, true);
 		{
-			final Pair<Queue<Object>, Queue<Warning>> returnValues =
-					run(network, "(unwatch all)\n(watch facts)\n");
+			final Pair<Queue<Object>, Queue<Warning>> returnValues = run(network, "(unwatch all)\n(watch facts)\n");
 			assertThat(returnValues.getLeft(), empty());
 			assertThat(returnValues.getRight(), empty());
 			assertThat(out.toString(), isEmptyString());
@@ -272,8 +266,7 @@ public class SystemTest {
 		final ByteArrayOutputStream out = new ByteArrayOutputStream();
 		network.addAppender(out, true);
 		{
-			final Pair<Queue<Object>, Queue<Warning>> returnValues =
-					run(network, "(unwatch all)\n(watch facts)\n");
+			final Pair<Queue<Object>, Queue<Warning>> returnValues = run(network, "(unwatch all)\n(watch facts)\n");
 			assertThat(returnValues.getLeft(), empty());
 			assertThat(returnValues.getRight(), empty());
 			assertThat(out.toString(), isEmptyString());
@@ -293,8 +286,7 @@ public class SystemTest {
 			assertThat(out.toString(), isEmptyString());
 		}
 		{
-			final Pair<Queue<Object>, Queue<Warning>> returnValues =
-					run(network, "(assert (t1 (s1 5)))\n");
+			final Pair<Queue<Object>, Queue<Warning>> returnValues = run(network, "(assert (t1 (s1 5)))\n");
 			final Queue<Object> values = returnValues.getLeft();
 			assertThat(values, hasSize(1));
 			final Object value = values.iterator().next();
@@ -321,11 +313,8 @@ public class SystemTest {
 			assertThat(lines, arrayWithSize(2));
 			assertThat(
 					lines,
-					either(
-							arrayContaining(equalTo("==> f-3\t(t1 (s1 888))"),
-									equalTo("==> f-4\t(t1 (s1 999))"))).or(
-							arrayContaining(equalTo("==> f-3\t(t1 (s1 999))"),
-									equalTo("==> f-4\t(t1 (s1 888))"))));
+					either(arrayContaining(equalTo("==> f-3\t(t1 (s1 888))"), equalTo("==> f-4\t(t1 (s1 999))"))).or(
+							arrayContaining(equalTo("==> f-3\t(t1 (s1 999))"), equalTo("==> f-4\t(t1 (s1 888))"))));
 			out.reset();
 		}
 	}

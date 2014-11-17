@@ -205,10 +205,9 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 	}
 
 	final static EnumSet<SlotType> Number = EnumSet.of(SlotType.LONG, SlotType.DOUBLE);
-	final static EnumSet<SlotType> Constant = EnumSet.of(SlotType.NIL, SlotType.DATETIME,
-			SlotType.SYMBOL, SlotType.STRING, SlotType.LONG, SlotType.DOUBLE, SlotType.BOOLEAN);
-	final static EnumSet<SlotType> FactIdentifierTypes = EnumSet.of(SlotType.LONG,
-			SlotType.FACTADDRESS);
+	final static EnumSet<SlotType> Constant = EnumSet.of(SlotType.NIL, SlotType.DATETIME, SlotType.SYMBOL,
+			SlotType.STRING, SlotType.LONG, SlotType.DOUBLE, SlotType.BOOLEAN);
+	final static EnumSet<SlotType> FactIdentifierTypes = EnumSet.of(SlotType.LONG, SlotType.FACTADDRESS);
 
 	class SFPSymbolVisitor implements SelectiveSFPVisitor {
 		Symbol symbol;
@@ -216,8 +215,7 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 		@Override
 		public Object visit(final SFPSymbol node, final Object data) {
 			this.symbol =
-					SFPVisitorImpl.this.parserToNetwork.getScope().getOrCreateSymbol(
-							node.jjtGetValue().toString());
+					SFPVisitorImpl.this.parserToNetwork.getScope().getOrCreateSymbol(node.jjtGetValue().toString());
 			return data;
 		}
 	}
@@ -423,16 +421,15 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 		@Override
 		public Object visit(final SFPTypeSpecification node, final Object data) {
 			if (node.jjtGetNumChildren() != 1) {
-				throw SelectiveSFPVisitor
-						.dumpAndThrowMe(node, IllegalArgumentException::new,
-								"Restriction of template fields to multiple types is not supported at the moment!");
+				throw SelectiveSFPVisitor.dumpAndThrowMe(node, IllegalArgumentException::new,
+						"Restriction of template fields to multiple types is not supported at the moment!");
 			}
 			// unsupported: LEXEME = STRING | SYMBOL, NUMBER = INTEGER | FLOAT
 			this.type =
 					SelectiveSFPVisitor.sendVisitor(
-							new SFPTypeVisitor(EnumSet.of(/* SlotType.LEXEME, */SlotType.SYMBOL,
-									SlotType.STRING, SlotType.DATETIME, SlotType.LONG,
-									SlotType.DOUBLE, SlotType.BOOLEAN, SlotType.FACTADDRESS
+							new SFPTypeVisitor(EnumSet.of(/* SlotType.LEXEME, */SlotType.SYMBOL, SlotType.STRING,
+									SlotType.DATETIME, SlotType.LONG, SlotType.DOUBLE, SlotType.BOOLEAN,
+									SlotType.FACTADDRESS
 							/* , SlotType.NUMBER */)), node.jjtGetChild(0), data).type;
 			return data;
 		}
@@ -456,12 +453,11 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 		@Override
 		public Object visit(final SFPTypeAttribute node, final Object data) {
 			if (node.jjtGetNumChildren() != 1) {
-				throw SelectiveSFPVisitor
-						.dumpAndThrowMe(node, IllegalArgumentException::new,
-								"Restriction of template fields to multiple types is not supported at the moment!");
+				throw SelectiveSFPVisitor.dumpAndThrowMe(node, IllegalArgumentException::new,
+						"Restriction of template fields to multiple types is not supported at the moment!");
 			}
-			this.slotBuilder.setType(SelectiveSFPVisitor.sendVisitor(
-					new SFPTypeSpecificationVisitor(), node.jjtGetChild(0), data).type);
+			this.slotBuilder.setType(SelectiveSFPVisitor.sendVisitor(new SFPTypeSpecificationVisitor(),
+					node.jjtGetChild(0), data).type);
 			return data;
 		}
 
@@ -474,10 +470,8 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 				}
 				SFPTemplateAttributeVisitor.this.slotBuilder.setAllowedConstaintsConstraint(
 						type,
-						SelectiveSFPVisitor
-								.stream(node, 0)
-								.map(n -> SelectiveSFPVisitor.sendVisitor(
-										new SFPValueVisitor(type), n, data).value)
+						SelectiveSFPVisitor.stream(node, 0)
+								.map(n -> SelectiveSFPVisitor.sendVisitor(new SFPValueVisitor(type), n, data).value)
 								.collect(toList()));
 				return data;
 			}
@@ -512,8 +506,8 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 		@Override
 		public Object visit(final SFPAllowedConstantAttribute node, final Object data) {
 			assert 1 == node.jjtGetNumChildren();
-			SelectiveSFPVisitor.sendVisitor(new SFPAllowedConstantAttributeElementsVisitor(),
-					node.jjtGetChild(0), data);
+			SelectiveSFPVisitor
+					.sendVisitor(new SFPAllowedConstantAttributeElementsVisitor(), node.jjtGetChild(0), data);
 			return data;
 		}
 
@@ -534,15 +528,13 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 
 			@Override
 			public Object visit(final SFPFloat node, final Object data) {
-				this.number =
-						SelectiveSFPVisitor.sendVisitor(new SFPValueVisitor(), node, data).toFWA();
+				this.number = SelectiveSFPVisitor.sendVisitor(new SFPValueVisitor(), node, data).toFWA();
 				return data;
 			}
 
 			@Override
 			public Object visit(final SFPInteger node, final Object data) {
-				this.number =
-						SelectiveSFPVisitor.sendVisitor(new SFPValueVisitor(), node, data).toFWA();
+				this.number = SelectiveSFPVisitor.sendVisitor(new SFPValueVisitor(), node, data).toFWA();
 				return data;
 			}
 
@@ -559,11 +551,9 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 		public Object visit(final SFPRangeAttribute node, final Object data) {
 			assert 2 == node.jjtGetNumChildren();
 			final ConstantLeaf from =
-					SelectiveSFPVisitor.sendVisitor(new SFPRangeAttributeElementsVisitor(),
-							node.jjtGetChild(0), data).number;
+					SelectiveSFPVisitor.sendVisitor(new SFPRangeAttributeElementsVisitor(), node.jjtGetChild(0), data).number;
 			final ConstantLeaf to =
-					SelectiveSFPVisitor.sendVisitor(new SFPRangeAttributeElementsVisitor(),
-							node.jjtGetChild(1), data).number;
+					SelectiveSFPVisitor.sendVisitor(new SFPRangeAttributeElementsVisitor(), node.jjtGetChild(1), data).number;
 			SFPTemplateAttributeVisitor.this.slotBuilder.setRangeConstraint(from, to);
 			return data;
 		}
@@ -587,10 +577,8 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 					throw SelectiveSFPVisitor.dumpAndThrowMe(node, IllegalArgumentException::new,
 							"multi slots are not supported at the moment!");
 				}
-				defaultConsumer
-						.accept(SelectiveSFPVisitor.sendVisitor(new SFPExpressionVisitor(
-								SymbolToFunctionWithArguments.bySymbol(), false), node
-								.jjtGetChild(0), data).expression);
+				defaultConsumer.accept(SelectiveSFPVisitor.sendVisitor(new SFPExpressionVisitor(
+						SymbolToFunctionWithArguments.bySymbol(), false), node.jjtGetChild(0), data).expression);
 				return data;
 			}
 		}
@@ -601,8 +589,7 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 			public Object visit(final SFPDefaultAttributes node, final Object data) {
 				assert 1 == node.jjtGetNumChildren();
 				SelectiveSFPVisitor.sendVisitor(new SFPAttributesVisitor(
-						SFPTemplateAttributeVisitor.this.slotBuilder::setStaticDefault), node
-						.jjtGetChild(0), data);
+						SFPTemplateAttributeVisitor.this.slotBuilder::setStaticDefault), node.jjtGetChild(0), data);
 				return data;
 			}
 
@@ -630,8 +617,7 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 		@Override
 		public Object visit(final SFPDefaultAttribute node, final Object data) {
 			assert 1 == node.jjtGetNumChildren();
-			SelectiveSFPVisitor.sendVisitor(new SFPDefaultAttributeElementsVisitor(),
-					node.jjtGetChild(0), data);
+			SelectiveSFPVisitor.sendVisitor(new SFPDefaultAttributeElementsVisitor(), node.jjtGetChild(0), data);
 			return data;
 		}
 
@@ -641,8 +627,7 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 		public Object visit(final SFPDynamicAttribute node, final Object data) {
 			assert 1 == node.jjtGetNumChildren();
 			SelectiveSFPVisitor.sendVisitor(new SFPAttributesVisitor(
-					SFPTemplateAttributeVisitor.this.slotBuilder::setDynamicDefault), node
-					.jjtGetChild(0), data);
+					SFPTemplateAttributeVisitor.this.slotBuilder::setDynamicDefault), node.jjtGetChild(0), data);
 			return data;
 		}
 	}
@@ -659,12 +644,10 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 						"For now, slot definitions consist of a name and a type restriction!");
 			}
 			final Symbol name =
-					SelectiveSFPVisitor.sendVisitor(new SFPSymbolVisitor(), node.jjtGetChild(0),
-							data).symbol;
+					SelectiveSFPVisitor.sendVisitor(new SFPSymbolVisitor(), node.jjtGetChild(0), data).symbol;
 			final SlotBuilder slotBuilder = new SlotBuilder(name.getImage());
 			SelectiveSFPVisitor.stream(node, 1).forEach(
-					n -> SelectiveSFPVisitor.sendVisitor(new SFPTemplateAttributeVisitor(
-							slotBuilder), n, data));
+					n -> SelectiveSFPVisitor.sendVisitor(new SFPTemplateAttributeVisitor(slotBuilder), n, data));
 			this.slot = slotBuilder.build(SFPVisitorImpl.this.parserToNetwork.getDefaultValues());
 			return data;
 		}
@@ -678,9 +661,7 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 		@Override
 		public Object visit(final SFPConstructDescription node, final Object data) {
 			assert node.jjtGetNumChildren() == 1;
-			this.comment =
-					SelectiveSFPVisitor.sendVisitor(new SFPStringVisitor(), node.jjtGetChild(0),
-							data).string;
+			this.comment = SelectiveSFPVisitor.sendVisitor(new SFPStringVisitor(), node.jjtGetChild(0), data).string;
 			return data;
 		}
 
@@ -689,8 +670,8 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 		public Object visit(final SFPSlotDefinition node, final Object data) {
 			assert node.jjtGetNumChildren() == 1;
 			// unsupported: multislot-definition
-			this.slotDefinitions.add(SelectiveSFPVisitor.sendVisitor(
-					new SFPSingleSlotDefinitionVisitor(), node.jjtGetChild(0), data).slot);
+			this.slotDefinitions.add(SelectiveSFPVisitor.sendVisitor(new SFPSingleSlotDefinitionVisitor(),
+					node.jjtGetChild(0), data).slot);
 			return data;
 		}
 	}
@@ -702,8 +683,7 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 		public Object visit(final SFPSingleVariable node, final Object data) {
 			assert node.jjtGetNumChildren() == 0;
 			this.symbol =
-					SFPVisitorImpl.this.parserToNetwork.getScope().getOrCreateSymbol(
-							node.jjtGetValue().toString());
+					SFPVisitorImpl.this.parserToNetwork.getScope().getOrCreateSymbol(node.jjtGetValue().toString());
 			return data;
 		}
 	}
@@ -718,9 +698,8 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 
 	@FunctionalInterface
 	static interface SFPConstraintVisitorSupplier<T extends SelectiveSFPVisitor> {
-		T create(final SFPConditionalElementVisitor parent,
-				final Consumer<ConditionalElement> constraintAdder, final Template template,
-				final SlotAddress slot, final Optional<SingleSlotVariable> constraintVariable);
+		T create(final SFPConditionalElementVisitor parent, final Consumer<ConditionalElement> constraintAdder,
+				final Template template, final SlotAddress slot, final Optional<SingleSlotVariable> constraintVariable);
 	}
 
 	@RequiredArgsConstructor
@@ -742,8 +721,7 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 			public Object visit(final SFPSingleVariable node, final Object data) {
 				final Symbol symbol =
 						SelectiveSFPVisitor.sendVisitor(new SFPSingleVariableVisitor(), node, data).symbol;
-				if (!symbol.getFactVariable().isPresent()
-						&& symbol.getPositiveSlotVariables().isEmpty()) {
+				if (!symbol.getFactVariable().isPresent() && symbol.getPositiveSlotVariables().isEmpty()) {
 					throw new ClipsVariableNotDeclaredError(symbol, node);
 				}
 				if (symbol.getType() != parent.factVariable.getTemplate().getSlotType(slot)) {
@@ -761,25 +739,20 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 			public Object visit(final SFPConstant node, final Object data) {
 				assert 1 == node.jjtGetNumChildren();
 				final SFPValueVisitor constantVisitor =
-						SelectiveSFPVisitor.sendVisitor(new SFPValueVisitor(), node.jjtGetChild(0),
-								data);
+						SelectiveSFPVisitor.sendVisitor(new SFPValueVisitor(), node.jjtGetChild(0), data);
 				if (!constraintVariable.isPresent()) {
 					// create dummy variable
-					final Symbol dummy =
-							SFPVisitorImpl.this.parserToNetwork.getScope().createDummy();
-					final SingleSlotVariable dummyVar =
-							parent.factVariable.newSingleSlotVariable(dummy, slot, false);
+					final Symbol dummy = SFPVisitorImpl.this.parserToNetwork.getScope().createDummy();
+					final SingleSlotVariable dummyVar = parent.factVariable.newSingleSlotVariable(dummy, slot, false);
 					constraintVariable = Optional.of(dummyVar);
 				}
 				// create equals test
 				final Predicate equals =
-						FunctionDictionary.lookupPredicate(
-								org.jamocha.function.impls.predicates.Equals.inClips,
+						FunctionDictionary.lookupPredicate(org.jamocha.function.impls.predicates.Equals.inClips,
 								template.getSlotType(slot), constantVisitor.type);
 				final TestConditionalElement eq =
-						new TestConditionalElement(new PredicateWithArgumentsComposite(equals,
-								constraintVariable.get().toSymbolLeaf(), new ConstantLeaf(
-										constantVisitor.value, constantVisitor.type)));
+						new TestConditionalElement(new PredicateWithArgumentsComposite(equals, constraintVariable.get()
+								.toSymbolLeaf(), new ConstantLeaf(constantVisitor.value, constantVisitor.type)));
 				constraintAdder.accept(negate(eq));
 				return data;
 			}
@@ -790,11 +763,9 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 				assert 1 == node.jjtGetNumChildren();
 				final FunctionWithArguments functionCall =
 						SelectiveSFPVisitor.sendVisitor(new SFPFunctionCallElementsVisitor(
-								SymbolToFunctionWithArguments.bySymbol(), false), node
-								.jjtGetChild(0), data).expression;
+								SymbolToFunctionWithArguments.bySymbol(), false), node.jjtGetChild(0), data).expression;
 				assert SlotType.BOOLEAN == functionCall.getReturnType();
-				constraintAdder.accept(negate(new TestConditionalElement(
-						(PredicateWithArguments) functionCall)));
+				constraintAdder.accept(negate(new TestConditionalElement((PredicateWithArguments) functionCall)));
 				return data;
 			}
 
@@ -804,26 +775,22 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 				assert 1 == node.jjtGetNumChildren();
 				if (!constraintVariable.isPresent()) {
 					// create dummy variable
-					final Symbol dummy =
-							SFPVisitorImpl.this.parserToNetwork.getScope().createDummy();
-					final SingleSlotVariable dummyVar =
-							parent.factVariable.newSingleSlotVariable(dummy, slot, false);
+					final Symbol dummy = SFPVisitorImpl.this.parserToNetwork.getScope().createDummy();
+					final SingleSlotVariable dummyVar = parent.factVariable.newSingleSlotVariable(dummy, slot, false);
 					constraintVariable = Optional.of(dummyVar);
 				}
 				// get function call following the = sign
 				final FunctionWithArguments functionCall =
 						SelectiveSFPVisitor.sendVisitor(new SFPFunctionCallElementsVisitor(
-								SymbolToFunctionWithArguments.bySymbol(), false), node
-								.jjtGetChild(0), data).expression;
+								SymbolToFunctionWithArguments.bySymbol(), false), node.jjtGetChild(0), data).expression;
 				// create equals test
 				final Predicate equals =
-						FunctionDictionary.lookupPredicate(
-								org.jamocha.function.impls.predicates.Equals.inClips,
+						FunctionDictionary.lookupPredicate(org.jamocha.function.impls.predicates.Equals.inClips,
 								template.getSlotType(slot), functionCall.getReturnType());
 				final SingleSlotVariable variable = constraintVariable.get();
 				final TestConditionalElement eq =
-						new TestConditionalElement(new PredicateWithArgumentsComposite(equals,
-								variable.toSymbolLeaf(), functionCall));
+						new TestConditionalElement(new PredicateWithArgumentsComposite(equals, variable.toSymbolLeaf(),
+								functionCall));
 				constraintAdder.accept(negate(eq));
 				return data;
 			}
@@ -848,16 +815,14 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 					negated = true;
 				}
 				this.constraintVariable =
-						SelectiveSFPVisitor.sendVisitor(new SFPTermElementsVisitor(parent,
-								constraintAdder, template, slot, negated, constraintVariable), node
-								.jjtGetChild(negated ? 1 : 0), data).constraintVariable;
+						SelectiveSFPVisitor.sendVisitor(new SFPTermElementsVisitor(parent, constraintAdder, template,
+								slot, negated, constraintVariable), node.jjtGetChild(negated ? 1 : 0), data).constraintVariable;
 				return data;
 			}
 		}
 
 		class SFPAmpersandConnectedConstraintVisitor extends SFPConstraintBase {
-			public SFPAmpersandConnectedConstraintVisitor(
-					final SFPConditionalElementVisitor parent,
+			public SFPAmpersandConnectedConstraintVisitor(final SFPConditionalElementVisitor parent,
 					final Consumer<ConditionalElement> constraintAdder, final Template template,
 					final SlotAddress slot, final Optional<SingleSlotVariable> constraintVariable) {
 				super(parent, constraintAdder, template, slot, constraintVariable);
@@ -869,17 +834,13 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 			// AmpersandConnectedConstraint(): ( Term() ( <AMPERSAND> Term() )* )
 			@Override
 			public Object visit(final SFPAmpersandConnectedConstraint node, final Object data) {
-				return handleConnectedConstraint(
-						node,
-						data,
+				return handleConnectedConstraint(node, data,
 						new SFPConstraintVisitorSupplier<SFPVisitorImpl.SFPConditionalElementVisitor.SFPTermVisitor>() {
 							@Override
 							public SFPTermVisitor create(final SFPConditionalElementVisitor parent,
-									final Consumer<ConditionalElement> constraintAdder,
-									final Template template, final SlotAddress slot,
-									final Optional<SingleSlotVariable> constraintVariable) {
-								return new SFPTermVisitor(parent, constraintAdder, template, slot,
-										constraintVariable);
+									final Consumer<ConditionalElement> constraintAdder, final Template template,
+									final SlotAddress slot, final Optional<SingleSlotVariable> constraintVariable) {
+								return new SFPTermVisitor(parent, constraintAdder, template, slot, constraintVariable);
 							}
 						}, AndFunctionConditionalElement::new);
 			}
@@ -907,11 +868,10 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 							@Override
 							public SFPAmpersandConnectedConstraintVisitor create(
 									final SFPConditionalElementVisitor parent,
-									final Consumer<ConditionalElement> constraintAdder,
-									final Template template, final SlotAddress slot,
-									final Optional<SingleSlotVariable> constraintVariable) {
-								return new SFPAmpersandConnectedConstraintVisitor(parent,
-										constraintAdder, template, slot, constraintVariable);
+									final Consumer<ConditionalElement> constraintAdder, final Template template,
+									final SlotAddress slot, final Optional<SingleSlotVariable> constraintVariable) {
+								return new SFPAmpersandConnectedConstraintVisitor(parent, constraintAdder, template,
+										slot, constraintVariable);
 							}
 						}, OrFunctionConditionalElement::new);
 			}
@@ -929,8 +889,7 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 
 		class SFPConnectedConstraintVisitor extends SFPConstraintBase {
 			public SFPConnectedConstraintVisitor(final SFPConditionalElementVisitor parent,
-					final Consumer<ConditionalElement> constraintAdder, final Template template,
-					final SlotAddress slot) {
+					final Consumer<ConditionalElement> constraintAdder, final Template template, final SlotAddress slot) {
 				super(parent, constraintAdder, template, slot, Optional.empty());
 			}
 
@@ -940,12 +899,12 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 			public Object visit(final SFPConnectedConstraint node, final Object data) {
 				final int numChildren = node.jjtGetNumChildren();
 				assert Arrays.asList(1, 2).contains(numChildren);
-				SelectiveSFPVisitor.stream(node, 0).forEach(
-						n -> this.constraintVariable =
-								SelectiveSFPVisitor
-										.sendVisitor(new SFPConnectedConstraintElementsVisitor(
-												parent, constraintAdder, template, slot,
-												constraintVariable), n, data).constraintVariable);
+				SelectiveSFPVisitor
+						.stream(node, 0)
+						.forEach(
+								n -> this.constraintVariable =
+										SelectiveSFPVisitor.sendVisitor(new SFPConnectedConstraintElementsVisitor(
+												parent, constraintAdder, template, slot, constraintVariable), n, data).constraintVariable);
 				return data;
 			}
 		}
@@ -958,25 +917,21 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 			final SlotAddress slot;
 			Optional<SingleSlotVariable> constraintVariable;
 
-			Object handleConnectedConstraint(
-					final SimpleNode node,
-					final Object data,
+			Object handleConnectedConstraint(final SimpleNode node, final Object data,
 					final SFPConstraintVisitorSupplier<? extends SFPConstraintBase> visitorSupplier,
 					final java.util.function.Function<List<ConditionalElement>, ConditionalElement> connector) {
 				assert node.jjtGetNumChildren() > 0;
 				final boolean terminal = 1 == node.jjtGetNumChildren();
 				if (terminal) {
 					this.constraintVariable =
-							SelectiveSFPVisitor.sendVisitor(visitorSupplier.create(parent,
-									constraintAdder, template, slot, constraintVariable), node
-									.jjtGetChild(0), data).constraintVariable;
+							SelectiveSFPVisitor
+									.sendVisitor(visitorSupplier.create(parent, constraintAdder, template, slot,
+											constraintVariable), node.jjtGetChild(0), data).constraintVariable;
 				} else {
 					final ArrayList<ConditionalElement> constraints = new ArrayList<>();
 					final SFPConstraintBase visitor =
-							visitorSupplier.create(parent, constraints::add, template, slot,
-									constraintVariable);
-					SelectiveSFPVisitor.stream(node, 0).forEach(
-							n -> SelectiveSFPVisitor.sendVisitor(visitor, n, data));
+							visitorSupplier.create(parent, constraints::add, template, slot, constraintVariable);
+					SelectiveSFPVisitor.stream(node, 0).forEach(n -> SelectiveSFPVisitor.sendVisitor(visitor, n, data));
 					constraintAdder.accept(connector.apply(constraints));
 					this.constraintVariable = visitor.constraintVariable;
 				}
@@ -998,11 +953,9 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 			public Object visit(final SFPLHSSlot node, final Object data) {
 				assert node.jjtGetNumChildren() == 2;
 				final Symbol slotName =
-						SelectiveSFPVisitor.sendVisitor(new SFPSymbolVisitor(),
-								node.jjtGetChild(0), data).symbol;
-				SelectiveSFPVisitor.sendVisitor(new SFPConnectedConstraintVisitor(parent,
-						constraintAdder, template, template.getSlotAddress(slotName.getImage())),
-						node.jjtGetChild(1), data);
+						SelectiveSFPVisitor.sendVisitor(new SFPSymbolVisitor(), node.jjtGetChild(0), data).symbol;
+				SelectiveSFPVisitor.sendVisitor(new SFPConnectedConstraintVisitor(parent, constraintAdder, template,
+						template.getSlotAddress(slotName.getImage())), node.jjtGetChild(1), data);
 				return data;
 			}
 		}
@@ -1019,8 +972,8 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 			@Override
 			public Object visit(final SFPUnorderedLHSFactBody node, final Object data) {
 				assert node.jjtGetNumChildren() == 1;
-				SelectiveSFPVisitor.sendVisitor(new SFPUnorderedLHSFactBodyElementsVisitor(parent,
-						constraintAdder, template), node.jjtGetChild(0), data);
+				SelectiveSFPVisitor.sendVisitor(new SFPUnorderedLHSFactBodyElementsVisitor(parent, constraintAdder,
+						template), node.jjtGetChild(0), data);
 				return data;
 			}
 
@@ -1088,13 +1041,12 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 		public Object visit(final SFPTemplatePatternCE node, final Object data) {
 			assert node.jjtGetNumChildren() > 1;
 			final Symbol templateName =
-					SelectiveSFPVisitor.sendVisitor(new SFPSymbolVisitor(), node.jjtGetChild(0),
-							data).symbol;
+					SelectiveSFPVisitor.sendVisitor(new SFPSymbolVisitor(), node.jjtGetChild(0), data).symbol;
 			// the effect of this node should be the creation of one or more slot variables
 			final Template template = parserToNetwork.getTemplate(templateName.getImage());
 			if (null == template) {
-				throw SelectiveSFPVisitor.dumpAndThrowMe(node, IllegalArgumentException::new,
-						"No template with name " + templateName + " defined yet!");
+				throw SelectiveSFPVisitor.dumpAndThrowMe(node, IllegalArgumentException::new, "No template with name "
+						+ templateName + " defined yet!");
 			}
 			contextStack.mark();
 			// if we have the job to determine the type of a fact variable, publish the template now
@@ -1102,18 +1054,16 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 				this.factVariable = new SingleFactVariable(possibleFactVariable, template);
 				this.possibleFactVariable.setFactVariable(this.factVariable);
 			} else {
-				this.factVariable =
-						new SingleFactVariable(parserToNetwork.getScope().createDummy(), template);
+				this.factVariable = new SingleFactVariable(parserToNetwork.getScope().createDummy(), template);
 			}
 			final ConditionalElement templCE =
 					parserToNetwork.getInitialFactTemplate() == template ? new InitialFactConditionalElement(
-							this.factVariable) : new TemplatePatternConditionalElement(
-							this.factVariable);
+							this.factVariable) : new TemplatePatternConditionalElement(this.factVariable);
 			final ArrayList<ConditionalElement> constraints = new ArrayList<>();
 			constraints.add(templCE);
 			SelectiveSFPVisitor.stream(node, 1).forEach(
-					n -> SelectiveSFPVisitor.sendVisitor(new SFPTemplatePatternCEElementsVisitor(
-							this, constraints::add, template), n, data));
+					n -> SelectiveSFPVisitor.sendVisitor(new SFPTemplatePatternCEElementsVisitor(this,
+							constraints::add, template), n, data));
 			if (constraints.size() == 1) {
 				this.resultCE = Optional.of(templCE);
 			} else {
@@ -1138,9 +1088,8 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 			final List<ConditionalElement> elements =
 					SelectiveSFPVisitor
 							.stream(node, 0)
-							.map(n -> SelectiveSFPVisitor.sendVisitor(
-									new SFPConditionalElementVisitor(contextStack, null), n, data).resultCE)
-							.filter(Optional::isPresent).map(Optional::get)
+							.map(n -> SelectiveSFPVisitor.sendVisitor(new SFPConditionalElementVisitor(contextStack,
+									null), n, data).resultCE).filter(Optional::isPresent).map(Optional::get)
 							.collect(Collectors.toList());
 			final int size = elements.size();
 			if (size == 1) {
@@ -1159,10 +1108,9 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 			final List<ConditionalElement> elements =
 					SelectiveSFPVisitor
 							.stream(node, 0)
-							.map(n -> SelectiveSFPVisitor.sendVisitor(
-									new SFPConditionalElementVisitor(contextStack, (Symbol) null),
-									n, data).resultCE).filter(Optional::isPresent)
-							.map(Optional::get).collect(Collectors.toList());
+							.map(n -> SelectiveSFPVisitor.sendVisitor(new SFPConditionalElementVisitor(contextStack,
+									(Symbol) null), n, data).resultCE).filter(Optional::isPresent).map(Optional::get)
+							.collect(Collectors.toList());
 			final int size = elements.size();
 			if (size == 1) {
 				this.resultCE = Optional.of(elements.get(0));
@@ -1178,22 +1126,19 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 		public Object visit(final SFPNotFunction node, final Object data) {
 			// not has multiple meanings: boolean operator, not exists operator
 			assert node.jjtGetNumChildren() == 1;
-			try (final ScopeCloser scopeCloser =
-					new ScopeCloser(SFPVisitorImpl.this.parserToNetwork.getScope());
+			try (final ScopeCloser scopeCloser = new ScopeCloser(SFPVisitorImpl.this.parserToNetwork.getScope());
 					final ScopedExistentialStack scopedExistentialStack =
 							new ScopedExistentialStack(contextStack, this, ExistentialState.NEGATED)) {
 				final SFPConditionalElementVisitor visitor =
-						SelectiveSFPVisitor.sendVisitor(new SFPConditionalElementVisitor(
-								contextStack, (Symbol) null), node.jjtGetChild(0), data);
+						SelectiveSFPVisitor.sendVisitor(new SFPConditionalElementVisitor(contextStack, (Symbol) null),
+								node.jjtGetChild(0), data);
 				if (this.containsTemplateCE) {
 					this.resultCE =
-							Optional.of(new NegatedExistentialConditionalElement(Stream
-									.of(visitor.resultCE).filter(Optional::isPresent)
-									.map(Optional::get).collect(Collectors.toList())));
+							Optional.of(new NegatedExistentialConditionalElement(Stream.of(visitor.resultCE)
+									.filter(Optional::isPresent).map(Optional::get).collect(Collectors.toList())));
 				} else {
 					this.resultCE =
-							Optional.of(new NotFunctionConditionalElement(Arrays
-									.asList(visitor.resultCE.get())));
+							Optional.of(new NotFunctionConditionalElement(Arrays.asList(visitor.resultCE.get())));
 				}
 			}
 			return data;
@@ -1205,11 +1150,10 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 		public Object visit(final SFPTestCE node, final Object data) {
 			assert node.jjtGetNumChildren() == 1;
 			final FunctionWithArguments functionCall =
-					SelectiveSFPVisitor.sendVisitor(new SFPFunctionCallElementsVisitor(
-							SymbolToFunctionWithArguments.bySymbol(), false), node.jjtGetChild(0),
-							data).expression;
-			this.resultCE =
-					Optional.of(new TestConditionalElement((PredicateWithArguments) functionCall));
+					SelectiveSFPVisitor.sendVisitor(
+							new SFPFunctionCallElementsVisitor(SymbolToFunctionWithArguments.bySymbol(), false),
+							node.jjtGetChild(0), data).expression;
+			this.resultCE = Optional.of(new TestConditionalElement((PredicateWithArguments) functionCall));
 			return data;
 		}
 
@@ -1218,17 +1162,14 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 		@Override
 		public Object visit(final SFPExistsCE node, final Object data) {
 			assert node.jjtGetNumChildren() > 0;
-			try (final ScopeCloser scopeCloser =
-					new ScopeCloser(SFPVisitorImpl.this.parserToNetwork.getScope());
+			try (final ScopeCloser scopeCloser = new ScopeCloser(SFPVisitorImpl.this.parserToNetwork.getScope());
 					final ScopedExistentialStack scopedExistentialStack =
-							new ScopedExistentialStack(contextStack, this,
-									ExistentialState.EXISTENTIAL)) {
+							new ScopedExistentialStack(contextStack, this, ExistentialState.EXISTENTIAL)) {
 				final List<ConditionalElement> elements =
 						SelectiveSFPVisitor
 								.stream(node, 0)
-								.map(n -> SelectiveSFPVisitor.sendVisitor(
-										new SFPConditionalElementVisitor(contextStack, null), n,
-										data).resultCE).filter(Optional::isPresent)
+								.map(n -> SelectiveSFPVisitor.sendVisitor(new SFPConditionalElementVisitor(
+										contextStack, null), n, data).resultCE).filter(Optional::isPresent)
 								.map(Optional::get).collect(Collectors.toList());
 				assert this.containsTemplateCE;
 				this.resultCE = Optional.of(new ExistentialConditionalElement(elements));
@@ -1260,8 +1201,7 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 			final SimpleNode innerNot = new SFPNotFunction(SFPParserTreeConstants.JJTNOTFUNCTION);
 			outerAnd.jjtAddChild(innerNot, 1);
 			if (child.jjtGetNumChildren() > 2) {
-				final SimpleNode innerAnd =
-						new SFPAndFunction(SFPParserTreeConstants.JJTANDFUNCTION);
+				final SimpleNode innerAnd = new SFPAndFunction(SFPParserTreeConstants.JJTANDFUNCTION);
 				innerNot.jjtAddChild(innerAnd, 0);
 				for (int j = 1; j < child.jjtGetNumChildren(); ++j) {
 					innerAnd.jjtAddChild(child.jjtGetChild(j), j - 1);
@@ -1278,16 +1218,14 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 		public Object visit(final SFPAssignedPatternCE node, final Object data) {
 			assert node.jjtGetNumChildren() == 2;
 			final Symbol symbol =
-					SelectiveSFPVisitor.sendVisitor(new SFPSingleVariableVisitor(),
-							node.jjtGetChild(0), data).symbol;
+					SelectiveSFPVisitor.sendVisitor(new SFPSingleVariableVisitor(), node.jjtGetChild(0), data).symbol;
 			if (symbol.getFactVariable().isPresent()) {
 				throw new ClipsNameClashError("Variable " + symbol.getImage()
-						+ " has already been used as left hand side of an Assigned Pattern CE!",
-						node);
+						+ " has already been used as left hand side of an Assigned Pattern CE!", node);
 			}
 			this.resultCE =
-					SelectiveSFPVisitor.sendVisitor(new SFPConditionalElementVisitor(contextStack,
-							symbol), node.jjtGetChild(1), data).resultCE;
+					SelectiveSFPVisitor.sendVisitor(new SFPConditionalElementVisitor(contextStack, symbol),
+							node.jjtGetChild(1), data).resultCE;
 			return data;
 		}
 	}
@@ -1305,19 +1243,17 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 			public Object visit(final SFPSalience node, final Object data) {
 				assert 1 == node.jjtGetNumChildren();
 				final FunctionWithArguments expression =
-						SelectiveSFPVisitor.sendVisitor(new SFPExpressionVisitor(
-								SymbolToFunctionWithArguments.bySymbol(), false), node
-								.jjtGetChild(0), data).expression;
+						SelectiveSFPVisitor.sendVisitor(
+								new SFPExpressionVisitor(SymbolToFunctionWithArguments.bySymbol(), false),
+								node.jjtGetChild(0), data).expression;
 				assert expression.getReturnType() == SlotType.LONG;
 				assert Arrays.equals(expression.getParamTypes(), SlotType.empty);
-				SFPDefruleConstructElementVisitor.this.salience =
-						((Long) expression.evaluate()).intValue();
+				SFPDefruleConstructElementVisitor.this.salience = ((Long) expression.evaluate()).intValue();
 				return data;
 			}
 		}
 
-		public SFPDefruleConstructElementVisitor(final ExistentialStack contextStack,
-				final Symbol possibleFactVariable) {
+		public SFPDefruleConstructElementVisitor(final ExistentialStack contextStack, final Symbol possibleFactVariable) {
 			super(contextStack, possibleFactVariable);
 		}
 
@@ -1328,8 +1264,7 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 		public Object visit(final SFPDeclaration node, final Object data) {
 			assert node.jjtGetNumChildren() > 0;
 			SelectiveSFPVisitor.stream(node, 0).forEach(
-					n -> SelectiveSFPVisitor.sendVisitor(new SFPRulePropertyElementsVisitor(), n,
-							data));
+					n -> SelectiveSFPVisitor.sendVisitor(new SFPRulePropertyElementsVisitor(), n, data));
 			return data;
 		}
 
@@ -1341,8 +1276,7 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 		public Object visit(final SFPConstructDescription node, final Object data) {
 			assert node.jjtGetNumChildren() == 1;
 			this.comment =
-					Optional.of(SelectiveSFPVisitor.sendVisitor(new SFPStringVisitor(),
-							node.jjtGetChild(0), data).string);
+					Optional.of(SelectiveSFPVisitor.sendVisitor(new SFPStringVisitor(), node.jjtGetChild(0), data).string);
 			return data;
 		}
 
@@ -1359,8 +1293,7 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 	}
 
 	interface SymbolToFunctionWithArguments {
-		FunctionWithArguments apply(final Symbol symbol, final SimpleNode node)
-				throws ClipsVariableNotDeclaredError;
+		FunctionWithArguments apply(final Symbol symbol, final SimpleNode node) throws ClipsVariableNotDeclaredError;
 
 		static SymbolToFunctionWithArguments bySymbol() {
 			return (symbol, node) -> {
@@ -1388,30 +1321,27 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 		public Object visit(final SFPExpression node, final Object data) {
 			assert node.jjtGetNumChildren() == 1;
 			this.expression =
-					SelectiveSFPVisitor.sendVisitor(new SFPExpressionElementsVisitor(mapper,
-							sideEffectsAllowed), node.jjtGetChild(0), data).expression;
+					SelectiveSFPVisitor.sendVisitor(new SFPExpressionElementsVisitor(mapper, sideEffectsAllowed),
+							node.jjtGetChild(0), data).expression;
 			return data;
 		}
 	}
 
 	class SFPExpressionElementsVisitor extends SFPFunctionCallElementsVisitor {
-		SFPExpressionElementsVisitor(final SymbolToFunctionWithArguments mapper,
-				final boolean sideEffectsAllowed) {
+		SFPExpressionElementsVisitor(final SymbolToFunctionWithArguments mapper, final boolean sideEffectsAllowed) {
 			super(mapper, sideEffectsAllowed);
 		}
 
 		@Override
 		public Object visit(final SFPConstant node, final Object data) {
-			final SFPValueVisitor visitor =
-					SelectiveSFPVisitor.sendVisitor(new SFPValueVisitor(), node, data);
+			final SFPValueVisitor visitor = SelectiveSFPVisitor.sendVisitor(new SFPValueVisitor(), node, data);
 			this.expression = new ConstantLeaf(visitor.value, visitor.type);
 			return data;
 		}
 
 		@Override
 		public Object visit(final SFPSingleVariable node, final Object data) {
-			final Symbol symbol =
-					SelectiveSFPVisitor.sendVisitor(new SFPSingleVariableVisitor(), node, data).symbol;
+			final Symbol symbol = SelectiveSFPVisitor.sendVisitor(new SFPSingleVariableVisitor(), node, data).symbol;
 			this.expression = this.mapper.apply(symbol, node);
 			return data;
 		}
@@ -1500,8 +1430,7 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 
 			@Override
 			public Object visit(final SFPConstant node, final Object data) {
-				final SFPValueVisitor visitor =
-						SelectiveSFPVisitor.sendVisitor(new SFPValueVisitor(), node, data);
+				final SFPValueVisitor visitor = SelectiveSFPVisitor.sendVisitor(new SFPValueVisitor(), node, data);
 				this.value = new ConstantLeaf(visitor.value, visitor.type);
 				return data;
 			}
@@ -1509,8 +1438,8 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 			@Override
 			public Object handleFunctionCall(final SimpleNode node, final Object data) {
 				this.value =
-						SelectiveSFPVisitor.sendVisitor(new SFPFunctionCallElementsVisitor(
-								this.mapper, this.sideEffectsAllowed), node, data).expression;
+						SelectiveSFPVisitor.sendVisitor(new SFPFunctionCallElementsVisitor(this.mapper,
+								this.sideEffectsAllowed), node, data).expression;
 				return data;
 			}
 		}
@@ -1531,8 +1460,7 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 							"You can only specify one value per slot in an assert/modify statement!");
 				}
 				final Symbol symbol =
-						SelectiveSFPVisitor.sendVisitor(new SFPSymbolVisitor(),
-								node.jjtGetChild(0), data).symbol;
+						SelectiveSFPVisitor.sendVisitor(new SFPSymbolVisitor(), node.jjtGetChild(0), data).symbol;
 				this.slotName = symbol.getImage();
 				this.value =
 						SelectiveSFPVisitor.sendVisitor(new SFPRHSSlotElementsVisitor(this.mapper,
@@ -1552,23 +1480,19 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 			public Object visit(final SFPRHSPattern node, final Object data) {
 				assert node.jjtGetNumChildren() > 0;
 				final Symbol symbol =
-						SelectiveSFPVisitor.sendVisitor(new SFPSymbolVisitor(),
-								node.jjtGetChild(0), data).symbol;
+						SelectiveSFPVisitor.sendVisitor(new SFPSymbolVisitor(), node.jjtGetChild(0), data).symbol;
 				final Template template = parserToNetwork.getTemplate(symbol.getImage());
 				if (null == template) {
 					throw new ClipsTemplateNotDefinedError(symbol, node);
 				}
-				final AssertTemplateContainerBuilder builder =
-						new AssertTemplateContainerBuilder(template);
+				final AssertTemplateContainerBuilder builder = new AssertTemplateContainerBuilder(template);
 				SelectiveSFPVisitor.stream(node, 1).forEach(
 						n -> {
 							final SFPRHSPatternElementsVisitor visitor =
-									SelectiveSFPVisitor.sendVisitor(
-											new SFPRHSPatternElementsVisitor(this.mapper,
-													this.sideEffectsAllowed), n, data);
+									SelectiveSFPVisitor.sendVisitor(new SFPRHSPatternElementsVisitor(this.mapper,
+											this.sideEffectsAllowed), n, data);
 							;
-							final SlotAddress slotAddress =
-									template.getSlotAddress(visitor.slotName);
+							final SlotAddress slotAddress = template.getSlotAddress(visitor.slotName);
 							if (null == slotAddress) {
 								throw new ClipsNoSlotForThatNameError(symbol.getImage(), node);
 							}
@@ -1604,20 +1528,16 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 		public Object visit(final SFPAnyFunction node, final Object data) {
 			assert node.jjtGetNumChildren() > 0;
 			final Symbol symbol =
-					SelectiveSFPVisitor.sendVisitor(new SFPSymbolVisitor(), node.jjtGetChild(0),
-							data).symbol;
+					SelectiveSFPVisitor.sendVisitor(new SFPSymbolVisitor(), node.jjtGetChild(0), data).symbol;
 			final List<FunctionWithArguments> arguments =
 					SelectiveSFPVisitor
 							.stream(node, 1)
-							.map(n -> SelectiveSFPVisitor.sendVisitor(new SFPExpressionVisitor(
-									this.mapper, this.sideEffectsAllowed), n, data).expression)
-							.collect(Collectors.toList());
-			final SlotType[] argTypes =
-					toArray(arguments.stream().map(e -> e.getReturnType()), SlotType[]::new);
+							.map(n -> SelectiveSFPVisitor.sendVisitor(new SFPExpressionVisitor(this.mapper,
+									this.sideEffectsAllowed), n, data).expression).collect(Collectors.toList());
+			final SlotType[] argTypes = toArray(arguments.stream().map(e -> e.getReturnType()), SlotType[]::new);
 			final Function<?> function =
-					sideEffectsAllowed ? FunctionDictionary.lookupWithSideEffects(
-							sideEffectFunctionToNetwork, symbol.getImage(), argTypes)
-							: FunctionDictionary.lookup(symbol.getImage(), argTypes);
+					sideEffectsAllowed ? FunctionDictionary.lookupWithSideEffects(sideEffectFunctionToNetwork,
+							symbol.getImage(), argTypes) : FunctionDictionary.lookup(symbol.getImage(), argTypes);
 			this.expression =
 					SlotType.BOOLEAN == function.getReturnType() ? new PredicateWithArgumentsComposite(
 							(Predicate) function, toArray(arguments, FunctionWithArguments[]::new))
@@ -1633,15 +1553,12 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 			final List<FunctionWithArguments> arguments =
 					SelectiveSFPVisitor
 							.stream(node, 0)
-							.map(n -> SelectiveSFPVisitor.sendVisitor(new SFPExpressionVisitor(
-									this.mapper, this.sideEffectsAllowed), n, data).expression)
-							.collect(Collectors.toList());
-			final SlotType[] argTypes =
-					toArray(arguments.stream().map(e -> e.getReturnType()), SlotType[]::new);
+							.map(n -> SelectiveSFPVisitor.sendVisitor(new SFPExpressionVisitor(this.mapper,
+									this.sideEffectsAllowed), n, data).expression).collect(Collectors.toList());
+			final SlotType[] argTypes = toArray(arguments.stream().map(e -> e.getReturnType()), SlotType[]::new);
 			final Predicate function = FunctionDictionary.lookupPredicate(Equals.inClips, argTypes);
 			this.expression =
-					new PredicateWithArgumentsComposite(function, toArray(arguments,
-							FunctionWithArguments[]::new));
+					new PredicateWithArgumentsComposite(function, toArray(arguments, FunctionWithArguments[]::new));
 			return data;
 		}
 
@@ -1654,11 +1571,9 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 			}
 			// each child corresponds to one fact assertion
 			final TemplateContainer[] templateContainers =
-					toArray(SelectiveSFPVisitor.stream(node, 0)
-							.map(n -> SelectiveSFPVisitor.sendVisitor(
-									new SFPAssertFuncElementsVisitor(this.mapper,
-											this.sideEffectsAllowed), n, data).templateContainer),
-							TemplateContainer[]::new);
+					toArray(SelectiveSFPVisitor.stream(node, 0).map(
+							n -> SelectiveSFPVisitor.sendVisitor(new SFPAssertFuncElementsVisitor(this.mapper,
+									this.sideEffectsAllowed), n, data).templateContainer), TemplateContainer[]::new);
 			this.expression = new Assert(sideEffectFunctionToNetwork, templateContainers);
 			return data;
 		}
@@ -1672,9 +1587,8 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 			}
 			final FunctionWithArguments[] array =
 					toArray(SelectiveSFPVisitor.stream(node, 0).map(
-							n -> SelectiveSFPVisitor.sendVisitor(new SFPExpressionVisitor(
-									this.mapper, this.sideEffectsAllowed), n, data).expression),
-							FunctionWithArguments[]::new);
+							n -> SelectiveSFPVisitor.sendVisitor(new SFPExpressionVisitor(this.mapper,
+									this.sideEffectsAllowed), n, data).expression), FunctionWithArguments[]::new);
 			Arrays.stream(array).forEach(fwa -> {
 				if (!FactIdentifierTypes.contains(fwa.getReturnType())) {
 					throw new ClipsTypeMismatchError(null, node);
@@ -1694,15 +1608,14 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 				throw new ClipsSideEffectsDisallowedHereError("modify", node);
 			}
 			final FunctionWithArguments target =
-					SelectiveSFPVisitor.sendVisitor(new SFPExpressionVisitor(this.mapper,
-							this.sideEffectsAllowed), node.jjtGetChild(0), data).expression;
+					SelectiveSFPVisitor.sendVisitor(new SFPExpressionVisitor(this.mapper, this.sideEffectsAllowed),
+							node.jjtGetChild(0), data).expression;
 			final Modify.SlotAndValue[] array =
 					toArray(SelectiveSFPVisitor.stream(node, 1).map(
 							n -> {
 								final SFPRHSPatternElementsVisitor visitor =
-										SelectiveSFPVisitor.sendVisitor(
-												new SFPRHSPatternElementsVisitor(this.mapper,
-														this.sideEffectsAllowed), n, data);
+										SelectiveSFPVisitor.sendVisitor(new SFPRHSPatternElementsVisitor(this.mapper,
+												this.sideEffectsAllowed), n, data);
 								return new Modify.SlotAndValue(visitor.slotName, visitor.value);
 							}), Modify.SlotAndValue[]::new);
 			Arrays.stream(array).forEach(fwa -> {
@@ -1733,15 +1646,12 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 				// <RBRACE> )+ )
 				assert node.jjtGetNumChildren() > 1;
 				final Symbol symbol =
-						SelectiveSFPVisitor.sendVisitor(new SFPSymbolVisitor(),
-								node.jjtGetChild(0), data).symbol;
-				if (null != parserToNetwork.getRule(symbol.getImage())
-						|| previousRuleNames.contains(symbol.getImage())) {
-					throw new ClipsNameClashError(symbol.getImage(), node, "Rule "
-							+ symbol.getImage() + " already defined!");
+						SelectiveSFPVisitor.sendVisitor(new SFPSymbolVisitor(), node.jjtGetChild(0), data).symbol;
+				if (null != parserToNetwork.getRule(symbol.getImage()) || previousRuleNames.contains(symbol.getImage())) {
+					throw new ClipsNameClashError(symbol.getImage(), node, "Rule " + symbol.getImage()
+							+ " already defined!");
 				}
-				try (final ScopeCloser scopeCloser =
-						new ScopeCloser(SFPVisitorImpl.this.parserToNetwork.getScope())) {
+				try (final ScopeCloser scopeCloser = new ScopeCloser(SFPVisitorImpl.this.parserToNetwork.getScope())) {
 					final ExistentialStack existentialStack = new ExistentialStack();
 					String comment = null;
 					int salience = 0;
@@ -1749,9 +1659,8 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 					ArrayList<FunctionWithArguments> actionList = null;
 					for (int i = 1; i < node.jjtGetNumChildren(); ++i) {
 						final SFPDefruleConstructElementVisitor visitor =
-								SelectiveSFPVisitor.sendVisitor(
-										new SFPDefruleConstructElementVisitor(existentialStack,
-												(Symbol) null), node.jjtGetChild(i), data);
+								SelectiveSFPVisitor.sendVisitor(new SFPDefruleConstructElementVisitor(existentialStack,
+										(Symbol) null), node.jjtGetChild(i), data);
 						if (visitor.comment.isPresent()) {
 							assert null == comment;
 							comment = visitor.comment.get();
@@ -1765,15 +1674,11 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 						}
 					}
 					if (!existentialStack.templateCEContained) {
-						ces.add(0,
-								new InitialFactConditionalElement(new SingleFactVariable(
-										parserToNetwork.getScope().createDummy(), parserToNetwork
-												.getInitialFactTemplate())));
+						ces.add(0, new InitialFactConditionalElement(new SingleFactVariable(parserToNetwork.getScope()
+								.createDummy(), parserToNetwork.getInitialFactTemplate())));
 					}
 					existentialStack.getConditionalElements().addAll(ces);
-					this.defrule =
-							new Defrule(symbol.getImage(), comment, salience, existentialStack,
-									actionList);
+					this.defrule = new Defrule(symbol.getImage(), comment, salience, existentialStack, actionList);
 					SymbolCollector
 							.newHashSet()
 							.collect(existentialStack)
@@ -1782,15 +1687,13 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 							.collect(Collectors.groupingBy(Symbol::getImage))
 							.entrySet()
 							.stream()
-							.filter(e -> e.getValue().size() > 1
-									&& !e.getKey().equals(ScopeStack.dummySymbolImage))
+							.filter(e -> e.getValue().size() > 1 && !e.getKey().equals(ScopeStack.dummySymbolImage))
 							.forEach(
-									e -> SFPVisitorImpl.this.warnings
-											.add(new Warning(
-													"Two different symbols were created in rule "
-															+ symbol.getImage()
-															+ " for the same variable name leading to different variables, namely "
-															+ e.getKey())));
+									e -> SFPVisitorImpl.this.warnings.add(new Warning(
+											"Two different symbols were created in rule "
+													+ symbol.getImage()
+													+ " for the same variable name leading to different variables, namely "
+													+ e.getKey())));
 				}
 				return data;
 			}
@@ -1810,20 +1713,16 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 			// <DEFTEMPLATE> Symbol() [ ConstructDescription() ] ( SlotDefinition() )*
 			assert node.jjtGetNumChildren() > 0;
 			final Symbol symbol =
-					SelectiveSFPVisitor.sendVisitor(new SFPSymbolVisitor(), node.jjtGetChild(0),
-							data).symbol;
+					SelectiveSFPVisitor.sendVisitor(new SFPSymbolVisitor(), node.jjtGetChild(0), data).symbol;
 			if (null != parserToNetwork.getTemplate(symbol.getImage())) {
-				throw new ClipsNameClashError(symbol.getImage(), node, "Template " + symbol
-						+ " already defined!");
+				throw new ClipsNameClashError(symbol.getImage(), node, "Template " + symbol + " already defined!");
 			}
-			final SFPDeftemplateConstructElementsVisitor visitor =
-					new SFPDeftemplateConstructElementsVisitor();
+			final SFPDeftemplateConstructElementsVisitor visitor = new SFPDeftemplateConstructElementsVisitor();
 			for (int i = 1; i < node.jjtGetNumChildren(); ++i) {
 				node.jjtGetChild(i).jjtAccept(visitor, data);
 			}
 			final String comment = visitor.comment;
-			parserToNetwork.defTemplate(symbol.getImage(), comment,
-					toArray(visitor.slotDefinitions, Slot[]::new));
+			parserToNetwork.defTemplate(symbol.getImage(), comment, toArray(visitor.slotDefinitions, Slot[]::new));
 			return data;
 		}
 
@@ -1841,8 +1740,7 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 			for (int i = 0; i < numChildren; ++i) {
 				final Node child = node.jjtGetChild(i);
 				final Defrule defrule =
-						SelectiveSFPVisitor.sendVisitor(
-								new SFPDefruleBodyVisitor(previousRuleNames), child, data).defrule;
+						SelectiveSFPVisitor.sendVisitor(new SFPDefruleBodyVisitor(previousRuleNames), child, data).defrule;
 				defrules[i] = defrule;
 				previousRuleNames.add(defrule.getName());
 			}
@@ -1857,8 +1755,8 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 			// <DEFRULE> Symbol() [ ConstructDescription() ] ( [ LOOKAHEAD(3) Declaration() ] (
 			// ConditionalElement() )* ) <ARROW> ActionList()
 			assert node.jjtGetNumChildren() == 1;
-			parserToNetwork.defRules(SelectiveSFPVisitor.sendVisitor(new SFPDefruleBodyVisitor(
-					Collections.emptyList()), node.jjtGetChild(0), data).defrule);
+			parserToNetwork.defRules(SelectiveSFPVisitor.sendVisitor(
+					new SFPDefruleBodyVisitor(Collections.emptyList()), node.jjtGetChild(0), data).defrule);
 			return data;
 		}
 
@@ -1871,8 +1769,7 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 			// <RBRACE> ) ActionList() )
 			assert node.jjtGetNumChildren() > 1;
 			final Symbol symbol =
-					SelectiveSFPVisitor.sendVisitor(new SFPSymbolVisitor(), node.jjtGetChild(0),
-							data).symbol;
+					SelectiveSFPVisitor.sendVisitor(new SFPSymbolVisitor(), node.jjtGetChild(0), data).symbol;
 			// handle comment, function group, variable list, action list
 			symbol.getImage();
 			// SFPVisitorImpl.this.symbolTableFunctions.put(symbol, null);
@@ -1889,8 +1786,8 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 						throw new ClipsVariableNotDeclaredError(s, n);
 					}, true), node, data).expression;
 			this.value =
-					sideEffectFunctionToNetwork.getLogFormatter().formatSlotValue(
-							expression.getReturnType(), expression.evaluate());
+					sideEffectFunctionToNetwork.getLogFormatter().formatSlotValue(expression.getReturnType(),
+							expression.evaluate());
 			return data;
 		}
 	}
@@ -1898,8 +1795,7 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 	public static void main(final String[] args) {
 		final boolean verbose = (args != null && args.length == 1 && "verbose".equals(args[0]));
 		if (!verbose)
-			System.out
-					.println("Note: For verbose output type \u005c"java Main verbose\u005c".\u005cn");
+			System.out.println("Note: For verbose output type \u005c"java Main verbose\u005c".\u005cn");
 
 		final SFPParser p = new SFPParser(System.in);
 		final Network network = new Network();

@@ -46,8 +46,8 @@ public abstract class Printout implements Function<Object> {
 	}
 
 	static {
-		FunctionDictionary.addVarArgsGeneratorWithSideEffects(inClips, (
-				final SideEffectFunctionToNetwork network, final SlotType[] paramTypes) -> {
+		FunctionDictionary.addVarArgsGeneratorWithSideEffects(inClips, (final SideEffectFunctionToNetwork network,
+				final SlotType[] paramTypes) -> {
 			if (paramTypes.length < 1 || paramTypes[0] != SlotType.SYMBOL) {
 				return null;
 			}
@@ -66,8 +66,7 @@ public abstract class Printout implements Function<Object> {
 					if ("nil".equals(logicalName.getImage())) {
 						return null;
 					}
-					assert "t".equals(logicalName.getImage())
-							|| "stdout".equals(logicalName.getImage());
+					assert "t".equals(logicalName.getImage()) || "stdout".equals(logicalName.getImage());
 					final LogFormatter logFormatter = network.getLogFormatter();
 					final StringBuilder sb = new StringBuilder();
 					for (int i = 1; i < params.length; ++i) {
@@ -85,8 +84,7 @@ public abstract class Printout implements Function<Object> {
 								sb.append("\t");
 								continue;
 							case "vtab":
-								throw new UnsupportedOperationException(
-										"Java doesn't support vertical tabs!");
+								throw new UnsupportedOperationException("Java doesn't support vertical tabs!");
 							}
 						}
 						sb.append(logFormatter.formatSlotValue(type, value, false));

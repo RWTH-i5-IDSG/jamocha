@@ -58,8 +58,7 @@ public class FactVariableCollectorTest {
 	private static String preRule = "(defrule " + ruleName;
 	private static String postRule = "=> )\n";
 
-	private static Queue<Warning> run(final SFPParser parser, final SFPVisitorImpl visitor)
-			throws ParseException {
+	private static Queue<Warning> run(final SFPParser parser, final SFPVisitorImpl visitor) throws ParseException {
 		while (true) {
 			final SFPStart n = parser.Start();
 			if (n == null)
@@ -68,11 +67,11 @@ public class FactVariableCollectorTest {
 		}
 	}
 
-	private static List<ConditionalElement> clipsToCondition(final NetworkMockup ptn,
-			final String condition) throws ParseException {
+	private static List<ConditionalElement> clipsToCondition(final NetworkMockup ptn, final String condition)
+			throws ParseException {
 		final StringReader parserInput =
-				new StringReader(new StringJoiner(" ").add(templateString).add(template2String)
-						.add(template3String).add(preRule).add(condition).add(postRule).toString());
+				new StringReader(new StringJoiner(" ").add(templateString).add(template2String).add(template3String)
+						.add(preRule).add(condition).add(postRule).toString());
 		final SFPParser parser = new SFPParser(parserInput);
 		final SFPVisitorImpl visitor = new SFPVisitorImpl(ptn, ptn);
 		run(parser, visitor);
@@ -82,15 +81,12 @@ public class FactVariableCollectorTest {
 
 	@Test
 	public void simpleTest() throws ParseException {
-		final String input =
-				"(and (" + templateName + " (" + slot1Name
-						+ " ?x)) (test (> ?x 10)) (test (< ?x 15)))";
+		final String input = "(and (" + templateName + " (" + slot1Name + " ?x)) (test (> ?x 10)) (test (< ?x 15)))";
 		final NetworkMockup ptn = new NetworkMockup();
 		final List<ConditionalElement> conditionalElements = clipsToCondition(ptn, input);
 		assertEquals(1, conditionalElements.size());
 		final Map<SingleFactVariable, Path> variables =
-				FactVariableCollector.collectPaths(ptn.getInitialFactTemplate(),
-						conditionalElements.get(0)).getRight();
+				FactVariableCollector.collectPaths(ptn.getInitialFactTemplate(), conditionalElements.get(0)).getRight();
 		assertEquals(1, variables.size());
 		final Entry<SingleFactVariable, Path> entry = variables.entrySet().iterator().next();
 		assertEquals("Dummy", entry.getKey().getSymbol().getImage());
@@ -101,9 +97,8 @@ public class FactVariableCollectorTest {
 	@Test
 	public void aLitteMoreComplexTest() throws ParseException {
 		final String input =
-				"(and (" + templateName + " (" + slot1Name + " ?x)) (and ?y <- (" + template2Name
-						+ " (" + slot1Name + " ?x)) (" + template3Name + " (" + slot1Name
-						+ " ?x))) (test (> ?x 10)) (test (< ?x 15)))";
+				"(and (" + templateName + " (" + slot1Name + " ?x)) (and ?y <- (" + template2Name + " (" + slot1Name
+						+ " ?x)) (" + template3Name + " (" + slot1Name + " ?x))) (test (> ?x 10)) (test (< ?x 15)))";
 		final NetworkMockup ptn = new NetworkMockup();
 		final List<ConditionalElement> conditionalElements = clipsToCondition(ptn, input);
 		assertEquals(1, conditionalElements.size());

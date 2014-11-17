@@ -21,10 +21,8 @@ public class FWADeepCopy implements FunctionWithArgumentsVisitor {
 	}
 
 	@SuppressWarnings("unchecked")
-	private static <T extends FunctionWithArguments> T[] copyArgs(final T[] args,
-			final IntFunction<T[]> gen) {
-		return toArray(Arrays.stream(args).map(fwa -> (T) fwa.accept(new FWADeepCopy()).result),
-				gen);
+	private static <T extends FunctionWithArguments> T[] copyArgs(final T[] args, final IntFunction<T[]> gen) {
+		return toArray(Arrays.stream(args).map(fwa -> (T) fwa.accept(new FWADeepCopy()).result), gen);
 	}
 
 	private static FunctionWithArguments[] copyArgs(final FunctionWithArguments[] args) {
@@ -32,8 +30,7 @@ public class FWADeepCopy implements FunctionWithArgumentsVisitor {
 	}
 
 	@Override
-	public void visit(
-			final org.jamocha.function.fwa.PredicateWithArgumentsComposite predicateWithArgumentsComposite) {
+	public void visit(final org.jamocha.function.fwa.PredicateWithArgumentsComposite predicateWithArgumentsComposite) {
 		this.result =
 				new org.jamocha.function.fwa.PredicateWithArgumentsComposite(
 						predicateWithArgumentsComposite.getFunction(),
@@ -41,8 +38,7 @@ public class FWADeepCopy implements FunctionWithArgumentsVisitor {
 	}
 
 	@Override
-	public void visit(
-			final org.jamocha.function.fwa.FunctionWithArgumentsComposite functionWithArgumentsComposite) {
+	public void visit(final org.jamocha.function.fwa.FunctionWithArgumentsComposite functionWithArgumentsComposite) {
 		this.result =
 				new org.jamocha.function.fwa.FunctionWithArgumentsComposite(
 						functionWithArgumentsComposite.getFunction(),
@@ -51,16 +47,13 @@ public class FWADeepCopy implements FunctionWithArgumentsVisitor {
 
 	@Override
 	public void visit(final org.jamocha.function.fwa.ConstantLeaf constantLeaf) {
-		this.result =
-				new org.jamocha.function.fwa.ConstantLeaf(constantLeaf.getValue(),
-						constantLeaf.getReturnType());
+		this.result = new org.jamocha.function.fwa.ConstantLeaf(constantLeaf.getValue(), constantLeaf.getReturnType());
 	}
 
 	@Override
 	public void visit(final org.jamocha.function.fwa.PathLeaf.ParameterLeaf parameterLeaf) {
 		this.result =
-				new org.jamocha.function.fwa.PathLeaf.ParameterLeaf(parameterLeaf.getType(),
-						parameterLeaf.hash());
+				new org.jamocha.function.fwa.PathLeaf.ParameterLeaf(parameterLeaf.getType(), parameterLeaf.hash());
 	}
 
 	@Override
@@ -77,23 +70,20 @@ public class FWADeepCopy implements FunctionWithArgumentsVisitor {
 
 	@Override
 	public void visit(final org.jamocha.function.fwa.Assert.TemplateContainer fwa) {
-		this.result =
-				new org.jamocha.function.fwa.Assert.TemplateContainer(fwa.getTemplate(),
-						copyArgs(fwa.getArgs()));
+		this.result = new org.jamocha.function.fwa.Assert.TemplateContainer(fwa.getTemplate(), copyArgs(fwa.getArgs()));
 	}
 
 	@Override
 	public void visit(final org.jamocha.function.fwa.Modify fwa) {
 		this.result =
-				new org.jamocha.function.fwa.Modify(fwa.getNetwork(), fwa.getTargetFact().accept(
-						new FWADeepCopy()).result, copyArgs(fwa.getArgs(),
-						Modify.SlotAndValue[]::new));
+				new org.jamocha.function.fwa.Modify(fwa.getNetwork(),
+						fwa.getTargetFact().accept(new FWADeepCopy()).result, copyArgs(fwa.getArgs(),
+								Modify.SlotAndValue[]::new));
 	}
 
 	@Override
 	public void visit(final org.jamocha.function.fwa.Retract fwa) {
-		this.result =
-				new org.jamocha.function.fwa.Retract(fwa.getNetwork(), copyArgs(fwa.getArgs()));
+		this.result = new org.jamocha.function.fwa.Retract(fwa.getNetwork(), copyArgs(fwa.getArgs()));
 	}
 
 	@Override
@@ -104,7 +94,7 @@ public class FWADeepCopy implements FunctionWithArgumentsVisitor {
 	@Override
 	public void visit(final org.jamocha.function.fwa.Modify.SlotAndValue fwa) {
 		this.result =
-				new org.jamocha.function.fwa.Modify.SlotAndValue(fwa.getSlotName(), fwa.getValue()
-						.accept(new FWADeepCopy()).result);
+				new org.jamocha.function.fwa.Modify.SlotAndValue(fwa.getSlotName(), fwa.getValue().accept(
+						new FWADeepCopy()).result);
 	}
 }

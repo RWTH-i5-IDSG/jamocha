@@ -99,28 +99,27 @@ public abstract class Plus<R> implements CommutativeFunction<R> {
 				}
 			};
 		});
-		FunctionDictionary.addGenerator(inClips, SlotType.DOUBLE,
-				(final SlotType[] paramTypes) -> {
-					return new Plus<Double>() {
-						@Override
-						public SlotType[] getParamTypes() {
-							return paramTypes;
-						}
+		FunctionDictionary.addGenerator(inClips, SlotType.DOUBLE, (final SlotType[] paramTypes) -> {
+			return new Plus<Double>() {
+				@Override
+				public SlotType[] getParamTypes() {
+					return paramTypes;
+				}
 
-						@Override
-						public SlotType getReturnType() {
-							return SlotType.DOUBLE;
-						}
+				@Override
+				public SlotType getReturnType() {
+					return SlotType.DOUBLE;
+				}
 
-						@Override
-						public Double evaluate(final Function<?>... params) {
-							Double value = 0.0;
-							for (final Function<?> param : params) {
-								value += (Double) param.evaluate();
-							}
-							return value;
-						}
-					};
-				});
+				@Override
+				public Double evaluate(final Function<?>... params) {
+					Double value = 0.0;
+					for (final Function<?> param : params) {
+						value += (Double) param.evaluate();
+					}
+					return value;
+				}
+			};
+		});
 	}
 }

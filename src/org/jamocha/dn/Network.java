@@ -79,8 +79,8 @@ import org.jamocha.logging.OutstreamAppender;
 import org.jamocha.logging.TypedFilter;
 
 /**
- * The Network class encapsulates the central objects for {@link MemoryFactory} and {@link Scheduler} which are required
- * all over the whole discrimination network.
+ * The Network class encapsulates the central objects for {@link MemoryFactory} and
+ * {@link Scheduler} which are required all over the whole discrimination network.
  *
  * @author Christoph Terwelp <christoph.terwelp@rwth-aachen.de>
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
@@ -94,7 +94,8 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 	/**
 	 * -- GETTER --
 	 *
-	 * Gets the memoryFactory to generate the nodes {@link MemoryHandlerMain} and {@link MemoryHandlerPlusTemp}.
+	 * Gets the memoryFactory to generate the nodes {@link MemoryHandlerMain} and
+	 * {@link MemoryHandlerPlusTemp}.
 	 *
 	 * @return the networks memory Factory
 	 */
@@ -142,8 +143,8 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 	@Getter(AccessLevel.PRIVATE)
 	private static int loggerDiscriminator = 0;
 	@Getter(onMethod = @__(@Override))
-	private final Logger interactiveEventsLogger = LogManager
-			.getLogger(this.getClass().getCanonicalName() + Integer.valueOf(loggerDiscriminator++).toString());
+	private final Logger interactiveEventsLogger = LogManager.getLogger(this.getClass().getCanonicalName()
+			+ Integer.valueOf(loggerDiscriminator++).toString());
 
 	@Getter(onMethod = @__(@Override))
 	private final TypedFilter typedFilter = new TypedFilter(true);
@@ -164,11 +165,11 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 	 * Creates a new network object.
 	 *
 	 * @param memoryFactory
-	 * 		the {@link MemoryFactory} to use in the created network
+	 *            the {@link MemoryFactory} to use in the created network
 	 * @param tokenQueueCapacity
-	 * 		the capacity of the token queues in all token processing {@link Node nodes}
+	 *            the capacity of the token queues in all token processing {@link Node nodes}
 	 * @param scheduler
-	 * 		the {@link Scheduler} to handle the dispatching of token processing
+	 *            the {@link Scheduler} to handle the dispatching of token processing
 	 */
 	public Network(final MemoryFactory memoryFactory, final LogFormatter logFormatter, final int tokenQueueCapacity,
 			final Scheduler scheduler) {
@@ -184,31 +185,31 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 		{
 			for (final SlotType type : EnumSet.allOf(SlotType.class)) {
 				switch (type) {
-					case BOOLEAN:
-						defaultValues.put(type, Boolean.FALSE);
-						break;
-					case DATETIME:
-						defaultValues.put(type, ZonedDateTime.now());
-						break;
-					case DOUBLE:
-						defaultValues.put(type, Double.valueOf(0.0));
-						break;
-					case LONG:
-						defaultValues.put(type, Long.valueOf(0));
-						break;
-					case NIL:
-						defaultValues.put(type, null);
-						break;
-					case STRING:
-						defaultValues.put(type, "");
-						break;
-					case SYMBOL:
-						defaultValues.put(type, this.getScope().getOrCreateSymbol("nil"));
-						break;
-					case FACTADDRESS:
-						// should be handled by createDummyFact()
-						assert null != defaultValues.get(SlotType.FACTADDRESS);
-						break;
+				case BOOLEAN:
+					defaultValues.put(type, Boolean.FALSE);
+					break;
+				case DATETIME:
+					defaultValues.put(type, ZonedDateTime.now());
+					break;
+				case DOUBLE:
+					defaultValues.put(type, Double.valueOf(0.0));
+					break;
+				case LONG:
+					defaultValues.put(type, Long.valueOf(0));
+					break;
+				case NIL:
+					defaultValues.put(type, null);
+					break;
+				case STRING:
+					defaultValues.put(type, "");
+					break;
+				case SYMBOL:
+					defaultValues.put(type, this.getScope().getOrCreateSymbol("nil"));
+					break;
+				case FACTADDRESS:
+					// should be handled by createDummyFact()
+					assert null != defaultValues.get(SlotType.FACTADDRESS);
+					break;
 				}
 			}
 		}
@@ -225,9 +226,9 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 			final Configuration config = ctx.getConfiguration();
 			final LoggerConfig loggerConfig = config.getLoggerConfig(this.getInteractiveEventsLogger().getName());
 			// the normal constructor is private, thus we have to use the plugin-level access
-			final Appender appender = ConsoleAppender
-					.createAppender(LayoutAdapter.createLayout(config), (Filter) null, Target.SYSTEM_OUT.name(),
-							"consoleAppender", "true", "true");
+			final Appender appender =
+					ConsoleAppender.createAppender(LayoutAdapter.createLayout(config), (Filter) null,
+							Target.SYSTEM_OUT.name(), "consoleAppender", "true", "true");
 			// loggerConfig.getAppenders().forEach((n, a) -> loggerConfig.removeAppender(n));
 			// loggerConfig.setAdditive(false);
 			loggerConfig.setLevel(Level.ALL);
@@ -259,21 +260,22 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 	 * Creates a new network object using the {@link ClipsLogFormatter}.
 	 *
 	 * @param tokenQueueCapacity
-	 * 		the capacity of the token queues in all token processing {@link Node nodes}
+	 *            the capacity of the token queues in all token processing {@link Node nodes}
 	 * @param scheduler
-	 * 		the {@link Scheduler} to handle the dispatching of token processing
+	 *            the {@link Scheduler} to handle the dispatching of token processing
 	 */
 	public Network(final MemoryFactory memoryFactory, final int tokenQueueCapacity, final Scheduler scheduler) {
 		this(memoryFactory, ClipsLogFormatter.getMessageFormatter(), tokenQueueCapacity, scheduler);
 	}
 
 	/**
-	 * Creates a new network object with the {@link org.jamocha.dn.memory.javaimpl default memory implementation}.
+	 * Creates a new network object with the {@link org.jamocha.dn.memory.javaimpl default memory
+	 * implementation}.
 	 *
 	 * @param tokenQueueCapacity
-	 * 		the capacity of the token queues in all token processing {@link Node nodes}
+	 *            the capacity of the token queues in all token processing {@link Node nodes}
 	 * @param scheduler
-	 * 		the {@link Scheduler} to handle the dispatching of token processing
+	 *            the {@link Scheduler} to handle the dispatching of token processing
 	 */
 	public Network(final int tokenQueueCapacity, final Scheduler scheduler) {
 		this(org.jamocha.dn.memory.javaimpl.MemoryFactory.getMemoryFactory(), ClipsLogFormatter.getMessageFormatter(),
@@ -281,23 +283,25 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 	}
 
 	/**
-	 * Creates a new network object with the {@link org.jamocha.dn.memory.javaimpl default memory implementation} and
-	 * {@link ThreadPoolScheduler scheduler}.
+	 * Creates a new network object with the {@link org.jamocha.dn.memory.javaimpl default memory
+	 * implementation} and {@link ThreadPoolScheduler scheduler}.
 	 */
 	public Network() {
 		this(Integer.MAX_VALUE, new ThreadPoolScheduler(10));
 	}
 
 	/**
-	 * Tries to find a node performing the same filtering as the given filter and calls {@link
-	 * Node#shareNode(java.util.Map, org.jamocha.filter.Path...)} or creates a new {@link Node} for the given {@link
-	 * PathFilter filter}. Returns true iff a {@link Node} to share was found.
+	 * Tries to find a node performing the same filtering as the given filter and calls
+	 * {@link Node#shareNode(java.util.Map, org.jamocha.filter.Path...)} or creates a new
+	 * {@link Node} for the given {@link PathFilter filter}. Returns true iff a {@link Node} to
+	 * share was found.
 	 *
 	 * @param filter
-	 * 		{@link PathFilter} to find a corresponding {@link Node} for
+	 *            {@link PathFilter} to find a corresponding {@link Node} for
 	 * @return true iff a {@link Node} to share was found
 	 * @throws IllegalArgumentException
-	 * 		thrown if one of the {@link Path}s in the {@link PathFilter} was not mapped to a {@link Node}
+	 *             thrown if one of the {@link Path}s in the {@link PathFilter} was not mapped to a
+	 *             {@link Node}
 	 */
 	public boolean tryToShareNode(final PathFilter filter) throws IllegalArgumentException {
 		final Path[] paths = PathCollector.newLinkedHashSet().collectAll(filter).getPathsArray();
@@ -320,7 +324,8 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 		for (final Node candidate : candidates) {
 			// check if filter matches
 			final Map<Path, FactAddress> map = FilterFunctionCompare.equals(candidate, normalisedFilter);
-			if (null == map) continue;
+			if (null == map)
+				continue;
 
 			candidate.shareNode(map, paths);
 			return true;
@@ -364,7 +369,7 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 	 * Creates network nodes for one rule, consisting of the passed filters.
 	 *
 	 * @param translatedPath
-	 * 		translated version of the defrule we have to build the condition for
+	 *            translated version of the defrule we have to build the condition for
 	 * @return created TerminalNode for the constructed rule
 	 */
 	public TerminalNode buildRule(final Defrule.TranslatedPath translatedPath) {
@@ -510,7 +515,8 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 			this.scheduler.waitForNoUnfinishedJobs();
 			conflictSet.deleteRevokedEntries();
 			final Optional<RuleAndToken> optional = ConflictResolutionStrategy.random.pick(this.conflictSet);
-			if (!optional.isPresent()) break;
+			if (!optional.isPresent())
+				break;
 			final RuleAndToken ruleAndToken = optional.get();
 			this.logFormatter.messageRuleFiring(this, ruleAndToken.getRule(), (Assert) ruleAndToken.getToken());
 			ruleAndToken.getRule().getActionList().evaluate(ruleAndToken.getToken());
@@ -538,27 +544,29 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 	 * Adds an appender to the logging framework.
 	 *
 	 * @param out
-	 * 		output stream
+	 *            output stream
 	 * @param plain
-	 * 		true for just the content, false for log-style additional infos in front of the content
+	 *            true for just the content, false for log-style additional infos in front of the
+	 *            content
 	 */
 	public void addAppender(final OutputStream out, final boolean plain) {
 		final LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
 		final Configuration config = ctx.getConfiguration();
 		final LoggerConfig loggerConfig = config.getLoggerConfig(this.getInteractiveEventsLogger().getName());
-		loggerConfig
-				.addAppender(OutstreamAppender.newInstance(out, LayoutAdapter.createLayout(config, plain), null, true),
-						Level.ALL, (Filter) null);
+		loggerConfig.addAppender(
+				OutstreamAppender.newInstance(out, LayoutAdapter.createLayout(config, plain), null, true), Level.ALL,
+				(Filter) null);
 		// This causes all loggers to re-fetch information from their LoggerConfig
 		ctx.updateLoggers();
 	}
 
 	/**
-	 * A default network object with a basic setup, used for testing and other quick and dirty networks.
+	 * A default network object with a basic setup, used for testing and other quick and dirty
+	 * networks.
 	 */
-	public final static Network DEFAULTNETWORK =
-			new Network(org.jamocha.dn.memory.javaimpl.MemoryFactory.getMemoryFactory(),
-					ClipsLogFormatter.getMessageFormatter(), Integer.MAX_VALUE,
-					// new ThreadPoolScheduler(10)
-					new PlainScheduler());
+	public final static Network DEFAULTNETWORK = new Network(
+			org.jamocha.dn.memory.javaimpl.MemoryFactory.getMemoryFactory(), ClipsLogFormatter.getMessageFormatter(),
+			Integer.MAX_VALUE,
+			// new ThreadPoolScheduler(10)
+			new PlainScheduler());
 }

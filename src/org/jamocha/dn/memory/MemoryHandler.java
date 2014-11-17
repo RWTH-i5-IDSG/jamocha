@@ -63,6 +63,6 @@ public interface MemoryHandler {
 	 *            row to map
 	 * @return fact identifiers corresponding to the facts in the specified row
 	 */
-	public FactIdentifier[] getFactIdentifiers(
-			final MemoryFactToFactIdentifier memoryFactToFactIdentifier, final int row);
+	public FactIdentifier[] getFactIdentifiers(final MemoryFactToFactIdentifier memoryFactToFactIdentifier,
+			final int row);
 }

@@ -61,8 +61,7 @@ public interface MemoryHandlerTerminal extends Iterable<Assert> {
 	 */
 	@Getter
 	@ToString
-	public abstract class AssertOrRetract<T extends AssertOrRetract<?>> implements
-			Visitable<AssertOrRetractVisitor> {
+	public abstract class AssertOrRetract<T extends AssertOrRetract<?>> implements Visitable<AssertOrRetractVisitor> {
 		protected final MemoryHandler mem;
 
 		public AssertOrRetract(final MemoryHandler mem) {
@@ -131,8 +130,7 @@ public interface MemoryHandlerTerminal extends Iterable<Assert> {
 		 *            row to map
 		 * @return fact identifiers corresponding to the facts in the token
 		 */
-		public FactIdentifier[] getFactIdentifiers(
-				final MemoryFactToFactIdentifier memoryFactToFactIdentifier) {
+		public FactIdentifier[] getFactIdentifiers(final MemoryFactToFactIdentifier memoryFactToFactIdentifier) {
 			return this.mem.getFactIdentifiers(memoryFactToFactIdentifier, 0);
 		}
 	}

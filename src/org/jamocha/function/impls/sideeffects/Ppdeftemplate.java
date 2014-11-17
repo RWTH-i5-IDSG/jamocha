@@ -60,8 +60,7 @@ public abstract class Ppdeftemplate implements Function<Object> {
 					final Symbol type = (Symbol) params[0].evaluate();
 					final Template template = network.getTemplate(type.getImage());
 					if (null == template) {
-						network.getLogFormatter().messageUnknownSymbol(network, Type.TEMPLATE,
-								type.getImage());
+						network.getLogFormatter().messageUnknownSymbol(network, Type.TEMPLATE, type.getImage());
 					} else {
 						network.getLogFormatter().messageTemplateDetails(network, template);
 					}

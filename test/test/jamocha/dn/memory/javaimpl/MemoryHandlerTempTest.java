@@ -83,8 +83,7 @@ public class MemoryHandlerTempTest {
 		private class EdgeMockup extends EdgeImpl implements Edge {
 
 			final int offset;
-			final LinkedList<org.jamocha.dn.memory.MemoryHandlerPlusTemp> plusTemps =
-					new LinkedList<>();
+			final LinkedList<org.jamocha.dn.memory.MemoryHandlerPlusTemp> plusTemps = new LinkedList<>();
 
 			public EdgeMockup(final Node sourceNode, final Node targetNode, final int offset) {
 				super(sourceNode, targetNode, AddressFilter.empty);
@@ -102,8 +101,7 @@ public class MemoryHandlerTempTest {
 
 			@Override
 			public FactAddress localizeAddress(final FactAddress addressInParent) {
-				return fa[((org.jamocha.dn.memory.javaimpl.FactAddress) addressInParent).getIndex()
-						+ offset];
+				return fa[((org.jamocha.dn.memory.javaimpl.FactAddress) addressInParent).getIndex() + offset];
 			}
 
 			@Override
@@ -164,8 +162,7 @@ public class MemoryHandlerTempTest {
 			for (final Edge edge : incomingEdges) {
 				if (pos > factAddress.getIndex())
 					break;
-				if (pos + edge.getSourceNode().getMemory().getTemplate().length > factAddress
-						.getIndex()) {
+				if (pos + edge.getSourceNode().getMemory().getTemplate().length > factAddress.getIndex()) {
 					originEdge = edge;
 					break;
 				}
@@ -207,8 +204,7 @@ public class MemoryHandlerTempTest {
 		node = new NodeMockup(Network.DEFAULTNETWORK, 1, nodeLeft, nodeRight);
 		originInput = node.getIncomingEdges()[0];
 		memoryHandlerMain =
-				(MemoryHandlerMain) Network.DEFAULTNETWORK.getMemoryFactory().newMemoryHandlerMain(
-						Template.STRING);
+				(MemoryHandlerMain) Network.DEFAULTNETWORK.getMemoryFactory().newMemoryHandlerMain(Template.STRING);
 		assert node.getIncomingEdges().length == 2;
 	}
 
@@ -273,15 +269,12 @@ public class MemoryHandlerTempTest {
 		FunctionDictionary.load();
 		final FunctionWithArguments pl1 = new PathLeaf.ParameterLeaf(SlotType.STRING, 0);
 		final FunctionWithArguments pl2 = new PathLeaf.ParameterLeaf(SlotType.STRING, 1);
-		final Predicate eq =
-				FunctionDictionary.lookupPredicate("=", SlotType.STRING, SlotType.STRING);
+		final Predicate eq = FunctionDictionary.lookupPredicate("=", SlotType.STRING, SlotType.STRING);
 		final PredicateWithArguments faw = new PredicateWithArgumentsComposite(eq, pl1, pl2);
 		final AddressFilterElement fe =
 				new AddressFilterElement(faw, new SlotInFactAddress[] {
-						new SlotInFactAddress(new org.jamocha.dn.memory.javaimpl.FactAddress(0),
-								new SlotAddress(0)),
-						new SlotInFactAddress(new org.jamocha.dn.memory.javaimpl.FactAddress(1),
-								new SlotAddress(0)) });
+						new SlotInFactAddress(new org.jamocha.dn.memory.javaimpl.FactAddress(0), new SlotAddress(0)),
+						new SlotInFactAddress(new org.jamocha.dn.memory.javaimpl.FactAddress(1), new SlotAddress(0)) });
 		final AddressFilter filter =
 				new AddressFilter(new HashSet<FactAddress>(), new HashSet<FactAddress>(),
 						new AddressFilterElement[] { fe }, (NormalAddressFilter) null);
@@ -293,8 +286,7 @@ public class MemoryHandlerTempTest {
 				nodeLeft.getMemory().newPlusToken(nodeLeft, Template.STRING.newFact("Fakt1"),
 						Template.STRING.newFact("Fakt2"));
 		final MemoryHandlerPlusTemp token1 =
-				(MemoryHandlerPlusTemp) node.getMemory().processTokenInBeta(token.getLeft(),
-						originInput, filter);
+				(MemoryHandlerPlusTemp) node.getMemory().processTokenInBeta(token.getLeft(), originInput, filter);
 		assertEquals(1, token1.size());
 		assertEquals(2, token1.getTemplate().length);
 		assertEquals("Fakt1", token1.getValue(fa[0], slotAddress, 0));
@@ -313,14 +305,14 @@ public class MemoryHandlerTempTest {
 		final Pair<? extends org.jamocha.dn.memory.MemoryHandlerPlusTemp, MemoryFact[]> token =
 				memoryHandlerMain.newPlusToken(node, Template.STRING.newFact("Test"));
 		MemoryHandlerPlusTemp memoryTempHandler =
-				(MemoryHandlerPlusTemp) memoryHandlerMain.processTokenInAlpha(token.getLeft(), node
-						.getIncomingEdges()[0], PathFilterToAddressFilterTranslator.translate(
-						FilterMockup.alwaysTrue(), counterColumnMatcherMockup));
+				(MemoryHandlerPlusTemp) memoryHandlerMain.processTokenInAlpha(token.getLeft(),
+						node.getIncomingEdges()[0], PathFilterToAddressFilterTranslator.translate(
+								FilterMockup.alwaysTrue(), counterColumnMatcherMockup));
 		assertEquals(1, memoryTempHandler.size());
 		memoryTempHandler =
-				(MemoryHandlerPlusTemp) memoryHandlerMain.processTokenInAlpha(token.getLeft(), node
-						.getIncomingEdges()[0], PathFilterToAddressFilterTranslator.translate(
-						FilterMockup.alwaysFalse(), counterColumnMatcherMockup));
+				(MemoryHandlerPlusTemp) memoryHandlerMain.processTokenInAlpha(token.getLeft(),
+						node.getIncomingEdges()[0], PathFilterToAddressFilterTranslator.translate(
+								FilterMockup.alwaysFalse(), counterColumnMatcherMockup));
 		assertEquals(0, memoryTempHandler.size());
 	}
 

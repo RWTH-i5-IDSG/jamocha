@@ -42,23 +42,23 @@ public class Template implements org.jamocha.dn.memory.Template {
 	/**
 	 * Template holding exactly one {@link SlotType#STRING} type.
 	 */
-	final public static Template STRING = new Template("STRING",
-			"Simple template holding exactly one string type.", Slot.STRING);
+	final public static Template STRING = new Template("STRING", "Simple template holding exactly one string type.",
+			Slot.STRING);
 	/**
 	 * Template holding exactly one {@link SlotType#BOOLEAN} type.
 	 */
-	final public static Template BOOLEAN = new Template("BOOLEAN",
-			"Simple template holding exactly one boolean type.", Slot.BOOLEAN);
+	final public static Template BOOLEAN = new Template("BOOLEAN", "Simple template holding exactly one boolean type.",
+			Slot.BOOLEAN);
 	/**
 	 * Template holding exactly one {@link SlotType#DOUBLE} type.
 	 */
-	final public static Template DOUBLE = new Template("DOUBLE",
-			"Simple template holding exactly one double type.", Slot.DOUBLE);
+	final public static Template DOUBLE = new Template("DOUBLE", "Simple template holding exactly one double type.",
+			Slot.DOUBLE);
 	/**
 	 * Template holding exactly one {@link SlotType#LONG} type.
 	 */
-	final public static Template LONG = new Template("LONG",
-			"Simple template holding exactly one long type.", Slot.LONG);
+	final public static Template LONG = new Template("LONG", "Simple template holding exactly one long type.",
+			Slot.LONG);
 
 	@Getter(onMethod = @__(@Override))
 	final String name;
@@ -126,8 +126,7 @@ public class Template implements org.jamocha.dn.memory.Template {
 	}
 
 	@Override
-	public Object getValue(final org.jamocha.dn.memory.Fact fact,
-			final org.jamocha.dn.memory.SlotAddress slot) {
+	public Object getValue(final org.jamocha.dn.memory.Fact fact, final org.jamocha.dn.memory.SlotAddress slot) {
 		return fact.getValue(((SlotAddress) slot).index);
 	}
 
@@ -142,8 +141,8 @@ public class Template implements org.jamocha.dn.memory.Template {
 	}
 
 	@Override
-	public void setValue(final org.jamocha.dn.memory.Fact fact,
-			final org.jamocha.dn.memory.SlotAddress slot, final Object value) {
+	public void setValue(final org.jamocha.dn.memory.Fact fact, final org.jamocha.dn.memory.SlotAddress slot,
+			final Object value) {
 		checkTypeAndConstraints(((SlotAddress) slot).index, value);
 		fact.setValue(((SlotAddress) slot).index, value);
 	}
@@ -159,11 +158,10 @@ public class Template implements org.jamocha.dn.memory.Template {
 	@Override
 	public Fact newFact(final Map<org.jamocha.dn.memory.SlotAddress, Object> values) {
 		values.forEach((s, o) -> checkTypeAndConstraints(((SlotAddress) s).index, o));
-		final Stream<Entry<org.jamocha.dn.memory.SlotAddress, Object>> stream =
-				values.entrySet().stream();
+		final Stream<Entry<org.jamocha.dn.memory.SlotAddress, Object>> stream = values.entrySet().stream();
 		assert !stream
-				.filter(e -> !this.slotTypes[((SlotAddress) e.getKey()).index].getJavaClass()
-						.isInstance(e.getValue())).findAny().isPresent();
+				.filter(e -> !this.slotTypes[((SlotAddress) e.getKey()).index].getJavaClass().isInstance(e.getValue()))
+				.findAny().isPresent();
 		final OptionalInt max = stream.mapToInt(e -> ((SlotAddress) e.getKey()).index).max();
 		assert max.isPresent();
 		final Object[] args = new Object[max.getAsInt()];
@@ -188,8 +186,7 @@ public class Template implements org.jamocha.dn.memory.Template {
 									this.slots.get(slotAddress.index).getDefaultValue();
 							if (DefaultType.NONE == defaultValue.getDefaultType()) {
 								throw new IllegalArgumentException("No value given for slot "
-										+ this.slots.get(slotAddress.index).getName()
-										+ " in template " + getName()
+										+ this.slots.get(slotAddress.index).getName() + " in template " + getName()
 										+ ", but the slot has no default value!");
 							}
 							return defaultValue.getValue();

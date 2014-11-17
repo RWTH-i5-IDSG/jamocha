@@ -64,8 +64,7 @@ public interface Edge {
 	 * @throws CouldNotAcquireLockException
 	 *             passed through if thrown by memory operations
 	 */
-	public void processPlusToken(final MemoryHandlerTemp memory)
-			throws CouldNotAcquireLockException;
+	public void processPlusToken(final MemoryHandlerTemp memory) throws CouldNotAcquireLockException;
 
 	/**
 	 * Process the given memory with negative annotation in the main memory of the target node.
@@ -76,8 +75,7 @@ public interface Edge {
 	 * @throws CouldNotAcquireLockException
 	 *             passed through if thrown by memory operations
 	 */
-	public void processMinusToken(final MemoryHandlerTemp memory)
-			throws CouldNotAcquireLockException;
+	public void processMinusToken(final MemoryHandlerTemp memory) throws CouldNotAcquireLockException;
 
 	/**
 	 * Returns the source {@link Node} of the edge.

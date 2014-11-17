@@ -1,19 +1,16 @@
 /*
  * Copyright 2002-2014 The Jamocha Team
  * 
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *   http://www.jamocha.org/
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
  * 
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
+ * 
+ * http://www.jamocha.org/
+ * 
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
  */
 package org.jamocha.logging.formatter;
 
@@ -37,13 +34,13 @@ import org.jamocha.function.fwa.SymbolLeaf;
  *
  */
 public class FunctionWithArgumentsFormatter implements Formatter<FunctionWithArguments> {
-	
+
 	private static final FunctionWithArgumentsFormatter singleton = new FunctionWithArgumentsFormatter();
 
 	static public FunctionWithArgumentsFormatter getFunctionWithArgumentsFormatter() {
 		return singleton;
 	}
-	
+
 	static public String formatFwa(final FunctionWithArguments fwa) {
 		return getFunctionWithArgumentsFormatter().format(fwa);
 	}
@@ -59,7 +56,7 @@ public class FunctionWithArgumentsFormatter implements Formatter<FunctionWithArg
 	}
 
 	private class FunctionWithArgumentsFormatterVisitor implements FunctionWithArgumentsVisitor {
-		
+
 		final private StringBuilder sb = new StringBuilder();
 
 		public FunctionWithArgumentsFormatterVisitor() {
@@ -68,7 +65,7 @@ public class FunctionWithArgumentsFormatter implements Formatter<FunctionWithArg
 		public String getString() {
 			return sb.toString();
 		}
-		
+
 		@SuppressWarnings("rawtypes")
 		private void prettyPrint(final GenericWithArgumentsComposite fwa) {
 			sb.append("(" + fwa.getFunction().inClips());
@@ -133,6 +130,6 @@ public class FunctionWithArgumentsFormatter implements Formatter<FunctionWithArg
 		public void visit(final SymbolLeaf fwa) {
 			sb.append(fwa.getSymbol().toString());
 		}
-		
+
 	}
 }

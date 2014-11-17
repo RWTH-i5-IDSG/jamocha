@@ -40,20 +40,17 @@ public class RowWithoutCounters implements Row {
 
 	@Override
 	public int getCounter(final CounterColumn counterColumn) {
-		throw new UnsupportedOperationException(
-				"getCounter not supported on counter-less fact-tuple!");
+		throw new UnsupportedOperationException("getCounter not supported on counter-less fact-tuple!");
 	}
 
 	@Override
 	public void setCounter(final CounterColumn counterColumn, final int value) {
-		throw new UnsupportedOperationException(
-				"setCounter not supported on counter-less fact-tuple!");
+		throw new UnsupportedOperationException("setCounter not supported on counter-less fact-tuple!");
 	}
 
 	@Override
 	public void incrementCounter(final CounterColumn counterColumn, final int increment) {
-		throw new UnsupportedOperationException(
-				"incrementCounter not supported on counter-less fact-tuple!");
+		throw new UnsupportedOperationException("incrementCounter not supported on counter-less fact-tuple!");
 	}
 
 	@Override

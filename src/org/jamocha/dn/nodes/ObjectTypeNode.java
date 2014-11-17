@@ -67,10 +67,8 @@ public class ObjectTypeNode extends AlphaNode {
 	 *            {@link Fact} to be asserted
 	 */
 	public MemoryFact[] assertFact(final Fact... facts) {
-		assert !Arrays.stream(facts).filter(fact -> fact.getTemplate() != this.template).findAny()
-				.isPresent();
-		final Pair<? extends MemoryHandlerPlusTemp, MemoryFact[]> pair =
-				this.memory.newPlusToken(this, facts);
+		assert !Arrays.stream(facts).filter(fact -> fact.getTemplate() != this.template).findAny().isPresent();
+		final Pair<? extends MemoryHandlerPlusTemp, MemoryFact[]> pair = this.memory.newPlusToken(this, facts);
 		for (final Edge edge : this.outgoingEdges) {
 			edge.enqueueMemory(pair.getLeft());
 		}
@@ -84,8 +82,7 @@ public class ObjectTypeNode extends AlphaNode {
 	 *            {@link Fact} to be retracted
 	 */
 	public void retractFact(final MemoryFact... facts) {
-		assert !Arrays.stream(facts).filter(fact -> fact.getTemplate() != this.template).findAny()
-				.isPresent();
+		assert !Arrays.stream(facts).filter(fact -> fact.getTemplate() != this.template).findAny().isPresent();
 		final MemoryHandlerMinusTemp mem = this.memory.newMinusToken(facts);
 		for (final Edge edge : this.outgoingEdges) {
 			edge.enqueueMemory(mem);

@@ -50,10 +50,8 @@ public class FunctionDictionary {
 		SlotType[] params;
 	}
 
-	private static final HashMap<CombinedClipsAndParams, Function<?>> clipsFunctions =
-			new HashMap<>();
-	private static final HashMap<CombinedClipsAndParams, VarargsFunctionGenerator> generators =
-			new HashMap<>();
+	private static final HashMap<CombinedClipsAndParams, Function<?>> clipsFunctions = new HashMap<>();
+	private static final HashMap<CombinedClipsAndParams, VarargsFunctionGenerator> generators = new HashMap<>();
 	private static final HashMap<CombinedClipsAndParams, FunctionWithSideEffectsGenerator> fixedArgsGeneratorsWithSideEffects =
 			new HashMap<>();
 	private static final HashMap<String, FunctionWithSideEffectsGenerator> varArgsGeneratorsWithSideEffects =
@@ -102,18 +100,15 @@ public class FunctionDictionary {
 	 */
 	public static <R, F extends Function<R>> F addImpl(final F impl) {
 		checkPredicate(impl);
-		if (null != clipsFunctions.put(
-				new CombinedClipsAndParams(impl.inClips(), impl.getParamTypes()), impl)) {
+		if (null != clipsFunctions.put(new CombinedClipsAndParams(impl.inClips(), impl.getParamTypes()), impl)) {
 			throw new IllegalArgumentException("Function " + impl.inClips() + " already defined!");
 		}
 		return impl;
 	}
 
-	private static <R, F extends Function<R>> void checkPredicate(final F impl)
-			throws IllegalArgumentException {
+	private static <R, F extends Function<R>> void checkPredicate(final F impl) throws IllegalArgumentException {
 		if (impl.getReturnType() == SlotType.BOOLEAN && !(impl instanceof Predicate)) {
-			throw new IllegalArgumentException(
-					"Functions with return type boolean have to be derived from Predicate!");
+			throw new IllegalArgumentException("Functions with return type boolean have to be derived from Predicate!");
 		}
 	}
 
@@ -134,8 +129,8 @@ public class FunctionDictionary {
 	 */
 	public static void addGenerator(final String inClips, final SlotType parameterType,
 			final VarargsFunctionGenerator varargsFunctionGenerator) {
-		if (null != generators.put(new CombinedClipsAndParams(inClips,
-				new SlotType[] { parameterType }), varargsFunctionGenerator)) {
+		if (null != generators.put(new CombinedClipsAndParams(inClips, new SlotType[] { parameterType }),
+				varargsFunctionGenerator)) {
 			throw new IllegalArgumentException("Function " + inClips + " already defined!");
 		}
 	}
@@ -155,11 +150,10 @@ public class FunctionDictionary {
 	 *             if there already is an existing generator for the same name ({@code inClips}) and
 	 *             parameter types ({@code parameterTypes})
 	 */
-	public static void addFixedArgsGeneratorWithSideEffects(final String inClips,
-			final SlotType[] parameterTypes,
+	public static void addFixedArgsGeneratorWithSideEffects(final String inClips, final SlotType[] parameterTypes,
 			final FunctionWithSideEffectsGenerator varargsFunctionGenerator) {
-		if (null != fixedArgsGeneratorsWithSideEffects.put(new CombinedClipsAndParams(inClips,
-				parameterTypes), varargsFunctionGenerator)) {
+		if (null != fixedArgsGeneratorsWithSideEffects.put(new CombinedClipsAndParams(inClips, parameterTypes),
+				varargsFunctionGenerator)) {
 			throw new IllegalArgumentException("Function " + inClips + " already defined!");
 		}
 	}
@@ -202,8 +196,7 @@ public class FunctionDictionary {
 	 */
 	@SuppressWarnings("unchecked")
 	public static <T> Function<T> lookup(final String inClips, final SlotType... params) {
-		final Function<T> function =
-				(Function<T>) clipsFunctions.get(new CombinedClipsAndParams(inClips, params));
+		final Function<T> function = (Function<T>) clipsFunctions.get(new CombinedClipsAndParams(inClips, params));
 		if (function != null)
 			return function;
 		// look for function with arbitrarily many params
@@ -227,8 +220,7 @@ public class FunctionDictionary {
 	}
 
 	private static String unsupportedMsg(final String inClips, final SlotType[] params) {
-		return "Function \"" + inClips + "\" not loaded or implemented for argument types "
-				+ Arrays.toString(params);
+		return "Function \"" + inClips + "\" not loaded or implemented for argument types " + Arrays.toString(params);
 	}
 
 	/**
@@ -275,11 +267,9 @@ public class FunctionDictionary {
 			// try fixed argument number with side effects
 			{
 				final FunctionWithSideEffectsGenerator fixedArgsFunctionGenerator =
-						fixedArgsGeneratorsWithSideEffects.get(new CombinedClipsAndParams(inClips,
-								params));
+						fixedArgsGeneratorsWithSideEffects.get(new CombinedClipsAndParams(inClips, params));
 				if (null != fixedArgsFunctionGenerator) {
-					final Function<T> generated =
-							(Function<T>) fixedArgsFunctionGenerator.generate(network, params);
+					final Function<T> generated = (Function<T>) fixedArgsFunctionGenerator.generate(network, params);
 					if (null != generated) {
 						checkPredicate(generated);
 						return generated;
@@ -291,8 +281,7 @@ public class FunctionDictionary {
 				final FunctionWithSideEffectsGenerator varargsFunctionGenerator =
 						varArgsGeneratorsWithSideEffects.get(inClips);
 				if (null != varargsFunctionGenerator) {
-					final Function<T> generated =
-							(Function<T>) varargsFunctionGenerator.generate(network, params);
+					final Function<T> generated = (Function<T>) varargsFunctionGenerator.generate(network, params);
 					if (null != generated) {
 						checkPredicate(generated);
 						return generated;

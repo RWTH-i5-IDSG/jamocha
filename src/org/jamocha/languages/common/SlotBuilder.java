@@ -117,8 +117,7 @@ public class SlotBuilder {
 			return this;
 		}
 		if (rangeType == SlotType.DOUBLE) {
-			this.range =
-					SlotConstraint.doubleRange((Double) from.getValue(), (Double) to.getValue());
+			this.range = SlotConstraint.doubleRange((Double) from.getValue(), (Double) to.getValue());
 			return this;
 		}
 		throw new IllegalArgumentException();
@@ -157,7 +156,7 @@ public class SlotBuilder {
 			}
 			defaultValue = Default.staticDefault(value);
 		}
-		return new Slot(slotType, name, defaultValue, toArray(Stream.of(range, allowedConstants)
-				.filter(Objects::nonNull), SlotConstraint[]::new));
+		return new Slot(slotType, name, defaultValue, toArray(
+				Stream.of(range, allowedConstants).filter(Objects::nonNull), SlotConstraint[]::new));
 	}
 }

@@ -33,14 +33,12 @@ public interface ConflictResolutionStrategy {
 		@Override
 		public Optional<RuleAndToken> pick(final ConflictSet conflictSet) {
 			final RuleAndToken[] rulesAndTokens = conflictSet.getRulesAndTokens();
-			return 0 == rulesAndTokens.length ? Optional.empty() : Optional
-					.of(rulesAndTokens[RandomUtils.nextInt(0, rulesAndTokens.length)]);
+			return 0 == rulesAndTokens.length ? Optional.empty() : Optional.of(rulesAndTokens[RandomUtils.nextInt(0,
+					rulesAndTokens.length)]);
 		}
 	};
 
-	public static ConflictResolutionStrategy maxSalience =
-			(final ConflictSet conflictSet) -> StreamSupport.stream(
-					Arrays.stream(conflictSet.getRulesAndTokens()).spliterator(), true).max(
-					(a, b) -> Integer.compare(a.getRule().getParent().getSalience(), b.getRule()
-							.getParent().getSalience()));
+	public static ConflictResolutionStrategy maxSalience = (final ConflictSet conflictSet) -> StreamSupport.stream(
+			Arrays.stream(conflictSet.getRulesAndTokens()).spliterator(), true).max(
+			(a, b) -> Integer.compare(a.getRule().getParent().getSalience(), b.getRule().getParent().getSalience()));
 }

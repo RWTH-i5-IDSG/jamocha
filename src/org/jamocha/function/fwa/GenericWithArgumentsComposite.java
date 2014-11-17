@@ -104,8 +104,7 @@ public abstract class GenericWithArgumentsComposite<R, F extends Function<? exte
 		final StringBuilder sb = new StringBuilder();
 		sb.append(this.function.toString());
 		sb.append('(');
-		sb.append(Arrays.stream(this.args).map(FunctionWithArguments::toString)
-				.collect(joining(", ")));
+		sb.append(Arrays.stream(this.args).map(FunctionWithArguments::toString).collect(joining(", ")));
 		sb.append(')');
 		return sb.toString();
 	}
@@ -122,8 +121,7 @@ public abstract class GenericWithArgumentsComposite<R, F extends Function<? exte
 
 		@Override
 		public SlotType getReturnType() {
-			throw new UnsupportedOperationException(
-					"Type checking can not be done during lazy evaluation!");
+			throw new UnsupportedOperationException("Type checking can not be done during lazy evaluation!");
 		}
 
 		@Override
@@ -145,13 +143,12 @@ public abstract class GenericWithArgumentsComposite<R, F extends Function<? exte
 
 	@Override
 	public Function<R> lazyEvaluate(final Function<?>... params) {
-		return staticLazyEvaluate(((final Function<?>[] args) -> function.evaluate(args)),
-				function.inClips(), args, params);
+		return staticLazyEvaluate(((final Function<?>[] args) -> function.evaluate(args)), function.inClips(), args,
+				params);
 	}
 
-	static <R> Function<R> staticLazyEvaluate(
-			final java.util.function.Function<Function<?>[], R> function, final String inClips,
-			final FunctionWithArguments[] args, final Function<?>[] params) {
+	static <R> Function<R> staticLazyEvaluate(final java.util.function.Function<Function<?>[], R> function,
+			final String inClips, final FunctionWithArguments[] args, final Function<?>[] params) {
 		return new Function<R>() {
 			@Override
 			public SlotType[] getParamTypes() {
@@ -160,8 +157,7 @@ public abstract class GenericWithArgumentsComposite<R, F extends Function<? exte
 
 			@Override
 			public SlotType getReturnType() {
-				throw new UnsupportedOperationException(
-						"Type checking can not be done during lazy evaluation!");
+				throw new UnsupportedOperationException("Type checking can not be done during lazy evaluation!");
 			}
 
 			@Override
@@ -176,8 +172,7 @@ public abstract class GenericWithArgumentsComposite<R, F extends Function<? exte
 				for (int i = 0; i < args.length; i++) {
 					final FunctionWithArguments fwa = args[i];
 					final SlotType[] types = fwa.getParamTypes();
-					evaluatableArgs[i] =
-							fwa.lazyEvaluate(Arrays.copyOfRange(params, k, k + types.length));
+					evaluatableArgs[i] = fwa.lazyEvaluate(Arrays.copyOfRange(params, k, k + types.length));
 					k += types.length;
 				}
 				return function.apply(evaluatableArgs);
@@ -198,8 +193,7 @@ public abstract class GenericWithArgumentsComposite<R, F extends Function<? exte
 
 	static <R, F extends Function<? extends R>> R staticEvaluate(
 			final java.util.function.Function<Function<?>[], F> function, final Object[] params) {
-		return function.apply(
-				toArray(Arrays.stream(params).map(LazyObject<Object>::new), LazyObject[]::new))
+		return function.apply(toArray(Arrays.stream(params).map(LazyObject<Object>::new), LazyObject[]::new))
 				.evaluate();
 	}
 

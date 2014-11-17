@@ -91,13 +91,9 @@ public class RootNode implements MemoryFactToFactIdentifier {
 	 *            {@link Fact} to be retracted
 	 */
 	public void retractFacts(final FactIdentifier... factIdentifiers) {
-		Arrays.stream(factIdentifiers)
-				.map(facts::remove)
-				.filter(Objects::nonNull)
+		Arrays.stream(factIdentifiers).map(facts::remove).filter(Objects::nonNull)
 				.collect(groupingBy(f -> f.getTemplate()))
-				.forEach(
-						(t, f) -> this.templateToOTN.get(t).retractFact(
-								toArray(f, MemoryFact[]::new)));
+				.forEach((t, f) -> this.templateToOTN.get(t).retractFact(toArray(f, MemoryFact[]::new)));
 	}
 
 	/**
@@ -172,8 +168,8 @@ public class RootNode implements MemoryFactToFactIdentifier {
 	 */
 	public void addPaths(final Network network, final Path... paths) {
 		for (final Path path : paths) {
-			this.templateToOTN.computeIfAbsent(path.getTemplate(),
-					t -> new ObjectTypeNode(network, t)).shareNode(Collections.emptyMap(), path);
+			this.templateToOTN.computeIfAbsent(path.getTemplate(), t -> new ObjectTypeNode(network, t)).shareNode(
+					Collections.emptyMap(), path);
 		}
 	}
 }

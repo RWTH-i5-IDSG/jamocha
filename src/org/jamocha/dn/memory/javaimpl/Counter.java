@@ -157,11 +157,9 @@ public abstract class Counter {
 		}
 	}
 
-	public static Counter newCounter(final PathFilter filter,
-			final CounterColumnMatcher filterElementToCounterColumn) {
+	public static Counter newCounter(final PathFilter filter, final CounterColumnMatcher filterElementToCounterColumn) {
 		final boolean[] negatedArrayFromFilter =
-				ExistentialPathCounter.getNegatedArrayFromFilter(filter,
-						filterElementToCounterColumn);
+				ExistentialPathCounter.getNegatedArrayFromFilter(filter, filterElementToCounterColumn);
 		return newCounter(negatedArrayFromFilter);
 	}
 

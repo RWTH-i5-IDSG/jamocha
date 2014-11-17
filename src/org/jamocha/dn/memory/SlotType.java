@@ -88,9 +88,7 @@ public enum SlotType {
 		final char pm = image.charAt(image.length() - 2);
 		final String parse;
 		if ('+' == pm || '-' == pm) {
-			parse =
-					image.substring(0, image.length() - 1).concat("0")
-							.concat(image.substring(image.length() - 1));
+			parse = image.substring(0, image.length() - 1).concat("0").concat(image.substring(image.length() - 1));
 		} else {
 			parse = image;
 		}
@@ -98,15 +96,12 @@ public enum SlotType {
 				parse,
 				new DateTimeFormatterBuilder()
 						// date
-						.appendValue(ChronoField.YEAR, 4)
-						.appendLiteral('-')
-						.appendValue(ChronoField.MONTH_OF_YEAR, 2)
+						.appendValue(ChronoField.YEAR, 4).appendLiteral('-').appendValue(ChronoField.MONTH_OF_YEAR, 2)
 						.appendLiteral('-')
 						.appendValue(ChronoField.DAY_OF_MONTH, 2)
 						// optional time
-						.optionalStart().appendLiteral(' ').appendValue(ChronoField.HOUR_OF_DAY, 2)
-						.appendLiteral(':').appendValue(ChronoField.MINUTE_OF_HOUR, 2)
-						.optionalStart().appendLiteral(':')
+						.optionalStart().appendLiteral(' ').appendValue(ChronoField.HOUR_OF_DAY, 2).appendLiteral(':')
+						.appendValue(ChronoField.MINUTE_OF_HOUR, 2).optionalStart().appendLiteral(':')
 						.appendValue(ChronoField.SECOND_OF_MINUTE, 2).optionalEnd().optionalEnd()
 						// optional offset
 						.optionalStart().appendOffset("+HH", "+HH").optionalEnd().toFormatter());

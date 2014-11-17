@@ -42,7 +42,7 @@ import org.jamocha.function.fwa.SymbolLeaf;
  * Collects all paths used within the filter.
  *
  * @param <T>
- * 		collection type to use while collecting the paths
+ *            collection type to use while collecting the paths
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
 public class PathCollector<T extends Collection<Path>> implements PathFilterElementVisitor {

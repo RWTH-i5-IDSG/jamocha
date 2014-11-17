@@ -89,10 +89,12 @@ public class ConstructCache {
 
 		public TranslatedPath newTranslated(final PathFilterSharedListWrapper.PathFilterSharedList condition,
 				final Map<SingleFactVariable, Path> pathTranslationMap) {
-			final TranslatedPath translated = new TranslatedPath(condition, new ActionList(
-					toArray(Arrays.stream(actionList).map(fwa -> SymbolToPathTranslator
-											.translate(FWADeepCopy.copy(fwa), pathTranslationMap)),
-							FunctionWithArguments[]::new)));
+			final TranslatedPath translated =
+					new TranslatedPath(condition,
+							new ActionList(toArray(
+									Arrays.stream(actionList).map(
+											fwa -> SymbolToPathTranslator.translate(FWADeepCopy.copy(fwa),
+													pathTranslationMap)), FunctionWithArguments[]::new)));
 			translatedPathVersions.add(translated);
 			return translated;
 		}

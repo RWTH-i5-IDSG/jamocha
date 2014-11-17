@@ -58,8 +58,7 @@ public class ExistentialStack extends RuleCondition {
 		stack.peek().target.containsTemplateCE = true;
 	}
 
-	void push(final SFPConditionalElementVisitor conditionalElementVisitor,
-			final ExistentialState state) {
+	void push(final SFPConditionalElementVisitor conditionalElementVisitor, final ExistentialState state) {
 		assert state != ExistentialState.NORMAL;
 		stack.push(new ExistentialMarkerElement(conditionalElementVisitor, state));
 	}

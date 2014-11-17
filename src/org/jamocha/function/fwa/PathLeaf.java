@@ -57,8 +57,8 @@ public class PathLeaf implements FunctionWithArguments {
 	}
 
 	private int initHashCode() {
-		return FunctionWithArguments.hash(Arrays.asList(this.path.getTemplate(), this.slot)
-				.stream().mapToInt(Object::hashCode).toArray(),
+		return FunctionWithArguments.hash(
+				Arrays.asList(this.path.getTemplate(), this.slot).stream().mapToInt(Object::hashCode).toArray(),
 				FunctionWithArguments.positionIsIrrelevant);
 	}
 

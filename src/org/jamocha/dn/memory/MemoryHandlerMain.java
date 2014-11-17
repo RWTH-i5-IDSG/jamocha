@@ -81,9 +81,8 @@ public interface MemoryHandlerMain extends MemoryHandler {
 	 * @throws CouldNotAcquireLockException
 	 *             iff one of the locks could not be acquired
 	 */
-	public MemoryHandlerTemp processTokenInBeta(final MemoryHandlerTemp token,
-			final Edge originIncomingEdge, final AddressFilter filter)
-			throws CouldNotAcquireLockException;
+	public MemoryHandlerTemp processTokenInBeta(final MemoryHandlerTemp token, final Edge originIncomingEdge,
+			final AddressFilter filter) throws CouldNotAcquireLockException;
 
 	/**
 	 * Creates a new {@link MemoryHandlerPlusTemp} that contains the part of the facts in the given
@@ -99,9 +98,8 @@ public interface MemoryHandlerMain extends MemoryHandler {
 	 * @throws CouldNotAcquireLockException
 	 *             iff one of the locks could not be acquired
 	 */
-	public MemoryHandlerTemp processTokenInAlpha(final MemoryHandlerTemp token,
-			final Edge originIncomingEdge, final AddressFilter filter)
-			throws CouldNotAcquireLockException;
+	public MemoryHandlerTemp processTokenInAlpha(final MemoryHandlerTemp token, final Edge originIncomingEdge,
+			final AddressFilter filter) throws CouldNotAcquireLockException;
 
 	/**
 	 * TODO comment
@@ -120,8 +118,7 @@ public interface MemoryHandlerMain extends MemoryHandler {
 	 *            {@link Fact facts} to store in the {@link MemoryHandlerPlusTemp token}
 	 * @return {@link MemoryHandlerPlusTemp token} containing the facts given
 	 */
-	public Pair<? extends MemoryHandlerPlusTemp, MemoryFact[]> newPlusToken(final Node otn,
-			final Fact... facts);
+	public Pair<? extends MemoryHandlerPlusTemp, MemoryFact[]> newPlusToken(final Node otn, final Fact... facts);
 
 	/**
 	 * Creates a new {@link MemoryHandlerMinusTemp} that contains the facts given.
@@ -151,7 +148,6 @@ public interface MemoryHandlerMain extends MemoryHandler {
 	 *            this method.
 	 * @return filter elements containing existential addresses passed over the given edge
 	 */
-	public AddressFilterElement[] getRelevantExistentialFilterParts(final AddressFilter filter,
-			final Edge edge);
+	public AddressFilterElement[] getRelevantExistentialFilterParts(final AddressFilter filter, final Edge edge);
 
 }

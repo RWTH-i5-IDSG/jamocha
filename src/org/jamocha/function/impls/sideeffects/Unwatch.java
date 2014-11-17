@@ -56,11 +56,9 @@ public abstract class Unwatch implements Function<Object> {
 		return paramTypes;
 	}
 
-	private static <T> void unwatch(final SideEffectFunctionToNetwork network,
-			final MarkerType markerType, final Type type,
-			final java.util.function.Function<String, T> nameToInstance,
-			final java.util.function.Function<T, Marker> instanceToMarker,
-			final Function<?>... params) {
+	private static <T> void unwatch(final SideEffectFunctionToNetwork network, final MarkerType markerType,
+			final Type type, final java.util.function.Function<String, T> nameToInstance,
+			final java.util.function.Function<T, Marker> instanceToMarker, final Function<?>... params) {
 		Watch.parseArguments(network, markerType, type, nameToInstance, instanceToMarker,
 				network.getTypedFilter()::unwatch, params);
 	}
@@ -70,8 +68,7 @@ public abstract class Unwatch implements Function<Object> {
 				inClips,
 				(final SideEffectFunctionToNetwork network, final SlotType[] paramTypes) -> {
 					if (paramTypes.length < 1
-							|| !Arrays.equals(paramTypes,
-									SlotType.nCopies(SlotType.SYMBOL, paramTypes.length))) {
+							|| !Arrays.equals(paramTypes, SlotType.nCopies(SlotType.SYMBOL, paramTypes.length))) {
 						return null;
 					}
 					return new Unwatch() {
@@ -83,16 +80,16 @@ public abstract class Unwatch implements Function<Object> {
 								network.getTypedFilter().unwatchAll();
 								break;
 							case "facts":
-								unwatch(network, MarkerType.FACTS, Type.TEMPLATE,
-										network::getTemplate, Template::getInstanceMarker, params);
+								unwatch(network, MarkerType.FACTS, Type.TEMPLATE, network::getTemplate,
+										Template::getInstanceMarker, params);
 								break;
 							case "rules":
-								unwatch(network, MarkerType.RULES, Type.WATCHABLE_SYMBOL,
-										network::getRule, Defrule::getFireMarker, params);
+								unwatch(network, MarkerType.RULES, Type.WATCHABLE_SYMBOL, network::getRule,
+										Defrule::getFireMarker, params);
 								break;
 							case "activations":
-								unwatch(network, MarkerType.ACTIVATIONS, Type.WATCHABLE_SYMBOL,
-										network::getRule, Defrule::getActivationMarker, params);
+								unwatch(network, MarkerType.ACTIVATIONS, Type.WATCHABLE_SYMBOL, network::getRule,
+										Defrule::getActivationMarker, params);
 								break;
 							case "compilations":
 							case "statistics":
@@ -105,11 +102,10 @@ public abstract class Unwatch implements Function<Object> {
 							case "message-handlers":
 							case "generic-functions":
 							case "methods":
-								throw new UnsupportedOperationException("Unsupported yet: "
-										+ type.getImage());
+								throw new UnsupportedOperationException("Unsupported yet: " + type.getImage());
 							default:
-								network.getLogFormatter().messageArgumentTypeMismatch(network,
-										inClips(), 1, Type.WATCHABLE_SYMBOL);
+								network.getLogFormatter().messageArgumentTypeMismatch(network, inClips(), 1,
+										Type.WATCHABLE_SYMBOL);
 							}
 							return null;
 						}

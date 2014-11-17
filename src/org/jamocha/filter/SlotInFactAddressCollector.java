@@ -54,23 +54,19 @@ public class SlotInFactAddressCollector<T extends Collection<SlotInFactAddress>>
 	}
 
 	public static SlotInFactAddressCollector<HashSet<SlotInFactAddress>> newHashSet() {
-		return new SlotInFactAddressCollector<HashSet<SlotInFactAddress>>(
-				new HashSet<SlotInFactAddress>());
+		return new SlotInFactAddressCollector<HashSet<SlotInFactAddress>>(new HashSet<SlotInFactAddress>());
 	}
 
 	public static SlotInFactAddressCollector<LinkedHashSet<SlotInFactAddress>> newLinkedHashSet() {
-		return new SlotInFactAddressCollector<LinkedHashSet<SlotInFactAddress>>(
-				new LinkedHashSet<SlotInFactAddress>());
+		return new SlotInFactAddressCollector<LinkedHashSet<SlotInFactAddress>>(new LinkedHashSet<SlotInFactAddress>());
 	}
 
 	public static SlotInFactAddressCollector<ArrayList<SlotInFactAddress>> newArrayList() {
-		return new SlotInFactAddressCollector<ArrayList<SlotInFactAddress>>(
-				new ArrayList<SlotInFactAddress>());
+		return new SlotInFactAddressCollector<ArrayList<SlotInFactAddress>>(new ArrayList<SlotInFactAddress>());
 	}
 
 	public static SlotInFactAddressCollector<LinkedList<SlotInFactAddress>> newLinkedList() {
-		return new SlotInFactAddressCollector<LinkedList<SlotInFactAddress>>(
-				new LinkedList<SlotInFactAddress>());
+		return new SlotInFactAddressCollector<LinkedList<SlotInFactAddress>>(new LinkedList<SlotInFactAddress>());
 	}
 
 	/**

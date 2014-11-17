@@ -61,15 +61,13 @@ import test.jamocha.util.NetworkMockup;
  */
 public class SymbolToPathTranslatorTest {
 
-	private static final String templateString =
-			"(deftemplate templ1 (slot slot1 (type INTEGER)))\n"
-					+ "(deftemplate templ2 (slot slot1 (type INTEGER)))\n"
-					+ "(deftemplate templ3 (slot slot1 (type INTEGER)))\n";
+	private static final String templateString = "(deftemplate templ1 (slot slot1 (type INTEGER)))\n"
+			+ "(deftemplate templ2 (slot slot1 (type INTEGER)))\n"
+			+ "(deftemplate templ3 (slot slot1 (type INTEGER)))\n";
 	private static final String preRule = "(defrule rule1 ";
 	private static final String postRule = " => )\n";
 
-	private static Queue<Warning> run(final SFPParser parser, final SFPVisitorImpl visitor)
-			throws ParseException {
+	private static Queue<Warning> run(final SFPParser parser, final SFPVisitorImpl visitor) throws ParseException {
 		while (true) {
 			final SFPStart n = parser.Start();
 			if (n == null)
@@ -81,8 +79,8 @@ public class SymbolToPathTranslatorTest {
 	private static <T extends SideEffectFunctionToNetwork & ParserToNetwork> List<ConditionalElement> clipsToCondition(
 			final T ptn, final String condition) throws ParseException {
 		final StringReader parserInput =
-				new StringReader(new StringBuilder().append(templateString).append(preRule)
-						.append(condition).append(postRule).toString());
+				new StringReader(new StringBuilder().append(templateString).append(preRule).append(condition)
+						.append(postRule).toString());
 		final SFPParser parser = new SFPParser(parserInput);
 		final SFPVisitorImpl visitor = new SFPVisitorImpl(ptn, ptn);
 		run(parser, visitor);
@@ -113,11 +111,10 @@ public class SymbolToPathTranslatorTest {
 			final ConditionalElement testCe = andChildren.get(1);
 			assertThat(testCe, instanceOf(TestConditionalElement.class));
 			final PredicateWithArguments translated =
-					SymbolToPathTranslator.translate(
-							((TestConditionalElement) testCe).getPredicateWithArguments(), paths);
+					SymbolToPathTranslator.translate(((TestConditionalElement) testCe).getPredicateWithArguments(),
+							paths);
 			assertThat(translated, instanceOf(PredicateWithArgumentsComposite.class));
-			final FunctionWithArguments[] args =
-					((PredicateWithArgumentsComposite) translated).getArgs();
+			final FunctionWithArguments[] args = ((PredicateWithArgumentsComposite) translated).getArgs();
 			assertThat(args, is(arrayWithSize(2)));
 			final FunctionWithArguments x = args[0];
 			assertThat(x, instanceOf(PathLeaf.class));
@@ -148,11 +145,10 @@ public class SymbolToPathTranslatorTest {
 			final ConditionalElement testCe = andChildren.get(1);
 			assertThat(testCe, instanceOf(TestConditionalElement.class));
 			final PredicateWithArguments translated =
-					SymbolToPathTranslator.translate(
-							((TestConditionalElement) testCe).getPredicateWithArguments(), paths);
+					SymbolToPathTranslator.translate(((TestConditionalElement) testCe).getPredicateWithArguments(),
+							paths);
 			assertThat(translated, instanceOf(PredicateWithArgumentsComposite.class));
-			final FunctionWithArguments[] args =
-					((PredicateWithArgumentsComposite) translated).getArgs();
+			final FunctionWithArguments[] args = ((PredicateWithArgumentsComposite) translated).getArgs();
 			assertThat(args, is(arrayWithSize(2)));
 			final FunctionWithArguments x = args[0];
 			assertThat(x, instanceOf(PathLeaf.class));
@@ -164,11 +160,10 @@ public class SymbolToPathTranslatorTest {
 			final ConditionalElement testCe = andChildren.get(2);
 			assertThat(testCe, instanceOf(TestConditionalElement.class));
 			final PredicateWithArguments translated =
-					SymbolToPathTranslator.translate(
-							((TestConditionalElement) testCe).getPredicateWithArguments(), paths);
+					SymbolToPathTranslator.translate(((TestConditionalElement) testCe).getPredicateWithArguments(),
+							paths);
 			assertThat(translated, instanceOf(PredicateWithArgumentsComposite.class));
-			final FunctionWithArguments[] args =
-					((PredicateWithArgumentsComposite) translated).getArgs();
+			final FunctionWithArguments[] args = ((PredicateWithArgumentsComposite) translated).getArgs();
 			assertThat(args, is(arrayWithSize(2)));
 			final FunctionWithArguments x = args[0];
 			assertThat(x, instanceOf(PathLeaf.class));
@@ -191,16 +186,14 @@ public class SymbolToPathTranslatorTest {
 		{
 			final ConditionalElement andCe = orChildren.get(0);
 			final Map<SingleFactVariable, Path> paths =
-					FactVariableCollector.collectPaths(ptn.getInitialFactTemplate(), andCe)
-							.getRight();
+					FactVariableCollector.collectPaths(ptn.getInitialFactTemplate(), andCe).getRight();
 			final List<ConditionalElement> andChildren = andCe.getChildren();
 			assertThat(andChildren, hasSize(2));
 			final SingleFactVariable xFactVar;
 			{
 				final ConditionalElement shared = andChildren.get(0);
 				assertThat(shared, instanceOf(SharedConditionalElementWrapper.class));
-				final ConditionalElement templCe =
-						((SharedConditionalElementWrapper) shared).getCe();
+				final ConditionalElement templCe = ((SharedConditionalElementWrapper) shared).getCe();
 				assertThat(templCe, instanceOf(TemplatePatternConditionalElement.class));
 				xFactVar = ((TemplatePatternConditionalElement) templCe).getFactVariable();
 				assertThat(paths, hasKey(xFactVar));
@@ -209,12 +202,10 @@ public class SymbolToPathTranslatorTest {
 				final ConditionalElement testCe = andChildren.get(1);
 				assertThat(testCe, instanceOf(TestConditionalElement.class));
 				final PredicateWithArguments translated =
-						SymbolToPathTranslator.translate(
-								((TestConditionalElement) testCe).getPredicateWithArguments(),
+						SymbolToPathTranslator.translate(((TestConditionalElement) testCe).getPredicateWithArguments(),
 								paths);
 				assertThat(translated, instanceOf(PredicateWithArgumentsComposite.class));
-				final FunctionWithArguments[] args =
-						((PredicateWithArgumentsComposite) translated).getArgs();
+				final FunctionWithArguments[] args = ((PredicateWithArgumentsComposite) translated).getArgs();
 				assertThat(args, is(arrayWithSize(2)));
 				final FunctionWithArguments x = args[0];
 				assertThat(x, instanceOf(PathLeaf.class));
@@ -227,16 +218,14 @@ public class SymbolToPathTranslatorTest {
 		{
 			final ConditionalElement andCe = orChildren.get(1);
 			final Map<SingleFactVariable, Path> paths =
-					FactVariableCollector.collectPaths(ptn.getInitialFactTemplate(), andCe)
-							.getRight();
+					FactVariableCollector.collectPaths(ptn.getInitialFactTemplate(), andCe).getRight();
 			final List<ConditionalElement> andChildren = andCe.getChildren();
 			assertThat(andChildren, hasSize(2));
 			final SingleFactVariable xFactVar;
 			{
 				final ConditionalElement shared = andChildren.get(0);
 				assertThat(shared, instanceOf(SharedConditionalElementWrapper.class));
-				final ConditionalElement templCe =
-						((SharedConditionalElementWrapper) shared).getCe();
+				final ConditionalElement templCe = ((SharedConditionalElementWrapper) shared).getCe();
 				assertThat(templCe, instanceOf(TemplatePatternConditionalElement.class));
 				xFactVar = ((TemplatePatternConditionalElement) templCe).getFactVariable();
 				assertThat(paths, hasKey(xFactVar));
@@ -245,12 +234,10 @@ public class SymbolToPathTranslatorTest {
 				final ConditionalElement testCe = andChildren.get(1);
 				assertThat(testCe, instanceOf(TestConditionalElement.class));
 				final PredicateWithArguments translated =
-						SymbolToPathTranslator.translate(
-								((TestConditionalElement) testCe).getPredicateWithArguments(),
+						SymbolToPathTranslator.translate(((TestConditionalElement) testCe).getPredicateWithArguments(),
 								paths);
 				assertThat(translated, instanceOf(PredicateWithArgumentsComposite.class));
-				final FunctionWithArguments[] args =
-						((PredicateWithArgumentsComposite) translated).getArgs();
+				final FunctionWithArguments[] args = ((PredicateWithArgumentsComposite) translated).getArgs();
 				assertThat(args, is(arrayWithSize(2)));
 				final FunctionWithArguments x = args[0];
 				assertThat(x, instanceOf(PathLeaf.class));

@@ -45,26 +45,23 @@ public class PathFilterToAddressFilterTranslator {
 		return translate(pathFilter, pathFilter.normalise(), filterElementToCounterColumn);
 	}
 
-	public static AddressFilter translate(final PathFilter pathFilter,
-			final PathFilter normalisedVersion,
+	public static AddressFilter translate(final PathFilter pathFilter, final PathFilter normalisedVersion,
 			final CounterColumnMatcher filterElementToCounterColumn) {
 		return new AddressFilter(toFactAddressSet(pathFilter.getPositiveExistentialPaths()),
-				toFactAddressSet(pathFilter.getNegativeExistentialPaths()), translateFEs(
-						pathFilter, filterElementToCounterColumn), translateFEs(normalisedVersion,
-						filterElementToCounterColumn));
+				toFactAddressSet(pathFilter.getNegativeExistentialPaths()), translateFEs(pathFilter,
+						filterElementToCounterColumn), translateFEs(normalisedVersion, filterElementToCounterColumn));
 	}
 
 	private static AddressFilterElement[] translateFEs(final PathFilter pathFilter,
 			final CounterColumnMatcher filterElementToCounterColumn) {
 		return toArray(
 				stream(pathFilter.getFilterElements()).map(
-						fe -> fe.accept(new PathFilterElementTranslator(
-								filterElementToCounterColumn)).result), AddressFilterElement[]::new);
+						fe -> fe.accept(new PathFilterElementTranslator(filterElementToCounterColumn)).result),
+				AddressFilterElement[]::new);
 	}
 
 	static Set<FactAddress> toFactAddressSet(final Set<Path> existentialPaths) {
-		return existentialPaths.stream().map(Path::getFactAddressInCurrentlyLowestNode)
-				.collect(Collectors.toSet());
+		return existentialPaths.stream().map(Path::getFactAddressInCurrentlyLowestNode).collect(Collectors.toSet());
 	}
 
 	@Data
@@ -76,19 +73,15 @@ public class PathFilterToAddressFilterTranslator {
 		public void visit(final PathFilterElement pathFilterElement) {
 			final ArrayList<SlotInFactAddress> addresses = new ArrayList<>();
 			final PredicateWithArguments predicateWithArguments =
-					pathFilterElement
-							.getFunction()
-							.accept(new FWAPathToAddressTranslator.PWAPathToAddressTranslator(
-									addresses)).getFunctionWithArguments();
+					pathFilterElement.getFunction()
+							.accept(new FWAPathToAddressTranslator.PWAPathToAddressTranslator(addresses))
+							.getFunctionWithArguments();
 			final SlotInFactAddress[] addressArray = toArray(addresses, SlotInFactAddress[]::new);
-			final CounterColumn counterColumn =
-					counterColumnMatcher.getCounterColumn(pathFilterElement);
+			final CounterColumn counterColumn = counterColumnMatcher.getCounterColumn(pathFilterElement);
 			if (null == counterColumn) {
 				this.result = new AddressFilterElement(predicateWithArguments, addressArray);
 			} else {
-				this.result =
-					new ExistentialAddressFilterElement(predicateWithArguments, addressArray,
-							counterColumn);
+				this.result = new ExistentialAddressFilterElement(predicateWithArguments, addressArray, counterColumn);
 			}
 		}
 
@@ -97,17 +90,13 @@ public class PathFilterToAddressFilterTranslator {
 			final PredicateWithArguments predicateWithArguments = pathFilterElement.getFunction();
 			final SlotInFactAddress[] addressArray =
 					toArray(Arrays.stream(pathFilterElement.getPaths()).map(
-							path -> new SlotInFactAddress(path
-									.getFactAddressInCurrentlyLowestNode(), (SlotAddress) null)),
-							SlotInFactAddress[]::new);
-			final CounterColumn counterColumn =
-					counterColumnMatcher.getCounterColumn(pathFilterElement);
+							path -> new SlotInFactAddress(path.getFactAddressInCurrentlyLowestNode(),
+									(SlotAddress) null)), SlotInFactAddress[]::new);
+			final CounterColumn counterColumn = counterColumnMatcher.getCounterColumn(pathFilterElement);
 			if (null == counterColumn) {
 				this.result = new AddressFilterElement(predicateWithArguments, addressArray);
 			} else {
-				this.result =
-					new ExistentialAddressFilterElement(predicateWithArguments, addressArray,
-							counterColumn);
+				this.result = new ExistentialAddressFilterElement(predicateWithArguments, addressArray, counterColumn);
 			}
 		}
 	}

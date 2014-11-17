@@ -32,8 +32,8 @@ public class VariableNotDeclaredError extends Error {
 		this.var = var;
 	}
 
-	protected VariableNotDeclaredError(final Symbol var, final String message,
-			final Throwable cause, final boolean enableSuppression, final boolean writableStackTrace) {
+	protected VariableNotDeclaredError(final Symbol var, final String message, final Throwable cause,
+			final boolean enableSuppression, final boolean writableStackTrace) {
 		super(message, cause, enableSuppression, writableStackTrace);
 		this.var = var;
 	}

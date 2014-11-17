@@ -56,12 +56,10 @@ public abstract class Watch implements Function<Object> {
 		return paramTypes;
 	}
 
-	static <T> void parseArguments(final SideEffectFunctionToNetwork network,
-			final MarkerType markerType, final Type type,
-			final java.util.function.Function<String, T> nameToInstance,
+	static <T> void parseArguments(final SideEffectFunctionToNetwork network, final MarkerType markerType,
+			final Type type, final java.util.function.Function<String, T> nameToInstance,
 			final java.util.function.Function<T, Marker> instanceToMarker,
-			final java.util.function.BiConsumer<MarkerType, Marker[]> watchOrUnwatch,
-			final Function<?>... params) {
+			final java.util.function.BiConsumer<MarkerType, Marker[]> watchOrUnwatch, final Function<?>... params) {
 		final Marker[] markers = new Marker[params.length - 1];
 		for (int i = 1; i < params.length; ++i) {
 			final String name = ((Symbol) params[i].evaluate()).getImage();
@@ -75,13 +73,11 @@ public abstract class Watch implements Function<Object> {
 		watchOrUnwatch.accept(markerType, markers);
 	}
 
-	private static <T> void watch(final SideEffectFunctionToNetwork network,
-			final MarkerType markerType, final Type type,
-			final java.util.function.Function<String, T> nameToInstance,
-			final java.util.function.Function<T, Marker> instanceToMarker,
-			final Function<?>... params) {
-		parseArguments(network, markerType, type, nameToInstance, instanceToMarker,
-				network.getTypedFilter()::watch, params);
+	private static <T> void watch(final SideEffectFunctionToNetwork network, final MarkerType markerType,
+			final Type type, final java.util.function.Function<String, T> nameToInstance,
+			final java.util.function.Function<T, Marker> instanceToMarker, final Function<?>... params) {
+		parseArguments(network, markerType, type, nameToInstance, instanceToMarker, network.getTypedFilter()::watch,
+				params);
 	}
 
 	static {
@@ -89,8 +85,7 @@ public abstract class Watch implements Function<Object> {
 				inClips,
 				(final SideEffectFunctionToNetwork network, final SlotType[] paramTypes) -> {
 					if (paramTypes.length < 1
-							|| !Arrays.equals(paramTypes,
-									SlotType.nCopies(SlotType.SYMBOL, paramTypes.length))) {
+							|| !Arrays.equals(paramTypes, SlotType.nCopies(SlotType.SYMBOL, paramTypes.length))) {
 						return null;
 					}
 					return new Watch() {
@@ -102,16 +97,16 @@ public abstract class Watch implements Function<Object> {
 								network.getTypedFilter().watchAll();
 								break;
 							case "facts":
-								watch(network, MarkerType.FACTS, Type.TEMPLATE,
-										network::getTemplate, Template::getInstanceMarker, params);
+								watch(network, MarkerType.FACTS, Type.TEMPLATE, network::getTemplate,
+										Template::getInstanceMarker, params);
 								break;
 							case "rules":
-								watch(network, MarkerType.RULES, Type.WATCHABLE_SYMBOL,
-										network::getRule, Defrule::getFireMarker, params);
+								watch(network, MarkerType.RULES, Type.WATCHABLE_SYMBOL, network::getRule,
+										Defrule::getFireMarker, params);
 								break;
 							case "activations":
-								watch(network, MarkerType.ACTIVATIONS, Type.WATCHABLE_SYMBOL,
-										network::getRule, Defrule::getActivationMarker, params);
+								watch(network, MarkerType.ACTIVATIONS, Type.WATCHABLE_SYMBOL, network::getRule,
+										Defrule::getActivationMarker, params);
 								break;
 							case "compilations":
 							case "statistics":
@@ -124,11 +119,10 @@ public abstract class Watch implements Function<Object> {
 							case "message-handlers":
 							case "generic-functions":
 							case "methods":
-								throw new UnsupportedOperationException("Unsupported yet: "
-										+ type.getImage());
+								throw new UnsupportedOperationException("Unsupported yet: " + type.getImage());
 							default:
-								network.getLogFormatter().messageArgumentTypeMismatch(network,
-										inClips(), 1, Type.WATCHABLE_SYMBOL);
+								network.getLogFormatter().messageArgumentTypeMismatch(network, inClips(), 1,
+										Type.WATCHABLE_SYMBOL);
 							}
 							return null;
 						}

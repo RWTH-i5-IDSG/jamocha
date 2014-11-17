@@ -118,15 +118,14 @@ public class ConditionalElementFormatter implements Formatter<ConditionalElement
 		}
 
 		private void formatSingleVariables(final SingleFactVariable factVariable) {
-			final List<SingleSlotVariable> singleSlotVariables =
-					slotVariablesByTemplate.get(factVariable);
+			final List<SingleSlotVariable> singleSlotVariables = slotVariablesByTemplate.get(factVariable);
 			if (null == singleSlotVariables || singleSlotVariables.isEmpty())
 				return;
 			sb.append(" ");
 			sb.append(factVariable.getSymbol().toString());
 			singleSlotVariables.forEach(slotVariable -> sb.append(" (")
-					.append(slotVariable.getSlot().getSlotName(factVariable.getTemplate()))
-					.append(" ").append(slotVariable.getSymbol().toString()).append(")"));
+					.append(slotVariable.getSlot().getSlotName(factVariable.getTemplate())).append(" ")
+					.append(slotVariable.getSymbol().toString()).append(")"));
 		}
 	}
 }

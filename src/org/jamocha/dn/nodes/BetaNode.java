@@ -68,8 +68,7 @@ public class BetaNode extends Node {
 			assert map != null;
 			this.addressMap = map;
 			for (final Entry<? extends FactAddress, ? extends FactAddress> entry : map.entrySet()) {
-				this.targetNode.delocalizeMap.put(entry.getValue(), new AddressPredecessor(this,
-						entry.getKey()));
+				this.targetNode.delocalizeMap.put(entry.getValue(), new AddressPredecessor(this, entry.getKey()));
 			}
 		}
 
@@ -79,10 +78,8 @@ public class BetaNode extends Node {
 		}
 
 		@Override
-		public void processPlusToken(final MemoryHandlerTemp memory)
-				throws CouldNotAcquireLockException {
-			final MemoryHandlerTemp mem =
-					this.targetNode.memory.processTokenInBeta(memory, this, this.filter);
+		public void processPlusToken(final MemoryHandlerTemp memory) throws CouldNotAcquireLockException {
+			final MemoryHandlerTemp mem = this.targetNode.memory.processTokenInBeta(memory, this, this.filter);
 			if (mem.size() == 0) {
 				return;
 			}
@@ -92,10 +89,8 @@ public class BetaNode extends Node {
 		}
 
 		@Override
-		public void processMinusToken(final MemoryHandlerTemp memory)
-				throws CouldNotAcquireLockException {
-			final MemoryHandlerTemp mem =
-					this.targetNode.memory.processTokenInBeta(memory, this, this.filter);
+		public void processMinusToken(final MemoryHandlerTemp memory) throws CouldNotAcquireLockException {
+			final MemoryHandlerTemp mem = this.targetNode.memory.processTokenInBeta(memory, this, this.filter);
 			if (mem.size() == 0) {
 				return;
 			}
@@ -133,8 +128,7 @@ public class BetaNode extends Node {
 	public void shareNode(final Map<Path, FactAddress> map, final Path... paths) {
 		assert 0 < this.incomingEdges.length;
 		final Path[] distinctPaths =
-				toArray(Arrays.stream(paths).flatMap(p -> p.getJoinedWith().stream()).distinct(),
-						Path[]::new);
+				toArray(Arrays.stream(paths).flatMap(p -> p.getJoinedWith().stream()).distinct(), Path[]::new);
 		for (final Path path : distinctPaths) {
 			final FactAddress factAddress = map.get(path);
 			if (null == factAddress) {

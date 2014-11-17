@@ -102,56 +102,45 @@ public class TokenProcessingTest {
 	public void testTokenProcessingBetaExistential() throws InterruptedException {
 		final PlainScheduler scheduler = new PlainScheduler();
 		final Network network =
-				new Network(org.jamocha.dn.memory.javaimpl.MemoryFactory.getMemoryFactory(),
-						Integer.MAX_VALUE, scheduler);
+				new Network(org.jamocha.dn.memory.javaimpl.MemoryFactory.getMemoryFactory(), Integer.MAX_VALUE,
+						scheduler);
 		final Template student =
-				MemoryFactory.getMemoryFactory().newTemplate("Student", "Student",
-						Slots.newString("Name"), Slots.newLong("Semester"),
-						Slots.newString("Studiengang"), Slots.newString("Hobby"));
+				MemoryFactory.getMemoryFactory().newTemplate("Student", "Student", Slots.newString("Name"),
+						Slots.newLong("Semester"), Slots.newString("Studiengang"), Slots.newString("Hobby"));
 		final Template prof =
-				MemoryFactory.getMemoryFactory().newTemplate("Prof", "Prof",
-						Slots.newString("Name"), Slots.newString("Studiengang"));
+				MemoryFactory.getMemoryFactory().newTemplate("Prof", "Prof", Slots.newString("Name"),
+						Slots.newString("Studiengang"));
 		final Set<Path> existentialYoungStudent = new HashSet<>();
 		final Set<Path> negatedExistentialMatchingProf = new HashSet<>();
-		final Path oldStudent = new Path(student), youngStudent = new Path(student), matchingProf =
-				new Path(prof);
+		final Path oldStudent = new Path(student), youngStudent = new Path(student), matchingProf = new Path(prof);
 		existentialYoungStudent.add(youngStudent);
 		negatedExistentialMatchingProf.add(matchingProf);
 		final SlotAddress studentSem = new SlotAddress(1), studentSG = new SlotAddress(2), studentHobby =
 				new SlotAddress(3), profSG = new SlotAddress(1);
 
-		final Predicate lessLongLong =
-				FunctionDictionary.lookupPredicate("<", SlotType.LONG, SlotType.LONG);
-		final Predicate eqStrStr =
-				FunctionDictionary.lookupPredicate("=", SlotType.STRING, SlotType.STRING);
-		final Predicate and =
-				FunctionDictionary.lookupPredicate(And.inClips, SlotType.BOOLEAN, SlotType.BOOLEAN);
+		final Predicate lessLongLong = FunctionDictionary.lookupPredicate("<", SlotType.LONG, SlotType.LONG);
+		final Predicate eqStrStr = FunctionDictionary.lookupPredicate("=", SlotType.STRING, SlotType.STRING);
+		final Predicate and = FunctionDictionary.lookupPredicate(And.inClips, SlotType.BOOLEAN, SlotType.BOOLEAN);
 
 		// get the (old) students with hobby "Coding", for which there are younger (semester-wise)
 		// students in the same course of study, but who lack a professor for their course of study
-		final PathFilterList.PathFilterSharedListWrapper.PathFilterSharedList filter = new PathFilterList.PathFilterSharedListWrapper().newSharedElement(Arrays.asList(
-						new PathFilter(new PredicateBuilder(eqStrStr)
-								.addPath(oldStudent, studentHobby)
+		final PathFilterList.PathFilterSharedListWrapper.PathFilterSharedList filter =
+				new PathFilterList.PathFilterSharedListWrapper().newSharedElement(Arrays.asList(
+						new PathFilter(new PredicateBuilder(eqStrStr).addPath(oldStudent, studentHobby)
 								.addConstant("Coding", SlotType.STRING).buildPFE()),
-						new PathFilter(existentialYoungStudent, new HashSet<>(),
-								new PredicateBuilder(and)
-										.addFunction(
-												new PredicateBuilder(lessLongLong)
-														.addPath(youngStudent, studentSem)
-														.addPath(oldStudent, studentSem).build())
-										.addFunction(
-												new PredicateBuilder(eqStrStr)
-														.addPath(youngStudent, studentSG)
-														.addPath(oldStudent, studentSG).build())
-										.buildPFE()),
-						new PathFilter(new HashSet<>(), negatedExistentialMatchingProf,
-								new PredicateBuilder(eqStrStr).addPath(oldStudent, studentSG)
-										.addPath(matchingProf, profSG).buildPFE()) ));
+						new PathFilter(existentialYoungStudent, new HashSet<>(), new PredicateBuilder(and)
+								.addFunction(
+										new PredicateBuilder(lessLongLong).addPath(youngStudent, studentSem)
+												.addPath(oldStudent, studentSem).build())
+								.addFunction(
+										new PredicateBuilder(eqStrStr).addPath(youngStudent, studentSG)
+												.addPath(oldStudent, studentSG).build()).buildPFE()), new PathFilter(
+								new HashSet<>(), negatedExistentialMatchingProf, new PredicateBuilder(eqStrStr)
+										.addPath(oldStudent, studentSG).addPath(matchingProf, profSG).buildPFE())));
 
 		final TerminalNode terminal =
-				network.buildRule(new Defrule("dummyrule", "", 0, (RuleCondition) null,
-						new ArrayList<>()).newTranslated(filter,
-						(Map<SingleFactVariable, Path>) null));
+				network.buildRule(new Defrule("dummyrule", "", 0, (RuleCondition) null, new ArrayList<>())
+						.newTranslated(filter, (Map<SingleFactVariable, Path>) null));
 
 		final RootNode rootNode = network.getRootNode();
 
@@ -162,8 +151,7 @@ public class TokenProcessingTest {
 		assertThat(betaNodeProf, Matchers.instanceOf(BetaNode.class));
 
 		final Edge[] profIncomingEdges = betaNodeProf.getIncomingEdges();
-		final int exIndex =
-				1 - profIncomingEdges[0].getSourceNode().getOutgoingExistentialEdges().size();
+		final int exIndex = 1 - profIncomingEdges[0].getSourceNode().getOutgoingExistentialEdges().size();
 		final Node profOTN = profIncomingEdges[exIndex].getSourceNode();
 		assertThat(profOTN, Matchers.instanceOf(ObjectTypeNode.class));
 		final Node betaNodeStudent = profIncomingEdges[1 - exIndex].getSourceNode();
@@ -180,30 +168,22 @@ public class TokenProcessingTest {
 		assertEquals(1, studentOTN.getOutgoingExistentialEdges().size());
 		assertEquals(2, studentOTN.getOutgoingEdges().size());
 
-		final FactIdentifier[] simon =
-				rootNode.assertFacts(student.newFact("Simon", 3L, "Informatik", "Schach"));
-		final FactIdentifier[] rachel =
-				rootNode.assertFacts(student.newFact("Rachel", 4L, "Informatik", "Coding"));
+		final FactIdentifier[] simon = rootNode.assertFacts(student.newFact("Simon", 3L, "Informatik", "Schach"));
+		final FactIdentifier[] rachel = rootNode.assertFacts(student.newFact("Rachel", 4L, "Informatik", "Coding"));
 		rootNode.assertFacts(student.newFact("Mike", 5L, "Informatik", "Coding"));
 		rootNode.assertFacts(student.newFact("Samuel", 7L, "Informatik", "Schwimmen"));
 		rootNode.assertFacts(student.newFact("Lydia", 4L, "Anglizistik", "Musik"));
-		final FactIdentifier[] erik =
-				rootNode.assertFacts(student.newFact("Erik", 2L, "Informatik", "Rätsel"));
+		final FactIdentifier[] erik = rootNode.assertFacts(student.newFact("Erik", 2L, "Informatik", "Rätsel"));
 		rootNode.assertFacts(prof.newFact("Prof. Dr. Ashcroft", "Geschichte"));
-		final FactIdentifier[] timmes =
-				rootNode.assertFacts(prof.newFact("Prof. Dr. Timmes", "Informatik"));
-		final FactIdentifier[] santana =
-				rootNode.assertFacts(prof.newFact("Prof. Dr. Santana", "Biologie"));
-		final FactIdentifier[] kappa =
-				rootNode.assertFacts(prof.newFact("Prof. Dr. Kappa", "Informatik"));
+		final FactIdentifier[] timmes = rootNode.assertFacts(prof.newFact("Prof. Dr. Timmes", "Informatik"));
+		final FactIdentifier[] santana = rootNode.assertFacts(prof.newFact("Prof. Dr. Santana", "Biologie"));
+		final FactIdentifier[] kappa = rootNode.assertFacts(prof.newFact("Prof. Dr. Kappa", "Informatik"));
 
 		scheduler.run();
 		conflictSet.deleteRevokedEntries();
 		{
-			final AssertsAndRetracts assertsAndRetracts =
-					countAssertsAndRetractsInConflictSet(conflictSet);
-			assertEquals("Amount of asserts does not match expected count!", 0,
-					assertsAndRetracts.getAsserts());
+			final AssertsAndRetracts assertsAndRetracts = countAssertsAndRetractsInConflictSet(conflictSet);
+			assertEquals("Amount of asserts does not match expected count!", 0, assertsAndRetracts.getAsserts());
 		}
 
 		rootNode.retractFacts(timmes);
@@ -213,10 +193,8 @@ public class TokenProcessingTest {
 		scheduler.run();
 		conflictSet.deleteRevokedEntries();
 		{
-			final AssertsAndRetracts assertsAndRetracts =
-					countAssertsAndRetractsInConflictSet(conflictSet);
-			assertEquals("Amount of asserts does not match expected count!", 2,
-					assertsAndRetracts.getAsserts());
+			final AssertsAndRetracts assertsAndRetracts = countAssertsAndRetractsInConflictSet(conflictSet);
+			assertEquals("Amount of asserts does not match expected count!", 2, assertsAndRetracts.getAsserts());
 		}
 
 		rootNode.retractFacts(simon);
@@ -226,10 +204,8 @@ public class TokenProcessingTest {
 		scheduler.run();
 		conflictSet.deleteRevokedEntries();
 		{
-			final AssertsAndRetracts assertsAndRetracts =
-					countAssertsAndRetractsInConflictSet(conflictSet);
-			assertEquals("Amount of asserts does not match expected count!", 0,
-					assertsAndRetracts.getAsserts());
+			final AssertsAndRetracts assertsAndRetracts = countAssertsAndRetractsInConflictSet(conflictSet);
+			assertEquals("Amount of asserts does not match expected count!", 0, assertsAndRetracts.getAsserts());
 		}
 	}
 
@@ -237,34 +213,30 @@ public class TokenProcessingTest {
 	public void testTokenProcessingSimpleExistential() throws InterruptedException {
 		final PlainScheduler scheduler = new PlainScheduler();
 		final Network network =
-				new Network(org.jamocha.dn.memory.javaimpl.MemoryFactory.getMemoryFactory(),
-						Integer.MAX_VALUE, scheduler);
-		final Template t1 =
-				MemoryFactory.getMemoryFactory().newTemplate("", "", Slot.STRING, Slot.LONG), t2 =
+				new Network(org.jamocha.dn.memory.javaimpl.MemoryFactory.getMemoryFactory(), Integer.MAX_VALUE,
+						scheduler);
+		final Template t1 = MemoryFactory.getMemoryFactory().newTemplate("", "", Slot.STRING, Slot.LONG), t2 =
 				MemoryFactory.getMemoryFactory().newTemplate("", "", Slot.STRING, Slot.BOOLEAN);
 		final Path p1 = new Path(t1), p2 = new Path(t2);
 		final SlotAddress s1 = new SlotAddress(0), s2 = new SlotAddress(1);
 
-		final Predicate eqStrStr =
-				FunctionDictionary.lookupPredicate("=", SlotType.STRING, SlotType.STRING);
-		final Predicate eqBoolBool =
-				FunctionDictionary.lookupPredicate("=", SlotType.BOOLEAN, SlotType.BOOLEAN);
-		final Predicate and =
-				FunctionDictionary.lookupPredicate(And.inClips, SlotType.BOOLEAN, SlotType.BOOLEAN);
+		final Predicate eqStrStr = FunctionDictionary.lookupPredicate("=", SlotType.STRING, SlotType.STRING);
+		final Predicate eqBoolBool = FunctionDictionary.lookupPredicate("=", SlotType.BOOLEAN, SlotType.BOOLEAN);
+		final Predicate and = FunctionDictionary.lookupPredicate(And.inClips, SlotType.BOOLEAN, SlotType.BOOLEAN);
 
-		final PathFilterList.PathFilterSharedListWrapper.PathFilterSharedList filter = new PathFilterList.PathFilterSharedListWrapper().newSharedElement(Arrays.asList( new PathFilter(new HashSet<Path>(Arrays.asList(p2)),
-						new HashSet<Path>(), new PredicateBuilder(and)
-								.addFunction(
-										new PredicateBuilder(eqStrStr).addPath(p1, s1)
-												.addPath(p2, s1).build())
-								.addFunction(
-										new PredicateBuilder(eqBoolBool).addBoolean(false)
-												.addPath(p2, s2).build()).buildPFE()) ));
+		final PathFilterList.PathFilterSharedListWrapper.PathFilterSharedList filter =
+				new PathFilterList.PathFilterSharedListWrapper()
+						.newSharedElement(Arrays.asList(new PathFilter(new HashSet<Path>(Arrays.asList(p2)),
+								new HashSet<Path>(), new PredicateBuilder(and)
+										.addFunction(
+												new PredicateBuilder(eqStrStr).addPath(p1, s1).addPath(p2, s1).build())
+										.addFunction(
+												new PredicateBuilder(eqBoolBool).addBoolean(false).addPath(p2, s2)
+														.build()).buildPFE())));
 
 		final TerminalNode terminal =
-				network.buildRule(new Defrule("dummyrule", "", 0, (RuleCondition) null,
-						new ArrayList<>()).newTranslated(filter,
-						(Map<SingleFactVariable, Path>) null));
+				network.buildRule(new Defrule("dummyrule", "", 0, (RuleCondition) null, new ArrayList<>())
+						.newTranslated(filter, (Map<SingleFactVariable, Path>) null));
 		final RootNode rootNode = network.getRootNode();
 		final ConflictSet conflictSet = network.getConflictSet();
 
@@ -277,8 +249,7 @@ public class TokenProcessingTest {
 		final Node otn2 = incomingEdges[1].getSourceNode();
 		assertThat(otn1, org.hamcrest.Matchers.instanceOf(ObjectTypeNode.class));
 		assertThat(otn2, org.hamcrest.Matchers.instanceOf(ObjectTypeNode.class));
-		assertEquals(1, otn1.getOutgoingExistentialEdges().size()
-				+ otn2.getOutgoingExistentialEdges().size());
+		assertEquals(1, otn1.getOutgoingExistentialEdges().size() + otn2.getOutgoingExistentialEdges().size());
 
 		// \forall t1 \exists t2 : t1.1 == t2.1 \wedge t2.2 == false
 		rootNode.assertFacts(t1.newFact("a", 1L));
@@ -298,21 +269,15 @@ public class TokenProcessingTest {
 
 		scheduler.run();
 		{
-			final AssertsAndRetracts assertsAndRetracts =
-					countAssertsAndRetractsInConflictSet(conflictSet);
-			assertEquals("Amount of asserts does not match expected count!", 2,
-					assertsAndRetracts.getAsserts());
-			assertEquals("Amount of retracts does not match expected count!", 0,
-					assertsAndRetracts.getRetracts());
+			final AssertsAndRetracts assertsAndRetracts = countAssertsAndRetractsInConflictSet(conflictSet);
+			assertEquals("Amount of asserts does not match expected count!", 2, assertsAndRetracts.getAsserts());
+			assertEquals("Amount of retracts does not match expected count!", 0, assertsAndRetracts.getRetracts());
 		}
 		conflictSet.deleteRevokedEntries();
 		{
-			final AssertsAndRetracts assertsAndRetracts =
-					countAssertsAndRetractsInConflictSet(conflictSet);
-			assertEquals("Amount of asserts does not match expected count!", 2,
-					assertsAndRetracts.getAsserts());
-			assertEquals("Amount of retracts does not match expected count!", 0,
-					assertsAndRetracts.getRetracts());
+			final AssertsAndRetracts assertsAndRetracts = countAssertsAndRetractsInConflictSet(conflictSet);
+			assertEquals("Amount of asserts does not match expected count!", 2, assertsAndRetracts.getAsserts());
+			assertEquals("Amount of retracts does not match expected count!", 0, assertsAndRetracts.getRetracts());
 		}
 	}
 
@@ -320,35 +285,31 @@ public class TokenProcessingTest {
 	public void testTokenProcessingSimpleNegatedExistential() throws InterruptedException {
 		final PlainScheduler scheduler = new PlainScheduler();
 		final Network network =
-				new Network(org.jamocha.dn.memory.javaimpl.MemoryFactory.getMemoryFactory(),
-						Integer.MAX_VALUE, scheduler);
-		final Template t1 =
-				MemoryFactory.getMemoryFactory().newTemplate("", "", Slot.STRING, Slot.LONG), t2 =
+				new Network(org.jamocha.dn.memory.javaimpl.MemoryFactory.getMemoryFactory(), Integer.MAX_VALUE,
+						scheduler);
+		final Template t1 = MemoryFactory.getMemoryFactory().newTemplate("", "", Slot.STRING, Slot.LONG), t2 =
 				MemoryFactory.getMemoryFactory().newTemplate("", "", Slot.STRING, Slot.BOOLEAN);
 		final Path p1 = new Path(t1), p2 = new Path(t2);
 		final SlotAddress s1 = new SlotAddress(0), s2 = new SlotAddress(1);
 
-		final Predicate eqStrStr =
-				FunctionDictionary.lookupPredicate("=", SlotType.STRING, SlotType.STRING);
-		final Predicate eqBoolBool =
-				FunctionDictionary.lookupPredicate("=", SlotType.BOOLEAN, SlotType.BOOLEAN);
-		final Predicate and =
-				FunctionDictionary.lookupPredicate(And.inClips, SlotType.BOOLEAN, SlotType.BOOLEAN);
+		final Predicate eqStrStr = FunctionDictionary.lookupPredicate("=", SlotType.STRING, SlotType.STRING);
+		final Predicate eqBoolBool = FunctionDictionary.lookupPredicate("=", SlotType.BOOLEAN, SlotType.BOOLEAN);
+		final Predicate and = FunctionDictionary.lookupPredicate(And.inClips, SlotType.BOOLEAN, SlotType.BOOLEAN);
 
-		final PathFilterList.PathFilterSharedListWrapper.PathFilterSharedList filter = new PathFilterList.PathFilterSharedListWrapper().newSharedElement(Arrays.asList(
-				new PathFilter(new HashSet<Path>(), new HashSet<Path>(
-						Arrays.asList(p2)), new PredicateBuilder(and)
-						.addFunction(
-								new PredicateBuilder(eqStrStr).addPath(p1, s1).addPath(p2, s1)
-										.build())
-						.addFunction(
-								new PredicateBuilder(eqBoolBool).addBoolean(false).addPath(p2, s2)
-										.build()).buildPFE()) ));
+		final PathFilterList.PathFilterSharedListWrapper.PathFilterSharedList filter =
+				new PathFilterList.PathFilterSharedListWrapper()
+						.newSharedElement(Arrays.asList(new PathFilter(new HashSet<Path>(), new HashSet<Path>(Arrays
+								.asList(p2)),
+								new PredicateBuilder(and)
+										.addFunction(
+												new PredicateBuilder(eqStrStr).addPath(p1, s1).addPath(p2, s1).build())
+										.addFunction(
+												new PredicateBuilder(eqBoolBool).addBoolean(false).addPath(p2, s2)
+														.build()).buildPFE())));
 
 		final TerminalNode terminal =
-				network.buildRule(new Defrule("dummyrule", "", 0, (RuleCondition) null,
-						new ArrayList<>()).newTranslated(filter,
-						(Map<SingleFactVariable, Path>) null));
+				network.buildRule(new Defrule("dummyrule", "", 0, (RuleCondition) null, new ArrayList<>())
+						.newTranslated(filter, (Map<SingleFactVariable, Path>) null));
 		final RootNode rootNode = network.getRootNode();
 		final ConflictSet conflictSet = network.getConflictSet();
 
@@ -361,8 +322,7 @@ public class TokenProcessingTest {
 		final Node otn2 = incomingEdges[1].getSourceNode();
 		assertThat(otn1, org.hamcrest.Matchers.instanceOf(ObjectTypeNode.class));
 		assertThat(otn2, org.hamcrest.Matchers.instanceOf(ObjectTypeNode.class));
-		assertEquals(1, otn1.getOutgoingExistentialEdges().size()
-				+ otn2.getOutgoingExistentialEdges().size());
+		assertEquals(1, otn1.getOutgoingExistentialEdges().size() + otn2.getOutgoingExistentialEdges().size());
 
 		// \forall t1 \not\exists t2 : t1.1 == t2.1 \wedge t2.2 == false
 		rootNode.assertFacts(t1.newFact("a", 1L));
@@ -388,21 +348,15 @@ public class TokenProcessingTest {
 		scheduler.run();
 		assertEquals(4, betaNode.getMemory().size());
 		{
-			final AssertsAndRetracts assertsAndRetracts =
-					countAssertsAndRetractsInConflictSet(conflictSet);
-			assertEquals("Amount of asserts does not match expected count!", 6,
-					assertsAndRetracts.getAsserts());
-			assertEquals("Amount of retracts does not match expected count!", 2,
-					assertsAndRetracts.getRetracts());
+			final AssertsAndRetracts assertsAndRetracts = countAssertsAndRetractsInConflictSet(conflictSet);
+			assertEquals("Amount of asserts does not match expected count!", 6, assertsAndRetracts.getAsserts());
+			assertEquals("Amount of retracts does not match expected count!", 2, assertsAndRetracts.getRetracts());
 		}
 		conflictSet.deleteRevokedEntries();
 		{
-			final AssertsAndRetracts assertsAndRetracts =
-					countAssertsAndRetractsInConflictSet(conflictSet);
-			assertEquals("Amount of asserts does not match expected count!", 4,
-					assertsAndRetracts.getAsserts());
-			assertEquals("Amount of retracts does not match expected count!", 0,
-					assertsAndRetracts.getRetracts());
+			final AssertsAndRetracts assertsAndRetracts = countAssertsAndRetractsInConflictSet(conflictSet);
+			assertEquals("Amount of asserts does not match expected count!", 4, assertsAndRetracts.getAsserts());
+			assertEquals("Amount of retracts does not match expected count!", 0, assertsAndRetracts.getRetracts());
 		}
 	}
 
@@ -410,27 +364,25 @@ public class TokenProcessingTest {
 	public void testTokenProcessingSimpleSelfJoin() throws InterruptedException {
 		final PlainScheduler scheduler = new PlainScheduler();
 		final Network network =
-				new Network(org.jamocha.dn.memory.javaimpl.MemoryFactory.getMemoryFactory(),
-						Integer.MAX_VALUE, scheduler);
+				new Network(org.jamocha.dn.memory.javaimpl.MemoryFactory.getMemoryFactory(), Integer.MAX_VALUE,
+						scheduler);
 		final Template student =
-				MemoryFactory.getMemoryFactory().newTemplate("Student", "Student",
-						Slots.newString("Name"), Slots.newLong("Semester"),
-						Slots.newString("Studiengang"), Slots.newString("Hobby"));
+				MemoryFactory.getMemoryFactory().newTemplate("Student", "Student", Slots.newString("Name"),
+						Slots.newLong("Semester"), Slots.newString("Studiengang"), Slots.newString("Hobby"));
 		final Path oldStudent = new Path(student), youngStudent = new Path(student);
 		final SlotAddress studentSem = new SlotAddress(1), studentSG = new SlotAddress(2);
 
-		final Predicate lessLongLong =
-				FunctionDictionary.lookupPredicate("<", SlotType.LONG, SlotType.LONG);
-		final Predicate eqStrStr =
-				FunctionDictionary.lookupPredicate("=", SlotType.STRING, SlotType.STRING);
+		final Predicate lessLongLong = FunctionDictionary.lookupPredicate("<", SlotType.LONG, SlotType.LONG);
+		final Predicate eqStrStr = FunctionDictionary.lookupPredicate("=", SlotType.STRING, SlotType.STRING);
 
-		final PathFilterList.PathFilterSharedListWrapper.PathFilterSharedList filter = new PathFilterList.PathFilterSharedListWrapper().newSharedElement(Arrays.asList( new PathFilter(new PredicateBuilder(lessLongLong)
-						.addPath(youngStudent, studentSem).addPath(oldStudent, studentSem)
-						.buildPFE(), new PredicateBuilder(eqStrStr)
-						.addPath(youngStudent, studentSG).addPath(oldStudent, studentSG).buildPFE()) ));
+		final PathFilterList.PathFilterSharedListWrapper.PathFilterSharedList filter =
+				new PathFilterList.PathFilterSharedListWrapper().newSharedElement(Arrays.asList(new PathFilter(
+						new PredicateBuilder(lessLongLong).addPath(youngStudent, studentSem)
+								.addPath(oldStudent, studentSem).buildPFE(), new PredicateBuilder(eqStrStr)
+								.addPath(youngStudent, studentSG).addPath(oldStudent, studentSG).buildPFE())));
 
-		network.buildRule(new Defrule("dummyrule", "", 0, (RuleCondition) null, new ArrayList<>())
-				.newTranslated(filter, (Map<SingleFactVariable, Path>) null));
+		network.buildRule(new Defrule("dummyrule", "", 0, (RuleCondition) null, new ArrayList<>()).newTranslated(
+				filter, (Map<SingleFactVariable, Path>) null));
 		final RootNode rootNode = network.getRootNode();
 		final ConflictSet conflictSet = network.getConflictSet();
 
@@ -454,21 +406,15 @@ public class TokenProcessingTest {
 
 		scheduler.run();
 		{
-			final AssertsAndRetracts assertsAndRetracts =
-					countAssertsAndRetractsInConflictSet(conflictSet);
-			assertEquals("Amount of asserts does not match expected count!", 10,
-					assertsAndRetracts.getAsserts());
-			assertEquals("Amount of retracts does not match expected count!", 0,
-					assertsAndRetracts.getRetracts());
+			final AssertsAndRetracts assertsAndRetracts = countAssertsAndRetractsInConflictSet(conflictSet);
+			assertEquals("Amount of asserts does not match expected count!", 10, assertsAndRetracts.getAsserts());
+			assertEquals("Amount of retracts does not match expected count!", 0, assertsAndRetracts.getRetracts());
 		}
 		conflictSet.deleteRevokedEntries();
 		{
-			final AssertsAndRetracts assertsAndRetracts =
-					countAssertsAndRetractsInConflictSet(conflictSet);
-			assertEquals("Amount of asserts does not match expected count!", 10,
-					assertsAndRetracts.getAsserts());
-			assertEquals("Amount of retracts does not match expected count!", 0,
-					assertsAndRetracts.getRetracts());
+			final AssertsAndRetracts assertsAndRetracts = countAssertsAndRetractsInConflictSet(conflictSet);
+			assertEquals("Amount of asserts does not match expected count!", 10, assertsAndRetracts.getAsserts());
+			assertEquals("Amount of retracts does not match expected count!", 0, assertsAndRetracts.getRetracts());
 		}
 	}
 
@@ -476,40 +422,33 @@ public class TokenProcessingTest {
 	public void testTokenProcessingBeta() throws InterruptedException {
 		final PlainScheduler scheduler = new PlainScheduler();
 		final Network network =
-				new Network(org.jamocha.dn.memory.javaimpl.MemoryFactory.getMemoryFactory(),
-						Integer.MAX_VALUE, scheduler);
+				new Network(org.jamocha.dn.memory.javaimpl.MemoryFactory.getMemoryFactory(), Integer.MAX_VALUE,
+						scheduler);
 		final Template student =
-				MemoryFactory.getMemoryFactory().newTemplate("Student", "Student",
-						Slots.newString("Name"), Slots.newLong("Semester"),
-						Slots.newString("Studiengang"), Slots.newString("Hobby"));
+				MemoryFactory.getMemoryFactory().newTemplate("Student", "Student", Slots.newString("Name"),
+						Slots.newLong("Semester"), Slots.newString("Studiengang"), Slots.newString("Hobby"));
 		final Template prof =
-				MemoryFactory.getMemoryFactory().newTemplate("Prof", "Prof",
-						Slots.newString("Name"), Slots.newString("Studiengang"));
-		final Path oldStudent = new Path(student), youngStudent = new Path(student), matchingProf =
-				new Path(prof);
+				MemoryFactory.getMemoryFactory().newTemplate("Prof", "Prof", Slots.newString("Name"),
+						Slots.newString("Studiengang"));
+		final Path oldStudent = new Path(student), youngStudent = new Path(student), matchingProf = new Path(prof);
 		final SlotAddress studentSem = new SlotAddress(1), studentSG = new SlotAddress(2), studentHobby =
 				new SlotAddress(3), profSG = new SlotAddress(1);
 
-		final Predicate lessLongLong =
-				FunctionDictionary.lookupPredicate("<", SlotType.LONG, SlotType.LONG);
-		final Predicate eqStrStr =
-				FunctionDictionary.lookupPredicate("=", SlotType.STRING, SlotType.STRING);
+		final Predicate lessLongLong = FunctionDictionary.lookupPredicate("<", SlotType.LONG, SlotType.LONG);
+		final Predicate eqStrStr = FunctionDictionary.lookupPredicate("=", SlotType.STRING, SlotType.STRING);
 
-		final PathFilterList.PathFilterSharedListWrapper.PathFilterSharedList filter = new PathFilterList.PathFilterSharedListWrapper().newSharedElement(Arrays.asList(
-						new PathFilter(new PredicateBuilder(eqStrStr)
-								.addPath(oldStudent, studentHobby)
+		final PathFilterList.PathFilterSharedListWrapper.PathFilterSharedList filter =
+				new PathFilterList.PathFilterSharedListWrapper().newSharedElement(Arrays.asList(
+						new PathFilter(new PredicateBuilder(eqStrStr).addPath(oldStudent, studentHobby)
 								.addConstant("Coding", SlotType.STRING).buildPFE()),
-						new PathFilter(new PredicateBuilder(lessLongLong)
-								.addPath(youngStudent, studentSem).addPath(oldStudent, studentSem)
-								.buildPFE(), new PredicateBuilder(eqStrStr)
-								.addPath(youngStudent, studentSG).addPath(oldStudent, studentSG)
-								.buildPFE()),
-						new PathFilter(new PredicateBuilder(eqStrStr)
-								.addPath(youngStudent, studentSG).addPath(matchingProf, profSG)
-								.buildPFE()) ));
+						new PathFilter(new PredicateBuilder(lessLongLong).addPath(youngStudent, studentSem)
+								.addPath(oldStudent, studentSem).buildPFE(), new PredicateBuilder(eqStrStr)
+								.addPath(youngStudent, studentSG).addPath(oldStudent, studentSG).buildPFE()),
+						new PathFilter(new PredicateBuilder(eqStrStr).addPath(youngStudent, studentSG)
+								.addPath(matchingProf, profSG).buildPFE())));
 
-		network.buildRule(new Defrule("dummyrule", "", 0, (RuleCondition) null, new ArrayList<>())
-				.newTranslated(filter, (Map<SingleFactVariable, Path>) null));
+		network.buildRule(new Defrule("dummyrule", "", 0, (RuleCondition) null, new ArrayList<>()).newTranslated(
+				filter, (Map<SingleFactVariable, Path>) null));
 		final RootNode rootNode = network.getRootNode();
 		final ConflictSet conflictSet = network.getConflictSet();
 
@@ -520,29 +459,21 @@ public class TokenProcessingTest {
 		rootNode.assertFacts(student.newFact("Lydia", 4L, "Anglizistik", "Musik"));
 		rootNode.assertFacts(student.newFact("Erik", 2L, "Informatik", "Rätsel"));
 		rootNode.assertFacts(prof.newFact("Prof. Dr. Ashcroft", "Geschichte"));
-		final FactIdentifier[] timmes =
-				rootNode.assertFacts(prof.newFact("Prof. Dr. Timmes", "Informatik"));
-		final FactIdentifier[] santana =
-				rootNode.assertFacts(prof.newFact("Prof. Dr. Santana", "Biologie"));
+		final FactIdentifier[] timmes = rootNode.assertFacts(prof.newFact("Prof. Dr. Timmes", "Informatik"));
+		final FactIdentifier[] santana = rootNode.assertFacts(prof.newFact("Prof. Dr. Santana", "Biologie"));
 		rootNode.assertFacts(prof.newFact("Prof. Dr. Kappa", "Informatik"));
 
 		scheduler.run();
 		{
-			final AssertsAndRetracts assertsAndRetracts =
-					countAssertsAndRetractsInConflictSet(conflictSet);
-			assertEquals("Amount of asserts does not match expected count!", 10,
-					assertsAndRetracts.getAsserts());
-			assertEquals("Amount of retracts does not match expected count!", 0,
-					assertsAndRetracts.getRetracts());
+			final AssertsAndRetracts assertsAndRetracts = countAssertsAndRetractsInConflictSet(conflictSet);
+			assertEquals("Amount of asserts does not match expected count!", 10, assertsAndRetracts.getAsserts());
+			assertEquals("Amount of retracts does not match expected count!", 0, assertsAndRetracts.getRetracts());
 		}
 		conflictSet.deleteRevokedEntries();
 		{
-			final AssertsAndRetracts assertsAndRetracts =
-					countAssertsAndRetractsInConflictSet(conflictSet);
-			assertEquals("Amount of asserts does not match expected count!", 10,
-					assertsAndRetracts.getAsserts());
-			assertEquals("Amount of retracts does not match expected count!", 0,
-					assertsAndRetracts.getRetracts());
+			final AssertsAndRetracts assertsAndRetracts = countAssertsAndRetractsInConflictSet(conflictSet);
+			assertEquals("Amount of asserts does not match expected count!", 10, assertsAndRetracts.getAsserts());
+			assertEquals("Amount of retracts does not match expected count!", 0, assertsAndRetracts.getRetracts());
 		}
 
 		rootNode.retractFacts(timmes);
@@ -550,21 +481,15 @@ public class TokenProcessingTest {
 
 		scheduler.run();
 		{
-			final AssertsAndRetracts assertsAndRetracts =
-					countAssertsAndRetractsInConflictSet(conflictSet);
-			assertEquals("Amount of asserts does not match expected count!", 10,
-					assertsAndRetracts.getAsserts());
-			assertEquals("Amount of retracts does not match expected count!", 5,
-					assertsAndRetracts.getRetracts());
+			final AssertsAndRetracts assertsAndRetracts = countAssertsAndRetractsInConflictSet(conflictSet);
+			assertEquals("Amount of asserts does not match expected count!", 10, assertsAndRetracts.getAsserts());
+			assertEquals("Amount of retracts does not match expected count!", 5, assertsAndRetracts.getRetracts());
 		}
 		conflictSet.deleteRevokedEntries();
 		{
-			final AssertsAndRetracts assertsAndRetracts =
-					countAssertsAndRetractsInConflictSet(conflictSet);
-			assertEquals("Amount of asserts does not match expected count!", 5,
-					assertsAndRetracts.getAsserts());
-			assertEquals("Amount of retracts does not match expected count!", 0,
-					assertsAndRetracts.getRetracts());
+			final AssertsAndRetracts assertsAndRetracts = countAssertsAndRetractsInConflictSet(conflictSet);
+			assertEquals("Amount of asserts does not match expected count!", 5, assertsAndRetracts.getAsserts());
+			assertEquals("Amount of retracts does not match expected count!", 0, assertsAndRetracts.getRetracts());
 		}
 	}
 
@@ -572,40 +497,33 @@ public class TokenProcessingTest {
 	public void testTokenProcessingBetaOneRun() throws InterruptedException {
 		final PlainScheduler scheduler = new PlainScheduler();
 		final Network network =
-				new Network(org.jamocha.dn.memory.javaimpl.MemoryFactory.getMemoryFactory(),
-						Integer.MAX_VALUE, scheduler);
+				new Network(org.jamocha.dn.memory.javaimpl.MemoryFactory.getMemoryFactory(), Integer.MAX_VALUE,
+						scheduler);
 		final Template student =
-				MemoryFactory.getMemoryFactory().newTemplate("Student", "Student",
-						Slots.newString("Name"), Slots.newLong("Semester"),
-						Slots.newString("Studiengang"), Slots.newString("Hobby"));
+				MemoryFactory.getMemoryFactory().newTemplate("Student", "Student", Slots.newString("Name"),
+						Slots.newLong("Semester"), Slots.newString("Studiengang"), Slots.newString("Hobby"));
 		final Template prof =
-				MemoryFactory.getMemoryFactory().newTemplate("Prof", "Prof",
-						Slots.newString("Name"), Slots.newString("Studiengang"));
-		final Path oldStudent = new Path(student), youngStudent = new Path(student), matchingProf =
-				new Path(prof);
+				MemoryFactory.getMemoryFactory().newTemplate("Prof", "Prof", Slots.newString("Name"),
+						Slots.newString("Studiengang"));
+		final Path oldStudent = new Path(student), youngStudent = new Path(student), matchingProf = new Path(prof);
 		final SlotAddress studentSem = new SlotAddress(1), studentSG = new SlotAddress(2), studentHobby =
 				new SlotAddress(3), profSG = new SlotAddress(1);
 
-		final Predicate lessLongLong =
-				FunctionDictionary.lookupPredicate("<", SlotType.LONG, SlotType.LONG);
-		final Predicate eqStrStr =
-				FunctionDictionary.lookupPredicate("=", SlotType.STRING, SlotType.STRING);
+		final Predicate lessLongLong = FunctionDictionary.lookupPredicate("<", SlotType.LONG, SlotType.LONG);
+		final Predicate eqStrStr = FunctionDictionary.lookupPredicate("=", SlotType.STRING, SlotType.STRING);
 
-		final PathFilterList.PathFilterSharedListWrapper.PathFilterSharedList filter = new PathFilterList.PathFilterSharedListWrapper().newSharedElement(Arrays.asList(
-						new PathFilter(new PredicateBuilder(eqStrStr)
-								.addPath(oldStudent, studentHobby)
+		final PathFilterList.PathFilterSharedListWrapper.PathFilterSharedList filter =
+				new PathFilterList.PathFilterSharedListWrapper().newSharedElement(Arrays.asList(
+						new PathFilter(new PredicateBuilder(eqStrStr).addPath(oldStudent, studentHobby)
 								.addConstant("Coding", SlotType.STRING).buildPFE()),
-						new PathFilter(new PredicateBuilder(lessLongLong)
-								.addPath(youngStudent, studentSem).addPath(oldStudent, studentSem)
-								.buildPFE(), new PredicateBuilder(eqStrStr)
-								.addPath(youngStudent, studentSG).addPath(oldStudent, studentSG)
-								.buildPFE()),
-						new PathFilter(new PredicateBuilder(eqStrStr)
-								.addPath(youngStudent, studentSG).addPath(matchingProf, profSG)
-								.buildPFE()) ));
+						new PathFilter(new PredicateBuilder(lessLongLong).addPath(youngStudent, studentSem)
+								.addPath(oldStudent, studentSem).buildPFE(), new PredicateBuilder(eqStrStr)
+								.addPath(youngStudent, studentSG).addPath(oldStudent, studentSG).buildPFE()),
+						new PathFilter(new PredicateBuilder(eqStrStr).addPath(youngStudent, studentSG)
+								.addPath(matchingProf, profSG).buildPFE())));
 
-		network.buildRule(new Defrule("dummyrule", "", 0, (RuleCondition) null, new ArrayList<>())
-				.newTranslated(filter, (Map<SingleFactVariable, Path>) null));
+		network.buildRule(new Defrule("dummyrule", "", 0, (RuleCondition) null, new ArrayList<>()).newTranslated(
+				filter, (Map<SingleFactVariable, Path>) null));
 		final RootNode rootNode = network.getRootNode();
 		final ConflictSet conflictSet = network.getConflictSet();
 
@@ -616,10 +534,8 @@ public class TokenProcessingTest {
 		rootNode.assertFacts(student.newFact("Lydia", 4L, "Anglizistik", "Musik"));
 		rootNode.assertFacts(student.newFact("Erik", 2L, "Informatik", "Rätsel"));
 		rootNode.assertFacts(prof.newFact("Prof. Dr. Ashcroft", "Geschichte"));
-		final FactIdentifier[] timmes =
-				rootNode.assertFacts(prof.newFact("Prof. Dr. Timmes", "Informatik"));
-		final FactIdentifier[] santana =
-				rootNode.assertFacts(prof.newFact("Prof. Dr. Santana", "Biologie"));
+		final FactIdentifier[] timmes = rootNode.assertFacts(prof.newFact("Prof. Dr. Timmes", "Informatik"));
+		final FactIdentifier[] santana = rootNode.assertFacts(prof.newFact("Prof. Dr. Santana", "Biologie"));
 		rootNode.assertFacts(prof.newFact("Prof. Dr. Kappa", "Informatik"));
 
 		rootNode.retractFacts(timmes);
@@ -630,21 +546,15 @@ public class TokenProcessingTest {
 
 		scheduler.run();
 		{
-			final AssertsAndRetracts assertsAndRetracts =
-					countAssertsAndRetractsInConflictSet(conflictSet);
-			assertEquals("Amount of asserts does not match expected count!", 5,
-					assertsAndRetracts.getAsserts());
-			assertEquals("Amount of retracts does not match expected count!", 0,
-					assertsAndRetracts.getRetracts());
+			final AssertsAndRetracts assertsAndRetracts = countAssertsAndRetractsInConflictSet(conflictSet);
+			assertEquals("Amount of asserts does not match expected count!", 5, assertsAndRetracts.getAsserts());
+			assertEquals("Amount of retracts does not match expected count!", 0, assertsAndRetracts.getRetracts());
 		}
 		conflictSet.deleteRevokedEntries();
 		{
-			final AssertsAndRetracts assertsAndRetracts =
-					countAssertsAndRetractsInConflictSet(conflictSet);
-			assertEquals("Amount of asserts does not match expected count!", 5,
-					assertsAndRetracts.getAsserts());
-			assertEquals("Amount of retracts does not match expected count!", 0,
-					assertsAndRetracts.getRetracts());
+			final AssertsAndRetracts assertsAndRetracts = countAssertsAndRetractsInConflictSet(conflictSet);
+			assertEquals("Amount of asserts does not match expected count!", 5, assertsAndRetracts.getAsserts());
+			assertEquals("Amount of retracts does not match expected count!", 0, assertsAndRetracts.getRetracts());
 		}
 	}
 
@@ -652,24 +562,21 @@ public class TokenProcessingTest {
 	public void testTokenProcessingSimpleBeta() throws InterruptedException {
 		final PlainScheduler scheduler = new PlainScheduler();
 		final Network network =
-				new Network(org.jamocha.dn.memory.javaimpl.MemoryFactory.getMemoryFactory(),
-						Integer.MAX_VALUE, scheduler);
-		final Template t1 =
-				MemoryFactory.getMemoryFactory().newTemplate("", "", Slot.LONG, Slot.STRING);
-		final Template t2 =
-				MemoryFactory.getMemoryFactory().newTemplate("", "", Slot.DOUBLE, Slot.STRING);
+				new Network(org.jamocha.dn.memory.javaimpl.MemoryFactory.getMemoryFactory(), Integer.MAX_VALUE,
+						scheduler);
+		final Template t1 = MemoryFactory.getMemoryFactory().newTemplate("", "", Slot.LONG, Slot.STRING);
+		final Template t2 = MemoryFactory.getMemoryFactory().newTemplate("", "", Slot.DOUBLE, Slot.STRING);
 		final Path p1 = new Path(t1);
 		final Path p2 = new Path(t2);
 		final SlotAddress slotStr = new SlotAddress(1);
 
-		final Predicate eqStrStr =
-				FunctionDictionary.lookupPredicate("=", SlotType.STRING, SlotType.STRING);
+		final Predicate eqStrStr = FunctionDictionary.lookupPredicate("=", SlotType.STRING, SlotType.STRING);
 
-		final PathFilterList.PathFilterSharedListWrapper.PathFilterSharedList filter = new PathFilterList.PathFilterSharedListWrapper().newSharedElement(Arrays.asList(
-				new PathFilter(new PredicateBuilder(eqStrStr).addPath(p1, slotStr)
-						.addPath(p2, slotStr).buildPFE())));
-		network.buildRule(new Defrule("dummyrule", "", 0, (RuleCondition) null, new ArrayList<>())
-				.newTranslated(filter, (Map<SingleFactVariable, Path>) null));
+		final PathFilterList.PathFilterSharedListWrapper.PathFilterSharedList filter =
+				new PathFilterList.PathFilterSharedListWrapper().newSharedElement(Arrays.asList(new PathFilter(
+						new PredicateBuilder(eqStrStr).addPath(p1, slotStr).addPath(p2, slotStr).buildPFE())));
+		network.buildRule(new Defrule("dummyrule", "", 0, (RuleCondition) null, new ArrayList<>()).newTranslated(
+				filter, (Map<SingleFactVariable, Path>) null));
 		final RootNode rootNode = network.getRootNode();
 
 		rootNode.assertFacts(t1.newFact(12L, "Micky"));
@@ -684,21 +591,15 @@ public class TokenProcessingTest {
 		scheduler.run();
 		final ConflictSet conflictSet = network.getConflictSet();
 		{
-			final AssertsAndRetracts assertsAndRetracts =
-					countAssertsAndRetractsInConflictSet(conflictSet);
-			assertEquals("Amount of asserts does not match expected count!", 4,
-					assertsAndRetracts.getAsserts());
-			assertEquals("Amount of retracts does not match expected count!", 0,
-					assertsAndRetracts.getRetracts());
+			final AssertsAndRetracts assertsAndRetracts = countAssertsAndRetractsInConflictSet(conflictSet);
+			assertEquals("Amount of asserts does not match expected count!", 4, assertsAndRetracts.getAsserts());
+			assertEquals("Amount of retracts does not match expected count!", 0, assertsAndRetracts.getRetracts());
 		}
 		conflictSet.deleteRevokedEntries();
 		{
-			final AssertsAndRetracts assertsAndRetracts =
-					countAssertsAndRetractsInConflictSet(conflictSet);
-			assertEquals("Amount of asserts does not match expected count!", 4,
-					assertsAndRetracts.getAsserts());
-			assertEquals("Amount of retracts does not match expected count!", 0,
-					assertsAndRetracts.getRetracts());
+			final AssertsAndRetracts assertsAndRetracts = countAssertsAndRetractsInConflictSet(conflictSet);
+			assertEquals("Amount of asserts does not match expected count!", 4, assertsAndRetracts.getAsserts());
+			assertEquals("Amount of retracts does not match expected count!", 0, assertsAndRetracts.getRetracts());
 		}
 	}
 
@@ -706,28 +607,25 @@ public class TokenProcessingTest {
 	public void testTokenProcessing() throws InterruptedException {
 		final PlainScheduler scheduler = new PlainScheduler();
 		final Network network =
-				new Network(org.jamocha.dn.memory.javaimpl.MemoryFactory.getMemoryFactory(),
-						Integer.MAX_VALUE, scheduler);
-		final Template t1 =
-				MemoryFactory.getMemoryFactory().newTemplate("", "", Slot.LONG, Slot.STRING,
-						Slot.BOOLEAN);
+				new Network(org.jamocha.dn.memory.javaimpl.MemoryFactory.getMemoryFactory(), Integer.MAX_VALUE,
+						scheduler);
+		final Template t1 = MemoryFactory.getMemoryFactory().newTemplate("", "", Slot.LONG, Slot.STRING, Slot.BOOLEAN);
 		final Path p1 = new Path(t1);
 		final SlotAddress slotLong = new SlotAddress(0), slotBool = new SlotAddress(2);
 
-		final Predicate lessLongLong =
-				FunctionDictionary.lookupPredicate("<", SlotType.LONG, SlotType.LONG);
-		final Predicate eqBoolBool =
-				FunctionDictionary.lookupPredicate("=", SlotType.BOOLEAN, SlotType.BOOLEAN);
+		final Predicate lessLongLong = FunctionDictionary.lookupPredicate("<", SlotType.LONG, SlotType.LONG);
+		final Predicate eqBoolBool = FunctionDictionary.lookupPredicate("=", SlotType.BOOLEAN, SlotType.BOOLEAN);
 
-		final PathFilterList.PathFilterSharedListWrapper.PathFilterSharedList filter = new PathFilterList.PathFilterSharedListWrapper().newSharedElement(Arrays.asList(
-				new PathFilter(new PredicateBuilder(eqBoolBool)
-						.addPath(p1, slotBool)
-						.addFunction(
-								new FunctionBuilder(lessLongLong).addPath(p1, slotLong)
-										.addConstant(3L, SlotType.LONG).build()).buildPFE())));
+		final PathFilterList.PathFilterSharedListWrapper.PathFilterSharedList filter =
+				new PathFilterList.PathFilterSharedListWrapper().newSharedElement(Arrays.asList(new PathFilter(
+						new PredicateBuilder(eqBoolBool)
+								.addPath(p1, slotBool)
+								.addFunction(
+										new FunctionBuilder(lessLongLong).addPath(p1, slotLong)
+												.addConstant(3L, SlotType.LONG).build()).buildPFE())));
 
-		network.buildRule(new Defrule("dummyrule", "", 0, (RuleCondition) null, new ArrayList<>())
-				.newTranslated(filter, (Map<SingleFactVariable, Path>) null));
+		network.buildRule(new Defrule("dummyrule", "", 0, (RuleCondition) null, new ArrayList<>()).newTranslated(
+				filter, (Map<SingleFactVariable, Path>) null));
 
 		// false == 5 < 3
 		network.getRootNode().assertFacts(t1.newFact(5L, "5L&FALSE", false));
@@ -746,12 +644,9 @@ public class TokenProcessingTest {
 
 		scheduler.run();
 
-		final AssertsAndRetracts assertsAndRetracts =
-				countAssertsAndRetractsInConflictSet(network.getConflictSet());
-		assertEquals("Amount of asserts does not match expected count!", 3,
-				assertsAndRetracts.getAsserts());
-		assertEquals("Amount of retracts does not match expected count!", 0,
-				assertsAndRetracts.getRetracts());
+		final AssertsAndRetracts assertsAndRetracts = countAssertsAndRetractsInConflictSet(network.getConflictSet());
+		assertEquals("Amount of asserts does not match expected count!", 3, assertsAndRetracts.getAsserts());
+		assertEquals("Amount of retracts does not match expected count!", 0, assertsAndRetracts.getRetracts());
 
 	}
 
@@ -759,15 +654,12 @@ public class TokenProcessingTest {
 	public void testTokenProcessingDummyFilter() throws InterruptedException {
 		final PlainScheduler scheduler = new PlainScheduler();
 		final Network network =
-				new Network(org.jamocha.dn.memory.javaimpl.MemoryFactory.getMemoryFactory(),
-						Integer.MAX_VALUE, scheduler);
-		final Template t1 =
-				MemoryFactory.getMemoryFactory().newTemplate("", "", Slot.LONG, Slot.STRING,
-						Slot.BOOLEAN);
+				new Network(org.jamocha.dn.memory.javaimpl.MemoryFactory.getMemoryFactory(), Integer.MAX_VALUE,
+						scheduler);
+		final Template t1 = MemoryFactory.getMemoryFactory().newTemplate("", "", Slot.LONG, Slot.STRING, Slot.BOOLEAN);
 		final Path p1 = new Path(t1);
 
-		final FilterMockup filter =
-				FilterMockup.alwaysTrue(new PathAndSlotAddress(p1, new SlotAddress(2)));
+		final FilterMockup filter = FilterMockup.alwaysTrue(new PathAndSlotAddress(p1, new SlotAddress(2)));
 
 		final RootNode rootNode = network.getRootNode();
 		// create OTN
@@ -778,9 +670,10 @@ public class TokenProcessingTest {
 		// create & append alpha
 		final AlphaNode alphaNode = new AlphaNode(network, filter);
 		// create & append terminal
-		new TerminalNode(network, alphaNode, new Defrule("dummyrule", "", 0, (RuleCondition) null,
-				new ArrayList<>()).newTranslated(new PathFilterList.PathFilterSharedListWrapper().newSharedElement(Arrays.asList(filter)),
-				(Map<SingleFactVariable, Path>) null));
+		new TerminalNode(network, alphaNode,
+				new Defrule("dummyrule", "", 0, (RuleCondition) null, new ArrayList<>()).newTranslated(
+						new PathFilterList.PathFilterSharedListWrapper().newSharedElement(Arrays.asList(filter)),
+						(Map<SingleFactVariable, Path>) null));
 
 		otn.activateTokenQueue();
 		alphaNode.activateTokenQueue();
@@ -796,70 +689,50 @@ public class TokenProcessingTest {
 		final FactIdentifier[] t10lfalse = rootNode.assertFacts(t1.newFact(0L, "0L&FALSE", false));
 		scheduler.run();
 
-		assertEquals("Amount of facts in otn does not match expected count!", 7, otn.getMemory()
-				.size());
-		assertEquals("Amount of facts in alpha does not match expected count!", 7, alphaNode
-				.getMemory().size());
+		assertEquals("Amount of facts in otn does not match expected count!", 7, otn.getMemory().size());
+		assertEquals("Amount of facts in alpha does not match expected count!", 7, alphaNode.getMemory().size());
 		assertsAndRetracts = countAssertsAndRetractsInConflictSet(network.getConflictSet());
-		assertEquals("Amount of asserts does not match expected count!", 7,
-				assertsAndRetracts.getAsserts());
-		assertEquals("Amount of retracts does not match expected count!", 0,
-				assertsAndRetracts.getRetracts());
+		assertEquals("Amount of asserts does not match expected count!", 7, assertsAndRetracts.getAsserts());
+		assertEquals("Amount of retracts does not match expected count!", 0, assertsAndRetracts.getRetracts());
 
 		rootNode.retractFacts(t10lfalse);
 		scheduler.run();
 
-		assertEquals("Amount of facts in otn does not match expected count!", 6, otn.getMemory()
-				.size());
-		assertEquals("Amount of facts in alpha does not match expected count!", 6, alphaNode
-				.getMemory().size());
+		assertEquals("Amount of facts in otn does not match expected count!", 6, otn.getMemory().size());
+		assertEquals("Amount of facts in alpha does not match expected count!", 6, alphaNode.getMemory().size());
 		assertsAndRetracts = countAssertsAndRetractsInConflictSet(network.getConflictSet());
-		assertEquals("Amount of asserts does not match expected count!", 7,
-				assertsAndRetracts.getAsserts());
-		assertEquals("Amount of retracts does not match expected count!", 1,
-				assertsAndRetracts.getRetracts());
+		assertEquals("Amount of asserts does not match expected count!", 7, assertsAndRetracts.getAsserts());
+		assertEquals("Amount of retracts does not match expected count!", 1, assertsAndRetracts.getRetracts());
 
-		final FactIdentifier[] t10lfalse_2 =
-				rootNode.assertFacts(t1.newFact(0L, "0L&FALSE", false));
+		final FactIdentifier[] t10lfalse_2 = rootNode.assertFacts(t1.newFact(0L, "0L&FALSE", false));
 		scheduler.run();
 
-		assertEquals("Amount of facts in otn does not match expected count!", 7, otn.getMemory()
-				.size());
-		assertEquals("Amount of facts in alpha does not match expected count!", 7, alphaNode
-				.getMemory().size());
+		assertEquals("Amount of facts in otn does not match expected count!", 7, otn.getMemory().size());
+		assertEquals("Amount of facts in alpha does not match expected count!", 7, alphaNode.getMemory().size());
 		assertsAndRetracts = countAssertsAndRetractsInConflictSet(network.getConflictSet());
-		assertEquals("Amount of asserts does not match expected count!", 8,
-				assertsAndRetracts.getAsserts());
-		assertEquals("Amount of retracts does not match expected count!", 1,
-				assertsAndRetracts.getRetracts());
+		assertEquals("Amount of asserts does not match expected count!", 8, assertsAndRetracts.getAsserts());
+		assertEquals("Amount of retracts does not match expected count!", 1, assertsAndRetracts.getRetracts());
 
 		rootNode.retractFacts(t10lfalse_2);
 		scheduler.run();
 
-		assertEquals("Amount of facts in otn does not match expected count!", 6, otn.getMemory()
-				.size());
-		assertEquals("Amount of facts in alpha does not match expected count!", 6, alphaNode
-				.getMemory().size());
+		assertEquals("Amount of facts in otn does not match expected count!", 6, otn.getMemory().size());
+		assertEquals("Amount of facts in alpha does not match expected count!", 6, alphaNode.getMemory().size());
 		assertsAndRetracts = countAssertsAndRetractsInConflictSet(network.getConflictSet());
-		assertEquals("Amount of asserts does not match expected count!", 8,
-				assertsAndRetracts.getAsserts());
-		assertEquals("Amount of retracts does not match expected count!", 2,
-				assertsAndRetracts.getRetracts());
+		assertEquals("Amount of asserts does not match expected count!", 8, assertsAndRetracts.getAsserts());
+		assertEquals("Amount of retracts does not match expected count!", 2, assertsAndRetracts.getRetracts());
 	}
 
 	@Test
 	public void testTokenProcessingDummyFilterOneRun() throws InterruptedException {
 		final PlainScheduler scheduler = new PlainScheduler();
 		final Network network =
-				new Network(org.jamocha.dn.memory.javaimpl.MemoryFactory.getMemoryFactory(),
-						Integer.MAX_VALUE, scheduler);
-		final Template t1 =
-				MemoryFactory.getMemoryFactory().newTemplate("", "", Slot.LONG, Slot.STRING,
-						Slot.BOOLEAN);
+				new Network(org.jamocha.dn.memory.javaimpl.MemoryFactory.getMemoryFactory(), Integer.MAX_VALUE,
+						scheduler);
+		final Template t1 = MemoryFactory.getMemoryFactory().newTemplate("", "", Slot.LONG, Slot.STRING, Slot.BOOLEAN);
 		final Path p1 = new Path(t1);
 
-		final FilterMockup filter =
-				FilterMockup.alwaysTrue(new PathAndSlotAddress(p1, new SlotAddress(2)));
+		final FilterMockup filter = FilterMockup.alwaysTrue(new PathAndSlotAddress(p1, new SlotAddress(2)));
 
 		final RootNode rootNode = network.getRootNode();
 		// create OTN
@@ -870,11 +743,10 @@ public class TokenProcessingTest {
 		// create & append alpha
 		final AlphaNode alphaNode = new AlphaNode(network, filter);
 		// create & append terminal
-		new TerminalNode(network, alphaNode, new Defrule("dummyrule", "", 0, (RuleCondition) null,
-				new ArrayList<>()).newTranslated(
-		new PathFilterList.PathFilterSharedListWrapper().newSharedElement(Arrays.asList(filter))
-				,
-				(Map<SingleFactVariable, Path>) null));
+		new TerminalNode(network, alphaNode,
+				new Defrule("dummyrule", "", 0, (RuleCondition) null, new ArrayList<>()).newTranslated(
+						new PathFilterList.PathFilterSharedListWrapper().newSharedElement(Arrays.asList(filter)),
+						(Map<SingleFactVariable, Path>) null));
 		otn.activateTokenQueue();
 		alphaNode.activateTokenQueue();
 
@@ -890,16 +762,11 @@ public class TokenProcessingTest {
 		rootNode.retractFacts(f2);
 		scheduler.run();
 
-		assertEquals("Amount of facts in otn does not match expected count!", 6, otn.getMemory()
-				.size());
-		assertEquals("Amount of facts in alpha does not match expected count!", 6, alphaNode
-				.getMemory().size());
-		final AssertsAndRetracts assertsAndRetracts =
-				countAssertsAndRetractsInConflictSet(network.getConflictSet());
-		assertEquals("Amount of asserts does not match expected count!", 8,
-				assertsAndRetracts.getAsserts());
-		assertEquals("Amount of retracts does not match expected count!", 2,
-				assertsAndRetracts.getRetracts());
+		assertEquals("Amount of facts in otn does not match expected count!", 6, otn.getMemory().size());
+		assertEquals("Amount of facts in alpha does not match expected count!", 6, alphaNode.getMemory().size());
+		final AssertsAndRetracts assertsAndRetracts = countAssertsAndRetractsInConflictSet(network.getConflictSet());
+		assertEquals("Amount of asserts does not match expected count!", 8, assertsAndRetracts.getAsserts());
+		assertEquals("Amount of retracts does not match expected count!", 2, assertsAndRetracts.getRetracts());
 
 	}
 
@@ -907,28 +774,25 @@ public class TokenProcessingTest {
 	public void testTokenProcessingOneRun() throws InterruptedException {
 		final PlainScheduler scheduler = new PlainScheduler();
 		final Network network =
-				new Network(org.jamocha.dn.memory.javaimpl.MemoryFactory.getMemoryFactory(),
-						Integer.MAX_VALUE, scheduler);
-		final Template t1 =
-				MemoryFactory.getMemoryFactory().newTemplate("", "", Slot.LONG, Slot.STRING,
-						Slot.BOOLEAN);
+				new Network(org.jamocha.dn.memory.javaimpl.MemoryFactory.getMemoryFactory(), Integer.MAX_VALUE,
+						scheduler);
+		final Template t1 = MemoryFactory.getMemoryFactory().newTemplate("", "", Slot.LONG, Slot.STRING, Slot.BOOLEAN);
 		final Path p1 = new Path(t1);
 		final SlotAddress slotLong = new SlotAddress(0), slotBool = new SlotAddress(2);
 
-		final Predicate lessLongLong =
-				FunctionDictionary.lookupPredicate("<", SlotType.LONG, SlotType.LONG);
-		final Predicate eqBoolBool =
-				FunctionDictionary.lookupPredicate("=", SlotType.BOOLEAN, SlotType.BOOLEAN);
+		final Predicate lessLongLong = FunctionDictionary.lookupPredicate("<", SlotType.LONG, SlotType.LONG);
+		final Predicate eqBoolBool = FunctionDictionary.lookupPredicate("=", SlotType.BOOLEAN, SlotType.BOOLEAN);
 
 		final PathFilter filter =
 				new PathFilter(new PredicateBuilder(eqBoolBool)
 						.addPath(p1, slotBool)
 						.addFunction(
-								new FunctionBuilder(lessLongLong).addPath(p1, slotLong)
-										.addConstant(3L, SlotType.LONG).build()).buildPFE());
+								new FunctionBuilder(lessLongLong).addPath(p1, slotLong).addConstant(3L, SlotType.LONG)
+										.build()).buildPFE());
 
-		network.buildRule(new Defrule("dummyrule", "", 0, (RuleCondition) null, new ArrayList<>())
-				.newTranslated(new PathFilterList.PathFilterSharedListWrapper().newSharedElement(Arrays.asList(filter)), (Map<SingleFactVariable, Path>) null));
+		network.buildRule(new Defrule("dummyrule", "", 0, (RuleCondition) null, new ArrayList<>()).newTranslated(
+				new PathFilterList.PathFilterSharedListWrapper().newSharedElement(Arrays.asList(filter)),
+				(Map<SingleFactVariable, Path>) null));
 		final RootNode rootNode = network.getRootNode();
 
 		// false == 5 < 3
@@ -971,21 +835,15 @@ public class TokenProcessingTest {
 		scheduler.run();
 		final ConflictSet conflictSet = network.getConflictSet();
 		{
-			final AssertsAndRetracts assertsAndRetracts =
-					countAssertsAndRetractsInConflictSet(conflictSet);
-			assertEquals("Amount of asserts does not match expected count!", 5,
-					assertsAndRetracts.getAsserts());
-			assertEquals("Amount of retracts does not match expected count!", 4,
-					assertsAndRetracts.getRetracts());
+			final AssertsAndRetracts assertsAndRetracts = countAssertsAndRetractsInConflictSet(conflictSet);
+			assertEquals("Amount of asserts does not match expected count!", 5, assertsAndRetracts.getAsserts());
+			assertEquals("Amount of retracts does not match expected count!", 4, assertsAndRetracts.getRetracts());
 		}
 		conflictSet.deleteRevokedEntries();
 		{
-			final AssertsAndRetracts assertsAndRetracts =
-					countAssertsAndRetractsInConflictSet(conflictSet);
-			assertEquals("Amount of asserts does not match expected count!", 1,
-					assertsAndRetracts.getAsserts());
-			assertEquals("Amount of retracts does not match expected count!", 0,
-					assertsAndRetracts.getRetracts());
+			final AssertsAndRetracts assertsAndRetracts = countAssertsAndRetractsInConflictSet(conflictSet);
+			assertEquals("Amount of asserts does not match expected count!", 1, assertsAndRetracts.getAsserts());
+			assertEquals("Amount of retracts does not match expected count!", 0, assertsAndRetracts.getRetracts());
 		}
 	}
 }

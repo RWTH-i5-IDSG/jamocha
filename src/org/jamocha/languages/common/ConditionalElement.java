@@ -110,8 +110,8 @@ public abstract class ConditionalElement implements Visitable<ConditionalElement
 	}
 
 	/**
-	 * This class is inserted into a {@link RuleCondition} iff there are no variable bindings in the {@link
-	 * RuleCondition}.
+	 * This class is inserted into a {@link RuleCondition} iff there are no variable bindings in the
+	 * {@link RuleCondition}.
 	 *
 	 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
 	 */

@@ -40,8 +40,7 @@ public class AndTest {
 
 	@Test
 	public void testAnd() {
-		final Predicate and =
-				FunctionDictionary.lookupPredicate(And.inClips, SlotType.BOOLEAN, SlotType.BOOLEAN);
+		final Predicate and = FunctionDictionary.lookupPredicate(And.inClips, SlotType.BOOLEAN, SlotType.BOOLEAN);
 		assertTrue(and.evaluate(new LazyObject<>(true), new LazyObject<>(true)));
 		assertFalse(and.evaluate(new LazyObject<>(true), new LazyObject<>(false)));
 		assertFalse(and.evaluate(new LazyObject<>(false), new LazyObject<>(true)));

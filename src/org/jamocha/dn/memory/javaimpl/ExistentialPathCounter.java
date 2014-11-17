@@ -48,8 +48,7 @@ public class ExistentialPathCounter {
 					(CounterColumn) filterElementToCounterColumn.getCounterColumn(filterElement);
 			if (null == counterColumn)
 				continue;
-			final HashSet<Path> paths =
-					PathCollector.newHashSet().collect(filterElement).getPaths();
+			final HashSet<Path> paths = PathCollector.newHashSet().collect(filterElement).getPaths();
 			if (!Collections.disjoint(negativeExistentialPaths, paths)) {
 				negated[counterColumn.index] = true;
 			} else {

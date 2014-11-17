@@ -96,28 +96,27 @@ public abstract class Minus<R> implements Function<R> {
 				}
 			};
 		});
-		FunctionDictionary.addGenerator(inClips, SlotType.DOUBLE,
-				(final SlotType[] paramTypes) -> {
-					return new Minus<Double>() {
-						@Override
-						public SlotType[] getParamTypes() {
-							return paramTypes;
-						}
+		FunctionDictionary.addGenerator(inClips, SlotType.DOUBLE, (final SlotType[] paramTypes) -> {
+			return new Minus<Double>() {
+				@Override
+				public SlotType[] getParamTypes() {
+					return paramTypes;
+				}
 
-						@Override
-						public SlotType getReturnType() {
-							return SlotType.DOUBLE;
-						}
+				@Override
+				public SlotType getReturnType() {
+					return SlotType.DOUBLE;
+				}
 
-						@Override
-						public Double evaluate(final Function<?>... params) {
-							Double value = 0.0;
-							for (final Function<?> param : params) {
-								value -= (Double) param.evaluate();
-							}
-							return value;
-						}
-					};
-				});
+				@Override
+				public Double evaluate(final Function<?>... params) {
+					Double value = 0.0;
+					for (final Function<?> param : params) {
+						value -= (Double) param.evaluate();
+					}
+					return value;
+				}
+			};
+		});
 	}
 }

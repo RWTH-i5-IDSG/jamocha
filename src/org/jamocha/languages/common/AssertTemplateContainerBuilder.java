@@ -34,8 +34,7 @@ public class AssertTemplateContainerBuilder {
 	final Template template;
 	final Map<SlotAddress, FunctionWithArguments> values = new HashMap<>();
 
-	public AssertTemplateContainerBuilder addValue(final SlotAddress slotAddress,
-			final FunctionWithArguments value) {
+	public AssertTemplateContainerBuilder addValue(final SlotAddress slotAddress, final FunctionWithArguments value) {
 		if (template.getSlotType(slotAddress) != value.getReturnType()) {
 			throw new TypeMismatchError(null);
 		}
@@ -43,8 +42,7 @@ public class AssertTemplateContainerBuilder {
 		return this;
 	}
 
-	public AssertTemplateContainerBuilder addValue(final String slotName,
-			final FunctionWithArguments value) {
+	public AssertTemplateContainerBuilder addValue(final String slotName, final FunctionWithArguments value) {
 		final SlotAddress slotAddress = template.getSlotAddress(slotName);
 		if (null == slotAddress) {
 			throw new NoSlotForThatNameError("No Slot with name " + slotName + "!");

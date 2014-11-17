@@ -29,13 +29,12 @@ import org.jamocha.function.fwa.PredicateWithArguments;
  */
 public class AddressFilter extends Filter<AddressFilter.AddressFilterElement> {
 
-	public static AddressFilter empty = new NormalAddressFilter(new HashSet<FactAddress>(),
-			new HashSet<FactAddress>(), new AddressFilterElement[] {});
+	public static AddressFilter empty = new NormalAddressFilter(new HashSet<FactAddress>(), new HashSet<FactAddress>(),
+			new AddressFilterElement[] {});
 
 	public static class NormalAddressFilter extends AddressFilter {
 		public NormalAddressFilter(final Set<FactAddress> positiveExistentialAddresses,
-				final Set<FactAddress> negativeExistentialAddresses,
-				final AddressFilterElement[] filterElements) {
+				final Set<FactAddress> negativeExistentialAddresses, final AddressFilterElement[] filterElements) {
 			super(positiveExistentialAddresses, negativeExistentialAddresses, filterElements,
 					(NormalAddressFilter) null);
 		}
@@ -61,13 +60,12 @@ public class AddressFilter extends Filter<AddressFilter.AddressFilterElement> {
 	 *         sets
 	 */
 	public boolean isExistential(final FactAddress factAddress) {
-		return positiveExistentialAddresses.contains(factAddress)
-				|| negativeExistentialAddresses.contains(factAddress);
+		return positiveExistentialAddresses.contains(factAddress) || negativeExistentialAddresses.contains(factAddress);
 	}
 
 	public AddressFilter(final Set<FactAddress> positiveExistentialAddresses,
-			final Set<FactAddress> negativeExistentialAddresses,
-			final AddressFilterElement[] filterElements, final NormalAddressFilter normalisedVersion) {
+			final Set<FactAddress> negativeExistentialAddresses, final AddressFilterElement[] filterElements,
+			final NormalAddressFilter normalisedVersion) {
 		super(filterElements);
 		this.positiveExistentialAddresses = positiveExistentialAddresses;
 		this.negativeExistentialAddresses = negativeExistentialAddresses;
@@ -75,20 +73,17 @@ public class AddressFilter extends Filter<AddressFilter.AddressFilterElement> {
 	}
 
 	public AddressFilter(final Set<FactAddress> positiveExistentialAddresses,
-			final Set<FactAddress> negativeExistentialAddresses,
-			final AddressFilterElement[] filterElements,
+			final Set<FactAddress> negativeExistentialAddresses, final AddressFilterElement[] filterElements,
 			final AddressFilterElement[] normalFilterElements) {
-		this(positiveExistentialAddresses, negativeExistentialAddresses, filterElements,
-				new NormalAddressFilter(positiveExistentialAddresses, negativeExistentialAddresses,
-						normalFilterElements));
+		this(positiveExistentialAddresses, negativeExistentialAddresses, filterElements, new NormalAddressFilter(
+				positiveExistentialAddresses, negativeExistentialAddresses, normalFilterElements));
 	}
 
 	@Getter
 	public static class AddressFilterElement extends Filter.FilterElement {
 		final SlotInFactAddress addressesInTarget[];
 
-		public AddressFilterElement(final PredicateWithArguments function,
-				final SlotInFactAddress[] addressesInTarget) {
+		public AddressFilterElement(final PredicateWithArguments function, final SlotInFactAddress[] addressesInTarget) {
 			super(function);
 			this.addressesInTarget = addressesInTarget;
 		}

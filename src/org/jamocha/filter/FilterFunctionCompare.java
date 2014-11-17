@@ -60,8 +60,7 @@ import org.jamocha.function.fwa.PredicateWithArgumentsComposite;
  */
 public abstract class FilterFunctionCompare {
 
-	abstract FunctionTypeIdentificationVisitor newFunctionTypeIdentificationVisitor(
-			final FunctionWithArguments fwa);
+	abstract FunctionTypeIdentificationVisitor newFunctionTypeIdentificationVisitor(final FunctionWithArguments fwa);
 
 	private static class AddressFilterFunctionCompare extends FilterFunctionCompare {
 		final AddressContainer targetAddressContainer;
@@ -78,13 +77,11 @@ public abstract class FilterFunctionCompare {
 		}
 
 		@Override
-		FunctionTypeIdentificationVisitor newFunctionTypeIdentificationVisitor(
-				final FunctionWithArguments fwa) {
+		FunctionTypeIdentificationVisitor newFunctionTypeIdentificationVisitor(final FunctionWithArguments fwa) {
 			return new AddressFunctionTypeIdentificationVisitor(fwa);
 		};
 
-		private class AddressFunctionTypeIdentificationVisitor extends
-				FunctionTypeIdentificationVisitor {
+		private class AddressFunctionTypeIdentificationVisitor extends FunctionTypeIdentificationVisitor {
 
 			private AddressFunctionTypeIdentificationVisitor(final FunctionWithArguments fwa) {
 				super(fwa);
@@ -110,11 +107,9 @@ public abstract class FilterFunctionCompare {
 				}
 				try {
 					final SlotInFactAddress compareAddress =
-							AddressFilterFunctionCompare.this.compareAddressContainer
-									.getNextAddress();
+							AddressFilterFunctionCompare.this.compareAddressContainer.getNextAddress();
 					final SlotInFactAddress targetAddress =
-							AddressFilterFunctionCompare.this.targetAddressContainer
-									.getNextAddress();
+							AddressFilterFunctionCompare.this.targetAddressContainer.getNextAddress();
 					if (!compareAddress.equals(targetAddress)) {
 						invalidate();
 					}
@@ -129,7 +124,7 @@ public abstract class FilterFunctionCompare {
 
 		@Getter
 		private final Map<Path, Path> pathMap = new HashMap<>();
-		
+
 		@Getter
 		boolean equal = true;
 
@@ -155,8 +150,7 @@ public abstract class FilterFunctionCompare {
 			}
 			for (int i = 0; i < targetFEs.length; i++) {
 				;
-				if (!new PathFilterFirstTypeIdentificationVisitor().collect(targetFEs[i]).collect(
-						compareFEs[i])) {
+				if (!new PathFilterFirstTypeIdentificationVisitor().collect(targetFEs[i]).collect(compareFEs[i])) {
 					equal = false;
 					return;
 				}
@@ -181,8 +175,7 @@ public abstract class FilterFunctionCompare {
 				result = new DummyPathFilterSecondTypeIdentificationVisitor(fe);
 			}
 
-			private abstract class PathFilterSecondTypeIndentificationVisitor implements
-					PathFilterElementVisitor {
+			private abstract class PathFilterSecondTypeIndentificationVisitor implements PathFilterElementVisitor {
 				boolean equal = true;
 
 				abstract public boolean collect(final PathFilterElement fe);
@@ -263,13 +256,11 @@ public abstract class FilterFunctionCompare {
 			}
 
 			@Override
-			FunctionTypeIdentificationVisitor newFunctionTypeIdentificationVisitor(
-					final FunctionWithArguments fwa) {
+			FunctionTypeIdentificationVisitor newFunctionTypeIdentificationVisitor(final FunctionWithArguments fwa) {
 				return new PathFunctionTypeIdentificationVisitor(fwa);
 			};
 
-			private class PathFunctionTypeIdentificationVisitor extends
-					FunctionTypeIdentificationVisitor {
+			private class PathFunctionTypeIdentificationVisitor extends FunctionTypeIdentificationVisitor {
 				private PathFunctionTypeIdentificationVisitor(final FunctionWithArguments fwa) {
 					super(fwa);
 				}
@@ -379,8 +370,7 @@ public abstract class FilterFunctionCompare {
 		}
 
 		private void generic(final GenericWithArgumentsComposite<?, ?> genericWithArgumentsComposite) {
-			if (!genericWithArgumentsComposite.getFunction().inClips()
-					.equals(this.composite.getFunction().inClips())) {
+			if (!genericWithArgumentsComposite.getFunction().inClips().equals(this.composite.getFunction().inClips())) {
 				invalidate();
 				return;
 			}
@@ -401,8 +391,7 @@ public abstract class FilterFunctionCompare {
 			}
 			// try permutations
 			final Map<Integer, List<FunctionWithArguments>> duplicates =
-					Arrays.stream(pathArgs).collect(
-							Collectors.groupingBy(FunctionWithArguments::hash));
+					Arrays.stream(pathArgs).collect(Collectors.groupingBy(FunctionWithArguments::hash));
 			if (!duplicates.values().stream().anyMatch((v) -> {
 				return v.size() > 1;
 			})) {
@@ -426,41 +415,33 @@ public abstract class FilterFunctionCompare {
 			final Bool bool = new Bool(false);
 			for (int i = 0; i < lcm; ++i) {
 				final int permutation = i;
-				duplicates
-						.values()
-						.stream()
-						.filter((v) -> {
-							return v.size() > 1;
-						})
-						.forEach(
-								(final List<FunctionWithArguments> v) -> {
-									final int size = v.size();
-									for (int j = 0; j < size; ++j) {
-										pathArgs[indices.get(v.get(j))] =
-												pathArgs[indices.get(v
-														.get((j + permutation) % size))];
-										if (!bool.equal) {
-											// equality not yet found to be true
-											compareArguments(addressArgs, pathArgs);
-										}
-										// else just permute back to original order
-										if (FilterFunctionCompare.this.isValid()) {
-											// is actually equal
-											bool.equal = true;
-										} else {
-											// lets try again
-											FilterFunctionCompare.this.equal = true;
-										}
-									}
-								});
+				duplicates.values().stream().filter((v) -> {
+					return v.size() > 1;
+				}).forEach((final List<FunctionWithArguments> v) -> {
+					final int size = v.size();
+					for (int j = 0; j < size; ++j) {
+						pathArgs[indices.get(v.get(j))] = pathArgs[indices.get(v.get((j + permutation) % size))];
+						if (!bool.equal) {
+							// equality not yet found to be true
+						compareArguments(addressArgs, pathArgs);
+					}
+					// else just permute back to original order
+					if (FilterFunctionCompare.this.isValid()) {
+						// is actually equal
+						bool.equal = true;
+					} else {
+						// lets try again
+						FilterFunctionCompare.this.equal = true;
+					}
+				}
+			}	);
 			}
 			if (!bool.equal) {
 				invalidate();
 			}
 		}
 
-		private void compareArguments(final FunctionWithArguments[] addressArgs,
-				final FunctionWithArguments[] pathArgs) {
+		private void compareArguments(final FunctionWithArguments[] addressArgs, final FunctionWithArguments[] pathArgs) {
 			for (int i = 0; i < addressArgs.length; i++) {
 				final FunctionWithArguments addressFWA = addressArgs[i];
 				final FunctionWithArguments pathFWA = pathArgs[i];
@@ -553,8 +534,7 @@ public abstract class FilterFunctionCompare {
 	public static void main(final String[] args) {
 		final List<Integer> toPermute = new ArrayList<>(Arrays.asList(2, 3, 4, 5, 6, 7, 8));
 		final ComponentwisePermutation<Integer> componentwisePermutation =
-				new ComponentwisePermutation<>(Arrays.asList(toPermute.subList(0, 2),
-						toPermute.subList(3, 7)));
+				new ComponentwisePermutation<>(Arrays.asList(toPermute.subList(0, 2), toPermute.subList(3, 7)));
 		do {
 			System.out.println(ArrayUtils.toString(toPermute.toArray()));
 		} while (componentwisePermutation.nextPermutation());
@@ -595,11 +575,7 @@ public abstract class FilterFunctionCompare {
 		final ComponentwisePermutation<Path> componentwisePermutation;
 		{
 			final Map<FactAddress, List<Path>> pathsByNode =
-					PathCollector
-							.newHashSet()
-							.collectAll(pathFilter)
-							.getPaths()
-							.stream()
+					PathCollector.newHashSet().collectAll(pathFilter).getPaths().stream()
 							.collect(groupingBy(path -> path.getFactAddressInCurrentlyLowestNode()));
 			final List<Range> ranges = new ArrayList<>(pathsByNode.size());
 			for (final Entry<FactAddress, List<Path>> entry : pathsByNode.entrySet()) {
@@ -641,8 +617,7 @@ public abstract class FilterFunctionCompare {
 				throw new Error("For one edge no paths were found.");
 			}
 			assert paths.isEmpty();
-			final AddressFilter translatedFilter =
-					PathFilterToAddressFilterTranslator.translate(pathFilter, a -> null);
+			final AddressFilter translatedFilter = PathFilterToAddressFilterTranslator.translate(pathFilter, a -> null);
 			final AddressFilter targetFilter = targetNode.getFilter();
 			final boolean equal = equals(translatedFilter, targetFilter);
 			for (final Path path : joinedPaths) {
@@ -655,12 +630,9 @@ public abstract class FilterFunctionCompare {
 		return null;
 	}
 
-	public static boolean equals(final AddressFilter targetFilter,
-			final AddressFilter translatedFilter) {
-		final AddressFilterElement[] targetFEs =
-				targetFilter.getNormalisedVersion().getFilterElements();
-		final AddressFilterElement[] translatedFEs =
-				translatedFilter.getNormalisedVersion().getFilterElements();
+	public static boolean equals(final AddressFilter targetFilter, final AddressFilter translatedFilter) {
+		final AddressFilterElement[] targetFEs = targetFilter.getNormalisedVersion().getFilterElements();
+		final AddressFilterElement[] translatedFEs = translatedFilter.getNormalisedVersion().getFilterElements();
 		if (targetFEs.length != translatedFEs.length)
 			return false;
 		for (int i = 0; i < targetFEs.length; i++) {

@@ -28,16 +28,11 @@ import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
 @RunWith(Suite.class)
-@SuiteClasses({ test.jamocha.filter.FilterMockup.FilterMockupTest.class,
-		test.jamocha.filter.predicates.AndTest.class,
-		test.jamocha.filter.predicates.EqualsTest.class,
-		test.jamocha.filter.predicates.LessTest.class,
-		test.jamocha.filter.functions.PlusTest.class,
-		test.jamocha.filter.functions.MinusTest.class,
-		test.jamocha.filter.FilterEqualsInFunctionTest.class,
-		test.jamocha.filter.PathCollectorTest.class,
-		test.jamocha.filter.FilterTranslatorTest.class,
-		test.jamocha.filter.UniformFunctionTranslatorTest.class,
+@SuiteClasses({ test.jamocha.filter.FilterMockup.FilterMockupTest.class, test.jamocha.filter.predicates.AndTest.class,
+		test.jamocha.filter.predicates.EqualsTest.class, test.jamocha.filter.predicates.LessTest.class,
+		test.jamocha.filter.functions.PlusTest.class, test.jamocha.filter.functions.MinusTest.class,
+		test.jamocha.filter.FilterEqualsInFunctionTest.class, test.jamocha.filter.PathCollectorTest.class,
+		test.jamocha.filter.FilterTranslatorTest.class, test.jamocha.filter.UniformFunctionTranslatorTest.class,
 		test.jamocha.filter.FunctionNormaliserTest.class })
 public class AllFilterTests {
 

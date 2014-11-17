@@ -33,27 +33,24 @@ public class ClipsNoSlotForThatNameError extends NoSlotForThatNameError {
 		this.context = context;
 	}
 
-	public ClipsNoSlotForThatNameError(final String var, final SimpleNode context,
-			final String message, final Throwable cause, final boolean enableSuppression,
-			final boolean writableStackTrace) {
+	public ClipsNoSlotForThatNameError(final String var, final SimpleNode context, final String message,
+			final Throwable cause, final boolean enableSuppression, final boolean writableStackTrace) {
 		super(var, message, cause, enableSuppression, writableStackTrace);
 		this.context = context;
 	}
 
-	public ClipsNoSlotForThatNameError(final String var, final SimpleNode context,
-			final String message, final Throwable cause) {
+	public ClipsNoSlotForThatNameError(final String var, final SimpleNode context, final String message,
+			final Throwable cause) {
 		super(var, message, cause);
 		this.context = context;
 	}
 
-	public ClipsNoSlotForThatNameError(final String var, final SimpleNode context,
-			final String message) {
+	public ClipsNoSlotForThatNameError(final String var, final SimpleNode context, final String message) {
 		super(var, message);
 		this.context = context;
 	}
 
-	public ClipsNoSlotForThatNameError(final String var, final SimpleNode context,
-			final Throwable cause) {
+	public ClipsNoSlotForThatNameError(final String var, final SimpleNode context, final Throwable cause) {
 		super(var, cause);
 		this.context = context;
 	}

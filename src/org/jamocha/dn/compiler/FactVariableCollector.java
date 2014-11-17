@@ -44,8 +44,8 @@ public class FactVariableCollector implements DefaultConditionalElementsVisitor 
 	@Getter
 	private List<SingleFactVariable> factVariables;
 
-	public static Pair<Path, Map<SingleFactVariable, Path>> collectPaths(
-			final Template initialFactTemplate, final ConditionalElement ce) {
+	public static Pair<Path, Map<SingleFactVariable, Path>> collectPaths(final Template initialFactTemplate,
+			final ConditionalElement ce) {
 		final FactVariableCollector instance = new FactVariableCollector();
 		// Collect all FactVariables defined in the CEs TemplateCEs and InitialFactCEs
 		final List<SingleFactVariable> factVariables = ce.accept(instance).getFactVariables();
@@ -53,16 +53,16 @@ public class FactVariableCollector implements DefaultConditionalElementsVisitor 
 		final Path initialFactPath = new Path(initialFactTemplate);
 		assert !factVariables.stream().anyMatch(sfv -> sfv.getTemplate() == initialFactTemplate)
 				|| null != initialFactPath;
-		return Pair.of(
-				initialFactPath,
-				factVariables.stream()
-				// Create Paths with the corresponding Templates for all collected
-				// FactVariables
-						.collect(
-								Collectors.toMap(Function.identity(), (
-										final SingleFactVariable variable) -> (variable
-										.getTemplate() == initialFactTemplate ? initialFactPath
-										: new Path(variable.getTemplate())))));
+		return Pair
+				.of(initialFactPath,
+						factVariables.stream()
+								// Create Paths with the corresponding Templates for all collected
+								// FactVariables
+								.collect(
+										Collectors.toMap(
+												Function.identity(),
+												(final SingleFactVariable variable) -> (variable.getTemplate() == initialFactTemplate ? initialFactPath
+														: new Path(variable.getTemplate())))));
 	}
 
 	@Override
@@ -79,8 +79,7 @@ public class FactVariableCollector implements DefaultConditionalElementsVisitor 
 	@Override
 	public void visit(final AndFunctionConditionalElement ce) {
 		this.factVariables =
-				ce.getChildren().stream()
-						.map(child -> child.accept(new FactVariableCollector()).getFactVariables())
+				ce.getChildren().stream().map(child -> child.accept(new FactVariableCollector()).getFactVariables())
 						.flatMap(List::stream).collect(Collectors.toCollection(ArrayList::new));
 	}
 

@@ -33,8 +33,8 @@ public class MemoryHandlerMainWithExistentials extends MemoryHandlerMain {
 	final boolean[] existential;
 	JamochaArray<Row> allRows = new JamochaArray<>();
 
-	MemoryHandlerMainWithExistentials(final Template[] template, final Counter counter,
-			final FactAddress[] addresses, final boolean[] existential) {
+	MemoryHandlerMainWithExistentials(final Template[] template, final Counter counter, final FactAddress[] addresses,
+			final boolean[] existential) {
 		super(template, counter, addresses);
 		this.existential = existential;
 	}
@@ -65,8 +65,8 @@ public class MemoryHandlerMainWithExistentials extends MemoryHandlerMain {
 	}
 
 	@Override
-	public Pair<? extends org.jamocha.dn.memory.MemoryHandlerPlusTemp, MemoryFact[]> newPlusToken(
-			final Node otn, final org.jamocha.dn.memory.Fact... facts) {
+	public Pair<? extends org.jamocha.dn.memory.MemoryHandlerPlusTemp, MemoryFact[]> newPlusToken(final Node otn,
+			final org.jamocha.dn.memory.Fact... facts) {
 		return MemoryHandlerPlusTemp.newRootTemp(this, otn, facts);
 	}
 
@@ -76,10 +76,9 @@ public class MemoryHandlerMainWithExistentials extends MemoryHandlerMain {
 	}
 
 	@Override
-	public FactIdentifier[] getFactIdentifiers(
-			final MemoryFactToFactIdentifier memoryFactToFactIdentifier, final int row) {
-		final FactIdentifier[] factIdentifiers =
-				super.getFactIdentifiers(memoryFactToFactIdentifier, row);
+	public FactIdentifier[] getFactIdentifiers(final MemoryFactToFactIdentifier memoryFactToFactIdentifier,
+			final int row) {
+		final FactIdentifier[] factIdentifiers = super.getFactIdentifiers(memoryFactToFactIdentifier, row);
 		for (int i = 0; i < existential.length; i++) {
 			if (existential[i]) {
 				factIdentifiers[i] = null;

@@ -80,7 +80,7 @@ public class ThreadPoolScheduler implements Scheduler {
 	 * Creates a scheduler with a thread pool with the given size.
 	 *
 	 * @param nThreads
-	 * 		the size of the thread pool
+	 *            the size of the thread pool
 	 */
 	public ThreadPoolScheduler(final int nThreads) {
 		this.nThreads = nThreads;
@@ -100,7 +100,8 @@ public class ThreadPoolScheduler implements Scheduler {
 	public void activate() {
 		final State oldState = state;
 		state = ACTIVE_STATE;
-		if (null == executor) executor = createExecutor();
+		if (null == executor)
+			executor = createExecutor();
 		// push jobs collected during inactivity
 		oldState.pushJobs();
 	}
@@ -108,7 +109,8 @@ public class ThreadPoolScheduler implements Scheduler {
 	@Override
 	public void deactivate() {
 		// check if state is active
-		if (ACTIVE_STATE != state) return;
+		if (ACTIVE_STATE != state)
+			return;
 		// shutdown executor service and save queue
 		@SuppressWarnings("unchecked")
 		final List<TokenQueue> oldQueue = (List<TokenQueue>) (List<? extends Runnable>) this.executor.shutdownNow();
@@ -135,8 +137,8 @@ public class ThreadPoolScheduler implements Scheduler {
 			}
 
 		}
-				// enqueue all jobs from old queue
-				.enqueueAll(oldQueue);
+		// enqueue all jobs from old queue
+		.enqueueAll(oldQueue);
 		// lower unfinishedJobs counter by jobs from old queue
 		unfinishedJobs.addAndGet(-1 * oldQueue.size());
 		// only return if scheduler is idle

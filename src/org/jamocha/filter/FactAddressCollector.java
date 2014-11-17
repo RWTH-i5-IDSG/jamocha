@@ -57,8 +57,7 @@ public class FactAddressCollector<T extends Collection<FactAddress>> {
 	}
 
 	public static FactAddressCollector<LinkedHashSet<FactAddress>> newLinkedHashSet() {
-		return new FactAddressCollector<LinkedHashSet<FactAddress>>(
-				new LinkedHashSet<FactAddress>());
+		return new FactAddressCollector<LinkedHashSet<FactAddress>>(new LinkedHashSet<FactAddress>());
 	}
 
 	public static FactAddressCollector<ArrayList<FactAddress>> newArrayList() {

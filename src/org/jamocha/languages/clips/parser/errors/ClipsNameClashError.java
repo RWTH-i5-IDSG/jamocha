@@ -39,8 +39,7 @@ public class ClipsNameClashError extends NameClashError {
 		this.context = context;
 	}
 
-	public ClipsNameClashError(final String name, final SimpleNode context, final String message,
-			final Throwable cause) {
+	public ClipsNameClashError(final String name, final SimpleNode context, final String message, final Throwable cause) {
 		super(name, message, cause);
 		this.context = context;
 	}

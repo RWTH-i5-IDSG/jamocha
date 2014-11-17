@@ -25,8 +25,8 @@ import org.apache.logging.log4j.core.util.Charsets;
 public class LayoutAdapter {
 	public static PatternLayout createLayout(final Configuration config, final boolean plain) {
 		return PatternLayout.createLayout(plain ? PatternLayout.DEFAULT_CONVERSION_PATTERN
-				: PatternLayout.SIMPLE_CONVERSION_PATTERN, config, (RegexReplacement) null,
-				Charsets.UTF_8, true, true, "", "");
+				: PatternLayout.SIMPLE_CONVERSION_PATTERN, config, (RegexReplacement) null, Charsets.UTF_8, true, true,
+				"", "");
 	}
 
 	public static PatternLayout createLayout(final Configuration config) {

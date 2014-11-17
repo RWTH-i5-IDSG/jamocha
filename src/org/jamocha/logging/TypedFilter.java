@@ -36,10 +36,11 @@ import org.apache.logging.log4j.message.Message;
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
 public class TypedFilter extends AbstractFilter {
+	private static final long serialVersionUID = -5595124971046769329L;
 	// boolean in pair: true if watched => collection is exclusion list
 	// false if not watched => collection is inclusion list
-	final EnumMap<MarkerType, Pair<Boolean, Collection<Marker>>> markerToInExClusionList =
-			new EnumMap<>(MarkerType.class);
+	final EnumMap<MarkerType, Pair<Boolean, Collection<Marker>>> markerToInExClusionList = new EnumMap<>(
+			MarkerType.class);
 	@Getter
 	@Setter
 	boolean keepItemsWithoutMarkers;
@@ -50,10 +51,8 @@ public class TypedFilter extends AbstractFilter {
 	}
 
 	public void watchAll() {
-		EnumSet.allOf(MarkerType.class)
-				.forEach(
-						mt -> this.markerToInExClusionList.put(mt,
-								Pair.of(Boolean.TRUE, new ArrayList<>())));
+		EnumSet.allOf(MarkerType.class).forEach(
+				mt -> this.markerToInExClusionList.put(mt, Pair.of(Boolean.TRUE, new ArrayList<>())));
 	}
 
 	public void watch(final MarkerType markerType, final Marker... markers) {
@@ -82,15 +81,13 @@ public class TypedFilter extends AbstractFilter {
 
 	public void unwatchAll() {
 		EnumSet.allOf(MarkerType.class).forEach(
-				mt -> this.markerToInExClusionList.put(mt,
-						Pair.of(Boolean.FALSE, new ArrayList<>())));
+				mt -> this.markerToInExClusionList.put(mt, Pair.of(Boolean.FALSE, new ArrayList<>())));
 	}
 
 	private boolean check(final Marker marker) {
 		if (null == marker)
 			return this.keepItemsWithoutMarkers;
-		for (final Entry<MarkerType, Pair<Boolean, Collection<Marker>>> e : this.markerToInExClusionList
-				.entrySet()) {
+		for (final Entry<MarkerType, Pair<Boolean, Collection<Marker>>> e : this.markerToInExClusionList.entrySet()) {
 			if (!marker.isInstanceOf(e.getKey().commonMarker)) {
 				continue;
 			}
@@ -126,17 +123,20 @@ public class TypedFilter extends AbstractFilter {
 	}
 
 	@Override
-	public Result filter(final Logger logger, final Level level, final Marker marker, final Message msg, final Throwable t) {
+	public Result filter(final Logger logger, final Level level, final Marker marker, final Message msg,
+			final Throwable t) {
 		return decide(marker);
 	}
 
 	@Override
-	public Result filter(final Logger logger, final Level level, final Marker marker, final Object msg, final Throwable t) {
+	public Result filter(final Logger logger, final Level level, final Marker marker, final Object msg,
+			final Throwable t) {
 		return decide(marker);
 	}
 
 	@Override
-	public Result filter(final Logger logger, final Level level, final Marker marker, final String msg, final Object... params) {
+	public Result filter(final Logger logger, final Level level, final Marker marker, final String msg,
+			final Object... params) {
 		return decide(marker);
 	}
 

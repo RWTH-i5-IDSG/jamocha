@@ -64,13 +64,11 @@ public class TerminalNode {
 		}
 
 		@Override
-		public void processPlusToken(final MemoryHandlerTemp memory)
-				throws CouldNotAcquireLockException {
+		public void processPlusToken(final MemoryHandlerTemp memory) throws CouldNotAcquireLockException {
 		}
 
 		@Override
-		public void processMinusToken(final MemoryHandlerTemp memory)
-				throws CouldNotAcquireLockException {
+		public void processMinusToken(final MemoryHandlerTemp memory) throws CouldNotAcquireLockException {
 		}
 
 		@Override
@@ -84,8 +82,7 @@ public class TerminalNode {
 			assert map != null;
 			this.addressMap = map;
 			for (final Entry<? extends FactAddress, ? extends FactAddress> entry : map.entrySet()) {
-				this.targetNode.delocalizeMap.put(entry.getValue(), new AddressPredecessor(this,
-						entry.getKey()));
+				this.targetNode.delocalizeMap.put(entry.getValue(), new AddressPredecessor(this, entry.getKey()));
 			}
 		}
 
@@ -113,8 +110,7 @@ public class TerminalNode {
 		@Override
 		public void setFilter(final AddressFilter filter) {
 			this.filter = filter;
-			this.filterParts =
-					this.sourceNode.memory.getRelevantExistentialFilterParts(filter, this);
+			this.filterParts = this.sourceNode.memory.getRelevantExistentialFilterParts(filter, this);
 		}
 
 		@Override
@@ -173,8 +169,7 @@ public class TerminalNode {
 	@Getter
 	final protected Defrule.Translated rule;
 
-	public TerminalNode(final Network network, final Node parent,
-			final Defrule.TranslatedPath translatedPath) {
+	public TerminalNode(final Network network, final Node parent, final Defrule.TranslatedPath translatedPath) {
 		this.network = network;
 		final MemoryHandlerMain parentMemory = parent.getMemory();
 		this.memory = parentMemory.newMemoryHandlerTerminal();

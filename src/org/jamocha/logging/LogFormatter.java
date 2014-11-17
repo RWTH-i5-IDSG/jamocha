@@ -29,8 +29,7 @@ import org.jamocha.dn.memory.Template;
  */
 public interface LogFormatter {
 
-	void messageFactDetails(final SideEffectFunctionToNetwork network, final int id,
-			final MemoryFact value);
+	void messageFactDetails(final SideEffectFunctionToNetwork network, final int id, final MemoryFact value);
 
 	void messageFactList(final SideEffectFunctionToNetwork network);
 
@@ -38,26 +37,20 @@ public interface LogFormatter {
 
 	void messageTemplateList(final SideEffectFunctionToNetwork network);
 
-	void messageFactAssertions(final SideEffectFunctionToNetwork network,
-			final FactIdentifier[] assertedFacts);
+	void messageFactAssertions(final SideEffectFunctionToNetwork network, final FactIdentifier[] assertedFacts);
 
-	void messageFactRetractions(final SideEffectFunctionToNetwork network,
-			final FactIdentifier[] factsToRetract);
+	void messageFactRetractions(final SideEffectFunctionToNetwork network, final FactIdentifier[] factsToRetract);
 
-	void messageRuleActivation(final SideEffectFunctionToNetwork network,
-			final Translated translated, final Assert plus);
+	void messageRuleActivation(final SideEffectFunctionToNetwork network, final Translated translated, final Assert plus);
 
-	void messageRuleDeactivation(final SideEffectFunctionToNetwork network, final Translated rule,
-			final Retract minus);
+	void messageRuleDeactivation(final SideEffectFunctionToNetwork network, final Translated rule, final Retract minus);
 
-	void messageRuleFiring(final SideEffectFunctionToNetwork network, final Translated translated,
-			final Assert plus);
+	void messageRuleFiring(final SideEffectFunctionToNetwork network, final Translated translated, final Assert plus);
 
-	void messageArgumentTypeMismatch(final SideEffectFunctionToNetwork network,
-			final String function, final int paramIndex, final Type expected);
+	void messageArgumentTypeMismatch(final SideEffectFunctionToNetwork network, final String function,
+			final int paramIndex, final Type expected);
 
-	void messageUnknownSymbol(final SideEffectFunctionToNetwork network, final Type expectedType,
-			final String name);
+	void messageUnknownSymbol(final SideEffectFunctionToNetwork network, final Type expectedType, final String name);
 
 	String formatTemplate(final Template template);
 

@@ -42,8 +42,8 @@ import org.jamocha.languages.common.DefaultConditionalElementsVisitor;
 import org.jamocha.languages.common.SingleFactVariable;
 
 /**
- * Collect all PathFilters inside all children of an OrFunctionConditionalElement, returning a List of Lists. Each inner
- * List contains the PathFilters of one child.
+ * Collect all PathFilters inside all children of an OrFunctionConditionalElement, returning a List
+ * of Lists. Each inner List contains the PathFilters of one child.
  *
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  * @author Christoph Terwelp <christoph.terwelp@rwth-aachen.de>
@@ -53,7 +53,6 @@ public class PathFilterConsolidator implements DefaultConditionalElementsVisitor
 
 	private final Template initialFactTemplate;
 	private final Defrule rule;
-	// TODO use to emulate joinedWith for the paths
 	private final Map<Path, Set<Path>> pathToJoinedWith = new HashMap<>();
 	@Getter
 	private List<Defrule.TranslatedPath> translateds = null;
@@ -73,10 +72,11 @@ public class PathFilterConsolidator implements DefaultConditionalElementsVisitor
 	@Override
 	public void visit(final OrFunctionConditionalElement ce) {
 		// For each child of the OrCE ...
-		this.translateds = ce.getChildren().stream().map(child ->
+		this.translateds =
+				ce.getChildren().stream().map(child ->
 				// ... collect all PathFilters in the child
-				NoORsPFC.consolidate(initialFactTemplate, rule, pathToJoinedWith, child))
-				.collect(Collectors.toCollection(ArrayList::new));
+						NoORsPFC.consolidate(initialFactTemplate, rule, pathToJoinedWith, child))
+						.collect(Collectors.toCollection(ArrayList::new));
 	}
 
 	/**
@@ -106,8 +106,9 @@ public class PathFilterConsolidator implements DefaultConditionalElementsVisitor
 							.collect(ce);
 			final List<PathFilterList> pathFilters = instance.getPathFilters();
 
-			final Set<Path> collectedPaths = (pathFilters.isEmpty() ? Collections.<Path>emptySet() :
-					PathCollector.newHashSet().collectOnlyInFilterElements(pathFilters.get(pathFilters.size() - 1)).getPaths().stream()
+			final Set<Path> collectedPaths =
+					(pathFilters.isEmpty() ? Collections.<Path> emptySet() : PathCollector.newHashSet()
+							.collectOnlyInFilterElements(pathFilters.get(pathFilters.size() - 1)).getPaths().stream()
 							.flatMap((p) -> pathToJoinedWith.get(p).stream()).collect(toSet()));
 
 			final TranslatedPath translated =
@@ -149,14 +150,17 @@ public class PathFilterConsolidator implements DefaultConditionalElementsVisitor
 							pathToJoinedWith, false).collect(ce).getPathFilters();
 
 			// Collect all used Paths for every PathFilter
-			final Map<PathFilterList, HashSet<Path>> filter2Paths = filters.stream().collect(Collectors
-					.toMap(Function.identity(), filter -> PathCollector.newHashSet().collectAll(filter).getPaths()));
+			final Map<PathFilterList, HashSet<Path>> filter2Paths =
+					filters.stream().collect(
+							Collectors.toMap(Function.identity(),
+									filter -> PathCollector.newHashSet().collectAll(filter).getPaths()));
 
 			// Split PathFilters into those only using existential Paths and those also using non
 			// existential Paths
-			final Map<Boolean, LinkedList<PathFilterList>> tmp = filters.stream().collect(Collectors
-					.partitioningBy(filter -> existentialPaths.containsAll(filter2Paths.get(filter)),
-							toCollection(LinkedList::new)));
+			final Map<Boolean, LinkedList<PathFilterList>> tmp =
+					filters.stream().collect(
+							Collectors.partitioningBy(filter -> existentialPaths.containsAll(filter2Paths.get(filter)),
+									toCollection(LinkedList::new)));
 			final LinkedList<PathFilterList> pureExistentialFilters = tmp.get(Boolean.TRUE);
 			final LinkedList<PathFilterList> nonPureExistentialFilters = tmp.get(Boolean.FALSE);
 
@@ -171,16 +175,17 @@ public class PathFilterConsolidator implements DefaultConditionalElementsVisitor
 				final ArrayList<Path> paths = new ArrayList<>();
 				paths.addAll(existentialPaths);
 				paths.add(initialFactPath);
-				final PathFilter existentialClosure = new PathFilter(isPositive, existentialPaths,
-						new PathFilter.DummyPathFilterElement(toArray(paths, Path[]::new)));
+				final PathFilter existentialClosure =
+						new PathFilter(isPositive, existentialPaths, new PathFilter.DummyPathFilterElement(toArray(
+								paths, Path[]::new)));
 				joinPaths(pathToJoinedWith, existentialClosure);
 				return Arrays.asList(new PathFilterList.PathFilterListExistential(resultFilters, existentialClosure));
 			}
 
 			// Construct HashMap from Paths to Filters
 			final Map<Path, Set<PathFilterList>> path2Filters = new HashMap<>();
-			filter2Paths.forEach((pathFilter, paths) -> paths
-					.forEach(path -> path2Filters.computeIfAbsent(path, x -> new HashSet<>()).add(pathFilter)));
+			filter2Paths.forEach((pathFilter, paths) -> paths.forEach(path -> path2Filters.computeIfAbsent(path,
+					x -> new HashSet<>()).add(pathFilter)));
 
 			// Find connected components of the existential Paths
 			final Map<Path, Set<Path>> joinedExistentialPaths = new HashMap<>();
@@ -203,8 +208,9 @@ public class PathFilterConsolidator implements DefaultConditionalElementsVisitor
 					// add the new ones to the collect set
 					collectedPaths.addAll(newCollectedPaths);
 					// search for all filters containing the new found paths
-					newCollectedFilters = newCollectedPaths.stream().flatMap(path -> path2Filters.get(path).stream())
-							.collect(toSet());
+					newCollectedFilters =
+							newCollectedPaths.stream().flatMap(path -> path2Filters.get(path).stream())
+									.collect(toSet());
 					// remove already known filters
 					newCollectedFilters.removeAll(collectedFilters);
 					// add them all to the collect set
@@ -229,8 +235,9 @@ public class PathFilterConsolidator implements DefaultConditionalElementsVisitor
 
 				while (!newCollectedFilters.isEmpty()) {
 					// search for all existential Paths used by the new Filters
-					final Set<Path> newCollectedExistentialPaths = newCollectedFilters.stream()
-							.flatMap((final PathFilterList f) -> filter2Paths.get(f).stream()).collect(toSet());
+					final Set<Path> newCollectedExistentialPaths =
+							newCollectedFilters.stream()
+									.flatMap((final PathFilterList f) -> filter2Paths.get(f).stream()).collect(toSet());
 					newCollectedExistentialPaths.retainAll(existentialPaths);
 					// removed already known paths
 					newCollectedExistentialPaths.removeAll(collectedExistentialPaths);
@@ -264,8 +271,9 @@ public class PathFilterConsolidator implements DefaultConditionalElementsVisitor
 						filterElements.addAll(Arrays.asList(filter.getFilterElements()));
 					}
 				}
-				final PathFilter dummy = new PathFilter(isPositive, collectedExistentialPaths,
-						toArray(filterElements, PathFilterElement[]::new));
+				final PathFilter dummy =
+						new PathFilter(isPositive, collectedExistentialPaths, toArray(filterElements,
+								PathFilterElement[]::new));
 				joinPaths(pathToJoinedWith, dummy);
 				resultFilters.add(dummy);
 				processedExistentialPaths.addAll(collectedExistentialPaths);
@@ -277,8 +285,10 @@ public class PathFilterConsolidator implements DefaultConditionalElementsVisitor
 				final Set<Path> unprocessedExistentialPaths = new HashSet<>(existentialPaths);
 				unprocessedExistentialPaths.removeAll(processedExistentialPaths);
 				if (!unprocessedExistentialPaths.isEmpty()) {
-					final PathFilter dummy = new PathFilter(isPositive, unprocessedExistentialPaths,
-							new PathFilter.DummyPathFilterElement(toArray(unprocessedExistentialPaths, Path[]::new)));
+					final PathFilter dummy =
+							new PathFilter(isPositive, unprocessedExistentialPaths,
+									new PathFilter.DummyPathFilterElement(toArray(unprocessedExistentialPaths,
+											Path[]::new)));
 					joinPaths(pathToJoinedWith, dummy);
 					resultFilters.add(dummy);
 				}
@@ -295,13 +305,15 @@ public class PathFilterConsolidator implements DefaultConditionalElementsVisitor
 
 		@Override
 		public void visit(final AndFunctionConditionalElement ce) {
-			pathFilters = ce.getChildren().stream()
-					// Process all children CEs
-					.map(child -> child
-							.accept(new NoORsPFC(initialFactTemplate, initialFactPath, paths, pathToJoinedWith, negated))
-							.getPathFilters())
+			pathFilters =
+					ce.getChildren()
+							.stream()
+							// Process all children CEs
+							.map(child -> child
+									.accept(new NoORsPFC(initialFactTemplate, initialFactPath, paths, pathToJoinedWith,
+											negated)).getPathFilters())
 							// merge Lists
-					.flatMap(List::stream).collect(Collectors.toCollection(ArrayList::new));
+							.flatMap(List::stream).collect(Collectors.toCollection(ArrayList::new));
 		}
 
 		@Override
@@ -328,32 +340,44 @@ public class PathFilterConsolidator implements DefaultConditionalElementsVisitor
 		@Override
 		public void visit(final NotFunctionConditionalElement ce) {
 			assert ce.getChildren().size() == 1;
-			// Call a PathFilterCollector for the child of the NotFunctionCE with toggled negated flag.
-			this.pathFilters = ce.getChildren().get(0)
-					.accept(new NoORsPFC(initialFactTemplate, initialFactPath, paths, pathToJoinedWith, !negated))
-					.getPathFilters();
+			// Call a PathFilterCollector for the child of the NotFunctionCE with toggled negated
+			// flag.
+			this.pathFilters =
+					ce.getChildren()
+							.get(0)
+							.accept(new NoORsPFC(initialFactTemplate, initialFactPath, paths, pathToJoinedWith,
+									!negated)).getPathFilters();
 		}
 
 		@Override
 		public void visit(final SharedConditionalElementWrapper ce) {
 			// use the wrapper for the inner shared instances
-			this.pathFilters = Collections.singletonList(ce.getWrapper().newSharedElement(ce.getCe()
-					.accept(new NoORsPFC(initialFactTemplate, initialFactPath, paths, pathToJoinedWith, negated))
-					.getPathFilters()));
+			this.pathFilters =
+					Collections.singletonList(ce.getWrapper().newSharedElement(
+							ce.getCe()
+									.accept(new NoORsPFC(initialFactTemplate, initialFactPath, paths, pathToJoinedWith,
+											negated)).getPathFilters()));
 		}
 
 		@Override
 		public void visit(final TestConditionalElement ce) {
-			final PathFilter pathFilter = new PathFilter(
-					new PathFilterElement(SymbolToPathTranslator.translate(ce.getPredicateWithArguments(), paths)));
+			final PathFilter pathFilter =
+					new PathFilter(new PathFilterElement(SymbolToPathTranslator.translate(
+							ce.getPredicateWithArguments(), paths)));
 			joinPaths(pathToJoinedWith, pathFilter);
 			this.pathFilters = Collections.singletonList(pathFilter);
 		}
 
 		private static void joinPaths(final Map<Path, Set<Path>> pathToJoinedWith, final PathFilter pathFilter) {
-			final Set<Path> joinedPaths = PathCollector.newHashSet().collectAll(pathFilter).getPaths().stream()
-					.flatMap(p -> pathToJoinedWith.computeIfAbsent(p, k -> new HashSet<Path>(Arrays.asList(k))).stream()).collect(
-							toSet());
+			final Set<Path> joinedPaths =
+					PathCollector
+							.newHashSet()
+							.collectAll(pathFilter)
+							.getPaths()
+							.stream()
+							.flatMap(
+									p -> pathToJoinedWith.computeIfAbsent(p, k -> new HashSet<Path>(Arrays.asList(k)))
+											.stream()).collect(toSet());
 			joinedPaths.forEach(p -> pathToJoinedWith.put(p, joinedPaths));
 		}
 	}

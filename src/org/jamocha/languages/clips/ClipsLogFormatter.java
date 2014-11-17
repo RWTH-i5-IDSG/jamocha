@@ -59,8 +59,7 @@ public class ClipsLogFormatter implements LogFormatter {
 	}
 
 	@Override
-	public void messageFactDetails(final SideEffectFunctionToNetwork network, final int id,
-			final MemoryFact value) {
+	public void messageFactDetails(final SideEffectFunctionToNetwork network, final int id, final MemoryFact value) {
 		final Logger interactiveEventsLogger = network.getInteractiveEventsLogger();
 		if (interactiveEventsLogger.isInfoEnabled()) {
 			interactiveEventsLogger.info("f-{}\t{}", id, formatFact(value.toMutableFact()));
@@ -74,13 +73,11 @@ public class ClipsLogFormatter implements LogFormatter {
 				.stream()
 				.sorted((a, b) -> a.getKey().compareTo(b.getKey()))
 				.forEachOrdered(
-						e -> network.getLogFormatter().messageFactDetails(network,
-								e.getKey().getId(), e.getValue()));
+						e -> network.getLogFormatter().messageFactDetails(network, e.getKey().getId(), e.getValue()));
 	}
 
 	@Override
-	public void messageTemplateDetails(final SideEffectFunctionToNetwork network,
-			final Template template) {
+	public void messageTemplateDetails(final SideEffectFunctionToNetwork network, final Template template) {
 		network.getInteractiveEventsLogger().info(formatTemplate(template));
 	}
 
@@ -90,13 +87,11 @@ public class ClipsLogFormatter implements LogFormatter {
 		for (final Template template : templates) {
 			network.getInteractiveEventsLogger().info(template.getName());
 		}
-		network.getInteractiveEventsLogger().info("For a total of {} deftemplates.",
-				templates.size());
+		network.getInteractiveEventsLogger().info("For a total of {} deftemplates.", templates.size());
 	}
 
 	@Override
-	public void messageFactAssertions(final SideEffectFunctionToNetwork network,
-			final FactIdentifier[] assertedFacts) {
+	public void messageFactAssertions(final SideEffectFunctionToNetwork network, final FactIdentifier[] assertedFacts) {
 		if (!network.getTypedFilter().isRelevant(MarkerType.FACTS)) {
 			return;
 		}
@@ -106,14 +101,13 @@ public class ClipsLogFormatter implements LogFormatter {
 			if (null == memoryFact) {
 				continue;
 			}
-			interactiveEventsLogger.info(memoryFact.getTemplate().getInstanceMarker(),
-					"==> f-{}\t{}", fi.getId(), formatFact(memoryFact.toMutableFact()));
+			interactiveEventsLogger.info(memoryFact.getTemplate().getInstanceMarker(), "==> f-{}\t{}", fi.getId(),
+					formatFact(memoryFact.toMutableFact()));
 		}
 	}
 
 	@Override
-	public void messageFactRetractions(final SideEffectFunctionToNetwork network,
-			final FactIdentifier[] factsToRetract) {
+	public void messageFactRetractions(final SideEffectFunctionToNetwork network, final FactIdentifier[] factsToRetract) {
 		final Logger interactiveEventsLogger = network.getInteractiveEventsLogger();
 		for (final FactIdentifier fi : factsToRetract) {
 			final MemoryFact memoryFact = network.getMemoryFact(fi);
@@ -130,57 +124,49 @@ public class ClipsLogFormatter implements LogFormatter {
 	}
 
 	@Override
-	public void messageRuleActivation(final SideEffectFunctionToNetwork network,
-			final Translated translated, final Assert plus) {
+	public void messageRuleActivation(final SideEffectFunctionToNetwork network, final Translated translated,
+			final Assert plus) {
 		network.getInteractiveEventsLogger().info(
 				translated.getParent().getActivationMarker(),
 				new StringBuilder()
 						.append("==> Activation\t")
 						.append(translated.getParent().getName())
 						.append(": ")
-						.append(Arrays
-								.stream(plus.getFactIdentifiers(network
-										.getMemoryFactToFactIdentifier()))
-								.map(fi -> null == fi ? "*" : formatTypeValue(Type.FACT, fi))
-								.collect(joining(","))));
+						.append(Arrays.stream(plus.getFactIdentifiers(network.getMemoryFactToFactIdentifier()))
+								.map(fi -> null == fi ? "*" : formatTypeValue(Type.FACT, fi)).collect(joining(","))));
 	}
 
 	@Override
-	public void messageRuleDeactivation(final SideEffectFunctionToNetwork network,
-			final Translated translated, final Retract minus) {
+	public void messageRuleDeactivation(final SideEffectFunctionToNetwork network, final Translated translated,
+			final Retract minus) {
 		network.getInteractiveEventsLogger().info(
 				translated.getParent().getActivationMarker(),
 				new StringBuilder()
 						.append("==> Deactivation\t")
 						.append(translated.getParent().getName())
 						.append(": ")
-						.append(Arrays
-								.stream(minus.getFactIdentifiers(network
-										.getMemoryFactToFactIdentifier()))
-								.map(fi -> null == fi ? "*" : formatTypeValue(Type.FACT, fi))
-								.collect(joining(","))));
+						.append(Arrays.stream(minus.getFactIdentifiers(network.getMemoryFactToFactIdentifier()))
+								.map(fi -> null == fi ? "*" : formatTypeValue(Type.FACT, fi)).collect(joining(","))));
 	}
 
 	@Override
-	public void messageRuleFiring(final SideEffectFunctionToNetwork network,
-			final Translated translated, final Assert plus) {
+	public void messageRuleFiring(final SideEffectFunctionToNetwork network, final Translated translated,
+			final Assert plus) {
 		network.getInteractiveEventsLogger().info(translated.getParent().getFireMarker(),
 				"Rule " + translated.getParent().getName() + " firing!");
 	}
 
 	@Override
-	public void messageArgumentTypeMismatch(final SideEffectFunctionToNetwork network,
-			final String function, final int paramIndex, final Type expectedType) {
-		network.getInteractiveEventsLogger().error(
-				"[ARGACCES5] Function {} expected argument #{} to be of type {}", function,
-				paramIndex, formatType(expectedType));
+	public void messageArgumentTypeMismatch(final SideEffectFunctionToNetwork network, final String function,
+			final int paramIndex, final Type expectedType) {
+		network.getInteractiveEventsLogger().error("[ARGACCES5] Function {} expected argument #{} to be of type {}",
+				function, paramIndex, formatType(expectedType));
 	}
 
 	@Override
-	public void messageUnknownSymbol(final SideEffectFunctionToNetwork network,
-			final Type expectedType, final String name) {
-		network.getInteractiveEventsLogger().error("[PRNTUTIL1] Unable to find {} {}",
-				formatType(expectedType), name);
+	public void messageUnknownSymbol(final SideEffectFunctionToNetwork network, final Type expectedType,
+			final String name) {
+		network.getInteractiveEventsLogger().error("[PRNTUTIL1] Unable to find {} {}", formatType(expectedType), name);
 	}
 
 	@Override
@@ -192,8 +178,8 @@ public class ClipsLogFormatter implements LogFormatter {
 			sb.append(' ').append(formatSlotValue(SlotType.STRING, description));
 		}
 		for (final Slot slot : template.getSlots()) {
-			sb.append("\n\t(slot ").append(slot.getName()).append(" (type ")
-					.append(slot.getSlotType().toString()).append("))");
+			sb.append("\n\t(slot ").append(slot.getName()).append(" (type ").append(slot.getSlotType().toString())
+					.append("))");
 		}
 		sb.append(")\n");
 		return sb.toString();
@@ -211,10 +197,8 @@ public class ClipsLogFormatter implements LogFormatter {
 								.append(" (")
 								.append(s.getName())
 								.append(' ')
-								.append(formatSlotValue(
-										s.getSlotType(),
-										template.getValue(fact,
-												template.getSlotAddress(s.getName())))).append(')'));
+								.append(formatSlotValue(s.getSlotType(),
+										template.getValue(fact, template.getSlotAddress(s.getName())))).append(')'));
 		return builder.append(')').toString();
 	}
 

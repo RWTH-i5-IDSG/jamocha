@@ -53,8 +53,7 @@ public class SymbolToPathTranslator implements FunctionWithArgumentsVisitor {
 		return (T) toTranslate.accept(new SymbolToPathTranslator(paths)).result;
 	}
 
-	private <T extends FunctionWithArguments> void handleArgs(final FunctionWithArguments fwa,
-			final T[] args) {
+	private <T extends FunctionWithArguments> void handleArgs(final FunctionWithArguments fwa, final T[] args) {
 		for (int i = 0; i < args.length; ++i) {
 			args[i] = translate(args[i], paths);
 		}
@@ -84,7 +83,7 @@ public class SymbolToPathTranslator implements FunctionWithArgumentsVisitor {
 	@Override
 	public void visit(final PathLeaf pathLeaf) {
 		// FIXME can we ignore this because of shared nodes?
-		//throw new Error("PathLeaf should not exists at this stage");
+		// throw new Error("PathLeaf should not exists at this stage");
 	}
 
 	@Override

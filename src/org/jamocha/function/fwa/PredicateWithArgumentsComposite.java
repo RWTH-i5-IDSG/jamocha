@@ -22,10 +22,9 @@ import org.jamocha.function.Predicate;
  * 
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
-public class PredicateWithArgumentsComposite extends
-		GenericWithArgumentsComposite<Boolean, Predicate> implements PredicateWithArguments {
-	public PredicateWithArgumentsComposite(final Predicate predicate,
-			final FunctionWithArguments... args) {
+public class PredicateWithArgumentsComposite extends GenericWithArgumentsComposite<Boolean, Predicate> implements
+		PredicateWithArguments {
+	public PredicateWithArgumentsComposite(final Predicate predicate, final FunctionWithArguments... args) {
 		super(predicate, args);
 	}
 

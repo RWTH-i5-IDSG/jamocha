@@ -36,8 +36,7 @@ import org.jamocha.function.fwa.PathLeaf.ParameterLeaf;
  */
 public abstract class FunctionNormaliser {
 
-	public static PredicateWithArguments normalise(
-			final PredicateWithArguments predicateWithArguments) {
+	public static PredicateWithArguments normalise(final PredicateWithArguments predicateWithArguments) {
 		predicateWithArguments.accept(new FWANormaliser());
 		return predicateWithArguments;
 	}

@@ -64,28 +64,27 @@ public class FilterMockup extends PathFilter {
 					return pasa.slotAddress.getSlotType(pasa.path.getTemplate());
 				}).collect(Collectors.toCollection(ArrayList::new));
 		final SlotType[] slotTypes = toArray(slotTypesC, SlotType[]::new);
-		final PredicateBuilder predicateBuilder =
-				new PredicateBuilder(new org.jamocha.function.Predicate() {
-					@Override
-					public String inClips() {
-						return "DUMMY";
-					}
+		final PredicateBuilder predicateBuilder = new PredicateBuilder(new org.jamocha.function.Predicate() {
+			@Override
+			public String inClips() {
+				return "DUMMY";
+			}
 
-					@Override
-					public SlotType[] getParamTypes() {
-						return slotTypes;
-					}
+			@Override
+			public SlotType[] getParamTypes() {
+				return slotTypes;
+			}
 
-					@Override
-					public Boolean evaluate(final Function<?>... params) {
-						return returnValue;
-					}
+			@Override
+			public Boolean evaluate(final Function<?>... params) {
+				return returnValue;
+			}
 
-					@Override
-					public <V extends FunctionVisitor> V accept(final V visitor) {
-						return visitor;
-					}
-				});
+			@Override
+			public <V extends FunctionVisitor> V accept(final V visitor) {
+				return visitor;
+			}
+		});
 		for (final PathAndSlotAddress pasa : pathAndSlotAddresses) {
 			predicateBuilder.addPath(pasa.path, pasa.slotAddress);
 		}
@@ -128,8 +127,8 @@ public class FilterMockup extends PathFilter {
 		@Theory
 		public void testAlwaysTrue(@SomeStuff final Object... obj) {
 			final AddressFilter alwaysTrue =
-					PathFilterToAddressFilterTranslator.translate(FilterMockup.alwaysTrue(),
-							counterColumnMatcherMockup);
+					PathFilterToAddressFilterTranslator
+							.translate(FilterMockup.alwaysTrue(), counterColumnMatcherMockup);
 			for (final FilterElement filterElement : alwaysTrue.getFilterElements()) {
 				assertTrue(filterElement.getFunction().evaluate(obj));
 			}

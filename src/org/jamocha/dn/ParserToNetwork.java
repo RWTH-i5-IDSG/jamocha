@@ -41,8 +41,7 @@ public interface ParserToNetwork {
 
 	Collection<Defrule> getRules();
 
-	Deffacts defFacts(final String name, final String description,
-			final Assert.TemplateContainer... containers);
+	Deffacts defFacts(final String name, final String description, final Assert.TemplateContainer... containers);
 
 	Deffacts getDeffacts(final String name);
 

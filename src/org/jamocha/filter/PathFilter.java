@@ -38,9 +38,8 @@ public class PathFilter extends Filter<PathFilter.PathFilterElement> implements 
 
 	@Getter(lazy = true)
 	final private PathFilter normalizedPathFilter = normalise();
-	
-	public static PathFilter empty = new PathFilter(new HashSet<>(), new HashSet<>(),
-			new PathFilterElement[] {});
+
+	public static PathFilter empty = new PathFilter(new HashSet<>(), new HashSet<>(), new PathFilterElement[] {});
 
 	@Getter
 	protected final Set<Path> positiveExistentialPaths, negativeExistentialPaths;
@@ -77,11 +76,13 @@ public class PathFilter extends Filter<PathFilter.PathFilterElement> implements 
 	 * Constructs the filter using the given existential paths and filter elements.
 	 *
 	 * @param positiveExistentialPaths
-	 * 		set of all positive existential paths that are part of the filter or have been joined to such paths
+	 *            set of all positive existential paths that are part of the filter or have been
+	 *            joined to such paths
 	 * @param negativeExistentialPaths
-	 * 		set of all negative existential paths that are part of the filter or have been joined to such paths
+	 *            set of all negative existential paths that are part of the filter or have been
+	 *            joined to such paths
 	 * @param filterElements
-	 * 		filter elements to be used in the filter
+	 *            filter elements to be used in the filter
 	 */
 	public PathFilter(final Set<Path> positiveExistentialPaths, final Set<Path> negativeExistentialPaths,
 			final PathFilterElement... filterElements) {
@@ -92,15 +93,17 @@ public class PathFilter extends Filter<PathFilter.PathFilterElement> implements 
 	}
 
 	/**
-	 * Constructs the filter using the given filter elements. The existential paths are treated as positive existential
-	 * paths if isPositive is true and as negative existential paths if isPositive is false.
+	 * Constructs the filter using the given filter elements. The existential paths are treated as
+	 * positive existential paths if isPositive is true and as negative existential paths if
+	 * isPositive is false.
 	 *
 	 * @param isPositive
-	 * 		whether the existential paths are positive
+	 *            whether the existential paths are positive
 	 * @param existentialPaths
-	 * 		set of all existential paths that are part of the filter or have been joined to such paths
+	 *            set of all existential paths that are part of the filter or have been joined to
+	 *            such paths
 	 * @param filterElements
-	 * 		filter elements to be used in the filter
+	 *            filter elements to be used in the filter
 	 */
 	public PathFilter(final boolean isPositive, final Set<Path> existentialPaths,
 			final PathFilterElement... filterElements) {
@@ -112,7 +115,7 @@ public class PathFilter extends Filter<PathFilter.PathFilterElement> implements 
 	 * Constructs the filter using the given filter elements without any existential paths.
 	 *
 	 * @param filterElements
-	 * 		filter elements to be used in the filter
+	 *            filter elements to be used in the filter
 	 */
 	public PathFilter(final PathFilterElement... filterElements) {
 		this(new HashSet<>(), new HashSet<>(), filterElements);
@@ -134,26 +137,23 @@ public class PathFilter extends Filter<PathFilter.PathFilterElement> implements 
 		});
 		return new PathFilter(positiveExistentialPaths, negativeExistentialPaths, normalPFEs);
 	}
-	
+
 	private int generateHashCode() {
 		return Arrays.hashCode(Arrays.stream(getNormalizedPathFilter().getFilterElements())
 				.mapToInt(fe -> fe.getFunction().hash()).toArray());
 	}
-	
+
 	public static boolean equals(final PathFilter filter1, final PathFilter filter2) {
 		if (filter1.getHashCode() != filter2.getHashCode())
 			return false;
 		final FilterFunctionCompare.PathFilterCompare compare =
-				new FilterFunctionCompare.PathFilterCompare(filter1,
-						filter2);
+				new FilterFunctionCompare.PathFilterCompare(filter1, filter2);
 		if (!compare.isEqual())
 			return false;
-		if (!filter1.getNegativeExistentialPaths().stream()
-				.map(p -> compare.getPathMap().get(p)).collect(toSet())
+		if (!filter1.getNegativeExistentialPaths().stream().map(p -> compare.getPathMap().get(p)).collect(toSet())
 				.equals(filter2.getNegativeExistentialPaths()))
 			return false;
-		if (!filter1.getPositiveExistentialPaths().stream()
-				.map(p -> compare.getPathMap().get(p)).collect(toSet())
+		if (!filter1.getPositiveExistentialPaths().stream().map(p -> compare.getPathMap().get(p)).collect(toSet())
 				.equals(filter2.getPositiveExistentialPaths()))
 			return false;
 		return true;
@@ -164,7 +164,6 @@ public class PathFilter extends Filter<PathFilter.PathFilterElement> implements 
 		visitor.visit(this);
 		return visitor;
 	}
-
 
 	@Override
 	public Iterator<PathFilter> iterator() {

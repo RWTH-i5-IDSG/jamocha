@@ -48,8 +48,8 @@ import org.jamocha.languages.common.SingleFactVariable.SingleSlotVariable;
  * @param <T>
  *            collection type to use while collecting the paths
  */
-public class SymbolCollector<T extends Collection<Symbol>, U extends Collection<SingleSlotVariable>>
-		implements DefaultConditionalElementsVisitor {
+public class SymbolCollector<T extends Collection<Symbol>, U extends Collection<SingleSlotVariable>> implements
+		DefaultConditionalElementsVisitor {
 	@Getter
 	private final T symbols;
 	private final Supplier<U> supplier;
@@ -95,13 +95,12 @@ public class SymbolCollector<T extends Collection<Symbol>, U extends Collection<
 
 	private Stream<SingleSlotVariable> getSlotVariableStream() {
 		return this.symbols.stream().flatMap(
-				symbol -> Stream.concat(symbol.getPositiveSlotVariables().stream(), symbol
-						.getNegativeSlotVariables().stream()));
+				symbol -> Stream.concat(symbol.getPositiveSlotVariables().stream(), symbol.getNegativeSlotVariables()
+						.stream()));
 	}
 
 	public Map<SingleFactVariable, List<SingleSlotVariable>> toSlotVariablesByFactVariable() {
-		return getSlotVariableStream().collect(
-				groupingBy((final SingleSlotVariable ssv) -> ssv.getFactVariable()));
+		return getSlotVariableStream().collect(groupingBy((final SingleSlotVariable ssv) -> ssv.getFactVariable()));
 	}
 
 	public U toSlotVariables() {
@@ -121,7 +120,6 @@ public class SymbolCollector<T extends Collection<Symbol>, U extends Collection<
 	public void visit(final TemplatePatternConditionalElement ce) {
 		final SingleFactVariable factVariable = ce.getFactVariable();
 		symbols.add(factVariable.getSymbol());
-		symbols.addAll(factVariable.getSlotVariables().stream().map(SingleSlotVariable::getSymbol)
-				.collect(toList()));
+		symbols.addAll(factVariable.getSlotVariables().stream().map(SingleSlotVariable::getSymbol).collect(toList()));
 	}
 }

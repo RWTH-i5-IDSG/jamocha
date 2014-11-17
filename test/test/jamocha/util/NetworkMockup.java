@@ -60,12 +60,10 @@ public class NetworkMockup implements ParserToNetwork, SideEffectFunctionToNetwo
 		defFacts("initial-fact", "", new TemplateContainer(initialFactTemplate));
 
 		{
-			final Template dummyFact =
-					this.defTemplate("dummy-fact", "used as default value for FACT-ADDRESS");
+			final Template dummyFact = this.defTemplate("dummy-fact", "used as default value for FACT-ADDRESS");
 			final FactIdentifier dummyFactIdentifier =
 					new org.jamocha.function.fwa.Assert(this,
-							new TemplateContainer[] { new TemplateContainer(dummyFact) })
-							.evaluate();
+							new TemplateContainer[] { new TemplateContainer(dummyFact) }).evaluate();
 			for (final SlotType type : EnumSet.allOf(SlotType.class)) {
 				switch (type) {
 				case BOOLEAN:

@@ -49,8 +49,8 @@ public class JamochaArray<T> implements RandomAccess, Iterable<T> {
 		this(original, 0, toExclusive, initialSize);
 	}
 
-	public JamochaArray(final JamochaArray<T> original, final int fromInclusive,
-			final int toExclusive, final int initialSize) {
+	public JamochaArray(final JamochaArray<T> original, final int fromInclusive, final int toExclusive,
+			final int initialSize) {
 		this(initialSize);
 		System.arraycopy(original.values, fromInclusive, values, 0, toExclusive);
 		this.size = toExclusive - fromInclusive;
@@ -67,9 +67,7 @@ public class JamochaArray<T> implements RandomAccess, Iterable<T> {
 	public void add(final T value) {
 		final int oldLength = values.length;
 		if (oldLength == size) {
-			values =
-					(values == EMPTY) ? new Object[INITIAL_SIZE] : Arrays.copyOf(values,
-							oldLength * 2);
+			values = (values == EMPTY) ? new Object[INITIAL_SIZE] : Arrays.copyOf(values, oldLength * 2);
 		}
 		values[size++] = value;
 	}

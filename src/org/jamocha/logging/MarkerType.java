@@ -24,12 +24,11 @@ import org.apache.logging.log4j.MarkerManager;
  */
 @RequiredArgsConstructor
 public enum MarkerType {
-	FACTS(MarkerManager.getMarker("FACTS")), RULES(MarkerManager.getMarker("RULES")), ACTIVATIONS(
-			MarkerManager.getMarker("ACTIVATIONS"));
+	FACTS(MarkerManager.getMarker("FACTS")), RULES(MarkerManager.getMarker("RULES")), ACTIVATIONS(MarkerManager
+			.getMarker("ACTIVATIONS"));
 	final Marker commonMarker;
 
 	public Marker createChild(final String name) {
-		return MarkerManager.getMarker(commonMarker.getName() + ":" + name)
-				.setParents(commonMarker);
+		return MarkerManager.getMarker(commonMarker.getName() + ":" + name).setParents(commonMarker);
 	}
 }

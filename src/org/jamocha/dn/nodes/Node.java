@@ -219,9 +219,9 @@ public abstract class Node {
 				 * empty.
 				 *
 				 * @param context
-				 * 		token queue context
+				 *            token queue context
 				 * @param token
-				 * 		{@link Token} to enqueue
+				 *            {@link Token} to enqueue
 				 */
 				@Override
 				public void enqueue(final TokenQueue context, final Token token) {
@@ -233,11 +233,11 @@ public abstract class Node {
 
 				/**
 				 * Calls {@link Token#run()} for the first {@link Token} in the queue and removes it
-				 * from the queue if the call was successful. Re-queues itself if there are more tokens
-				 * to be run.
+				 * from the queue if the call was successful. Re-queues itself if there are more
+				 * tokens to be run.
 				 *
 				 * @param context
-				 * 		token queue context
+				 *            token queue context
 				 */
 				@Override
 				public void run(final TokenQueue context) {
@@ -287,22 +287,23 @@ public abstract class Node {
 			abstract public void deactivate(final TokenQueue context);
 
 			/**
-			 * Adds a token to the queue, enqueues the queue in the scheduler if the queue was empty.
+			 * Adds a token to the queue, enqueues the queue in the scheduler if the queue was
+			 * empty.
 			 *
 			 * @param context
-			 * 		token queue context
+			 *            token queue context
 			 * @param token
-			 * 		{@link Token} to enqueue
+			 *            {@link Token} to enqueue
 			 */
 			abstract public void enqueue(final TokenQueue context, final Token token);
 
 			/**
-			 * Calls {@link Token#run()} for the first {@link Token} in the queue and removes it from
-			 * the queue if the call was successful. Re-queues itself if there are more tokens to be
-			 * run.
+			 * Calls {@link Token#run()} for the first {@link Token} in the queue and removes it
+			 * from the queue if the call was successful. Re-queues itself if there are more tokens
+			 * to be run.
 			 *
 			 * @param context
-			 * 		token queue context
+			 *            token queue context
 			 */
 			abstract public void run(final TokenQueue context);
 		}
@@ -350,7 +351,8 @@ public abstract class Node {
 			edgesAndPaths.put(edge, null);
 		}
 		this.filter = AddressFilter.empty;
-		final MemoryHandlerMainAndCounterColumnMatcher memoryHandlerMainAndCounterColumnMatcher = network.getMemoryFactory().newMemoryHandlerMain(PathFilter.empty, edgesAndPaths);
+		final MemoryHandlerMainAndCounterColumnMatcher memoryHandlerMainAndCounterColumnMatcher =
+				network.getMemoryFactory().newMemoryHandlerMain(PathFilter.empty, edgesAndPaths);
 		this.memory = memoryHandlerMainAndCounterColumnMatcher.getMemoryHandlerMain();
 	}
 
@@ -375,7 +377,8 @@ public abstract class Node {
 			final Set<Path> joinedWith = path.getJoinedWith();
 			// create new edge from clNode to this
 			final Edge edge;
-			if (Collections.disjoint(joinedWith, filter.getNegativeExistentialPaths()) && Collections.disjoint(joinedWith, filter.getPositiveExistentialPaths())) {
+			if (Collections.disjoint(joinedWith, filter.getNegativeExistentialPaths())
+					&& Collections.disjoint(joinedWith, filter.getPositiveExistentialPaths())) {
 				edge = connectRegularParent(path.getCurrentlyLowestNode());
 			} else {
 				edge = connectExistentialParent(path.getCurrentlyLowestNode());
@@ -391,7 +394,8 @@ public abstract class Node {
 		this.incomingEdges = toArray(edges, Edge[]::new);
 		// create new main memory
 		// this also produces translation maps on all our edges
-		final MemoryHandlerMainAndCounterColumnMatcher memoryHandlerMainAndCounterColumnMatcher = network.getMemoryFactory().newMemoryHandlerMain(filter, edgesAndPaths);
+		final MemoryHandlerMainAndCounterColumnMatcher memoryHandlerMainAndCounterColumnMatcher =
+				network.getMemoryFactory().newMemoryHandlerMain(filter, edgesAndPaths);
 		this.memory = memoryHandlerMainAndCounterColumnMatcher.getMemoryHandlerMain();
 		// update all Paths from joinedWith to new addresses
 		for (final Entry<Edge, Set<Path>> entry : edgesAndPaths.entrySet()) {
@@ -404,13 +408,19 @@ public abstract class Node {
 				path.setJoinedWith(joinedPaths);
 			}
 		}
-		this.filter = PathFilterToAddressFilterTranslator.translate(filter, memoryHandlerMainAndCounterColumnMatcher.getFilterElementToCounterColumn());
+		this.filter =
+				PathFilterToAddressFilterTranslator.translate(filter,
+						memoryHandlerMainAndCounterColumnMatcher.getFilterElementToCounterColumn());
 		for (final Edge edge : this.incomingEdges) {
 			edge.setFilter(this.filter);
 		}
 
 		// Create new PlusToken if no preceding Node has not empty memory
-		final Optional<Edge> optMinEdge = Arrays.stream(this.incomingEdges).filter(e -> !e.getSourceNode().outgoingExistentialEdges.contains(e)).min((a, b) -> Integer.compare(a.getSourceNode().getMemory().size(), b.getSourceNode().getMemory().size()));
+		final Optional<Edge> optMinEdge =
+				Arrays.stream(this.incomingEdges)
+						.filter(e -> !e.getSourceNode().outgoingExistentialEdges.contains(e))
+						.min((a, b) -> Integer.compare(a.getSourceNode().getMemory().size(), b.getSourceNode()
+								.getMemory().size()));
 		assert optMinEdge.isPresent();
 		final Edge minEdge = optMinEdge.get();
 		final Node sourceNode = minEdge.getSourceNode();
@@ -428,7 +438,7 @@ public abstract class Node {
 	 * contain existential facts, by calling {@link #acceptRegularEdgeToChild(Edge)}.
 	 *
 	 * @param parent
-	 * 		parent {@link Node}
+	 *            parent {@link Node}
 	 * @return edge created
 	 */
 	protected Edge connectRegularParent(final Node parent) {
@@ -442,7 +452,7 @@ public abstract class Node {
 	 * existential facts, by calling {@link #acceptExistentialEdgeToChild(Edge)}.
 	 *
 	 * @param parent
-	 * 		parent {@link Node}
+	 *            parent {@link Node}
 	 * @return edge created
 	 */
 	protected Edge connectExistentialParent(final Node parent) {
@@ -456,7 +466,7 @@ public abstract class Node {
 	 * the edge to the child to the list of outgoing edges.
 	 *
 	 * @param edgeToChild
-	 * 		the edge to the child to be added
+	 *            the edge to the child to be added
 	 */
 	protected void acceptRegularEdgeToChild(final Edge edgeToChild) {
 		this.outgoingEdges.add(edgeToChild);
@@ -468,7 +478,7 @@ public abstract class Node {
 	 * edges.
 	 *
 	 * @param edgeToChild
-	 * 		the edge to the child to be added
+	 *            the edge to the child to be added
 	 */
 	protected void acceptExistentialEdgeToChild(final Edge edgeToChild) {
 		this.outgoingEdges.add(edgeToChild);
@@ -480,7 +490,7 @@ public abstract class Node {
 	 * outgoing edges.
 	 *
 	 * @param edgeToChild
-	 * 		the edge to the child to be removed
+	 *            the edge to the child to be removed
 	 */
 	protected void removeChild(final Edge edgeToChild) {
 		this.outgoingEdges.remove(edgeToChild);
@@ -492,7 +502,7 @@ public abstract class Node {
 	 * given source node (as its parent).
 	 *
 	 * @param source
-	 * 		source node to connect to this node via a {@link Edge} to be constructed
+	 *            source node to connect to this node via a {@link Edge} to be constructed
 	 * @return {@link Edge} connecting the given source node with this node
 	 */
 	abstract protected Edge newEdge(final Node source);
@@ -511,7 +521,7 @@ public abstract class Node {
 	 * node of the edge specified in {@link AddressPredecessor}.
 	 *
 	 * @param localFactAddress
-	 * 		an address valid in the current node
+	 *            an address valid in the current node
 	 * @return an {@link AddressPredecessor} containing an address valid in the parent node
 	 */
 	public AddressPredecessor delocalizeAddress(final FactAddress localFactAddress) {
@@ -521,10 +531,11 @@ public abstract class Node {
 	}
 
 	/**
-	 * Enqueues the {@link Token} given into the {@link org.jamocha.dn.nodes.Node.TokenQueueState} of the {@link Node}.
+	 * Enqueues the {@link Token} given into the {@link org.jamocha.dn.nodes.Node.TokenQueueState}
+	 * of the {@link Node}.
 	 *
 	 * @param token
-	 * 		{@link Token} to enqueue
+	 *            {@link Token} to enqueue
 	 */
 	private void enqueue(final Token token) {
 		this.tokenQueue.enqueue(token);
@@ -534,7 +545,7 @@ public abstract class Node {
 	 * Shares {@link Node} with the {@link Path}s given.
 	 *
 	 * @param paths
-	 * 		{@link Path}s to share the node with
+	 *            {@link Path}s to share the node with
 	 */
 	public abstract void shareNode(final Map<Path, FactAddress> map, final Path... paths);
 

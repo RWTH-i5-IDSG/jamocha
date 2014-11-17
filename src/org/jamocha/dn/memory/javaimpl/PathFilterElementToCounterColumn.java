@@ -25,12 +25,10 @@ import org.jamocha.filter.PathFilter.PathFilterElement;
  * 
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
-public class PathFilterElementToCounterColumn implements
-		org.jamocha.dn.memory.CounterColumnMatcher {
+public class PathFilterElementToCounterColumn implements org.jamocha.dn.memory.CounterColumnMatcher {
 	private final Map<PathFilterElement, CounterColumn> map = new HashMap<>();
 
-	void putFilterElementToCounterColumn(final PathFilterElement pathFilterElement,
-			final CounterColumn counterColumn) {
+	void putFilterElementToCounterColumn(final PathFilterElement pathFilterElement, final CounterColumn counterColumn) {
 		this.map.put(pathFilterElement, counterColumn);
 	}
 

@@ -42,15 +42,14 @@ public class ScopeStack {
 		final HashMap<String, Symbol> symbolTable = new HashMap<>();
 
 		public Symbol getSymbol(final String image) {
-			return this.symbolTable.computeIfAbsent(image, s -> null == parentScope ? null
-					: parentScope.getSymbol(s));
+			return this.symbolTable.computeIfAbsent(image, s -> null == parentScope ? null : parentScope.getSymbol(s));
 		}
 
 		public Symbol getOrCreateSymbol(final String image) {
 			// if no entry present, try parent
 			// if no scope contains matching symbol, create it at lowest scope
-			return this.symbolTable.computeIfAbsent(image, s -> Optional.ofNullable(parentScope)
-					.map(c -> c.getSymbol(s)).orElseGet(() -> new Symbol(s)));
+			return this.symbolTable.computeIfAbsent(image,
+					s -> Optional.ofNullable(parentScope).map(c -> c.getSymbol(s)).orElseGet(() -> new Symbol(s)));
 		}
 
 		public Symbol createDummySymbol() {
@@ -90,7 +89,7 @@ public class ScopeStack {
 			}
 			this.type = slotVariable.getType();
 		}
-		
+
 		@Override
 		public String toString() {
 			if (image.equals("Dummy")) {

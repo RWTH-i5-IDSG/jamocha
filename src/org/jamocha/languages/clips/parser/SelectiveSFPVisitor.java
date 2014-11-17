@@ -28,20 +28,18 @@ public interface SelectiveSFPVisitor extends SFPParserVisitor {
 
 	static String prefix = " ";
 
-	public static <V extends SelectiveSFPVisitor, N extends Node> V sendVisitor(final V visitor,
-			final N node, final Object data) {
+	public static <V extends SelectiveSFPVisitor, N extends Node> V sendVisitor(final V visitor, final N node,
+			final Object data) {
 		node.jjtAccept(visitor, data);
 		return visitor;
 	}
 
 	public static Stream<Node> stream(final Node node, final int startIndex) {
-		return IntStream.range(startIndex, node.jjtGetNumChildren()).mapToObj(
-				i -> node.jjtGetChild(i));
+		return IntStream.range(startIndex, node.jjtGetNumChildren()).mapToObj(i -> node.jjtGetChild(i));
 	}
 
 	public static RuntimeException dumpAndThrowMe(final SimpleNode node,
-			final java.util.function.Function<String, RuntimeException> thrower,
-			final String exceptionDescription) {
+			final java.util.function.Function<String, RuntimeException> thrower, final String exceptionDescription) {
 		dumpToStdOut(node);
 		return thrower.apply(exceptionDescription);
 	}
@@ -60,8 +58,7 @@ public interface SelectiveSFPVisitor extends SFPParserVisitor {
 			sb.append('[').append(nodeValue.toString()).append(']');
 		}
 		sb.append("\n");
-		sb.append(stream(node, 0).map(n -> dump((SimpleNode) n, currentPrefix + prefix)).collect(
-				Collectors.joining()));
+		sb.append(stream(node, 0).map(n -> dump((SimpleNode) n, currentPrefix + prefix)).collect(Collectors.joining()));
 		return sb.toString();
 	}
 

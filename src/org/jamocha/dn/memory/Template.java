@@ -50,18 +50,16 @@ public interface Template {
 			this.slotConstraints = slotConstraints;
 		}
 
-		public static Slot newSlot(final SlotType slotType, final String name,
-				final Object defaultValue, final SlotConstraint... slotConstraints) {
-			return new Slot(slotType, name, Default.staticDefault(new ConstantLeaf(defaultValue,
-					slotType)), slotConstraints);
+		public static Slot newSlot(final SlotType slotType, final String name, final Object defaultValue,
+				final SlotConstraint... slotConstraints) {
+			return new Slot(slotType, name, Default.staticDefault(new ConstantLeaf(defaultValue, slotType)),
+					slotConstraints);
 		}
 
 		public static final Slot LONG = Slot.newSlot(SlotType.LONG, "Long slot", Long.valueOf(0L));
-		public static final Slot DOUBLE = Slot.newSlot(SlotType.DOUBLE, "Double slot",
-				Double.valueOf(0.0));
+		public static final Slot DOUBLE = Slot.newSlot(SlotType.DOUBLE, "Double slot", Double.valueOf(0.0));
 		public static final Slot STRING = Slot.newSlot(SlotType.STRING, "String slot", "");
-		public static final Slot BOOLEAN = Slot.newSlot(SlotType.BOOLEAN, "Boolean slot",
-				Boolean.FALSE);
+		public static final Slot BOOLEAN = Slot.newSlot(SlotType.BOOLEAN, "Boolean slot", Boolean.FALSE);
 	}
 
 	public static enum DefaultType {
@@ -309,8 +307,7 @@ public interface Template {
 	 *            given values for the corresponding slots
 	 * @return list that can be used to construct a template after evaluation
 	 */
-	public FunctionWithArguments[] applyDefaultsAndOrder(
-			final Map<SlotAddress, FunctionWithArguments> values);
+	public FunctionWithArguments[] applyDefaultsAndOrder(final Map<SlotAddress, FunctionWithArguments> values);
 
 	/**
 	 * Returns a marker uniquely identifying the template instance as a child of

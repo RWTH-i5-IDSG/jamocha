@@ -143,11 +143,11 @@ public class Path {
 
 	@Override
 	public String toString() {
-		return "Path"+this.hashCode();
+		return "Path" + this.hashCode();
 	}
 
-	public void cachedOverride(final Node currentlyLowestNode,
-			final FactAddress factAddressInCurrentlyLowestNode, final Set<Path> joinedWith) {
+	public void cachedOverride(final Node currentlyLowestNode, final FactAddress factAddressInCurrentlyLowestNode,
+			final Set<Path> joinedWith) {
 		assert !this.backup.isPresent();
 		this.backup = Optional.of(new Backup());
 		this.currentlyLowestNode = currentlyLowestNode;

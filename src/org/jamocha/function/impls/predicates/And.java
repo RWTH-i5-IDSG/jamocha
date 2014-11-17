@@ -54,24 +54,23 @@ public abstract class And extends Predicate implements CommutativeFunction<Boole
 				return (Boolean) params[0].evaluate() && (Boolean) params[1].evaluate();
 			}
 		});
-		FunctionDictionary.addGenerator(inClips, SlotType.BOOLEAN,
-				(final SlotType[] paramTypes) -> {
-					return new And() {
-						@Override
-						public SlotType[] getParamTypes() {
-							return paramTypes;
-						}
+		FunctionDictionary.addGenerator(inClips, SlotType.BOOLEAN, (final SlotType[] paramTypes) -> {
+			return new And() {
+				@Override
+				public SlotType[] getParamTypes() {
+					return paramTypes;
+				}
 
-						@Override
-						public Boolean evaluate(final Function<?>... params) {
-							for (final Function<?> param : params) {
-								if (!(Boolean) param.evaluate()) {
-									return Boolean.FALSE;
-								}
-							}
-							return Boolean.TRUE;
+				@Override
+				public Boolean evaluate(final Function<?>... params) {
+					for (final Function<?> param : params) {
+						if (!(Boolean) param.evaluate()) {
+							return Boolean.FALSE;
 						}
-					};
-				});
+					}
+					return Boolean.TRUE;
+				}
+			};
+		});
 	}
 }

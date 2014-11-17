@@ -39,9 +39,8 @@ interface EqualityChecker {
 
 	static EqualityChecker root = new EqualityChecker() {
 		@Override
-		public boolean equals(final Row originalRow, final Row minusRow,
-				final JamochaArray<Row> minusRows, final int minusRowsIndex,
-				final FactAddress[] factAddresses) {
+		public boolean equals(final Row originalRow, final Row minusRow, final JamochaArray<Row> minusRows,
+				final int minusRowsIndex, final FactAddress[] factAddresses) {
 			final Fact originalFact = originalRow.getFactTuple()[0];
 			final Fact minusFact = minusRow.getFactTuple()[0];
 			if (Fact.equalContent(originalFact, minusFact)) {
@@ -53,9 +52,8 @@ interface EqualityChecker {
 	};
 	static EqualityChecker alpha = new EqualityChecker() {
 		@Override
-		public boolean equals(final Row originalRow, final Row minusRow,
-				final JamochaArray<Row> minusRows, final int minusRowsIndex,
-				final FactAddress[] factAddresses) {
+		public boolean equals(final Row originalRow, final Row minusRow, final JamochaArray<Row> minusRows,
+				final int minusRowsIndex, final FactAddress[] factAddresses) {
 			final Fact originalFact = originalRow.getFactTuple()[0];
 			final Fact minusFact = minusRow.getFactTuple()[0];
 			return minusFact == originalFact;
@@ -63,9 +61,8 @@ interface EqualityChecker {
 	};
 	static EqualityChecker beta = new EqualityChecker() {
 		@Override
-		public boolean equals(final Row originalRow, final Row minusRow,
-				final JamochaArray<Row> minusRows, final int minusRowsIndex,
-				final FactAddress[] factAddresses) {
+		public boolean equals(final Row originalRow, final Row minusRow, final JamochaArray<Row> minusRows,
+				final int minusRowsIndex, final FactAddress[] factAddresses) {
 			for (int i = 0; i < factAddresses.length; ++i) {
 				final FactAddress originalFactAddress = factAddresses[i];
 				if (null == originalFactAddress)
@@ -83,17 +80,15 @@ interface EqualityChecker {
 	};
 	static EqualityChecker equalRow = new EqualityChecker() {
 		@Override
-		public boolean equals(final Row originalRow, final Row minusRow,
-				final JamochaArray<Row> minusRows, final int minusRowsIndex,
-				final FactAddress[] factAddresses) {
+		public boolean equals(final Row originalRow, final Row minusRow, final JamochaArray<Row> minusRows,
+				final int minusRowsIndex, final FactAddress[] factAddresses) {
 			return originalRow == minusRow;
 		}
 	};
 	static EqualityChecker equalFactTuple = new EqualityChecker() {
 		@Override
-		public boolean equals(final Row originalRow, final Row minusRow,
-				final JamochaArray<Row> minusRows, final int minusRowsIndex,
-				final FactAddress[] factAddresses) {
+		public boolean equals(final Row originalRow, final Row minusRow, final JamochaArray<Row> minusRows,
+				final int minusRowsIndex, final FactAddress[] factAddresses) {
 			return originalRow.getFactTuple() == minusRow.getFactTuple();
 		}
 	};

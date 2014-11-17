@@ -29,10 +29,11 @@ import org.apache.logging.log4j.core.appender.OutputStreamManager;
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
 public class OutstreamAppender extends AbstractOutputStreamAppender<OutputStreamManager> {
+	private static final long serialVersionUID = 6337016117146419220L;
 	static int instanceCount = 0;
 
-	private OutstreamAppender(final String name, final Layout<? extends Serializable> layout,
-			final Filter filter, final OutputStreamManager manager, final boolean ignoreExceptions) {
+	private OutstreamAppender(final String name, final Layout<? extends Serializable> layout, final Filter filter,
+			final OutputStreamManager manager, final boolean ignoreExceptions) {
 		super(name, layout, filter, ignoreExceptions, true, manager);
 	}
 
@@ -44,8 +45,7 @@ public class OutstreamAppender extends AbstractOutputStreamAppender<OutputStream
 	public static OutstreamAppender newInstance(final OutputStream outputStream,
 			final Layout<? extends Serializable> layout, final Filter filter, final boolean follow) {
 		final String name = "OutstreamAppender" + ++instanceCount;
-		return new OutstreamAppender(name, layout, filter, getManager(follow, name, outputStream,
-				layout), true);
+		return new OutstreamAppender(name, layout, filter, getManager(follow, name, outputStream, layout), true);
 	}
 
 	@Value
@@ -56,18 +56,17 @@ public class OutstreamAppender extends AbstractOutputStreamAppender<OutputStream
 	}
 
 	private static class MyOutputStreamManager extends OutputStreamManager {
-		protected MyOutputStreamManager(final OutputStream os, final String streamName,
-				final Layout<?> layout) {
+		protected MyOutputStreamManager(final OutputStream os, final String streamName, final Layout<?> layout) {
 			super(os, streamName, layout);
 		}
 	}
 
-	private static ManagerFactory<OutputStreamManager, FactoryData> factory = (final String name,
-			final FactoryData data) -> new MyOutputStreamManager(data.os, data.type, data.layout);
+	private static ManagerFactory<OutputStreamManager, FactoryData> factory =
+			(final String name, final FactoryData data) -> new MyOutputStreamManager(data.os, data.type, data.layout);
 
 	private static OutputStreamManager getManager(final boolean follow, final String name,
 			final OutputStream outputStream, final Layout<? extends Serializable> layout) {
-		return OutputStreamManager.getManager(name + '.' + follow, new FactoryData(outputStream,
-				name, layout), factory);
+		return OutputStreamManager
+				.getManager(name + '.' + follow, new FactoryData(outputStream, name, layout), factory);
 	}
 }

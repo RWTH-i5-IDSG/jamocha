@@ -18,6 +18,5 @@ package org.jamocha.logging;
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
 public enum Type {
-	TEMPLATE, WATCHABLE_SYMBOL, FACT, DOUBLE, LONG, DATETIME, FACTADDRESS, STRING, BOOLEAN, SYMBOL,
-	NIL;
+	TEMPLATE, WATCHABLE_SYMBOL, FACT, DOUBLE, LONG, DATETIME, FACTADDRESS, STRING, BOOLEAN, SYMBOL, NIL;
 }

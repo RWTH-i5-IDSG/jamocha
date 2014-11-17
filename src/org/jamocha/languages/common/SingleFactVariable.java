@@ -48,8 +48,7 @@ public class SingleFactVariable {
 		symbol.setFactVariable(this);
 	}
 
-	public SingleSlotVariable newSingleSlotVariable(final Symbol symbol, final SlotAddress slot,
-			final boolean negated) {
+	public SingleSlotVariable newSingleSlotVariable(final Symbol symbol, final SlotAddress slot, final boolean negated) {
 		final SingleSlotVariable instance = new SingleSlotVariable(symbol, slot, negated);
 		symbol.addSlotVariable(instance);
 		this.slotVariables.add(instance);

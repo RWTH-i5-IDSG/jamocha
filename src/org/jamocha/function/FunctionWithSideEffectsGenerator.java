@@ -25,6 +25,5 @@ import org.jamocha.dn.memory.SlotType;
  */
 @FunctionalInterface
 public interface FunctionWithSideEffectsGenerator {
-	public Function<?> generate(final SideEffectFunctionToNetwork network,
-			final SlotType[] paramTypes);
+	public Function<?> generate(final SideEffectFunctionToNetwork network, final SlotType[] paramTypes);
 }

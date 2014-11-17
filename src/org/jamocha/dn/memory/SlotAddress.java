@@ -30,7 +30,7 @@ public interface SlotAddress {
 	 * @return the {@link SlotType} of the slot this address identifies
 	 */
 	public SlotType getSlotType(final Template template);
-	
+
 	/**
 	 * Gets the name of the slot this address identifies.
 	 * 

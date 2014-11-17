@@ -35,7 +35,6 @@ public class FunctionBuilder extends GenericBuilder<Object, Function<?>, Functio
 		if (this.function.getParamTypes().length != this.args.size()) {
 			throw new IllegalArgumentException("Wrong number of arguments!");
 		}
-		return new FunctionWithArgumentsComposite(this.function, toArray(this.args,
-				FunctionWithArguments[]::new));
+		return new FunctionWithArgumentsComposite(this.function, toArray(this.args, FunctionWithArguments[]::new));
 	}
 }

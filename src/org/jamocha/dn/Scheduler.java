@@ -32,7 +32,7 @@ public interface Scheduler {
 	 * Add a {@link Runnable} to be processed by the scheduler.
 	 *
 	 * @param runnable
-	 * 		the {@link Runnable} to add to the schedulers queue
+	 *            the {@link Runnable} to add to the schedulers queue
 	 */
 	public void enqueue(final TokenQueue runnable);
 
@@ -42,8 +42,8 @@ public interface Scheduler {
 	public void activate();
 
 	/**
-	 * Deactivate scheduler. In inactive state the scheduler may not process any {@link TokenQueue TokenQueues).
-	 * Running TokenQueues are finished before method returns.
+	 * Deactivate scheduler. In inactive state the scheduler may not process any {@link TokenQueue
+	 * TokenQueues). Running TokenQueues are finished before method returns.
 	 */
 	public void deactivate();
 
@@ -53,7 +53,8 @@ public interface Scheduler {
 	public void waitForNoUnfinishedJobs();
 
 	/**
-	 * Initiate shutdown of the scheduler. All enqueued jobs can still be processed. No new jobs are enqueued.
+	 * Initiate shutdown of the scheduler. All enqueued jobs can still be processed. No new jobs are
+	 * enqueued.
 	 */
 	public void shutdown();
 

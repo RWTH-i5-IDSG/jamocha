@@ -51,8 +51,7 @@ public class RuleConditionProcessor {
 		return conditionalElements.get(0);
 	}
 
-	public static ConditionalElement combineViaAnd(
-			final List<ConditionalElement> conditionalElements) {
+	public static ConditionalElement combineViaAnd(final List<ConditionalElement> conditionalElements) {
 		return combine(conditionalElements, AndFunctionConditionalElement::new);
 	}
 
@@ -66,8 +65,7 @@ public class RuleConditionProcessor {
 
 	public static void flatten(final List<ConditionalElement> conditionalElements) {
 		// add surrounding (and ), if more than one CE
-		final ConditionalElement ce =
-				combineViaAnd(new ArrayList<ConditionalElement>(conditionalElements));
+		final ConditionalElement ce = combineViaAnd(new ArrayList<ConditionalElement>(conditionalElements));
 		conditionalElements.clear();
 		conditionalElements.add(flatten(ce));
 	}
@@ -132,10 +130,9 @@ public class RuleConditionProcessor {
 				// only one (or ), no need to share the elements of the (or )
 				// combine shared part with each of the (or )-elements
 				this.ces =
-						orLists.get(0)
-								.stream()
-								.map(orPart -> new AndFunctionConditionalElement(Arrays.asList(
-										shared, orPart))).collect(toList());
+						orLists.get(0).stream()
+								.map(orPart -> new AndFunctionConditionalElement(Arrays.asList(shared, orPart)))
+								.collect(toList());
 				return;
 			}
 			// gradually blow up the CEs
@@ -144,30 +141,25 @@ public class RuleConditionProcessor {
 			if (singletonLists.isEmpty()) {
 				// no (or )-free part available, wrap the first or-parts into shared wrappers
 				this.ces =
-						orLists.remove(0).stream()
-								.map(orPart -> new SharedConditionalElementWrapper(orPart))
+						orLists.remove(0).stream().map(orPart -> new SharedConditionalElementWrapper(orPart))
 								.collect(toList());
 			} else {
 				// wrap the part without the (or )s into shared element wrapper
 				final SharedConditionalElementWrapper shared =
 						new SharedConditionalElementWrapper(combineViaAnd(singletonLists));
 				this.ces =
-						Collections.singletonList(new AndFunctionConditionalElement(Collections
-								.singletonList(shared)));
+						Collections.singletonList(new AndFunctionConditionalElement(Collections.singletonList(shared)));
 			}
 			// for every (or ) occurrence we need to duplicate the list of CEs and combine them with
 			// the (or ) elements
 			orLists.forEach(orList -> {
-				final List<ConditionalElement> newCEs =
-						new ArrayList<>(orList.size() * this.ces.size());
+				final List<ConditionalElement> newCEs = new ArrayList<>(orList.size() * this.ces.size());
 				orList.forEach(orPart -> {
 					// wrap the next or part into a shared element wrapper
-					final SharedConditionalElementWrapper sharedOrPart =
-							new SharedConditionalElementWrapper(orPart);
+					final SharedConditionalElementWrapper sharedOrPart = new SharedConditionalElementWrapper(orPart);
 					// copy the old part and add the shared part, add combination of them to newCEs
 					this.ces.forEach(oldPart -> {
-						final ArrayList<ConditionalElement> children =
-								new ArrayList<>(oldPart.getChildren());
+						final ArrayList<ConditionalElement> children = new ArrayList<>(oldPart.getChildren());
 						children.add(sharedOrPart);
 						newCEs.add(new AndFunctionConditionalElement(children));
 					});
@@ -185,19 +177,17 @@ public class RuleConditionProcessor {
 		public void visit(final ExistentialConditionalElement ce) {
 			expand(ce);
 			this.ces =
-					this.ces.stream()
-							.map(c -> new ExistentialConditionalElement(Collections
-									.singletonList(c))).collect(toList());
+					this.ces.stream().map(c -> new ExistentialConditionalElement(Collections.singletonList(c)))
+							.collect(toList());
 		}
 
 		@Override
 		public void visit(final NegatedExistentialConditionalElement ce) {
 			expand(ce);
 			this.ces =
-					Collections.singletonList(new AndFunctionConditionalElement(this.ces
-							.stream()
-							.map(c -> new NegatedExistentialConditionalElement(Collections
-									.singletonList(c))).collect(toList())));
+					Collections.singletonList(new AndFunctionConditionalElement(this.ces.stream()
+							.map(c -> new NegatedExistentialConditionalElement(Collections.singletonList(c)))
+							.collect(toList())));
 		}
 
 		@Override
@@ -220,8 +210,7 @@ public class RuleConditionProcessor {
 			ce.getChildren().forEach((child) -> {
 				child.accept(this);
 			});
-			final List<ConditionalElement> oldChildrenList =
-					new ArrayList<ConditionalElement>(ce.getChildren());
+			final List<ConditionalElement> oldChildrenList = new ArrayList<ConditionalElement>(ce.getChildren());
 			final List<ConditionalElement> childrenList = ce.getChildren();
 			childrenList.clear();
 			for (final ConditionalElement conditionalElement : oldChildrenList) {
@@ -234,8 +223,7 @@ public class RuleConditionProcessor {
 			ce.getChildren().forEach((child) -> {
 				child.accept(this);
 			});
-			final List<ConditionalElement> oldChildrenList =
-					new ArrayList<ConditionalElement>(ce.getChildren());
+			final List<ConditionalElement> oldChildrenList = new ArrayList<ConditionalElement>(ce.getChildren());
 			final List<ConditionalElement> childrenList = ce.getChildren();
 			childrenList.clear();
 			for (final ConditionalElement conditionalElement : oldChildrenList) {
@@ -261,19 +249,15 @@ public class RuleConditionProcessor {
 
 		private void processChildren(final ConditionalElement ce, final boolean nextNegated) {
 			ce.getChildren().replaceAll(
-					(final ConditionalElement x) -> x.accept(new NotFunctionConditionalElementSeep(
-							nextNegated)).ce);
+					(final ConditionalElement x) -> x.accept(new NotFunctionConditionalElementSeep(nextNegated)).ce);
 		}
 
 		@Override
 		public void visit(final NotFunctionConditionalElement ce) {
-			this.ce =
-					combineViaAnd(ce.getChildren()).accept(
-							new NotFunctionConditionalElementSeep(!negated)).ce;
+			this.ce = combineViaAnd(ce.getChildren()).accept(new NotFunctionConditionalElementSeep(!negated)).ce;
 		}
 
-		private static ConditionalElement applySkippingIfNegated(final ConditionalElement ce,
-				final boolean negated,
+		private static ConditionalElement applySkippingIfNegated(final ConditionalElement ce, final boolean negated,
 				final Function<List<ConditionalElement>, ConditionalElement> ctor) {
 			return negated ? ctor.apply(ce.getChildren()) : ce;
 		}
@@ -292,8 +276,7 @@ public class RuleConditionProcessor {
 
 		@Override
 		public void visit(final ExistentialConditionalElement ce) {
-			this.ce =
-					applySkippingIfNegated(ce, negated, NegatedExistentialConditionalElement::new);
+			this.ce = applySkippingIfNegated(ce, negated, NegatedExistentialConditionalElement::new);
 			processChildren(this.ce, false);
 		}
 
@@ -304,8 +287,7 @@ public class RuleConditionProcessor {
 		}
 
 		private void visitLeaf(final ConditionalElement ce) {
-			this.ce =
-					negated ? new NotFunctionConditionalElement(Collections.singletonList(ce)) : ce;
+			this.ce = negated ? new NotFunctionConditionalElement(Collections.singletonList(ce)) : ce;
 		}
 
 		@Override

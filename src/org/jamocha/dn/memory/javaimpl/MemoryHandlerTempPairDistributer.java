@@ -46,8 +46,7 @@ public class MemoryHandlerTempPairDistributer implements org.jamocha.dn.memory.M
 		return this.plus.size() + this.minus.size();
 	}
 
-	static final private String unsupported =
-			"MemoryHandlerExistential only supports enqueueInEdges and size.";
+	static final private String unsupported = "MemoryHandlerExistential only supports enqueueInEdges and size.";
 
 	@Override
 	public Template[] getTemplate() {
@@ -60,8 +59,8 @@ public class MemoryHandlerTempPairDistributer implements org.jamocha.dn.memory.M
 	}
 
 	@Override
-	public FactIdentifier[] getFactIdentifiers(
-			final MemoryFactToFactIdentifier memoryFactToFactIdentifier, final int row) {
+	public FactIdentifier[] getFactIdentifiers(final MemoryFactToFactIdentifier memoryFactToFactIdentifier,
+			final int row) {
 		throw new UnsupportedOperationException(unsupported);
 	}
 

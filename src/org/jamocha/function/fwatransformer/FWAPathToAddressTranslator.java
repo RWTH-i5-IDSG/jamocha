@@ -50,15 +50,15 @@ public class FWAPathToAddressTranslator implements FunctionWithArgumentsVisitor 
 	@Override
 	public void visit(final FunctionWithArgumentsComposite functionWithArgumentsComposite) {
 		this.functionWithArguments =
-				new FunctionWithArgumentsComposite(functionWithArgumentsComposite.getFunction(),
-						translateArgs(functionWithArgumentsComposite.getArgs(), this.addresses));
+				new FunctionWithArgumentsComposite(functionWithArgumentsComposite.getFunction(), translateArgs(
+						functionWithArgumentsComposite.getArgs(), this.addresses));
 	}
 
 	@Override
 	public void visit(final PredicateWithArgumentsComposite predicateWithArgumentsComposite) {
 		this.functionWithArguments =
-				new PredicateWithArgumentsComposite(predicateWithArgumentsComposite.getFunction(),
-						translateArgs(predicateWithArgumentsComposite.getArgs(), this.addresses));
+				new PredicateWithArgumentsComposite(predicateWithArgumentsComposite.getFunction(), translateArgs(
+						predicateWithArgumentsComposite.getArgs(), this.addresses));
 	}
 
 	@Override
@@ -73,10 +73,8 @@ public class FWAPathToAddressTranslator implements FunctionWithArgumentsVisitor 
 
 	@Override
 	public void visit(final PathLeaf pathLeaf) {
-		final FactAddress factAddressInCurrentlyLowestNode =
-				pathLeaf.getPath().getFactAddressInCurrentlyLowestNode();
-		this.addresses.add(new SlotInFactAddress(factAddressInCurrentlyLowestNode, pathLeaf
-				.getSlot()));
+		final FactAddress factAddressInCurrentlyLowestNode = pathLeaf.getPath().getFactAddressInCurrentlyLowestNode();
+		this.addresses.add(new SlotInFactAddress(factAddressInCurrentlyLowestNode, pathLeaf.getSlot()));
 		this.functionWithArguments = new ParameterLeaf(pathLeaf.getReturnType(), pathLeaf.hash());
 	}
 
@@ -96,32 +94,28 @@ public class FWAPathToAddressTranslator implements FunctionWithArgumentsVisitor 
 	@Override
 	public void visit(final Modify fwa) {
 		this.functionWithArguments =
-				new Modify(fwa.getNetwork(), translateArg(fwa.getTargetFact(), this.addresses),
-						translateArgs(fwa.getArgs(), this.addresses, Modify.SlotAndValue[]::new));
+				new Modify(fwa.getNetwork(), translateArg(fwa.getTargetFact(), this.addresses), translateArgs(
+						fwa.getArgs(), this.addresses, Modify.SlotAndValue[]::new));
 	}
 
 	@Override
 	public void visit(final Retract fwa) {
-		this.functionWithArguments =
-				new Retract(fwa.getNetwork(), translateArgs(fwa.getArgs(), this.addresses));
+		this.functionWithArguments = new Retract(fwa.getNetwork(), translateArgs(fwa.getArgs(), this.addresses));
 	}
 
 	@Override
 	public void visit(final Assert.TemplateContainer fwa) {
 		this.functionWithArguments =
-				new Assert.TemplateContainer(fwa.getTemplate(), translateArgs(fwa.getArgs(),
-						this.addresses));
+				new Assert.TemplateContainer(fwa.getTemplate(), translateArgs(fwa.getArgs(), this.addresses));
 	}
 
 	@Override
 	public void visit(final Modify.SlotAndValue fwa) {
 		this.functionWithArguments =
-				new Modify.SlotAndValue(fwa.getSlotName(), translateArg(fwa.getValue(),
-						this.addresses));
+				new Modify.SlotAndValue(fwa.getSlotName(), translateArg(fwa.getValue(), this.addresses));
 	}
 
-	private static FunctionWithArguments[] translateArgs(
-			final FunctionWithArguments[] originalArgs,
+	private static FunctionWithArguments[] translateArgs(final FunctionWithArguments[] originalArgs,
 			final Collection<SlotInFactAddress> addresses) {
 		return translateArgs(originalArgs, addresses, FunctionWithArguments[]::new);
 	}
@@ -129,8 +123,7 @@ public class FWAPathToAddressTranslator implements FunctionWithArgumentsVisitor 
 	@SuppressWarnings("unchecked")
 	private static <T extends FunctionWithArguments> T translateArg(final T originalArg,
 			final Collection<SlotInFactAddress> addresses) {
-		return (T) originalArg.accept(new FWAPathToAddressTranslator(addresses))
-				.getFunctionWithArguments();
+		return (T) originalArg.accept(new FWAPathToAddressTranslator(addresses)).getFunctionWithArguments();
 	}
 
 	private static <T extends FunctionWithArguments> T[] translateArgs(final T[] originalArgs,
@@ -156,9 +149,8 @@ public class FWAPathToAddressTranslator implements FunctionWithArgumentsVisitor 
 		@Override
 		public void visit(final PredicateWithArgumentsComposite predicateWithArgumentsComposite) {
 			this.functionWithArguments =
-					new PredicateWithArgumentsComposite(
-							predicateWithArgumentsComposite.getFunction(), translateArgs(
-									predicateWithArgumentsComposite.getArgs(), this.addresses));
+					new PredicateWithArgumentsComposite(predicateWithArgumentsComposite.getFunction(), translateArgs(
+							predicateWithArgumentsComposite.getArgs(), this.addresses));
 		}
 
 		@Override

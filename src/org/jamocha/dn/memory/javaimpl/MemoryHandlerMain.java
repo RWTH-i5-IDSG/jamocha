@@ -52,8 +52,7 @@ import org.jamocha.filter.PathFilter.PathFilterElement;
  * @see org.jamocha.dn.memory.MemoryHandlerMain
  */
 @ToString(callSuper = true)
-public class MemoryHandlerMain extends MemoryHandlerBase implements
-		org.jamocha.dn.memory.MemoryHandlerMain {
+public class MemoryHandlerMain extends MemoryHandlerBase implements org.jamocha.dn.memory.MemoryHandlerMain {
 	static final long tryLockTimeout = 1L;
 	static final TimeUnit tu = TimeUnit.SECONDS;
 
@@ -74,8 +73,7 @@ public class MemoryHandlerMain extends MemoryHandlerBase implements
 		this.counter = Counter.newCounter();
 	}
 
-	MemoryHandlerMain(final Template[] template, final Counter counter,
-			final FactAddress[] addresses) {
+	MemoryHandlerMain(final Template[] template, final Counter counter, final FactAddress[] addresses) {
 		super(template, new JamochaArray<>());
 		this.addresses = addresses;
 		this.counter = counter;
@@ -88,11 +86,9 @@ public class MemoryHandlerMain extends MemoryHandlerBase implements
 		final HashMap<FactAddress, FactAddress> newAddressesCache = new HashMap<>();
 		if (!edgesAndPaths.isEmpty()) {
 			final Edge[] incomingEdges =
-					edgesAndPaths.entrySet().iterator().next().getKey().getTargetNode()
-							.getIncomingEdges();
+					edgesAndPaths.entrySet().iterator().next().getKey().getTargetNode().getIncomingEdges();
 			for (final Edge edge : incomingEdges) {
-				final MemoryHandlerMain memoryHandlerMain =
-						(MemoryHandlerMain) edge.getSourceNode().getMemory();
+				final MemoryHandlerMain memoryHandlerMain = (MemoryHandlerMain) edge.getSourceNode().getMemory();
 				for (final Template t : memoryHandlerMain.getTemplate()) {
 					template.add(t);
 				}
@@ -113,8 +109,7 @@ public class MemoryHandlerMain extends MemoryHandlerBase implements
 				new PathFilterElementToCounterColumn();
 
 		final boolean containsExistentials =
-				!filter.getPositiveExistentialPaths().isEmpty()
-						|| !filter.getNegativeExistentialPaths().isEmpty();
+				!filter.getPositiveExistentialPaths().isEmpty() || !filter.getNegativeExistentialPaths().isEmpty();
 		if (containsExistentials) {
 			final boolean[] existential = new boolean[templArray.length];
 			// gather existential paths
@@ -124,26 +119,22 @@ public class MemoryHandlerMain extends MemoryHandlerBase implements
 
 			int index = 0;
 			for (final PathFilterElement pathFilterElement : filter.getFilterElements()) {
-				final HashSet<Path> paths =
-						PathCollector.newHashSet().collect(pathFilterElement).getPaths();
+				final HashSet<Path> paths = PathCollector.newHashSet().collect(pathFilterElement).getPaths();
 				paths.retainAll(existentialPaths);
 				if (0 == paths.size())
 					continue;
 				for (final Path path : paths) {
-					existential[newAddressesCache.get(path
-							.getFactAddressInCurrentlyLowestNode()).index] = true;
+					existential[newAddressesCache.get(path.getFactAddressInCurrentlyLowestNode()).index] = true;
 				}
-				pathFilterElementToCounterColumn.putFilterElementToCounterColumn(pathFilterElement,
-						new CounterColumn(index++));
+				pathFilterElementToCounterColumn.putFilterElementToCounterColumn(pathFilterElement, new CounterColumn(
+						index++));
 			}
-			return new MemoryHandlerMainAndCounterColumnMatcher(
-					new MemoryHandlerMainWithExistentials(templArray, Counter.newCounter(filter,
-							pathFilterElementToCounterColumn), addrArray, existential),
+			return new MemoryHandlerMainAndCounterColumnMatcher(new MemoryHandlerMainWithExistentials(templArray,
+					Counter.newCounter(filter, pathFilterElementToCounterColumn), addrArray, existential),
 					pathFilterElementToCounterColumn);
 		}
-		return new MemoryHandlerMainAndCounterColumnMatcher(new MemoryHandlerMain(templArray,
-				Counter.newCounter(filter, pathFilterElementToCounterColumn), addrArray),
-				pathFilterElementToCounterColumn);
+		return new MemoryHandlerMainAndCounterColumnMatcher(new MemoryHandlerMain(templArray, Counter.newCounter(
+				filter, pathFilterElementToCounterColumn), addrArray), pathFilterElementToCounterColumn);
 	}
 
 	@Override
@@ -170,26 +161,23 @@ public class MemoryHandlerMain extends MemoryHandlerBase implements
 	public org.jamocha.dn.memory.MemoryHandlerTemp processTokenInBeta(
 			final org.jamocha.dn.memory.MemoryHandlerTemp token, final Edge originIncomingEdge,
 			final AddressFilter filter) throws CouldNotAcquireLockException {
-		return ((org.jamocha.dn.memory.javaimpl.MemoryHandlerTemp) token).newBetaTemp(this,
-				originIncomingEdge, filter);
+		return ((org.jamocha.dn.memory.javaimpl.MemoryHandlerTemp) token).newBetaTemp(this, originIncomingEdge, filter);
 	}
 
 	@Override
 	public org.jamocha.dn.memory.MemoryHandlerTemp processTokenInAlpha(
 			final org.jamocha.dn.memory.MemoryHandlerTemp token, final Edge originIncomingEdge,
 			final AddressFilter filter) throws CouldNotAcquireLockException {
-		return ((org.jamocha.dn.memory.javaimpl.MemoryHandlerTemp) token).newAlphaTemp(this,
-				originIncomingEdge, filter);
+		return ((org.jamocha.dn.memory.javaimpl.MemoryHandlerTemp) token)
+				.newAlphaTemp(this, originIncomingEdge, filter);
 	}
 
 	@Override
 	public org.jamocha.dn.memory.MemoryHandlerPlusTemp newNewNodeToken() {
 		this.lock.readLock().lock();
 		final int outgoingPlusRows =
-				this.validOutgoingPlusTokens.stream().mapToInt(token -> token.validRows.size())
-						.sum();
-		final JamochaArray<Row> rows =
-				new JamochaArray<>(validRows, validRows.size() + outgoingPlusRows);
+				this.validOutgoingPlusTokens.stream().mapToInt(token -> token.validRows.size()).sum();
+		final JamochaArray<Row> rows = new JamochaArray<>(validRows, validRows.size() + outgoingPlusRows);
 		for (final MemoryHandlerPlusTemp plus : this.validOutgoingPlusTokens) {
 			rows.addAll(plus.validRows);
 		}
@@ -198,8 +186,8 @@ public class MemoryHandlerMain extends MemoryHandlerBase implements
 	}
 
 	@Override
-	public Pair<? extends org.jamocha.dn.memory.MemoryHandlerPlusTemp, MemoryFact[]> newPlusToken(
-			final Node otn, final org.jamocha.dn.memory.Fact... facts) {
+	public Pair<? extends org.jamocha.dn.memory.MemoryHandlerPlusTemp, MemoryFact[]> newPlusToken(final Node otn,
+			final org.jamocha.dn.memory.Fact... facts) {
 		return MemoryHandlerPlusTemp.newRootTemp(this, otn, facts);
 	}
 
@@ -213,12 +201,10 @@ public class MemoryHandlerMain extends MemoryHandlerBase implements
 		return new MemoryHandlerTerminal(this);
 	}
 
-	private static AddressFilterElement[] emptyAddressFilterElementArray =
-			new AddressFilterElement[0];
+	private static AddressFilterElement[] emptyAddressFilterElementArray = new AddressFilterElement[0];
 
 	@Override
-	public AddressFilterElement[] getRelevantExistentialFilterParts(final AddressFilter filter,
-			final Edge edge) {
+	public AddressFilterElement[] getRelevantExistentialFilterParts(final AddressFilter filter, final Edge edge) {
 		assert this == edge.getSourceNode().getMemory();
 		final Set<org.jamocha.dn.memory.FactAddress> positiveExistentialAddresses =
 				filter.getPositiveExistentialAddresses();
@@ -229,8 +215,7 @@ public class MemoryHandlerMain extends MemoryHandlerBase implements
 		}
 		final Set<org.jamocha.dn.memory.FactAddress> existentialAddresses = new HashSet<>();
 		for (final FactAddress originAddress : this.addresses) {
-			final org.jamocha.dn.memory.FactAddress localizedAddress =
-					edge.localizeAddress(originAddress);
+			final org.jamocha.dn.memory.FactAddress localizedAddress = edge.localizeAddress(originAddress);
 			if (positiveExistentialAddresses.contains(localizedAddress)
 					|| negativeExistentialAddresses.contains(localizedAddress)) {
 				existentialAddresses.add(localizedAddress);
@@ -241,8 +226,7 @@ public class MemoryHandlerMain extends MemoryHandlerBase implements
 		filterElementLoop: for (final AddressFilterElement filterElement : filterElements) {
 			final SlotInFactAddress[] addresses = filterElement.getAddressesInTarget();
 			for (final SlotInFactAddress slotInFactAddress : addresses) {
-				final org.jamocha.dn.memory.FactAddress factAddress =
-						slotInFactAddress.getFactAddress();
+				final org.jamocha.dn.memory.FactAddress factAddress = slotInFactAddress.getFactAddress();
 				if (existentialAddresses.contains(factAddress)) {
 					partList.add(filterElement);
 					continue filterElementLoop;

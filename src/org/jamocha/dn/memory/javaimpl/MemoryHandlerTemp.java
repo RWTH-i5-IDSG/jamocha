@@ -28,18 +28,16 @@ import org.jamocha.filter.AddressFilter.AddressFilterElement;
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
-public abstract class MemoryHandlerTemp extends MemoryHandlerBase implements
-		org.jamocha.dn.memory.MemoryHandlerTemp {
+public abstract class MemoryHandlerTemp extends MemoryHandlerBase implements org.jamocha.dn.memory.MemoryHandlerTemp {
 
 	final MemoryHandlerMain originatingMainHandler;
 
-	protected MemoryHandlerTemp(final MemoryHandlerMain originatingMainHandler,
-			final JamochaArray<Row> validRows) {
+	protected MemoryHandlerTemp(final MemoryHandlerMain originatingMainHandler, final JamochaArray<Row> validRows) {
 		this(originatingMainHandler.template, originatingMainHandler, validRows);
 	}
 
-	protected MemoryHandlerTemp(final Template[] template,
-			final MemoryHandlerMain originatingMainHandler, final JamochaArray<Row> validRows) {
+	protected MemoryHandlerTemp(final Template[] template, final MemoryHandlerMain originatingMainHandler,
+			final JamochaArray<Row> validRows) {
 		super(template, validRows);
 		this.originatingMainHandler = originatingMainHandler;
 	}
@@ -83,16 +81,14 @@ public abstract class MemoryHandlerTemp extends MemoryHandlerBase implements
 	}
 
 	abstract public org.jamocha.dn.memory.MemoryHandlerTemp newAlphaTemp(
-			final MemoryHandlerMain originatingMainHandler, final Edge originIncomingEdge,
-			final AddressFilter filter) throws CouldNotAcquireLockException;
-
-	abstract public org.jamocha.dn.memory.MemoryHandlerTemp newBetaTemp(
-			final MemoryHandlerMain originatingMainHandler, final Edge originIncomingEdge,
-			final AddressFilter filter) throws CouldNotAcquireLockException;
-
-	abstract public org.jamocha.dn.memory.MemoryHandlerTemp newBetaTemp(
-			final MemoryHandlerMainWithExistentials originatingMainHandler,
-			final Edge originIncomingEdge, final AddressFilter filter)
+			final MemoryHandlerMain originatingMainHandler, final Edge originIncomingEdge, final AddressFilter filter)
 			throws CouldNotAcquireLockException;
+
+	abstract public org.jamocha.dn.memory.MemoryHandlerTemp newBetaTemp(final MemoryHandlerMain originatingMainHandler,
+			final Edge originIncomingEdge, final AddressFilter filter) throws CouldNotAcquireLockException;
+
+	abstract public org.jamocha.dn.memory.MemoryHandlerTemp newBetaTemp(
+			final MemoryHandlerMainWithExistentials originatingMainHandler, final Edge originIncomingEdge,
+			final AddressFilter filter) throws CouldNotAcquireLockException;
 
 }
