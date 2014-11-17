@@ -87,8 +87,8 @@ public class AlphaNodeTest {
 	 */
 	@Test
 	public void testAlphaNode() {
-		Path p1 = new Path(Template.STRING);
-		ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK, Template.STRING);
+		final Path p1 = new Path(Template.STRING);
+		final ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK, Template.STRING);
 		otn.shareNode(Collections.emptyMap(), p1);
 		new AlphaNode(Network.DEFAULTNETWORK, new FilterMockup(false,
 				new PathAndSlotAddress(p1, s1)));
@@ -99,25 +99,25 @@ public class AlphaNodeTest {
 	 */
 	@Test
 	public void testGetOutgoingEdges() {
-		Path p1 = new Path(Template.BOOLEAN);
-		Path p2 = new Path(Template.BOOLEAN);
-		ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK, Template.BOOLEAN);
+		final Path p1 = new Path(Template.BOOLEAN);
+		final Path p2 = new Path(Template.BOOLEAN);
+		final ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK, Template.BOOLEAN);
 		otn.shareNode(Collections.emptyMap(), p1, p2);
-		AlphaNode alpha =
+		final AlphaNode alpha =
 				new AlphaNode(Network.DEFAULTNETWORK, new FilterMockup(true,
 						new PathAndSlotAddress(p1, s1)));
 		alpha.shareNode(Collections.singletonMap(p2, p1.getFactAddressInCurrentlyLowestNode()), p2);
 		Collection<? extends Edge> children = alpha.getOutgoingEdges();
 		assertNotNull(children);
 		assertEquals(0, children.size());
-		AlphaNode alphaB1 =
+		final AlphaNode alphaB1 =
 				new AlphaNode(Network.DEFAULTNETWORK, new FilterMockup(true,
 						new PathAndSlotAddress(p1, s1)));
 		children = alpha.getOutgoingEdges();
 		assertNotNull(children);
 		assertEquals(1, children.size());
 		assertTrue(children.contains(alphaB1.getIncomingEdges()[0]));
-		AlphaNode alphaB2 =
+		final AlphaNode alphaB2 =
 				new AlphaNode(Network.DEFAULTNETWORK, new FilterMockup(true,
 						new PathAndSlotAddress(p2, s1)));
 		children = alpha.getOutgoingEdges();
@@ -132,10 +132,10 @@ public class AlphaNodeTest {
 	 */
 	@Test
 	public void testGetMemory() {
-		Path p1 = new Path(Template.BOOLEAN);
-		ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK, Template.BOOLEAN);
+		final Path p1 = new Path(Template.BOOLEAN);
+		final ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK, Template.BOOLEAN);
 		otn.shareNode(Collections.emptyMap(), p1);
-		AlphaNode alpha =
+		final AlphaNode alpha =
 				new AlphaNode(Network.DEFAULTNETWORK, new FilterMockup(true,
 						new PathAndSlotAddress(p1, s1)));
 		final MemoryHandlerMain memory = alpha.getMemory();
@@ -150,22 +150,24 @@ public class AlphaNodeTest {
 	 */
 	@Test
 	public void testNumberOfOutgoingEdges() {
-		Path p1 = new Path(Template.BOOLEAN);
-		Path p2 = new Path(Template.BOOLEAN);
-		ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK, Template.BOOLEAN);
+		final Path p1 = new Path(Template.BOOLEAN);
+		final Path p2 = new Path(Template.BOOLEAN);
+		final ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK, Template.BOOLEAN);
 		otn.shareNode(Collections.emptyMap(), p1, p2);
-		AlphaNode alpha =
+		final AlphaNode alpha =
 				new AlphaNode(Network.DEFAULTNETWORK, new FilterMockup(true,
 						new PathAndSlotAddress(p1, s1)));
 		assertEquals(0, alpha.getNumberOfOutgoingEdges());
 		alpha.shareNode(Collections.singletonMap(p2, p1.getFactAddressInCurrentlyLowestNode()), p2);
 		assertEquals(0, alpha.getNumberOfOutgoingEdges());
 		@SuppressWarnings("unused")
+		final
 		AlphaNode alphaB1 =
 				new AlphaNode(Network.DEFAULTNETWORK, new FilterMockup(true,
 						new PathAndSlotAddress(p1, s1)));
 		assertEquals(1, alpha.getNumberOfOutgoingEdges());
 		@SuppressWarnings("unused")
+		final
 		AlphaNode alphaB2 =
 				new AlphaNode(Network.DEFAULTNETWORK, new FilterMockup(true,
 						new PathAndSlotAddress(p2, s1)));
@@ -178,12 +180,12 @@ public class AlphaNodeTest {
 	 */
 	@Test
 	public void testDelocalizeAddress() {
-		Path p1 = new Path(Template.BOOLEAN);
-		Path p2 = new Path(Template.BOOLEAN);
-		ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK, Template.BOOLEAN);
+		final Path p1 = new Path(Template.BOOLEAN);
+		final Path p2 = new Path(Template.BOOLEAN);
+		final ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK, Template.BOOLEAN);
 		otn.shareNode(Collections.emptyMap(), p1, p2);
-		FactAddress fa1 = p1.getFactAddressInCurrentlyLowestNode();
-		AlphaNode alpha =
+		final FactAddress fa1 = p1.getFactAddressInCurrentlyLowestNode();
+		final AlphaNode alpha =
 				new AlphaNode(Network.DEFAULTNETWORK, new FilterMockup(true,
 						new PathAndSlotAddress(p1, s1)));
 		assertNotSame(fa1, p1.getFactAddressInCurrentlyLowestNode());
@@ -200,11 +202,11 @@ public class AlphaNodeTest {
 	@SuppressWarnings("unchecked")
 	@Test
 	public void testGetIncomingEdges() {
-		Path p1 = new Path(Template.BOOLEAN);
-		Path p2 = new Path(Template.BOOLEAN);
-		ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK, Template.BOOLEAN);
+		final Path p1 = new Path(Template.BOOLEAN);
+		final Path p2 = new Path(Template.BOOLEAN);
+		final ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK, Template.BOOLEAN);
 		otn.shareNode(Collections.emptyMap(), p1, p2);
-		AlphaNode alpha =
+		final AlphaNode alpha =
 				new AlphaNode(Network.DEFAULTNETWORK, new FilterMockup(true,
 						new PathAndSlotAddress(p1, s1)));
 		Edge[] incomingEdges = alpha.getIncomingEdges();
@@ -214,7 +216,7 @@ public class AlphaNodeTest {
 		incomingEdges = alpha.getIncomingEdges();
 		assertEquals(1, incomingEdges.length);
 		assertEquals(otn.getOutgoingEdges().iterator().next(), incomingEdges[0]);
-		AlphaNode alphaB1 =
+		final AlphaNode alphaB1 =
 				new AlphaNode(Network.DEFAULTNETWORK, new FilterMockup(true,
 						new PathAndSlotAddress(p1, s1)));
 		incomingEdges = alpha.getIncomingEdges();
@@ -224,6 +226,7 @@ public class AlphaNodeTest {
 		assertEquals(1, incomingEdges.length);
 		assertEquals(alpha.getOutgoingEdges().iterator().next(), incomingEdges[0]);
 		@SuppressWarnings("unused")
+		final
 		AlphaNode alphaB2 =
 				new AlphaNode(Network.DEFAULTNETWORK, new FilterMockup(true,
 						new PathAndSlotAddress(p2, s1)));

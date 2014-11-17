@@ -22,8 +22,8 @@ import lombok.ToString;
 @AllArgsConstructor
 @ToString
 class RowWithCounters implements Row {
-	private Fact[] factTuple;
-	private int[] counters;
+	private final Fact[] factTuple;
+	private final int[] counters;
 
 	@Override
 	public int[] getCounters() {

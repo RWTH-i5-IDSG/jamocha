@@ -23,6 +23,6 @@ package org.jamocha.logging.formatter;
  */
 public interface Formatter<A> {
 	
-	public String format(A in);
+	public String format(final A in);
 
 }

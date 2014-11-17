@@ -133,7 +133,7 @@ public abstract class FilterFunctionCompare {
 		@Getter
 		boolean equal = true;
 
-		private boolean comparePaths(Path comparePath, Path targetPath) {
+		private boolean comparePaths(final Path comparePath, final Path targetPath) {
 			final Path mappedPath = pathMap.get(comparePath);
 			if (null != mappedPath) {
 				return mappedPath == targetPath;
@@ -167,17 +167,17 @@ public abstract class FilterFunctionCompare {
 
 			PathFilterSecondTypeIndentificationVisitor result;
 
-			public PathFilterSecondTypeIndentificationVisitor collect(PathFilterElement fe) {
+			public PathFilterSecondTypeIndentificationVisitor collect(final PathFilterElement fe) {
 				return fe.accept(this).result;
 			}
 
 			@Override
-			public void visit(PathFilterElement fe) {
+			public void visit(final PathFilterElement fe) {
 				result = new NoDummyPathFilterSecondTypeIdentificationVisitor(fe);
 			}
 
 			@Override
-			public void visit(DummyPathFilterElement fe) {
+			public void visit(final DummyPathFilterElement fe) {
 				result = new DummyPathFilterSecondTypeIdentificationVisitor(fe);
 			}
 
@@ -185,7 +185,7 @@ public abstract class FilterFunctionCompare {
 					PathFilterElementVisitor {
 				boolean equal = true;
 
-				abstract public boolean collect(PathFilterElement fe);
+				abstract public boolean collect(final PathFilterElement fe);
 			}
 
 			private class NoDummyPathFilterSecondTypeIdentificationVisitor extends
@@ -193,22 +193,22 @@ public abstract class FilterFunctionCompare {
 
 				final PathFilterElement targetFilterElement;
 
-				public NoDummyPathFilterSecondTypeIdentificationVisitor(PathFilterElement fe) {
+				public NoDummyPathFilterSecondTypeIdentificationVisitor(final PathFilterElement fe) {
 					this.targetFilterElement = fe;
 				}
 
 				@Override
-				public boolean collect(PathFilterElement fe) {
+				public boolean collect(final PathFilterElement fe) {
 					return fe.accept(this).equal;
 				}
 
 				@Override
-				public void visit(PathFilterElement fe) {
+				public void visit(final PathFilterElement fe) {
 					equal = new PathFilterFunctionCompare(this.targetFilterElement, fe).equal;
 				}
 
 				@Override
-				public void visit(DummyPathFilterElement fe) {
+				public void visit(final DummyPathFilterElement fe) {
 					equal = false;
 				}
 
@@ -219,22 +219,22 @@ public abstract class FilterFunctionCompare {
 
 				final DummyPathFilterElement targetFilterElement;
 
-				public DummyPathFilterSecondTypeIdentificationVisitor(DummyPathFilterElement dfe) {
+				public DummyPathFilterSecondTypeIdentificationVisitor(final DummyPathFilterElement dfe) {
 					this.targetFilterElement = dfe;
 				}
 
 				@Override
-				public boolean collect(PathFilterElement fe) {
+				public boolean collect(final PathFilterElement fe) {
 					return fe.accept(this).equal;
 				}
 
 				@Override
-				public void visit(PathFilterElement compareFilterElement) {
+				public void visit(final PathFilterElement compareFilterElement) {
 					equal = false;
 				}
 
 				@Override
-				public void visit(DummyPathFilterElement compareFilterElement) {
+				public void visit(final DummyPathFilterElement compareFilterElement) {
 					final Path[] targetPaths = targetFilterElement.getPaths();
 					final Path[] comparePaths = compareFilterElement.getPaths();
 					if (targetPaths.length != comparePaths.length) {
@@ -470,17 +470,17 @@ public abstract class FilterFunctionCompare {
 			}
 		}
 
-		private int gcd(int x, int y) {
+		private int gcd(final int x, final int y) {
 			int a = x, b = y;
 			while (b > 0) {
-				int temp = b;
+				final int temp = b;
 				b = a % b; // % is remainder
 				a = temp;
 			}
 			return a;
 		}
 
-		private int lcm(int a, int b) {
+		private int lcm(final int a, final int b) {
 			return a * (b / gcd(a, b));
 		}
 
@@ -550,7 +550,7 @@ public abstract class FilterFunctionCompare {
 		}
 	}
 
-	public static void main(String[] args) {
+	public static void main(final String[] args) {
 		final List<Integer> toPermute = new ArrayList<>(Arrays.asList(2, 3, 4, 5, 6, 7, 8));
 		final ComponentwisePermutation<Integer> componentwisePermutation =
 				new ComponentwisePermutation<>(Arrays.asList(toPermute.subList(0, 2),

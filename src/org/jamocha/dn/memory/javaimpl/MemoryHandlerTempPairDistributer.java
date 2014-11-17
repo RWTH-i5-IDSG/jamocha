@@ -61,7 +61,7 @@ public class MemoryHandlerTempPairDistributer implements org.jamocha.dn.memory.M
 
 	@Override
 	public FactIdentifier[] getFactIdentifiers(
-			MemoryFactToFactIdentifier memoryFactToFactIdentifier, int row) {
+			final MemoryFactToFactIdentifier memoryFactToFactIdentifier, final int row) {
 		throw new UnsupportedOperationException(unsupported);
 	}
 

@@ -110,7 +110,8 @@ public class ThreadPoolScheduler implements Scheduler {
 		// check if state is active
 		if (ACTIVE_STATE != state) return;
 		// shutdown executor service and save queue
-		final List<TokenQueue> oldQueue = (List<TokenQueue>) (List<?>) this.executor.shutdownNow();
+		@SuppressWarnings("unchecked")
+		final List<TokenQueue> oldQueue = (List<TokenQueue>) (List<? extends Runnable>) this.executor.shutdownNow();
 		// create inactive state with new queue
 		state = new State() {
 
@@ -151,9 +152,10 @@ public class ThreadPoolScheduler implements Scheduler {
 		this.executor.shutdown();
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public List<TokenQueue> shutdownNow() {
-		return (List<TokenQueue>) (List<?>) this.executor.shutdownNow();
+		return (List<TokenQueue>) (List<? extends Runnable>) this.executor.shutdownNow();
 	}
 
 	@Override

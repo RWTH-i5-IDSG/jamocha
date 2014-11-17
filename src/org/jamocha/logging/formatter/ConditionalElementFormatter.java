@@ -55,7 +55,7 @@ public class ConditionalElementFormatter implements Formatter<ConditionalElement
 			return sb.toString();
 		}
 
-		private void prettyPrint(String name, ConditionalElement ce) {
+		private void prettyPrint(final String name, final ConditionalElement ce) {
 			sb.append("(" + name);
 			ce.getChildren().forEach((x) -> {
 				sb.append(" ");
@@ -65,51 +65,51 @@ public class ConditionalElementFormatter implements Formatter<ConditionalElement
 		}
 
 		@Override
-		public void visit(AndFunctionConditionalElement ce) {
+		public void visit(final AndFunctionConditionalElement ce) {
 			prettyPrint("and", ce);
 		}
 
 		@Override
-		public void visit(ExistentialConditionalElement ce) {
+		public void visit(final ExistentialConditionalElement ce) {
 			prettyPrint("exists", ce);
 		}
 
 		@Override
-		public void visit(InitialFactConditionalElement ce) {
+		public void visit(final InitialFactConditionalElement ce) {
 			sb.append("(initialFact)");
 		}
 
 		@Override
-		public void visit(NegatedExistentialConditionalElement ce) {
+		public void visit(final NegatedExistentialConditionalElement ce) {
 			prettyPrint("not exists", ce);
 		}
 
 		@Override
-		public void visit(NotFunctionConditionalElement ce) {
+		public void visit(final NotFunctionConditionalElement ce) {
 			prettyPrint("not", ce);
 		}
 
 		@Override
-		public void visit(OrFunctionConditionalElement ce) {
+		public void visit(final OrFunctionConditionalElement ce) {
 			prettyPrint("or", ce);
 		}
 
 		@Override
-		public void visit(TestConditionalElement ce) {
+		public void visit(final TestConditionalElement ce) {
 			sb.append("(test ");
 			sb.append(FunctionWithArgumentsFormatter.formatFwa(ce.getPredicateWithArguments()));
 			sb.append(")");
 		}
 
 		@Override
-		public void visit(SharedConditionalElementWrapper ce) {
+		public void visit(final SharedConditionalElementWrapper ce) {
 			sb.append("(shared ");
 			ce.getCe().accept(this);
 			sb.append(")");
 		}
 
 		@Override
-		public void visit(TemplatePatternConditionalElement ce) {
+		public void visit(final TemplatePatternConditionalElement ce) {
 			sb.append("(template ");
 			final SingleFactVariable factVariable = ce.getFactVariable();
 			sb.append(factVariable.getTemplate().getName());

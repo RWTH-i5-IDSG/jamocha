@@ -44,7 +44,7 @@ public class FunctionWithArgumentsFormatter implements Formatter<FunctionWithArg
 		return singleton;
 	}
 	
-	static public String formatFwa(FunctionWithArguments fwa) {
+	static public String formatFwa(final FunctionWithArguments fwa) {
 		return getFunctionWithArgumentsFormatter().format(fwa);
 	}
 
@@ -52,8 +52,8 @@ public class FunctionWithArgumentsFormatter implements Formatter<FunctionWithArg
 	}
 
 	@Override
-	public String format(FunctionWithArguments fwa) {
-		FunctionWithArgumentsFormatterVisitor fwaf = new FunctionWithArgumentsFormatterVisitor();
+	public String format(final FunctionWithArguments fwa) {
+		final FunctionWithArgumentsFormatterVisitor fwaf = new FunctionWithArgumentsFormatterVisitor();
 		fwa.accept(fwaf);
 		return fwaf.getString();
 	}
@@ -70,9 +70,9 @@ public class FunctionWithArgumentsFormatter implements Formatter<FunctionWithArg
 		}
 		
 		@SuppressWarnings("rawtypes")
-		private void prettyPrint(GenericWithArgumentsComposite fwa) {
+		private void prettyPrint(final GenericWithArgumentsComposite fwa) {
 			sb.append("(" + fwa.getFunction().inClips());
-			for (FunctionWithArguments functionWithArguments : fwa.getArgs()) {
+			for (final FunctionWithArguments functionWithArguments : fwa.getArgs()) {
 				sb.append(" ");
 				functionWithArguments.accept(this);
 			}
@@ -80,57 +80,57 @@ public class FunctionWithArgumentsFormatter implements Formatter<FunctionWithArg
 		}
 
 		@Override
-		public void visit(FunctionWithArgumentsComposite functionWithArgumentsComposite) {
+		public void visit(final FunctionWithArgumentsComposite functionWithArgumentsComposite) {
 			prettyPrint(functionWithArgumentsComposite);
 		}
 
 		@Override
-		public void visit(PredicateWithArgumentsComposite predicateWithArgumentsComposite) {
+		public void visit(final PredicateWithArgumentsComposite predicateWithArgumentsComposite) {
 			prettyPrint(predicateWithArgumentsComposite);
 		}
 
 		@Override
-		public void visit(ConstantLeaf constantLeaf) {
+		public void visit(final ConstantLeaf constantLeaf) {
 			sb.append(constantLeaf.toString());
 		}
 
 		@Override
-		public void visit(ParameterLeaf parameterLeaf) {
+		public void visit(final ParameterLeaf parameterLeaf) {
 			sb.append(parameterLeaf.toString());
 		}
 
 		@Override
-		public void visit(PathLeaf pathLeaf) {
+		public void visit(final PathLeaf pathLeaf) {
 			sb.append(pathLeaf.toString());
 		}
 
 		@Override
-		public void visit(Assert fwa) {
+		public void visit(final Assert fwa) {
 			sb.append(fwa.toString());
 		}
 
 		@Override
-		public void visit(TemplateContainer fwa) {
+		public void visit(final TemplateContainer fwa) {
 			sb.append(fwa.toString());
 		}
 
 		@Override
-		public void visit(Retract fwa) {
+		public void visit(final Retract fwa) {
 			sb.append(fwa.toString());
 		}
 
 		@Override
-		public void visit(Modify fwa) {
+		public void visit(final Modify fwa) {
 			sb.append(fwa.toString());
 		}
 
 		@Override
-		public void visit(SlotAndValue fwa) {
+		public void visit(final SlotAndValue fwa) {
 			sb.append(fwa.toString());
 		}
 
 		@Override
-		public void visit(SymbolLeaf fwa) {
+		public void visit(final SymbolLeaf fwa) {
 			sb.append(fwa.getSymbol().toString());
 		}
 		

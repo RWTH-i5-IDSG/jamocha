@@ -92,7 +92,7 @@ public class FactVariableCollectorTest {
 				FactVariableCollector.collectPaths(ptn.getInitialFactTemplate(),
 						conditionalElements.get(0)).getRight();
 		assertEquals(1, variables.size());
-		Entry<SingleFactVariable, Path> entry = variables.entrySet().iterator().next();
+		final Entry<SingleFactVariable, Path> entry = variables.entrySet().iterator().next();
 		assertEquals("Dummy", entry.getKey().getSymbol().getImage());
 		assertEquals(templateName, entry.getKey().getTemplate().getName());
 		assertSame(entry.getKey().getTemplate(), entry.getValue().getTemplate());

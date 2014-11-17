@@ -31,7 +31,7 @@ public interface ConflictResolutionStrategy {
 	public static ConflictResolutionStrategy random = new ConflictResolutionStrategy() {
 
 		@Override
-		public Optional<RuleAndToken> pick(ConflictSet conflictSet) {
+		public Optional<RuleAndToken> pick(final ConflictSet conflictSet) {
 			final RuleAndToken[] rulesAndTokens = conflictSet.getRulesAndTokens();
 			return 0 == rulesAndTokens.length ? Optional.empty() : Optional
 					.of(rulesAndTokens[RandomUtils.nextInt(0, rulesAndTokens.length)]);

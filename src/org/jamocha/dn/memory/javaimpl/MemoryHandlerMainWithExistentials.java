@@ -77,7 +77,7 @@ public class MemoryHandlerMainWithExistentials extends MemoryHandlerMain {
 
 	@Override
 	public FactIdentifier[] getFactIdentifiers(
-			MemoryFactToFactIdentifier memoryFactToFactIdentifier, int row) {
+			final MemoryFactToFactIdentifier memoryFactToFactIdentifier, final int row) {
 		final FactIdentifier[] factIdentifiers =
 				super.getFactIdentifiers(memoryFactToFactIdentifier, row);
 		for (int i = 0; i < existential.length; i++) {

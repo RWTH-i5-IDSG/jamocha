@@ -68,7 +68,7 @@ public class ClipsLogFormatter implements LogFormatter {
 	}
 
 	@Override
-	public void messageFactList(SideEffectFunctionToNetwork network) {
+	public void messageFactList(final SideEffectFunctionToNetwork network) {
 		network.getMemoryFacts()
 				.entrySet()
 				.stream()
@@ -96,7 +96,7 @@ public class ClipsLogFormatter implements LogFormatter {
 
 	@Override
 	public void messageFactAssertions(final SideEffectFunctionToNetwork network,
-			FactIdentifier[] assertedFacts) {
+			final FactIdentifier[] assertedFacts) {
 		if (!network.getTypedFilter().isRelevant(MarkerType.FACTS)) {
 			return;
 		}
@@ -113,7 +113,7 @@ public class ClipsLogFormatter implements LogFormatter {
 
 	@Override
 	public void messageFactRetractions(final SideEffectFunctionToNetwork network,
-			FactIdentifier[] factsToRetract) {
+			final FactIdentifier[] factsToRetract) {
 		final Logger interactiveEventsLogger = network.getInteractiveEventsLogger();
 		for (final FactIdentifier fi : factsToRetract) {
 			final MemoryFact memoryFact = network.getMemoryFact(fi);

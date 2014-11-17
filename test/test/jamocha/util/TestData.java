@@ -63,8 +63,8 @@ public class TestData {
 	public static class RandomStuffSupplier extends ParameterSupplier {
 
 		@Override
-		public List<PotentialAssignment> getValueSources(ParameterSignature signature) {
-			ArrayList<PotentialAssignment> list = new ArrayList<>();
+		public List<PotentialAssignment> getValueSources(final ParameterSignature signature) {
+			final ArrayList<PotentialAssignment> list = new ArrayList<>();
 			list.add(PotentialAssignment.forValue("", new Object[] { -100L, 50L, 1L, 11L }));
 			list.add(PotentialAssignment.forValue("", new Object[] { null }));
 			list.add(PotentialAssignment.forValue("", new Object[] { "OMGWTFBBQ", "TEST test!!!" }));
@@ -102,9 +102,9 @@ public class TestData {
 	public static class RandomLongsSupplier extends ParameterSupplier {
 
 		@Override
-		public List<PotentialAssignment> getValueSources(ParameterSignature signature) {
-			ArrayList<PotentialAssignment> list = new ArrayList<>();
-			Random randomGen = new Random();
+		public List<PotentialAssignment> getValueSources(final ParameterSignature signature) {
+			final ArrayList<PotentialAssignment> list = new ArrayList<>();
+			final Random randomGen = new Random();
 			for (int i = 0; i < 20; ++i) {
 				list.add(PotentialAssignment.forValue("", randomGen.nextLong()));
 			}
@@ -117,8 +117,8 @@ public class TestData {
 	public static class SomeLongsSupplier extends ParameterSupplier {
 
 		@Override
-		public List<PotentialAssignment> getValueSources(ParameterSignature param) {
-			ArrayList<PotentialAssignment> list = new ArrayList<>();
+		public List<PotentialAssignment> getValueSources(final ParameterSignature param) {
+			final ArrayList<PotentialAssignment> list = new ArrayList<>();
 			list.add(PotentialAssignment.forValue("", -100L));
 			list.add(PotentialAssignment.forValue("", -71L));
 			list.add(PotentialAssignment.forValue("", -33L));
@@ -185,9 +185,9 @@ public class TestData {
 	public static class RandomDoublesSupplier extends ParameterSupplier {
 
 		@Override
-		public List<PotentialAssignment> getValueSources(ParameterSignature signature) {
-			ArrayList<PotentialAssignment> list = new ArrayList<>();
-			Random randomGen = new Random();
+		public List<PotentialAssignment> getValueSources(final ParameterSignature signature) {
+			final ArrayList<PotentialAssignment> list = new ArrayList<>();
+			final Random randomGen = new Random();
 			for (int i = 0; i < 20; ++i) {
 				list.add(PotentialAssignment.forValue("", randomGen.nextGaussian()));
 			}
@@ -200,8 +200,8 @@ public class TestData {
 	public static class SomeDoublesSupplier extends ParameterSupplier {
 
 		@Override
-		public List<PotentialAssignment> getValueSources(ParameterSignature param) {
-			ArrayList<PotentialAssignment> list = new ArrayList<>();
+		public List<PotentialAssignment> getValueSources(final ParameterSignature param) {
+			final ArrayList<PotentialAssignment> list = new ArrayList<>();
 			list.add(PotentialAssignment.forValue("", -100.394903490283610835));
 			list.add(PotentialAssignment.forValue("", -71.));
 			list.add(PotentialAssignment.forValue("", -33.5));
@@ -263,8 +263,8 @@ public class TestData {
 	public static class SomeStringsSupplier extends ParameterSupplier {
 
 		@Override
-		public List<PotentialAssignment> getValueSources(ParameterSignature param) {
-			ArrayList<PotentialAssignment> list = new ArrayList<>();
+		public List<PotentialAssignment> getValueSources(final ParameterSignature param) {
+			final ArrayList<PotentialAssignment> list = new ArrayList<>();
 			list.add(PotentialAssignment.forValue("", "foo"));
 			list.add(PotentialAssignment.forValue("", "bar"));
 			list.add(PotentialAssignment.forValue("", "foo"));
@@ -302,8 +302,8 @@ public class TestData {
 	public static class SomeBooleanSupplier extends ParameterSupplier {
 
 		@Override
-		public List<PotentialAssignment> getValueSources(ParameterSignature arg0) {
-			ArrayList<PotentialAssignment> list = new ArrayList<>();
+		public List<PotentialAssignment> getValueSources(final ParameterSignature arg0) {
+			final ArrayList<PotentialAssignment> list = new ArrayList<>();
 			list.add(PotentialAssignment.forValue("", new Boolean(true)));
 			list.add(PotentialAssignment.forValue("", new Boolean(true)));
 			list.add(PotentialAssignment.forValue("", new Boolean(true)));

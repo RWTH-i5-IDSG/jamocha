@@ -121,22 +121,22 @@ public class TypedFilter extends AbstractFilter {
 	}
 
 	@Override
-	public Result filter(LogEvent event) {
+	public Result filter(final LogEvent event) {
 		return decide(event.getMarker());
 	}
 
 	@Override
-	public Result filter(Logger logger, Level level, Marker marker, Message msg, Throwable t) {
+	public Result filter(final Logger logger, final Level level, final Marker marker, final Message msg, final Throwable t) {
 		return decide(marker);
 	}
 
 	@Override
-	public Result filter(Logger logger, Level level, Marker marker, Object msg, Throwable t) {
+	public Result filter(final Logger logger, final Level level, final Marker marker, final Object msg, final Throwable t) {
 		return decide(marker);
 	}
 
 	@Override
-	public Result filter(Logger logger, Level level, Marker marker, String msg, Object... params) {
+	public Result filter(final Logger logger, final Level level, final Marker marker, final String msg, final Object... params) {
 		return decide(marker);
 	}
 

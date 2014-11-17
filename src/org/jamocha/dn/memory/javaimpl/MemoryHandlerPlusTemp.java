@@ -211,7 +211,7 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 	public MemoryHandlerPlusTemp newAlphaTemp(final MemoryHandlerMain originatingMainHandler,
 			final Edge originIncomingEdge, final AddressFilter filter)
 			throws CouldNotAcquireLockException {
-		return newAlphaTemp((MemoryHandlerMain) originatingMainHandler, this, originIncomingEdge,
+		return newAlphaTemp(originatingMainHandler, this, originIncomingEdge,
 				filter);
 	}
 

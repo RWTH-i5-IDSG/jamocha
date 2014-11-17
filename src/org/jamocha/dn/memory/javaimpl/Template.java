@@ -92,8 +92,8 @@ public class Template implements org.jamocha.dn.memory.Template {
 	}
 
 	@Override
-	public String getSlotName(org.jamocha.dn.memory.SlotAddress slotAddress) {
-		for (Entry<String, SlotAddress> entry : this.slotNames.entrySet()) {
+	public String getSlotName(final org.jamocha.dn.memory.SlotAddress slotAddress) {
+		for (final Entry<String, SlotAddress> entry : this.slotNames.entrySet()) {
 			if (entry.getValue().getIndex() == ((SlotAddress) slotAddress).getIndex()) {
 				return entry.getKey();
 			}
@@ -102,7 +102,7 @@ public class Template implements org.jamocha.dn.memory.Template {
 	}
 
 	public String getSlotName(final int index) {
-		for (Entry<String, SlotAddress> entry : this.slotNames.entrySet()) {
+		for (final Entry<String, SlotAddress> entry : this.slotNames.entrySet()) {
 			if (entry.getValue().getIndex() == index) {
 				return entry.getKey();
 			}
@@ -131,7 +131,7 @@ public class Template implements org.jamocha.dn.memory.Template {
 		return fact.getValue(((SlotAddress) slot).index);
 	}
 
-	private void checkTypeAndConstraints(int i, final Object value) {
+	private void checkTypeAndConstraints(final int i, final Object value) {
 		final Slot slot = this.slots.get(i);
 		assert slot.getSlotType().getJavaClass().isInstance(value);
 		for (final SlotConstraint slotConstraint : slot.getSlotConstraints()) {

@@ -874,10 +874,10 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 						data,
 						new SFPConstraintVisitorSupplier<SFPVisitorImpl.SFPConditionalElementVisitor.SFPTermVisitor>() {
 							@Override
-							public SFPTermVisitor create(SFPConditionalElementVisitor parent,
-									Consumer<ConditionalElement> constraintAdder,
-									Template template, SlotAddress slot,
-									Optional<SingleSlotVariable> constraintVariable) {
+							public SFPTermVisitor create(final SFPConditionalElementVisitor parent,
+									final Consumer<ConditionalElement> constraintAdder,
+									final Template template, final SlotAddress slot,
+									final Optional<SingleSlotVariable> constraintVariable) {
 								return new SFPTermVisitor(parent, constraintAdder, template, slot,
 										constraintVariable);
 							}
@@ -906,10 +906,10 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 						new SFPConstraintVisitorSupplier<SFPVisitorImpl.SFPConditionalElementVisitor.SFPAmpersandConnectedConstraintVisitor>() {
 							@Override
 							public SFPAmpersandConnectedConstraintVisitor create(
-									SFPConditionalElementVisitor parent,
-									Consumer<ConditionalElement> constraintAdder,
-									Template template, SlotAddress slot,
-									Optional<SingleSlotVariable> constraintVariable) {
+									final SFPConditionalElementVisitor parent,
+									final Consumer<ConditionalElement> constraintAdder,
+									final Template template, final SlotAddress slot,
+									final Optional<SingleSlotVariable> constraintVariable) {
 								return new SFPAmpersandConnectedConstraintVisitor(parent,
 										constraintAdder, template, slot, constraintVariable);
 							}
@@ -1366,7 +1366,7 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 			return (symbol, node) -> {
 				try {
 					return symbol.getPositiveSlotVariables().get(0).toSymbolLeaf();
-				} catch (IndexOutOfBoundsException e) {
+				} catch (final IndexOutOfBoundsException e) {
 					throw new ClipsVariableNotDeclaredError(symbol, node);
 				}
 			};

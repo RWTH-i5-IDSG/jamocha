@@ -43,9 +43,9 @@ public class Jamocha {
 		network = new Network(Integer.MAX_VALUE, new PlainScheduler());
 	}
 	
-	public Queue<Warning> parse(InputStream inputStream) throws ParseException {
-		SFPParser parser = new SFPParser(inputStream);
-		SFPVisitorImpl visitor = new SFPVisitorImpl(network, network);
+	public Queue<Warning> parse(final InputStream inputStream) throws ParseException {
+		final SFPParser parser = new SFPParser(inputStream);
+		final SFPVisitorImpl visitor = new SFPVisitorImpl(network, network);
 		while (true) {
 			final SFPStart n = parser.Start();
 			if (n == null)

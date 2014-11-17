@@ -66,691 +66,691 @@ public interface SelectiveSFPVisitor extends SFPParserVisitor {
 	}
 
 	@Override
-	public default Object visit(SimpleNode node, Object data) {
+	public default Object visit(final SimpleNode node, final Object data) {
 		dumpToStdOut(node);
 		throw new UnsupportedOperationException(String.valueOf(data));
 	}
 
 	@Override
-	public default Object visit(SFPStart node, Object data) {
+	public default Object visit(final SFPStart node, final Object data) {
 		dumpToStdOut(node);
 		throw new UnsupportedOperationException(String.valueOf(data));
 	}
 
 	@Override
-	public default Object visit(SFPFloat node, Object data) {
+	public default Object visit(final SFPFloat node, final Object data) {
 		dumpToStdOut(node);
 		throw new UnsupportedOperationException(String.valueOf(data));
 	}
 
 	@Override
-	public default Object visit(SFPInteger node, Object data) {
+	public default Object visit(final SFPInteger node, final Object data) {
 		dumpToStdOut(node);
 		throw new UnsupportedOperationException(String.valueOf(data));
 	}
 
 	@Override
-	public default Object visit(SFPDateTime node, Object data) {
+	public default Object visit(final SFPDateTime node, final Object data) {
 		dumpToStdOut(node);
 		throw new UnsupportedOperationException(String.valueOf(data));
 	}
 
 	@Override
-	public default Object visit(SFPSymbol node, Object data) {
+	public default Object visit(final SFPSymbol node, final Object data) {
 		dumpToStdOut(node);
 		throw new UnsupportedOperationException(String.valueOf(data));
 	}
 
 	@Override
-	public default Object visit(SFPString node, Object data) {
+	public default Object visit(final SFPString node, final Object data) {
 		dumpToStdOut(node);
 		throw new UnsupportedOperationException(String.valueOf(data));
 	}
 
 	@Override
-	public default Object visit(SFPTrue node, Object data) {
+	public default Object visit(final SFPTrue node, final Object data) {
 		dumpToStdOut(node);
 		throw new UnsupportedOperationException(String.valueOf(data));
 	}
 
 	@Override
-	public default Object visit(SFPNil node, Object data) {
+	public default Object visit(final SFPNil node, final Object data) {
 		dumpToStdOut(node);
 		throw new UnsupportedOperationException(String.valueOf(data));
 	}
 
 	@Override
-	public default Object visit(SFPSymbolType node, Object data) {
+	public default Object visit(final SFPSymbolType node, final Object data) {
 		dumpToStdOut(node);
 		throw new UnsupportedOperationException(String.valueOf(data));
 	}
 
 	@Override
-	public default Object visit(SFPStringType node, Object data) {
+	public default Object visit(final SFPStringType node, final Object data) {
 		dumpToStdOut(node);
 		throw new UnsupportedOperationException(String.valueOf(data));
 	}
 
 	@Override
-	public default Object visit(SFPDateTimeType node, Object data) {
+	public default Object visit(final SFPDateTimeType node, final Object data) {
 		dumpToStdOut(node);
 		throw new UnsupportedOperationException(String.valueOf(data));
 	}
 
 	@Override
-	public default Object visit(SFPLexemeType node, Object data) {
+	public default Object visit(final SFPLexemeType node, final Object data) {
 		dumpToStdOut(node);
 		throw new UnsupportedOperationException(String.valueOf(data));
 	}
 
 	@Override
-	public default Object visit(SFPBooleanType node, Object data) {
+	public default Object visit(final SFPBooleanType node, final Object data) {
 		dumpToStdOut(node);
 		throw new UnsupportedOperationException(String.valueOf(data));
 	}
 
 	@Override
-	public default Object visit(SFPIntegerType node, Object data) {
+	public default Object visit(final SFPIntegerType node, final Object data) {
 		dumpToStdOut(node);
 		throw new UnsupportedOperationException(String.valueOf(data));
 	}
 
 	@Override
-	public default Object visit(SFPFloatType node, Object data) {
+	public default Object visit(final SFPFloatType node, final Object data) {
 		dumpToStdOut(node);
 		throw new UnsupportedOperationException(String.valueOf(data));
 	}
 
 	@Override
-	public default Object visit(SFPNumberType node, Object data) {
+	public default Object visit(final SFPNumberType node, final Object data) {
 		dumpToStdOut(node);
 		throw new UnsupportedOperationException(String.valueOf(data));
 	}
 
 	@Override
-	public default Object visit(SFPFactAddressType node, Object data) {
+	public default Object visit(final SFPFactAddressType node, final Object data) {
 		dumpToStdOut(node);
 		throw new UnsupportedOperationException(String.valueOf(data));
 	}
 
 	@Override
-	public default Object visit(SFPFalse node, Object data) {
+	public default Object visit(final SFPFalse node, final Object data) {
 		dumpToStdOut(node);
 		throw new UnsupportedOperationException(String.valueOf(data));
 	}
 
 	@Override
-	public default Object visit(SFPConstant node, Object data) {
+	public default Object visit(final SFPConstant node, final Object data) {
 		dumpToStdOut(node);
 		throw new UnsupportedOperationException(String.valueOf(data));
 	}
 
 	@Override
-	public default Object visit(SFPConstructDescription node, Object data) {
+	public default Object visit(final SFPConstructDescription node, final Object data) {
 		dumpToStdOut(node);
 		throw new UnsupportedOperationException(String.valueOf(data));
 	}
 
 	@Override
-	public default Object visit(SFPSingleVariable node, Object data) {
+	public default Object visit(final SFPSingleVariable node, final Object data) {
 		dumpToStdOut(node);
 		throw new UnsupportedOperationException(String.valueOf(data));
 	}
 
 	@Override
-	public default Object visit(SFPGlobalVariable node, Object data) {
+	public default Object visit(final SFPGlobalVariable node, final Object data) {
 		dumpToStdOut(node);
 		throw new UnsupportedOperationException(String.valueOf(data));
 	}
 
 	@Override
-	public default Object visit(SFPMultiVariable node, Object data) {
+	public default Object visit(final SFPMultiVariable node, final Object data) {
 		dumpToStdOut(node);
 		throw new UnsupportedOperationException(String.valueOf(data));
 	}
 
 	@Override
-	public default Object visit(SFPVariableType node, Object data) {
+	public default Object visit(final SFPVariableType node, final Object data) {
 		dumpToStdOut(node);
 		throw new UnsupportedOperationException(String.valueOf(data));
 	}
 
 	@Override
-	public default Object visit(SFPAnyFunction node, Object data) {
+	public default Object visit(final SFPAnyFunction node, final Object data) {
 		dumpToStdOut(node);
 		throw new UnsupportedOperationException(String.valueOf(data));
 	}
 
 	@Override
-	public default Object visit(SFPEqualsFunction node, Object data) {
+	public default Object visit(final SFPEqualsFunction node, final Object data) {
 		dumpToStdOut(node);
 		throw new UnsupportedOperationException(String.valueOf(data));
 	}
 
 	@Override
-	public default Object visit(SFPExpression node, Object data) {
+	public default Object visit(final SFPExpression node, final Object data) {
 		dumpToStdOut(node);
 		throw new UnsupportedOperationException(String.valueOf(data));
 	}
 
 	@Override
-	public default Object visit(SFPAssertFunc node, Object data) {
+	public default Object visit(final SFPAssertFunc node, final Object data) {
 		dumpToStdOut(node);
 		throw new UnsupportedOperationException(String.valueOf(data));
 	}
 
 	@Override
-	public default Object visit(SFPModify node, Object data) {
+	public default Object visit(final SFPModify node, final Object data) {
 		dumpToStdOut(node);
 		throw new UnsupportedOperationException(String.valueOf(data));
 	}
 
 	@Override
-	public default Object visit(SFPFindFactByFactFunc node, Object data) {
+	public default Object visit(final SFPFindFactByFactFunc node, final Object data) {
 		dumpToStdOut(node);
 		throw new UnsupportedOperationException(String.valueOf(data));
 	}
 
 	@Override
-	public default Object visit(SFPRetractFunc node, Object data) {
+	public default Object visit(final SFPRetractFunc node, final Object data) {
 		dumpToStdOut(node);
 		throw new UnsupportedOperationException(String.valueOf(data));
 	}
 
 	@Override
-	public default Object visit(SFPIfElseFunc node, Object data) {
+	public default Object visit(final SFPIfElseFunc node, final Object data) {
 		dumpToStdOut(node);
 		throw new UnsupportedOperationException(String.valueOf(data));
 	}
 
 	@Override
-	public default Object visit(SFPWhileFunc node, Object data) {
+	public default Object visit(final SFPWhileFunc node, final Object data) {
 		dumpToStdOut(node);
 		throw new UnsupportedOperationException(String.valueOf(data));
 	}
 
 	@Override
-	public default Object visit(SFPLoopForCountFunc node, Object data) {
+	public default Object visit(final SFPLoopForCountFunc node, final Object data) {
 		dumpToStdOut(node);
 		throw new UnsupportedOperationException(String.valueOf(data));
 	}
 
 	@Override
-	public default Object visit(SFPSwitchCaseFunc node, Object data) {
+	public default Object visit(final SFPSwitchCaseFunc node, final Object data) {
 		dumpToStdOut(node);
 		throw new UnsupportedOperationException(String.valueOf(data));
 	}
 
 	@Override
-	public default Object visit(SFPCaseStatement node, Object data) {
+	public default Object visit(final SFPCaseStatement node, final Object data) {
 		dumpToStdOut(node);
 		throw new UnsupportedOperationException(String.valueOf(data));
 	}
 
 	@Override
-	public default Object visit(SFPSwitchDefaults node, Object data) {
+	public default Object visit(final SFPSwitchDefaults node, final Object data) {
 		dumpToStdOut(node);
 		throw new UnsupportedOperationException(String.valueOf(data));
 	}
 
 	@Override
-	public default Object visit(SFPDeftemplateConstruct node, Object data) {
+	public default Object visit(final SFPDeftemplateConstruct node, final Object data) {
 		dumpToStdOut(node);
 		throw new UnsupportedOperationException(String.valueOf(data));
 	}
 
 	@Override
-	public default Object visit(SFPSilent node, Object data) {
+	public default Object visit(final SFPSilent node, final Object data) {
 		dumpToStdOut(node);
 		throw new UnsupportedOperationException(String.valueOf(data));
 	}
 
 	@Override
-	public default Object visit(SFPSlotDefinition node, Object data) {
+	public default Object visit(final SFPSlotDefinition node, final Object data) {
 		dumpToStdOut(node);
 		throw new UnsupportedOperationException(String.valueOf(data));
 	}
 
 	@Override
-	public default Object visit(SFPSingleSlotDefinition node, Object data) {
+	public default Object visit(final SFPSingleSlotDefinition node, final Object data) {
 		dumpToStdOut(node);
 		throw new UnsupportedOperationException(String.valueOf(data));
 	}
 
 	@Override
-	public default Object visit(SFPMultiSlotDefinition node, Object data) {
+	public default Object visit(final SFPMultiSlotDefinition node, final Object data) {
 		dumpToStdOut(node);
 		throw new UnsupportedOperationException(String.valueOf(data));
 	}
 
 	@Override
-	public default Object visit(SFPAttributes node, Object data) {
+	public default Object visit(final SFPAttributes node, final Object data) {
 		dumpToStdOut(node);
 		throw new UnsupportedOperationException(String.valueOf(data));
 	}
 
 	@Override
-	public default Object visit(SFPDefaultAttribute node, Object data) {
+	public default Object visit(final SFPDefaultAttribute node, final Object data) {
 		dumpToStdOut(node);
 		throw new UnsupportedOperationException(String.valueOf(data));
 	}
 
 	@Override
-	public default Object visit(SFPDefaultAttributes node, Object data) {
+	public default Object visit(final SFPDefaultAttributes node, final Object data) {
 		dumpToStdOut(node);
 		throw new UnsupportedOperationException(String.valueOf(data));
 	}
 
 	@Override
-	public default Object visit(SFPDeriveAttribute node, Object data) {
+	public default Object visit(final SFPDeriveAttribute node, final Object data) {
 		dumpToStdOut(node);
 		throw new UnsupportedOperationException(String.valueOf(data));
 	}
 
 	@Override
-	public default Object visit(SFPNoneAttribute node, Object data) {
+	public default Object visit(final SFPNoneAttribute node, final Object data) {
 		dumpToStdOut(node);
 		throw new UnsupportedOperationException(String.valueOf(data));
 	}
 
 	@Override
-	public default Object visit(SFPDynamicAttribute node, Object data) {
+	public default Object visit(final SFPDynamicAttribute node, final Object data) {
 		dumpToStdOut(node);
 		throw new UnsupportedOperationException(String.valueOf(data));
 	}
 
 	@Override
-	public default Object visit(SFPRHSSlot node, Object data) {
+	public default Object visit(final SFPRHSSlot node, final Object data) {
 		dumpToStdOut(node);
 		throw new UnsupportedOperationException(String.valueOf(data));
 	}
 
 	@Override
-	public default Object visit(SFPRHSPattern node, Object data) {
+	public default Object visit(final SFPRHSPattern node, final Object data) {
 		dumpToStdOut(node);
 		throw new UnsupportedOperationException(String.valueOf(data));
 	}
 
 	@Override
-	public default Object visit(SFPDefruleConstruct node, Object data) {
+	public default Object visit(final SFPDefruleConstruct node, final Object data) {
 		dumpToStdOut(node);
 		throw new UnsupportedOperationException(String.valueOf(data));
 	}
 
 	@Override
-	public default Object visit(SFPDefrulesConstruct node, Object data) {
+	public default Object visit(final SFPDefrulesConstruct node, final Object data) {
 		dumpToStdOut(node);
 		throw new UnsupportedOperationException(String.valueOf(data));
 	}
 
 	@Override
-	public default Object visit(SFPDefruleBody node, Object data) {
+	public default Object visit(final SFPDefruleBody node, final Object data) {
 		dumpToStdOut(node);
 		throw new UnsupportedOperationException(String.valueOf(data));
 	}
 
 	@Override
-	public default Object visit(SFPActionList node, Object data) {
+	public default Object visit(final SFPActionList node, final Object data) {
 		dumpToStdOut(node);
 		throw new UnsupportedOperationException(String.valueOf(data));
 	}
 
 	@Override
-	public default Object visit(SFPDeclaration node, Object data) {
+	public default Object visit(final SFPDeclaration node, final Object data) {
 		dumpToStdOut(node);
 		throw new UnsupportedOperationException(String.valueOf(data));
 	}
 
 	@Override
-	public default Object visit(SFPTemporalValidityDeclaration node, Object data) {
+	public default Object visit(final SFPTemporalValidityDeclaration node, final Object data) {
 		dumpToStdOut(node);
 		throw new UnsupportedOperationException(String.valueOf(data));
 	}
 
 	@Override
-	public default Object visit(SFPTemporalValidity node, Object data) {
+	public default Object visit(final SFPTemporalValidity node, final Object data) {
 		dumpToStdOut(node);
 		throw new UnsupportedOperationException(String.valueOf(data));
 	}
 
 	@Override
-	public default Object visit(SFPTAMillisecond node, Object data) {
+	public default Object visit(final SFPTAMillisecond node, final Object data) {
 		dumpToStdOut(node);
 		throw new UnsupportedOperationException(String.valueOf(data));
 	}
 
 	@Override
-	public default Object visit(SFPTASecond node, Object data) {
+	public default Object visit(final SFPTASecond node, final Object data) {
 		dumpToStdOut(node);
 		throw new UnsupportedOperationException(String.valueOf(data));
 	}
 
 	@Override
-	public default Object visit(SFPTAMinute node, Object data) {
+	public default Object visit(final SFPTAMinute node, final Object data) {
 		dumpToStdOut(node);
 		throw new UnsupportedOperationException(String.valueOf(data));
 	}
 
 	@Override
-	public default Object visit(SFPTAHour node, Object data) {
+	public default Object visit(final SFPTAHour node, final Object data) {
 		dumpToStdOut(node);
 		throw new UnsupportedOperationException(String.valueOf(data));
 	}
 
 	@Override
-	public default Object visit(SFPTADay node, Object data) {
+	public default Object visit(final SFPTADay node, final Object data) {
 		dumpToStdOut(node);
 		throw new UnsupportedOperationException(String.valueOf(data));
 	}
 
 	@Override
-	public default Object visit(SFPTAMonth node, Object data) {
+	public default Object visit(final SFPTAMonth node, final Object data) {
 		dumpToStdOut(node);
 		throw new UnsupportedOperationException(String.valueOf(data));
 	}
 
 	@Override
-	public default Object visit(SFPTAYear node, Object data) {
+	public default Object visit(final SFPTAYear node, final Object data) {
 		dumpToStdOut(node);
 		throw new UnsupportedOperationException(String.valueOf(data));
 	}
 
 	@Override
-	public default Object visit(SFPTAWeekday node, Object data) {
+	public default Object visit(final SFPTAWeekday node, final Object data) {
 		dumpToStdOut(node);
 		throw new UnsupportedOperationException(String.valueOf(data));
 	}
 
 	@Override
-	public default Object visit(SFPTADuration node, Object data) {
+	public default Object visit(final SFPTADuration node, final Object data) {
 		dumpToStdOut(node);
 		throw new UnsupportedOperationException(String.valueOf(data));
 	}
 
 	@Override
-	public default Object visit(SFPSalience node, Object data) {
+	public default Object visit(final SFPSalience node, final Object data) {
 		dumpToStdOut(node);
 		throw new UnsupportedOperationException(String.valueOf(data));
 	}
 
 	@Override
-	public default Object visit(SFPAutoFocus node, Object data) {
+	public default Object visit(final SFPAutoFocus node, final Object data) {
 		dumpToStdOut(node);
 		throw new UnsupportedOperationException(String.valueOf(data));
 	}
 
 	@Override
-	public default Object visit(SFPSlowCompile node, Object data) {
+	public default Object visit(final SFPSlowCompile node, final Object data) {
 		dumpToStdOut(node);
 		throw new UnsupportedOperationException(String.valueOf(data));
 	}
 
 	@Override
-	public default Object visit(SFPRuleVersion node, Object data) {
+	public default Object visit(final SFPRuleVersion node, final Object data) {
 		dumpToStdOut(node);
 		throw new UnsupportedOperationException(String.valueOf(data));
 	}
 
 	@Override
-	public default Object visit(SFPNotFunction node, Object data) {
+	public default Object visit(final SFPNotFunction node, final Object data) {
 		dumpToStdOut(node);
 		throw new UnsupportedOperationException(String.valueOf(data));
 	}
 
 	@Override
-	public default Object visit(SFPAndFunction node, Object data) {
+	public default Object visit(final SFPAndFunction node, final Object data) {
 		dumpToStdOut(node);
 		throw new UnsupportedOperationException(String.valueOf(data));
 	}
 
 	@Override
-	public default Object visit(SFPOrFunction node, Object data) {
+	public default Object visit(final SFPOrFunction node, final Object data) {
 		dumpToStdOut(node);
 		throw new UnsupportedOperationException(String.valueOf(data));
 	}
 
 	@Override
-	public default Object visit(SFPAssignedPatternCE node, Object data) {
+	public default Object visit(final SFPAssignedPatternCE node, final Object data) {
 		dumpToStdOut(node);
 		throw new UnsupportedOperationException(String.valueOf(data));
 	}
 
 	@Override
-	public default Object visit(SFPLogicalCE node, Object data) {
+	public default Object visit(final SFPLogicalCE node, final Object data) {
 		dumpToStdOut(node);
 		throw new UnsupportedOperationException(String.valueOf(data));
 	}
 
 	@Override
-	public default Object visit(SFPTestCE node, Object data) {
+	public default Object visit(final SFPTestCE node, final Object data) {
 		dumpToStdOut(node);
 		throw new UnsupportedOperationException(String.valueOf(data));
 	}
 
 	@Override
-	public default Object visit(SFPExistsCE node, Object data) {
+	public default Object visit(final SFPExistsCE node, final Object data) {
 		dumpToStdOut(node);
 		throw new UnsupportedOperationException(String.valueOf(data));
 	}
 
 	@Override
-	public default Object visit(SFPForallCE node, Object data) {
+	public default Object visit(final SFPForallCE node, final Object data) {
 		dumpToStdOut(node);
 		throw new UnsupportedOperationException(String.valueOf(data));
 	}
 
 	@Override
-	public default Object visit(SFPTemplatePatternCE node, Object data) {
+	public default Object visit(final SFPTemplatePatternCE node, final Object data) {
 		dumpToStdOut(node);
 		throw new UnsupportedOperationException(String.valueOf(data));
 	}
 
 	@Override
-	public default Object visit(SFPUnorderedLHSFactBody node, Object data) {
+	public default Object visit(final SFPUnorderedLHSFactBody node, final Object data) {
 		dumpToStdOut(node);
 		throw new UnsupportedOperationException(String.valueOf(data));
 	}
 
 	@Override
-	public default Object visit(SFPOrderedLHSFactBody node, Object data) {
+	public default Object visit(final SFPOrderedLHSFactBody node, final Object data) {
 		dumpToStdOut(node);
 		throw new UnsupportedOperationException(String.valueOf(data));
 	}
 
 	@Override
-	public default Object visit(SFPLHSSlot node, Object data) {
+	public default Object visit(final SFPLHSSlot node, final Object data) {
 		dumpToStdOut(node);
 		throw new UnsupportedOperationException(String.valueOf(data));
 	}
 
 	@Override
-	public default Object visit(SFPSingleFieldWildcard node, Object data) {
+	public default Object visit(final SFPSingleFieldWildcard node, final Object data) {
 		dumpToStdOut(node);
 		throw new UnsupportedOperationException(String.valueOf(data));
 	}
 
 	@Override
-	public default Object visit(SFPMultiFieldWildcard node, Object data) {
+	public default Object visit(final SFPMultiFieldWildcard node, final Object data) {
 		dumpToStdOut(node);
 		throw new UnsupportedOperationException(String.valueOf(data));
 	}
 
 	@Override
-	public default Object visit(SFPConnectedConstraint node, Object data) {
+	public default Object visit(final SFPConnectedConstraint node, final Object data) {
 		dumpToStdOut(node);
 		throw new UnsupportedOperationException(String.valueOf(data));
 	}
 
 	@Override
-	public default Object visit(SFPAmpersandConnectedConstraint node, Object data) {
+	public default Object visit(final SFPAmpersandConnectedConstraint node, final Object data) {
 		dumpToStdOut(node);
 		throw new UnsupportedOperationException(String.valueOf(data));
 	}
 
 	@Override
-	public default Object visit(SFPLineConnectedConstraint node, Object data) {
+	public default Object visit(final SFPLineConnectedConstraint node, final Object data) {
 		dumpToStdOut(node);
 		throw new UnsupportedOperationException(String.valueOf(data));
 	}
 
 	@Override
-	public default Object visit(SFPTerm node, Object data) {
+	public default Object visit(final SFPTerm node, final Object data) {
 		dumpToStdOut(node);
 		throw new UnsupportedOperationException(String.valueOf(data));
 	}
 
 	@Override
-	public default Object visit(SFPNegation node, Object data) {
+	public default Object visit(final SFPNegation node, final Object data) {
 		dumpToStdOut(node);
 		throw new UnsupportedOperationException(String.valueOf(data));
 	}
 
 	@Override
-	public default Object visit(SFPColon node, Object data) {
+	public default Object visit(final SFPColon node, final Object data) {
 		dumpToStdOut(node);
 		throw new UnsupportedOperationException(String.valueOf(data));
 	}
 
 	@Override
-	public default Object visit(SFPEquals node, Object data) {
+	public default Object visit(final SFPEquals node, final Object data) {
 		dumpToStdOut(node);
 		throw new UnsupportedOperationException(String.valueOf(data));
 	}
 
 	@Override
-	public default Object visit(SFPDefglobalConstruct node, Object data) {
+	public default Object visit(final SFPDefglobalConstruct node, final Object data) {
 		dumpToStdOut(node);
 		throw new UnsupportedOperationException(String.valueOf(data));
 	}
 
 	@Override
-	public default Object visit(SFPGlobalAssignment node, Object data) {
+	public default Object visit(final SFPGlobalAssignment node, final Object data) {
 		dumpToStdOut(node);
 		throw new UnsupportedOperationException(String.valueOf(data));
 	}
 
 	@Override
-	public default Object visit(SFPDeffunctionConstruct node, Object data) {
+	public default Object visit(final SFPDeffunctionConstruct node, final Object data) {
 		dumpToStdOut(node);
 		throw new UnsupportedOperationException(String.valueOf(data));
 	}
 
 	@Override
-	public default Object visit(SFPFunctionGroup node, Object data) {
+	public default Object visit(final SFPFunctionGroup node, final Object data) {
 		dumpToStdOut(node);
 		throw new UnsupportedOperationException(String.valueOf(data));
 	}
 
 	@Override
-	public default Object visit(SFPDefgenericConstruct node, Object data) {
+	public default Object visit(final SFPDefgenericConstruct node, final Object data) {
 		dumpToStdOut(node);
 		throw new UnsupportedOperationException(String.valueOf(data));
 	}
 
 	@Override
-	public default Object visit(SFPParameterRestriction node, Object data) {
+	public default Object visit(final SFPParameterRestriction node, final Object data) {
 		dumpToStdOut(node);
 		throw new UnsupportedOperationException(String.valueOf(data));
 	}
 
 	@Override
-	public default Object visit(SFPWildcardParameterRestriction node, Object data) {
+	public default Object visit(final SFPWildcardParameterRestriction node, final Object data) {
 		dumpToStdOut(node);
 		throw new UnsupportedOperationException(String.valueOf(data));
 	}
 
 	@Override
-	public default Object visit(SFPQuery node, Object data) {
+	public default Object visit(final SFPQuery node, final Object data) {
 		dumpToStdOut(node);
 		throw new UnsupportedOperationException(String.valueOf(data));
 	}
 
 	@Override
-	public default Object visit(SFPTypeAttribute node, Object data) {
+	public default Object visit(final SFPTypeAttribute node, final Object data) {
 		dumpToStdOut(node);
 		throw new UnsupportedOperationException(String.valueOf(data));
 	}
 
 	@Override
-	public default Object visit(SFPTypeSpecification node, Object data) {
+	public default Object visit(final SFPTypeSpecification node, final Object data) {
 		dumpToStdOut(node);
 		throw new UnsupportedOperationException(String.valueOf(data));
 	}
 
 	@Override
-	public default Object visit(SFPAllowedConstantAttribute node, Object data) {
+	public default Object visit(final SFPAllowedConstantAttribute node, final Object data) {
 		dumpToStdOut(node);
 		throw new UnsupportedOperationException(String.valueOf(data));
 	}
 
 	@Override
-	public default Object visit(SFPSymbolList node, Object data) {
+	public default Object visit(final SFPSymbolList node, final Object data) {
 		dumpToStdOut(node);
 		throw new UnsupportedOperationException(String.valueOf(data));
 	}
 
 	@Override
-	public default Object visit(SFPStringList node, Object data) {
+	public default Object visit(final SFPStringList node, final Object data) {
 		dumpToStdOut(node);
 		throw new UnsupportedOperationException(String.valueOf(data));
 	}
 
 	@Override
-	public default Object visit(SFPLexemeList node, Object data) {
+	public default Object visit(final SFPLexemeList node, final Object data) {
 		dumpToStdOut(node);
 		throw new UnsupportedOperationException(String.valueOf(data));
 	}
 
 	@Override
-	public default Object visit(SFPIntegerList node, Object data) {
+	public default Object visit(final SFPIntegerList node, final Object data) {
 		dumpToStdOut(node);
 		throw new UnsupportedOperationException(String.valueOf(data));
 	}
 
 	@Override
-	public default Object visit(SFPFloatList node, Object data) {
+	public default Object visit(final SFPFloatList node, final Object data) {
 		dumpToStdOut(node);
 		throw new UnsupportedOperationException(String.valueOf(data));
 	}
 
 	@Override
-	public default Object visit(SFPNumberList node, Object data) {
+	public default Object visit(final SFPNumberList node, final Object data) {
 		dumpToStdOut(node);
 		throw new UnsupportedOperationException(String.valueOf(data));
 	}
 
 	@Override
-	public default Object visit(SFPValueList node, Object data) {
+	public default Object visit(final SFPValueList node, final Object data) {
 		dumpToStdOut(node);
 		throw new UnsupportedOperationException(String.valueOf(data));
 	}
 
 	@Override
-	public default Object visit(SFPRangeAttribute node, Object data) {
+	public default Object visit(final SFPRangeAttribute node, final Object data) {
 		dumpToStdOut(node);
 		throw new UnsupportedOperationException(String.valueOf(data));
 	}
 
 	@Override
-	public default Object visit(SFPRangeSpecification node, Object data) {
+	public default Object visit(final SFPRangeSpecification node, final Object data) {
 		dumpToStdOut(node);
 		throw new UnsupportedOperationException(String.valueOf(data));
 	}
 
 	@Override
-	public default Object visit(SFPCardinalityAttribute node, Object data) {
+	public default Object visit(final SFPCardinalityAttribute node, final Object data) {
 		dumpToStdOut(node);
 		throw new UnsupportedOperationException(String.valueOf(data));
 	}
 
 	@Override
-	public default Object visit(SFPCardinalitySpecification node, Object data) {
+	public default Object visit(final SFPCardinalitySpecification node, final Object data) {
 		dumpToStdOut(node);
 		throw new UnsupportedOperationException(String.valueOf(data));
 	}
 
 	@Override
-	public default Object visit(SFPDefmoduleConstruct node, Object data) {
+	public default Object visit(final SFPDefmoduleConstruct node, final Object data) {
 		dumpToStdOut(node);
 		throw new UnsupportedOperationException(String.valueOf(data));
 	}

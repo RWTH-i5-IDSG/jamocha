@@ -1,5 +1,6 @@
 package org.jamocha.logging.formatter;
 
+import java.text.CharacterIterator;
 import java.text.StringCharacterIterator;
 
 import org.jamocha.filter.SymbolCollector;
@@ -18,25 +19,25 @@ public class RuleConditionFormatter implements Formatter<RuleCondition> {
 		return singleton;
 	}
 
-	static public String formatRC(RuleCondition re) {
+	static public String formatRC(final RuleCondition re) {
 		return getRuleConditionFormatter().format(re);
 	}
 
-	static private void lineBreak(StringBuffer output, int level) {
+	static private void lineBreak(final StringBuffer output, final int level) {
 		output.append("\n");
 		for (int i = 0; i < level; i++) {
 			output.append("   ");
 		}
 	}
 
-	static private void processStatement(StringCharacterIterator iter, StringBuffer output,
-			int level) {
+	static private void processStatement(final StringCharacterIterator iter, final StringBuffer output,
+			final int level) {
 		if (iter.current() != '(')
 			throw new Error("Expected '(' but found '" + iter.current() + "'");
 		output.append('(');
 		boolean lb = false;
 		boolean sub = false;
-		while (iter.next() != StringCharacterIterator.DONE) {
+		while (iter.next() != CharacterIterator.DONE) {
 			switch (iter.current()) {
 			case '(':
 				if (!lb)
@@ -57,10 +58,10 @@ public class RuleConditionFormatter implements Formatter<RuleCondition> {
 		}
 	}
 
-	static public String formatRCindented(RuleCondition re) {
-		String input = formatRC(re);
-		StringBuffer output = new StringBuffer();
-		StringCharacterIterator iterator = new StringCharacterIterator(input);
+	static public String formatRCindented(final RuleCondition re) {
+		final String input = formatRC(re);
+		final StringBuffer output = new StringBuffer();
+		final StringCharacterIterator iterator = new StringCharacterIterator(input);
 		processStatement(iterator, output, 0);
 		return output.toString();
 	}
@@ -69,13 +70,13 @@ public class RuleConditionFormatter implements Formatter<RuleCondition> {
 	}
 
 	@Override
-	public String format(RuleCondition re) {
-		StringBuilder sb = new StringBuilder();
+	public String format(final RuleCondition re) {
+		final StringBuilder sb = new StringBuilder();
 		sb.append("(");
 		final ConditionalElementFormatter cef =
 				new ConditionalElementFormatter(SymbolCollector.newHashSet().collect(re)
 						.toSlotVariablesByFactVariable());
-		for (ConditionalElement ce : re.getConditionalElements()) {
+		for (final ConditionalElement ce : re.getConditionalElements()) {
 			sb.append(" ");
 			sb.append(cef.format(ce));
 		}

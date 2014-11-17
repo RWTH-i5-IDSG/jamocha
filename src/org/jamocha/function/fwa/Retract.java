@@ -46,7 +46,7 @@ public class Retract extends GenericWithArgumentsComposite<Object, Function<?>> 
 			}
 
 			@Override
-			public <V extends FunctionVisitor> V accept(V visitor) {
+			public <V extends FunctionVisitor> V accept(final V visitor) {
 				throw new UnsupportedOperationException(
 						"You can not visit the internal retract function!");
 			}

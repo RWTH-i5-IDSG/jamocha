@@ -130,8 +130,8 @@ public class MemoryHandlerMain extends MemoryHandlerBase implements
 				if (0 == paths.size())
 					continue;
 				for (final Path path : paths) {
-					existential[((FactAddress) newAddressesCache.get(path
-							.getFactAddressInCurrentlyLowestNode())).index] = true;
+					existential[newAddressesCache.get(path
+							.getFactAddressInCurrentlyLowestNode()).index] = true;
 				}
 				pathFilterElementToCounterColumn.putFilterElementToCounterColumn(pathFilterElement,
 						new CounterColumn(index++));

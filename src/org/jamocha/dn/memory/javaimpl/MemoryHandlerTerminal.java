@@ -52,7 +52,7 @@ public class MemoryHandlerTerminal implements org.jamocha.dn.memory.MemoryHandle
 			final MemoryHandlerMinusTemp minusTemp = (MemoryHandlerMinusTemp) mem;
 			final FactAddress[] factAddresses = minusTemp.factAddresses;
 			for (final Row minusRow : minusTemp.validRows) {
-				for (Iterator<Assert> tokenIterator = this.plusTokenCache.iterator(); tokenIterator
+				for (final Iterator<Assert> tokenIterator = this.plusTokenCache.iterator(); tokenIterator
 						.hasNext();) {
 					final AssertOrRetract<?> token = tokenIterator.next();
 					final MemoryHandlerBase tokenMem = (MemoryHandlerBase) token.getMem();
@@ -71,7 +71,7 @@ public class MemoryHandlerTerminal implements org.jamocha.dn.memory.MemoryHandle
 		for (final MemoryHandler handler : mem.splitIntoChunksOfSize(1)) {
 			final Retract minus = new Retract(handler);
 			terminalNode.enqueueRetract(minus);
-			for (Iterator<Assert> iterator = this.plusTokenCache.iterator(); iterator.hasNext();) {
+			for (final Iterator<Assert> iterator = this.plusTokenCache.iterator(); iterator.hasNext();) {
 				final AssertOrRetract<?> token = iterator.next();
 				if (token.getMem().equals(handler) && token.setFollowingRetract(minus)) {
 					iterator.remove();

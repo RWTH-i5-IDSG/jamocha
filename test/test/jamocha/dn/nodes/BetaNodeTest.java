@@ -83,8 +83,8 @@ public class BetaNodeTest {
 	}
 	
 	public BetaNode createDummyBetaNode() {
-		Path p1 = new Path(Template.STRING);
-		ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK, Template.STRING);
+		final Path p1 = new Path(Template.STRING);
+		final ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK, Template.STRING);
 		otn.shareNode(Collections.emptyMap(), p1);
 		return new BetaNode(Network.DEFAULTNETWORK, new FilterMockup(true, new PathAndSlotAddress(
 				p1, s1)));
@@ -104,12 +104,12 @@ public class BetaNodeTest {
 	 */
 	@Test
 	public void testSelfJoin() {
-		Path p1 = new Path(Template.STRING);
-		Path p2 = new Path(Template.STRING);
-		Path p3 = new Path(Template.STRING);
-		ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK, Template.STRING);
+		final Path p1 = new Path(Template.STRING);
+		final Path p2 = new Path(Template.STRING);
+		final Path p3 = new Path(Template.STRING);
+		final ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK, Template.STRING);
 		otn.shareNode(Collections.emptyMap(), p1, p2, p3);
-		BetaNode beta =
+		final BetaNode beta =
 				new BetaNode(Network.DEFAULTNETWORK, new FilterMockup(true, new PathAndSlotAddress(
 						p1, s1), new PathAndSlotAddress(p2, s1)));
 		Edge[] incomingEdges = beta.getIncomingEdges();
@@ -120,7 +120,7 @@ public class BetaNodeTest {
 		assertSame(beta, p1.getCurrentlyLowestNode());
 		assertSame(beta, p2.getCurrentlyLowestNode());
 		assertSame(otn, p3.getCurrentlyLowestNode());
-		BetaNode beta2 =
+		final BetaNode beta2 =
 				new BetaNode(Network.DEFAULTNETWORK, new FilterMockup(true, new PathAndSlotAddress(
 						p1, s1), new PathAndSlotAddress(p3, s1)));
 		incomingEdges = beta2.getIncomingEdges();
@@ -222,7 +222,7 @@ public class BetaNodeTest {
 	 */
 	@Test
 	public void testGetOutgoingEdges() {
-		BetaNode beta = createDummyBetaNode();
+		final BetaNode beta = createDummyBetaNode();
 		final Collection<? extends Edge> outgoingEdges = beta.getOutgoingEdges();
 		assertNotNull(outgoingEdges);
 		assertEquals(0, outgoingEdges.size());
@@ -233,7 +233,7 @@ public class BetaNodeTest {
 	 */
 	@Test
 	public void testGetMemory() {
-		BetaNode beta = createDummyBetaNode();
+		final BetaNode beta = createDummyBetaNode();
 		final MemoryHandlerMain memory = beta.getMemory();
 		assertNotNull(memory);
 		assertEquals(0, memory.size());
@@ -244,7 +244,7 @@ public class BetaNodeTest {
 	 */
 	@Test
 	public void testNumChildren() {
-		BetaNode beta = createDummyBetaNode();
+		final BetaNode beta = createDummyBetaNode();
 		assertEquals(0, beta.getNumberOfOutgoingEdges());
 	}
 
@@ -274,10 +274,10 @@ public class BetaNodeTest {
 	 */
 	@Test
 	public void testGetIncomingEdges() {
-		Path p = new Path(Template.STRING);
-		Path p1 = new Path(Template.STRING);
-		Path p2 = new Path(Template.STRING);
-		ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK, Template.STRING);
+		final Path p = new Path(Template.STRING);
+		final Path p1 = new Path(Template.STRING);
+		final Path p2 = new Path(Template.STRING);
+		final ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK, Template.STRING);
 		otn.shareNode(Collections.emptyMap(), p);
 		Set<Path> joinedWith = new HashSet<>();
 		joinedWith.add(p1);
@@ -290,7 +290,7 @@ public class BetaNodeTest {
 		p2.setFactAddressInCurrentlyLowestNode(new org.jamocha.dn.memory.javaimpl.FactAddress(0));
 		p2.setJoinedWith(joinedWith);
 		otn.shareNode(Collections.emptyMap(), p1, p2);
-		BetaNode beta =
+		final BetaNode beta =
 				new BetaNode(Network.DEFAULTNETWORK, new FilterMockup(true, new PathAndSlotAddress(
 						p1, s1), new PathAndSlotAddress(p2, s1)));
 		final Edge[] incomingEdges = beta.getIncomingEdges();

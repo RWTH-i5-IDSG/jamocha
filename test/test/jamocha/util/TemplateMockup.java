@@ -40,7 +40,7 @@ public class TemplateMockup implements Template {
 	final List<Slot> slots;
 	final SlotAddress[] slotAddresses;
 
-	public TemplateMockup(String name, String description, List<Slot> slots) {
+	public TemplateMockup(final String name, final String description, final List<Slot> slots) {
 		this.name = name;
 		this.description = description;
 		this.slots = slots;
@@ -53,12 +53,12 @@ public class TemplateMockup implements Template {
 		final int index;
 
 		@Override
-		public SlotType getSlotType(Template template) {
+		public SlotType getSlotType(final Template template) {
 			return template.getSlotType(this);
 		}
 
 		@Override
-		public String getSlotName(Template template) {
+		public String getSlotName(final Template template) {
 			return template.getSlotName(this);
 		}
 
@@ -70,7 +70,7 @@ public class TemplateMockup implements Template {
 	 * @see org.jamocha.dn.memory.Template#getSlotType(org.jamocha.dn.memory.SlotAddress)
 	 */
 	@Override
-	public SlotType getSlotType(SlotAddress slotAddress) {
+	public SlotType getSlotType(final SlotAddress slotAddress) {
 		return this.slots.get(((SlotAddressMockup) slotAddress).index).getSlotType();
 	}
 
@@ -80,7 +80,7 @@ public class TemplateMockup implements Template {
 	 * @see org.jamocha.dn.memory.Template#getSlotName(org.jamocha.dn.memory.SlotAddress)
 	 */
 	@Override
-	public String getSlotName(SlotAddress slotAddress) {
+	public String getSlotName(final SlotAddress slotAddress) {
 		return this.slots.get(((SlotAddressMockup) slotAddress).index).getName();
 	}
 
@@ -90,9 +90,9 @@ public class TemplateMockup implements Template {
 	 * @see org.jamocha.dn.memory.Template#getSlotAddress(java.lang.String)
 	 */
 	@Override
-	public SlotAddress getSlotAddress(String name) {
+	public SlotAddress getSlotAddress(final String name) {
 		int i = 0;
-		for (Slot slot : this.slots) {
+		for (final Slot slot : this.slots) {
 			if (slot.getName().equals(name)) {
 				if (slotAddresses[i] == null)
 					slotAddresses[i] = new SlotAddressMockup(i);
@@ -109,7 +109,7 @@ public class TemplateMockup implements Template {
 	 * @see org.jamocha.dn.memory.Template#newFact(java.lang.Object[])
 	 */
 	@Override
-	public Fact newFact(Object... values) {
+	public Fact newFact(final Object... values) {
 		return null;
 	}
 
@@ -119,7 +119,7 @@ public class TemplateMockup implements Template {
 	 * @see org.jamocha.dn.memory.Template#newFact(java.util.Map)
 	 */
 	@Override
-	public Fact newFact(Map<SlotAddress, Object> valuesMap) {
+	public Fact newFact(final Map<SlotAddress, Object> valuesMap) {
 		return null;
 	}
 
@@ -130,7 +130,7 @@ public class TemplateMockup implements Template {
 	 * org.jamocha.dn.memory.SlotAddress, java.lang.Object)
 	 */
 	@Override
-	public void setValue(Fact fact, SlotAddress slot, Object value) {
+	public void setValue(final Fact fact, final SlotAddress slot, final Object value) {
 	}
 
 	/*
@@ -140,7 +140,7 @@ public class TemplateMockup implements Template {
 	 * org.jamocha.dn.memory.SlotAddress)
 	 */
 	@Override
-	public Object getValue(Fact fact, SlotAddress slot) {
+	public Object getValue(final Fact fact, final SlotAddress slot) {
 		return null;
 	}
 
@@ -151,7 +151,7 @@ public class TemplateMockup implements Template {
 	 * org.jamocha.dn.memory.SlotAddress)
 	 */
 	@Override
-	public Object getValue(MemoryFact fact, SlotAddress slot) {
+	public Object getValue(final MemoryFact fact, final SlotAddress slot) {
 		return null;
 	}
 
@@ -162,7 +162,7 @@ public class TemplateMockup implements Template {
 	 */
 	@Override
 	public FunctionWithArguments[] applyDefaultsAndOrder(
-			Map<SlotAddress, FunctionWithArguments> values) {
+			final Map<SlotAddress, FunctionWithArguments> values) {
 		return null;
 	}
 

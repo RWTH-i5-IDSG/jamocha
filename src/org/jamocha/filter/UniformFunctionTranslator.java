@@ -48,7 +48,7 @@ public class UniformFunctionTranslator {
 	static interface SelectiveFunctionWithArgumentsVisitor extends
 			DefaultFunctionWithArgumentsVisitor {
 		@Override
-		default void defaultAction(FunctionWithArguments function) {
+		default void defaultAction(final FunctionWithArguments function) {
 		}
 	}
 

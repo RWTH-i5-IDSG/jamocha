@@ -98,14 +98,14 @@ public class NetworkMockup implements ParserToNetwork, SideEffectFunctionToNetwo
 	}
 
 	@Override
-	public Template defTemplate(String name, String description, Slot... slots) {
-		TemplateMockup temp = new TemplateMockup(name, description, Arrays.asList(slots));
+	public Template defTemplate(final String name, final String description, final Slot... slots) {
+		final TemplateMockup temp = new TemplateMockup(name, description, Arrays.asList(slots));
 		templates.put(name, temp);
 		return temp;
 	}
 
 	@Override
-	public Template getTemplate(String name) {
+	public Template getTemplate(final String name) {
 		return templates.get(name);
 	}
 
@@ -115,14 +115,14 @@ public class NetworkMockup implements ParserToNetwork, SideEffectFunctionToNetwo
 	}
 
 	@Override
-	public void defRules(Defrule... defrules) {
-		for (Defrule defrule : defrules) {
+	public void defRules(final Defrule... defrules) {
+		for (final Defrule defrule : defrules) {
 			rules.put(defrule.getName(), defrule);
 		}
 	}
 
 	@Override
-	public Defrule getRule(String name) {
+	public Defrule getRule(final String name) {
 		return rules.get(name);
 	}
 
@@ -132,12 +132,12 @@ public class NetworkMockup implements ParserToNetwork, SideEffectFunctionToNetwo
 	}
 
 	@Override
-	public Deffacts defFacts(String name, String description, TemplateContainer... containers) {
+	public Deffacts defFacts(final String name, final String description, final TemplateContainer... containers) {
 		return null;
 	}
 
 	@Override
-	public Deffacts getDeffacts(String name) {
+	public Deffacts getDeffacts(final String name) {
 		return null;
 	}
 
@@ -162,7 +162,7 @@ public class NetworkMockup implements ParserToNetwork, SideEffectFunctionToNetwo
 	}
 
 	@Override
-	public MemoryFact getMemoryFact(FactIdentifier id) {
+	public MemoryFact getMemoryFact(final FactIdentifier id) {
 		return null;
 	}
 
@@ -172,12 +172,12 @@ public class NetworkMockup implements ParserToNetwork, SideEffectFunctionToNetwo
 	}
 
 	@Override
-	public FactIdentifier[] assertFacts(Fact... array) {
+	public FactIdentifier[] assertFacts(final Fact... array) {
 		return new FactIdentifier[] { null };
 	}
 
 	@Override
-	public void retractFacts(FactIdentifier... array) {
+	public void retractFacts(final FactIdentifier... array) {
 	}
 
 	@Override
@@ -206,6 +206,6 @@ public class NetworkMockup implements ParserToNetwork, SideEffectFunctionToNetwo
 	}
 
 	@Override
-	public void run(long maxNumRules) {
+	public void run(final long maxNumRules) {
 	}
 }

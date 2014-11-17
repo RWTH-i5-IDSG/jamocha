@@ -26,7 +26,7 @@ import lombok.ToString;
 public class RowWithoutCounters implements Row {
 	private static int[] empty = new int[0];
 
-	private Fact[] factTuple;
+	private final Fact[] factTuple;
 
 	@Override
 	public int[] getCounters() {

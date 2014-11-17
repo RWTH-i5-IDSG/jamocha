@@ -126,7 +126,7 @@ public class FilterMockup extends PathFilter {
 		 * Test method for {@link test.jamocha.filter.FilterMockup#alwaysTrue(Path...)}.
 		 */
 		@Theory
-		public void testAlwaysTrue(@SomeStuff Object... obj) {
+		public void testAlwaysTrue(@SomeStuff final Object... obj) {
 			final AddressFilter alwaysTrue =
 					PathFilterToAddressFilterTranslator.translate(FilterMockup.alwaysTrue(),
 							counterColumnMatcherMockup);
@@ -139,7 +139,7 @@ public class FilterMockup extends PathFilter {
 		 * Test method for {@link test.jamocha.filter.FilterMockup#alwaysFalse(Path...)} .
 		 */
 		@Theory
-		public void testAlwaysFalse(@SomeStuff Object... obj) {
+		public void testAlwaysFalse(@SomeStuff final Object... obj) {
 			final AddressFilter alwaysFalse =
 					PathFilterToAddressFilterTranslator.translate(FilterMockup.alwaysFalse(),
 							counterColumnMatcherMockup);

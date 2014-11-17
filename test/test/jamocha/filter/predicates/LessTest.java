@@ -58,25 +58,25 @@ public class LessTest {
 	}
 
 	@Theory
-	public void testLongPos(@LotsOfRandomLongs Long left, @LotsOfRandomLongs Long right) {
+	public void testLongPos(@LotsOfRandomLongs final Long left, @LotsOfRandomLongs final Long right) {
 		assumeThat(left, is(lessThan(right)));
 		assertTrue(lessL.evaluate(new LazyObject<>(left), new LazyObject<>(right)));
 	}
 
 	@Theory
-	public void testLongNeg(@LotsOfRandomLongs Long left, @LotsOfRandomLongs Long right) {
+	public void testLongNeg(@LotsOfRandomLongs final Long left, @LotsOfRandomLongs final Long right) {
 		assumeThat(left, is(not(lessThan(right))));
 		assertFalse(lessL.evaluate(new LazyObject<>(left), new LazyObject<>(right)));
 	}
 
 	@Theory
-	public void testDoublePos(@LotsOfRandomDoubles Double left, @LotsOfRandomDoubles Double right) {
+	public void testDoublePos(@LotsOfRandomDoubles final Double left, @LotsOfRandomDoubles final Double right) {
 		assumeThat(left, is(lessThan(right)));
 		assertTrue(lessD.evaluate(new LazyObject<>(left), new LazyObject<>(right)));
 	}
 
 	@Theory
-	public void testDoubleNeg(@LotsOfRandomDoubles Double left, @LotsOfRandomDoubles Double right) {
+	public void testDoubleNeg(@LotsOfRandomDoubles final Double left, @LotsOfRandomDoubles final Double right) {
 		assumeThat(left, is(not(lessThan(right))));
 		assertFalse(lessD.evaluate(new LazyObject<>(left), new LazyObject<>(right)));
 	}
