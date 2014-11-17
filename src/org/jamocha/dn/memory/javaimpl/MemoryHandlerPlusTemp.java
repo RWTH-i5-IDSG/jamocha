@@ -215,44 +215,34 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements org.jamo
 			final org.jamocha.dn.memory.Fact fact = facts[i];
 			assert fact.getTemplate() == otn.getMemory().getTemplate()[0];
 			final Fact memoryFact = new Fact(fact.getTemplate(), fact.getSlotValues());
+			// spot internal duplicates
 			for (int j = 0; j < i; ++j) {
-				if (Fact.equalContent(memoryFact, memoryFacts[j])) {
+				if (null != memoryFacts[j] && Fact.equalContent(memoryFact, memoryFacts[j])) {
 					continue factLoop;
+				}
+			}
+			// spot duplicates wrt main memory
+			for (final Row mainRow : originatingMainHandler.validRows) {
+				final Fact mainFact = mainRow.getFactTuple()[0];
+				if (Fact.equalContent(mainFact, memoryFact)) {
+					continue factLoop;
+				}
+			}
+			// spot duplicates wrt outgoing plus tokens
+			for (final MemoryHandlerPlusTemp temp : originatingMainHandler.getValidOutgoingPlusTokens()) {
+				for (final Row mainRow : temp.getFiltered()) {
+					final Fact mainFact = mainRow.getFactTuple()[0];
+					if (Fact.equalContent(mainFact, memoryFact)) {
+						continue factLoop;
+					}
 				}
 			}
 			memoryFacts[i] = memoryFact;
 			factList.add(originatingMainHandler.newRow(new Fact[] { memoryFact }));
 		}
-		final JamochaArray<Row> filterDuplicates = filterDuplicates(originatingMainHandler, factList, memoryFacts);
 		return Pair.of(
-				new MemoryHandlerPlusTemp(originatingMainHandler, filterDuplicates, otn.getNumberOfOutgoingEdges(),
+				new MemoryHandlerPlusTemp(originatingMainHandler, factList, otn.getNumberOfOutgoingEdges(),
 						canOmitSemaphore(otn)), memoryFacts);
-	}
-
-	static JamochaArray<Row> filterDuplicates(final MemoryHandlerMain targetMain, final JamochaArray<Row> toFilter,
-			final MemoryFact[] memoryFacts) {
-		final boolean marked[] = new boolean[toFilter.size()];
-		boolean filtered = false;
-		{
-			final JamochaArray<Row> remainingFactTuples =
-					MemoryHandlerMinusTemp.getRemainingFactTuples(toFilter, targetMain.validRows, (FactAddress[]) null,
-							marked, EqualityChecker.root);
-			filtered |= (remainingFactTuples.size() != targetMain.validRows.size());
-		}
-		for (final MemoryHandlerPlusTemp temp : targetMain.getValidOutgoingPlusTokens()) {
-			final JamochaArray<Row> remainingFactTuples =
-					MemoryHandlerMinusTemp.getRemainingFactTuples(toFilter, temp.getFiltered(), (FactAddress[]) null,
-							marked, EqualityChecker.root);
-			filtered |= (remainingFactTuples.size() != targetMain.validRows.size());
-		}
-		if (!filtered) {
-			return toFilter;
-		}
-		for (int i = 0; i < marked.length; ++i) {
-			if (marked[i])
-				memoryFacts[i] = null;
-		}
-		return toFilter;
 	}
 
 	static abstract class StackElement {
