@@ -20,6 +20,7 @@ import java.util.List;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
+import org.jamocha.filter.PathFilterList.PathFilterSharedListWrapper;
 import org.jamocha.function.fwa.PredicateWithArguments;
 import org.jamocha.visitor.Visitable;
 
@@ -109,9 +110,9 @@ public abstract class ConditionalElement implements Visitable<ConditionalElement
 	}
 
 	/**
-	 * This class is inserted into a {@link RuleCondition} iff there are no variable bindings in the
-	 * {@link RuleCondition}.
-	 * 
+	 * This class is inserted into a {@link RuleCondition} iff there are no variable bindings in the {@link
+	 * RuleCondition}.
+	 *
 	 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
 	 */
 	public static class InitialFactConditionalElement extends ConditionalElement {
@@ -131,7 +132,6 @@ public abstract class ConditionalElement implements Visitable<ConditionalElement
 	}
 
 	/**
-	 * 
 	 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
 	 */
 	public static class TemplatePatternConditionalElement extends ConditionalElement {
@@ -144,7 +144,7 @@ public abstract class ConditionalElement implements Visitable<ConditionalElement
 		}
 
 		@Override
-		public <V extends ConditionalElementsVisitor> V accept(V visitor) {
+		public <V extends ConditionalElementsVisitor> V accept(final V visitor) {
 			visitor.visit(this);
 			return visitor;
 		}
@@ -152,19 +152,19 @@ public abstract class ConditionalElement implements Visitable<ConditionalElement
 
 	/**
 	 * @author Christoph Terwelp <christoph.terwelp@rwth-aachen.de>
-	 *
 	 */
+	@Getter
 	public static class SharedConditionalElementWrapper extends ConditionalElement {
 
-		@Getter
 		private ConditionalElement ce;
+		private final PathFilterSharedListWrapper wrapper = new PathFilterSharedListWrapper();
 
-		public SharedConditionalElementWrapper(ConditionalElement ce) {
+		public SharedConditionalElementWrapper(final ConditionalElement ce) {
 			super(null);
 			this.ce = ce;
 		}
 
-		public void replaceConditionalElement(ConditionalElement ce) {
+		public void replaceConditionalElement(final ConditionalElement ce) {
 			this.ce = ce;
 		}
 
@@ -174,7 +174,7 @@ public abstract class ConditionalElement implements Visitable<ConditionalElement
 		}
 
 		@Override
-		public <V extends ConditionalElementsVisitor> V accept(V visitor) {
+		public <V extends ConditionalElementsVisitor> V accept(final V visitor) {
 			visitor.visit(this);
 			return visitor;
 		}

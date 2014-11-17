@@ -38,6 +38,7 @@ import org.jamocha.dn.nodes.RootNode;
 import org.jamocha.filter.Path;
 import org.jamocha.filter.PathCollector;
 import org.jamocha.filter.PathFilter;
+import org.jamocha.filter.PathFilterList;
 import org.jamocha.function.Function;
 import org.jamocha.function.FunctionDictionary;
 import org.jamocha.function.Predicate;
@@ -55,7 +56,7 @@ import test.jamocha.util.Slots;
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  * @author Kai Schwarz <kai.schwarz@rwth-aachen.de>
- * 
+ *
  * @see Network
  */
 public class NetworkTest {
@@ -109,12 +110,12 @@ public class NetworkTest {
 		final SlotAddress slotStringOne = new SlotAddress(0), slotStringTwo = new SlotAddress(3), slotLongOne =
 				new SlotAddress(1), slotLongTwo = new SlotAddress(2);
 
-		final PathFilter[] filterOne =
-				new PathFilter[] {
+		final PathFilterList.PathFilterSharedListWrapper.PathFilterSharedList filterOne = new PathFilterList.PathFilterSharedListWrapper().newSharedElement(Arrays.asList(
 						new PathFilter(new PredicateBuilder(lessL).addConstant(3L, SlotType.LONG)
 								.addPath(pathOne, slotLongOne).buildPFE()),
 						new PathFilter(new PredicateBuilder(lessL).addPath(pathOne, slotLongOne)
-								.addPath(pathOne, slotLongTwo).buildPFE()) }, filterTwo =
+								.addPath(pathOne, slotLongTwo).buildPFE()) ));
+		final PathFilter[] filterTwo =
 				new PathFilter[] {
 						new PathFilter(new PredicateBuilder(lessL).addConstant(3L, SlotType.LONG)
 								.addPath(pathTwo, slotLongOne).buildPFE()),
@@ -131,12 +132,11 @@ public class NetworkTest {
 								.addPath(pathThree, slotStringOne).buildPFE()) };
 
 		network.buildRule(new Defrule("dummyrule", "", 0, (RuleCondition) null, new ArrayList<>())
-				.newTranslated(Arrays.asList(filterOne), (Map<SingleFactVariable, Path>) null),
-				filterOne);
+				.newTranslated(filterOne, (Map<SingleFactVariable, Path>) null));
 
 		{
 			final LinkedHashSet<Path> allPaths = new LinkedHashSet<>();
-			for (PathFilter filter : filterTwo) {
+			for (final PathFilter filter : filterTwo) {
 				final LinkedHashSet<Path> paths =
 						PathCollector.newLinkedHashSet().collectAll(filter).getPaths();
 				allPaths.addAll(paths);
@@ -155,7 +155,7 @@ public class NetworkTest {
 
 		{
 			final LinkedHashSet<Path> allPaths = new LinkedHashSet<>();
-			for (PathFilter filter : filterThree) {
+			for (final PathFilter filter : filterThree) {
 				final LinkedHashSet<Path> paths =
 						PathCollector.newLinkedHashSet().collectAll(filter).getPaths();
 				allPaths.addAll(paths);
@@ -189,12 +189,12 @@ public class NetworkTest {
 		final SlotAddress slotStringOne = new SlotAddress(0), slotStringTwo = new SlotAddress(3), slotLongOne =
 				new SlotAddress(1), slotLongTwo = new SlotAddress(2);
 
-		final PathFilter[] filterOne =
-				new PathFilter[] {
+		final PathFilterList.PathFilterSharedListWrapper.PathFilterSharedList filterOne = new PathFilterList.PathFilterSharedListWrapper().newSharedElement(Arrays.asList(
 						new PathFilter(new PredicateBuilder(lessL).addConstant(3L, SlotType.LONG)
 								.addPath(pathOneA, slotLongOne).buildPFE()),
 						new PathFilter(new PredicateBuilder(lessL).addPath(pathOneA, slotLongOne)
-								.addPath(pathOneB, slotLongTwo).buildPFE()) }, filterTwo =
+								.addPath(pathOneB, slotLongTwo).buildPFE()) ));
+		final PathFilter[] filterTwo =
 				new PathFilter[] {
 						new PathFilter(new PredicateBuilder(lessL).addConstant(3L, SlotType.LONG)
 								.addPath(pathTwoA, slotLongOne).buildPFE()),
@@ -204,12 +204,11 @@ public class NetworkTest {
 								.addPath(pathTwoB, slotStringTwo).buildPFE()) };
 
 		network.buildRule(new Defrule("dummyrule", "", 0, (RuleCondition) null, new ArrayList<>())
-				.newTranslated(Arrays.asList(filterOne), (Map<SingleFactVariable, Path>) null),
-				filterOne);
+				.newTranslated(filterOne, (Map<SingleFactVariable, Path>) null));
 
 		{
 			final LinkedHashSet<Path> allPaths = new LinkedHashSet<>();
-			for (PathFilter filter : filterTwo) {
+			for (final PathFilter filter : filterTwo) {
 				final LinkedHashSet<Path> paths =
 						PathCollector.newLinkedHashSet().collectAll(filter).getPaths();
 				allPaths.addAll(paths);
@@ -247,12 +246,12 @@ public class NetworkTest {
 		final SlotAddress slotStringOne = new SlotAddress(0), slotStringTwo = new SlotAddress(3), slotLongOne =
 				new SlotAddress(1), slotLongTwo = new SlotAddress(2);
 
-		final PathFilter[] filterOne =
-				new PathFilter[] {
+		final PathFilterList.PathFilterSharedListWrapper.PathFilterSharedList filterOne = new PathFilterList.PathFilterSharedListWrapper().newSharedElement(Arrays.asList(
 						new PathFilter(new PredicateBuilder(lessL).addConstant(3L, SlotType.LONG)
 								.addPath(pathOneA, slotLongOne).buildPFE()),
 						new PathFilter(new PredicateBuilder(lessL).addPath(pathOneA, slotLongOne)
-								.addPath(pathOneB, slotLongTwo).buildPFE()) }, filterTwo =
+								.addPath(pathOneB, slotLongTwo).buildPFE()) ));
+		final PathFilter[] filterTwo =
 				new PathFilter[] {
 						new PathFilter(new PredicateBuilder(lessL).addConstant(3L, SlotType.LONG)
 								.addPath(pathTwoA, slotLongOne).buildPFE()),
@@ -262,12 +261,11 @@ public class NetworkTest {
 								.addPath(pathTwoB, slotStringTwo).buildPFE()) };
 
 		network.buildRule(new Defrule("dummyrule", "", 0, (RuleCondition) null, new ArrayList<>())
-				.newTranslated(Arrays.asList(filterOne), (Map<SingleFactVariable, Path>) null),
-				filterOne);
+				.newTranslated(filterOne, (Map<SingleFactVariable, Path>) null));
 
 		{
 			final LinkedHashSet<Path> allPaths = new LinkedHashSet<>();
-			for (PathFilter filter : filterTwo) {
+			for (final PathFilter filter : filterTwo) {
 				final LinkedHashSet<Path> paths =
 						PathCollector.newLinkedHashSet().collectAll(filter).getPaths();
 				allPaths.addAll(paths);
@@ -314,9 +312,7 @@ public class NetworkTest {
 		final Predicate eqStrStr =
 				FunctionDictionary.lookupPredicate("=", SlotType.STRING, SlotType.STRING);
 
-		final PathFilter[] filterOne =
-				new PathFilter[] {
-						new PathFilter(new PredicateBuilder(eqStrStr)
+		final PathFilterList.PathFilterSharedListWrapper.PathFilterSharedList filterOne = new PathFilterList.PathFilterSharedListWrapper().newSharedElement(Arrays.asList(				new PathFilter(new PredicateBuilder(eqStrStr)
 								.addPath(oldStudent1, studentHobby)
 								.addConstant("Coding", SlotType.STRING).buildPFE()),
 						new PathFilter(new PredicateBuilder(lessLongLong)
@@ -326,7 +322,8 @@ public class NetworkTest {
 								.addPath(oldStudent1, studentSG).buildPFE()),
 						new PathFilter(new PredicateBuilder(eqStrStr)
 								.addPath(youngStudent1, studentSG).addPath(matchingProf1, profSG)
-								.buildPFE()) }, filterTwo =
+								.buildPFE()) ));
+		final PathFilter[] filterTwo =
 				new PathFilter[] {
 						new PathFilter(new PredicateBuilder(eqStrStr)
 								.addPath(oldStudent2, studentHobby)
@@ -340,12 +337,11 @@ public class NetworkTest {
 								.addPath(youngStudent2, studentSG).addPath(matchingProf2, profSG)
 								.buildPFE()) };
 		network.buildRule(new Defrule("dummyrule", "", 0, (RuleCondition) null, new ArrayList<>())
-				.newTranslated(Arrays.asList(filterOne), (Map<SingleFactVariable, Path>) null),
-				filterOne);
+				.newTranslated(filterOne, (Map<SingleFactVariable, Path>) null));
 
 		{
 			final LinkedHashSet<Path> allPaths = new LinkedHashSet<>();
-			for (PathFilter filter : filterTwo) {
+			for (final PathFilter filter : filterTwo) {
 				final LinkedHashSet<Path> paths =
 						PathCollector.newLinkedHashSet().collectAll(filter).getPaths();
 				allPaths.addAll(paths);
@@ -385,36 +381,30 @@ public class NetworkTest {
 		final SlotAddress slotStringOne = new SlotAddress(0), slotStringTwo = new SlotAddress(3), slotLongOne =
 				new SlotAddress(1), slotLongTwo = new SlotAddress(2);
 
-		final PathFilter[] filterOne =
-				new PathFilter[] {
-						new PathFilter(new PredicateBuilder(lessL).addConstant(3L, SlotType.LONG)
+		final PathFilterList.PathFilterSharedListWrapper.PathFilterSharedList filterOne = new PathFilterList.PathFilterSharedListWrapper().newSharedElement(Arrays.asList(
+				new PathFilter(new PredicateBuilder(lessL).addConstant(3L, SlotType.LONG)
 								.addPath(pathOne, slotLongOne).buildPFE()),
 						new PathFilter(new PredicateBuilder(lessL).addPath(pathOne, slotLongOne)
-								.addPath(pathOne, slotLongTwo).buildPFE()) }, filterTwo =
-				new PathFilter[] {
+								.addPath(pathOne, slotLongTwo).buildPFE()) )), filterTwo = new PathFilterList.PathFilterSharedListWrapper().newSharedElement(Arrays.asList(
 						new PathFilter(new PredicateBuilder(lessL).addConstant(3L, SlotType.LONG)
 								.addPath(pathTwo, slotLongOne).buildPFE()),
 						new PathFilter(new PredicateBuilder(lessL).addPath(pathTwo, slotLongOne)
 								.addPath(pathTwo, slotLongTwo).buildPFE()),
 						new PathFilter(new PredicateBuilder(eqS).addPath(pathTwo, slotStringOne)
-								.addPath(pathTwo, slotStringTwo).buildPFE()) }, filterThree =
-				new PathFilter[] {
+								.addPath(pathTwo, slotStringTwo).buildPFE()) )), filterThree = new PathFilterList.PathFilterSharedListWrapper().newSharedElement(Arrays.asList(
 						new PathFilter(new PredicateBuilder(lessL).addConstant(3L, SlotType.LONG)
 								.addPath(pathThree, slotLongTwo).buildPFE()),
 						new PathFilter(new PredicateBuilder(lessL).addPath(pathThree, slotLongTwo)
 								.addPath(pathThree, slotLongOne).buildPFE()),
 						new PathFilter(new PredicateBuilder(eqS).addPath(pathThree, slotStringTwo)
-								.addPath(pathThree, slotStringOne).buildPFE()) };
+								.addPath(pathThree, slotStringOne).buildPFE()) ));
 
 		network.buildRule(new Defrule("rule1", "", 0, (RuleCondition) null, new ArrayList<>())
-				.newTranslated(Arrays.asList(filterOne), (Map<SingleFactVariable, Path>) null),
-				filterOne);
+				.newTranslated(filterOne, (Map<SingleFactVariable, Path>) null));
 		network.buildRule(new Defrule("rule2", "", 0, (RuleCondition) null, new ArrayList<>())
-				.newTranslated(Arrays.asList(filterOne), (Map<SingleFactVariable, Path>) null),
-				filterTwo);
+				.newTranslated(filterTwo, (Map<SingleFactVariable, Path>) null));
 		network.buildRule(new Defrule("rule3", "", 0, (RuleCondition) null, new ArrayList<>())
-				.newTranslated(Arrays.asList(filterOne), (Map<SingleFactVariable, Path>) null),
-				filterThree);
+				.newTranslated(filterThree, (Map<SingleFactVariable, Path>) null));
 
 		assertEquals(pathOne.getCurrentlyLowestNode(), pathTwo.getCurrentlyLowestNode()
 				.getIncomingEdges()[0].getSourceNode());
@@ -448,26 +438,23 @@ public class NetworkTest {
 		final SlotAddress slotStringOne = new SlotAddress(0), slotStringTwo = new SlotAddress(3), slotLongOne =
 				new SlotAddress(1), slotLongTwo = new SlotAddress(2);
 
-		final PathFilter[] filterOne =
-				new PathFilter[] {
+		final PathFilterList.PathFilterSharedListWrapper.PathFilterSharedList filterOne = new PathFilterList.PathFilterSharedListWrapper().newSharedElement(Arrays.asList(
 						new PathFilter(new PredicateBuilder(lessL).addConstant(3L, SlotType.LONG)
 								.addPath(pathOneA, slotLongOne).buildPFE()),
 						new PathFilter(new PredicateBuilder(lessL).addPath(pathOneA, slotLongOne)
-								.addPath(pathOneB, slotLongTwo).buildPFE()) }, filterTwo =
-				new PathFilter[] {
+								.addPath(pathOneB, slotLongTwo).buildPFE()) )), filterTwo =
+				new PathFilterList.PathFilterSharedListWrapper().newSharedElement(Arrays.asList(
 						new PathFilter(new PredicateBuilder(lessL).addConstant(3L, SlotType.LONG)
 								.addPath(pathTwoA, slotLongOne).buildPFE()),
 						new PathFilter(new PredicateBuilder(lessL).addPath(pathTwoA, slotLongOne)
 								.addPath(pathTwoB, slotLongTwo).buildPFE()),
 						new PathFilter(new PredicateBuilder(eqS).addPath(pathTwoA, slotStringOne)
-								.addPath(pathTwoB, slotStringTwo).buildPFE()) };
+								.addPath(pathTwoB, slotStringTwo).buildPFE()) ));
 
 		network.buildRule(new Defrule("rule1", "", 0, (RuleCondition) null, new ArrayList<>())
-				.newTranslated(Arrays.asList(filterOne), (Map<SingleFactVariable, Path>) null),
-				filterOne);
+				.newTranslated(filterOne, (Map<SingleFactVariable, Path>) null));
 		network.buildRule(new Defrule("rule2", "", 0, (RuleCondition) null, new ArrayList<>())
-				.newTranslated(Arrays.asList(filterOne), (Map<SingleFactVariable, Path>) null),
-				filterTwo);
+				.newTranslated(filterTwo, (Map<SingleFactVariable, Path>) null));
 
 		assertEquals(pathOneA.getCurrentlyLowestNode(), pathTwoA.getCurrentlyLowestNode()
 				.getIncomingEdges()[0].getSourceNode());
@@ -500,26 +487,23 @@ public class NetworkTest {
 		final SlotAddress slotStringOne = new SlotAddress(0), slotStringTwo = new SlotAddress(3), slotLongOne =
 				new SlotAddress(1), slotLongTwo = new SlotAddress(2);
 
-		final PathFilter[] filterOne =
-				new PathFilter[] {
-						new PathFilter(new PredicateBuilder(lessL).addConstant(3L, SlotType.LONG)
+		final PathFilterList.PathFilterSharedListWrapper.PathFilterSharedList filterOne = new PathFilterList.PathFilterSharedListWrapper().newSharedElement(Arrays.asList(
+				new PathFilter(new PredicateBuilder(lessL).addConstant(3L, SlotType.LONG)
 								.addPath(pathOneA, slotLongOne).buildPFE()),
 						new PathFilter(new PredicateBuilder(lessL).addPath(pathOneA, slotLongOne)
-								.addPath(pathOneB, slotLongTwo).buildPFE()) }, filterTwo =
-				new PathFilter[] {
+								.addPath(pathOneB, slotLongTwo).buildPFE()) )), filterTwo =
+		 new PathFilterList.PathFilterSharedListWrapper().newSharedElement(Arrays.asList(
 						new PathFilter(new PredicateBuilder(lessL).addConstant(3L, SlotType.LONG)
 								.addPath(pathTwoA, slotLongOne).buildPFE()),
 						new PathFilter(new PredicateBuilder(lessL).addPath(pathTwoA, slotLongOne)
 								.addPath(pathTwoB, slotLongTwo).buildPFE()),
 						new PathFilter(new PredicateBuilder(eqS).addPath(pathTwoA, slotStringOne)
-								.addPath(pathTwoB, slotStringTwo).buildPFE()) };
+								.addPath(pathTwoB, slotStringTwo).buildPFE()) ));
 
 		network.buildRule(new Defrule("rule1", "", 0, (RuleCondition) null, new ArrayList<>())
-				.newTranslated(Arrays.asList(filterOne), (Map<SingleFactVariable, Path>) null),
-				filterOne);
+				.newTranslated(filterOne, (Map<SingleFactVariable, Path>) null));
 		network.buildRule(new Defrule("rule2", "", 0, (RuleCondition) null, new ArrayList<>())
-				.newTranslated(Arrays.asList(filterOne), (Map<SingleFactVariable, Path>) null),
-				filterTwo);
+				.newTranslated(filterTwo, (Map<SingleFactVariable, Path>) null));
 
 		assertEquals(pathOneA.getCurrentlyLowestNode(), pathTwoA.getCurrentlyLowestNode()
 				.getIncomingEdges()[0].getSourceNode());
@@ -561,9 +545,8 @@ public class NetworkTest {
 		final Predicate eqStrStr =
 				FunctionDictionary.lookupPredicate("=", SlotType.STRING, SlotType.STRING);
 
-		final PathFilter[] filterOne =
-				new PathFilter[] {
-						new PathFilter(new PredicateBuilder(eqStrStr)
+		final PathFilterList.PathFilterSharedListWrapper.PathFilterSharedList filterOne = new PathFilterList.PathFilterSharedListWrapper().newSharedElement(Arrays.asList(
+				new PathFilter(new PredicateBuilder(eqStrStr)
 								.addPath(oldStudent1, studentHobby)
 								.addConstant("Coding", SlotType.STRING).buildPFE()),
 						new PathFilter(new PredicateBuilder(lessLongLong)
@@ -573,8 +556,8 @@ public class NetworkTest {
 								.addPath(oldStudent1, studentSG).buildPFE()),
 						new PathFilter(new PredicateBuilder(eqStrStr)
 								.addPath(youngStudent1, studentSG).addPath(matchingProf1, profSG)
-								.buildPFE()) }, filterTwo =
-				new PathFilter[] {
+								.buildPFE()) )), filterTwo =
+		new PathFilterList.PathFilterSharedListWrapper().newSharedElement(Arrays.asList(
 						new PathFilter(new PredicateBuilder(eqStrStr)
 								.addPath(oldStudent2, studentHobby)
 								.addConstant("Coding", SlotType.STRING).buildPFE()),
@@ -585,13 +568,11 @@ public class NetworkTest {
 								.addPath(oldStudent2, studentSG).buildPFE()),
 						new PathFilter(new PredicateBuilder(eqStrStr)
 								.addPath(youngStudent2, studentSG).addPath(matchingProf2, profSG)
-								.buildPFE()) };
+								.buildPFE()) ));
 		network.buildRule(new Defrule("rule1", "", 0, (RuleCondition) null, new ArrayList<>())
-				.newTranslated(Arrays.asList(filterOne), (Map<SingleFactVariable, Path>) null),
-				filterOne);
+				.newTranslated(filterOne, (Map<SingleFactVariable, Path>) null));
 		network.buildRule(new Defrule("rule2", "", 0, (RuleCondition) null, new ArrayList<>())
-				.newTranslated(Arrays.asList(filterOne), (Map<SingleFactVariable, Path>) null),
-				filterTwo);
+				.newTranslated(filterTwo, (Map<SingleFactVariable, Path>) null));
 
 		assertEquals(oldStudent1.getCurrentlyLowestNode(), oldStudent2.getCurrentlyLowestNode());
 		assertEquals(oldStudent1.getFactAddressInCurrentlyLowestNode(),
@@ -624,20 +605,18 @@ public class NetworkTest {
 		final Predicate greaterLongLong =
 				FunctionDictionary.lookupPredicate(Greater.inClips, SlotType.LONG, SlotType.LONG);
 
-		final PathFilter[] filterOne =
-				new PathFilter[] { new PathFilter(new PredicateBuilder(greaterLongLong)
+		final PathFilterList.PathFilterSharedListWrapper.PathFilterSharedList filterOne = new PathFilterList.PathFilterSharedListWrapper().newSharedElement(Arrays.asList(
+				new PathFilter(new PredicateBuilder(greaterLongLong)
 						.addPath(youngStudent1, studentSem).addPath(oldStudent1, studentSem)
-						.buildPFE()) };
-		final PathFilter[] filterTwo =
-				new PathFilter[] { new PathFilter(new PredicateBuilder(lessLongLong)
+						.buildPFE()) ));
+		final PathFilterList.PathFilterSharedListWrapper.PathFilterSharedList filterTwo = new PathFilterList.PathFilterSharedListWrapper().newSharedElement(Arrays.asList(
+				new PathFilter(new PredicateBuilder(lessLongLong)
 						.addPath(youngStudent2, studentSem).addPath(oldStudent2, studentSem)
-						.buildPFE()) };
+						.buildPFE()) ));
 		network.buildRule(new Defrule("rule1", "", 0, (RuleCondition) null, new ArrayList<>())
-				.newTranslated(Arrays.asList(filterOne), (Map<SingleFactVariable, Path>) null),
-				filterOne);
+				.newTranslated(filterOne, (Map<SingleFactVariable, Path>) null));
 		network.buildRule(new Defrule("rule2", "", 0, (RuleCondition) null, new ArrayList<>())
-				.newTranslated(Arrays.asList(filterOne), (Map<SingleFactVariable, Path>) null),
-				filterTwo);
+				.newTranslated(filterTwo, (Map<SingleFactVariable, Path>) null));
 
 		assertEquals(oldStudent1.getCurrentlyLowestNode(), youngStudent1.getCurrentlyLowestNode());
 		assertEquals(oldStudent1.getCurrentlyLowestNode(), oldStudent2.getCurrentlyLowestNode());

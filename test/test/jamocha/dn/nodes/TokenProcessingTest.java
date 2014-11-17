@@ -45,6 +45,7 @@ import org.jamocha.dn.nodes.RootNode;
 import org.jamocha.dn.nodes.TerminalNode;
 import org.jamocha.filter.Path;
 import org.jamocha.filter.PathFilter;
+import org.jamocha.filter.PathFilterList;
 import org.jamocha.function.FunctionDictionary;
 import org.jamocha.function.Predicate;
 import org.jamocha.function.impls.predicates.And;
@@ -128,8 +129,7 @@ public class TokenProcessingTest {
 
 		// get the (old) students with hobby "Coding", for which there are younger (semester-wise)
 		// students in the same course of study, but who lack a professor for their course of study
-		final PathFilter[] filter =
-				new PathFilter[] {
+		final PathFilterList.PathFilterSharedListWrapper.PathFilterSharedList filter = new PathFilterList.PathFilterSharedListWrapper().newSharedElement(Arrays.asList(
 						new PathFilter(new PredicateBuilder(eqStrStr)
 								.addPath(oldStudent, studentHobby)
 								.addConstant("Coding", SlotType.STRING).buildPFE()),
@@ -146,12 +146,12 @@ public class TokenProcessingTest {
 										.buildPFE()),
 						new PathFilter(new HashSet<>(), negatedExistentialMatchingProf,
 								new PredicateBuilder(eqStrStr).addPath(oldStudent, studentSG)
-										.addPath(matchingProf, profSG).buildPFE()) };
+										.addPath(matchingProf, profSG).buildPFE()) ));
 
 		final TerminalNode terminal =
 				network.buildRule(new Defrule("dummyrule", "", 0, (RuleCondition) null,
-						new ArrayList<>()).newTranslated(Arrays.asList(filter),
-						(Map<SingleFactVariable, Path>) null), filter);
+						new ArrayList<>()).newTranslated(filter,
+						(Map<SingleFactVariable, Path>) null));
 
 		final RootNode rootNode = network.getRootNode();
 
@@ -252,20 +252,19 @@ public class TokenProcessingTest {
 		final Predicate and =
 				FunctionDictionary.lookupPredicate(And.inClips, SlotType.BOOLEAN, SlotType.BOOLEAN);
 
-		final PathFilter[] filter =
-				new PathFilter[] { new PathFilter(new HashSet<Path>(Arrays.asList(p2)),
+		final PathFilterList.PathFilterSharedListWrapper.PathFilterSharedList filter = new PathFilterList.PathFilterSharedListWrapper().newSharedElement(Arrays.asList( new PathFilter(new HashSet<Path>(Arrays.asList(p2)),
 						new HashSet<Path>(), new PredicateBuilder(and)
 								.addFunction(
 										new PredicateBuilder(eqStrStr).addPath(p1, s1)
 												.addPath(p2, s1).build())
 								.addFunction(
 										new PredicateBuilder(eqBoolBool).addBoolean(false)
-												.addPath(p2, s2).build()).buildPFE()) };
+												.addPath(p2, s2).build()).buildPFE()) ));
 
 		final TerminalNode terminal =
 				network.buildRule(new Defrule("dummyrule", "", 0, (RuleCondition) null,
-						new ArrayList<>()).newTranslated(Arrays.asList(filter),
-						(Map<SingleFactVariable, Path>) null), filter);
+						new ArrayList<>()).newTranslated(filter,
+						(Map<SingleFactVariable, Path>) null));
 		final RootNode rootNode = network.getRootNode();
 		final ConflictSet conflictSet = network.getConflictSet();
 
@@ -336,20 +335,20 @@ public class TokenProcessingTest {
 		final Predicate and =
 				FunctionDictionary.lookupPredicate(And.inClips, SlotType.BOOLEAN, SlotType.BOOLEAN);
 
-		final PathFilter[] filter =
-				new PathFilter[] { new PathFilter(new HashSet<Path>(), new HashSet<Path>(
+		final PathFilterList.PathFilterSharedListWrapper.PathFilterSharedList filter = new PathFilterList.PathFilterSharedListWrapper().newSharedElement(Arrays.asList(
+				new PathFilter(new HashSet<Path>(), new HashSet<Path>(
 						Arrays.asList(p2)), new PredicateBuilder(and)
 						.addFunction(
 								new PredicateBuilder(eqStrStr).addPath(p1, s1).addPath(p2, s1)
 										.build())
 						.addFunction(
 								new PredicateBuilder(eqBoolBool).addBoolean(false).addPath(p2, s2)
-										.build()).buildPFE()) };
+										.build()).buildPFE()) ));
 
 		final TerminalNode terminal =
 				network.buildRule(new Defrule("dummyrule", "", 0, (RuleCondition) null,
-						new ArrayList<>()).newTranslated(Arrays.asList(filter),
-						(Map<SingleFactVariable, Path>) null), filter);
+						new ArrayList<>()).newTranslated(filter,
+						(Map<SingleFactVariable, Path>) null));
 		final RootNode rootNode = network.getRootNode();
 		final ConflictSet conflictSet = network.getConflictSet();
 
@@ -425,14 +424,13 @@ public class TokenProcessingTest {
 		final Predicate eqStrStr =
 				FunctionDictionary.lookupPredicate("=", SlotType.STRING, SlotType.STRING);
 
-		final PathFilter[] filter =
-				new PathFilter[] { new PathFilter(new PredicateBuilder(lessLongLong)
+		final PathFilterList.PathFilterSharedListWrapper.PathFilterSharedList filter = new PathFilterList.PathFilterSharedListWrapper().newSharedElement(Arrays.asList( new PathFilter(new PredicateBuilder(lessLongLong)
 						.addPath(youngStudent, studentSem).addPath(oldStudent, studentSem)
 						.buildPFE(), new PredicateBuilder(eqStrStr)
-						.addPath(youngStudent, studentSG).addPath(oldStudent, studentSG).buildPFE()) };
+						.addPath(youngStudent, studentSG).addPath(oldStudent, studentSG).buildPFE()) ));
 
 		network.buildRule(new Defrule("dummyrule", "", 0, (RuleCondition) null, new ArrayList<>())
-				.newTranslated(Arrays.asList(filter), (Map<SingleFactVariable, Path>) null), filter);
+				.newTranslated(filter, (Map<SingleFactVariable, Path>) null));
 		final RootNode rootNode = network.getRootNode();
 		final ConflictSet conflictSet = network.getConflictSet();
 
@@ -497,8 +495,7 @@ public class TokenProcessingTest {
 		final Predicate eqStrStr =
 				FunctionDictionary.lookupPredicate("=", SlotType.STRING, SlotType.STRING);
 
-		final PathFilter[] filter =
-				new PathFilter[] {
+		final PathFilterList.PathFilterSharedListWrapper.PathFilterSharedList filter = new PathFilterList.PathFilterSharedListWrapper().newSharedElement(Arrays.asList(
 						new PathFilter(new PredicateBuilder(eqStrStr)
 								.addPath(oldStudent, studentHobby)
 								.addConstant("Coding", SlotType.STRING).buildPFE()),
@@ -509,10 +506,10 @@ public class TokenProcessingTest {
 								.buildPFE()),
 						new PathFilter(new PredicateBuilder(eqStrStr)
 								.addPath(youngStudent, studentSG).addPath(matchingProf, profSG)
-								.buildPFE()) };
+								.buildPFE()) ));
 
 		network.buildRule(new Defrule("dummyrule", "", 0, (RuleCondition) null, new ArrayList<>())
-				.newTranslated(Arrays.asList(filter), (Map<SingleFactVariable, Path>) null), filter);
+				.newTranslated(filter, (Map<SingleFactVariable, Path>) null));
 		final RootNode rootNode = network.getRootNode();
 		final ConflictSet conflictSet = network.getConflictSet();
 
@@ -594,8 +591,7 @@ public class TokenProcessingTest {
 		final Predicate eqStrStr =
 				FunctionDictionary.lookupPredicate("=", SlotType.STRING, SlotType.STRING);
 
-		final PathFilter[] filter =
-				new PathFilter[] {
+		final PathFilterList.PathFilterSharedListWrapper.PathFilterSharedList filter = new PathFilterList.PathFilterSharedListWrapper().newSharedElement(Arrays.asList(
 						new PathFilter(new PredicateBuilder(eqStrStr)
 								.addPath(oldStudent, studentHobby)
 								.addConstant("Coding", SlotType.STRING).buildPFE()),
@@ -606,10 +602,10 @@ public class TokenProcessingTest {
 								.buildPFE()),
 						new PathFilter(new PredicateBuilder(eqStrStr)
 								.addPath(youngStudent, studentSG).addPath(matchingProf, profSG)
-								.buildPFE()) };
+								.buildPFE()) ));
 
 		network.buildRule(new Defrule("dummyrule", "", 0, (RuleCondition) null, new ArrayList<>())
-				.newTranslated(Arrays.asList(filter), (Map<SingleFactVariable, Path>) null), filter);
+				.newTranslated(filter, (Map<SingleFactVariable, Path>) null));
 		final RootNode rootNode = network.getRootNode();
 		final ConflictSet conflictSet = network.getConflictSet();
 
@@ -669,11 +665,11 @@ public class TokenProcessingTest {
 		final Predicate eqStrStr =
 				FunctionDictionary.lookupPredicate("=", SlotType.STRING, SlotType.STRING);
 
-		final PathFilter filter =
+		final PathFilterList.PathFilterSharedListWrapper.PathFilterSharedList filter = new PathFilterList.PathFilterSharedListWrapper().newSharedElement(Arrays.asList(
 				new PathFilter(new PredicateBuilder(eqStrStr).addPath(p1, slotStr)
-						.addPath(p2, slotStr).buildPFE());
+						.addPath(p2, slotStr).buildPFE())));
 		network.buildRule(new Defrule("dummyrule", "", 0, (RuleCondition) null, new ArrayList<>())
-				.newTranslated(Arrays.asList(filter), (Map<SingleFactVariable, Path>) null), filter);
+				.newTranslated(filter, (Map<SingleFactVariable, Path>) null));
 		final RootNode rootNode = network.getRootNode();
 
 		rootNode.assertFacts(t1.newFact(12L, "Micky"));
@@ -723,15 +719,15 @@ public class TokenProcessingTest {
 		final Predicate eqBoolBool =
 				FunctionDictionary.lookupPredicate("=", SlotType.BOOLEAN, SlotType.BOOLEAN);
 
-		final PathFilter filter =
+		final PathFilterList.PathFilterSharedListWrapper.PathFilterSharedList filter = new PathFilterList.PathFilterSharedListWrapper().newSharedElement(Arrays.asList(
 				new PathFilter(new PredicateBuilder(eqBoolBool)
 						.addPath(p1, slotBool)
 						.addFunction(
 								new FunctionBuilder(lessLongLong).addPath(p1, slotLong)
-										.addConstant(3L, SlotType.LONG).build()).buildPFE());
+										.addConstant(3L, SlotType.LONG).build()).buildPFE())));
 
 		network.buildRule(new Defrule("dummyrule", "", 0, (RuleCondition) null, new ArrayList<>())
-				.newTranslated(Arrays.asList(filter), (Map<SingleFactVariable, Path>) null), filter);
+				.newTranslated(filter, (Map<SingleFactVariable, Path>) null));
 
 		// false == 5 < 3
 		network.getRootNode().assertFacts(t1.newFact(5L, "5L&FALSE", false));
@@ -783,7 +779,7 @@ public class TokenProcessingTest {
 		final AlphaNode alphaNode = new AlphaNode(network, filter);
 		// create & append terminal
 		new TerminalNode(network, alphaNode, new Defrule("dummyrule", "", 0, (RuleCondition) null,
-				new ArrayList<>()).newTranslated(Arrays.asList(filter),
+				new ArrayList<>()).newTranslated(new PathFilterList.PathFilterSharedListWrapper().newSharedElement(Arrays.asList(filter)),
 				(Map<SingleFactVariable, Path>) null));
 
 		otn.activateTokenQueue();
@@ -875,7 +871,9 @@ public class TokenProcessingTest {
 		final AlphaNode alphaNode = new AlphaNode(network, filter);
 		// create & append terminal
 		new TerminalNode(network, alphaNode, new Defrule("dummyrule", "", 0, (RuleCondition) null,
-				new ArrayList<>()).newTranslated(Arrays.asList(filter),
+				new ArrayList<>()).newTranslated(
+		new PathFilterList.PathFilterSharedListWrapper().newSharedElement(Arrays.asList(filter))
+				,
 				(Map<SingleFactVariable, Path>) null));
 		otn.activateTokenQueue();
 		alphaNode.activateTokenQueue();
@@ -930,7 +928,7 @@ public class TokenProcessingTest {
 										.addConstant(3L, SlotType.LONG).build()).buildPFE());
 
 		network.buildRule(new Defrule("dummyrule", "", 0, (RuleCondition) null, new ArrayList<>())
-				.newTranslated(Arrays.asList(filter), (Map<SingleFactVariable, Path>) null), filter);
+				.newTranslated(new PathFilterList.PathFilterSharedListWrapper().newSharedElement(Arrays.asList(filter)), (Map<SingleFactVariable, Path>) null));
 		final RootNode rootNode = network.getRootNode();
 
 		// false == 5 < 3

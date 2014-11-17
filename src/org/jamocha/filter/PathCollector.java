@@ -40,11 +40,10 @@ import org.jamocha.function.fwa.SymbolLeaf;
 
 /**
  * Collects all paths used within the filter.
- * 
- * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
- * 
+ *
  * @param <T>
- *            collection type to use while collecting the paths
+ * 		collection type to use while collecting the paths
+ * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
 public class PathCollector<T extends Collection<Path>> implements PathFilterElementVisitor {
 	private final T paths;
@@ -56,12 +55,26 @@ public class PathCollector<T extends Collection<Path>> implements PathFilterElem
 	public PathCollector<T> collectAll(final PathFilter filter) {
 		this.paths.addAll(filter.getPositiveExistentialPaths());
 		this.paths.addAll(filter.getNegativeExistentialPaths());
-		return collectOnlyNonExistential(filter);
+		return collectOnlyInFilterElements(filter);
 	}
 
-	public PathCollector<T> collectOnlyNonExistential(final PathFilter filter) {
+	public PathCollector<T> collectAll(final Iterable<PathFilter> filters) {
+		for (final PathFilter filter : filters) {
+			collectAll(filter);
+		}
+		return this;
+	}
+
+	public PathCollector<T> collectOnlyInFilterElements(final PathFilter filter) {
 		for (final PathFilterElement filterElement : filter.getFilterElements()) {
 			collect(filterElement);
+		}
+		return this;
+	}
+
+	public PathCollector<T> collectOnlyInFilterElements(final Iterable<PathFilter> filters) {
+		for (final PathFilter filter : filters) {
+			collectOnlyInFilterElements(filter);
 		}
 		return this;
 	}
@@ -82,19 +95,19 @@ public class PathCollector<T extends Collection<Path>> implements PathFilterElem
 	}
 
 	public static PathCollector<HashSet<Path>> newHashSet() {
-		return new PathCollector<HashSet<Path>>(new HashSet<Path>());
+		return new PathCollector<>(new HashSet<>());
 	}
 
 	public static PathCollector<LinkedHashSet<Path>> newLinkedHashSet() {
-		return new PathCollector<LinkedHashSet<Path>>(new LinkedHashSet<Path>());
+		return new PathCollector<>(new LinkedHashSet<>());
 	}
 
 	public static PathCollector<ArrayList<Path>> newArrayList() {
-		return new PathCollector<ArrayList<Path>>(new ArrayList<Path>());
+		return new PathCollector<>(new ArrayList<>());
 	}
 
 	public static PathCollector<LinkedList<Path>> newLinkedList() {
-		return new PathCollector<LinkedList<Path>>(new LinkedList<Path>());
+		return new PathCollector<>(new LinkedList<>());
 	}
 
 	/**
@@ -169,8 +182,7 @@ public class PathCollector<T extends Collection<Path>> implements PathFilterElem
 
 		@Override
 		public void visit(final SymbolLeaf fwa) {
-			throw new IllegalArgumentException(
-					"There should not be SymbolLeafs in the argument to PathCollector!");
+			throw new IllegalArgumentException("There should not be SymbolLeafs in the argument to PathCollector!");
 		}
 
 		@Override

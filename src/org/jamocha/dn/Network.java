@@ -363,12 +363,12 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 	/**
 	 * Creates network nodes for one rule, consisting of the passed filters.
 	 *
-	 * @param filters
-	 * 		list of filters in order of implementation in the network. Each filter is
-	 * 		implemented in a separate node. Node-Sharing is used if possible
+	 * @param translatedPath
+	 * 		translated version of the defrule we have to build the condition for
 	 * @return created TerminalNode for the constructed rule
 	 */
-	public TerminalNode buildRule(final Defrule.TranslatedPath translatedPath, final PathFilter... filters) {
+	public TerminalNode buildRule(final Defrule.TranslatedPath translatedPath) {
+		final PathFilterList.PathFilterSharedListWrapper.PathFilterSharedList filters = translatedPath.getCondition();
 		final LinkedHashSet<Path> allPaths;
 		{
 			final PathCollector<LinkedHashSet<Path>> collector = PathCollector.newLinkedHashSet();
@@ -467,7 +467,7 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 		for (final Defrule defrule : defrules) {
 			this.compileRule(defrule);
 			for (final TranslatedPath translated : defrule.getTranslatedPathVersions()) {
-				buildRule(translated, toArray(translated.getCondition(), PathFilter[]::new));
+				buildRule(translated);
 			}
 			// add the rule and the contained translated versions to the construct cache
 			this.constructCache.addRule(defrule);

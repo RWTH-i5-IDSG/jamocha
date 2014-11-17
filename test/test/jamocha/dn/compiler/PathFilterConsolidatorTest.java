@@ -24,11 +24,9 @@ import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertThat;
 
 import java.io.StringReader;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Queue;
-import java.util.Set;
+import java.util.*;
 
+import com.google.common.collect.Lists;
 import org.hamcrest.Matcher;
 import org.jamocha.dn.ConstructCache.Defrule;
 import org.jamocha.dn.ConstructCache.Defrule.TranslatedPath;
@@ -92,7 +90,7 @@ public class PathFilterConsolidatorTest {
 		final String input = "(templ1 (slot1 ?x))";
 		final List<TranslatedPath> filterPartitions = clipsToFilters(input);
 		assertThat(filterPartitions, hasSize(1));
-		final List<PathFilter> filters = filterPartitions.get(0).getCondition();
+		final List<PathFilter> filters = Lists.newArrayList( filterPartitions.get(0).getCondition() );
 		assertThat(filters, hasSize(1));
 		final PathFilter filter = filters.get(0);
 		assertThat(filter.getPositiveExistentialPaths(), hasSize(0));
@@ -112,7 +110,7 @@ public class PathFilterConsolidatorTest {
 		final String input = "(and (initial-fact) (exists (templ1 (slot1 ?x))))";
 		final List<TranslatedPath> filterPartitions = clipsToFilters(input);
 		assertThat(filterPartitions, hasSize(1));
-		final List<PathFilter> filters = filterPartitions.get(0).getCondition();
+		final List<PathFilter> filters = Lists.newArrayList(filterPartitions.get(0).getCondition() );
 		assertThat(filters, hasSize(1));
 		final PathFilter filter = filters.get(0);
 		final Set<Path> positiveExistentialPaths = filter.getPositiveExistentialPaths();
@@ -138,7 +136,7 @@ public class PathFilterConsolidatorTest {
 		assertThat(filterPartitions, hasSize(2));
 		final Path compare;
 		{
-			final List<PathFilter> filters = filterPartitions.get(0).getCondition();
+			final List<PathFilter> filters = Lists.newArrayList( filterPartitions.get(0).getCondition() );
 			assertThat(filters, hasSize(1));
 			final PathFilter filter = filters.get(0);
 			assertThat(filter.getPositiveExistentialPaths(), hasSize(0));
@@ -154,7 +152,7 @@ public class PathFilterConsolidatorTest {
 			compare = path;
 		}
 		{
-			final List<PathFilter> filters = filterPartitions.get(1).getCondition();
+			final List<PathFilter> filters = Lists.newArrayList(filterPartitions.get(1).getCondition() );
 			assertThat(filters, hasSize(1));
 			final PathFilter filter = filters.get(0);
 			assertThat(filter.getPositiveExistentialPaths(), hasSize(0));
@@ -177,7 +175,7 @@ public class PathFilterConsolidatorTest {
 		final List<TranslatedPath> filterPartitions = clipsToFilters(input);
 		assertThat(filterPartitions, hasSize(1));
 		{
-			final List<PathFilter> filters = filterPartitions.get(0).getCondition();
+			final List<PathFilter> filters = Lists.newArrayList(filterPartitions.get(0).getCondition() );
 			assertThat(filters, hasSize(2));
 //			{
 //				final PathFilter filter = filters.get(0);
