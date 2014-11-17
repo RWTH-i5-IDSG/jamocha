@@ -23,6 +23,7 @@ import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jamocha.dn.ConstructCache.Defrule;
 import org.jamocha.dn.ConstructCache.Defrule.TranslatedPath;
+import org.jamocha.dn.memory.SlotType;
 import org.jamocha.dn.memory.Template;
 import org.jamocha.filter.Path;
 import org.jamocha.filter.PathCollector;
@@ -30,6 +31,10 @@ import org.jamocha.filter.PathFilter;
 import org.jamocha.filter.PathFilter.PathFilterElement;
 import org.jamocha.filter.PathFilterList;
 import org.jamocha.filter.PathFilterList.PathFilterSharedListWrapper;
+import org.jamocha.function.FunctionDictionary;
+import org.jamocha.function.fwa.PredicateWithArguments;
+import org.jamocha.function.fwa.PredicateWithArgumentsComposite;
+import org.jamocha.function.impls.predicates.Not;
 import org.jamocha.languages.common.ConditionalElement;
 import org.jamocha.languages.common.ConditionalElement.AndFunctionConditionalElement;
 import org.jamocha.languages.common.ConditionalElement.ExistentialConditionalElement;
@@ -361,9 +366,11 @@ public class PathFilterConsolidator implements DefaultConditionalElementsVisitor
 
 		@Override
 		public void visit(final TestConditionalElement ce) {
+			final PredicateWithArguments predicate =
+					SymbolToPathTranslator.translate(ce.getPredicateWithArguments(), paths);
 			final PathFilter pathFilter =
-					new PathFilter(new PathFilterElement(SymbolToPathTranslator.translate(
-							ce.getPredicateWithArguments(), paths)));
+					new PathFilter(new PathFilterElement((negated) ? new PredicateWithArgumentsComposite(
+							FunctionDictionary.lookupPredicate(Not.inClips, SlotType.BOOLEAN), predicate) : predicate));
 			joinPaths(pathToJoinedWith, pathFilter);
 			this.pathFilters = Collections.singletonList(pathFilter);
 		}
