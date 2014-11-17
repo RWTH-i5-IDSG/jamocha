@@ -123,8 +123,8 @@ public abstract class FilterFunctionCompare {
 	public static class PathFilterCompare {
 
 		@Getter
-		private final Map<Path, Path> pathMap = new HashMap<>();
-
+		private final Map<Path, Path> pathMap;
+		
 		@Getter
 		boolean equal = true;
 
@@ -141,7 +141,12 @@ public abstract class FilterFunctionCompare {
 		}
 
 		public PathFilterCompare(final PathFilter targetFilter, final PathFilter compareFilter) {
+			this(targetFilter, compareFilter, new HashMap<>());
+		}
+		
+		public PathFilterCompare(final PathFilter targetFilter, final PathFilter compareFilter, final Map<Path, Path> pathMap) {
 			super();
+			this.pathMap = pathMap;
 			final PathFilterElement[] targetFEs = targetFilter.normalise().getFilterElements();
 			final PathFilterElement[] compareFEs = compareFilter.normalise().getFilterElements();
 			if (targetFEs.length != compareFEs.length) {

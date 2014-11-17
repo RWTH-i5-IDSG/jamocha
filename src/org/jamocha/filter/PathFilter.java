@@ -144,16 +144,24 @@ public class PathFilter extends Filter<PathFilter.PathFilterElement> implements 
 	}
 
 	public static boolean equals(final PathFilter filter1, final PathFilter filter2) {
+		return equals(filter1, filter2, new HashMap<>());
+	}
+	
+	public static boolean equals(final PathFilter filter1, final PathFilter filter2, final Map<Path, Path> pathMap) {
+		// FIXME and other locations to handle all possible path mappings correctly
 		if (filter1.getHashCode() != filter2.getHashCode())
 			return false;
 		final FilterFunctionCompare.PathFilterCompare compare =
-				new FilterFunctionCompare.PathFilterCompare(filter1, filter2);
+				new FilterFunctionCompare.PathFilterCompare(filter1,
+						filter2, pathMap);
 		if (!compare.isEqual())
 			return false;
-		if (!filter1.getNegativeExistentialPaths().stream().map(p -> compare.getPathMap().get(p)).collect(toSet())
+		if (!filter1.getNegativeExistentialPaths().stream()
+				.map(p -> pathMap.get(p)).collect(toSet())
 				.equals(filter2.getNegativeExistentialPaths()))
 			return false;
-		if (!filter1.getPositiveExistentialPaths().stream().map(p -> compare.getPathMap().get(p)).collect(toSet())
+		if (!filter1.getPositiveExistentialPaths().stream()
+				.map(p -> pathMap.get(p)).collect(toSet())
 				.equals(filter2.getPositiveExistentialPaths()))
 			return false;
 		return true;
