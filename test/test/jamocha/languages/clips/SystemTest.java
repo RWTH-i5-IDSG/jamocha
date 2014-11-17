@@ -80,9 +80,8 @@ public class SystemTest {
 	}
 
 	/**
-	 * Get the calling method name. <br />
-	 * Utility function
-	 * 
+	 * Get the calling method name. <br /> Utility function
+	 *
 	 * @return method name
 	 */
 	public static String getMethodName() {
@@ -99,8 +98,7 @@ public class SystemTest {
 
 		while (true) {
 			final SFPStart n = parser.Start();
-			if (n == null)
-				return Pair.of(values, visitor.getWarnings());
+			if (n == null) return Pair.of(values, visitor.getWarnings());
 			final Object value = n.jjtAccept(visitor, null);
 			if (null != value) {
 				values.add(value);
@@ -205,6 +203,66 @@ public class SystemTest {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
+	@Test
+	public void testNodeSharingAllButTerminal() throws ParseException {
+		final Network network = new Network();
+		final ByteArrayOutputStream out = new ByteArrayOutputStream();
+		network.addAppender(out, true);
+		{
+			final Pair<Queue<Object>, Queue<Warning>> returnValues = run(network, "(unwatch all)\n(watch facts)\n");
+			assertThat(returnValues.getLeft(), empty());
+			assertThat(returnValues.getRight(), empty());
+			assertThat(out.toString(), isEmptyString());
+		}
+		{
+			final Pair<Queue<Object>, Queue<Warning>> returnValues =
+					run(network, "(deftemplate t1 (slot s1 (type INTEGER)))\n");
+			assertThat(returnValues.getLeft(), empty());
+			assertThat(returnValues.getRight(), empty());
+			assertThat(out.toString(), isEmptyString());
+		}
+		{
+			final Pair<Queue<Object>, Queue<Warning>> returnValues =
+					run(network, "(defrule r1 (t1 (s1 5)) => (assert (t1 (s1 999))) )\n");
+			assertThat(returnValues.getLeft(), empty());
+			assertThat(returnValues.getRight(), empty());
+			assertThat(out.toString(), isEmptyString());
+		}
+		{
+			final Pair<Queue<Object>, Queue<Warning>> returnValues = run(network, "(assert (t1 (s1 5)))\n");
+			final Queue<Object> values = returnValues.getLeft();
+			assertThat(values, hasSize(1));
+			final Object value = values.iterator().next();
+			assertThat(value, instanceOf(String.class));
+			assertEquals("<Fact-2>", value);
+			assertThat(returnValues.getRight(), empty());
+			final String[] lines = out.toString().split(linesep);
+			assertThat(lines, arrayWithSize(1));
+			assertEquals("==> f-2\t(t1 (s1 5))", lines[0]);
+			out.reset();
+		}
+		{
+			final Pair<Queue<Object>, Queue<Warning>> returnValues =
+					run(network, "(defrule r2 (t1 (s1 5)) => (assert (t1 (s1 888))) )\n");
+			assertThat(returnValues.getLeft(), empty());
+			assertThat(returnValues.getRight(), empty());
+			assertThat(out.toString(), isEmptyString());
+		}
+		{
+			final Pair<Queue<Object>, Queue<Warning>> returnValues = run(network, "(run)\n");
+			assertThat(returnValues.getLeft(), empty());
+			assertThat(returnValues.getRight(), empty());
+			final String[] lines = out.toString().split(linesep);
+			assertThat(lines, arrayWithSize(2));
+			assertThat(lines,
+					either(arrayContaining(equalTo("==> f-3\t(t1 (s1 888))"), equalTo("==> f-4\t(t1 (s1 999))")))
+							.or(arrayContaining(equalTo("==> f-3\t(t1 (s1 999))"), equalTo("==> f-4\t(t1 (s1 888))")
+							)));
+			out.reset();
+		}
+	}
+
 	@Test
 	public void testSimpleNegatedExistentialRule() throws ParseException {
 		final Network network = new Network();
@@ -259,9 +317,8 @@ public class SystemTest {
 		}
 	}
 
-	@SuppressWarnings("unchecked")
 	@Test
-	public void testNodeSharingAllButTerminal() throws ParseException {
+	public void testSimpleNegatedTest() throws ParseException {
 		final Network network = new Network();
 		final ByteArrayOutputStream out = new ByteArrayOutputStream();
 		network.addAppender(out, true);
@@ -280,13 +337,13 @@ public class SystemTest {
 		}
 		{
 			final Pair<Queue<Object>, Queue<Warning>> returnValues =
-					run(network, "(defrule r1 (t1 (s1 5)) => (assert (t1 (s1 999))) )\n");
+					run(network, "(defrule r1 (t1 (s1 ?x)) (not (test (> ?x 5))) => (assert (t1 (s1 999))) )\n");
 			assertThat(returnValues.getLeft(), empty());
 			assertThat(returnValues.getRight(), empty());
 			assertThat(out.toString(), isEmptyString());
 		}
 		{
-			final Pair<Queue<Object>, Queue<Warning>> returnValues = run(network, "(assert (t1 (s1 5)))\n");
+			final Pair<Queue<Object>, Queue<Warning>> returnValues = run(network, "(assert (t1 (s1 111)))\n");
 			final Queue<Object> values = returnValues.getLeft();
 			assertThat(values, hasSize(1));
 			final Object value = values.iterator().next();
@@ -295,26 +352,36 @@ public class SystemTest {
 			assertThat(returnValues.getRight(), empty());
 			final String[] lines = out.toString().split(linesep);
 			assertThat(lines, arrayWithSize(1));
-			assertEquals("==> f-2\t(t1 (s1 5))", lines[0]);
+			assertEquals("==> f-2\t(t1 (s1 111))", lines[0]);
 			out.reset();
 		}
 		{
-			final Pair<Queue<Object>, Queue<Warning>> returnValues =
-					run(network, "(defrule r2 (t1 (s1 5)) => (assert (t1 (s1 888))) )\n");
+			final Pair<Queue<Object>, Queue<Warning>> returnValues = run(network, "(run)\n");
 			assertThat(returnValues.getLeft(), empty());
 			assertThat(returnValues.getRight(), empty());
 			assertThat(out.toString(), isEmptyString());
+			out.reset();
+		}
+		{
+			final Pair<Queue<Object>, Queue<Warning>> returnValues = run(network, "(assert (t1 (s1 1)))\n");
+			final Queue<Object> values = returnValues.getLeft();
+			assertThat(values, hasSize(1));
+			final Object value = values.iterator().next();
+			assertThat(value, instanceOf(String.class));
+			assertEquals("<Fact-3>", value);
+			assertThat(returnValues.getRight(), empty());
+			final String[] lines = out.toString().split(linesep);
+			assertThat(lines, arrayWithSize(1));
+			assertEquals("==> f-3\t(t1 (s1 1))", lines[0]);
+			out.reset();
 		}
 		{
 			final Pair<Queue<Object>, Queue<Warning>> returnValues = run(network, "(run)\n");
 			assertThat(returnValues.getLeft(), empty());
 			assertThat(returnValues.getRight(), empty());
 			final String[] lines = out.toString().split(linesep);
-			assertThat(lines, arrayWithSize(2));
-			assertThat(
-					lines,
-					either(arrayContaining(equalTo("==> f-3\t(t1 (s1 888))"), equalTo("==> f-4\t(t1 (s1 999))"))).or(
-							arrayContaining(equalTo("==> f-3\t(t1 (s1 999))"), equalTo("==> f-4\t(t1 (s1 888))"))));
+			assertThat(lines, arrayWithSize(1));
+			assertEquals("==> f-4\t(t1 (s1 999))", lines[0]);
 			out.reset();
 		}
 	}
