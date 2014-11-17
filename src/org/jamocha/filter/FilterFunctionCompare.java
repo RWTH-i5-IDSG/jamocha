@@ -31,6 +31,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Value;
 
@@ -124,10 +125,12 @@ public abstract class FilterFunctionCompare {
 		};
 	}
 
-	private static class PathFilterCompare {
+	public static class PathFilterCompare {
 
+		@Getter
 		private final Map<Path, Path> pathMap = new HashMap<>();
-
+		
+		@Getter
 		boolean equal = true;
 
 		private boolean comparePaths(Path comparePath, Path targetPath) {
@@ -142,7 +145,7 @@ public abstract class FilterFunctionCompare {
 			return true;
 		}
 
-		private PathFilterCompare(final PathFilter targetFilter, final PathFilter compareFilter) {
+		public PathFilterCompare(final PathFilter targetFilter, final PathFilter compareFilter) {
 			super();
 			final PathFilterElement[] targetFEs = targetFilter.normalise().getFilterElements();
 			final PathFilterElement[] compareFEs = compareFilter.normalise().getFilterElements();

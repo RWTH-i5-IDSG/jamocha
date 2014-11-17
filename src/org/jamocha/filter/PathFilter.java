@@ -14,6 +14,8 @@
  */
 package org.jamocha.filter;
 
+import static java.util.stream.Collectors.toSet;
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -29,8 +31,16 @@ import org.jamocha.visitor.Visitable;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
+ * @author Christoph Terwelp <christoph.terwelp@rwth-aachen.de>
  */
 public class PathFilter extends Filter<PathFilter.PathFilterElement> {
+
+	@Getter(lazy = true)
+	final private int hashCode = generateHashCode();
+
+	@Getter(lazy = true)
+	final private PathFilter normalizedPathFilter = normalise();
+	
 	public static PathFilter empty = new PathFilter(new HashSet<Path>(), new HashSet<Path>(),
 			new PathFilterElement[] {});
 
@@ -132,5 +142,29 @@ public class PathFilter extends Filter<PathFilter.PathFilterElement> {
 			return Integer.compare(a.function.hash(), b.function.hash());
 		});
 		return new PathFilter(positiveExistentialPaths, negativeExistentialPaths, normalPFEs);
+	}
+	
+	private int generateHashCode() {
+		return Arrays.hashCode(Arrays.stream(getNormalizedPathFilter().getFilterElements())
+				.mapToInt(fe -> fe.getFunction().hash()).toArray());
+	}
+	
+	public static boolean equals(final PathFilter filter1, final PathFilter filter2) {
+		if (filter1.getHashCode() != filter2.getHashCode())
+			return false;
+		FilterFunctionCompare.PathFilterCompare compare =
+				new FilterFunctionCompare.PathFilterCompare(filter1,
+						filter2);
+		if (!compare.isEqual())
+			return false;
+		if (!filter1.getNegativeExistentialPaths().stream()
+				.map(p -> compare.getPathMap().get(p)).collect(toSet())
+				.equals(filter2.getNegativeExistentialPaths()))
+			return false;
+		if (!filter1.getPositiveExistentialPaths().stream()
+				.map(p -> compare.getPathMap().get(p)).collect(toSet())
+				.equals(filter2.getPositiveExistentialPaths()))
+			return false;
+		return true;
 	}
 }
