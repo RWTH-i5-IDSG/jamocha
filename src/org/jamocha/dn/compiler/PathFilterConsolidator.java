@@ -276,11 +276,11 @@ public class PathFilterConsolidator implements DefaultConditionalElementsVisitor
 						filterElements.addAll(Arrays.asList(filter.getFilterElements()));
 					}
 				}
-				final PathFilter dummy =
+				final PathFilter combiningFilter =
 						new PathFilter(isPositive, collectedExistentialPaths, toArray(filterElements,
 								PathFilterElement[]::new));
-				joinPaths(pathToJoinedWith, dummy);
-				resultFilters.add(dummy);
+				joinPaths(pathToJoinedWith, combiningFilter);
+				resultFilters.add(combiningFilter);
 				processedExistentialPaths.addAll(collectedExistentialPaths);
 			}
 
