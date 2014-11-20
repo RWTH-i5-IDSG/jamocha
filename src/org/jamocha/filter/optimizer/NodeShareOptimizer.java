@@ -16,6 +16,7 @@ package org.jamocha.filter.optimizer;
 
 import static java.util.stream.Collectors.toSet;
 
+import java.nio.file.PathMatcher;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -23,7 +24,11 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
+
 import org.apache.commons.collections4.IteratorUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.jamocha.dn.ConstructCache.Defrule;
 import org.jamocha.filter.Path;
 import org.jamocha.filter.PathCollector;
@@ -37,9 +42,9 @@ import com.google.common.collect.Sets;
  */
 public class NodeShareOptimizer implements Optimizer {
 
-	final Map<Path, Set<PathFilter>> path2Filter = new HashMap<>();
+	final Map<Path, Set<PathFilter>> path2Filters = new HashMap<>();
 
-	final Map<PathFilter, Set<Set<PathFilter>>> filter2Block = new HashMap<>();
+	final Map<PathFilter, Set<Set<PathFilter>>> filter2Blocks = new HashMap<>();
 
 	final Map<PathFilter, Set<Path>> filter2Paths = new HashMap<>();
 
@@ -61,7 +66,7 @@ public class NodeShareOptimizer implements Optimizer {
 					paths.addAll(pathFilter.getPositiveExistentialPaths());
 					filter2Paths.put(pathFilter, paths);
 					for (Path path : paths) {
-						Set<PathFilter> set = path2Filter.computeIfAbsent(path, p -> new HashSet<>());
+						Set<PathFilter> set = path2Filters.computeIfAbsent(path, p -> new HashSet<>());
 						set.add(pathFilter);
 					}
 				}
@@ -77,7 +82,8 @@ public class NodeShareOptimizer implements Optimizer {
 	}
 
 	private void buildBlock(final Defrule.TranslatedPath rule, final PathFilter pathFilter) {
-		Set<PathFilter> preBlock = new HashSet<>();
+		final Set<PathFilter> preBlock = new HashSet<>();
+		final Map<Defrule.TranslatedPath, Map<Path, Path>> rule2PathMap = new HashMap<>();
 		preBlock.add(pathFilter);
 		// add all filters producing conflicts in the same rule
 		{
@@ -87,16 +93,16 @@ public class NodeShareOptimizer implements Optimizer {
 				final Set<PathFilter> conflictFilters = new HashSet<>();
 				for (PathFilter newFilter : newFilters) {
 					for (Path path : filter2Paths.get(newFilter)) {
-						conflictFilters.addAll(path2Filter.getOrDefault((path), Collections.emptySet()));
+						conflictFilters.addAll(path2Filters.getOrDefault((path), Collections.emptySet()));
 					}
 				}
 				conflictFilters.removeAll(preBlock);
 				newFilters = new HashSet<>();
 				for (PathFilter conflictFilter : conflictFilters) {
 					final Set<PathFilter> conflictingInBlock =
-							filter2Paths.get(conflictFilter).stream().flatMap(p -> path2Filter.get(p).stream())
+							filter2Paths.get(conflictFilter).stream().flatMap(p -> path2Filters.get(p).stream())
 									.filter(f -> preBlock.contains(f)).collect(toSet());
-					if (!filter2Block.get(conflictFilter).stream().allMatch(b -> b.containsAll(conflictingInBlock))) {
+					if (!filter2Blocks.get(conflictFilter).stream().allMatch(b -> b.containsAll(conflictingInBlock))) {
 						newFilters.add(conflictFilter);
 						preBlock.add(conflictFilter);
 					}
@@ -113,18 +119,39 @@ public class NodeShareOptimizer implements Optimizer {
 						.collect(toSet()));
 			}
 			for (Defrule.TranslatedPath possibleRule : possibleRules) {
+				final Map<Path, Path> pathMap = new HashMap<>();
 				final Map<PathFilter, PathFilter> filterMap =
-						comparePathFilters(preBlock, Sets.newHashSet(possibleRule.getCondition()));
+						comparePathFilters(preBlock, Sets.newHashSet(possibleRule.getCondition()), pathMap);
 				if (null != filterMap && checkForConflicts(filterMap.values())) {
 					preBlockAdds.addAll(filterMap.values());
+					rule2PathMap.put(possibleRule, pathMap);
+				}
+			}
+		}
+		{
+			for (PathFilter filter : rule.getCondition()) {
+				if (preBlock.contains(filter)) continue;
+				for (Defrule.TranslatedPath otherRule : rule2PathMap.keySet()) {
+					//FIXME hier weiterarbeiten
 				}
 			}
 		}
 	}
 
 	private boolean checkForConflicts(final Collection<PathFilter> values) {
-		// FIXME hier weiterarbeiten
-		return false;
+		return values
+				.stream()
+				.flatMap(
+						filter -> {
+							return (Stream<Boolean>) (filter2Paths.get(filter).stream().map(path -> path2Filters
+									.get(path)
+									.stream()
+									.allMatch(
+											conflictingFilter -> {
+												return filter2Blocks.get(conflictingFilter).stream()
+														.allMatch(block -> block.contains(filter));
+											})));
+						}).allMatch(noConflict -> noConflict);
 	}
 
 	private Map<PathFilter, PathFilter> comparePathFilters(final Set<PathFilter> filters1,
