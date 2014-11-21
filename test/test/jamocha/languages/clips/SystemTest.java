@@ -105,6 +105,58 @@ public class SystemTest {
 			}
 		}
 	}
+	
+	@Test
+	public void testOrCondition() throws ParseException {
+		final Network network = new Network();
+		final ByteArrayOutputStream out = new ByteArrayOutputStream();
+		network.addAppender(out, true);
+		{
+			final Pair<Queue<Object>, Queue<Warning>> returnValues = run(network, "(deftemplate templ1 (slot slot1 (type INTEGER)))\n" + 
+					"(defrule rule1 \n" + 
+					"(templ1 (slot1 ?x)) (templ1 (slot1 ?y)) (templ1 (slot1 ?z))\n" + 
+					"	(or\n" + 
+					"		(test (> ?x ?y))\n" + 
+					"		(test (> ?x ?z))\n" + 
+					"	)\n" + 
+					"	(test (< ?x ?y))\n" +
+					"=> )\n");
+		}
+	}
+	
+	@Test
+	public void testOnlyOrCondition() throws ParseException {
+		final Network network = new Network();
+		final ByteArrayOutputStream out = new ByteArrayOutputStream();
+		network.addAppender(out, true);
+		{
+			final Pair<Queue<Object>, Queue<Warning>> returnValues = run(network, "(deftemplate templ1 (slot slot1 (type INTEGER)))\n" + 
+					"(defrule rule1 \n" + 
+					"(templ1 (slot1 ?x)) (templ1 (slot1 ?y)) (templ1 (slot1 ?z))\n" + 
+					"	(or\n" + 
+					"		(test (> ?x ?y))\n" + 
+					"		(test (> ?x ?z))\n" + 
+					"	)\n" + 
+					"=> )\n");
+		}
+	}
+	
+	@Test
+	public void testUnderfullOrCondition() throws ParseException {
+		final Network network = new Network();
+		final ByteArrayOutputStream out = new ByteArrayOutputStream();
+		network.addAppender(out, true);
+		{
+			final Pair<Queue<Object>, Queue<Warning>> returnValues = run(network, "(deftemplate templ1 (slot slot1 (type INTEGER)))\n" + 
+					"(defrule rule1 \n" + 
+					"(templ1 (slot1 ?x)) (templ1 (slot1 ?y)) (templ1 (slot1 ?z))\n" + 
+					"	(or\n" +  
+					"		(test (> ?x ?z))\n" + 
+					"	)\n" + 
+					"	(test (> ?x ?y))\n" +
+					"=> )\n");
+		}
+	}
 
 	@Test
 	public void testSimpleWatchedFactAssertion() throws ParseException {
