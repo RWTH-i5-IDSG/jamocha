@@ -15,7 +15,7 @@
 				</excludes>
 			</resource>
 			<resource>
-				<directory>generated</directory>
+				<directory>${project.build.directory}/generated-sources</directory>
 				<excludes>
 					<exclude>**/*.java</exclude>
 				</excludes>
@@ -35,8 +35,8 @@
 				</dependencies>
 				<configuration>
 					<sourceDirectory>${basedir}/src</sourceDirectory>
-					<outputDirectory>${basedir}/generated</outputDirectory>
-					<interimDirectory>${basedir}/generated</interimDirectory>
+					<outputDirectory>${project.build.directory}/generated-sources</outputDirectory>
+					<interimDirectory>${project.build.directory}/generated-sources</interimDirectory>
 				</configuration>
 				<executions>
 					<execution>
