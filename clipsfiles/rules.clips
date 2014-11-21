@@ -1,0 +1,17 @@
+(deftemplate templ1 (slot slot1 (type INTEGER)))
+(defrule rule1 
+(templ1 (slot1 ?x)) (templ1 (slot1 ?y)) (templ1 (slot1 ?z))
+	(or
+			(and
+				(test (> ?x ?y))
+				(or
+					(test (< ?x ?y))
+					(test (> ?y ?z))
+				)
+				(test (> ?y ?z))
+			)
+		(test (> ?x ?z))
+	)
+	(test (> ?x ?y)
+)
+=> )
