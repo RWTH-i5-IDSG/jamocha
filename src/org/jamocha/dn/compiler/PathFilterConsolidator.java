@@ -184,7 +184,7 @@ public class PathFilterConsolidator implements DefaultConditionalElementsVisitor
 						new PathFilter(isPositive, existentialPaths, new PathFilter.DummyPathFilterElement(toArray(
 								paths, Path[]::new)));
 				joinPaths(pathToJoinedWith, existentialClosure);
-				return Arrays.asList(new PathFilterList.PathFilterListExistential(resultFilters, existentialClosure));
+				return Arrays.asList(new PathFilterList.PathFilterExistentialList(resultFilters, existentialClosure));
 			}
 
 			// Construct HashMap from Paths to Filters

@@ -33,11 +33,11 @@ public interface PathFilterList extends Visitable<PathFilterListVisitor>, Iterab
 
 	@Data
 	@RequiredArgsConstructor
-	public class PathFilterListExistential implements PathFilterList {
+	public class PathFilterExistentialList implements PathFilterList {
 		final PathFilterSharedListWrapper.PathFilterSharedList nonExistentialPart;
 		final PathFilter existentialClosure;
 
-		public PathFilterListExistential(final List<PathFilterList> nonExistentialPart,
+		public PathFilterExistentialList(final List<PathFilterList> nonExistentialPart,
 				final PathFilter existentialClosure) {
 			this(new PathFilterSharedListWrapper().newSharedElement(nonExistentialPart), existentialClosure);
 		}

@@ -27,7 +27,7 @@ import org.jamocha.filter.Path;
 import org.jamocha.filter.PathCollector;
 import org.jamocha.filter.PathFilter;
 import org.jamocha.filter.PathFilterList;
-import org.jamocha.filter.PathFilterList.PathFilterListExistential;
+import org.jamocha.filter.PathFilterList.PathFilterExistentialList;
 import org.jamocha.filter.PathFilterList.PathFilterSharedListWrapper.PathFilterSharedList;
 import org.jamocha.filter.PathFilterListVisitor;
 
@@ -69,7 +69,7 @@ public class PathFilterOrderOptimizer {
 	static class Partitioner implements PathFilterListVisitor {
 		final ArrayList<PathFilter> pathFilters = new ArrayList<>();
 		final ArrayList<PathFilterSharedList> pathFilterSharedLists = new ArrayList<>();
-		final ArrayList<PathFilterListExistential> pathFilterListExistentials = new ArrayList<>();
+		final ArrayList<PathFilterExistentialList> pathFilterExistentialLists = new ArrayList<>();
 
 		@Override
 		public void visit(final PathFilter filter) {
@@ -77,8 +77,8 @@ public class PathFilterOrderOptimizer {
 		}
 
 		@Override
-		public void visit(final PathFilterListExistential filter) {
-			this.pathFilterListExistentials.add(filter);
+		public void visit(final PathFilterExistentialList filter) {
+			this.pathFilterExistentialLists.add(filter);
 		}
 
 		@Override
@@ -117,14 +117,14 @@ public class PathFilterOrderOptimizer {
 		final List<PathFilterList> elements = list.getFilterElements();
 		elements.forEach(e -> e.accept(partitioner));
 		partitioner.pathFilterSharedLists.forEach(this::optimize);
-		partitioner.pathFilterListExistentials.stream().map(PathFilterListExistential::getNonExistentialPart)
+		partitioner.pathFilterExistentialLists.stream().map(PathFilterExistentialList::getNonExistentialPart)
 		.forEach(this::optimize);
 		elements.clear();
 		optimizeHomogenousList(partitioner.pathFilterSharedLists);
-		optimizeHomogenousList(partitioner.pathFilterListExistentials);
+		optimizeHomogenousList(partitioner.pathFilterExistentialLists);
 		optimizeHomogenousList(partitioner.pathFilters);
 		elements.addAll(partitioner.pathFilterSharedLists);
-		elements.addAll(partitioner.pathFilterListExistentials);
+		elements.addAll(partitioner.pathFilterExistentialLists);
 		elements.addAll(partitioner.pathFilters);
 	}
 }

@@ -24,7 +24,7 @@ public interface PathFilterListVisitor extends Visitor {
 
 	public void visit(final PathFilter filter);
 
-	public void visit(final PathFilterList.PathFilterListExistential filter);
+	public void visit(final PathFilterList.PathFilterExistentialList filter);
 
 	public void visit(final PathFilterList.PathFilterSharedListWrapper.PathFilterSharedList filter);
 
