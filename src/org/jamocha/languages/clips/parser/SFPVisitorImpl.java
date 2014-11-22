@@ -1084,7 +1084,7 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 			// as `(exists (TemplatePatternCE)+)` is equivalent to
 			// `(not (not (and (TemplatePatternCE)+)))`, and needs to support TemplatePatternCE
 			// children, too. These will not be added to the Predicate <and>
-			assert node.jjtGetNumChildren() > 1;
+			assert node.jjtGetNumChildren() > 0;
 			final List<ConditionalElement> elements =
 					SelectiveSFPVisitor
 							.stream(node, 0)
@@ -1104,7 +1104,7 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 		// OrFunction(): <OR> (ConditionalElement())+
 		@Override
 		public Object visit(final SFPOrFunction node, final Object data) {
-			assert node.jjtGetNumChildren() > 1;
+			assert node.jjtGetNumChildren() > 0;
 			final List<ConditionalElement> elements =
 					SelectiveSFPVisitor
 							.stream(node, 0)
