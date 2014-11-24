@@ -539,6 +539,24 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 		// Transform TestCEs to PathFilters
 		new PathFilterConsolidator(this.initialFactTemplate, rule).consolidate();
 	}
+	
+	/**
+	 * Clears all appenders of the logging framework.
+	 *
+	 * @param out
+	 *            output stream
+	 * @param plain
+	 *            true for just the content, false for log-style additional infos in front of the
+	 *            content
+	 */
+	public void clearAppender() {
+		final LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
+		final Configuration config = ctx.getConfiguration();
+		final LoggerConfig loggerConfig = config.getLoggerConfig(this.getInteractiveEventsLogger().getName());
+		loggerConfig.getAppenders().forEach((n, a) -> loggerConfig.removeAppender(n));
+		// This causes all loggers to re-fetch information from their LoggerConfig
+		ctx.updateLoggers();
+	}
 
 	/**
 	 * Adds an appender to the logging framework.

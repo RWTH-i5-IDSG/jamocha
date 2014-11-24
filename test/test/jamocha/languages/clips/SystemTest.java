@@ -106,11 +106,17 @@ public class SystemTest {
 		}
 	}
 	
+	private static ByteArrayOutputStream initializeAppender(Network network) {
+		final ByteArrayOutputStream out = new ByteArrayOutputStream();
+		network.clearAppender();
+		network.addAppender(out, true);
+		return out;
+	}
+	
 	@Test
 	public void testOrCondition() throws ParseException {
 		final Network network = new Network();
-		final ByteArrayOutputStream out = new ByteArrayOutputStream();
-		network.addAppender(out, true);
+		final ByteArrayOutputStream out = initializeAppender(network);
 		{
 			final Pair<Queue<Object>, Queue<Warning>> returnValues = run(network, "(deftemplate templ1 (slot slot1 (type INTEGER)))\n" + 
 					"(defrule rule1 \n" + 
@@ -127,16 +133,28 @@ public class SystemTest {
 	@Test
 	public void testOnlyOrCondition() throws ParseException {
 		final Network network = new Network();
-		final ByteArrayOutputStream out = new ByteArrayOutputStream();
-		network.addAppender(out, true);
+		final ByteArrayOutputStream out = initializeAppender(network);
 		{
 			final Pair<Queue<Object>, Queue<Warning>> returnValues = run(network, "(deftemplate templ1 (slot slot1 (type INTEGER)))\n" + 
 					"(defrule rule1 \n" + 
 					"(templ1 (slot1 ?x)) (templ1 (slot1 ?y)) (templ1 (slot1 ?z))\n" + 
 					"	(or\n" + 
-					"		(test (> ?x ?y))\n" + 
-					"		(test (> ?x ?z))\n" + 
+					"		(test (< ?x ?y))\n" + 
+					"		(test (< ?x ?z))\n" + 
 					"	)\n" + 
+					"=> )\n");
+		}
+	}
+	
+	@Test
+	public void testUnderUsedTemplatesCondition() throws ParseException {
+		final Network network = new Network();
+		final ByteArrayOutputStream out = initializeAppender(network);
+		{
+			final Pair<Queue<Object>, Queue<Warning>> returnValues = run(network, "(deftemplate templ1 (slot slot1 (type INTEGER)))\n" + 
+					"(defrule rule1 \n" + 
+					"(templ1 (slot1 ?x)) (templ1 (slot1 ?y)) (templ1 (slot1 ?z))\n" +  
+					"	(test (> ?x ?y))\n" +
 					"=> )\n");
 		}
 	}
@@ -144,8 +162,7 @@ public class SystemTest {
 	@Test
 	public void testUnderfullOrCondition() throws ParseException {
 		final Network network = new Network();
-		final ByteArrayOutputStream out = new ByteArrayOutputStream();
-		network.addAppender(out, true);
+		final ByteArrayOutputStream out = initializeAppender(network);
 		{
 			final Pair<Queue<Object>, Queue<Warning>> returnValues = run(network, "(deftemplate templ1 (slot slot1 (type INTEGER)))\n" + 
 					"(defrule rule1 \n" + 
@@ -161,8 +178,7 @@ public class SystemTest {
 	@Test
 	public void testSimpleWatchedFactAssertion() throws ParseException {
 		final Network network = new Network();
-		final ByteArrayOutputStream out = new ByteArrayOutputStream();
-		network.addAppender(out, true);
+		final ByteArrayOutputStream out = initializeAppender(network);
 		{
 			final Pair<Queue<Object>, Queue<Warning>> returnValues = run(network, "(unwatch all)\n(watch facts)\n");
 			assertThat(returnValues.getLeft(), empty());
@@ -196,8 +212,7 @@ public class SystemTest {
 	@Test
 	public void testSimpleRuleExecution() throws ParseException {
 		final Network network = new Network();
-		final ByteArrayOutputStream out = new ByteArrayOutputStream();
-		network.addAppender(out, true);
+		final ByteArrayOutputStream out = initializeAppender(network);
 		{
 			final Pair<Queue<Object>, Queue<Warning>> returnValues = run(network, "(unwatch all)\n(watch facts)\n");
 			assertThat(returnValues.getLeft(), empty());
@@ -259,8 +274,7 @@ public class SystemTest {
 	@Test
 	public void testNodeSharingAllButTerminal() throws ParseException {
 		final Network network = new Network();
-		final ByteArrayOutputStream out = new ByteArrayOutputStream();
-		network.addAppender(out, true);
+		final ByteArrayOutputStream out = initializeAppender(network);
 		{
 			final Pair<Queue<Object>, Queue<Warning>> returnValues = run(network, "(unwatch all)\n(watch facts)\n");
 			assertThat(returnValues.getLeft(), empty());
@@ -318,8 +332,7 @@ public class SystemTest {
 	@Test
 	public void testSimpleNegatedExistentialRule() throws ParseException {
 		final Network network = new Network();
-		final ByteArrayOutputStream out = new ByteArrayOutputStream();
-		network.addAppender(out, true);
+		final ByteArrayOutputStream out = initializeAppender(network);
 		{
 			final Pair<Queue<Object>, Queue<Warning>> returnValues = run(network, "(unwatch all)\n(watch facts)\n");
 			assertThat(returnValues.getLeft(), empty());
@@ -372,8 +385,7 @@ public class SystemTest {
 	@Test
 	public void testSimpleNegatedTest() throws ParseException {
 		final Network network = new Network();
-		final ByteArrayOutputStream out = new ByteArrayOutputStream();
-		network.addAppender(out, true);
+		final ByteArrayOutputStream out = initializeAppender(network);
 		{
 			final Pair<Queue<Object>, Queue<Warning>> returnValues = run(network, "(unwatch all)\n(watch facts)\n");
 			assertThat(returnValues.getLeft(), empty());
