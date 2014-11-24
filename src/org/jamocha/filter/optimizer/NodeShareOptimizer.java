@@ -16,7 +16,6 @@ package org.jamocha.filter.optimizer;
 
 import static java.util.stream.Collectors.toSet;
 
-import java.nio.file.PathMatcher;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -25,10 +24,8 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 
 import org.apache.commons.collections4.IteratorUtils;
-import org.apache.commons.lang3.tuple.Pair;
 import org.jamocha.dn.ConstructCache.Defrule;
 import org.jamocha.filter.Path;
 import org.jamocha.filter.PathCollector;
