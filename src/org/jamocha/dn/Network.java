@@ -68,6 +68,7 @@ import org.jamocha.dn.nodes.ObjectTypeNode;
 import org.jamocha.dn.nodes.RootNode;
 import org.jamocha.dn.nodes.TerminalNode;
 import org.jamocha.filter.*;
+import org.jamocha.filter.optimizer.PathFilterOrderOptimizer;
 import org.jamocha.function.FunctionDictionary;
 import org.jamocha.function.fwa.Assert.TemplateContainer;
 import org.jamocha.languages.clips.ClipsLogFormatter;
@@ -472,6 +473,7 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 		for (final Defrule defrule : defrules) {
 			this.compileRule(defrule);
 			for (final TranslatedPath translated : defrule.getTranslatedPathVersions()) {
+				new PathFilterOrderOptimizer().optimize(translated.getCondition());
 				buildRule(translated);
 			}
 			// add the rule and the contained translated versions to the construct cache
