@@ -492,6 +492,14 @@ public abstract class FilterFunctionCompare {
 		list[j] = tmp;
 	}
 
+
+	/**
+	 * Permutes a list in place
+	 * 
+	 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
+	 *
+	 * @param <T> element type
+	 */
 	static class Permutation<T> {
 		final List<T> list;
 		final int[] p;
@@ -504,6 +512,11 @@ public abstract class FilterFunctionCompare {
 			Arrays.parallelSetAll(p, i -> i);
 		}
 
+		/**
+		 * Steps through all permutations of a given list.
+		 * 
+		 * @return false if the initial permutation is reached again
+		 */ 
 		public boolean nextPermutation() {
 			if (length < 2)
 				return false;
@@ -545,6 +558,13 @@ public abstract class FilterFunctionCompare {
 		} while (componentwisePermutation.nextPermutation());
 	}
 
+	/**
+	 * Permutes a List of Permutations at once
+	 * 
+	 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
+	 *
+	 * @param <T> element type
+	 */ 
 	static class ComponentwisePermutation<T> {
 		final List<Permutation<T>> permutators;
 
@@ -555,6 +575,11 @@ public abstract class FilterFunctionCompare {
 			}
 		}
 
+		/**
+		 * Steps through all Permutations
+		 * 
+		 * @return false if the initial permutation is reached again
+		 */
 		public boolean nextPermutation() {
 			if (this.permutators.isEmpty()) {
 				return false;
@@ -575,16 +600,25 @@ public abstract class FilterFunctionCompare {
 		final int start, end;
 	}
 
+	/**
+	 * Checks if a {@link PathFilter} is compatible with an existing {@link Node}.
+	 *    
+	 * @param targetNode Node candidate
+	 * @param pathFilter PathFilter to compare
+	 * @return null if not compatible otherwise Map from Paths in pathFilter to FactAddresses in targetNode
+	 */
 	public static Map<Path, FactAddress> equals(final Node targetNode, final PathFilter pathFilter) {
-		final List<Path> pathsPermutation = new LinkedList<>();
+		final List<Path> pathsPermutation = new LinkedList<>(); 
 		final ComponentwisePermutation<Path> componentwisePermutation;
+		// FIXME remove unnecessary permutations (only the first path found for an edge defines the edge for all joined with it) (only occurring for self-joins of nodes with more than one output path)
+		// TODO commutative PWAs
+		// create list of Paths with permutable parts where self-joins occur
 		{
 			final Map<FactAddress, List<Path>> pathsByNode =
 					PathCollector.newHashSet().collectAll(pathFilter).getPaths().stream()
 							.collect(groupingBy(path -> path.getFactAddressInCurrentlyLowestNode()));
 			final List<Range> ranges = new ArrayList<>(pathsByNode.size());
-			for (final Entry<FactAddress, List<Path>> entry : pathsByNode.entrySet()) {
-				final List<Path> newPaths = entry.getValue();
+			for (final List<Path> newPaths : pathsByNode.values()) {
 				final int start = pathsPermutation.size();
 				pathsPermutation.addAll(newPaths);
 				final int end = pathsPermutation.size();
@@ -598,17 +632,20 @@ public abstract class FilterFunctionCompare {
 			}
 			componentwisePermutation = new ComponentwisePermutation<>(sublists);
 		}
+		// 
 		do {
+			// get current Path permutation
 			final List<Path> paths = new ArrayList<>(pathsPermutation);
 			final Map<Path, FactAddress> result = new HashMap<>();
 			final Edge[] edges = targetNode.getIncomingEdges();
 			final Set<Path> joinedPaths = new HashSet<>();
 			edgeloop: for (final Edge edge : edges) {
-				for (final Iterator<Path> iterator = paths.iterator(); iterator.hasNext();) {
-					final Path currentPath = iterator.next();
+				// search for first path in permutation matching current edge
+				for (final Path currentPath : paths) {
 					if (currentPath.getCurrentlyLowestNode() != edge.getSourceNode()) {
 						continue;
 					}
+					// map all paths joined with the found one by the current edge
 					for (final Path path : currentPath.getJoinedWith()) {
 						final FactAddress localizedAddress =
 								edge.localizeAddress(path.getFactAddressInCurrentlyLowestNode());
