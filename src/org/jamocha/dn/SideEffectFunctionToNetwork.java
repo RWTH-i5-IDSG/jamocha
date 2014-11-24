@@ -16,6 +16,7 @@ package org.jamocha.dn;
 
 import java.util.Collection;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.logging.log4j.Logger;
 import org.jamocha.dn.ConstructCache.Deffacts;
@@ -25,6 +26,7 @@ import org.jamocha.dn.memory.FactIdentifier;
 import org.jamocha.dn.memory.MemoryFact;
 import org.jamocha.dn.memory.MemoryFactToFactIdentifier;
 import org.jamocha.dn.memory.Template;
+import org.jamocha.dn.nodes.TerminalNode;
 import org.jamocha.logging.LogFormatter;
 import org.jamocha.logging.TypedFilter;
 
@@ -65,4 +67,6 @@ public interface SideEffectFunctionToNetwork {
 	void clear();
 
 	void reset();
+
+	Set<TerminalNode> getTerminalNodes();
 }

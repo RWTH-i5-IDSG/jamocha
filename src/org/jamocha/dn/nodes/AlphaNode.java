@@ -137,4 +137,10 @@ public class AlphaNode extends Node {
 		path.setFactAddressInCurrentlyLowestNode(entry.getKey());
 	}
 
+	@Override
+	public <V extends NodeVisitor> V accept(V visitor) {
+		visitor.visit(this);
+		return visitor;
+	}
+
 }

@@ -43,6 +43,7 @@ import org.jamocha.filter.Path;
 import org.jamocha.filter.PathCollector;
 import org.jamocha.filter.PathFilter;
 import org.jamocha.filter.PathFilterToAddressFilterTranslator;
+import org.jamocha.visitor.Visitable;
 
 /**
  * Base class for all node types
@@ -51,7 +52,7 @@ import org.jamocha.filter.PathFilterToAddressFilterTranslator;
  * @author Kai Schwarz <kai.schwarz@rwth-aachen.de>
  * @author Christoph Terwelp <christoph.terwelp@rwth-aachen.de>
  */
-public abstract class Node {
+public abstract class Node implements Visitable<NodeVisitor> {
 
 	/**
 	 * Base implementation of the {@link Edge} interface taking care of the intersection of the

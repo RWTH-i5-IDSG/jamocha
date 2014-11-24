@@ -29,6 +29,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -138,6 +139,15 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 	 */
 	private final ConflictSet conflictSet;
 
+	/**
+	 * -- GETTER --
+	 *
+	 * Gets the {@link Set} of {@link TerminalNode TerminalNodes}.
+	 *
+	 * @return {@link Set} of {@link TerminalNode TerminalNodes}.
+	 */
+	private final Set<TerminalNode> terminalNodes = new HashSet<>();
+
 	@Getter
 	private final ConstructCache constructCache = new ConstructCache();
 
@@ -230,6 +240,7 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 			final Appender appender =
 					ConsoleAppender.createAppender(LayoutAdapter.createLayout(config), (Filter) null,
 							Target.SYSTEM_OUT.name(), "consoleAppender", "true", "true");
+			appender.start();
 			// loggerConfig.getAppenders().forEach((n, a) -> loggerConfig.removeAppender(n));
 			// loggerConfig.setAdditive(false);
 			loggerConfig.setLevel(Level.ALL);
@@ -474,7 +485,7 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 			this.compileRule(defrule);
 			for (final TranslatedPath translated : defrule.getTranslatedPathVersions()) {
 				new PathFilterOrderOptimizer().optimize(translated.getCondition());
-				buildRule(translated);
+				terminalNodes.add(buildRule(translated));
 			}
 			// add the rule and the contained translated versions to the construct cache
 			this.constructCache.addRule(defrule);
@@ -505,6 +516,7 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 		this.rootNode.clear();
 		this.conflictSet.flush();
 		this.constructCache.clear();
+		this.terminalNodes.clear();
 		createInitialDeffact();
 		createDummyTemplate();
 		reset();
@@ -541,7 +553,7 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 		// Transform TestCEs to PathFilters
 		new PathFilterConsolidator(this.initialFactTemplate, rule).consolidate();
 	}
-	
+
 	/**
 	 * Clears all appenders of the logging framework.
 	 *

@@ -138,6 +138,11 @@ public interface DefaultFunctionVisitor extends FunctionVisitor {
 	default void visit(final org.jamocha.function.impls.sideeffects.Run function) {
 		defaultAction(function);
 	}
+	
+	@Override
+	default void visit(final org.jamocha.function.impls.sideeffects.ToDot function) {
+		defaultAction(function);
+	}
 
 	@Override
 	default void visit(final org.jamocha.function.impls.sideeffects.Unwatch function) {

@@ -21,6 +21,7 @@ import java.util.EnumMap;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import lombok.Getter;
 
@@ -36,6 +37,7 @@ import org.jamocha.dn.memory.MemoryFactToFactIdentifier;
 import org.jamocha.dn.memory.SlotType;
 import org.jamocha.dn.memory.Template;
 import org.jamocha.dn.memory.Template.Slot;
+import org.jamocha.dn.nodes.TerminalNode;
 import org.jamocha.function.fwa.Assert.TemplateContainer;
 import org.jamocha.languages.common.ScopeStack;
 import org.jamocha.logging.LogFormatter;
@@ -205,5 +207,10 @@ public class NetworkMockup implements ParserToNetwork, SideEffectFunctionToNetwo
 
 	@Override
 	public void run(final long maxNumRules) {
+	}
+
+	@Override
+	public Set<TerminalNode> getTerminalNodes() {
+		return null;
 	}
 }

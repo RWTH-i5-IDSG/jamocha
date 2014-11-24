@@ -38,6 +38,7 @@ import org.jamocha.dn.nodes.AddressPredecessor;
 import org.jamocha.dn.nodes.CouldNotAcquireLockException;
 import org.jamocha.dn.nodes.Edge;
 import org.jamocha.dn.nodes.Node;
+import org.jamocha.dn.nodes.NodeVisitor;
 import org.jamocha.dn.nodes.SlotInFactAddress;
 import org.jamocha.filter.AddressFilter;
 import org.jamocha.filter.AddressFilter.AddressFilterElement;
@@ -174,6 +175,11 @@ public class MemoryHandlerTempTest {
 
 		@Override
 		public void shareNode(final Map<Path, FactAddress> map, final Path... paths) {
+		}
+
+		@Override
+		public <V extends NodeVisitor> V accept(V visitor) {
+			return visitor;
 		}
 
 	}

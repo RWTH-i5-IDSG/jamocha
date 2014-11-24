@@ -106,5 +106,11 @@ public class ObjectTypeNode extends AlphaNode {
 			path.setFactAddressInCurrentlyLowestNode(this.factAddress);
 		}
 	}
+	
+	@Override
+	public <V extends NodeVisitor> V accept(V visitor) {
+		visitor.visit(this);
+		return visitor;
+	}
 
 }
