@@ -79,6 +79,15 @@ public class PathCollector<T extends Collection<Path>> implements PathFilterElem
 		return this;
 	}
 
+	public PathCollector<T> collectOnlyNonExistential(final PathFilterList filters) {
+		for (final PathFilter filter : filters) {
+			collectOnlyInFilterElements(filter);
+			this.paths.removeAll(filter.getPositiveExistentialPaths());
+			this.paths.removeAll(filter.getNegativeExistentialPaths());
+		}
+		return this;
+	}
+
 	@Override
 	public void visit(final PathFilterElement fe) {
 		fe.getFunction().accept(new PathCollectorInFWA());
