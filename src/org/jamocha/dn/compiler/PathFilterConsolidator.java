@@ -103,7 +103,7 @@ public class PathFilterConsolidator implements DefaultConditionalElementsVisitor
 		public static TranslatedPath consolidate(final Template initialFactTemplate, final Defrule rule,
 				final Map<Path, Set<Path>> pathToJoinedWith, final ConditionalElement ce) {
 			final Pair<Path, Map<SingleFactVariable, Path>> initialFactAndPathMap =
-					FactVariableCollector.collectPaths(initialFactTemplate, ce);
+					FactVariableCollector.generatePaths(initialFactTemplate, ce);
 			final Map<SingleFactVariable, Path> pathMap = initialFactAndPathMap.getRight();
 			final Set<Path> allPaths = new HashSet<>(pathMap.values());
 			final NoORsPFC instance =

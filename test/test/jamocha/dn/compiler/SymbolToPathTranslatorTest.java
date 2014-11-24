@@ -98,7 +98,7 @@ public class SymbolToPathTranslatorTest {
 		assertThat(conditionalElements, hasSize(1));
 		final ConditionalElement andCe = conditionalElements.get(0);
 		final Map<SingleFactVariable, Path> paths =
-				FactVariableCollector.collectPaths(ptn.getInitialFactTemplate(), andCe).getRight();
+				FactVariableCollector.generatePaths(ptn.getInitialFactTemplate(), andCe).getRight();
 		final List<ConditionalElement> andChildren = andCe.getChildren();
 		assertThat(andChildren, hasSize(2));
 		final SingleFactVariable xFactVar;
@@ -132,7 +132,7 @@ public class SymbolToPathTranslatorTest {
 		assertThat(conditionalElements, hasSize(1));
 		final ConditionalElement andCe = conditionalElements.get(0);
 		final Map<SingleFactVariable, Path> paths =
-				FactVariableCollector.collectPaths(ptn.getInitialFactTemplate(), andCe).getRight();
+				FactVariableCollector.generatePaths(ptn.getInitialFactTemplate(), andCe).getRight();
 		final List<ConditionalElement> andChildren = andCe.getChildren();
 		assertThat(andChildren, hasSize(3));
 		final SingleFactVariable xFactVar;
@@ -186,7 +186,7 @@ public class SymbolToPathTranslatorTest {
 		{
 			final ConditionalElement andCe = orChildren.get(0);
 			final Map<SingleFactVariable, Path> paths =
-					FactVariableCollector.collectPaths(ptn.getInitialFactTemplate(), andCe).getRight();
+					FactVariableCollector.generatePaths(ptn.getInitialFactTemplate(), andCe).getRight();
 			final List<ConditionalElement> andChildren = andCe.getChildren();
 			assertThat(andChildren, hasSize(2));
 			final SingleFactVariable xFactVar;
@@ -218,7 +218,7 @@ public class SymbolToPathTranslatorTest {
 		{
 			final ConditionalElement andCe = orChildren.get(1);
 			final Map<SingleFactVariable, Path> paths =
-					FactVariableCollector.collectPaths(ptn.getInitialFactTemplate(), andCe).getRight();
+					FactVariableCollector.generatePaths(ptn.getInitialFactTemplate(), andCe).getRight();
 			final List<ConditionalElement> andChildren = andCe.getChildren();
 			assertThat(andChildren, hasSize(2));
 			final SingleFactVariable xFactVar;
@@ -256,6 +256,6 @@ public class SymbolToPathTranslatorTest {
 		final List<ConditionalElement> conditionalElements = clipsToCondition(ptn, input);
 		assertThat(conditionalElements, hasSize(1));
 		final ConditionalElement orCe = conditionalElements.get(0);
-		FactVariableCollector.collectPaths(ptn.getInitialFactTemplate(), orCe).getRight();
+		FactVariableCollector.generatePaths(ptn.getInitialFactTemplate(), orCe).getRight();
 	}
 }

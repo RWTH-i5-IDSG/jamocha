@@ -86,7 +86,7 @@ public class FactVariableCollectorTest {
 		final List<ConditionalElement> conditionalElements = clipsToCondition(ptn, input);
 		assertEquals(1, conditionalElements.size());
 		final Map<SingleFactVariable, Path> variables =
-				FactVariableCollector.collectPaths(ptn.getInitialFactTemplate(), conditionalElements.get(0)).getRight();
+				FactVariableCollector.generatePaths(ptn.getInitialFactTemplate(), conditionalElements.get(0)).getRight();
 		assertEquals(1, variables.size());
 		final Entry<SingleFactVariable, Path> entry = variables.entrySet().iterator().next();
 		assertEquals("Dummy", entry.getKey().getSymbol().getImage());

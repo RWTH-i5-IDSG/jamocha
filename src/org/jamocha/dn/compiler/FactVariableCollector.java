@@ -44,7 +44,7 @@ public class FactVariableCollector implements DefaultConditionalElementsVisitor 
 	@Getter
 	private List<SingleFactVariable> factVariables;
 
-	public static Pair<Path, Map<SingleFactVariable, Path>> collectPaths(final Template initialFactTemplate,
+	public static Pair<Path, Map<SingleFactVariable, Path>> generatePaths(final Template initialFactTemplate,
 			final ConditionalElement ce) {
 		final FactVariableCollector instance = new FactVariableCollector();
 		// Collect all FactVariables defined in the CEs TemplateCEs and InitialFactCEs
