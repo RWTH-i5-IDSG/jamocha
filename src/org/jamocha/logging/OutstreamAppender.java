@@ -45,7 +45,9 @@ public class OutstreamAppender extends AbstractOutputStreamAppender<OutputStream
 	public static OutstreamAppender newInstance(final OutputStream outputStream,
 			final Layout<? extends Serializable> layout, final Filter filter, final boolean follow) {
 		final String name = "OutstreamAppender" + ++instanceCount;
-		return new OutstreamAppender(name, layout, filter, getManager(follow, name, outputStream, layout), true);
+		final OutstreamAppender outstreamAppender = new OutstreamAppender(name, layout, filter, getManager(follow, name, outputStream, layout), true);
+		outstreamAppender.start();
+		return outstreamAppender;
 	}
 
 	@Value
