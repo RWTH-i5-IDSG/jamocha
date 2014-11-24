@@ -15,10 +15,13 @@
 package org.jamocha;
 
 import java.io.InputStream;
+import java.util.Objects;
 import java.util.Queue;
 
 import lombok.Getter;
+import lombok.extern.log4j.Log4j2;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.jamocha.dn.Network;
 import org.jamocha.dn.PlainScheduler;
 import org.jamocha.languages.clips.parser.SFPVisitorImpl;
@@ -31,28 +34,61 @@ import org.jamocha.languages.common.Warning;
  * @author Christoph Terwelp <christoph.terwelp@rwth-aachen.de>
  *
  */
+@Log4j2
 public class Jamocha {
-
+	
 	@Getter
 	final private Network network;
 
+	SFPParser parser;
+	final SFPVisitorImpl visitor;
+
 	public Jamocha() {
 		network = new Network(Integer.MAX_VALUE, new PlainScheduler());
+		visitor = new SFPVisitorImpl(network, network);
+	}
+	
+	public void loadParser(InputStream inputStream) {
+		parser = new SFPParser(inputStream);
 	}
 
-	public Queue<Warning> parse(final InputStream inputStream) throws ParseException {
-		final SFPParser parser = new SFPParser(inputStream);
-		final SFPVisitorImpl visitor = new SFPVisitorImpl(network, network);
-		while (true) {
-			final SFPStart n = parser.Start();
-			if (n == null)
-				return visitor.getWarnings();
-			n.jjtAccept(visitor, null);
-		}
+	public Pair<Queue<Warning>, String> parse() throws ParseException {
+		final SFPStart n = parser.Start();
+		if (null == n) return null;
+		final String value = Objects.toString(n.jjtAccept(visitor, null));
+		return Pair.of(visitor.getWarnings(), value);
 	}
 
 	public void shutdown() {
 		network.shutdown();
+	}
+	
+	public static void main(final String[] args) {
+		final boolean verbose = (args != null && args.length == 1 && "verbose".equals(args[0]));
+		if (!verbose)
+			System.out.println("Note: For verbose output type \"java Main verbose\".\n");
+
+		Jamocha jamocha = new Jamocha();
+		jamocha.loadParser(System.in);
+
+		while (true) {
+			try {
+				System.out.print("SFP> ");
+				final Pair<Queue<Warning>,String> parserReturn = jamocha.parse();
+				if (null == parserReturn)
+					System.exit(0);
+				final String expression = parserReturn.getRight();
+				if (!(null == expression || "null".equals(expression))) {
+					log.info(expression);
+				}
+				final Queue<Warning> warnings = parserReturn.getLeft();
+				warnings.forEach(w -> log.warn("Warning: " + w.getMessage()));
+			} catch (final ParseException e) {
+				log.catching(e);
+			} catch (final Throwable e) {
+				log.catching(e);
+			}
+		}
 	}
 
 }

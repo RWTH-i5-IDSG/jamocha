@@ -24,7 +24,6 @@ import java.util.Collections;
 import java.util.EnumSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Queue;
 import java.util.function.Consumer;
@@ -35,10 +34,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j2;
 
 import org.jamocha.dn.ConstructCache.Defrule;
-import org.jamocha.dn.Network;
 import org.jamocha.dn.ParserToNetwork;
 import org.jamocha.dn.SideEffectFunctionToNetwork;
 import org.jamocha.dn.memory.SlotAddress;
@@ -67,7 +64,6 @@ import org.jamocha.languages.clips.parser.errors.ClipsTemplateNotDefinedError;
 import org.jamocha.languages.clips.parser.errors.ClipsTypeMismatchError;
 import org.jamocha.languages.clips.parser.errors.ClipsVariableNotDeclaredError;
 import org.jamocha.languages.clips.parser.generated.Node;
-import org.jamocha.languages.clips.parser.generated.ParseException;
 import org.jamocha.languages.clips.parser.generated.SFPActionList;
 import org.jamocha.languages.clips.parser.generated.SFPAllowedConstantAttribute;
 import org.jamocha.languages.clips.parser.generated.SFPAmpersandConnectedConstraint;
@@ -118,7 +114,6 @@ import org.jamocha.languages.clips.parser.generated.SFPNoneAttribute;
 import org.jamocha.languages.clips.parser.generated.SFPNotFunction;
 import org.jamocha.languages.clips.parser.generated.SFPOrFunction;
 import org.jamocha.languages.clips.parser.generated.SFPOrderedLHSFactBody;
-import org.jamocha.languages.clips.parser.generated.SFPParser;
 import org.jamocha.languages.clips.parser.generated.SFPParserTreeConstants;
 import org.jamocha.languages.clips.parser.generated.SFPRHSPattern;
 import org.jamocha.languages.clips.parser.generated.SFPRHSSlot;
@@ -171,7 +166,6 @@ import org.jamocha.languages.common.Warning;
  *
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
-@Log4j2
 @Getter
 public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 
@@ -1789,42 +1783,6 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 					sideEffectFunctionToNetwork.getLogFormatter().formatSlotValue(expression.getReturnType(),
 							expression.evaluate());
 			return data;
-		}
-	}
-
-	public static void main(final String[] args) {
-		final boolean verbose = (args != null && args.length == 1 && "verbose".equals(args[0]));
-		if (!verbose)
-			System.out.println("Note: For verbose output type \u005c"java Main verbose\u005c".\u005cn");
-
-		final SFPParser p = new SFPParser(System.in);
-		final Network network = new Network();
-		final SFPVisitorImpl visitor = new SFPVisitorImpl(network, network);
-
-		while (true) {
-			try {
-				System.out.print("SFP> ");
-				final SFPStart n = p.Start();
-				if (n == null)
-					System.exit(0);
-				if (verbose)
-					SelectiveSFPVisitor.dumpToStdOut(n);
-				final String expression = Objects.toString(n.jjtAccept(visitor, ""));
-				if (!(null == expression || "null".equals(expression))) {
-					log.info(expression);
-				}
-				visitor.warnings.forEach(w -> log.warn("Warning: " + w.getMessage()));
-				visitor.warnings.clear();
-			} catch (final ParseException e) {
-				log.catching(e);
-				System.exit(-1);
-			} catch (final Throwable e) {
-				log.catching(e);
-				// System.err
-				// .println("ERROR[" + e.getClass().getSimpleName() + "]: " + e.getMessage());
-				// if (verbose)
-				// e.printStackTrace();
-			}
 		}
 	}
 }
