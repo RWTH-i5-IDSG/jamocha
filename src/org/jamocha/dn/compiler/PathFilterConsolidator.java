@@ -34,6 +34,7 @@ import org.jamocha.filter.PathFilterList.PathFilterSharedListWrapper;
 import org.jamocha.function.FunctionDictionary;
 import org.jamocha.function.fwa.PredicateWithArguments;
 import org.jamocha.function.fwa.PredicateWithArgumentsComposite;
+import org.jamocha.function.fwatransformer.FWADeepCopy;
 import org.jamocha.function.impls.predicates.Not;
 import org.jamocha.languages.common.ConditionalElement;
 import org.jamocha.languages.common.ConditionalElement.AndFunctionConditionalElement;
@@ -138,7 +139,7 @@ public class PathFilterConsolidator implements DefaultConditionalElementsVisitor
 				final Map<Path, Set<Path>> pathToJoinedWith, final boolean isPositive) {
 			// Collect the existential FactVariables and corresponding paths from the existentialCE
 			final Pair<Path, Map<SingleFactVariable, Path>> initialFactAndPathMap =
-					FactVariableCollector.collectPaths(initialFactTemplate, ce);
+					FactVariableCollector.generatePaths(initialFactTemplate, ce);
 			final Map<SingleFactVariable, Path> existentialFact2Path = initialFactAndPathMap.getRight();
 
 			// combine existential FactVariables and Paths with non existential ones for PathFilter
@@ -367,7 +368,7 @@ public class PathFilterConsolidator implements DefaultConditionalElementsVisitor
 		@Override
 		public void visit(final TestConditionalElement ce) {
 			final PredicateWithArguments predicate =
-					SymbolToPathTranslator.translate(ce.getPredicateWithArguments(), paths);
+					SymbolToPathTranslator.translate(FWADeepCopy.copy(ce.getPredicateWithArguments()), paths);
 			final PathFilter pathFilter =
 					new PathFilter(new PathFilterElement((negated) ? new PredicateWithArgumentsComposite(
 							FunctionDictionary.lookupPredicate(Not.inClips, SlotType.BOOLEAN), predicate) : predicate));

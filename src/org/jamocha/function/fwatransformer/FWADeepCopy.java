@@ -16,8 +16,9 @@ public class FWADeepCopy implements FunctionWithArgumentsVisitor {
 	@Getter
 	FunctionWithArguments result;
 
-	public static FunctionWithArguments copy(final FunctionWithArguments fwa) {
-		return fwa.accept(new FWADeepCopy()).getResult();
+	@SuppressWarnings("unchecked")
+	public static <T extends FunctionWithArguments> T copy(final T fwa) {
+		return (T) fwa.accept(new FWADeepCopy()).getResult();
 	}
 
 	@SuppressWarnings("unchecked")

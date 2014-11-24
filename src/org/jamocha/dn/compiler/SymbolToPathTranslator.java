@@ -82,9 +82,7 @@ public class SymbolToPathTranslator implements FunctionWithArgumentsVisitor {
 
 	@Override
 	public void visit(final PathLeaf pathLeaf) {
-		// FIXME can we ignore this because of shared nodes?
-		this.result = pathLeaf;
-		// throw new Error("PathLeaf should not exists at this stage");
+		throw new Error("PathLeaf should not exists at this stage");
 	}
 
 	@Override
@@ -117,6 +115,7 @@ public class SymbolToPathTranslator implements FunctionWithArgumentsVisitor {
 		assert (fwa.getSymbol().getPositiveSlotVariables().size() > 0);
 		final SingleSlotVariable variable = fwa.getSymbol().getPositiveSlotVariables().get(0);
 		final Path path = this.paths.get(variable.getFactVariable());
+		assert null != path;
 		result = new PathLeaf(path, variable.getSlot());
 	}
 }
