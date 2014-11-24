@@ -16,9 +16,16 @@ package org.jamocha.filter;
 
 import static java.util.stream.Collectors.toSet;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 import org.apache.commons.collections4.IteratorUtils;
 import org.jamocha.function.FunctionNormaliser;
@@ -121,16 +128,33 @@ public class PathFilter extends Filter<PathFilter.PathFilterElement> implements 
 		this(new HashSet<>(), new HashSet<>(), filterElements);
 	}
 
+	@RequiredArgsConstructor
+	static class PathFilterReCreator implements PathFilterElementVisitor {
+		final PredicateWithArguments normalFunction;
+		PathFilterElement result;
+
+		@Override
+		public void visit(final PathFilterElement fe) {
+			this.result = new PathFilterElement(normalFunction);
+		}
+
+		@Override
+		public void visit(final DummyPathFilterElement fe) {
+			this.result = new DummyPathFilterElement(fe.getPaths());
+		}
+	}
+
 	public PathFilter normalise() {
 		final int numFEs = filterElements.length;
 		final PathFilterElement[] normalPFEs = new PathFilterElement[numFEs];
 		for (int i = 0; i < numFEs; i++) {
-			final PredicateWithArguments functionToNormalise = filterElements[i].function;
+			final PathFilterElement original = filterElements[i];
+			final PredicateWithArguments functionToNormalise = original.function;
 			// step one: transform to uniform function symbols
 			final PredicateWithArguments uniformFunction = UniformFunctionTranslator.translate(functionToNormalise);
 			// step two: sort arguments
 			final PredicateWithArguments normalFunction = FunctionNormaliser.normalise(uniformFunction);
-			normalPFEs[i] = new PathFilterElement(normalFunction);
+			normalPFEs[i] = original.accept(new PathFilterReCreator(normalFunction)).result;
 		}
 		Arrays.sort(normalPFEs, (final PathFilterElement a, final PathFilterElement b) -> {
 			return Integer.compare(a.function.hash(), b.function.hash());
@@ -146,22 +170,19 @@ public class PathFilter extends Filter<PathFilter.PathFilterElement> implements 
 	public static boolean equals(final PathFilter filter1, final PathFilter filter2) {
 		return equals(filter1, filter2, new HashMap<>());
 	}
-	
+
 	public static boolean equals(final PathFilter filter1, final PathFilter filter2, final Map<Path, Path> pathMap) {
 		// FIXME and other locations to handle all possible path mappings correctly
 		if (filter1.getHashCode() != filter2.getHashCode())
 			return false;
 		final FilterFunctionCompare.PathFilterCompare compare =
-				new FilterFunctionCompare.PathFilterCompare(filter1,
-						filter2, pathMap);
+				new FilterFunctionCompare.PathFilterCompare(filter1, filter2, pathMap);
 		if (!compare.isEqual())
 			return false;
-		if (!filter1.getNegativeExistentialPaths().stream()
-				.map(p -> pathMap.get(p)).collect(toSet())
+		if (!filter1.getNegativeExistentialPaths().stream().map(p -> pathMap.get(p)).collect(toSet())
 				.equals(filter2.getNegativeExistentialPaths()))
 			return false;
-		if (!filter1.getPositiveExistentialPaths().stream()
-				.map(p -> pathMap.get(p)).collect(toSet())
+		if (!filter1.getPositiveExistentialPaths().stream().map(p -> pathMap.get(p)).collect(toSet())
 				.equals(filter2.getPositiveExistentialPaths()))
 			return false;
 		return true;
