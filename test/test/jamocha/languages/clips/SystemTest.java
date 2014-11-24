@@ -116,9 +116,9 @@ public class SystemTest {
 	@Test
 	public void testOrCondition() throws ParseException {
 		final Network network = new Network();
-		final ByteArrayOutputStream out = initializeAppender(network);
+		initializeAppender(network);
 		{
-			final Pair<Queue<Object>, Queue<Warning>> returnValues = run(network, "(deftemplate templ1 (slot slot1 (type INTEGER)))\n" + 
+			run(network, "(deftemplate templ1 (slot slot1 (type INTEGER)))\n" + 
 					"(defrule rule1 \n" + 
 					"(templ1 (slot1 ?x)) (templ1 (slot1 ?y)) (templ1 (slot1 ?z))\n" + 
 					"	(or\n" + 
@@ -133,9 +133,9 @@ public class SystemTest {
 	@Test
 	public void testOnlyOrCondition() throws ParseException {
 		final Network network = new Network();
-		final ByteArrayOutputStream out = initializeAppender(network);
+		initializeAppender(network);
 		{
-			final Pair<Queue<Object>, Queue<Warning>> returnValues = run(network, "(deftemplate templ1 (slot slot1 (type INTEGER)))\n" + 
+			run(network, "(deftemplate templ1 (slot slot1 (type INTEGER)))\n" + 
 					"(defrule rule1 \n" + 
 					"(templ1 (slot1 ?x)) (templ1 (slot1 ?y)) (templ1 (slot1 ?z))\n" + 
 					"	(or\n" + 
@@ -149,9 +149,9 @@ public class SystemTest {
 	@Test
 	public void testUnderUsedTemplatesCondition() throws ParseException {
 		final Network network = new Network();
-		final ByteArrayOutputStream out = initializeAppender(network);
+		initializeAppender(network);
 		{
-			final Pair<Queue<Object>, Queue<Warning>> returnValues = run(network, "(deftemplate templ1 (slot slot1 (type INTEGER)))\n" + 
+			run(network, "(deftemplate templ1 (slot slot1 (type INTEGER)))\n" + 
 					"(defrule rule1 \n" + 
 					"(templ1 (slot1 ?x)) (templ1 (slot1 ?y)) (templ1 (slot1 ?z))\n" +  
 					"	(test (> ?x ?y))\n" +
@@ -162,9 +162,9 @@ public class SystemTest {
 	@Test
 	public void testUnderfullOrCondition() throws ParseException {
 		final Network network = new Network();
-		final ByteArrayOutputStream out = initializeAppender(network);
+		initializeAppender(network);
 		{
-			final Pair<Queue<Object>, Queue<Warning>> returnValues = run(network, "(deftemplate templ1 (slot slot1 (type INTEGER)))\n" + 
+			run(network, "(deftemplate templ1 (slot slot1 (type INTEGER)))\n" + 
 					"(defrule rule1 \n" + 
 					"(templ1 (slot1 ?x)) (templ1 (slot1 ?y)) (templ1 (slot1 ?z))\n" + 
 					"	(or\n" +  
