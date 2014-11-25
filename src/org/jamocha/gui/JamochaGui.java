@@ -112,7 +112,8 @@ public class JamochaGui extends Application {
 			String line;
 			while (null != (line = bufferedReader.readLine())) {
 				System.out.println(line);
-				jamocha.parse(IOUtils.toInputStream(line, "UTF-8"));
+				jamocha.loadParser(IOUtils.toInputStream(line, "UTF-8"));
+				jamocha.parse();
 			}
 		} catch (IOException | ParseException e) {
 			e.printStackTrace();
