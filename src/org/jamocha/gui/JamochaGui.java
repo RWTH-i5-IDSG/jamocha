@@ -14,12 +14,15 @@
  */
 package org.jamocha.gui;
 
-import java.io.BufferedReader;
+import java.io.BufferedInputStream;
 import java.io.File;
-import java.io.FileReader;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.util.Arrays;
+import java.util.Queue;
 import java.util.prefs.Preferences;
 
 import javafx.application.Application;
@@ -34,10 +37,11 @@ import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Stage;
 import lombok.AllArgsConstructor;
 
-import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.jamocha.Jamocha;
 import org.jamocha.gui.network.NetworkVisualisation;
 import org.jamocha.languages.clips.parser.generated.ParseException;
+import org.jamocha.languages.common.Warning;
 
 /**
  * @author Christoph Terwelp <christoph.terwelp@rwth-aachen.de>
@@ -51,6 +55,7 @@ public class JamochaGui extends Application {
 	private Jamocha jamocha;
 	final private PrintStream out = System.out;
 	final private PrintStream err = System.err;
+	private NetworkVisualisation networkVisualisation;
 
 	private Scene generateScene() {
 		TabPane tabPane = new TabPane();
@@ -66,7 +71,9 @@ public class JamochaGui extends Application {
 		ScrollPane scrollPane = new ScrollPane();
 		networkTab.setContent(scrollPane);
 			
-		NetworkVisualisation networkVisualisation = new NetworkVisualisation(jamocha.getNetwork());
+		networkVisualisation = new NetworkVisualisation(jamocha.getNetwork());
+		networkVisualisation.setTranslateX(10);
+		networkVisualisation.setTranslateY(10);
 		networkVisualisation.update();
 		scrollPane.setContent(networkVisualisation);
 		
@@ -106,22 +113,33 @@ public class JamochaGui extends Application {
 		userPrefs.putDouble("stage.width", primaryStage.getWidth());
 		userPrefs.putDouble("stage.height", primaryStage.getHeight());
 	}
-
+	
 	private void loadFile(File file) {
-		try (final BufferedReader bufferedReader = new BufferedReader(new FileReader(file))) {
-			String line;
-			while (null != (line = bufferedReader.readLine())) {
-				System.out.println(line);
-				jamocha.loadParser(IOUtils.toInputStream(line, "UTF-8"));
-				jamocha.parse();
+		try (final WatchingInputStream wis = new WatchingInputStream(new FileInputStream(file))) {
+			jamocha.loadParser(wis);
+			while (true) {
+				wis.mark(1000);
+				Pair<Queue<Warning>, String> parserResult = jamocha.parse();
+				networkVisualisation.update();
+				if (null == parserResult) return;
+				System.out.println(wis.getStringSinceLastMark());
 			}
 		} catch (IOException | ParseException e) {
 			e.printStackTrace();
 			e.printStackTrace(this.err);
-		} catch (Exception e) {
-			e.printStackTrace();
-			e.printStackTrace(this.err);
 		}
+	}
+	
+	private static class WatchingInputStream extends BufferedInputStream {
+
+		public WatchingInputStream(InputStream in) {
+			super(in);
+		}
+		
+		public String getStringSinceLastMark() {
+			return new String(Arrays.copyOfRange(this.buf, markpos, pos));
+		}
+		
 	}
 
 	@Override
