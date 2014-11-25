@@ -14,12 +14,24 @@
  */
 package org.jamocha.filter.optimizer;
 
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import lombok.RequiredArgsConstructor;
-import org.jamocha.filter.*;
+
+import org.jamocha.filter.Path;
+import org.jamocha.filter.PathCollector;
+import org.jamocha.filter.PathFilter;
+import org.jamocha.filter.PathFilterList;
 import org.jamocha.filter.PathFilterList.PathFilterExistentialList;
 import org.jamocha.filter.PathFilterList.PathFilterSharedListWrapper.PathFilterSharedList;
-
-import java.util.*;
+import org.jamocha.filter.PathFilterListVisitor;
 
 /**
  * A class to optimize the order of a list of {@link PathFilter}s
@@ -29,7 +41,8 @@ import java.util.*;
 public class PathFilterOrderOptimizer {
 
 	/**
-	 * Graph class storing the mapping from filters to graph components and the edges between the graph components.
+	 * Graph class storing the mapping from filters to graph components and the edges between the
+	 * graph components.
 	 *
 	 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
 	 */
@@ -58,7 +71,7 @@ public class PathFilterOrderOptimizer {
 			 * Tries to merge the given other component into this component
 			 *
 			 * @param other
-			 * 		component to merge into this component
+			 *            component to merge into this component
 			 * @return this component if the merge was successful, the other component otherwise
 			 */
 			GraphComponent merge(final GraphComponent other);
@@ -136,9 +149,9 @@ public class PathFilterOrderOptimizer {
 		 * Adds an edge between v and w
 		 *
 		 * @param v
-		 * 		node to connect to w
+		 *            node to connect to w
 		 * @param w
-		 * 		node to connect to v
+		 *            node to connect to v
 		 */
 		public void addEdge(final GraphComponent v, final GraphComponent w) {
 			this.neighbourMap.computeIfAbsent(v, x -> new HashSet<>()).add(w);
@@ -149,7 +162,7 @@ public class PathFilterOrderOptimizer {
 		 * Remove all edges of v and return the previous neighbours
 		 *
 		 * @param v
-		 * 		node have the edges removed
+		 *            node have the edges removed
 		 * @return previous neighbours of v
 		 */
 		public Set<GraphComponent> removeEdges(final GraphComponent v) {
@@ -160,7 +173,7 @@ public class PathFilterOrderOptimizer {
 		 * Create an initial component for the given PathFilterList and set the mapping
 		 *
 		 * @param filter
-		 * 		filter to use
+		 *            filter to use
 		 * @return the initial component created and set
 		 */
 		public InitialGraphComponent createInitialComponent(final PathFilterList filter, final Set<Path> paths) {
@@ -173,7 +186,7 @@ public class PathFilterOrderOptimizer {
 		 * Returns the mapped graph component for the given PathFilterList.
 		 *
 		 * @param filter
-		 * 		filter to use
+		 *            filter to use
 		 * @return the mapped graph component for the given PathFilterList
 		 */
 		public GraphComponent getComponent(final PathFilterList filter) {
@@ -184,7 +197,7 @@ public class PathFilterOrderOptimizer {
 		 * Removes the mapping for the given PathFilterList.
 		 *
 		 * @param filter
-		 * 		filter to use
+		 *            filter to use
 		 * @return the previous mapping for the given PathFilterList
 		 */
 		public InitialGraphComponent removeComponentMapping(final PathFilterList filter) {
@@ -195,7 +208,7 @@ public class PathFilterOrderOptimizer {
 		 * Returns the set of neighbours for the given graph component.
 		 *
 		 * @param component
-		 * 		graph component to get the neighbours for
+		 *            graph component to get the neighbours for
 		 * @return the set of neighbours for the given graph component
 		 */
 		public Set<GraphComponent> getNeighbours(final GraphComponent component) {
@@ -204,8 +217,8 @@ public class PathFilterOrderOptimizer {
 	}
 
 	/**
-	 * Simple PathFilterListVisitor partitioning the filters into three buckets according to their type: PathFilter,
-	 * PathFilterSharedList, PathFilterExistentialList
+	 * Simple PathFilterListVisitor partitioning the filters into three buckets according to their
+	 * type: PathFilter, PathFilterSharedList, PathFilterExistentialList
 	 *
 	 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
 	 */
@@ -231,16 +244,17 @@ public class PathFilterOrderOptimizer {
 	}
 
 	/**
-	 * Optimize the order of the given list of PathFilterLists in-place. Every element of the list is taken to be an
-	 * atomic block of filters which has to be order-optimized elsewhere.
+	 * Optimize the order of the given list of PathFilterLists in-place. Every element of the list
+	 * is taken to be an atomic block of filters which has to be order-optimized elsewhere.
 	 *
 	 * @param list
-	 * 		list of filters to order-optimize
+	 *            list of filters to order-optimize
 	 */
 	public void optimizeUnsharedList(final ArrayList<PathFilterList> list) {
-		if (list.isEmpty()) return;
-		// collect the set of PathFilterLists that share paths by creating a mapping from path to all filters using
-		// this path
+		if (list.isEmpty())
+			return;
+		// collect the set of PathFilterLists that share paths by creating a mapping from path to
+		// all filters using this path
 		final Map<Path, Set<PathFilterList>> pathToFilters = new HashMap<>();
 		// create a new graph
 		final Graph graph = new Graph();
@@ -262,7 +276,8 @@ public class PathFilterOrderOptimizer {
 				final Graph.GraphComponent component = graph.getComponent(filter);
 				for (final PathFilterList other : filters) {
 					// don't insert loops
-					if (filter == other) continue;
+					if (filter == other)
+						continue;
 					graph.addEdge(component, graph.getComponent(other));
 				}
 			}
@@ -271,16 +286,19 @@ public class PathFilterOrderOptimizer {
 		final LinkedList<PathFilterList> workspace = new LinkedList<>(list);
 		list.clear();
 		// using this comparator, we determine the minimal cost filter
-		final Comparator<PathFilterList> compareByOurCriteria = (final PathFilterList a, final PathFilterList b) -> {
-			final Graph.GraphComponent componentA = graph.getComponent(a);
-			final Graph.GraphComponent componentB = graph.getComponent(b);
-			final int numEdgesAsFirstCriterion =
-					Integer.compare(graph.getNeighbours(componentA).size(), graph.getNeighbours(componentB).size());
-			if (0 != numEdgesAsFirstCriterion) return numEdgesAsFirstCriterion;
-			final int numPathsAsSecondCriterion =
-					Integer.compare(componentA.getPaths().size(), componentB.getPaths().size());
-			return numPathsAsSecondCriterion;
-		};
+		final Comparator<PathFilterList> compareByOurCriteria =
+				(final PathFilterList a, final PathFilterList b) -> {
+					final Graph.GraphComponent componentA = graph.getComponent(a);
+					final Graph.GraphComponent componentB = graph.getComponent(b);
+					final int numEdgesAsFirstCriterion =
+							Integer.compare(graph.getNeighbours(componentA).size(), graph.getNeighbours(componentB)
+									.size());
+					if (0 != numEdgesAsFirstCriterion)
+						return numEdgesAsFirstCriterion;
+					final int numPathsAsSecondCriterion =
+							Integer.compare(componentA.getPaths().size(), componentB.getPaths().size());
+					return numPathsAsSecondCriterion;
+				};
 		// until the workspace is empty
 		while (!workspace.isEmpty()) {
 			// determine the minimal filter
@@ -295,11 +313,11 @@ public class PathFilterOrderOptimizer {
 	}
 
 	/**
-	 * Optimize the order of the given PathFilterSharedList in-place. Uses recursion to optimize the order of children
-	 * of the list elements.
+	 * Optimize the order of the given PathFilterSharedList in-place. Uses recursion to optimize the
+	 * order of children of the list elements.
 	 *
 	 * @param list
-	 * 		list of filters to order-optimize
+	 *            list of filters to order-optimize
 	 */
 	public void optimize(final PathFilterSharedList list) {
 		// partition the children of the list
@@ -316,7 +334,8 @@ public class PathFilterOrderOptimizer {
 		// first, insert the shared elements
 		elements.addAll(partitioner.pathFilterSharedLists);
 		{
-			// afterwards, combine the existential parts (as blocks) and the PathFilters in an optimal order
+			// afterwards, combine the existential parts (as blocks) and the PathFilters in an
+			// optimal order
 			final ArrayList<PathFilterList> unshared =
 					new ArrayList<>(partitioner.pathFilterExistentialLists.size() + partitioner.pathFilters.size());
 			unshared.addAll(partitioner.pathFilterExistentialLists);
