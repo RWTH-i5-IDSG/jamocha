@@ -64,10 +64,6 @@ public class Jamocha {
 	}
 	
 	public static void main(final String[] args) {
-		final boolean verbose = (args != null && args.length == 1 && "verbose".equals(args[0]));
-		if (!verbose)
-			System.out.println("Note: For verbose output type \"java Main verbose\".\n");
-
 		Jamocha jamocha = new Jamocha();
 		jamocha.loadParser(System.in);
 
