@@ -140,7 +140,7 @@ public interface DefaultFunctionVisitor extends FunctionVisitor {
 	}
 	
 	@Override
-	default void visit(final org.jamocha.function.impls.sideeffects.ToDot function) {
+	default void visit(final org.jamocha.function.impls.sideeffects.ExportGv function) {
 		defaultAction(function);
 	}
 

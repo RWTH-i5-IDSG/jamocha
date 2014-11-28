@@ -27,7 +27,7 @@ import org.jamocha.function.impls.FunctionVisitor;
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
-public abstract class ToDot implements Function<Object> {
+public abstract class ExportGv implements Function<Object> {
 	public static final String inClips = "export-gv";
 	static final SlotType[] paramTypes = { SlotType.STRING };
 
@@ -55,7 +55,7 @@ public abstract class ToDot implements Function<Object> {
 	static {
 		FunctionDictionary.addFixedArgsGeneratorWithSideEffects(inClips, paramTypes, (
 				final SideEffectFunctionToNetwork network, final SlotType[] paramTypes) -> {
-			return new ToDot() {
+			return new ExportGv() {
 				@Override
 				public Object evaluate(final Function<?>... params) {
 					final String fileName = (String) params[0].evaluate();
