@@ -19,6 +19,7 @@ import static org.jamocha.util.ToArray.toArray;
 import org.jamocha.filter.PathFilter.PathFilterElement;
 import org.jamocha.function.Predicate;
 import org.jamocha.function.fwa.FunctionWithArguments;
+import org.jamocha.function.fwa.PathLeaf;
 import org.jamocha.function.fwa.PredicateWithArguments;
 import org.jamocha.function.fwa.PredicateWithArgumentsComposite;
 
@@ -33,11 +34,12 @@ public class PredicateBuilder extends GenericBuilder<Boolean, Predicate, Predica
 	}
 
 	@Override
-	public PredicateWithArguments build() {
+	public PredicateWithArguments<PathLeaf> build() {
 		if (this.function.getParamTypes().length != this.args.size()) {
 			throw new IllegalArgumentException("Wrong number of arguments!");
 		}
-		return new PredicateWithArgumentsComposite(this.function, toArray(this.args, FunctionWithArguments[]::new));
+		return new PredicateWithArgumentsComposite<PathLeaf>(this.function, toArray(this.args,
+				FunctionWithArguments[]::new));
 	}
 
 	public PathFilterElement buildPFE() {

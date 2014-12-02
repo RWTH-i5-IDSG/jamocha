@@ -19,7 +19,7 @@ package org.jamocha.function.fwa;
  * 
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
-public interface PredicateWithArguments extends FunctionWithArguments {
+public interface PredicateWithArguments<L extends ExchangeableLeaf<L>> extends FunctionWithArguments<L> {
 	@Override
 	public Boolean evaluate(final Object... params);
 }

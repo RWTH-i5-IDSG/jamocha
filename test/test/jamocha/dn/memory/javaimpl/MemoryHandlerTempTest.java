@@ -43,12 +43,13 @@ import org.jamocha.dn.nodes.SlotInFactAddress;
 import org.jamocha.filter.AddressFilter;
 import org.jamocha.filter.AddressFilter.AddressFilterElement;
 import org.jamocha.filter.AddressFilter.NormalAddressFilter;
-import org.jamocha.filter.PathFilterToAddressFilterTranslator;
 import org.jamocha.filter.Path;
+import org.jamocha.filter.PathFilterToAddressFilterTranslator;
 import org.jamocha.function.FunctionDictionary;
 import org.jamocha.function.Predicate;
 import org.jamocha.function.fwa.FunctionWithArguments;
 import org.jamocha.function.fwa.PathLeaf;
+import org.jamocha.function.fwa.PathLeaf.ParameterLeaf;
 import org.jamocha.function.fwa.PredicateWithArguments;
 import org.jamocha.function.fwa.PredicateWithArgumentsComposite;
 import org.junit.After;
@@ -273,10 +274,10 @@ public class MemoryHandlerTempTest {
 	@Test
 	public void testNewBetaTempSelectiveJoin() throws CouldNotAcquireLockException {
 		FunctionDictionary.load();
-		final FunctionWithArguments pl1 = new PathLeaf.ParameterLeaf(SlotType.STRING, 0);
-		final FunctionWithArguments pl2 = new PathLeaf.ParameterLeaf(SlotType.STRING, 1);
+		final FunctionWithArguments<ParameterLeaf> pl1 = new PathLeaf.ParameterLeaf(SlotType.STRING, 0);
+		final FunctionWithArguments<ParameterLeaf> pl2 = new PathLeaf.ParameterLeaf(SlotType.STRING, 1);
 		final Predicate eq = FunctionDictionary.lookupPredicate("=", SlotType.STRING, SlotType.STRING);
-		final PredicateWithArguments faw = new PredicateWithArgumentsComposite(eq, pl1, pl2);
+		final PredicateWithArguments<ParameterLeaf> faw = new PredicateWithArgumentsComposite<>(eq, pl1, pl2);
 		final AddressFilterElement fe =
 				new AddressFilterElement(faw, new SlotInFactAddress[] {
 						new SlotInFactAddress(new org.jamocha.dn.memory.javaimpl.FactAddress(0), new SlotAddress(0)),

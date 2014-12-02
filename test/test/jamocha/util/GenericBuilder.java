@@ -40,7 +40,7 @@ import org.jamocha.function.fwa.PathLeaf;
 public abstract class GenericBuilder<R, F extends Function<? extends R>, T extends GenericBuilder<R, F, T>> {
 
 	protected final F function;
-	final List<FunctionWithArguments> args = new LinkedList<>();
+	final List<FunctionWithArguments<PathLeaf>> args = new LinkedList<>();
 
 	protected GenericBuilder(final F function) {
 		this.function = function;
@@ -68,7 +68,7 @@ public abstract class GenericBuilder<R, F extends Function<? extends R>, T exten
 		if (paramTypes[this.args.size()] != type) {
 			throw new IllegalArgumentException("Wrong argument type!");
 		}
-		this.args.add(new ConstantLeaf(value, type));
+		this.args.add(new ConstantLeaf<PathLeaf>(value, type));
 		return (T) this;
 	}
 
@@ -89,7 +89,7 @@ public abstract class GenericBuilder<R, F extends Function<? extends R>, T exten
 	}
 
 	@SuppressWarnings("unchecked")
-	public T addFunction(final FunctionWithArguments function) {
+	public T addFunction(final FunctionWithArguments<PathLeaf> function) {
 		final SlotType[] paramTypes = this.function.getParamTypes();
 		if (paramTypes.length == this.args.size()) {
 			throw new IllegalArgumentException("All arguments already set!");
@@ -101,5 +101,5 @@ public abstract class GenericBuilder<R, F extends Function<? extends R>, T exten
 		return (T) this;
 	}
 
-	public abstract FunctionWithArguments build();
+	public abstract FunctionWithArguments<PathLeaf> build();
 }

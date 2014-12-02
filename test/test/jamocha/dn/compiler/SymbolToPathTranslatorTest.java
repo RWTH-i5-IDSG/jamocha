@@ -110,13 +110,14 @@ public class SymbolToPathTranslatorTest {
 		{
 			final ConditionalElement testCe = andChildren.get(1);
 			assertThat(testCe, instanceOf(TestConditionalElement.class));
-			final PredicateWithArguments translated =
+			final PredicateWithArguments<PathLeaf> translated =
 					SymbolToPathTranslator.translate(((TestConditionalElement) testCe).getPredicateWithArguments(),
 							paths);
 			assertThat(translated, instanceOf(PredicateWithArgumentsComposite.class));
-			final FunctionWithArguments[] args = ((PredicateWithArgumentsComposite) translated).getArgs();
+			final FunctionWithArguments<PathLeaf>[] args =
+					((PredicateWithArgumentsComposite<PathLeaf>) translated).getArgs();
 			assertThat(args, is(arrayWithSize(2)));
-			final FunctionWithArguments x = args[0];
+			final FunctionWithArguments<PathLeaf> x = args[0];
 			assertThat(x, instanceOf(PathLeaf.class));
 			final Path path = ((PathLeaf) x).getPath();
 			assertEquals(path.getTemplate().getName(), "templ1");
@@ -144,13 +145,14 @@ public class SymbolToPathTranslatorTest {
 		{
 			final ConditionalElement testCe = andChildren.get(1);
 			assertThat(testCe, instanceOf(TestConditionalElement.class));
-			final PredicateWithArguments translated =
+			final PredicateWithArguments<PathLeaf> translated =
 					SymbolToPathTranslator.translate(((TestConditionalElement) testCe).getPredicateWithArguments(),
 							paths);
 			assertThat(translated, instanceOf(PredicateWithArgumentsComposite.class));
-			final FunctionWithArguments[] args = ((PredicateWithArgumentsComposite) translated).getArgs();
+			final FunctionWithArguments<PathLeaf>[] args =
+					((PredicateWithArgumentsComposite<PathLeaf>) translated).getArgs();
 			assertThat(args, is(arrayWithSize(2)));
-			final FunctionWithArguments x = args[0];
+			final FunctionWithArguments<PathLeaf> x = args[0];
 			assertThat(x, instanceOf(PathLeaf.class));
 			final Path path = ((PathLeaf) x).getPath();
 			assertEquals(path.getTemplate().getName(), "templ1");
@@ -159,13 +161,14 @@ public class SymbolToPathTranslatorTest {
 		{
 			final ConditionalElement testCe = andChildren.get(2);
 			assertThat(testCe, instanceOf(TestConditionalElement.class));
-			final PredicateWithArguments translated =
+			final PredicateWithArguments<PathLeaf> translated =
 					SymbolToPathTranslator.translate(((TestConditionalElement) testCe).getPredicateWithArguments(),
 							paths);
 			assertThat(translated, instanceOf(PredicateWithArgumentsComposite.class));
-			final FunctionWithArguments[] args = ((PredicateWithArgumentsComposite) translated).getArgs();
+			final FunctionWithArguments<PathLeaf>[] args =
+					((PredicateWithArgumentsComposite<PathLeaf>) translated).getArgs();
 			assertThat(args, is(arrayWithSize(2)));
-			final FunctionWithArguments x = args[0];
+			final FunctionWithArguments<PathLeaf> x = args[0];
 			assertThat(x, instanceOf(PathLeaf.class));
 			final Path path = ((PathLeaf) x).getPath();
 			assertEquals(path.getTemplate().getName(), "templ1");
@@ -201,13 +204,14 @@ public class SymbolToPathTranslatorTest {
 			{
 				final ConditionalElement testCe = andChildren.get(1);
 				assertThat(testCe, instanceOf(TestConditionalElement.class));
-				final PredicateWithArguments translated =
+				final PredicateWithArguments<PathLeaf> translated =
 						SymbolToPathTranslator.translate(((TestConditionalElement) testCe).getPredicateWithArguments(),
 								paths);
 				assertThat(translated, instanceOf(PredicateWithArgumentsComposite.class));
-				final FunctionWithArguments[] args = ((PredicateWithArgumentsComposite) translated).getArgs();
+				final FunctionWithArguments<PathLeaf>[] args =
+						((PredicateWithArgumentsComposite<PathLeaf>) translated).getArgs();
 				assertThat(args, is(arrayWithSize(2)));
-				final FunctionWithArguments x = args[0];
+				final FunctionWithArguments<PathLeaf> x = args[0];
 				assertThat(x, instanceOf(PathLeaf.class));
 				final Path path = ((PathLeaf) x).getPath();
 				assertEquals(path.getTemplate().getName(), "templ1");
@@ -233,13 +237,14 @@ public class SymbolToPathTranslatorTest {
 			{
 				final ConditionalElement testCe = andChildren.get(1);
 				assertThat(testCe, instanceOf(TestConditionalElement.class));
-				final PredicateWithArguments translated =
+				final PredicateWithArguments<PathLeaf> translated =
 						SymbolToPathTranslator.translate(((TestConditionalElement) testCe).getPredicateWithArguments(),
 								paths);
 				assertThat(translated, instanceOf(PredicateWithArgumentsComposite.class));
-				final FunctionWithArguments[] args = ((PredicateWithArgumentsComposite) translated).getArgs();
+				final FunctionWithArguments<PathLeaf>[] args =
+						((PredicateWithArgumentsComposite<PathLeaf>) translated).getArgs();
 				assertThat(args, is(arrayWithSize(2)));
-				final FunctionWithArguments x = args[0];
+				final FunctionWithArguments<PathLeaf> x = args[0];
 				assertThat(x, instanceOf(PathLeaf.class));
 				final Path path = ((PathLeaf) x).getPath();
 				assertEquals(path.getTemplate().getName(), "templ1");

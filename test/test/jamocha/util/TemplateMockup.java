@@ -26,6 +26,7 @@ import org.jamocha.dn.memory.MemoryFact;
 import org.jamocha.dn.memory.SlotAddress;
 import org.jamocha.dn.memory.SlotType;
 import org.jamocha.dn.memory.Template;
+import org.jamocha.function.fwa.ExchangeableLeaf;
 import org.jamocha.function.fwa.FunctionWithArguments;
 
 /**
@@ -158,16 +159,6 @@ public class TemplateMockup implements Template {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.jamocha.dn.memory.Template#applyDefaultsAndOrder(java.util.Map)
-	 */
-	@Override
-	public FunctionWithArguments[] applyDefaultsAndOrder(final Map<SlotAddress, FunctionWithArguments> values) {
-		return null;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
 	 * @see org.jamocha.dn.memory.Template#getInstanceMarker()
 	 */
 	@Override
@@ -178,5 +169,11 @@ public class TemplateMockup implements Template {
 	@Override
 	public Slot getSlot(final SlotAddress slotAddress) {
 		return this.slots.get(((SlotAddressMockup) slotAddress).index);
+	}
+
+	@Override
+	public <L extends ExchangeableLeaf<L>> FunctionWithArguments<L>[] applyDefaultsAndOrder(
+			Map<SlotAddress, FunctionWithArguments<L>> values) {
+		return null;
 	}
 }

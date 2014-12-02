@@ -22,12 +22,13 @@ import lombok.Getter;
 import org.jamocha.dn.memory.CounterColumn;
 import org.jamocha.dn.memory.FactAddress;
 import org.jamocha.dn.nodes.SlotInFactAddress;
+import org.jamocha.function.fwa.PathLeaf.ParameterLeaf;
 import org.jamocha.function.fwa.PredicateWithArguments;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
-public class AddressFilter extends Filter<AddressFilter.AddressFilterElement> {
+public class AddressFilter extends Filter<ParameterLeaf, AddressFilter.AddressFilterElement> {
 
 	public static AddressFilter empty = new NormalAddressFilter(new HashSet<FactAddress>(), new HashSet<FactAddress>(),
 			new AddressFilterElement[] {});
@@ -80,10 +81,11 @@ public class AddressFilter extends Filter<AddressFilter.AddressFilterElement> {
 	}
 
 	@Getter
-	public static class AddressFilterElement extends Filter.FilterElement {
+	public static class AddressFilterElement extends Filter.FilterElement<ParameterLeaf> {
 		final SlotInFactAddress addressesInTarget[];
 
-		public AddressFilterElement(final PredicateWithArguments function, final SlotInFactAddress[] addressesInTarget) {
+		public AddressFilterElement(final PredicateWithArguments<ParameterLeaf> function,
+				final SlotInFactAddress[] addressesInTarget) {
 			super(function);
 			this.addressesInTarget = addressesInTarget;
 		}
@@ -97,7 +99,7 @@ public class AddressFilter extends Filter<AddressFilter.AddressFilterElement> {
 		@Getter(onMethod = @__({ @Override }))
 		protected final CounterColumn counterColumn;
 
-		public ExistentialAddressFilterElement(final PredicateWithArguments function,
+		public ExistentialAddressFilterElement(final PredicateWithArguments<ParameterLeaf> function,
 				final SlotInFactAddress[] addressesInTarget, final CounterColumn counterColumn) {
 			super(function, addressesInTarget);
 			this.counterColumn = counterColumn;

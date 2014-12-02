@@ -29,7 +29,7 @@ import org.jamocha.function.fwa.GenericWithArgumentsComposite.LazyObject;
  */
 @Getter
 @EqualsAndHashCode
-public class ConstantLeaf implements FunctionWithArguments {
+public class ConstantLeaf<L extends ExchangeableLeaf<L>> implements FunctionWithArguments<L> {
 	final Object value;
 	final SlotType type;
 	final LazyObject<?> lazyObject;
@@ -67,7 +67,7 @@ public class ConstantLeaf implements FunctionWithArguments {
 	}
 
 	@Override
-	public <T extends FunctionWithArgumentsVisitor> T accept(final T visitor) {
+	public <T extends FunctionWithArgumentsVisitor<L>> T accept(final T visitor) {
 		visitor.visit(this);
 		return visitor;
 	}

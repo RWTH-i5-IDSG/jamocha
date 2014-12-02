@@ -12,20 +12,11 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package org.jamocha.function;
-
-import org.jamocha.function.fwa.ExchangeableLeaf;
-import org.jamocha.function.fwa.FunctionWithArguments;
+package org.jamocha.function.fwa;
 
 /**
- * Implement this interface to have it override the default implementation of
- * {@link Function#hash(FunctionWithArguments)} to make the hashing ignore the order of arguments.
- * 
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
-public interface CommutativeFunction<R> extends Function<R> {
-	@Override
-	default <L extends ExchangeableLeaf<L>> int hash(final FunctionWithArguments<L> fwa) {
-		return fwa.hashPositionIsIrrelevant();
-	}
+public interface ExchangeableLeaf<T extends ExchangeableLeaf<T>> extends FunctionWithArguments<T> {
+	ExchangeableLeaf<T> copy();
 }

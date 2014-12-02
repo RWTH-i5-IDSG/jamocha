@@ -14,67 +14,56 @@
  */
 package org.jamocha.function.fwa;
 
-import org.jamocha.function.fwa.PathLeaf.ParameterLeaf;
-
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
-public interface DefaultFunctionWithArgumentsVisitor extends FunctionWithArgumentsVisitor {
+public interface DefaultFunctionWithArgumentsVisitor<L extends ExchangeableLeaf<L>> extends
+		FunctionWithArgumentsVisitor<L> {
 
-	void defaultAction(final FunctionWithArguments function);
+	void defaultAction(final FunctionWithArguments<L> function);
 
 	@Override
-	public default void visit(final FunctionWithArgumentsComposite fwa) {
+	public default void visit(final FunctionWithArgumentsComposite<L> fwa) {
 		defaultAction(fwa);
 	}
 
 	@Override
-	public default void visit(final PredicateWithArgumentsComposite fwa) {
+	public default void visit(final PredicateWithArgumentsComposite<L> fwa) {
 		defaultAction(fwa);
 	}
 
 	@Override
-	public default void visit(final ConstantLeaf fwa) {
+	public default void visit(final ConstantLeaf<L> fwa) {
 		defaultAction(fwa);
 	}
 
 	@Override
-	public default void visit(final ParameterLeaf fwa) {
+	public default void visit(final L fwa) {
 		defaultAction(fwa);
 	}
 
 	@Override
-	public default void visit(final PathLeaf fwa) {
+	public default void visit(final Assert<L> fwa) {
 		defaultAction(fwa);
 	}
 
 	@Override
-	public default void visit(final Assert fwa) {
+	public default void visit(final Assert.TemplateContainer<L> fwa) {
 		defaultAction(fwa);
 	}
 
 	@Override
-	public default void visit(final Assert.TemplateContainer fwa) {
+	public default void visit(final Retract<L> fwa) {
 		defaultAction(fwa);
 	}
 
 	@Override
-	public default void visit(final Retract fwa) {
+	public default void visit(final Modify<L> fwa) {
 		defaultAction(fwa);
 	}
 
 	@Override
-	public default void visit(final Modify fwa) {
-		defaultAction(fwa);
-	}
-
-	@Override
-	public default void visit(final Modify.SlotAndValue fwa) {
-		defaultAction(fwa);
-	}
-
-	@Override
-	public default void visit(final SymbolLeaf fwa) {
+	public default void visit(final Modify.SlotAndValue<L> fwa) {
 		defaultAction(fwa);
 	}
 }

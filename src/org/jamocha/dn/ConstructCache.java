@@ -38,6 +38,9 @@ import org.jamocha.filter.PathFilterList.PathFilterSharedListWrapper;
 import org.jamocha.function.Function;
 import org.jamocha.function.fwa.Assert;
 import org.jamocha.function.fwa.FunctionWithArguments;
+import org.jamocha.function.fwa.PathLeaf;
+import org.jamocha.function.fwa.PathLeaf.ParameterLeaf;
+import org.jamocha.function.fwa.SymbolLeaf;
 import org.jamocha.function.fwatransformer.FWADeepCopy;
 import org.jamocha.function.fwatransformer.FWAPathToAddressTranslator;
 import org.jamocha.languages.common.RuleCondition;
@@ -57,7 +60,7 @@ public class ConstructCache {
 	public static class Deffacts {
 		final String name;
 		final String description;
-		final List<Assert.TemplateContainer> containers;
+		final List<Assert.TemplateContainer<ParameterLeaf>> containers;
 	}
 
 	@Value
@@ -66,18 +69,18 @@ public class ConstructCache {
 		final String description;
 		final int salience;
 		final RuleCondition condition;
-		final FunctionWithArguments[] actionList;
+		final FunctionWithArguments<SymbolLeaf>[] actionList;
 		final ArrayList<TranslatedPath> translatedPathVersions = new ArrayList<>();
 		final Marker fireMarker;
 		final Marker activationMarker;
 
 		public Defrule(final String name, final String description, final int salience, final RuleCondition condition,
-				final ArrayList<FunctionWithArguments> actionList) {
+				final ArrayList<FunctionWithArguments<SymbolLeaf>> actionList) {
 			this(name, description, salience, condition, toArray(actionList, FunctionWithArguments[]::new));
 		}
 
 		public Defrule(final String name, final String description, final int salience, final RuleCondition condition,
-				final FunctionWithArguments[] actionList) {
+				final FunctionWithArguments<SymbolLeaf>[] actionList) {
 			this.name = name;
 			this.description = description;
 			this.salience = salience;
@@ -89,9 +92,10 @@ public class ConstructCache {
 
 		public TranslatedPath newTranslated(final PathFilterSharedListWrapper.PathFilterSharedList condition,
 				final Map<SingleFactVariable, Path> pathTranslationMap) {
+			@SuppressWarnings("unchecked")
 			final TranslatedPath translated =
 					new TranslatedPath(condition,
-							new ActionList(toArray(
+							new PathActionList(toArray(
 									Arrays.stream(actionList).map(
 											fwa -> SymbolToPathTranslator.translate(FWADeepCopy.copy(fwa),
 													pathTranslationMap)), FunctionWithArguments[]::new)));
@@ -103,72 +107,64 @@ public class ConstructCache {
 		@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 		public class TranslatedPath {
 			final PathFilterSharedListWrapper.PathFilterSharedList condition;
-			final ActionList actionList;
+			final PathActionList actionList;
 
 			public Defrule getParent() {
 				return Defrule.this;
 			}
 
 			public Translated translatePathToAddress() {
-				return new Translated(condition, actionList);
+				return new Translated(condition, actionList.translatePathToAddress());
 			}
 		}
 
 		@Data
 		public class Translated {
 			final PathFilterSharedListWrapper.PathFilterSharedList condition;
-			final ActionList actionList;
+			final AddressesActionList actionList;
 
 			public Defrule getParent() {
 				return Defrule.this;
 			}
+		}
+	}
 
-			private Translated(final PathFilterSharedListWrapper.PathFilterSharedList condition,
-					final ActionList actionList) {
-				super();
-				this.condition = condition;
-				this.actionList = actionList;
-				this.actionList.translatePathToAddress();
-			}
+	@Value
+	public static class PathActionList {
+		final FunctionWithArguments<PathLeaf>[] actions;
+
+		public AddressesActionList translatePathToAddress() {
+			return new AddressesActionList(toArray(
+					Arrays.stream(actions).map(
+							action -> {
+								final ArrayList<SlotInFactAddress> addresses = new ArrayList<>();
+								final FunctionWithArguments<ParameterLeaf> fwa =
+										FWAPathToAddressTranslator.translate(action, addresses);
+								return new AddressesActionList.FWAWithAddresses(fwa, toArray(addresses,
+										SlotInFactAddress[]::new));
+							}), AddressesActionList.FWAWithAddresses[]::new));
+		}
+	}
+
+	@Value
+	public static class AddressesActionList {
+		@Value
+		private static class FWAWithAddresses {
+			FunctionWithArguments<ParameterLeaf> fwa;
+			SlotInFactAddress[] addresses;
 		}
 
-		@Value
-		public static class ActionList {
-			@Data
-			private static class FWAWithAddresses {
-				FunctionWithArguments fwa;
-				SlotInFactAddress[] addresses;
+		final FWAWithAddresses[] actions;
 
-				public FWAWithAddresses(final FunctionWithArguments fwa) {
-					this.fwa = fwa;
+		public void evaluate(final AssertOrRetract<?> token) {
+			for (final FWAWithAddresses action : actions) {
+				final SlotInFactAddress[] addresses = action.addresses;
+				final Object[] params = new Object[addresses.length];
+				for (int i = 0; i < addresses.length; ++i) {
+					final SlotInFactAddress slotInFactAddress = addresses[i];
+					params[i] = token.getValue(slotInFactAddress.getFactAddress(), slotInFactAddress.getSlotAddress());
 				}
-			}
-
-			final FWAWithAddresses[] actions;
-
-			public ActionList(final FunctionWithArguments[] actions) {
-				this.actions = toArray(Arrays.stream(actions).map(FWAWithAddresses::new), FWAWithAddresses[]::new);
-			}
-
-			public void translatePathToAddress() {
-				for (final FWAWithAddresses action : actions) {
-					final ArrayList<SlotInFactAddress> addresses = new ArrayList<>();
-					action.fwa = FWAPathToAddressTranslator.translate(action.fwa, addresses);
-					action.addresses = toArray(addresses, SlotInFactAddress[]::new);
-				}
-			}
-
-			public void evaluate(final AssertOrRetract<?> token) {
-				for (final FWAWithAddresses action : actions) {
-					final SlotInFactAddress[] addresses = action.addresses;
-					final Object[] params = new Object[addresses.length];
-					for (int i = 0; i < addresses.length; ++i) {
-						final SlotInFactAddress slotInFactAddress = addresses[i];
-						params[i] =
-								token.getValue(slotInFactAddress.getFactAddress(), slotInFactAddress.getSlotAddress());
-					}
-					action.fwa.evaluate(params);
-				}
+				action.fwa.evaluate(params);
 			}
 		}
 	}

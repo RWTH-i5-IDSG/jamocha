@@ -27,7 +27,7 @@ import org.jamocha.visitor.Visitable;
  * 
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
-public interface FunctionWithArguments extends Visitable<FunctionWithArgumentsVisitor> {
+public interface FunctionWithArguments<L extends ExchangeableLeaf<L>> extends Visitable<FunctionWithArgumentsVisitor<L>> {
 
 	/**
 	 * Getter for the list of the corresponding parameter types for the function.

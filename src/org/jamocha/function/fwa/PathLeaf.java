@@ -26,8 +26,8 @@ import org.jamocha.dn.nodes.Node;
 import org.jamocha.dn.nodes.SlotInFactAddress;
 import org.jamocha.filter.AddressFilter.AddressFilterElement;
 import org.jamocha.filter.Filter;
-import org.jamocha.filter.PathFilterToAddressFilterTranslator;
 import org.jamocha.filter.Path;
+import org.jamocha.filter.PathFilterToAddressFilterTranslator;
 import org.jamocha.function.Function;
 
 /**
@@ -44,7 +44,7 @@ import org.jamocha.function.Function;
  * @see Node
  */
 @EqualsAndHashCode
-public class PathLeaf implements FunctionWithArguments {
+public class PathLeaf implements ExchangeableLeaf<PathLeaf> {
 	private final Path path;
 	private final SlotAddress slot;
 	@Getter(lazy = true)
@@ -105,7 +105,7 @@ public class PathLeaf implements FunctionWithArguments {
 	 * @see SlotInFactAddress
 	 */
 	@EqualsAndHashCode
-	public static class ParameterLeaf implements FunctionWithArguments {
+	public static class ParameterLeaf implements ExchangeableLeaf<ParameterLeaf> {
 		private final SlotType slotType;
 		private final SlotType[] slotTypes;
 		private final int hashCode;
@@ -143,7 +143,7 @@ public class PathLeaf implements FunctionWithArguments {
 		}
 
 		@Override
-		public <T extends FunctionWithArgumentsVisitor> T accept(final T visitor) {
+		public <T extends FunctionWithArgumentsVisitor<ParameterLeaf>> T accept(final T visitor) {
 			visitor.visit(this);
 			return visitor;
 		}
@@ -159,10 +159,15 @@ public class PathLeaf implements FunctionWithArguments {
 		public int hashPositionIsIrrelevant() {
 			return hashCode;
 		}
+
+		@Override
+		public ExchangeableLeaf<ParameterLeaf> copy() {
+			return new ParameterLeaf(slotType, hashCode);
+		}
 	}
 
 	@Override
-	public <T extends FunctionWithArgumentsVisitor> T accept(final T visitor) {
+	public <T extends FunctionWithArgumentsVisitor<PathLeaf>> T accept(final T visitor) {
 		visitor.visit(this);
 		return visitor;
 	}
@@ -184,5 +189,10 @@ public class PathLeaf implements FunctionWithArguments {
 	@Override
 	public int hashPositionIsIrrelevant() {
 		return getHashCode();
+	}
+
+	@Override
+	public ExchangeableLeaf<PathLeaf> copy() {
+		return new PathLeaf(path, slot);
 	}
 }

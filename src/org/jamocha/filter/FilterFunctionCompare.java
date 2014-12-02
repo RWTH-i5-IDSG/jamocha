@@ -45,6 +45,7 @@ import org.jamocha.filter.PathFilter.PathFilterElement;
 import org.jamocha.function.CommutativeFunction;
 import org.jamocha.function.fwa.ConstantLeaf;
 import org.jamocha.function.fwa.DefaultFunctionWithArgumentsVisitor;
+import org.jamocha.function.fwa.ExchangeableLeaf;
 import org.jamocha.function.fwa.FunctionWithArguments;
 import org.jamocha.function.fwa.FunctionWithArgumentsComposite;
 import org.jamocha.function.fwa.GenericWithArgumentsComposite;
@@ -57,45 +58,49 @@ import org.jamocha.function.fwa.PredicateWithArgumentsComposite;
  * 
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
-public abstract class FilterFunctionCompare {
+public abstract class FilterFunctionCompare<L extends ExchangeableLeaf<L>> {
 
-	abstract FunctionTypeIdentificationVisitor newFunctionTypeIdentificationVisitor(final FunctionWithArguments fwa);
+	abstract FunctionTypeIdentificationVisitor<L> newFunctionTypeIdentificationVisitor(
+			final FilterFunctionCompare<L> context, final FunctionWithArguments<L> fwa);
 
-	private static class AddressFilterFunctionCompare extends FilterFunctionCompare {
+	private static class AddressFilterFunctionCompare extends FilterFunctionCompare<ParameterLeaf> {
 		final AddressContainer targetAddressContainer;
 		final AddressContainer compareAddressContainer;
 
 		private AddressFilterFunctionCompare(final AddressFilterElement targetFilterElement,
 				final AddressFilterElement compareFilterElement) {
-
 			super();
 			this.targetAddressContainer = new AddressContainer(targetFilterElement);
 			this.compareAddressContainer = new AddressContainer(compareFilterElement);
 			targetFilterElement.getFunction().accept(
-					newFunctionTypeIdentificationVisitor(compareFilterElement.getFunction()));
+					newFunctionTypeIdentificationVisitor(this, compareFilterElement.getFunction()));
 		}
 
 		@Override
-		FunctionTypeIdentificationVisitor newFunctionTypeIdentificationVisitor(final FunctionWithArguments fwa) {
-			return new AddressFunctionTypeIdentificationVisitor(fwa);
+		FunctionTypeIdentificationVisitor<ParameterLeaf> newFunctionTypeIdentificationVisitor(
+				final FilterFunctionCompare<ParameterLeaf> context, final FunctionWithArguments<ParameterLeaf> fwa) {
+			return new AddressFunctionTypeIdentificationVisitor(context, fwa);
 		};
 
-		private class AddressFunctionTypeIdentificationVisitor extends FunctionTypeIdentificationVisitor {
+		private class AddressFunctionTypeIdentificationVisitor extends FunctionTypeIdentificationVisitor<ParameterLeaf> {
 
-			private AddressFunctionTypeIdentificationVisitor(final FunctionWithArguments fwa) {
-				super(fwa);
+			private AddressFunctionTypeIdentificationVisitor(final FilterFunctionCompare<ParameterLeaf> context,
+					final FunctionWithArguments<ParameterLeaf> fwa) {
+				super(context, fwa);
 			}
 
 			@Override
 			public void visit(final ParameterLeaf parameterLeaf) {
-				this.fwa.accept(new ParameterLeafVisitor(parameterLeaf));
+				this.fwa.accept(new ParameterLeafVisitor(context, parameterLeaf));
 			}
 		}
 
-		private class ParameterLeafVisitor extends InvalidatingFWAVisitor {
+		private class ParameterLeafVisitor extends InvalidatingFWAVisitor<ParameterLeaf> {
 			final ParameterLeaf compareParameterLeaf;
 
-			private ParameterLeafVisitor(final ParameterLeaf parameterLeaf) {
+			private ParameterLeafVisitor(final FilterFunctionCompare<ParameterLeaf> context,
+					final ParameterLeaf parameterLeaf) {
+				super(context);
 				this.compareParameterLeaf = parameterLeaf;
 			}
 
@@ -123,7 +128,7 @@ public abstract class FilterFunctionCompare {
 
 		@Getter
 		private final Map<Path, Path> pathMap;
-		
+
 		@Getter
 		boolean equal = true;
 
@@ -142,8 +147,9 @@ public abstract class FilterFunctionCompare {
 		public PathFilterCompare(final PathFilter targetFilter, final PathFilter compareFilter) {
 			this(targetFilter, compareFilter, new HashMap<>());
 		}
-		
-		public PathFilterCompare(final PathFilter targetFilter, final PathFilter compareFilter, final Map<Path, Path> pathMap) {
+
+		public PathFilterCompare(final PathFilter targetFilter, final PathFilter compareFilter,
+				final Map<Path, Path> pathMap) {
 			super();
 			this.pathMap = pathMap;
 			final PathFilterElement[] targetFEs = targetFilter.normalise().getFilterElements();
@@ -250,35 +256,38 @@ public abstract class FilterFunctionCompare {
 
 		}
 
-		private class PathFilterFunctionCompare extends FilterFunctionCompare {
+		private class PathFilterFunctionCompare extends FilterFunctionCompare<PathLeaf> {
 
 			private PathFilterFunctionCompare(final PathFilterElement targetFilterElement,
 					final PathFilterElement compareFilterElement) {
 				super();
 				targetFilterElement.getFunction().accept(
-						newFunctionTypeIdentificationVisitor(compareFilterElement.getFunction()));
+						newFunctionTypeIdentificationVisitor(this, compareFilterElement.getFunction()));
 			}
 
 			@Override
-			FunctionTypeIdentificationVisitor newFunctionTypeIdentificationVisitor(final FunctionWithArguments fwa) {
-				return new PathFunctionTypeIdentificationVisitor(fwa);
+			FunctionTypeIdentificationVisitor<PathLeaf> newFunctionTypeIdentificationVisitor(
+					final FilterFunctionCompare<PathLeaf> context, final FunctionWithArguments<PathLeaf> fwa) {
+				return new PathFunctionTypeIdentificationVisitor(context, fwa);
 			};
 
-			private class PathFunctionTypeIdentificationVisitor extends FunctionTypeIdentificationVisitor {
-				private PathFunctionTypeIdentificationVisitor(final FunctionWithArguments fwa) {
-					super(fwa);
+			private class PathFunctionTypeIdentificationVisitor extends FunctionTypeIdentificationVisitor<PathLeaf> {
+				private PathFunctionTypeIdentificationVisitor(final FilterFunctionCompare<PathLeaf> context,
+						final FunctionWithArguments<PathLeaf> fwa) {
+					super(context, fwa);
 				}
 
 				@Override
 				public void visit(final PathLeaf pathLeaf) {
-					this.fwa.accept(new PathLeafVisitor(pathLeaf));
+					this.fwa.accept(new PathLeafVisitor(context, pathLeaf));
 				}
 			}
 
-			private class PathLeafVisitor extends InvalidatingFWAVisitor {
+			private class PathLeafVisitor extends InvalidatingFWAVisitor<PathLeaf> {
 				final PathLeaf comparePathLeaf;
 
-				private PathLeafVisitor(final PathLeaf pathLeaf) {
+				private PathLeafVisitor(final FilterFunctionCompare<PathLeaf> context, final PathLeaf pathLeaf) {
+					super(context);
 					this.comparePathLeaf = pathLeaf;
 				}
 
@@ -316,55 +325,64 @@ public abstract class FilterFunctionCompare {
 		return this.equal;
 	}
 
-	private abstract class InvalidatingFWAVisitor implements DefaultFunctionWithArgumentsVisitor {
+	@RequiredArgsConstructor
+	private static abstract class InvalidatingFWAVisitor<A extends ExchangeableLeaf<A>> implements
+			DefaultFunctionWithArgumentsVisitor<A> {
+		final FilterFunctionCompare<A> context;
+
 		@Override
-		public void defaultAction(final FunctionWithArguments function) {
-			FilterFunctionCompare.this.invalidate();
+		public void defaultAction(final FunctionWithArguments<A> function) {
+			context.invalidate();
 		}
 	}
 
-	private abstract class FunctionTypeIdentificationVisitor extends InvalidatingFWAVisitor {
-		final FunctionWithArguments fwa;
+	private static abstract class FunctionTypeIdentificationVisitor<A extends ExchangeableLeaf<A>> extends
+			InvalidatingFWAVisitor<A> {
+		final FunctionWithArguments<A> fwa;
 
-		private FunctionTypeIdentificationVisitor(final FunctionWithArguments fwa) {
+		protected FunctionTypeIdentificationVisitor(final FilterFunctionCompare<A> context,
+				final FunctionWithArguments<A> fwa) {
+			super(context);
 			this.fwa = fwa;
 		}
 
 		@Override
-		public void visit(final PredicateWithArgumentsComposite predicateWithArgumentsComposite) {
-			this.fwa.accept(new CompositeVisitor(predicateWithArgumentsComposite));
+		public void visit(final PredicateWithArgumentsComposite<A> predicateWithArgumentsComposite) {
+			this.fwa.accept(new CompositeVisitor<A>(context, predicateWithArgumentsComposite));
 		}
 
 		@Override
-		public void visit(final FunctionWithArgumentsComposite functionWithArgumentsComposite) {
-			this.fwa.accept(new CompositeVisitor(functionWithArgumentsComposite));
+		public void visit(final FunctionWithArgumentsComposite<A> functionWithArgumentsComposite) {
+			this.fwa.accept(new CompositeVisitor<A>(context, functionWithArgumentsComposite));
 		}
 
 		@Override
-		public void visit(final ConstantLeaf constantLeaf) {
-			this.fwa.accept(new ConstantLeafVisitor(constantLeaf));
+		public void visit(final ConstantLeaf<A> constantLeaf) {
+			this.fwa.accept(new ConstantLeafVisitor<A>(context, constantLeaf));
 		}
 	};
 
-	private class ConstantLeafVisitor extends InvalidatingFWAVisitor {
-		final ConstantLeaf constantLeaf;
+	private static class ConstantLeafVisitor<A extends ExchangeableLeaf<A>> extends InvalidatingFWAVisitor<A> {
+		final ConstantLeaf<A> constantLeaf;
 
-		private ConstantLeafVisitor(final ConstantLeaf constantLeaf) {
+		protected ConstantLeafVisitor(FilterFunctionCompare<A> context, ConstantLeaf<A> constantLeaf) {
+			super(context);
 			this.constantLeaf = constantLeaf;
 		}
 
 		@Override
-		public void visit(final ConstantLeaf constantLeaf) {
+		public void visit(final ConstantLeaf<A> constantLeaf) {
 			if (!constantLeaf.getValue().equals(this.constantLeaf.getValue())) {
-				invalidate();
+				context.invalidate();
 			}
 		}
 	};
 
-	private class CompositeVisitor extends InvalidatingFWAVisitor {
-		final GenericWithArgumentsComposite<?, ?> composite;
+	private static class CompositeVisitor<A extends ExchangeableLeaf<A>> extends InvalidatingFWAVisitor<A> {
+		final GenericWithArgumentsComposite<?, ?, A> composite;
 
-		private CompositeVisitor(final GenericWithArgumentsComposite<?, ?> composite) {
+		protected CompositeVisitor(FilterFunctionCompare<A> context, GenericWithArgumentsComposite<?, ?, A> composite) {
+			super(context);
 			this.composite = composite;
 		}
 
@@ -373,28 +391,28 @@ public abstract class FilterFunctionCompare {
 			boolean equal;
 		}
 
-		private void generic(final GenericWithArgumentsComposite<?, ?> genericWithArgumentsComposite) {
+		private void generic(final GenericWithArgumentsComposite<?, ?, A> genericWithArgumentsComposite) {
 			if (!genericWithArgumentsComposite.getFunction().inClips().equals(this.composite.getFunction().inClips())) {
-				invalidate();
+				context.invalidate();
 				return;
 			}
-			final FunctionWithArguments[] addressArgs = genericWithArgumentsComposite.getArgs();
-			final FunctionWithArguments[] pathArgs = this.composite.getArgs();
+			final FunctionWithArguments<A>[] addressArgs = genericWithArgumentsComposite.getArgs();
+			final FunctionWithArguments<A>[] pathArgs = this.composite.getArgs();
 			if (addressArgs.length != pathArgs.length) {
-				invalidate();
+				context.invalidate();
 				return;
 			}
 			// compare args normally
 			compareArguments(addressArgs, pathArgs);
 			// just matches
-			if (FilterFunctionCompare.this.isValid())
+			if (context.isValid())
 				return;
 			// doesn't match, only has a chance if function is commutative
 			if (!(genericWithArgumentsComposite.getFunction() instanceof CommutativeFunction<?>)) {
 				return;
 			}
 			// try permutations
-			final Map<Integer, List<FunctionWithArguments>> duplicates =
+			final Map<Integer, List<FunctionWithArguments<A>>> duplicates =
 					Arrays.stream(pathArgs).collect(Collectors.groupingBy(FunctionWithArguments::hash));
 			if (!duplicates.values().stream().anyMatch((v) -> {
 				return v.size() > 1;
@@ -406,14 +424,14 @@ public abstract class FilterFunctionCompare {
 			}).reduce((a, b) -> {
 				return lcm(a, b);
 			}).getAsInt();
-			final HashMap<FunctionWithArguments, Integer> indices =
+			final HashMap<FunctionWithArguments<A>, Integer> indices =
 					IntStream.range(0, pathArgs.length).collect(
 							HashMap::new,
-							(final HashMap<FunctionWithArguments, Integer> m, final int i) -> {
+							(final HashMap<FunctionWithArguments<A>, Integer> m, final int i) -> {
 								m.put(pathArgs[i], Integer.valueOf(i));
 							},
-							(final HashMap<FunctionWithArguments, Integer> m,
-									final HashMap<FunctionWithArguments, Integer> n) -> {
+							(final HashMap<FunctionWithArguments<A>, Integer> m,
+									final HashMap<FunctionWithArguments<A>, Integer> n) -> {
 								m.putAll(n);
 							});
 			final Bool bool = new Bool(false);
@@ -421,7 +439,7 @@ public abstract class FilterFunctionCompare {
 				final int permutation = i;
 				duplicates.values().stream().filter((v) -> {
 					return v.size() > 1;
-				}).forEach((final List<FunctionWithArguments> v) -> {
+				}).forEach((final List<FunctionWithArguments<A>> v) -> {
 					final int size = v.size();
 					for (int j = 0; j < size; ++j) {
 						pathArgs[indices.get(v.get(j))] = pathArgs[indices.get(v.get((j + permutation) % size))];
@@ -430,27 +448,28 @@ public abstract class FilterFunctionCompare {
 						compareArguments(addressArgs, pathArgs);
 					}
 					// else just permute back to original order
-					if (FilterFunctionCompare.this.isValid()) {
+					if (context.isValid()) {
 						// is actually equal
 						bool.equal = true;
 					} else {
 						// lets try again
-						FilterFunctionCompare.this.equal = true;
+						context.equal = true;
 					}
 				}
 			}	);
 			}
 			if (!bool.equal) {
-				invalidate();
+				context.invalidate();
 			}
 		}
 
-		private void compareArguments(final FunctionWithArguments[] addressArgs, final FunctionWithArguments[] pathArgs) {
+		private void compareArguments(final FunctionWithArguments<A>[] addressArgs,
+				final FunctionWithArguments<A>[] pathArgs) {
 			for (int i = 0; i < addressArgs.length; i++) {
-				final FunctionWithArguments addressFWA = addressArgs[i];
-				final FunctionWithArguments pathFWA = pathArgs[i];
-				pathFWA.accept(newFunctionTypeIdentificationVisitor(addressFWA));
-				if (!FilterFunctionCompare.this.isValid())
+				final FunctionWithArguments<A> addressFWA = addressArgs[i];
+				final FunctionWithArguments<A> pathFWA = pathArgs[i];
+				pathFWA.accept(context.newFunctionTypeIdentificationVisitor(context, addressFWA));
+				if (!context.isValid())
 					return;
 			}
 		}
@@ -470,12 +489,12 @@ public abstract class FilterFunctionCompare {
 		}
 
 		@Override
-		public void visit(final FunctionWithArgumentsComposite functionWithArgumentsComposite) {
+		public void visit(final FunctionWithArgumentsComposite<A> functionWithArgumentsComposite) {
 			generic(functionWithArgumentsComposite);
 		}
 
 		@Override
-		public void visit(final PredicateWithArgumentsComposite predicateWithArgumentsComposite) {
+		public void visit(final PredicateWithArgumentsComposite<A> predicateWithArgumentsComposite) {
 			generic(predicateWithArgumentsComposite);
 		}
 	};
@@ -491,13 +510,13 @@ public abstract class FilterFunctionCompare {
 		list[j] = tmp;
 	}
 
-
 	/**
 	 * Permutes a list in place
 	 * 
 	 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
 	 *
-	 * @param <T> element type
+	 * @param <T>
+	 *            element type
 	 */
 	static class Permutation<T> {
 		final List<T> list;
@@ -515,7 +534,7 @@ public abstract class FilterFunctionCompare {
 		 * Steps through all permutations of a given list.
 		 * 
 		 * @return false if the initial permutation is reached again
-		 */ 
+		 */
 		public boolean nextPermutation() {
 			if (length < 2)
 				return false;
@@ -562,8 +581,9 @@ public abstract class FilterFunctionCompare {
 	 * 
 	 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
 	 *
-	 * @param <T> element type
-	 */ 
+	 * @param <T>
+	 *            element type
+	 */
 	static class ComponentwisePermutation<T> {
 		final List<Permutation<T>> permutators;
 
@@ -601,15 +621,20 @@ public abstract class FilterFunctionCompare {
 
 	/**
 	 * Checks if a {@link PathFilter} is compatible with an existing {@link Node}.
-	 *    
-	 * @param targetNode Node candidate
-	 * @param pathFilter PathFilter to compare
-	 * @return null if not compatible otherwise Map from Paths in pathFilter to FactAddresses in targetNode
+	 * 
+	 * @param targetNode
+	 *            Node candidate
+	 * @param pathFilter
+	 *            PathFilter to compare
+	 * @return null if not compatible otherwise Map from Paths in pathFilter to FactAddresses in
+	 *         targetNode
 	 */
 	public static Map<Path, FactAddress> equals(final Node targetNode, final PathFilter pathFilter) {
-		final List<Path> pathsPermutation = new LinkedList<>(); 
+		final List<Path> pathsPermutation = new LinkedList<>();
 		final ComponentwisePermutation<Path> componentwisePermutation;
-		// FIXME remove unnecessary permutations (only the first path found for an edge defines the edge for all joined with it) (only occurring for self-joins of nodes with more than one output path)
+		// FIXME remove unnecessary permutations (only the first path found for an edge defines the
+		// edge for all joined with it) (only occurring for self-joins of nodes with more than one
+		// output path)
 		// TODO commutative PWAs
 		// create list of Paths with permutable parts where self-joins occur
 		{
@@ -631,7 +656,7 @@ public abstract class FilterFunctionCompare {
 			}
 			componentwisePermutation = new ComponentwisePermutation<>(sublists);
 		}
-		// 
+		//
 		do {
 			// get current Path permutation
 			final List<Path> paths = new ArrayList<>(pathsPermutation);

@@ -30,6 +30,7 @@ import org.apache.logging.log4j.Marker;
 import org.jamocha.dn.memory.Fact;
 import org.jamocha.dn.memory.MemoryFact;
 import org.jamocha.dn.memory.SlotType;
+import org.jamocha.function.fwa.ExchangeableLeaf;
 import org.jamocha.function.fwa.FunctionWithArguments;
 import org.jamocha.logging.MarkerType;
 
@@ -169,11 +170,12 @@ public class Template implements org.jamocha.dn.memory.Template {
 		return new Fact(this, args);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
-	public FunctionWithArguments[] applyDefaultsAndOrder(
-			final Map<org.jamocha.dn.memory.SlotAddress, FunctionWithArguments> values) {
+	public <L extends ExchangeableLeaf<L>> FunctionWithArguments<L>[] applyDefaultsAndOrder(
+			final Map<org.jamocha.dn.memory.SlotAddress, FunctionWithArguments<L>> values) {
 		assert this.slotNames.values().containsAll(values.keySet());
-		return toArray(
+		return (FunctionWithArguments<L>[]) toArray(
 				this.slotNames
 						.values()
 						.stream()

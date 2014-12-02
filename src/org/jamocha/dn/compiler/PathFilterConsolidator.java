@@ -32,6 +32,7 @@ import org.jamocha.filter.PathFilter.PathFilterElement;
 import org.jamocha.filter.PathFilterList;
 import org.jamocha.filter.PathFilterList.PathFilterSharedListWrapper;
 import org.jamocha.function.FunctionDictionary;
+import org.jamocha.function.fwa.PathLeaf;
 import org.jamocha.function.fwa.PredicateWithArguments;
 import org.jamocha.function.fwa.PredicateWithArgumentsComposite;
 import org.jamocha.function.fwatransformer.FWADeepCopy;
@@ -367,10 +368,10 @@ public class PathFilterConsolidator implements DefaultConditionalElementsVisitor
 
 		@Override
 		public void visit(final TestConditionalElement ce) {
-			final PredicateWithArguments predicate =
+			final PredicateWithArguments<PathLeaf> predicate =
 					SymbolToPathTranslator.translate(FWADeepCopy.copy(ce.getPredicateWithArguments()), paths);
 			final PathFilter pathFilter =
-					new PathFilter(new PathFilterElement((negated) ? new PredicateWithArgumentsComposite(
+					new PathFilter(new PathFilterElement((negated) ? new PredicateWithArgumentsComposite<>(
 							FunctionDictionary.lookupPredicate(Not.inClips, SlotType.BOOLEAN), predicate) : predicate));
 			joinPaths(pathToJoinedWith, pathFilter);
 			this.pathFilters = Collections.singletonList(pathFilter);

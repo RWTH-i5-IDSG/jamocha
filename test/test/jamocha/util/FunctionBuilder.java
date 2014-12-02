@@ -19,6 +19,7 @@ import static org.jamocha.util.ToArray.toArray;
 import org.jamocha.function.Function;
 import org.jamocha.function.fwa.FunctionWithArguments;
 import org.jamocha.function.fwa.FunctionWithArgumentsComposite;
+import org.jamocha.function.fwa.PathLeaf;
 
 /**
  * 
@@ -31,10 +32,11 @@ public class FunctionBuilder extends GenericBuilder<Object, Function<?>, Functio
 	}
 
 	@Override
-	public FunctionWithArguments build() {
+	public FunctionWithArguments<PathLeaf> build() {
 		if (this.function.getParamTypes().length != this.args.size()) {
 			throw new IllegalArgumentException("Wrong number of arguments!");
 		}
-		return new FunctionWithArgumentsComposite(this.function, toArray(this.args, FunctionWithArguments[]::new));
+		return new FunctionWithArgumentsComposite<PathLeaf>(this.function, toArray(this.args,
+				FunctionWithArguments[]::new));
 	}
 }

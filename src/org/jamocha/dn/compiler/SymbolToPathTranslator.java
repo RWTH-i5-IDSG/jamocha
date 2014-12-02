@@ -26,7 +26,7 @@ import org.jamocha.function.fwa.FunctionWithArgumentsComposite;
 import org.jamocha.function.fwa.FunctionWithArgumentsVisitor;
 import org.jamocha.function.fwa.Modify;
 import org.jamocha.function.fwa.PathLeaf;
-import org.jamocha.function.fwa.PathLeaf.ParameterLeaf;
+import org.jamocha.function.fwa.PredicateWithArguments;
 import org.jamocha.function.fwa.PredicateWithArgumentsComposite;
 import org.jamocha.function.fwa.Retract;
 import org.jamocha.function.fwa.SymbolLeaf;
@@ -34,80 +34,81 @@ import org.jamocha.languages.common.SingleFactVariable;
 import org.jamocha.languages.common.SingleFactVariable.SingleSlotVariable;
 
 /**
+ * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  * @author Christoph Terwelp <christoph.terwelp@rwth-aachen.de>
- *
  */
-public class SymbolToPathTranslator implements FunctionWithArgumentsVisitor {
+public class SymbolToPathTranslator implements FunctionWithArgumentsVisitor<SymbolLeaf> {
 
 	@Getter
-	private FunctionWithArguments result;
+	private FunctionWithArguments<PathLeaf> result;
 	private final Map<SingleFactVariable, Path> paths;
 
 	public SymbolToPathTranslator(final Map<SingleFactVariable, Path> paths) {
 		this.paths = paths;
 	}
 
-	@SuppressWarnings("unchecked")
-	public static <T extends FunctionWithArguments> T translate(final T toTranslate,
+	public static FunctionWithArguments<PathLeaf> translate(final FunctionWithArguments<SymbolLeaf> toTranslate,
 			final Map<SingleFactVariable, Path> paths) {
-		return (T) toTranslate.accept(new SymbolToPathTranslator(paths)).result;
+		return toTranslate.accept(new SymbolToPathTranslator(paths)).result;
 	}
 
-	private <T extends FunctionWithArguments> void handleArgs(final FunctionWithArguments fwa, final T[] args) {
+	public static PredicateWithArgumentsComposite<PathLeaf> translate(
+			final PredicateWithArgumentsComposite<SymbolLeaf> toTranslate, final Map<SingleFactVariable, Path> paths) {
+		return (PredicateWithArgumentsComposite<PathLeaf>) toTranslate.accept(new SymbolToPathTranslator(paths)).result;
+	}
+
+	public static PredicateWithArguments<PathLeaf> translate(final PredicateWithArguments<SymbolLeaf> toTranslate,
+			final Map<SingleFactVariable, Path> paths) {
+		return (PredicateWithArguments<PathLeaf>) toTranslate.accept(new SymbolToPathTranslator(paths)).result;
+	}
+
+	@SuppressWarnings("unchecked")
+	private void handleArgs(final FunctionWithArguments<SymbolLeaf> fwa, final FunctionWithArguments<?>[] args) {
 		for (int i = 0; i < args.length; ++i) {
-			args[i] = translate(args[i], paths);
+			args[i] = translate((FunctionWithArguments<SymbolLeaf>) args[i], paths);
 		}
-		this.result = fwa;
+		this.result = (FunctionWithArguments<PathLeaf>) (FunctionWithArguments<?>) fwa;
 	}
 
 	@Override
-	public void visit(final FunctionWithArgumentsComposite fwa) {
+	public void visit(final FunctionWithArgumentsComposite<SymbolLeaf> fwa) {
 		handleArgs(fwa, fwa.getArgs());
 	}
 
 	@Override
-	public void visit(final PredicateWithArgumentsComposite fwa) {
+	public void visit(final PredicateWithArgumentsComposite<SymbolLeaf> fwa) {
+		handleArgs(fwa, fwa.getArgs());
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public void visit(final ConstantLeaf<SymbolLeaf> constantLeaf) {
+		result = (FunctionWithArguments<PathLeaf>) (FunctionWithArguments<?>) constantLeaf;
+	}
+
+	@Override
+	public void visit(final Assert<SymbolLeaf> fwa) {
 		handleArgs(fwa, fwa.getArgs());
 	}
 
 	@Override
-	public void visit(final ConstantLeaf constantLeaf) {
-		result = constantLeaf;
-	}
-
-	@Override
-	public void visit(final ParameterLeaf parameterLeaf) {
-		throw new Error("ParameterLeaf should not exists at this stage");
-	}
-
-	@Override
-	public void visit(final PathLeaf pathLeaf) {
-		throw new Error("PathLeaf should not exists at this stage");
-	}
-
-	@Override
-	public void visit(final Assert fwa) {
+	public void visit(final Assert.TemplateContainer<SymbolLeaf> fwa) {
 		handleArgs(fwa, fwa.getArgs());
 	}
 
 	@Override
-	public void visit(final Assert.TemplateContainer fwa) {
+	public void visit(final Retract<SymbolLeaf> fwa) {
 		handleArgs(fwa, fwa.getArgs());
 	}
 
 	@Override
-	public void visit(final Retract fwa) {
+	public void visit(final Modify<SymbolLeaf> fwa) {
 		handleArgs(fwa, fwa.getArgs());
 	}
 
 	@Override
-	public void visit(final Modify fwa) {
-		handleArgs(fwa, fwa.getArgs());
-	}
-
-	@Override
-	public void visit(final Modify.SlotAndValue fwa) {
-		this.result = new Modify.SlotAndValue(fwa.getSlotName(), translate(fwa.getValue(), paths));
+	public void visit(final Modify.SlotAndValue<SymbolLeaf> fwa) {
+		this.result = new Modify.SlotAndValue<PathLeaf>(fwa.getSlotName(), translate(fwa.getValue(), paths));
 	}
 
 	@Override

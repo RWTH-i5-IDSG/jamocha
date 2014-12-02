@@ -22,9 +22,10 @@ import org.jamocha.function.Predicate;
  * 
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
-public class PredicateWithArgumentsComposite extends GenericWithArgumentsComposite<Boolean, Predicate> implements
-		PredicateWithArguments {
-	public PredicateWithArgumentsComposite(final Predicate predicate, final FunctionWithArguments... args) {
+public class PredicateWithArgumentsComposite<L extends ExchangeableLeaf<L>> extends
+		GenericWithArgumentsComposite<Boolean, Predicate, L> implements PredicateWithArguments<L> {
+	@SafeVarargs
+	public PredicateWithArgumentsComposite(final Predicate predicate, final FunctionWithArguments<L>... args) {
 		super(predicate, args);
 	}
 
@@ -34,7 +35,7 @@ public class PredicateWithArgumentsComposite extends GenericWithArgumentsComposi
 	}
 
 	@Override
-	public <T extends FunctionWithArgumentsVisitor> T accept(final T visitor) {
+	public <T extends FunctionWithArgumentsVisitor<L>> T accept(final T visitor) {
 		visitor.visit(this);
 		return visitor;
 	}

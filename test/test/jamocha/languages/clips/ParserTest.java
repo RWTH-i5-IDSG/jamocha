@@ -334,36 +334,42 @@ public class ParserTest {
 		{
 			final ConditionalElement conditionalElement = conditionalElements.get(2);
 			assertThat(conditionalElement, instanceOf(TestConditionalElement.class));
-			final FunctionWithArguments functionCall =
+			final FunctionWithArguments<SymbolLeaf> functionCall =
 					((TestConditionalElement) conditionalElement).getPredicateWithArguments();
 			assertThat(functionCall, instanceOf(GenericWithArgumentsComposite.class));
-			final Function<?> function = ((GenericWithArgumentsComposite<?, ?>) functionCall).getFunction();
+			@SuppressWarnings("unchecked")
+			final Function<?> function = ((GenericWithArgumentsComposite<?, ?, SymbolLeaf>) functionCall).getFunction();
 			assertEquals(org.jamocha.function.impls.predicates.Greater.inClips, function.inClips());
-			final FunctionWithArguments[] arguments = ((GenericWithArgumentsComposite<?, ?>) functionCall).getArgs();
+			@SuppressWarnings("unchecked")
+			final FunctionWithArguments<SymbolLeaf>[] arguments =
+					((GenericWithArgumentsComposite<?, ?, SymbolLeaf>) functionCall).getArgs();
 			assertEquals(2, arguments.length);
-			final FunctionWithArguments firstArg = arguments[0];
+			final FunctionWithArguments<SymbolLeaf> firstArg = arguments[0];
 			assertThat(firstArg, instanceOf(SymbolLeaf.class));
 			assertSame(x.getSymbol(), ((SymbolLeaf) firstArg).getSymbol());
-			final FunctionWithArguments secondArg = arguments[1];
+			final FunctionWithArguments<SymbolLeaf> secondArg = arguments[1];
 			assertThat(secondArg, instanceOf(ConstantLeaf.class));
-			assertEquals(2L, ((ConstantLeaf) secondArg).getValue());
+			assertEquals(2L, ((ConstantLeaf<SymbolLeaf>) secondArg).getValue());
 		}
 		{
 			final ConditionalElement conditionalElement = conditionalElements.get(3);
 			assertThat(conditionalElement, instanceOf(TestConditionalElement.class));
-			final FunctionWithArguments functionCall =
+			final FunctionWithArguments<SymbolLeaf> functionCall =
 					((TestConditionalElement) conditionalElement).getPredicateWithArguments();
 			assertThat(functionCall, instanceOf(GenericWithArgumentsComposite.class));
-			final Function<?> function = ((GenericWithArgumentsComposite<?, ?>) functionCall).getFunction();
+			@SuppressWarnings("unchecked")
+			final Function<?> function = ((GenericWithArgumentsComposite<?, ?, SymbolLeaf>) functionCall).getFunction();
 			assertEquals(org.jamocha.function.impls.predicates.Less.inClips, function.inClips());
-			final FunctionWithArguments[] arguments = ((GenericWithArgumentsComposite<?, ?>) functionCall).getArgs();
+			@SuppressWarnings("unchecked")
+			final FunctionWithArguments<SymbolLeaf>[] arguments =
+					((GenericWithArgumentsComposite<?, ?, SymbolLeaf>) functionCall).getArgs();
 			assertEquals(2, arguments.length);
-			final FunctionWithArguments firstArg = arguments[0];
+			final FunctionWithArguments<SymbolLeaf> firstArg = arguments[0];
 			assertThat(firstArg, instanceOf(SymbolLeaf.class));
 			assertSame(y.getSymbol(), ((SymbolLeaf) firstArg).getSymbol());
-			final FunctionWithArguments secondArg = arguments[1];
+			final FunctionWithArguments<SymbolLeaf> secondArg = arguments[1];
 			assertThat(secondArg, instanceOf(ConstantLeaf.class));
-			assertEquals(0.0, ((ConstantLeaf) secondArg).getValue());
+			assertEquals(0.0, ((ConstantLeaf<SymbolLeaf>) secondArg).getValue());
 		}
 	}
 
@@ -427,20 +433,24 @@ public class ParserTest {
 			{
 				final ConditionalElement child = children.get(0);
 				assertThat(child, instanceOf(TestConditionalElement.class));
-				final FunctionWithArguments functionCall = ((TestConditionalElement) child).getPredicateWithArguments();
+				final FunctionWithArguments<SymbolLeaf> functionCall =
+						((TestConditionalElement) child).getPredicateWithArguments();
 				assertThat(functionCall, instanceOf(GenericWithArgumentsComposite.class));
-				final Function<?> function = ((GenericWithArgumentsComposite<?, ?>) functionCall).getFunction();
+				@SuppressWarnings("unchecked")
+				final Function<?> function =
+						((GenericWithArgumentsComposite<?, ?, SymbolLeaf>) functionCall).getFunction();
 				assertEquals(FunctionDictionary.lookup(org.jamocha.function.impls.predicates.Equals.inClips,
 						SlotType.LONG, SlotType.LONG), function);
-				final FunctionWithArguments[] arguments =
-						((GenericWithArgumentsComposite<?, ?>) functionCall).getArgs();
+				@SuppressWarnings("unchecked")
+				final FunctionWithArguments<SymbolLeaf>[] arguments =
+						((GenericWithArgumentsComposite<?, ?, SymbolLeaf>) functionCall).getArgs();
 				assertEquals(2, arguments.length);
-				final FunctionWithArguments firstArg = arguments[0];
+				final FunctionWithArguments<SymbolLeaf> firstArg = arguments[0];
 				assertThat(firstArg, instanceOf(SymbolLeaf.class));
 				assertEquals(x.getSymbol(), ((SymbolLeaf) firstArg).getSymbol());
-				final FunctionWithArguments secondArg = arguments[1];
+				final FunctionWithArguments<SymbolLeaf> secondArg = arguments[1];
 				assertThat(secondArg, instanceOf(ConstantLeaf.class));
-				assertEquals(2L, ((ConstantLeaf) secondArg).getValue());
+				assertEquals(2L, ((ConstantLeaf<SymbolLeaf>) secondArg).getValue());
 			}
 			{
 				final ConditionalElement child = children.get(1);
@@ -450,59 +460,69 @@ public class ParserTest {
 				{
 					final ConditionalElement andChild = andChildren.get(0);
 					assertThat(andChild, instanceOf(TestConditionalElement.class));
-					final FunctionWithArguments functionCall =
+					final FunctionWithArguments<SymbolLeaf> functionCall =
 							((TestConditionalElement) andChild).getPredicateWithArguments();
 					assertThat(functionCall, instanceOf(GenericWithArgumentsComposite.class));
-					final Function<?> function = ((GenericWithArgumentsComposite<?, ?>) functionCall).getFunction();
+					@SuppressWarnings("unchecked")
+					final Function<?> function =
+							((GenericWithArgumentsComposite<?, ?, SymbolLeaf>) functionCall).getFunction();
 					assertEquals(FunctionDictionary.lookup(org.jamocha.function.impls.predicates.Equals.inClips,
 							SlotType.LONG, SlotType.LONG), function);
-					final FunctionWithArguments[] arguments =
-							((GenericWithArgumentsComposite<?, ?>) functionCall).getArgs();
+					@SuppressWarnings("unchecked")
+					final FunctionWithArguments<SymbolLeaf>[] arguments =
+							((GenericWithArgumentsComposite<?, ?, SymbolLeaf>) functionCall).getArgs();
 					assertEquals(2, arguments.length);
-					final FunctionWithArguments firstArg = arguments[0];
+					final FunctionWithArguments<SymbolLeaf> firstArg = arguments[0];
 					assertThat(firstArg, instanceOf(SymbolLeaf.class));
 					assertEquals(x.getSymbol(), ((SymbolLeaf) firstArg).getSymbol());
-					final FunctionWithArguments secondArg = arguments[1];
+					final FunctionWithArguments<SymbolLeaf> secondArg = arguments[1];
 					assertThat(secondArg, instanceOf(ConstantLeaf.class));
-					assertEquals(3L, ((ConstantLeaf) secondArg).getValue());
+					assertEquals(3L, ((ConstantLeaf<SymbolLeaf>) secondArg).getValue());
 				}
 				{
 					final ConditionalElement andChild = andChildren.get(1);
 					assertThat(andChild, instanceOf(TestConditionalElement.class));
-					final FunctionWithArguments functionCall =
+					final FunctionWithArguments<SymbolLeaf> functionCall =
 							((TestConditionalElement) andChild).getPredicateWithArguments();
 					assertThat(functionCall, instanceOf(GenericWithArgumentsComposite.class));
-					final Function<?> function = ((GenericWithArgumentsComposite<?, ?>) functionCall).getFunction();
+					@SuppressWarnings("unchecked")
+					final Function<?> function =
+							((GenericWithArgumentsComposite<?, ?, SymbolLeaf>) functionCall).getFunction();
 					assertEquals(FunctionDictionary.lookup(org.jamocha.function.impls.predicates.Equals.inClips,
 							SlotType.LONG, SlotType.LONG), function);
-					final FunctionWithArguments[] arguments =
-							((GenericWithArgumentsComposite<?, ?>) functionCall).getArgs();
+					@SuppressWarnings("unchecked")
+					final FunctionWithArguments<SymbolLeaf>[] arguments =
+							((GenericWithArgumentsComposite<?, ?, SymbolLeaf>) functionCall).getArgs();
 					assertEquals(2, arguments.length);
-					final FunctionWithArguments firstArg = arguments[0];
+					final FunctionWithArguments<SymbolLeaf> firstArg = arguments[0];
 					assertThat(firstArg, instanceOf(SymbolLeaf.class));
 					assertEquals(x.getSymbol(), ((SymbolLeaf) firstArg).getSymbol());
-					final FunctionWithArguments secondArg = arguments[1];
+					final FunctionWithArguments<SymbolLeaf> secondArg = arguments[1];
 					assertThat(secondArg, instanceOf(ConstantLeaf.class));
-					assertEquals(4L, ((ConstantLeaf) secondArg).getValue());
+					assertEquals(4L, ((ConstantLeaf<SymbolLeaf>) secondArg).getValue());
 				}
 			}
 			{
 				final ConditionalElement child = children.get(2);
 				assertThat(child, instanceOf(TestConditionalElement.class));
-				final FunctionWithArguments functionCall = ((TestConditionalElement) child).getPredicateWithArguments();
+				final FunctionWithArguments<SymbolLeaf> functionCall =
+						((TestConditionalElement) child).getPredicateWithArguments();
 				assertThat(functionCall, instanceOf(GenericWithArgumentsComposite.class));
-				final Function<?> function = ((GenericWithArgumentsComposite<?, ?>) functionCall).getFunction();
+				@SuppressWarnings("unchecked")
+				final Function<?> function =
+						((GenericWithArgumentsComposite<?, ?, SymbolLeaf>) functionCall).getFunction();
 				assertEquals(FunctionDictionary.lookup(org.jamocha.function.impls.predicates.Equals.inClips,
 						SlotType.LONG, SlotType.LONG), function);
-				final FunctionWithArguments[] arguments =
-						((GenericWithArgumentsComposite<?, ?>) functionCall).getArgs();
+				@SuppressWarnings("unchecked")
+				final FunctionWithArguments<SymbolLeaf>[] arguments =
+						((GenericWithArgumentsComposite<?, ?, SymbolLeaf>) functionCall).getArgs();
 				assertEquals(2, arguments.length);
-				final FunctionWithArguments firstArg = arguments[0];
+				final FunctionWithArguments<SymbolLeaf> firstArg = arguments[0];
 				assertThat(firstArg, instanceOf(SymbolLeaf.class));
 				assertEquals(x.getSymbol(), ((SymbolLeaf) firstArg).getSymbol());
-				final FunctionWithArguments secondArg = arguments[1];
+				final FunctionWithArguments<SymbolLeaf> secondArg = arguments[1];
 				assertThat(secondArg, instanceOf(ConstantLeaf.class));
-				assertEquals(5L, ((ConstantLeaf) secondArg).getValue());
+				assertEquals(5L, ((ConstantLeaf<SymbolLeaf>) secondArg).getValue());
 			}
 		}
 	}
@@ -613,20 +633,23 @@ public class ParserTest {
 				assertThat(child, instanceOf(TestConditionalElement.class));
 				final TestConditionalElement testCE = (TestConditionalElement) child;
 				assertThat(testCE.getChildren(), hasSize(0));
-				final FunctionWithArguments functionCall = testCE.getPredicateWithArguments();
+				final FunctionWithArguments<SymbolLeaf> functionCall = testCE.getPredicateWithArguments();
 				assertThat(functionCall, instanceOf(GenericWithArgumentsComposite.class));
-				final Function<?> function = ((GenericWithArgumentsComposite<?, ?>) functionCall).getFunction();
+				@SuppressWarnings("unchecked")
+				final Function<?> function =
+						((GenericWithArgumentsComposite<?, ?, SymbolLeaf>) functionCall).getFunction();
 				assertEquals(FunctionDictionary.lookup(org.jamocha.function.impls.predicates.GreaterOrEqual.inClips,
 						SlotType.DOUBLE, SlotType.DOUBLE), function);
-				final FunctionWithArguments[] arguments =
-						((GenericWithArgumentsComposite<?, ?>) functionCall).getArgs();
+				@SuppressWarnings("unchecked")
+				final FunctionWithArguments<SymbolLeaf>[] arguments =
+						((GenericWithArgumentsComposite<?, ?, SymbolLeaf>) functionCall).getArgs();
 				assertEquals(2, arguments.length);
-				final FunctionWithArguments firstArg = arguments[0];
+				final FunctionWithArguments<SymbolLeaf> firstArg = arguments[0];
 				assertThat(firstArg, instanceOf(SymbolLeaf.class));
 				assertEquals(y.getSymbol(), ((SymbolLeaf) firstArg).getSymbol());
-				final FunctionWithArguments secondArg = arguments[1];
+				final FunctionWithArguments<SymbolLeaf> secondArg = arguments[1];
 				assertThat(secondArg, instanceOf(ConstantLeaf.class));
-				assertEquals(0.5, ((ConstantLeaf) secondArg).getValue());
+				assertEquals(0.5, ((ConstantLeaf<SymbolLeaf>) secondArg).getValue());
 			}
 		}
 	}

@@ -16,6 +16,7 @@ package org.jamocha.dn;
 
 import java.util.Collection;
 import java.util.EnumMap;
+import java.util.List;
 
 import org.jamocha.dn.ConstructCache.Deffacts;
 import org.jamocha.dn.ConstructCache.Defrule;
@@ -23,6 +24,7 @@ import org.jamocha.dn.memory.SlotType;
 import org.jamocha.dn.memory.Template;
 import org.jamocha.dn.memory.Template.Slot;
 import org.jamocha.function.fwa.Assert;
+import org.jamocha.function.fwa.PathLeaf.ParameterLeaf;
 import org.jamocha.languages.common.ScopeStack;
 
 /**
@@ -41,7 +43,8 @@ public interface ParserToNetwork {
 
 	Collection<Defrule> getRules();
 
-	Deffacts defFacts(final String name, final String description, final Assert.TemplateContainer... containers);
+	Deffacts defFacts(final String name, final String description,
+			final List<Assert.TemplateContainer<ParameterLeaf>> containers);
 
 	Deffacts getDeffacts(final String name);
 

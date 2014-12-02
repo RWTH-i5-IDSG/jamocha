@@ -114,11 +114,11 @@ public class RuleConditionProcessorTest {
 		assertEquals("templ1", ((TemplatePatternConditionalElement) tpce).getFactVariable().getTemplate().getName());
 		final ConditionalElement testce = andChildren.get(1);
 		assertThat(testce, instanceOf(TestConditionalElement.class));
-		final PredicateWithArguments fwa = ((TestConditionalElement) testce).getPredicateWithArguments();
-		final Predicate predicate = ((PredicateWithArgumentsComposite) fwa).getFunction();
+		final PredicateWithArguments<SymbolLeaf> fwa = ((TestConditionalElement) testce).getPredicateWithArguments();
+		final Predicate predicate = ((PredicateWithArgumentsComposite<SymbolLeaf>) fwa).getFunction();
 		assertEquals(Equals.inClips, predicate.inClips());
-		final FunctionWithArguments[] args = ((PredicateWithArgumentsComposite) fwa).getArgs();
-		final FunctionWithArguments symbolLeaf = args[0];
+		final FunctionWithArguments<SymbolLeaf>[] args = ((PredicateWithArgumentsComposite<SymbolLeaf>) fwa).getArgs();
+		final FunctionWithArguments<SymbolLeaf> symbolLeaf = args[0];
 		assertThat(symbolLeaf, instanceOf(SymbolLeaf.class));
 		final Symbol symbol = ((SymbolLeaf) symbolLeaf).getSymbol();
 		final ArrayList<SingleSlotVariable> positiveSlotVariables = symbol.getPositiveSlotVariables();
@@ -127,10 +127,10 @@ public class RuleConditionProcessorTest {
 		final Template slotTemplate = singleSlotVariable.getFactVariable().getTemplate();
 		assertEquals("templ1", slotTemplate.getName());
 		assertEquals("slot1", slotTemplate.getSlotName(singleSlotVariable.getSlot()));
-		final FunctionWithArguments constantLeaf = args[1];
+		final FunctionWithArguments<SymbolLeaf> constantLeaf = args[1];
 		assertThat(constantLeaf, instanceOf(ConstantLeaf.class));
-		assertEquals(SlotType.LONG, ((ConstantLeaf) constantLeaf).getType());
-		assertEquals(Long.valueOf(10), ((ConstantLeaf) constantLeaf).getValue());
+		assertEquals(SlotType.LONG, ((ConstantLeaf<SymbolLeaf>) constantLeaf).getType());
+		assertEquals(Long.valueOf(10), ((ConstantLeaf<SymbolLeaf>) constantLeaf).getValue());
 	}
 
 	@Test

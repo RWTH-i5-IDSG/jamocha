@@ -29,6 +29,7 @@ import org.jamocha.dn.memory.Template.Slot;
 import org.jamocha.dn.memory.Template.SlotConstraint;
 import org.jamocha.function.fwa.ConstantLeaf;
 import org.jamocha.function.fwa.FunctionWithArguments;
+import org.jamocha.function.fwa.SymbolLeaf;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
@@ -53,7 +54,7 @@ public class SlotBuilder {
 		return this;
 	}
 
-	public SlotBuilder setStaticDefault(final FunctionWithArguments value) {
+	public SlotBuilder setStaticDefault(final FunctionWithArguments<SymbolLeaf> value) {
 		if (null != defaultValue) {
 			throw new IllegalArgumentException("Default value already set!");
 		}
@@ -65,7 +66,7 @@ public class SlotBuilder {
 		return this;
 	}
 
-	public SlotBuilder setDynamicDefault(final FunctionWithArguments value) {
+	public SlotBuilder setDynamicDefault(final FunctionWithArguments<SymbolLeaf> value) {
 		if (null != defaultValue) {
 			throw new IllegalArgumentException("Default value already set!");
 		}
@@ -92,7 +93,7 @@ public class SlotBuilder {
 		return this;
 	}
 
-	public SlotBuilder setRangeConstraint(final ConstantLeaf from, final ConstantLeaf to) {
+	public SlotBuilder setRangeConstraint(final ConstantLeaf<SymbolLeaf> from, final ConstantLeaf<SymbolLeaf> to) {
 		if (null != range) {
 			throw new IllegalArgumentException("Range constraint already set!");
 		}
@@ -145,14 +146,14 @@ public class SlotBuilder {
 		if (null != this.defaultValue) {
 			defaultValue = this.defaultValue;
 		} else {
-			final FunctionWithArguments value;
+			final FunctionWithArguments<SymbolLeaf> value;
 			// derive the default value
 			if (null != allowedConstants) {
 				value = allowedConstants.derivedDefaultValue();
 			} else if (null != range) {
 				value = range.derivedDefaultValue();
 			} else {
-				value = new ConstantLeaf(defaultValues.get(this.slotType), this.slotType);
+				value = new ConstantLeaf<>(defaultValues.get(this.slotType), this.slotType);
 			}
 			defaultValue = Default.staticDefault(value);
 		}

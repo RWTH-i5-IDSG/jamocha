@@ -15,6 +15,7 @@
 package org.jamocha.function;
 
 import org.jamocha.dn.memory.SlotType;
+import org.jamocha.function.fwa.ExchangeableLeaf;
 import org.jamocha.function.fwa.FunctionWithArguments;
 import org.jamocha.function.impls.FunctionVisitor;
 import org.jamocha.visitor.Visitable;
@@ -62,7 +63,7 @@ public interface Function<R> extends Visitable<FunctionVisitor> {
 	 */
 	public R evaluate(final Function<?>... params);
 
-	default int hash(final FunctionWithArguments fwa) {
+	default <L extends ExchangeableLeaf<L>> int hash(final FunctionWithArguments<L> fwa) {
 		return fwa.hashPositionIsRelevant();
 	}
 }

@@ -44,17 +44,18 @@ import org.jamocha.function.impls.FunctionVisitor;
  */
 @EqualsAndHashCode
 @Getter
-public abstract class GenericWithArgumentsComposite<R, F extends Function<? extends R>> implements
-		FunctionWithArguments {
+public abstract class GenericWithArgumentsComposite<R, F extends Function<? extends R>, L extends ExchangeableLeaf<L>> implements
+		FunctionWithArguments<L> {
 
 	final F function;
-	final FunctionWithArguments args[];
+	final FunctionWithArguments<L> args[];
 	@Getter(lazy = true, onMethod = @__(@Override))
 	private final SlotType[] paramTypes = calculateParamTypes();
 	@Getter(lazy = true, value = AccessLevel.PRIVATE)
 	private final int hashPIR = initHashPIR(), hashPII = initHashPII();
 
-	public GenericWithArgumentsComposite(final F function, final FunctionWithArguments... args) {
+	@SafeVarargs
+	public GenericWithArgumentsComposite(final F function, final FunctionWithArguments<L>... args) {
 		super();
 		this.function = function;
 		this.args = args;
@@ -64,7 +65,7 @@ public abstract class GenericWithArgumentsComposite<R, F extends Function<? exte
 		final int[] hashPII = new int[args.length + 1];
 		hashPII[0] = function.hashCode();
 		for (int i = 0; i < args.length; i++) {
-			final FunctionWithArguments arg = args[i];
+			final FunctionWithArguments<L> arg = args[i];
 			hashPII[i + 1] = arg.hashPositionIsIrrelevant();
 		}
 		return FunctionWithArguments.hash(hashPII, FunctionWithArguments.positionIsIrrelevant);
@@ -74,15 +75,15 @@ public abstract class GenericWithArgumentsComposite<R, F extends Function<? exte
 		final int[] hashPIR = new int[args.length + 1];
 		hashPIR[0] = function.hashCode();
 		for (int i = 0; i < args.length; i++) {
-			final FunctionWithArguments arg = args[i];
+			final FunctionWithArguments<L> arg = args[i];
 			hashPIR[i + 1] = arg.hashPositionIsRelevant();
 		}
 		return FunctionWithArguments.hash(hashPIR, FunctionWithArguments.positionIsRelevant);
 	}
 
-	static SlotType[] calculateParamTypes(final FunctionWithArguments[] args) {
+	static <L extends ExchangeableLeaf<L>> SlotType[] calculateParamTypes(final FunctionWithArguments<L>[] args) {
 		final ArrayList<SlotType> types = new ArrayList<>();
-		for (final FunctionWithArguments fwa : args) {
+		for (final FunctionWithArguments<L> fwa : args) {
 			for (final SlotType type : fwa.getParamTypes()) {
 				types.add(type);
 			}
@@ -147,8 +148,8 @@ public abstract class GenericWithArgumentsComposite<R, F extends Function<? exte
 				params);
 	}
 
-	static <R> Function<R> staticLazyEvaluate(final java.util.function.Function<Function<?>[], R> function,
-			final String inClips, final FunctionWithArguments[] args, final Function<?>[] params) {
+	static <R, L extends ExchangeableLeaf<L>> Function<R> staticLazyEvaluate(final java.util.function.Function<Function<?>[], R> function,
+			final String inClips, final FunctionWithArguments<L>[] args, final Function<?>[] params) {
 		return new Function<R>() {
 			@Override
 			public SlotType[] getParamTypes() {
@@ -170,7 +171,7 @@ public abstract class GenericWithArgumentsComposite<R, F extends Function<? exte
 				final Function<?> evaluatableArgs[] = new Function<?>[args.length];
 				int k = 0;
 				for (int i = 0; i < args.length; i++) {
-					final FunctionWithArguments fwa = args[i];
+					final FunctionWithArguments<L> fwa = args[i];
 					final SlotType[] types = fwa.getParamTypes();
 					evaluatableArgs[i] = fwa.lazyEvaluate(Arrays.copyOfRange(params, k, k + types.length));
 					k += types.length;

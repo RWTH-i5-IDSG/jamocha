@@ -30,7 +30,7 @@ import org.jamocha.languages.common.ScopeStack.Symbol;
 @RequiredArgsConstructor
 @Getter
 @ToString(of = { "symbol" })
-public class SymbolLeaf implements FunctionWithArguments {
+public class SymbolLeaf implements ExchangeableLeaf<SymbolLeaf> {
 	private final Symbol symbol;
 
 	@Getter(lazy = true)
@@ -67,8 +67,13 @@ public class SymbolLeaf implements FunctionWithArguments {
 	}
 
 	@Override
-	public <V extends FunctionWithArgumentsVisitor> V accept(final V visitor) {
+	public <V extends FunctionWithArgumentsVisitor<SymbolLeaf>> V accept(final V visitor) {
 		visitor.visit(this);
 		return visitor;
+	}
+
+	@Override
+	public ExchangeableLeaf<SymbolLeaf> copy() {
+		return new SymbolLeaf(symbol);
 	}
 }

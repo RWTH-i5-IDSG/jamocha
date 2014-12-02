@@ -28,10 +28,11 @@ import lombok.Value;
 import org.jamocha.dn.memory.SlotAddress;
 import org.jamocha.dn.memory.SlotType;
 import org.jamocha.filter.AddressFilter;
-import org.jamocha.filter.PathFilterToAddressFilterTranslator;
 import org.jamocha.filter.Path;
 import org.jamocha.filter.PathFilter;
+import org.jamocha.filter.PathFilterToAddressFilterTranslator;
 import org.jamocha.function.Function;
+import org.jamocha.function.fwa.PathLeaf.ParameterLeaf;
 import org.jamocha.function.impls.FunctionVisitor;
 import org.junit.experimental.theories.Theories;
 import org.junit.experimental.theories.Theory;
@@ -129,7 +130,7 @@ public class FilterMockup extends PathFilter {
 			final AddressFilter alwaysTrue =
 					PathFilterToAddressFilterTranslator
 							.translate(FilterMockup.alwaysTrue(), counterColumnMatcherMockup);
-			for (final FilterElement filterElement : alwaysTrue.getFilterElements()) {
+			for (final FilterElement<ParameterLeaf> filterElement : alwaysTrue.getFilterElements()) {
 				assertTrue(filterElement.getFunction().evaluate(obj));
 			}
 		}
@@ -142,7 +143,7 @@ public class FilterMockup extends PathFilter {
 			final AddressFilter alwaysFalse =
 					PathFilterToAddressFilterTranslator.translate(FilterMockup.alwaysFalse(),
 							counterColumnMatcherMockup);
-			for (final FilterElement filterElement : alwaysFalse.getFilterElements()) {
+			for (final FilterElement<ParameterLeaf> filterElement : alwaysFalse.getFilterElements()) {
 				assertFalse(filterElement.getFunction().evaluate(obj));
 			}
 		}

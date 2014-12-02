@@ -20,21 +20,20 @@ import org.jamocha.function.fwa.PathLeaf.ParameterLeaf;
 import org.jamocha.function.fwa.PredicateWithArguments;
 import org.jamocha.function.fwa.PredicateWithArgumentsComposite;
 import org.jamocha.function.fwa.Retract;
-import org.jamocha.function.fwa.SymbolLeaf;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
-public class FWAPathToAddressTranslator implements FunctionWithArgumentsVisitor {
+public class FWAPathToAddressTranslator implements FunctionWithArgumentsVisitor<PathLeaf> {
 	private final Collection<SlotInFactAddress> addresses;
-	private FunctionWithArguments functionWithArguments;
+	private FunctionWithArguments<ParameterLeaf> functionWithArguments;
 
-	public static FunctionWithArguments translate(final FunctionWithArguments fwa,
+	public static FunctionWithArguments<ParameterLeaf> translate(final FunctionWithArguments<PathLeaf> fwa,
 			final Collection<SlotInFactAddress> addresses) {
 		return fwa.accept(new FWAPathToAddressTranslator(addresses)).functionWithArguments;
 	}
 
-	public static PredicateWithArguments translate(final PredicateWithArguments fwa,
+	public static PredicateWithArguments<ParameterLeaf> translate(final PredicateWithArguments<PathLeaf> fwa,
 			final Collection<SlotInFactAddress> addresses) {
 		return fwa.accept(new FWAPathToAddressTranslator.PWAPathToAddressTranslator(addresses)).functionWithArguments;
 	}
@@ -43,32 +42,28 @@ public class FWAPathToAddressTranslator implements FunctionWithArgumentsVisitor 
 		this.addresses = addresses;
 	}
 
-	public FunctionWithArguments getFunctionWithArguments() {
+	public FunctionWithArguments<ParameterLeaf> getFunctionWithArguments() {
 		return this.functionWithArguments;
 	}
 
 	@Override
-	public void visit(final FunctionWithArgumentsComposite functionWithArgumentsComposite) {
+	public void visit(final FunctionWithArgumentsComposite<PathLeaf> functionWithArgumentsComposite) {
 		this.functionWithArguments =
-				new FunctionWithArgumentsComposite(functionWithArgumentsComposite.getFunction(), translateArgs(
+				new FunctionWithArgumentsComposite<>(functionWithArgumentsComposite.getFunction(), translateArgs(
 						functionWithArgumentsComposite.getArgs(), this.addresses));
 	}
 
 	@Override
-	public void visit(final PredicateWithArgumentsComposite predicateWithArgumentsComposite) {
+	public void visit(final PredicateWithArgumentsComposite<PathLeaf> predicateWithArgumentsComposite) {
 		this.functionWithArguments =
-				new PredicateWithArgumentsComposite(predicateWithArgumentsComposite.getFunction(), translateArgs(
+				new PredicateWithArgumentsComposite<>(predicateWithArgumentsComposite.getFunction(), translateArgs(
 						predicateWithArgumentsComposite.getArgs(), this.addresses));
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
-	public void visit(final ConstantLeaf constantLeaf) {
-		this.functionWithArguments = constantLeaf;
-	}
-
-	@Override
-	public void visit(final ParameterLeaf parameterLeaf) {
-		this.functionWithArguments = parameterLeaf;
+	public void visit(final ConstantLeaf<PathLeaf> constantLeaf) {
+		this.functionWithArguments = (ConstantLeaf<PathLeaf.ParameterLeaf>) (ConstantLeaf<?>) constantLeaf;
 	}
 
 	@Override
@@ -78,61 +73,60 @@ public class FWAPathToAddressTranslator implements FunctionWithArgumentsVisitor 
 		this.functionWithArguments = new ParameterLeaf(pathLeaf.getReturnType(), pathLeaf.hash());
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
-	public void visit(final SymbolLeaf fwa) {
-		throw new UnsupportedOperationException(
-				"At this point, the Filter should already have been translated to a PathFilter!");
-	}
-
-	@Override
-	public void visit(final Assert fwa) {
+	public void visit(final Assert<PathLeaf> fwa) {
 		this.functionWithArguments =
-				new Assert(fwa.getNetwork(), translateArgs(fwa.getArgs(), this.addresses,
-						Assert.TemplateContainer[]::new));
-	}
-
-	@Override
-	public void visit(final Modify fwa) {
-		this.functionWithArguments =
-				new Modify(fwa.getNetwork(), translateArg(fwa.getTargetFact(), this.addresses), translateArgs(
-						fwa.getArgs(), this.addresses, Modify.SlotAndValue[]::new));
-	}
-
-	@Override
-	public void visit(final Retract fwa) {
-		this.functionWithArguments = new Retract(fwa.getNetwork(), translateArgs(fwa.getArgs(), this.addresses));
-	}
-
-	@Override
-	public void visit(final Assert.TemplateContainer fwa) {
-		this.functionWithArguments =
-				new Assert.TemplateContainer(fwa.getTemplate(), translateArgs(fwa.getArgs(), this.addresses));
-	}
-
-	@Override
-	public void visit(final Modify.SlotAndValue fwa) {
-		this.functionWithArguments =
-				new Modify.SlotAndValue(fwa.getSlotName(), translateArg(fwa.getValue(), this.addresses));
-	}
-
-	private static FunctionWithArguments[] translateArgs(final FunctionWithArguments[] originalArgs,
-			final Collection<SlotInFactAddress> addresses) {
-		return translateArgs(originalArgs, addresses, FunctionWithArguments[]::new);
+				new Assert<>(fwa.getNetwork(), (Assert.TemplateContainer<ParameterLeaf>[]) translateArgs(fwa.getArgs(),
+						this.addresses, Assert.TemplateContainer[]::new));
 	}
 
 	@SuppressWarnings("unchecked")
-	private static <T extends FunctionWithArguments> T translateArg(final T originalArg,
-			final Collection<SlotInFactAddress> addresses) {
-		return (T) originalArg.accept(new FWAPathToAddressTranslator(addresses)).getFunctionWithArguments();
+	@Override
+	public void visit(final Modify<PathLeaf> fwa) {
+		this.functionWithArguments =
+				new Modify<>(fwa.getNetwork(), translateArg(fwa.getTargetFact(), this.addresses),
+						(Modify.SlotAndValue<ParameterLeaf>[]) translateArgs(fwa.getArgs(), this.addresses,
+								Modify.SlotAndValue[]::new));
 	}
 
-	private static <T extends FunctionWithArguments> T[] translateArgs(final T[] originalArgs,
+	@Override
+	public void visit(final Retract<PathLeaf> fwa) {
+		this.functionWithArguments = new Retract<>(fwa.getNetwork(), translateArgs(fwa.getArgs(), this.addresses));
+	}
+
+	@Override
+	public void visit(final Assert.TemplateContainer<PathLeaf> fwa) {
+		this.functionWithArguments =
+				new Assert.TemplateContainer<>(fwa.getTemplate(), translateArgs(fwa.getArgs(), this.addresses));
+	}
+
+	@Override
+	public void visit(final Modify.SlotAndValue<PathLeaf> fwa) {
+		this.functionWithArguments =
+				new Modify.SlotAndValue<>(fwa.getSlotName(), translateArg(fwa.getValue(), this.addresses));
+	}
+
+	@SuppressWarnings("unchecked")
+	private static FunctionWithArguments<ParameterLeaf>[] translateArgs(
+			final FunctionWithArguments<PathLeaf>[] originalArgs, final Collection<SlotInFactAddress> addresses) {
+		return (FunctionWithArguments<ParameterLeaf>[]) translateArgs(originalArgs, addresses,
+				FunctionWithArguments[]::new);
+	}
+
+	private static FunctionWithArguments<ParameterLeaf> translateArg(final FunctionWithArguments<PathLeaf> originalArg,
+			final Collection<SlotInFactAddress> addresses) {
+		return originalArg.accept(new FWAPathToAddressTranslator(addresses)).getFunctionWithArguments();
+	}
+
+	@SuppressWarnings("unchecked")
+	private static <T extends FunctionWithArguments<?>> T[] translateArgs(final T[] originalArgs,
 			final Collection<SlotInFactAddress> addresses, final IntFunction<T[]> array) {
 		final int numArgs = originalArgs.length;
 		final T[] translatedArgs = array.apply(numArgs);
 		for (int i = 0; i < numArgs; ++i) {
 			final T originalArg = originalArgs[i];
-			translatedArgs[i] = translateArg(originalArg, addresses);
+			translatedArgs[i] = (T) translateArg((FunctionWithArguments<PathLeaf>) originalArg, addresses);
 		}
 		return translatedArgs;
 	}
@@ -141,20 +135,20 @@ public class FWAPathToAddressTranslator implements FunctionWithArgumentsVisitor 
 	 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
 	 */
 	@RequiredArgsConstructor
-	public static class PWAPathToAddressTranslator implements DefaultFunctionWithArgumentsVisitor {
+	public static class PWAPathToAddressTranslator implements DefaultFunctionWithArgumentsVisitor<PathLeaf> {
 		private final Collection<SlotInFactAddress> addresses;
 		@Getter
-		private PredicateWithArguments functionWithArguments;
+		private PredicateWithArguments<ParameterLeaf> functionWithArguments;
 
 		@Override
-		public void visit(final PredicateWithArgumentsComposite predicateWithArgumentsComposite) {
+		public void visit(final PredicateWithArgumentsComposite<PathLeaf> predicateWithArgumentsComposite) {
 			this.functionWithArguments =
-					new PredicateWithArgumentsComposite(predicateWithArgumentsComposite.getFunction(), translateArgs(
+					new PredicateWithArgumentsComposite<>(predicateWithArgumentsComposite.getFunction(), translateArgs(
 							predicateWithArgumentsComposite.getArgs(), this.addresses));
 		}
 
 		@Override
-		public void defaultAction(final FunctionWithArguments function) {
+		public void defaultAction(final FunctionWithArguments<PathLeaf> function) {
 			throw new UnsupportedOperationException(
 					"PredicateWithArgumentsTranslator is only to be used with PredicateWithArguments!");
 		}

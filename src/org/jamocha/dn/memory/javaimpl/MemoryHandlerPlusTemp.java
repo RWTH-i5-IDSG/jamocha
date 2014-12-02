@@ -40,6 +40,7 @@ import org.jamocha.dn.nodes.Node;
 import org.jamocha.dn.nodes.SlotInFactAddress;
 import org.jamocha.filter.AddressFilter;
 import org.jamocha.filter.AddressFilter.AddressFilterElement;
+import org.jamocha.function.fwa.PathLeaf.ParameterLeaf;
 import org.jamocha.function.fwa.PredicateWithArguments;
 
 /**
@@ -240,9 +241,8 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements org.jamo
 			memoryFacts[i] = memoryFact;
 			factList.add(originatingMainHandler.newRow(new Fact[] { memoryFact }));
 		}
-		return Pair.of(
-				new MemoryHandlerPlusTemp(originatingMainHandler, factList, otn.getNumberOfOutgoingEdges(),
-						canOmitSemaphore(otn)), memoryFacts);
+		return Pair.of(new MemoryHandlerPlusTemp(originatingMainHandler, factList, otn.getNumberOfOutgoingEdges(),
+				canOmitSemaphore(otn)), memoryFacts);
 	}
 
 	static abstract class StackElement {
@@ -513,7 +513,7 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements org.jamo
 		final AddressFilterElement filterSteps[] = filter.getFilterElements();
 		for (final AddressFilterElement filterElement : filterSteps) {
 			final Collection<StackElement> stack = new ArrayList<>(filterSteps.length);
-			final PredicateWithArguments predicate = filterElement.getFunction();
+			final PredicateWithArguments<ParameterLeaf> predicate = filterElement.getFunction();
 			final SlotInFactAddress addresses[] = filterElement.getAddressesInTarget();
 			final CounterColumn counterColumn = (CounterColumn) filterElement.getCounterColumn();
 			final boolean existential = (counterColumn != null);
@@ -777,7 +777,7 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements org.jamo
 				}
 				// check whether the existential part fulfill the filter conditions
 				for (final AddressFilterElement filterElement : filterPartsForCounterColumns) {
-					final PredicateWithArguments predicate = filterElement.getFunction();
+					final PredicateWithArguments<ParameterLeaf> predicate = filterElement.getFunction();
 					final SlotInFactAddress[] addresses = filterElement.getAddressesInTarget();
 					final CounterColumn counterColumn = (CounterColumn) filterElement.getCounterColumn();
 					final int paramLength = predicate.getParamTypes().length;

@@ -20,6 +20,7 @@ import java.util.Collection;
 import java.util.EnumMap;
 import java.util.EnumSet;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -39,6 +40,7 @@ import org.jamocha.dn.memory.Template;
 import org.jamocha.dn.memory.Template.Slot;
 import org.jamocha.dn.nodes.TerminalNode;
 import org.jamocha.function.fwa.Assert.TemplateContainer;
+import org.jamocha.function.fwa.PathLeaf.ParameterLeaf;
 import org.jamocha.languages.common.ScopeStack;
 import org.jamocha.logging.LogFormatter;
 import org.jamocha.logging.TypedFilter;
@@ -59,13 +61,14 @@ public class NetworkMockup implements ParserToNetwork, SideEffectFunctionToNetwo
 
 	public NetworkMockup() {
 		this.initialFactTemplate = defTemplate("initial-fact", "");
-		defFacts("initial-fact", "", new TemplateContainer(initialFactTemplate));
+		defFacts("initial-fact", "", Arrays.asList(new TemplateContainer<>(initialFactTemplate)));
 
 		{
 			final Template dummyFact = this.defTemplate("dummy-fact", "used as default value for FACT-ADDRESS");
+			@SuppressWarnings("unchecked")
 			final FactIdentifier dummyFactIdentifier =
-					new org.jamocha.function.fwa.Assert(this,
-							new TemplateContainer[] { new TemplateContainer(dummyFact) }).evaluate();
+					new org.jamocha.function.fwa.Assert<>(this, new TemplateContainer[] { new TemplateContainer<>(
+							dummyFact) }).evaluate();
 			for (final SlotType type : EnumSet.allOf(SlotType.class)) {
 				switch (type) {
 				case BOOLEAN:
@@ -132,7 +135,8 @@ public class NetworkMockup implements ParserToNetwork, SideEffectFunctionToNetwo
 	}
 
 	@Override
-	public Deffacts defFacts(final String name, final String description, final TemplateContainer... containers) {
+	public Deffacts defFacts(final String name, final String description,
+			final List<TemplateContainer<ParameterLeaf>> containers) {
 		return null;
 	}
 

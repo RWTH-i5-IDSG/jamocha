@@ -31,12 +31,13 @@ import org.jamocha.function.impls.FunctionVisitor;
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
-public class Retract extends GenericWithArgumentsComposite<Object, Function<?>> {
+public class Retract<L extends ExchangeableLeaf<L>> extends GenericWithArgumentsComposite<Object, Function<?>, L> {
 	@Getter
 	@NonNull
 	final SideEffectFunctionToNetwork network;
 
-	public Retract(final SideEffectFunctionToNetwork network, final FunctionWithArguments... args) {
+	@SafeVarargs
+	public Retract(final SideEffectFunctionToNetwork network, final FunctionWithArguments<L>... args) {
 		super(new Function<Object>() {
 			@Getter(lazy = true, onMethod = @__(@Override))
 			private final SlotType[] paramTypes = calculateParamTypes();
@@ -85,7 +86,7 @@ public class Retract extends GenericWithArgumentsComposite<Object, Function<?>> 
 	}
 
 	@Override
-	public <T extends FunctionWithArgumentsVisitor> T accept(final T visitor) {
+	public <T extends FunctionWithArgumentsVisitor<L>> T accept(final T visitor) {
 		visitor.visit(this);
 		return visitor;
 	}

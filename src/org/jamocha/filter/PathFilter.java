@@ -29,6 +29,7 @@ import lombok.RequiredArgsConstructor;
 
 import org.apache.commons.collections4.IteratorUtils;
 import org.jamocha.function.FunctionNormaliser;
+import org.jamocha.function.fwa.PathLeaf;
 import org.jamocha.function.fwa.PredicateWithArguments;
 import org.jamocha.function.fwa.PredicateWithArgumentsComposite;
 import org.jamocha.function.impls.predicates.DummyPredicate;
@@ -38,7 +39,7 @@ import org.jamocha.visitor.Visitable;
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  * @author Christoph Terwelp <christoph.terwelp@rwth-aachen.de>
  */
-public class PathFilter extends Filter<PathFilter.PathFilterElement> implements PathFilterList {
+public class PathFilter extends Filter<PathLeaf, PathFilter.PathFilterElement> implements PathFilterList {
 
 	@Getter(lazy = true)
 	final private int hashCode = generateHashCode();
@@ -51,8 +52,9 @@ public class PathFilter extends Filter<PathFilter.PathFilterElement> implements 
 	@Getter
 	protected final Set<Path> positiveExistentialPaths, negativeExistentialPaths;
 
-	public static class PathFilterElement extends Filter.FilterElement implements Visitable<PathFilterElementVisitor> {
-		public PathFilterElement(final PredicateWithArguments function) {
+	public static class PathFilterElement extends Filter.FilterElement<PathLeaf> implements
+			Visitable<PathFilterElementVisitor> {
+		public PathFilterElement(final PredicateWithArguments<PathLeaf> function) {
 			super(function);
 		}
 
@@ -68,7 +70,7 @@ public class PathFilter extends Filter<PathFilter.PathFilterElement> implements 
 		final Path[] paths;
 
 		public DummyPathFilterElement(final Path... paths) {
-			super(new PredicateWithArgumentsComposite(DummyPredicate.instance));
+			super(new PredicateWithArgumentsComposite<>(DummyPredicate.instance));
 			this.paths = paths;
 		}
 
@@ -130,7 +132,7 @@ public class PathFilter extends Filter<PathFilter.PathFilterElement> implements 
 
 	@RequiredArgsConstructor
 	static class PathFilterReCreator implements PathFilterElementVisitor {
-		final PredicateWithArguments normalFunction;
+		final PredicateWithArguments<PathLeaf> normalFunction;
 		PathFilterElement result;
 
 		@Override
@@ -149,11 +151,12 @@ public class PathFilter extends Filter<PathFilter.PathFilterElement> implements 
 		final PathFilterElement[] normalPFEs = new PathFilterElement[numFEs];
 		for (int i = 0; i < numFEs; i++) {
 			final PathFilterElement original = filterElements[i];
-			final PredicateWithArguments functionToNormalise = original.function;
+			final PredicateWithArguments<PathLeaf> functionToNormalise = original.function;
 			// step one: transform to uniform function symbols
-			final PredicateWithArguments uniformFunction = UniformFunctionTranslator.translate(functionToNormalise);
+			final PredicateWithArguments<PathLeaf> uniformFunction =
+					UniformFunctionTranslator.translate(functionToNormalise);
 			// step two: sort arguments
-			final PredicateWithArguments normalFunction = FunctionNormaliser.normalise(uniformFunction);
+			final PredicateWithArguments<PathLeaf> normalFunction = FunctionNormaliser.normalise(uniformFunction);
 			normalPFEs[i] = original.accept(new PathFilterReCreator(normalFunction)).result;
 		}
 		Arrays.sort(normalPFEs, (final PathFilterElement a, final PathFilterElement b) -> {

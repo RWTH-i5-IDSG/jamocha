@@ -23,7 +23,9 @@ import lombok.Value;
 
 import org.apache.logging.log4j.Marker;
 import org.jamocha.function.fwa.ConstantLeaf;
+import org.jamocha.function.fwa.ExchangeableLeaf;
 import org.jamocha.function.fwa.FunctionWithArguments;
+import org.jamocha.function.fwa.SymbolLeaf;
 
 /**
  * A Template consists of slots which in turn have a {@link SlotType slot type} and a name. Facts
@@ -52,7 +54,7 @@ public interface Template {
 
 		public static Slot newSlot(final SlotType slotType, final String name, final Object defaultValue,
 				final SlotConstraint... slotConstraints) {
-			return new Slot(slotType, name, Default.staticDefault(new ConstantLeaf(defaultValue, slotType)),
+			return new Slot(slotType, name, Default.staticDefault(new ConstantLeaf<>(defaultValue, slotType)),
 					slotConstraints);
 		}
 
@@ -70,12 +72,12 @@ public interface Template {
 	public abstract static class Default {
 		final DefaultType defaultType;
 
-		public abstract FunctionWithArguments getValue();
+		public abstract FunctionWithArguments<?> getValue();
 
-		static final FunctionWithArguments nullFWA = new ConstantLeaf(null, SlotType.NIL);
+		static final FunctionWithArguments<SymbolLeaf> nullFWA = new ConstantLeaf<>(null, SlotType.NIL);
 		static final Default none = new Default(DefaultType.NONE) {
 			@Override
-			public FunctionWithArguments getValue() {
+			public FunctionWithArguments<SymbolLeaf> getValue() {
 				return nullFWA;
 			}
 		};
@@ -85,38 +87,38 @@ public interface Template {
 		}
 
 		static class StaticDefault extends Default {
-			final FunctionWithArguments value;
+			final FunctionWithArguments<SymbolLeaf> value;
 
-			public StaticDefault(final FunctionWithArguments value) {
+			public StaticDefault(final FunctionWithArguments<SymbolLeaf> value) {
 				super(DefaultType.STATIC);
-				this.value = new ConstantLeaf(value.evaluate(), value.getReturnType());
+				this.value = new ConstantLeaf<SymbolLeaf>(value.evaluate(), value.getReturnType());
 			}
 
 			@Override
-			public FunctionWithArguments getValue() {
+			public FunctionWithArguments<SymbolLeaf> getValue() {
 				return value;
 			}
 		}
 
-		public static Default staticDefault(final FunctionWithArguments value) {
+		public static Default staticDefault(final FunctionWithArguments<SymbolLeaf> value) {
 			return new StaticDefault(value);
 		}
 
 		static class DynamicDefault extends Default {
-			final FunctionWithArguments value;
+			final FunctionWithArguments<SymbolLeaf> value;
 
-			public DynamicDefault(final FunctionWithArguments value) {
+			public DynamicDefault(final FunctionWithArguments<SymbolLeaf> value) {
 				super(DefaultType.DYNAMIC);
 				this.value = value;
 			}
 
 			@Override
-			public FunctionWithArguments getValue() {
+			public FunctionWithArguments<SymbolLeaf> getValue() {
 				return value;
 			}
 		}
 
-		public static Default dynamicDefault(final FunctionWithArguments value) {
+		public static Default dynamicDefault(final FunctionWithArguments<SymbolLeaf> value) {
 			return new DynamicDefault(value);
 		}
 	}
@@ -131,7 +133,7 @@ public interface Template {
 
 		public abstract boolean matchesConstraint(final Object value);
 
-		public abstract FunctionWithArguments derivedDefaultValue();
+		public abstract FunctionWithArguments<SymbolLeaf> derivedDefaultValue();
 
 		public static SlotConstraint integerRange(final Long from, final Long to) {
 			return new SlotConstraint(ConstraintType.RANGE) {
@@ -150,8 +152,8 @@ public interface Template {
 				}
 
 				@Override
-				public FunctionWithArguments derivedDefaultValue() {
-					return new ConstantLeaf(from, SlotType.LONG);
+				public FunctionWithArguments<SymbolLeaf> derivedDefaultValue() {
+					return new ConstantLeaf<SymbolLeaf>(from, SlotType.LONG);
 				}
 			};
 		}
@@ -173,14 +175,14 @@ public interface Template {
 				}
 
 				@Override
-				public FunctionWithArguments derivedDefaultValue() {
-					return new ConstantLeaf(from, SlotType.DOUBLE);
+				public FunctionWithArguments<SymbolLeaf> derivedDefaultValue() {
+					return new ConstantLeaf<SymbolLeaf>(from, SlotType.DOUBLE);
 				}
 			};
 		}
 
 		public static SlotConstraint allowedConstants(final SlotType type, final List<?> values) {
-			final ConstantLeaf defaultValue = new ConstantLeaf(values.get(0), type);
+			final ConstantLeaf<SymbolLeaf> defaultValue = new ConstantLeaf<>(values.get(0), type);
 			return new SlotConstraint(ConstraintType.ALLOWED_CONSTANTS) {
 				@Override
 				public boolean matchesConstraint(final Object value) {
@@ -188,7 +190,7 @@ public interface Template {
 				}
 
 				@Override
-				public FunctionWithArguments derivedDefaultValue() {
+				public FunctionWithArguments<SymbolLeaf> derivedDefaultValue() {
 					return defaultValue;
 				}
 			};
@@ -307,7 +309,8 @@ public interface Template {
 	 *            given values for the corresponding slots
 	 * @return list that can be used to construct a template after evaluation
 	 */
-	public FunctionWithArguments[] applyDefaultsAndOrder(final Map<SlotAddress, FunctionWithArguments> values);
+	public <L extends ExchangeableLeaf<L>> FunctionWithArguments<L>[] applyDefaultsAndOrder(
+			final Map<SlotAddress, FunctionWithArguments<L>> values);
 
 	/**
 	 * Returns a marker uniquely identifying the template instance as a child of

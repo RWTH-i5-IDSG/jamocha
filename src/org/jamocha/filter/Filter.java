@@ -21,6 +21,7 @@ import lombok.RequiredArgsConstructor;
 
 import org.jamocha.dn.nodes.Node;
 import org.jamocha.function.Predicate;
+import org.jamocha.function.fwa.ExchangeableLeaf;
 import org.jamocha.function.fwa.FunctionWithArguments;
 import org.jamocha.function.fwa.PredicateWithArguments;
 
@@ -38,7 +39,7 @@ import org.jamocha.function.fwa.PredicateWithArguments;
  */
 @Getter
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
-public abstract class Filter<FE extends Filter.FilterElement> {
+public abstract class Filter<L extends ExchangeableLeaf<L>, FE extends Filter.FilterElement<L>> {
 	/**
 	 * Contains Predicates in an ordered list, which is processed from front to back.
 	 */
@@ -47,7 +48,7 @@ public abstract class Filter<FE extends Filter.FilterElement> {
 
 	@Getter
 	@RequiredArgsConstructor
-	public static abstract class FilterElement {
-		protected final PredicateWithArguments function;
+	public static abstract class FilterElement<L extends ExchangeableLeaf<L>> {
+		protected final PredicateWithArguments<L> function;
 	}
 }

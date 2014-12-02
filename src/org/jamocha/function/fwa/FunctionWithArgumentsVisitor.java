@@ -1,31 +1,26 @@
 package org.jamocha.function.fwa;
 
-import org.jamocha.function.fwa.PathLeaf.ParameterLeaf;
 import org.jamocha.visitor.Visitor;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
-public interface FunctionWithArgumentsVisitor extends Visitor {
-	public void visit(final FunctionWithArgumentsComposite functionWithArgumentsComposite);
+public interface FunctionWithArgumentsVisitor<L extends ExchangeableLeaf<L>> extends Visitor {
+	public void visit(final FunctionWithArgumentsComposite<L> functionWithArgumentsComposite);
 
-	public void visit(final PredicateWithArgumentsComposite predicateWithArgumentsComposite);
+	public void visit(final PredicateWithArgumentsComposite<L> predicateWithArgumentsComposite);
 
-	public void visit(final ConstantLeaf constantLeaf);
+	public void visit(final ConstantLeaf<L> constantLeaf);
 
-	public void visit(final ParameterLeaf parameterLeaf);
+	public void visit(final L leaf);
 
-	public void visit(final PathLeaf pathLeaf);
+	public void visit(final Assert<L> fwa);
 
-	public void visit(final Assert fwa);
+	public void visit(final Assert.TemplateContainer<L> fwa);
 
-	public void visit(final Assert.TemplateContainer fwa);
+	public void visit(final Retract<L> fwa);
 
-	public void visit(final Retract fwa);
+	public void visit(final Modify<L> fwa);
 
-	public void visit(final Modify fwa);
-
-	public void visit(final Modify.SlotAndValue fwa);
-
-	public void visit(final SymbolLeaf fwa);
+	public void visit(final Modify.SlotAndValue<L> fwa);
 }

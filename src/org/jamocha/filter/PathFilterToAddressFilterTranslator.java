@@ -33,6 +33,7 @@ import org.jamocha.filter.AddressFilter.AddressFilterElement;
 import org.jamocha.filter.AddressFilter.ExistentialAddressFilterElement;
 import org.jamocha.filter.PathFilter.DummyPathFilterElement;
 import org.jamocha.filter.PathFilter.PathFilterElement;
+import org.jamocha.function.fwa.PathLeaf.ParameterLeaf;
 import org.jamocha.function.fwa.PredicateWithArguments;
 import org.jamocha.function.fwatransformer.FWAPathToAddressTranslator;
 
@@ -72,7 +73,7 @@ public class PathFilterToAddressFilterTranslator {
 		@Override
 		public void visit(final PathFilterElement pathFilterElement) {
 			final ArrayList<SlotInFactAddress> addresses = new ArrayList<>();
-			final PredicateWithArguments predicateWithArguments =
+			final PredicateWithArguments<ParameterLeaf> predicateWithArguments =
 					pathFilterElement.getFunction()
 							.accept(new FWAPathToAddressTranslator.PWAPathToAddressTranslator(addresses))
 							.getFunctionWithArguments();
@@ -87,7 +88,9 @@ public class PathFilterToAddressFilterTranslator {
 
 		@Override
 		public void visit(final DummyPathFilterElement pathFilterElement) {
-			final PredicateWithArguments predicateWithArguments = pathFilterElement.getFunction();
+			@SuppressWarnings("unchecked")
+			final PredicateWithArguments<ParameterLeaf> predicateWithArguments =
+					(PredicateWithArguments<ParameterLeaf>) (PredicateWithArguments<?>) pathFilterElement.getFunction();
 			final SlotInFactAddress[] addressArray =
 					toArray(Arrays.stream(pathFilterElement.getPaths()).map(
 							path -> new SlotInFactAddress(path.getFactAddressInCurrentlyLowestNode(),

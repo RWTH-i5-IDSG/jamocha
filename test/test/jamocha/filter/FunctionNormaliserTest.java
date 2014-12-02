@@ -23,16 +23,18 @@ import org.jamocha.dn.memory.SlotType;
 import org.jamocha.filter.AddressFilter;
 import org.jamocha.filter.Filter;
 import org.jamocha.filter.FilterFunctionCompare;
-import org.jamocha.filter.PathFilterToAddressFilterTranslator;
 import org.jamocha.filter.PathFilter;
 import org.jamocha.filter.PathFilter.PathFilterElement;
+import org.jamocha.filter.PathFilterToAddressFilterTranslator;
 import org.jamocha.filter.UniformFunctionTranslator;
 import org.jamocha.function.Function;
 import org.jamocha.function.FunctionDictionary;
 import org.jamocha.function.Predicate;
 import org.jamocha.function.fwa.ConstantLeaf;
+import org.jamocha.function.fwa.ExchangeableLeaf;
 import org.jamocha.function.fwa.FunctionWithArguments;
 import org.jamocha.function.fwa.GenericWithArgumentsComposite;
+import org.jamocha.function.fwa.PathLeaf;
 import org.jamocha.function.fwa.PredicateWithArguments;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -80,7 +82,7 @@ public class FunctionNormaliserTest {
 		final Predicate equalsLL =
 				FunctionDictionary.lookupPredicate(org.jamocha.function.impls.predicates.Equals.inClips, SlotType.LONG,
 						SlotType.LONG);
-		final PredicateWithArguments originalPredicate =
+		final PredicateWithArguments<PathLeaf> originalPredicate =
 				new PredicateBuilder(equalsLL).addLong(5L)
 						.addFunction(new FunctionBuilder(minusLL).addLong(6L).addLong(1L).build()).build();
 		final PathFilter compare =
@@ -108,7 +110,7 @@ public class FunctionNormaliserTest {
 		final Predicate equalsDD =
 				FunctionDictionary.lookupPredicate(org.jamocha.function.impls.predicates.Equals.inClips,
 						SlotType.DOUBLE, SlotType.DOUBLE);
-		final PredicateWithArguments originalPredicate =
+		final PredicateWithArguments<PathLeaf> originalPredicate =
 				new PredicateBuilder(equalsDD).addDouble(5.)
 						.addFunction(new FunctionBuilder(minusDD).addDouble(6.).addDouble(1.).build()).build();
 		final PathFilter compare =
@@ -130,7 +132,7 @@ public class FunctionNormaliserTest {
 		final Predicate equalsLL =
 				FunctionDictionary.lookupPredicate(org.jamocha.function.impls.predicates.Equals.inClips, SlotType.LONG,
 						SlotType.LONG);
-		final PredicateWithArguments originalPredicate =
+		final PredicateWithArguments<PathLeaf> originalPredicate =
 				new PredicateBuilder(equalsLL)
 						.addLong(5L)
 						.addFunction(
@@ -149,7 +151,7 @@ public class FunctionNormaliserTest {
 		final Predicate equalsDD =
 				FunctionDictionary.lookupPredicate(org.jamocha.function.impls.predicates.Equals.inClips,
 						SlotType.DOUBLE, SlotType.DOUBLE);
-		final PredicateWithArguments originalPredicate =
+		final PredicateWithArguments<PathLeaf> originalPredicate =
 				new PredicateBuilder(equalsDD)
 						.addDouble(5.)
 						.addFunction(
@@ -175,7 +177,7 @@ public class FunctionNormaliserTest {
 		final Predicate equalsLL =
 				FunctionDictionary.lookupPredicate(org.jamocha.function.impls.predicates.Equals.inClips, SlotType.LONG,
 						SlotType.LONG);
-		final PredicateWithArguments originalPredicate =
+		final PredicateWithArguments<PathLeaf> originalPredicate =
 				new PredicateBuilder(equalsLL).addLong(5L)
 						.addFunction(new FunctionBuilder(divLL).addLong(7).addLong(5).build()).build();
 		final PathFilter compare =
@@ -202,7 +204,7 @@ public class FunctionNormaliserTest {
 		final Predicate equalsDD =
 				FunctionDictionary.lookupPredicate(org.jamocha.function.impls.predicates.Equals.inClips,
 						SlotType.DOUBLE, SlotType.DOUBLE);
-		final PredicateWithArguments originalPredicate =
+		final PredicateWithArguments<PathLeaf> originalPredicate =
 				new PredicateBuilder(equalsDD).addDouble(5.)
 						.addFunction(new FunctionBuilder(divDD).addDouble(7.).addDouble(5.).build()).build();
 		final PathFilter compare =
@@ -244,7 +246,7 @@ public class FunctionNormaliserTest {
 		final Predicate equalsDD =
 				FunctionDictionary.lookupPredicate(org.jamocha.function.impls.predicates.Equals.inClips,
 						SlotType.DOUBLE, SlotType.DOUBLE);
-		final PredicateWithArguments originalPredicate =
+		final PredicateWithArguments<PathLeaf> originalPredicate =
 				new PredicateBuilder(equalsDD)
 						.addDouble(5.)
 						.addFunction(
@@ -267,7 +269,7 @@ public class FunctionNormaliserTest {
 		final Predicate equalsLL =
 				FunctionDictionary.lookupPredicate(org.jamocha.function.impls.predicates.Equals.inClips, SlotType.LONG,
 						SlotType.LONG);
-		final PredicateWithArguments originalPredicate =
+		final PredicateWithArguments<PathLeaf> originalPredicate =
 				new PredicateBuilder(equalsLL)
 						.addLong(12L)
 						.addFunction(
@@ -293,7 +295,7 @@ public class FunctionNormaliserTest {
 		final Predicate equalsDD =
 				FunctionDictionary.lookupPredicate(org.jamocha.function.impls.predicates.Equals.inClips,
 						SlotType.DOUBLE, SlotType.DOUBLE);
-		final PredicateWithArguments originalPredicate =
+		final PredicateWithArguments<PathLeaf> originalPredicate =
 				new PredicateBuilder(equalsDD)
 						.addDouble(12.)
 						.addFunction(
@@ -319,7 +321,7 @@ public class FunctionNormaliserTest {
 		final Predicate equalsLL =
 				FunctionDictionary.lookupPredicate(org.jamocha.function.impls.predicates.Equals.inClips, SlotType.LONG,
 						SlotType.LONG);
-		final PredicateWithArguments originalPredicate =
+		final PredicateWithArguments<PathLeaf> originalPredicate =
 				new PredicateBuilder(equalsLL)
 						.addLong(12L)
 						.addFunction(
@@ -345,7 +347,7 @@ public class FunctionNormaliserTest {
 		final Predicate equalsDD =
 				FunctionDictionary.lookupPredicate(org.jamocha.function.impls.predicates.Equals.inClips,
 						SlotType.DOUBLE, SlotType.DOUBLE);
-		final PredicateWithArguments originalPredicate =
+		final PredicateWithArguments<PathLeaf> originalPredicate =
 				new PredicateBuilder(equalsDD)
 						.addDouble(12.)
 						.addFunction(
@@ -371,7 +373,7 @@ public class FunctionNormaliserTest {
 		final Predicate equalsLL =
 				FunctionDictionary.lookupPredicate(org.jamocha.function.impls.predicates.Equals.inClips, SlotType.LONG,
 						SlotType.LONG);
-		final PredicateWithArguments originalPredicate =
+		final PredicateWithArguments<PathLeaf> originalPredicate =
 				new PredicateBuilder(equalsLL)
 						.addLong(10L)
 						.addFunction(
@@ -400,7 +402,7 @@ public class FunctionNormaliserTest {
 		final Predicate equalsDD =
 				FunctionDictionary.lookupPredicate(org.jamocha.function.impls.predicates.Equals.inClips,
 						SlotType.DOUBLE, SlotType.DOUBLE);
-		final PredicateWithArguments originalPredicate =
+		final PredicateWithArguments<PathLeaf> originalPredicate =
 				new PredicateBuilder(equalsDD)
 						.addDouble(10.)
 						.addFunction(
@@ -429,7 +431,7 @@ public class FunctionNormaliserTest {
 		final Predicate equalsLL =
 				FunctionDictionary.lookupPredicate(org.jamocha.function.impls.predicates.Equals.inClips, SlotType.LONG,
 						SlotType.LONG);
-		final PredicateWithArguments originalPredicate =
+		final PredicateWithArguments<PathLeaf> originalPredicate =
 				new PredicateBuilder(equalsLL)
 						.addLong(35L)
 						.addFunction(
@@ -459,7 +461,7 @@ public class FunctionNormaliserTest {
 		final Predicate equalsDD =
 				FunctionDictionary.lookupPredicate(org.jamocha.function.impls.predicates.Equals.inClips,
 						SlotType.DOUBLE, SlotType.DOUBLE);
-		final PredicateWithArguments originalPredicate =
+		final PredicateWithArguments<PathLeaf> originalPredicate =
 				new PredicateBuilder(equalsDD)
 						.addDouble(35.)
 						.addFunction(
@@ -489,7 +491,7 @@ public class FunctionNormaliserTest {
 		final Predicate equalsLL =
 				FunctionDictionary.lookupPredicate(org.jamocha.function.impls.predicates.Equals.inClips, SlotType.LONG,
 						SlotType.LONG);
-		final PredicateWithArguments originalPredicate =
+		final PredicateWithArguments<PathLeaf> originalPredicate =
 				new PredicateBuilder(equalsLL)
 						.addLong(-10L)
 						.addFunction(
@@ -518,7 +520,7 @@ public class FunctionNormaliserTest {
 		final Predicate equalsDD =
 				FunctionDictionary.lookupPredicate(org.jamocha.function.impls.predicates.Equals.inClips,
 						SlotType.DOUBLE, SlotType.DOUBLE);
-		final PredicateWithArguments originalPredicate =
+		final PredicateWithArguments<PathLeaf> originalPredicate =
 				new PredicateBuilder(equalsDD)
 						.addDouble(-10.)
 						.addFunction(
@@ -547,7 +549,7 @@ public class FunctionNormaliserTest {
 		final Predicate equalsLL =
 				FunctionDictionary.lookupPredicate(org.jamocha.function.impls.predicates.Equals.inClips, SlotType.LONG,
 						SlotType.LONG);
-		final PredicateWithArguments originalPredicate =
+		final PredicateWithArguments<PathLeaf> originalPredicate =
 				new PredicateBuilder(equalsLL)
 						.addLong(-10L)
 						.addFunction(
@@ -575,7 +577,7 @@ public class FunctionNormaliserTest {
 		final Predicate equalsDD =
 				FunctionDictionary.lookupPredicate(org.jamocha.function.impls.predicates.Equals.inClips,
 						SlotType.DOUBLE, SlotType.DOUBLE);
-		final PredicateWithArguments originalPredicate =
+		final PredicateWithArguments<PathLeaf> originalPredicate =
 				new PredicateBuilder(equalsDD)
 						.addDouble(-10.)
 						.addFunction(
@@ -604,7 +606,7 @@ public class FunctionNormaliserTest {
 		final Predicate equalsLL =
 				FunctionDictionary.lookupPredicate(org.jamocha.function.impls.predicates.Equals.inClips, SlotType.LONG,
 						SlotType.LONG);
-		final PredicateWithArguments originalPredicate =
+		final PredicateWithArguments<PathLeaf> originalPredicate =
 				new PredicateBuilder(equalsLL)
 						.addLong(10L)
 						.addFunction(
@@ -629,7 +631,7 @@ public class FunctionNormaliserTest {
 		final Predicate equalsDD =
 				FunctionDictionary.lookupPredicate(org.jamocha.function.impls.predicates.Equals.inClips,
 						SlotType.DOUBLE, SlotType.DOUBLE);
-		final PredicateWithArguments originalPredicate =
+		final PredicateWithArguments<PathLeaf> originalPredicate =
 				new PredicateBuilder(equalsDD)
 						.addDouble(10.)
 						.addFunction(
@@ -652,7 +654,7 @@ public class FunctionNormaliserTest {
 		final Predicate lessLL =
 				FunctionDictionary.lookupPredicate(org.jamocha.function.impls.predicates.Less.inClips, SlotType.LONG,
 						SlotType.LONG);
-		final PredicateWithArguments originalPredicate =
+		final PredicateWithArguments<PathLeaf> originalPredicate =
 				new PredicateBuilder(greaterLL).addLong(20L).addLong(10L).build();
 		final PathFilter compare = new PathFilter(new PredicateBuilder(lessLL).addLong(10L).addLong(20L).buildPFE());
 		testEqualResult(originalPredicate, compare);
@@ -667,7 +669,7 @@ public class FunctionNormaliserTest {
 		final Predicate lessDD =
 				FunctionDictionary.lookupPredicate(org.jamocha.function.impls.predicates.Less.inClips, SlotType.DOUBLE,
 						SlotType.DOUBLE);
-		final PredicateWithArguments originalPredicate =
+		final PredicateWithArguments<PathLeaf> originalPredicate =
 				new PredicateBuilder(greaterDD).addDouble(20.).addDouble(10.).build();
 		final PathFilter compare =
 				new PathFilter(new PredicateBuilder(lessDD).addDouble(10.).addDouble(20.).buildPFE());
@@ -685,7 +687,8 @@ public class FunctionNormaliserTest {
 						SlotType.LONG);
 		final Predicate notB =
 				FunctionDictionary.lookupPredicate(org.jamocha.function.impls.predicates.Not.inClips, SlotType.BOOLEAN);
-		final PredicateWithArguments originalPredicate = new PredicateBuilder(leqLL).addLong(10L).addLong(20L).build();
+		final PredicateWithArguments<PathLeaf> originalPredicate =
+				new PredicateBuilder(leqLL).addLong(10L).addLong(20L).build();
 		final PathFilter compare =
 				new PathFilter(new PredicateBuilder(notB).addFunction(
 						new PredicateBuilder(lessLL).addLong(20L).addLong(10L).build()).buildPFE());
@@ -703,7 +706,7 @@ public class FunctionNormaliserTest {
 						SlotType.DOUBLE);
 		final Predicate notB =
 				FunctionDictionary.lookupPredicate(org.jamocha.function.impls.predicates.Not.inClips, SlotType.BOOLEAN);
-		final PredicateWithArguments originalPredicate =
+		final PredicateWithArguments<PathLeaf> originalPredicate =
 				new PredicateBuilder(leqDD).addDouble(10.).addDouble(20.).build();
 		final PathFilter compare =
 				new PathFilter(new PredicateBuilder(notB).addFunction(
@@ -722,7 +725,8 @@ public class FunctionNormaliserTest {
 						SlotType.LONG);
 		final Predicate notB =
 				FunctionDictionary.lookupPredicate(org.jamocha.function.impls.predicates.Not.inClips, SlotType.BOOLEAN);
-		final PredicateWithArguments originalPredicate = new PredicateBuilder(geqLL).addLong(20L).addLong(10L).build();
+		final PredicateWithArguments<PathLeaf> originalPredicate =
+				new PredicateBuilder(geqLL).addLong(20L).addLong(10L).build();
 		final PathFilter compare =
 				new PathFilter(new PredicateBuilder(notB).addFunction(
 						new PredicateBuilder(lessLL).addLong(20L).addLong(10L).build()).buildPFE());
@@ -740,7 +744,7 @@ public class FunctionNormaliserTest {
 						SlotType.DOUBLE);
 		final Predicate notB =
 				FunctionDictionary.lookupPredicate(org.jamocha.function.impls.predicates.Not.inClips, SlotType.BOOLEAN);
-		final PredicateWithArguments originalPredicate =
+		final PredicateWithArguments<PathLeaf> originalPredicate =
 				new PredicateBuilder(geqDD).addDouble(20.).addDouble(10.).build();
 		final PathFilter compare =
 				new PathFilter(new PredicateBuilder(notB).addFunction(
@@ -770,7 +774,7 @@ public class FunctionNormaliserTest {
 		final Predicate equalsDD =
 				FunctionDictionary.lookupPredicate(org.jamocha.function.impls.predicates.Equals.inClips,
 						SlotType.DOUBLE, SlotType.DOUBLE);
-		final PredicateWithArguments originalPredicate =
+		final PredicateWithArguments<PathLeaf> originalPredicate =
 				new PredicateBuilder(equalsDD)
 						.addDouble(12.)
 						.addFunction(
@@ -837,7 +841,7 @@ public class FunctionNormaliserTest {
 						SlotType.DOUBLE, SlotType.DOUBLE);
 		final Double a = 7., b = 4., c = 8., d = 3., e = 5., f = 5., g = 7., h = 2., i = 7., j = 1., k = 9.;
 		final Double l = (-a + b) * (c - d) * (e + f + g + h * i * j) * k;
-		final PredicateWithArguments originalPredicate =
+		final PredicateWithArguments<PathLeaf> originalPredicate =
 				new PredicateBuilder(equalsDD)
 						.addDouble(l)
 						.addFunction(
@@ -922,7 +926,8 @@ public class FunctionNormaliserTest {
 		testEqualResult(originalPredicate, compare);
 	}
 
-	private static void testEqualResult(final PredicateWithArguments originalPredicate, final PathFilter compare) {
+	private static void testEqualResult(final PredicateWithArguments<PathLeaf> originalPredicate,
+			final PathFilter compare) {
 		final PathFilter original = new PathFilter(new PathFilterElement(originalPredicate));
 		final PathFilter originalTranslated =
 				new PathFilter(new PathFilterElement(UniformFunctionTranslator.translate(originalPredicate)));
@@ -948,7 +953,8 @@ public class FunctionNormaliserTest {
 		assertSame(evalFirstFE(original), evalFirstFE(addrCompare.getNormalisedVersion()));
 	}
 
-	private static <T extends Filter.FilterElement> Boolean evalFirstFE(final Filter<T> filter) {
+	private static <L extends ExchangeableLeaf<L>, T extends Filter.FilterElement<L>> Boolean evalFirstFE(
+			final Filter<L, T> filter) {
 		return filter.getFilterElements()[0].getFunction().evaluate().booleanValue();
 	}
 
@@ -964,15 +970,19 @@ public class FunctionNormaliserTest {
 				new PathFilter(new PredicateBuilder(equalsLL).addLong(7L)
 						.addFunction(new FunctionBuilder(plusLL).addLong(6L).addLong(1L).build()).buildPFE())
 						.normalise();
-		final FunctionWithArguments[] args =
-				((GenericWithArgumentsComposite<?, ?>) original.getFilterElements()[0].getFunction()).getArgs();
+		@SuppressWarnings("unchecked")
+		final FunctionWithArguments<PathLeaf>[] args =
+				((GenericWithArgumentsComposite<?, ?, PathLeaf>) original.getFilterElements()[0].getFunction())
+						.getArgs();
 		assertEquals(2, args.length);
-		final int gwacIndex = args[0] instanceof GenericWithArgumentsComposite<?, ?> ? 0 : 1;
-		final GenericWithArgumentsComposite<?, ?> gwac = (GenericWithArgumentsComposite<?, ?>) args[gwacIndex];
-		final FunctionWithArguments[] gwacArgs = gwac.getArgs();
+		final int gwacIndex = args[0] instanceof GenericWithArgumentsComposite<?, ?, ?> ? 0 : 1;
+		@SuppressWarnings("unchecked")
+		final GenericWithArgumentsComposite<?, ?, PathLeaf> gwac =
+				(GenericWithArgumentsComposite<?, ?, PathLeaf>) args[gwacIndex];
+		final FunctionWithArguments<PathLeaf>[] gwacArgs = gwac.getArgs();
 		assertEquals(2, gwacArgs.length);
-		assertEquals(1L, ((ConstantLeaf) gwacArgs[0]).getValue());
-		assertEquals(6L, ((ConstantLeaf) gwacArgs[1]).getValue());
+		assertEquals(1L, ((ConstantLeaf<PathLeaf>) gwacArgs[0]).getValue());
+		assertEquals(6L, ((ConstantLeaf<PathLeaf>) gwacArgs[1]).getValue());
 	}
 
 	@Test

@@ -38,11 +38,11 @@ import org.jamocha.languages.common.errors.NoSlotForThatNameError;
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
 @RequiredArgsConstructor
-public class Modify implements FunctionWithArguments {
+public class Modify<L extends ExchangeableLeaf<L>> implements FunctionWithArguments<L> {
 	@Value
-	public static class SlotAndValue implements FunctionWithArguments {
+	public static class SlotAndValue<L extends ExchangeableLeaf<L>> implements FunctionWithArguments<L> {
 		final String slotName;
-		final FunctionWithArguments value;
+		final FunctionWithArguments<L> value;
 		@Getter(lazy = true, value = AccessLevel.PRIVATE)
 		private final int hashPIR = initHashPIR(), hashPII = initHashPII();
 
@@ -71,7 +71,7 @@ public class Modify implements FunctionWithArguments {
 		}
 
 		@Override
-		public <V extends FunctionWithArgumentsVisitor> V accept(final V visitor) {
+		public <V extends FunctionWithArgumentsVisitor<L>> V accept(final V visitor) {
 			visitor.visit(this);
 			return visitor;
 		}
@@ -102,9 +102,9 @@ public class Modify implements FunctionWithArguments {
 	final SideEffectFunctionToNetwork network;
 	@Getter
 	@NonNull
-	final FunctionWithArguments targetFact;
+	final FunctionWithArguments<L> targetFact;
 	@Getter
-	final SlotAndValue[] args;
+	final SlotAndValue<L>[] args;
 	@Getter(lazy = true, onMethod = @__(@Override))
 	private final SlotType[] paramTypes = calculateParamTypes();
 	@Getter(lazy = true, value = AccessLevel.PRIVATE)
@@ -114,7 +114,7 @@ public class Modify implements FunctionWithArguments {
 		return calculateParamTypes(this.args);
 	}
 
-	static private SlotType[] calculateParamTypes(final SlotAndValue[] args) {
+	static private <L extends ExchangeableLeaf<L>> SlotType[] calculateParamTypes(final SlotAndValue<L>[] args) {
 		final ArrayList<SlotType> types =
 				Arrays.stream(args).map(FunctionWithArguments::getReturnType).map(Arrays::asList)
 						.collect(ArrayList::new, ArrayList::addAll, ArrayList::addAll);
@@ -125,7 +125,7 @@ public class Modify implements FunctionWithArguments {
 		final int[] hashPII = new int[args.length + 1];
 		hashPII[0] = targetFact.hashPositionIsIrrelevant();
 		for (int i = 0; i < args.length; i++) {
-			final SlotAndValue arg = args[i];
+			final SlotAndValue<L> arg = args[i];
 			hashPII[i + 1] = arg.hashPositionIsIrrelevant();
 		}
 		return FunctionWithArguments.hash(hashPII, FunctionWithArguments.positionIsIrrelevant);
@@ -135,14 +135,14 @@ public class Modify implements FunctionWithArguments {
 		final int[] hashPIR = new int[args.length + 1];
 		hashPIR[0] = targetFact.hashPositionIsRelevant();
 		for (int i = 0; i < args.length; i++) {
-			final SlotAndValue arg = args[i];
+			final SlotAndValue<L> arg = args[i];
 			hashPIR[i + 1] = arg.hashPositionIsRelevant();
 		}
 		return FunctionWithArguments.hash(hashPIR, FunctionWithArguments.positionIsRelevant);
 	}
 
 	@Override
-	public <T extends FunctionWithArgumentsVisitor> T accept(final T visitor) {
+	public <T extends FunctionWithArgumentsVisitor<L>> T accept(final T visitor) {
 		visitor.visit(this);
 		return visitor;
 	}
@@ -154,7 +154,8 @@ public class Modify implements FunctionWithArguments {
 
 	@Override
 	public Function<FactIdentifier> lazyEvaluate(final Function<?>... params) {
-		final FunctionWithArguments[] array = new FunctionWithArguments[args.length + 1];
+		@SuppressWarnings("unchecked")
+		final FunctionWithArguments<L>[] array = new FunctionWithArguments[args.length + 1];
 		array[0] = this.targetFact;
 		System.arraycopy(args, 0, array, 1, args.length);
 		return new GenericWithArgumentsComposite.LazyObject<>(GenericWithArgumentsComposite.staticLazyEvaluate(fs -> {

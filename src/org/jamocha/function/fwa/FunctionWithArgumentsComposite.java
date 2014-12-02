@@ -21,13 +21,15 @@ import org.jamocha.function.Function;
  * 
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
-public class FunctionWithArgumentsComposite extends GenericWithArgumentsComposite<Object, Function<?>> {
-	public FunctionWithArgumentsComposite(final Function<?> function, final FunctionWithArguments... args) {
+public class FunctionWithArgumentsComposite<L extends ExchangeableLeaf<L>> extends
+		GenericWithArgumentsComposite<Object, Function<?>, L> {
+	@SafeVarargs
+	public FunctionWithArgumentsComposite(final Function<?> function, final FunctionWithArguments<L>... args) {
 		super(function, args);
 	}
 
 	@Override
-	public <T extends FunctionWithArgumentsVisitor> T accept(final T visitor) {
+	public <T extends FunctionWithArgumentsVisitor<L>> T accept(final T visitor) {
 		visitor.visit(this);
 		return visitor;
 	}

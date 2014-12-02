@@ -22,6 +22,7 @@ import lombok.RequiredArgsConstructor;
 
 import org.jamocha.filter.PathFilterList.PathFilterSharedListWrapper;
 import org.jamocha.function.fwa.PredicateWithArguments;
+import org.jamocha.function.fwa.SymbolLeaf;
 import org.jamocha.visitor.Visitable;
 
 /**
@@ -59,9 +60,9 @@ public abstract class ConditionalElement implements Visitable<ConditionalElement
 
 	public static class TestConditionalElement extends ConditionalElement {
 		@Getter
-		final PredicateWithArguments predicateWithArguments;
+		final PredicateWithArguments<SymbolLeaf> predicateWithArguments;
 
-		public TestConditionalElement(final PredicateWithArguments predicateWithArguments) {
+		public TestConditionalElement(final PredicateWithArguments<SymbolLeaf> predicateWithArguments) {
 			super(new ArrayList<>());
 			this.predicateWithArguments = predicateWithArguments;
 		}

@@ -36,19 +36,20 @@ import org.jamocha.function.Function;
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
 @RequiredArgsConstructor
-public class Assert implements FunctionWithArguments {
+public class Assert<L extends ExchangeableLeaf<L>> implements FunctionWithArguments<L> {
 
 	@Value
 	@ToString(exclude = { "hashPIR", "hashPII" })
-	public static class TemplateContainer implements FunctionWithArguments {
+	public static class TemplateContainer<L extends ExchangeableLeaf<L>> implements FunctionWithArguments<L> {
 		final Template template;
-		final FunctionWithArguments[] args;
+		final FunctionWithArguments<L>[] args;
 		@Getter(lazy = true, onMethod = @__(@Override))
 		private final SlotType[] paramTypes = calculateParamTypes();
 		@Getter(lazy = true, value = AccessLevel.PRIVATE)
 		private final int hashPIR = initHashPIR(), hashPII = initHashPII();
 
-		public TemplateContainer(final Template template, final FunctionWithArguments... args) {
+		@SafeVarargs
+		public TemplateContainer(final Template template, final FunctionWithArguments<L>... args) {
 			this.template = template;
 			this.args = args;
 		}
@@ -61,7 +62,7 @@ public class Assert implements FunctionWithArguments {
 			final int[] hashPII = new int[args.length + 1];
 			hashPII[0] = template.hashCode();
 			for (int i = 0; i < args.length; i++) {
-				final FunctionWithArguments arg = args[i];
+				final FunctionWithArguments<L> arg = args[i];
 				hashPII[i + 1] = arg.hashPositionIsIrrelevant();
 			}
 			return FunctionWithArguments.hash(hashPII, FunctionWithArguments.positionIsIrrelevant);
@@ -71,14 +72,14 @@ public class Assert implements FunctionWithArguments {
 			final int[] hashPIR = new int[args.length + 1];
 			hashPIR[0] = template.hashCode();
 			for (int i = 0; i < args.length; i++) {
-				final FunctionWithArguments arg = args[i];
+				final FunctionWithArguments<L> arg = args[i];
 				hashPIR[i + 1] = arg.hashPositionIsRelevant();
 			}
 			return FunctionWithArguments.hash(hashPIR, FunctionWithArguments.positionIsRelevant);
 		}
 
 		@Override
-		public <T extends FunctionWithArgumentsVisitor> T accept(final T visitor) {
+		public <T extends FunctionWithArgumentsVisitor<L>> T accept(final T visitor) {
 			visitor.visit(this);
 			return visitor;
 		}
@@ -119,7 +120,7 @@ public class Assert implements FunctionWithArguments {
 	@Getter
 	final SideEffectFunctionToNetwork network;
 	@Getter
-	final TemplateContainer[] args;
+	final TemplateContainer<L>[] args;
 	@Getter(lazy = true, onMethod = @__(@Override))
 	private final SlotType[] paramTypes = calculateParamTypes();
 	@Getter(lazy = true, value = AccessLevel.PRIVATE)
@@ -129,7 +130,7 @@ public class Assert implements FunctionWithArguments {
 		return calculateParamTypes(args);
 	}
 
-	static private SlotType[] calculateParamTypes(final FunctionWithArguments[] args) {
+	static private <L extends ExchangeableLeaf<L>> SlotType[] calculateParamTypes(final FunctionWithArguments<L>[] args) {
 		final ArrayList<SlotType> types =
 				Arrays.stream(args).map(FunctionWithArguments::getParamTypes).map(Arrays::asList)
 						.collect(ArrayList::new, ArrayList::addAll, ArrayList::addAll);
@@ -139,7 +140,7 @@ public class Assert implements FunctionWithArguments {
 	private int initHashPII() {
 		final int[] hashPII = new int[args.length];
 		for (int i = 0; i < args.length; i++) {
-			final FunctionWithArguments arg = args[i];
+			final FunctionWithArguments<L> arg = args[i];
 			hashPII[i] = arg.hashPositionIsIrrelevant();
 		}
 		return FunctionWithArguments.hash(hashPII, FunctionWithArguments.positionIsIrrelevant);
@@ -148,14 +149,14 @@ public class Assert implements FunctionWithArguments {
 	private int initHashPIR() {
 		final int[] hashPIR = new int[args.length];
 		for (int i = 0; i < args.length; i++) {
-			final FunctionWithArguments arg = args[i];
+			final FunctionWithArguments<L> arg = args[i];
 			hashPIR[i] = arg.hashPositionIsRelevant();
 		}
 		return FunctionWithArguments.hash(hashPIR, FunctionWithArguments.positionIsRelevant);
 	}
 
 	@Override
-	public <T extends FunctionWithArgumentsVisitor> T accept(final T visitor) {
+	public <T extends FunctionWithArgumentsVisitor<L>> T accept(final T visitor) {
 		visitor.visit(this);
 		return visitor;
 	}

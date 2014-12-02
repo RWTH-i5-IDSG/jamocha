@@ -23,6 +23,7 @@ import org.jamocha.dn.memory.SlotAddress;
 import org.jamocha.dn.memory.Template;
 import org.jamocha.function.fwa.Assert;
 import org.jamocha.function.fwa.FunctionWithArguments;
+import org.jamocha.function.fwa.SymbolLeaf;
 import org.jamocha.languages.common.errors.NoSlotForThatNameError;
 import org.jamocha.languages.common.errors.TypeMismatchError;
 
@@ -32,9 +33,10 @@ import org.jamocha.languages.common.errors.TypeMismatchError;
 @Value
 public class AssertTemplateContainerBuilder {
 	final Template template;
-	final Map<SlotAddress, FunctionWithArguments> values = new HashMap<>();
+	final Map<SlotAddress, FunctionWithArguments<SymbolLeaf>> values = new HashMap<>();
 
-	public AssertTemplateContainerBuilder addValue(final SlotAddress slotAddress, final FunctionWithArguments value) {
+	public AssertTemplateContainerBuilder addValue(final SlotAddress slotAddress,
+			final FunctionWithArguments<SymbolLeaf> value) {
 		if (template.getSlotType(slotAddress) != value.getReturnType()) {
 			throw new TypeMismatchError(null);
 		}
@@ -42,7 +44,7 @@ public class AssertTemplateContainerBuilder {
 		return this;
 	}
 
-	public AssertTemplateContainerBuilder addValue(final String slotName, final FunctionWithArguments value) {
+	public AssertTemplateContainerBuilder addValue(final String slotName, final FunctionWithArguments<SymbolLeaf> value) {
 		final SlotAddress slotAddress = template.getSlotAddress(slotName);
 		if (null == slotAddress) {
 			throw new NoSlotForThatNameError("No Slot with name " + slotName + "!");
@@ -50,7 +52,7 @@ public class AssertTemplateContainerBuilder {
 		return addValue(slotAddress, value);
 	}
 
-	public Assert.TemplateContainer build() {
-		return new Assert.TemplateContainer(template, template.applyDefaultsAndOrder(values));
+	public Assert.TemplateContainer<SymbolLeaf> build() {
+		return new Assert.TemplateContainer<>(template, template.applyDefaultsAndOrder(values));
 	}
 }

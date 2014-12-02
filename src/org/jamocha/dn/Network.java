@@ -19,8 +19,8 @@ import static org.jamocha.util.ToArray.toArray;
 import java.io.OutputStream;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.EnumMap;
 import java.util.EnumSet;
 import java.util.HashSet;
@@ -68,10 +68,15 @@ import org.jamocha.dn.nodes.Node;
 import org.jamocha.dn.nodes.ObjectTypeNode;
 import org.jamocha.dn.nodes.RootNode;
 import org.jamocha.dn.nodes.TerminalNode;
-import org.jamocha.filter.*;
+import org.jamocha.filter.FilterFunctionCompare;
+import org.jamocha.filter.Path;
+import org.jamocha.filter.PathCollector;
+import org.jamocha.filter.PathFilter;
+import org.jamocha.filter.PathFilterList;
 import org.jamocha.filter.optimizer.PathFilterOrderOptimizer;
 import org.jamocha.function.FunctionDictionary;
 import org.jamocha.function.fwa.Assert.TemplateContainer;
+import org.jamocha.function.fwa.PathLeaf.ParameterLeaf;
 import org.jamocha.languages.clips.ClipsLogFormatter;
 import org.jamocha.languages.common.RuleConditionProcessor;
 import org.jamocha.languages.common.ScopeStack;
@@ -254,7 +259,8 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 
 	private void createInitialDeffact() {
 		this.initialFactTemplate = defTemplate("initial-fact", "");
-		defFacts("initial-fact", "", new TemplateContainer(initialFactTemplate));
+		defFacts("initial-fact", "",
+				Collections.singletonList(new TemplateContainer<ParameterLeaf>(initialFactTemplate)));
 	}
 
 	private void createDummyTemplate() {
@@ -263,7 +269,7 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 
 	private void createDummyFact() {
 		final FactIdentifier[] factIdentifiers =
-				assertFacts(new TemplateContainer(this.constructCache.getTemplate("dummy-fact")).toFact());
+				assertFacts(new TemplateContainer<>(this.constructCache.getTemplate("dummy-fact")).toFact());
 		assert 1 == factIdentifiers.length;
 		this.defaultValues.put(SlotType.FACTADDRESS, factIdentifiers[0]);
 	}
@@ -462,9 +468,9 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 	}
 
 	@Override
-	public Deffacts defFacts(final String name, final String description, final TemplateContainer... containers) {
-		final List<TemplateContainer> conList = Arrays.asList(containers);
-		final Deffacts deffacts = new Deffacts(name, description, conList);
+	public Deffacts defFacts(final String name, final String description,
+			final List<TemplateContainer<ParameterLeaf>> containers) {
+		final Deffacts deffacts = new Deffacts(name, description, containers);
 		this.constructCache.addDeffacts(deffacts);
 		return deffacts;
 	}
