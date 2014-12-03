@@ -40,6 +40,12 @@ public abstract class FunctionNormaliser {
 		return predicateWithArguments;
 	}
 
+	public static <L extends ExchangeableLeaf<L>> PredicateWithArgumentsComposite<L> normalise(
+			final PredicateWithArgumentsComposite<L> predicateWithArguments) {
+		predicateWithArguments.accept(new FWANormaliser<>());
+		return predicateWithArguments;
+	}
+
 	private static class FWANormaliser<L extends ExchangeableLeaf<L>> implements FunctionWithArgumentsVisitor<L> {
 		private static <L extends ExchangeableLeaf<L>> void handle(final GenericWithArgumentsComposite<?, ?, L> gwac) {
 			final FunctionWithArguments<L>[] args = gwac.getArgs();
