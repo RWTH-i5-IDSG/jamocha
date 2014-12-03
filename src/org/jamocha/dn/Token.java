@@ -58,7 +58,9 @@ public abstract class Token {
 
 		@Override
 		public void run() throws CouldNotAcquireLockException {
-			this.edge.processPlusToken(this.temp);
+			if (temp.size() != 0) {
+				this.edge.processPlusToken(this.temp);
+			}
 			this.temp.releaseLock();
 		}
 	}
@@ -77,7 +79,9 @@ public abstract class Token {
 
 		@Override
 		public void run() throws CouldNotAcquireLockException {
-			this.edge.processMinusToken(this.temp);
+			if (temp.size() != 0) {
+				this.edge.processMinusToken(this.temp);
+			}
 			this.temp.releaseLock();
 		}
 	}
