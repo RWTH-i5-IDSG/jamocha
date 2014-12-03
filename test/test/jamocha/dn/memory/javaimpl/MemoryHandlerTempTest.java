@@ -17,6 +17,7 @@ package test.jamocha.dn.memory.javaimpl;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static test.jamocha.util.CounterColumnMatcherMockup.counterColumnMatcherMockup;
 
 import java.util.HashSet;
@@ -401,13 +402,18 @@ public class MemoryHandlerTempTest {
 	 * 
 	 * @throws CouldNotAcquireLockException
 	 */
-	@Test(expected = IndexOutOfBoundsException.class)
+	@Test
 	public void testGetValueRowOutOfBounds() throws InterruptedException {
 		final Pair<? extends org.jamocha.dn.memory.MemoryHandlerPlusTemp, MemoryFact[]> memoryHandlerTemp =
 				memoryHandlerMain.newPlusToken(node, Template.STRING.newFact("Test"));
 		assertNotNull(memoryHandlerTemp);
 		assertNotNull(memoryHandlerTemp.getLeft());
-		memoryHandlerTemp.getLeft().getValue(factAddress, slotAddress, 1);
+		try {
+			memoryHandlerTemp.getLeft().getValue(factAddress, slotAddress, 1);
+			fail();
+		} catch (final IndexOutOfBoundsException | AssertionError e) {
+			// ok
+		}
 	}
 
 	/**

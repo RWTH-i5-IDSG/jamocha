@@ -89,6 +89,7 @@ public class JamochaArray<T> implements RandomAccess, Iterable<T> {
 
 	@SuppressWarnings("unchecked")
 	public T get(final int index) {
+		assert index < size;
 		return (T) values[index];
 	}
 
