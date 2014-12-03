@@ -92,8 +92,8 @@ public class ScopeStack {
 
 		@Override
 		public String toString() {
-			if (image.equals("Dummy")) {
-				return "Dummy:" + this.hashCode();
+			if (image.equals(dummySymbolImage)) {
+				return dummySymbolImage + ':' + this.hashCode();
 			}
 			return image;
 		}
