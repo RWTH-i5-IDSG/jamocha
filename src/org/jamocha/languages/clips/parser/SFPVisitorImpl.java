@@ -636,10 +636,6 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 		// <SLOT> ( Symbol() ( TemplateAttribute() )* )
 		@Override
 		public Object visit(final SFPSingleSlotDefinition node, final Object data) {
-			if (node.jjtGetNumChildren() != 2) {
-				throw SelectiveSFPVisitor.dumpAndThrowMe(node, IllegalArgumentException::new,
-						"For now, slot definitions consist of a name and a type restriction!");
-			}
 			final Symbol name =
 					SelectiveSFPVisitor.sendVisitor(new SFPSymbolVisitor(), node.jjtGetChild(0), data).symbol;
 			final SlotBuilder slotBuilder = new SlotBuilder(name.getImage());

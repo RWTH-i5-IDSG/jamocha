@@ -138,9 +138,10 @@ public class SlotBuilder {
 	public Slot build(final EnumMap<SlotType, Object> defaultValues) {
 		if (null == this.slotType) {
 			if (null == this.inferedType) {
-				throw new IllegalArgumentException("Missing type specification for slot!");
+				this.slotType = SlotType.SYMBOL;
+			} else {
+				this.slotType = this.inferedType;
 			}
-			this.slotType = this.inferedType;
 		}
 		final Default defaultValue;
 		if (null != this.defaultValue) {
