@@ -1,3 +1,17 @@
+/*
+ * Copyright 2002-2014 The Jamocha Team
+ * 
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
+ * 
+ * http://www.jamocha.org/
+ * 
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
+ */
 package org.jamocha.function.fwatransformer;
 
 import static org.jamocha.util.ToArray.toArray;
@@ -11,6 +25,7 @@ import org.jamocha.function.fwa.Assert;
 import org.jamocha.function.fwa.ExchangeableLeaf;
 import org.jamocha.function.fwa.FunctionWithArguments;
 import org.jamocha.function.fwa.FunctionWithArgumentsVisitor;
+import org.jamocha.function.fwa.GlobalVariableLeaf;
 import org.jamocha.function.fwa.Modify;
 
 public class FWADeepCopy<L extends ExchangeableLeaf<L>> implements FunctionWithArgumentsVisitor<L> {
@@ -55,6 +70,11 @@ public class FWADeepCopy<L extends ExchangeableLeaf<L>> implements FunctionWithA
 	public void visit(final org.jamocha.function.fwa.ConstantLeaf<L> constantLeaf) {
 		this.result =
 				new org.jamocha.function.fwa.ConstantLeaf<>(constantLeaf.getValue(), constantLeaf.getReturnType());
+	}
+
+	@Override
+	public void visit(final GlobalVariableLeaf<L> globalVariableLeaf) {
+		this.result = new org.jamocha.function.fwa.GlobalVariableLeaf<>(globalVariableLeaf.getVariable());
 	}
 
 	// @Override

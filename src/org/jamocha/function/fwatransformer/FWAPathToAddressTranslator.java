@@ -14,6 +14,7 @@ import org.jamocha.function.fwa.DefaultFunctionWithArgumentsVisitor;
 import org.jamocha.function.fwa.FunctionWithArguments;
 import org.jamocha.function.fwa.FunctionWithArgumentsComposite;
 import org.jamocha.function.fwa.FunctionWithArgumentsVisitor;
+import org.jamocha.function.fwa.GlobalVariableLeaf;
 import org.jamocha.function.fwa.Modify;
 import org.jamocha.function.fwa.PathLeaf;
 import org.jamocha.function.fwa.PathLeaf.ParameterLeaf;
@@ -64,6 +65,12 @@ public class FWAPathToAddressTranslator implements FunctionWithArgumentsVisitor<
 	@Override
 	public void visit(final ConstantLeaf<PathLeaf> constantLeaf) {
 		this.functionWithArguments = (ConstantLeaf<PathLeaf.ParameterLeaf>) (ConstantLeaf<?>) constantLeaf;
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public void visit(final GlobalVariableLeaf<PathLeaf> globalVariableLeaf) {
+		this.functionWithArguments = (GlobalVariableLeaf<PathLeaf.ParameterLeaf>) (GlobalVariableLeaf<?>) globalVariableLeaf;
 	}
 
 	@Override

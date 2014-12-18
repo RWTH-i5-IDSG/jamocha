@@ -12,6 +12,8 @@ public interface FunctionWithArgumentsVisitor<L extends ExchangeableLeaf<L>> ext
 
 	public void visit(final ConstantLeaf<L> constantLeaf);
 
+	public void visit(final GlobalVariableLeaf<L> globalVariableLeaf);
+
 	public void visit(final L leaf);
 
 	public void visit(final Assert<L> fwa);

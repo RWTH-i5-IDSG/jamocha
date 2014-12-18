@@ -22,6 +22,7 @@ import lombok.Getter;
 import org.jamocha.function.fwa.ConstantLeaf;
 import org.jamocha.function.fwa.DefaultFunctionWithArgumentsLeafVisitor;
 import org.jamocha.function.fwa.FunctionWithArguments;
+import org.jamocha.function.fwa.GlobalVariableLeaf;
 import org.jamocha.function.fwa.SymbolLeaf;
 import org.jamocha.languages.common.ConditionalElement;
 import org.jamocha.languages.common.DefaultConditionalElementsVisitor;
@@ -54,6 +55,10 @@ public class SymbolInSymbolLeafsCollector implements DefaultConditionalElementsV
 
 	@Override
 	public void visit(final ConstantLeaf<SymbolLeaf> constantLeaf) {
+	}
+
+	@Override
+	public void visit(final GlobalVariableLeaf<SymbolLeaf> globalVariableLeaf) {
 	}
 
 	@Override

@@ -38,6 +38,11 @@ public interface DefaultFunctionWithArgumentsVisitor<L extends ExchangeableLeaf<
 	}
 
 	@Override
+	public default void visit(final GlobalVariableLeaf<L> fwa) {
+		defaultAction(fwa);
+	}
+
+	@Override
 	public default void visit(final L fwa) {
 		defaultAction(fwa);
 	}

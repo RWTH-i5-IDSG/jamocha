@@ -24,6 +24,7 @@ import org.jamocha.function.fwa.FunctionWithArguments;
 import org.jamocha.function.fwa.FunctionWithArgumentsComposite;
 import org.jamocha.function.fwa.FunctionWithArgumentsVisitor;
 import org.jamocha.function.fwa.GenericWithArgumentsComposite;
+import org.jamocha.function.fwa.GlobalVariableLeaf;
 import org.jamocha.function.fwa.Modify;
 import org.jamocha.function.fwa.PredicateWithArguments;
 import org.jamocha.function.fwa.PredicateWithArgumentsComposite;
@@ -76,6 +77,10 @@ public abstract class FunctionNormaliser {
 
 		@Override
 		public void visit(final ConstantLeaf<L> constantLeaf) {
+		}
+
+		@Override
+		public void visit(final GlobalVariableLeaf<L> globalVariableLeaf) {
 		}
 
 		@Override

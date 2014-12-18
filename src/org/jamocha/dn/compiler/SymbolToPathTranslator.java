@@ -24,6 +24,7 @@ import org.jamocha.function.fwa.ConstantLeaf;
 import org.jamocha.function.fwa.FunctionWithArguments;
 import org.jamocha.function.fwa.FunctionWithArgumentsComposite;
 import org.jamocha.function.fwa.FunctionWithArgumentsVisitor;
+import org.jamocha.function.fwa.GlobalVariableLeaf;
 import org.jamocha.function.fwa.Modify;
 import org.jamocha.function.fwa.PathLeaf;
 import org.jamocha.function.fwa.PredicateWithArguments;
@@ -83,6 +84,12 @@ public class SymbolToPathTranslator implements FunctionWithArgumentsVisitor<Symb
 	@Override
 	public void visit(final ConstantLeaf<SymbolLeaf> constantLeaf) {
 		result = (FunctionWithArguments<PathLeaf>) (FunctionWithArguments<?>) constantLeaf;
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public void visit(GlobalVariableLeaf<SymbolLeaf> globalVariableLeaf) {
+		result = (FunctionWithArguments<PathLeaf>) (FunctionWithArguments<?>) globalVariableLeaf;
 	}
 
 	@Override

@@ -24,6 +24,7 @@ import java.util.Collections;
 import java.util.EnumSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Queue;
 import java.util.function.Consumer;
@@ -43,16 +44,14 @@ import org.jamocha.dn.memory.SlotType;
 import org.jamocha.dn.memory.Template;
 import org.jamocha.dn.memory.Template.Slot;
 import org.jamocha.filter.SymbolCollector;
-import org.jamocha.function.FunctionDictionary;
-import org.jamocha.function.Predicate;
 import org.jamocha.function.fwa.Assert;
 import org.jamocha.function.fwa.Assert.TemplateContainer;
 import org.jamocha.function.fwa.ConstantLeaf;
 import org.jamocha.function.fwa.FunctionWithArguments;
 import org.jamocha.function.fwa.GenericWithArgumentsComposite;
+import org.jamocha.function.fwa.GlobalVariableLeaf;
 import org.jamocha.function.fwa.Modify;
 import org.jamocha.function.fwa.PredicateWithArguments;
-import org.jamocha.function.fwa.PredicateWithArgumentsComposite;
 import org.jamocha.function.fwa.Retract;
 import org.jamocha.function.fwa.SymbolLeaf;
 import org.jamocha.function.impls.predicates.Equals;
@@ -84,6 +83,7 @@ import org.jamocha.languages.clips.parser.generated.SFPDeclaration;
 import org.jamocha.languages.clips.parser.generated.SFPDefaultAttribute;
 import org.jamocha.languages.clips.parser.generated.SFPDefaultAttributes;
 import org.jamocha.languages.clips.parser.generated.SFPDeffunctionConstruct;
+import org.jamocha.languages.clips.parser.generated.SFPDefglobalConstruct;
 import org.jamocha.languages.clips.parser.generated.SFPDefruleBody;
 import org.jamocha.languages.clips.parser.generated.SFPDefruleConstruct;
 import org.jamocha.languages.clips.parser.generated.SFPDefrulesConstruct;
@@ -101,6 +101,8 @@ import org.jamocha.languages.clips.parser.generated.SFPFloat;
 import org.jamocha.languages.clips.parser.generated.SFPFloatList;
 import org.jamocha.languages.clips.parser.generated.SFPFloatType;
 import org.jamocha.languages.clips.parser.generated.SFPForallCE;
+import org.jamocha.languages.clips.parser.generated.SFPGlobalAssignment;
+import org.jamocha.languages.clips.parser.generated.SFPGlobalVariable;
 import org.jamocha.languages.clips.parser.generated.SFPIfElseFunc;
 import org.jamocha.languages.clips.parser.generated.SFPInteger;
 import org.jamocha.languages.clips.parser.generated.SFPIntegerList;
@@ -110,6 +112,7 @@ import org.jamocha.languages.clips.parser.generated.SFPLineConnectedConstraint;
 import org.jamocha.languages.clips.parser.generated.SFPLoopForCountFunc;
 import org.jamocha.languages.clips.parser.generated.SFPModify;
 import org.jamocha.languages.clips.parser.generated.SFPNegation;
+import org.jamocha.languages.clips.parser.generated.SFPNil;
 import org.jamocha.languages.clips.parser.generated.SFPNoneAttribute;
 import org.jamocha.languages.clips.parser.generated.SFPNotFunction;
 import org.jamocha.languages.clips.parser.generated.SFPOrFunction;
@@ -311,6 +314,15 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 				throw new ClipsTypeMismatchError(null, node);
 			this.type = SlotType.DATETIME;
 			this.value = SlotType.convert(node.jjtGetValue().toString());
+			return data;
+		}
+
+		@Override
+		public Object visit(final SFPNil node, final Object data) {
+			if (!this.allowed.contains(SlotType.NIL))
+				throw new ClipsTypeMismatchError(null, node);
+			this.type = SlotType.SYMBOL;
+			this.value = null;
 			return data;
 		}
 
@@ -1353,6 +1365,14 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 			this.expression = this.mapper.apply(symbol, node);
 			return data;
 		}
+
+		@Override
+		public Object visit(final SFPGlobalVariable node, final Object data) {
+			this.expression =
+					new GlobalVariableLeaf<>(SFPVisitorImpl.this.parserToNetwork.getScope().getGlobalVariable(
+							SelectiveSFPVisitor.sendVisitor(new GlobalVariableVisitor(), node, data).symbol));
+			return data;
+		}
 	}
 
 	interface SelectiveFunctionCallVisitor extends SelectiveSFPVisitor {
@@ -1434,6 +1454,14 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 				final VariableSymbol symbol =
 						SelectiveSFPVisitor.sendVisitor(new SFPSingleVariableVisitor(rc), node, data).symbol;
 				this.value = this.mapper.apply(symbol, node);
+				return data;
+			}
+
+			@Override
+			public Object visit(final SFPGlobalVariable node, final Object data) {
+				this.value =
+						new GlobalVariableLeaf<>(SFPVisitorImpl.this.parserToNetwork.getScope().getGlobalVariable(
+								SelectiveSFPVisitor.sendVisitor(new GlobalVariableVisitor(), node, data).symbol));
 				return data;
 			}
 
@@ -1631,6 +1659,18 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 		}
 	}
 
+	class GlobalVariableVisitor implements SelectiveSFPVisitor {
+		Symbol symbol;
+
+		@Override
+		public Object visit(final SFPGlobalVariable node, final Object data) {
+			this.symbol =
+					SFPVisitorImpl.this.parserToNetwork.getScope().getOrCreateSymbol(
+							Objects.toString(node.jjtGetValue()));
+			return data;
+		}
+	}
+
 	class SFPStartVisitor implements SelectiveSFPVisitor {
 		String value;
 
@@ -1790,6 +1830,27 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 			this.value =
 					sideEffectFunctionToNetwork.getLogFormatter().formatSlotValue(expression.getReturnType(),
 							expression.evaluate());
+			return data;
+		}
+
+		@Override
+		public Object visit(final SFPDefglobalConstruct node, final Object data) {
+			final SelectiveSFPVisitor visitor = new SelectiveSFPVisitor() {
+				@Override
+				public Object visit(final SFPGlobalAssignment node, final Object data) {
+					// child 0 : global variable
+					final Symbol symbol =
+							SelectiveSFPVisitor.sendVisitor(new GlobalVariableVisitor(), node.jjtGetChild(0), data).symbol;
+					// child 1 : expression
+					final FunctionWithArguments<SymbolLeaf> expression =
+							SelectiveSFPVisitor.sendVisitor(new SFPExpressionVisitor((RuleCondition) null, (s, n) -> {
+								throw new ClipsVariableNotDeclaredError(s, n);
+							}, true), node.jjtGetChild(1), data).expression;
+					SFPVisitorImpl.this.parserToNetwork.getScope().setOrCreateGlobalVariable(symbol, expression);
+					return data;
+				}
+			};
+			SelectiveSFPVisitor.stream(node, 0).forEach(n -> SelectiveSFPVisitor.sendVisitor(visitor, n, data));
 			return data;
 		}
 	}

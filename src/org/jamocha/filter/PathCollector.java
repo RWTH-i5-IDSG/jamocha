@@ -30,6 +30,7 @@ import org.jamocha.function.fwa.ConstantLeaf;
 import org.jamocha.function.fwa.FunctionWithArguments;
 import org.jamocha.function.fwa.FunctionWithArgumentsComposite;
 import org.jamocha.function.fwa.FunctionWithArgumentsVisitor;
+import org.jamocha.function.fwa.GlobalVariableLeaf;
 import org.jamocha.function.fwa.Modify;
 import org.jamocha.function.fwa.Modify.SlotAndValue;
 import org.jamocha.function.fwa.PathLeaf;
@@ -135,6 +136,10 @@ public class PathCollector<T extends Collection<Path>> implements PathFilterElem
 
 		@Override
 		public void visit(final ConstantLeaf<PathLeaf> constantLeaf) {
+		}
+		
+		@Override
+		public void visit(final GlobalVariableLeaf<PathLeaf> globalVariableLeaf) {
 		}
 
 		@Override

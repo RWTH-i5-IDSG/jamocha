@@ -22,6 +22,7 @@ import org.jamocha.function.fwa.FunctionWithArguments;
 import org.jamocha.function.fwa.FunctionWithArgumentsComposite;
 import org.jamocha.function.fwa.FunctionWithArgumentsVisitor;
 import org.jamocha.function.fwa.GenericWithArgumentsComposite;
+import org.jamocha.function.fwa.GlobalVariableLeaf;
 import org.jamocha.function.fwa.Modify;
 import org.jamocha.function.fwa.Modify.SlotAndValue;
 import org.jamocha.function.fwa.PredicateWithArgumentsComposite;
@@ -88,6 +89,11 @@ public class FunctionWithArgumentsFormatter<L extends ExchangeableLeaf<L>> imple
 		@Override
 		public void visit(final ConstantLeaf<L> constantLeaf) {
 			sb.append(constantLeaf.toString());
+		}
+
+		@Override
+		public void visit(final GlobalVariableLeaf<L> globalVariableLeaf) {
+			sb.append(globalVariableLeaf.toString());
 		}
 
 		@Override

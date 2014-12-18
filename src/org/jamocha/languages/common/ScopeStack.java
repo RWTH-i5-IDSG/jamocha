@@ -30,6 +30,7 @@ import lombok.extern.log4j.Log4j2;
 import org.jamocha.dn.memory.SlotAddress;
 import org.jamocha.dn.memory.SlotType;
 import org.jamocha.dn.memory.Template;
+import org.jamocha.function.fwa.FunctionWithArguments;
 import org.jamocha.languages.common.RuleCondition.EquivalenceClass;
 import org.jamocha.languages.common.SingleFactVariable.SingleSlotVariable;
 
@@ -39,6 +40,7 @@ import org.jamocha.languages.common.SingleFactVariable.SingleSlotVariable;
 @Log4j2
 public class ScopeStack {
 	public static final String dummySymbolImage = "Dummy";
+	final HashMap<Symbol, GlobalVariable> globalVariables = new HashMap<>();
 
 	/**
 	 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
@@ -159,5 +161,15 @@ public class ScopeStack {
 			rc.addSymbol(instance);
 		consumer.accept(fv.newSingleSlotVariable(slot, instance));
 		return instance;
+	}
+
+	public GlobalVariable setOrCreateGlobalVariable(final Symbol symbol, final FunctionWithArguments<?> value) {
+		final GlobalVariable global = globalVariables.computeIfAbsent(symbol, s -> new GlobalVariable(s, value));
+		global.setValue(value);
+		return global;
+	}
+
+	public GlobalVariable getGlobalVariable(final Symbol symbol) {
+		return globalVariables.get(symbol);
 	}
 }
