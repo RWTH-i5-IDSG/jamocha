@@ -17,6 +17,7 @@ package org.jamocha.dn.memory.javaimpl;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.jamocha.dn.memory.MemoryFactToFactIdentifier;
 import org.jamocha.dn.memory.MemoryHandler;
 import org.jamocha.dn.memory.Template;
 import org.jamocha.dn.nodes.CouldNotAcquireLockException;
@@ -32,13 +33,14 @@ public abstract class MemoryHandlerTemp extends MemoryHandlerBase implements org
 
 	final MemoryHandlerMain originatingMainHandler;
 
-	protected MemoryHandlerTemp(final MemoryHandlerMain originatingMainHandler, final JamochaArray<Row> validRows) {
-		this(originatingMainHandler.template, originatingMainHandler, validRows);
+	protected MemoryHandlerTemp(final MemoryFactToFactIdentifier memoryFactToFactIdentifier,
+			final MemoryHandlerMain originatingMainHandler, final JamochaArray<Row> validRows) {
+		this(memoryFactToFactIdentifier, originatingMainHandler.template, originatingMainHandler, validRows);
 	}
 
-	protected MemoryHandlerTemp(final Template[] template, final MemoryHandlerMain originatingMainHandler,
-			final JamochaArray<Row> validRows) {
-		super(template, validRows);
+	protected MemoryHandlerTemp(final MemoryFactToFactIdentifier memoryFactToFactIdentifier, final Template[] template,
+			final MemoryHandlerMain originatingMainHandler, final JamochaArray<Row> validRows) {
+		super(memoryFactToFactIdentifier, template, validRows);
 		this.originatingMainHandler = originatingMainHandler;
 	}
 
@@ -57,7 +59,7 @@ public abstract class MemoryHandlerTemp extends MemoryHandlerBase implements org
 			for (int i = 0; i < size && current + i < max; ++i) {
 				facts.add(rowsToSplit.get(current + i));
 			}
-			memoryHandlers.add(new MemoryHandlerBase(getTemplate(), facts));
+			memoryHandlers.add(new MemoryHandlerBase(memoryFactToFactIdentifier, getTemplate(), facts));
 			current += size;
 		}
 		return memoryHandlers;
@@ -67,14 +69,15 @@ public abstract class MemoryHandlerTemp extends MemoryHandlerBase implements org
 		return this.validRows;
 	}
 
-	protected static boolean applyFilterElement(final Fact fact, final AddressFilterElement element) {
+	protected static boolean applyFilterElement(final MemoryFactToFactIdentifier memoryFactToFactIdentifier,
+			final Fact fact, final AddressFilterElement element) {
 		// determine parameters
 		final SlotInFactAddress addresses[] = element.getAddressesInTarget();
-		final int paramLength = addresses.length;
+		final int paramLength = element.getFunction().getParamTypes().length;
 		final Object params[] = new Object[paramLength];
 		for (int i = 0; i < paramLength; ++i) {
 			final SlotInFactAddress address = addresses[i];
-			params[i] = fact.getValue(address.getSlotAddress());
+			params[i] = fact.getValue(memoryFactToFactIdentifier, address.getSlotAddress());
 		}
 		// check filter
 		return element.getFunction().evaluate(params);

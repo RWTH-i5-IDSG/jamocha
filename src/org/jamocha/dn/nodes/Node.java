@@ -36,7 +36,12 @@ import lombok.Getter;
 import org.jamocha.dn.Network;
 import org.jamocha.dn.Scheduler;
 import org.jamocha.dn.Token;
-import org.jamocha.dn.memory.*;
+import org.jamocha.dn.memory.FactAddress;
+import org.jamocha.dn.memory.MemoryHandlerMain;
+import org.jamocha.dn.memory.MemoryHandlerMainAndCounterColumnMatcher;
+import org.jamocha.dn.memory.MemoryHandlerPlusTemp;
+import org.jamocha.dn.memory.MemoryHandlerTemp;
+import org.jamocha.dn.memory.Template;
 import org.jamocha.filter.AddressFilter;
 import org.jamocha.filter.AddressFilter.AddressFilterElement;
 import org.jamocha.filter.Path;
@@ -353,7 +358,7 @@ public abstract class Node implements Visitable<NodeVisitor> {
 		}
 		this.filter = AddressFilter.empty;
 		final MemoryHandlerMainAndCounterColumnMatcher memoryHandlerMainAndCounterColumnMatcher =
-				network.getMemoryFactory().newMemoryHandlerMain(PathFilter.empty, edgesAndPaths);
+				network.getMemoryFactory().newMemoryHandlerMain(network.getRootNode(), PathFilter.empty, edgesAndPaths);
 		this.memory = memoryHandlerMainAndCounterColumnMatcher.getMemoryHandlerMain();
 	}
 
@@ -361,7 +366,7 @@ public abstract class Node implements Visitable<NodeVisitor> {
 		this.network = network;
 		this.tokenQueue = new TokenQueue(network.getScheduler());
 		this.incomingEdges = new Edge[0];
-		this.memory = network.getMemoryFactory().newMemoryHandlerMain(template, paths);
+		this.memory = network.getMemoryFactory().newMemoryHandlerMain(network.getRootNode(), template, paths);
 		this.filter = AddressFilter.empty;
 	}
 
@@ -396,7 +401,7 @@ public abstract class Node implements Visitable<NodeVisitor> {
 		// create new main memory
 		// this also produces translation maps on all our edges
 		final MemoryHandlerMainAndCounterColumnMatcher memoryHandlerMainAndCounterColumnMatcher =
-				network.getMemoryFactory().newMemoryHandlerMain(filter, edgesAndPaths);
+				network.getMemoryFactory().newMemoryHandlerMain(network.getRootNode(), filter, edgesAndPaths);
 		this.memory = memoryHandlerMainAndCounterColumnMatcher.getMemoryHandlerMain();
 		// update all Paths from joinedWith to new addresses
 		for (final Entry<Edge, Set<Path>> entry : edgesAndPaths.entrySet()) {

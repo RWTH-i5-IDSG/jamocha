@@ -21,6 +21,7 @@ import java.util.function.Consumer;
 import lombok.ToString;
 
 import org.jamocha.dn.memory.MemoryFact;
+import org.jamocha.dn.memory.MemoryFactToFactIdentifier;
 import org.jamocha.dn.memory.Template;
 import org.jamocha.dn.memory.javaimpl.MemoryHandlerPlusTemp.CounterUpdater;
 import org.jamocha.dn.nodes.CouldNotAcquireLockException;
@@ -33,7 +34,7 @@ import org.jamocha.filter.AddressFilter;
 @ToString(callSuper = true)
 public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements org.jamocha.dn.memory.MemoryHandlerMinusTemp {
 
-	private static MemoryHandlerMinusTempComplete empty = new MemoryHandlerMinusTempComplete(null, null,
+	private static MemoryHandlerMinusTempComplete empty = new MemoryHandlerMinusTempComplete(null, null, null,
 			new JamochaArray<Row>(0), new JamochaArray<Row>(0), new FactAddress[] {});
 
 	private static Consumer<Row> nullConsumer = (final Row row) -> {
@@ -58,8 +59,9 @@ public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements org.jam
 		if (0 == relevantFactTuples.size()) {
 			return MemoryHandlerMinusTemp.empty;
 		}
-		return new MemoryHandlerMinusTempComplete(memoryHandlerMain.getTemplate(), memoryHandlerMain,
-				relevantFactTuples, relevantFactTuples, factAddresses);
+		return new MemoryHandlerMinusTempComplete(memoryHandlerMain.memoryFactToFactIdentifier,
+				memoryHandlerMain.getTemplate(), memoryHandlerMain, relevantFactTuples, relevantFactTuples,
+				factAddresses);
 	}
 
 	static JamochaArray<Row> getRemainingFactTuples(final JamochaArray<Row> originalFacts,
@@ -133,10 +135,11 @@ public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements org.jam
 			return MemoryHandlerMinusTemp.empty;
 		}
 		if (createComplete) {
-			return new MemoryHandlerMinusTempComplete(template, originatingMainHandler, relevantMinusFacts,
-					completeDeletedRows, localizedAddressMap);
+			return new MemoryHandlerMinusTempComplete(originatingMainHandler.memoryFactToFactIdentifier, template,
+					originatingMainHandler, relevantMinusFacts, completeDeletedRows, localizedAddressMap);
 		}
-		return new MemoryHandlerMinusTemp(template, originatingMainHandler, relevantMinusFacts, localizedAddressMap);
+		return new MemoryHandlerMinusTemp(originatingMainHandler.memoryFactToFactIdentifier, template,
+				originatingMainHandler, relevantMinusFacts, localizedAddressMap);
 	}
 
 	private <T extends MemoryHandlerMain> MemoryHandlerMinusTemp newRegularBeta(final T originatingMainHandler,
@@ -277,9 +280,10 @@ public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements org.jam
 		return getMarkedFactTuples(minusFacts, marked);
 	}
 
-	private MemoryHandlerMinusTemp(final Template[] template, final MemoryHandlerMain originatingMainHandler,
-			final JamochaArray<Row> rows, final FactAddress[] factAddresses) {
-		super(template, originatingMainHandler, rows);
+	private MemoryHandlerMinusTemp(final MemoryFactToFactIdentifier memoryFactToFactIdentifier,
+			final Template[] template, final MemoryHandlerMain originatingMainHandler, final JamochaArray<Row> rows,
+			final FactAddress[] factAddresses) {
+		super(memoryFactToFactIdentifier, template, originatingMainHandler, rows);
 		this.factAddresses = factAddresses;
 	}
 
@@ -301,10 +305,11 @@ public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements org.jam
 	static class MemoryHandlerMinusTempComplete extends MemoryHandlerMinusTemp {
 		final JamochaArray<Row> completeRows;
 
-		public MemoryHandlerMinusTempComplete(final Template[] template,
-				final MemoryHandlerMain originatingMainHandler, final JamochaArray<Row> partialRows,
-				final JamochaArray<Row> completeRows, final FactAddress[] factAddresses) {
-			super(template, originatingMainHandler, partialRows, factAddresses);
+		public MemoryHandlerMinusTempComplete(final MemoryFactToFactIdentifier memoryFactToFactIdentifier,
+				final Template[] template, final MemoryHandlerMain originatingMainHandler,
+				final JamochaArray<Row> partialRows, final JamochaArray<Row> completeRows,
+				final FactAddress[] factAddresses) {
+			super(memoryFactToFactIdentifier, template, originatingMainHandler, partialRows, factAddresses);
 			this.completeRows = completeRows;
 		}
 

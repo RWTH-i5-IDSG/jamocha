@@ -298,7 +298,8 @@ public interface Template {
 	 * @param slot
 	 * @return
 	 */
-	public Object getValue(final MemoryFact fact, final SlotAddress slot);
+	public Object getValue(final MemoryFactToFactIdentifier memoryFactToFactIdentifier, final MemoryFact fact,
+			final SlotAddress slot);
 
 	/**
 	 * Return a list of FunctionWithArguments which - after evaluation - can be used to construct an

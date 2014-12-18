@@ -29,6 +29,7 @@ import lombok.Getter;
 import org.apache.logging.log4j.Marker;
 import org.jamocha.dn.memory.Fact;
 import org.jamocha.dn.memory.MemoryFact;
+import org.jamocha.dn.memory.MemoryFactToFactIdentifier;
 import org.jamocha.dn.memory.SlotType;
 import org.jamocha.function.fwa.ExchangeableLeaf;
 import org.jamocha.function.fwa.FunctionWithArguments;
@@ -122,8 +123,9 @@ public class Template implements org.jamocha.dn.memory.Template {
 	}
 
 	@Override
-	public Object getValue(final MemoryFact fact, final org.jamocha.dn.memory.SlotAddress slot) {
-		return ((org.jamocha.dn.memory.javaimpl.Fact) fact).getValue(slot);
+	public Object getValue(final MemoryFactToFactIdentifier memoryFactToFactIdentifier, final MemoryFact fact,
+			final org.jamocha.dn.memory.SlotAddress slot) {
+		return ((org.jamocha.dn.memory.javaimpl.Fact) fact).getValue(memoryFactToFactIdentifier, slot);
 	}
 
 	@Override

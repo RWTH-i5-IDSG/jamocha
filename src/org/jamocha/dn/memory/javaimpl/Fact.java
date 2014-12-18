@@ -21,6 +21,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 import org.jamocha.dn.memory.MemoryFact;
+import org.jamocha.dn.memory.MemoryFactToFactIdentifier;
 import org.jamocha.dn.memory.Template;
 
 /**
@@ -44,20 +45,11 @@ class Fact implements MemoryFact {
 	 *            {@link SlotAddress slot address} identifying the slot the value is stored in
 	 * @return the value stored in the slot identified by {@link SlotAddress slot}
 	 */
-	public Object getValue(final org.jamocha.dn.memory.SlotAddress slot) {
+	public Object getValue(final MemoryFactToFactIdentifier memoryFactToFactIdentifier,
+			final org.jamocha.dn.memory.SlotAddress slot) {
+		if (null == slot)
+			return memoryFactToFactIdentifier.getFactIdentifier(this);
 		return this.slotValues[((SlotAddress) slot).getIndex()];
-	}
-
-	/**
-	 * Sets the {@link Object value} in the slot identified by {@link SlotAddress slot}.
-	 * 
-	 * @param slot
-	 *            {@link SlotAddress slot address} identifying the slot the value is to be stored in
-	 * @param value
-	 *            the value to store in the slot identified by {@link SlotAddress slot}
-	 */
-	public void setValue(final org.jamocha.dn.memory.SlotAddress slot, final Object value) {
-		this.slotValues[((SlotAddress) slot).getIndex()] = value;
 	}
 
 	public static boolean equalContent(final Fact a, final Fact b) {

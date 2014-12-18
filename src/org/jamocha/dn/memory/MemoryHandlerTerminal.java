@@ -131,7 +131,7 @@ public interface MemoryHandlerTerminal extends Iterable<Assert> {
 		 * @return fact identifiers corresponding to the facts in the token
 		 */
 		public FactIdentifier[] getFactIdentifiers(final MemoryFactToFactIdentifier memoryFactToFactIdentifier) {
-			return this.mem.getFactIdentifiers(memoryFactToFactIdentifier, 0);
+			return this.mem.getFactIdentifiers(0);
 		}
 	}
 

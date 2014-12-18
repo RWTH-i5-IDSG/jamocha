@@ -212,7 +212,8 @@ public class MemoryHandlerTempTest {
 		node = new NodeMockup(Network.DEFAULTNETWORK, 1, nodeLeft, nodeRight);
 		originInput = node.getIncomingEdges()[0];
 		memoryHandlerMain =
-				(MemoryHandlerMain) Network.DEFAULTNETWORK.getMemoryFactory().newMemoryHandlerMain(Template.STRING);
+				(MemoryHandlerMain) Network.DEFAULTNETWORK.getMemoryFactory().newMemoryHandlerMain(
+						Network.DEFAULTNETWORK.getRootNode(), Template.STRING);
 		assert node.getIncomingEdges().length == 2;
 	}
 
