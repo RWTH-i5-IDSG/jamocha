@@ -25,16 +25,20 @@ import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertThat;
 
 import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
+import java.util.Set;
 
 import org.jamocha.dn.ConstructCache.Defrule;
 import org.jamocha.dn.ParserToNetwork;
 import org.jamocha.dn.SideEffectFunctionToNetwork;
-import org.jamocha.dn.compiler.FactVariableCollector;
+import org.jamocha.dn.compiler.ShallowFactVariableCollector;
 import org.jamocha.dn.compiler.SymbolToPathTranslator;
 import org.jamocha.filter.Path;
+import org.jamocha.filter.SymbolCollector;
 import org.jamocha.function.fwa.FunctionWithArguments;
 import org.jamocha.function.fwa.PathLeaf;
 import org.jamocha.function.fwa.PredicateWithArguments;
@@ -48,8 +52,11 @@ import org.jamocha.languages.common.ConditionalElement.SharedConditionalElementW
 import org.jamocha.languages.common.ConditionalElement.TemplatePatternConditionalElement;
 import org.jamocha.languages.common.ConditionalElement.TestConditionalElement;
 import org.jamocha.languages.common.RuleCondition;
+import org.jamocha.languages.common.RuleCondition.EquivalenceClass;
 import org.jamocha.languages.common.RuleConditionProcessor;
+import org.jamocha.languages.common.ScopeStack.VariableSymbol;
 import org.jamocha.languages.common.SingleFactVariable;
+import org.jamocha.languages.common.SingleFactVariable.SingleSlotVariable;
 import org.jamocha.languages.common.Warning;
 import org.junit.Test;
 
@@ -76,7 +83,7 @@ public class SymbolToPathTranslatorTest {
 		}
 	}
 
-	private static <T extends SideEffectFunctionToNetwork & ParserToNetwork> List<ConditionalElement> clipsToCondition(
+	private static <T extends SideEffectFunctionToNetwork & ParserToNetwork> RuleCondition clipsToCondition(
 			final T ptn, final String condition) throws ParseException {
 		final StringReader parserInput =
 				new StringReader(new StringBuilder().append(templateString).append(preRule).append(condition)
@@ -87,18 +94,27 @@ public class SymbolToPathTranslatorTest {
 		final Defrule rule = ptn.getRule("rule1");
 		final RuleCondition ruleCondition = rule.getCondition();
 		RuleConditionProcessor.flatten(ruleCondition);
-		return ruleCondition.getConditionalElements();
+		return ruleCondition;
 	}
 
 	@Test
 	public void simpleTest() throws ParseException {
 		final String input = "(and (templ1 (slot1 ?x)) (test (> ?x 10)))";
 		final NetworkMockup ptn = new NetworkMockup();
-		final List<ConditionalElement> conditionalElements = clipsToCondition(ptn, input);
+		final RuleCondition ruleCondition = clipsToCondition(ptn, input);
+		final List<ConditionalElement> conditionalElements = ruleCondition.getConditionalElements();
 		assertThat(conditionalElements, hasSize(1));
 		final ConditionalElement andCe = conditionalElements.get(0);
 		final Map<SingleFactVariable, Path> paths =
-				FactVariableCollector.generatePaths(ptn.getInitialFactTemplate(), andCe).getRight();
+				ShallowFactVariableCollector.generatePaths(ptn.getInitialFactTemplate(), andCe).getRight();
+		final Set<VariableSymbol> collectedSymbols = new SymbolCollector(ruleCondition).getNonDummySymbols();
+		assertThat(collectedSymbols, hasSize(1));
+		final VariableSymbol xSymbol = collectedSymbols.iterator().next();
+		final ArrayList<SingleSlotVariable> xEqualSVs = xSymbol.getEqual().getEqualSlotVariables();
+		assertThat(xEqualSVs, hasSize(1));
+		final Map<EquivalenceClass, PathLeaf> symbolToPathLeaf =
+				Collections.singletonMap(xSymbol.getEqual(), xEqualSVs.get(0).getPathLeaf(paths));
+
 		final List<ConditionalElement> andChildren = andCe.getChildren();
 		assertThat(andChildren, hasSize(2));
 		final SingleFactVariable xFactVar;
@@ -112,7 +128,7 @@ public class SymbolToPathTranslatorTest {
 			assertThat(testCe, instanceOf(TestConditionalElement.class));
 			final PredicateWithArguments<PathLeaf> translated =
 					SymbolToPathTranslator.translate(((TestConditionalElement) testCe).getPredicateWithArguments(),
-							paths);
+							symbolToPathLeaf);
 			assertThat(translated, instanceOf(PredicateWithArgumentsComposite.class));
 			final FunctionWithArguments<PathLeaf>[] args =
 					((PredicateWithArgumentsComposite<PathLeaf>) translated).getArgs();
@@ -129,11 +145,20 @@ public class SymbolToPathTranslatorTest {
 	public void samePathInAndTest() throws ParseException {
 		final String input = "(and (templ1 (slot1 ?x)) (test (> ?x 10)) (test (< ?x 20)))";
 		final NetworkMockup ptn = new NetworkMockup();
-		final List<ConditionalElement> conditionalElements = clipsToCondition(ptn, input);
+		final RuleCondition ruleCondition = clipsToCondition(ptn, input);
+		final List<ConditionalElement> conditionalElements = ruleCondition.getConditionalElements();
 		assertThat(conditionalElements, hasSize(1));
 		final ConditionalElement andCe = conditionalElements.get(0);
 		final Map<SingleFactVariable, Path> paths =
-				FactVariableCollector.generatePaths(ptn.getInitialFactTemplate(), andCe).getRight();
+				ShallowFactVariableCollector.generatePaths(ptn.getInitialFactTemplate(), andCe).getRight();
+		final Set<VariableSymbol> collectedSymbols = new SymbolCollector(ruleCondition).getNonDummySymbols();
+		assertThat(collectedSymbols, hasSize(1));
+		final VariableSymbol xSymbol = collectedSymbols.iterator().next();
+		final ArrayList<SingleSlotVariable> xEqualSVs = xSymbol.getEqual().getEqualSlotVariables();
+		assertThat(xEqualSVs, hasSize(1));
+		final Map<EquivalenceClass, PathLeaf> symbolToPathLeaf =
+				Collections.singletonMap(xSymbol.getEqual(), xEqualSVs.get(0).getPathLeaf(paths));
+
 		final List<ConditionalElement> andChildren = andCe.getChildren();
 		assertThat(andChildren, hasSize(3));
 		final SingleFactVariable xFactVar;
@@ -147,7 +172,7 @@ public class SymbolToPathTranslatorTest {
 			assertThat(testCe, instanceOf(TestConditionalElement.class));
 			final PredicateWithArguments<PathLeaf> translated =
 					SymbolToPathTranslator.translate(((TestConditionalElement) testCe).getPredicateWithArguments(),
-							paths);
+							symbolToPathLeaf);
 			assertThat(translated, instanceOf(PredicateWithArgumentsComposite.class));
 			final FunctionWithArguments<PathLeaf>[] args =
 					((PredicateWithArgumentsComposite<PathLeaf>) translated).getArgs();
@@ -163,7 +188,7 @@ public class SymbolToPathTranslatorTest {
 			assertThat(testCe, instanceOf(TestConditionalElement.class));
 			final PredicateWithArguments<PathLeaf> translated =
 					SymbolToPathTranslator.translate(((TestConditionalElement) testCe).getPredicateWithArguments(),
-							paths);
+							symbolToPathLeaf);
 			assertThat(translated, instanceOf(PredicateWithArgumentsComposite.class));
 			final FunctionWithArguments<PathLeaf>[] args =
 					((PredicateWithArgumentsComposite<PathLeaf>) translated).getArgs();
@@ -180,7 +205,8 @@ public class SymbolToPathTranslatorTest {
 	public void differentPathsInOrTest() throws ParseException {
 		final String input = "(and (templ1 (slot1 ?x)) (or (test (> ?x 10)) (test (< ?x 20))))";
 		final NetworkMockup ptn = new NetworkMockup();
-		final List<ConditionalElement> conditionalElements = clipsToCondition(ptn, input);
+		final RuleCondition ruleCondition = clipsToCondition(ptn, input);
+		final List<ConditionalElement> conditionalElements = ruleCondition.getConditionalElements();
 		assertThat(conditionalElements, hasSize(1));
 		final ConditionalElement orCe = conditionalElements.get(0);
 		final List<ConditionalElement> orChildren = orCe.getChildren();
@@ -189,7 +215,15 @@ public class SymbolToPathTranslatorTest {
 		{
 			final ConditionalElement andCe = orChildren.get(0);
 			final Map<SingleFactVariable, Path> paths =
-					FactVariableCollector.generatePaths(ptn.getInitialFactTemplate(), andCe).getRight();
+					ShallowFactVariableCollector.generatePaths(ptn.getInitialFactTemplate(), andCe).getRight();
+			final Set<VariableSymbol> collectedSymbols = new SymbolCollector(ruleCondition).getNonDummySymbols();
+			assertThat(collectedSymbols, hasSize(1));
+			final VariableSymbol xSymbol = collectedSymbols.iterator().next();
+			final ArrayList<SingleSlotVariable> xEqualSVs = xSymbol.getEqual().getEqualSlotVariables();
+			assertThat(xEqualSVs, hasSize(1));
+			final Map<EquivalenceClass, PathLeaf> symbolToPathLeaf =
+					Collections.singletonMap(xSymbol.getEqual(), xEqualSVs.get(0).getPathLeaf(paths));
+
 			final List<ConditionalElement> andChildren = andCe.getChildren();
 			assertThat(andChildren, hasSize(2));
 			final SingleFactVariable xFactVar;
@@ -206,7 +240,7 @@ public class SymbolToPathTranslatorTest {
 				assertThat(testCe, instanceOf(TestConditionalElement.class));
 				final PredicateWithArguments<PathLeaf> translated =
 						SymbolToPathTranslator.translate(((TestConditionalElement) testCe).getPredicateWithArguments(),
-								paths);
+								symbolToPathLeaf);
 				assertThat(translated, instanceOf(PredicateWithArgumentsComposite.class));
 				final FunctionWithArguments<PathLeaf>[] args =
 						((PredicateWithArgumentsComposite<PathLeaf>) translated).getArgs();
@@ -222,7 +256,15 @@ public class SymbolToPathTranslatorTest {
 		{
 			final ConditionalElement andCe = orChildren.get(1);
 			final Map<SingleFactVariable, Path> paths =
-					FactVariableCollector.generatePaths(ptn.getInitialFactTemplate(), andCe).getRight();
+					ShallowFactVariableCollector.generatePaths(ptn.getInitialFactTemplate(), andCe).getRight();
+			final Set<VariableSymbol> collectedSymbols = new SymbolCollector(ruleCondition).getNonDummySymbols();
+			assertThat(collectedSymbols, hasSize(1));
+			final VariableSymbol xSymbol = collectedSymbols.iterator().next();
+			final ArrayList<SingleSlotVariable> xEqualSVs = xSymbol.getEqual().getEqualSlotVariables();
+			assertThat(xEqualSVs, hasSize(1));
+			final Map<EquivalenceClass, PathLeaf> symbolToPathLeaf =
+					Collections.singletonMap(xSymbol.getEqual(), xEqualSVs.get(0).getPathLeaf(paths));
+
 			final List<ConditionalElement> andChildren = andCe.getChildren();
 			assertThat(andChildren, hasSize(2));
 			final SingleFactVariable xFactVar;
@@ -239,7 +281,7 @@ public class SymbolToPathTranslatorTest {
 				assertThat(testCe, instanceOf(TestConditionalElement.class));
 				final PredicateWithArguments<PathLeaf> translated =
 						SymbolToPathTranslator.translate(((TestConditionalElement) testCe).getPredicateWithArguments(),
-								paths);
+								symbolToPathLeaf);
 				assertThat(translated, instanceOf(PredicateWithArgumentsComposite.class));
 				final FunctionWithArguments<PathLeaf>[] args =
 						((PredicateWithArgumentsComposite<PathLeaf>) translated).getArgs();
@@ -258,9 +300,10 @@ public class SymbolToPathTranslatorTest {
 	public void testCantUseFactVariableCollectorOnOrCE() throws ParseException {
 		final String input = "(and (templ1 (slot1 ?x)) (or (test (> ?x 10)) (test (< ?x 20))))";
 		final NetworkMockup ptn = new NetworkMockup();
-		final List<ConditionalElement> conditionalElements = clipsToCondition(ptn, input);
+		final RuleCondition ruleCondition = clipsToCondition(ptn, input);
+		final List<ConditionalElement> conditionalElements = ruleCondition.getConditionalElements();
 		assertThat(conditionalElements, hasSize(1));
 		final ConditionalElement orCe = conditionalElements.get(0);
-		FactVariableCollector.generatePaths(ptn.getInitialFactTemplate(), orCe).getRight();
+		ShallowFactVariableCollector.generatePaths(ptn.getInitialFactTemplate(), orCe).getRight();
 	}
 }

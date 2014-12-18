@@ -28,7 +28,9 @@ import org.jamocha.dn.memory.Template;
 import org.jamocha.filter.Path;
 import org.jamocha.languages.common.ConditionalElement;
 import org.jamocha.languages.common.ConditionalElement.AndFunctionConditionalElement;
+import org.jamocha.languages.common.ConditionalElement.ExistentialConditionalElement;
 import org.jamocha.languages.common.ConditionalElement.InitialFactConditionalElement;
+import org.jamocha.languages.common.ConditionalElement.NegatedExistentialConditionalElement;
 import org.jamocha.languages.common.ConditionalElement.OrFunctionConditionalElement;
 import org.jamocha.languages.common.ConditionalElement.SharedConditionalElementWrapper;
 import org.jamocha.languages.common.ConditionalElement.TemplatePatternConditionalElement;
@@ -36,17 +38,17 @@ import org.jamocha.languages.common.DefaultConditionalElementsVisitor;
 import org.jamocha.languages.common.SingleFactVariable;
 
 /**
+ * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  * @author Christoph Terwelp <christoph.terwelp@rwth-aachen.de>
- *
  */
-public class FactVariableCollector implements DefaultConditionalElementsVisitor {
+public class DeepFactVariableCollector implements DefaultConditionalElementsVisitor {
 
 	@Getter
 	private List<SingleFactVariable> factVariables;
 
 	public static Pair<Path, Map<SingleFactVariable, Path>> generatePaths(final Template initialFactTemplate,
 			final ConditionalElement ce) {
-		final FactVariableCollector instance = new FactVariableCollector();
+		final DeepFactVariableCollector instance = new DeepFactVariableCollector();
 		// Collect all FactVariables defined in the CEs TemplateCEs and InitialFactCEs
 		final List<SingleFactVariable> factVariables = ce.accept(instance).getFactVariables();
 		// if there is an initial fact, the path to be used may not be null
@@ -65,10 +67,31 @@ public class FactVariableCollector implements DefaultConditionalElementsVisitor 
 														: new Path(variable.getTemplate())))));
 	}
 
+	public static List<SingleFactVariable> collect(final ConditionalElement ce) {
+		return ce.accept(new DeepFactVariableCollector()).getFactVariables();
+	}
+
 	@Override
 	public void defaultAction(final ConditionalElement ce) {
 		// Just ignore all other ConditionalElements
 		this.factVariables = Collections.emptyList();
+	}
+
+	private void handleChildren(final ConditionalElement ce) {
+		this.factVariables =
+				ce.getChildren().stream()
+						.flatMap(child -> child.accept(new DeepFactVariableCollector()).getFactVariables().stream())
+						.collect(Collectors.toCollection(ArrayList::new));
+	}
+
+	@Override
+	public void visit(final ExistentialConditionalElement ce) {
+		handleChildren(ce);
+	}
+
+	@Override
+	public void visit(final NegatedExistentialConditionalElement ce) {
+		handleChildren(ce);
 	}
 
 	@Override
@@ -78,9 +101,7 @@ public class FactVariableCollector implements DefaultConditionalElementsVisitor 
 
 	@Override
 	public void visit(final AndFunctionConditionalElement ce) {
-		this.factVariables =
-				ce.getChildren().stream().map(child -> child.accept(new FactVariableCollector()).getFactVariables())
-						.flatMap(List::stream).collect(Collectors.toCollection(ArrayList::new));
+		handleChildren(ce);
 	}
 
 	@Override

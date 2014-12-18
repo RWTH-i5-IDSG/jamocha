@@ -73,8 +73,7 @@ public class RuleConditionFormatter implements Formatter<RuleCondition> {
 		final StringBuilder sb = new StringBuilder();
 		sb.append("(");
 		final ConditionalElementFormatter cef =
-				new ConditionalElementFormatter(SymbolCollector.newHashSet().collect(re)
-						.toSlotVariablesByFactVariable());
+				new ConditionalElementFormatter(new SymbolCollector(re).toSlotVariablesByFactVariable());
 		for (final ConditionalElement ce : re.getConditionalElements()) {
 			sb.append(" ");
 			sb.append(cef.format(ce));

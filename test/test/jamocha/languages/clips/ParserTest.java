@@ -14,13 +14,11 @@
  */
 package test.jamocha.languages.clips;
 
-import static java.util.stream.Collectors.toSet;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.isIn;
 import static org.jamocha.util.ToArray.toArray;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertThat;
@@ -28,12 +26,14 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.Reader;
 import java.io.StringReader;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Queue;
 import java.util.Set;
 
 import org.jamocha.dn.ConstructCache.Defrule;
+import org.jamocha.dn.compiler.DeepFactVariableCollector;
 import org.jamocha.dn.memory.SlotType;
 import org.jamocha.dn.memory.Template;
 import org.jamocha.filter.SymbolCollector;
@@ -55,7 +55,7 @@ import org.jamocha.languages.common.ConditionalElement.OrFunctionConditionalElem
 import org.jamocha.languages.common.ConditionalElement.TemplatePatternConditionalElement;
 import org.jamocha.languages.common.ConditionalElement.TestConditionalElement;
 import org.jamocha.languages.common.RuleCondition;
-import org.jamocha.languages.common.ScopeStack.Symbol;
+import org.jamocha.languages.common.ScopeStack.VariableSymbol;
 import org.jamocha.languages.common.SingleFactVariable;
 import org.jamocha.languages.common.SingleFactVariable.SingleSlotVariable;
 import org.jamocha.languages.common.Warning;
@@ -97,14 +97,13 @@ public class ParserTest {
 	}
 
 	private static Set<SingleFactVariable> getFactVariablesForCE(final ConditionalElement ce) {
-		return SymbolCollector.newHashSet().collect(ce).getSymbols().stream().map(Symbol::getFactVariable)
-				.filter(Optional::isPresent).map(Optional::get).collect(toSet());
+		return new HashSet<>(DeepFactVariableCollector.collect(ce));
 	}
 
-	private static Symbol getSymbol(final RuleCondition condition, final String image) {
-		final Symbol[] array =
-				toArray(SymbolCollector.newHashSet().collect(condition).getSymbols().stream().distinct()
-						.filter(s -> s.getImage().equals(image)), Symbol[]::new);
+	private static VariableSymbol getSymbol(final RuleCondition condition, final String image) {
+		final VariableSymbol[] array =
+				toArray(new SymbolCollector(condition).getSymbols().stream().filter(s -> s.getImage().equals(image)),
+						VariableSymbol[]::new);
 		assertEquals(1, array.length);
 		return array[0];
 	}
@@ -174,17 +173,6 @@ public class ParserTest {
 	}
 
 	@Test(expected = VariableNotDeclaredError.class)
-	public void testDefruleVariableFirstNegated() throws ParseException {
-		final Reader parserInput =
-				new StringReader("(deftemplate f1 (slot s1 (type INTEGER)))\n"
-						+ "(defrule r1 (f1 (s1 ~?x)) (f1 (s1 ?x)) =>)\n");
-		final SFPParser parser = new SFPParser(parserInput);
-		final NetworkMockup network = new NetworkMockup();
-		final SFPVisitorImpl visitor = new SFPVisitorImpl(network, network);
-		run(parser, visitor);
-	}
-
-	@Test(expected = VariableNotDeclaredError.class)
 	public void testDefruleVariableInExScope() throws ParseException {
 		final Reader parserInput =
 				new StringReader("(deftemplate f1 (slot s1 (type INTEGER)))\n"
@@ -241,16 +229,6 @@ public class ParserTest {
 	}
 
 	@Test(expected = VariableNotDeclaredError.class)
-	public void testDefruleVariableInAmpersandConnectedConstraint() throws ParseException {
-		final Reader parserInput =
-				new StringReader("(deftemplate f1 (slot s1 (type INTEGER)))\n" + "(defrule r1 (f1 (s1 ?x&?y))=>)\n");
-		final SFPParser parser = new SFPParser(parserInput);
-		final NetworkMockup network = new NetworkMockup();
-		final SFPVisitorImpl visitor = new SFPVisitorImpl(network, network);
-		run(parser, visitor);
-	}
-
-	@Test(expected = VariableNotDeclaredError.class)
 	public void testDefruleVariableInLineConnectedConstraint() throws ParseException {
 		final Reader parserInput =
 				new StringReader("(deftemplate f1 (slot s1 (type INTEGER)))\n" + "(defrule r1 (f1 (s1 ?x|?y))=>)\n");
@@ -284,43 +262,37 @@ public class ParserTest {
 		assertNotNull(rule);
 		final RuleCondition condition = rule.getCondition();
 		assertNotNull(condition);
-		final SingleSlotVariable x, y;
-		final SingleFactVariable z;
+		final VariableSymbol x, y, z;
 		{
-			final List<SingleSlotVariable> list = getSymbol(condition, "?x").getPositiveSlotVariables();
+			x = getSymbol(condition, "?x");
+			final List<SingleSlotVariable> list = x.getEqual().getEqualSlotVariables();
 			assertNotNull(list);
 			assertEquals(1, list.size());
 			final SingleSlotVariable var = list.get(0);
-			assertEquals("?x", var.getSymbol().getImage());
-			assertFalse(var.isNegated());
 			assertEquals(SlotType.LONG, var.getType());
 			final Template template = network.getTemplate("f1");
 			assertSame(template, var.getFactVariable().getTemplate());
 			assertEquals(template.getSlotAddress("s1"), var.getSlot());
-			x = var;
 		}
 		{
-			final List<SingleSlotVariable> list = getSymbol(condition, "?y").getPositiveSlotVariables();
+			y = getSymbol(condition, "?y");
+			final List<SingleSlotVariable> list = y.getEqual().getEqualSlotVariables();
 			assertNotNull(list);
 			assertEquals(1, list.size());
 			final SingleSlotVariable var = list.get(0);
-			assertEquals("?y", var.getSymbol().getImage());
-			assertFalse(var.isNegated());
 			assertEquals(SlotType.DOUBLE, var.getType());
 			final Template template = network.getTemplate("f2");
 			assertSame(template, var.getFactVariable().getTemplate());
 			assertEquals(template.getSlotAddress("s2"), var.getSlot());
-			y = var;
 		}
 		{
-			final Optional<SingleFactVariable> optVar = getSymbol(condition, "?z").getFactVariable();
+			z = getSymbol(condition, "?z");
+			final Optional<SingleFactVariable> optVar = z.getEqual().getFactVariable();
 			assertNotNull(optVar);
 			assertTrue(optVar.isPresent());
 			final SingleFactVariable var = optVar.get();
-			assertEquals("?z", var.getSymbol().getImage());
 			final Template template = network.getTemplate("f2");
 			assertSame(template, var.getTemplate());
-			z = var;
 		}
 		final List<ConditionalElement> conditionalElements = condition.getConditionalElements();
 		assertEquals(4, conditionalElements.size());
@@ -329,7 +301,8 @@ public class ParserTest {
 			assertThat(conditionalElement, instanceOf(TemplatePatternConditionalElement.class));
 			final SingleFactVariable factVariable =
 					((TemplatePatternConditionalElement) conditionalElement).getFactVariable();
-			assertSame(z, factVariable);
+			assertTrue(z.getEqual().getFactVariable().isPresent());
+			assertSame(z.getEqual().getFactVariable().get(), factVariable);
 		}
 		{
 			final ConditionalElement conditionalElement = conditionalElements.get(2);
@@ -346,7 +319,7 @@ public class ParserTest {
 			assertEquals(2, arguments.length);
 			final FunctionWithArguments<SymbolLeaf> firstArg = arguments[0];
 			assertThat(firstArg, instanceOf(SymbolLeaf.class));
-			assertSame(x.getSymbol(), ((SymbolLeaf) firstArg).getSymbol());
+			assertSame(x, ((SymbolLeaf) firstArg).getSymbol());
 			final FunctionWithArguments<SymbolLeaf> secondArg = arguments[1];
 			assertThat(secondArg, instanceOf(ConstantLeaf.class));
 			assertEquals(2L, ((ConstantLeaf<SymbolLeaf>) secondArg).getValue());
@@ -366,7 +339,7 @@ public class ParserTest {
 			assertEquals(2, arguments.length);
 			final FunctionWithArguments<SymbolLeaf> firstArg = arguments[0];
 			assertThat(firstArg, instanceOf(SymbolLeaf.class));
-			assertSame(y.getSymbol(), ((SymbolLeaf) firstArg).getSymbol());
+			assertSame(y, ((SymbolLeaf) firstArg).getSymbol());
 			final FunctionWithArguments<SymbolLeaf> secondArg = arguments[1];
 			assertThat(secondArg, instanceOf(ConstantLeaf.class));
 			assertEquals(0.0, ((ConstantLeaf<SymbolLeaf>) secondArg).getValue());
@@ -398,19 +371,17 @@ public class ParserTest {
 		assertNotNull(rule);
 		final RuleCondition condition = rule.getCondition();
 		assertNotNull(condition);
-		final SingleSlotVariable x;
+		final VariableSymbol x;
 		{
-			final List<SingleSlotVariable> list = getSymbol(condition, "?x").getPositiveSlotVariables();
+			x = getSymbol(condition, "?x");
+			final List<SingleSlotVariable> list = x.getEqual().getEqualSlotVariables();
 			assertNotNull(list);
 			assertEquals(1, list.size());
 			final SingleSlotVariable var = list.get(0);
-			assertEquals("?x", var.getSymbol().getImage());
-			assertFalse(var.isNegated());
 			assertEquals(SlotType.LONG, var.getType());
 			final Template template = network.getTemplate("f1");
 			assertEquals(template, var.getFactVariable().getTemplate());
 			assertEquals(template.getSlotAddress("s1"), var.getSlot());
-			x = var;
 		}
 		final List<ConditionalElement> conditionalElements = condition.getConditionalElements();
 		assertEquals(1, conditionalElements.size());
@@ -447,7 +418,7 @@ public class ParserTest {
 				assertEquals(2, arguments.length);
 				final FunctionWithArguments<SymbolLeaf> firstArg = arguments[0];
 				assertThat(firstArg, instanceOf(SymbolLeaf.class));
-				assertEquals(x.getSymbol(), ((SymbolLeaf) firstArg).getSymbol());
+				assertEquals(x, ((SymbolLeaf) firstArg).getSymbol());
 				final FunctionWithArguments<SymbolLeaf> secondArg = arguments[1];
 				assertThat(secondArg, instanceOf(ConstantLeaf.class));
 				assertEquals(2L, ((ConstantLeaf<SymbolLeaf>) secondArg).getValue());
@@ -474,7 +445,7 @@ public class ParserTest {
 					assertEquals(2, arguments.length);
 					final FunctionWithArguments<SymbolLeaf> firstArg = arguments[0];
 					assertThat(firstArg, instanceOf(SymbolLeaf.class));
-					assertEquals(x.getSymbol(), ((SymbolLeaf) firstArg).getSymbol());
+					assertEquals(x, ((SymbolLeaf) firstArg).getSymbol());
 					final FunctionWithArguments<SymbolLeaf> secondArg = arguments[1];
 					assertThat(secondArg, instanceOf(ConstantLeaf.class));
 					assertEquals(3L, ((ConstantLeaf<SymbolLeaf>) secondArg).getValue());
@@ -496,7 +467,7 @@ public class ParserTest {
 					assertEquals(2, arguments.length);
 					final FunctionWithArguments<SymbolLeaf> firstArg = arguments[0];
 					assertThat(firstArg, instanceOf(SymbolLeaf.class));
-					assertEquals(x.getSymbol(), ((SymbolLeaf) firstArg).getSymbol());
+					assertEquals(x, ((SymbolLeaf) firstArg).getSymbol());
 					final FunctionWithArguments<SymbolLeaf> secondArg = arguments[1];
 					assertThat(secondArg, instanceOf(ConstantLeaf.class));
 					assertEquals(4L, ((ConstantLeaf<SymbolLeaf>) secondArg).getValue());
@@ -519,7 +490,7 @@ public class ParserTest {
 				assertEquals(2, arguments.length);
 				final FunctionWithArguments<SymbolLeaf> firstArg = arguments[0];
 				assertThat(firstArg, instanceOf(SymbolLeaf.class));
-				assertEquals(x.getSymbol(), ((SymbolLeaf) firstArg).getSymbol());
+				assertEquals(x, ((SymbolLeaf) firstArg).getSymbol());
 				final FunctionWithArguments<SymbolLeaf> secondArg = arguments[1];
 				assertThat(secondArg, instanceOf(ConstantLeaf.class));
 				assertEquals(5L, ((ConstantLeaf<SymbolLeaf>) secondArg).getValue());
@@ -551,15 +522,14 @@ public class ParserTest {
 		assertNotNull(rule);
 		final RuleCondition condition = rule.getCondition();
 		assertNotNull(condition);
-		final SingleSlotVariable x1, x2, y;
+		final VariableSymbol x = getSymbol(condition, "?x"), y = getSymbol(condition, "?y");
+		final SingleSlotVariable x1, x2, ySlot;
 		{
-			final List<SingleSlotVariable> list = getSymbol(condition, "?x").getPositiveSlotVariables();
+			final List<SingleSlotVariable> list = x.getEqual().getEqualSlotVariables();
 			assertNotNull(list);
 			assertThat(list, hasSize(2));
 			{
 				final SingleSlotVariable var = list.get(0);
-				assertEquals("?x", var.getSymbol().getImage());
-				assertFalse(var.isNegated());
 				assertEquals(SlotType.LONG, var.getType());
 				final Template template = network.getTemplate("f1");
 				assertEquals(template, var.getFactVariable().getTemplate());
@@ -568,8 +538,6 @@ public class ParserTest {
 			}
 			{
 				final SingleSlotVariable var = list.get(1);
-				assertEquals("?x", var.getSymbol().getImage());
-				assertFalse(var.isNegated());
 				assertEquals(SlotType.LONG, var.getType());
 				final Template template = network.getTemplate("f2");
 				assertEquals(template, var.getFactVariable().getTemplate());
@@ -578,17 +546,15 @@ public class ParserTest {
 			}
 		}
 		{
-			final List<SingleSlotVariable> list = getSymbol(condition, "?y").getPositiveSlotVariables();
+			final List<SingleSlotVariable> list = y.getEqual().getEqualSlotVariables();
 			assertNotNull(list);
 			assertThat(list, hasSize(1));
 			final SingleSlotVariable var = list.get(0);
-			assertEquals("?y", var.getSymbol().getImage());
-			assertFalse(var.isNegated());
 			assertEquals(SlotType.DOUBLE, var.getType());
 			final Template template = network.getTemplate("f1");
 			assertEquals(template, var.getFactVariable().getTemplate());
 			assertEquals(template.getSlotAddress("s2"), var.getSlot());
-			y = var;
+			ySlot = var;
 		}
 		final List<ConditionalElement> conditionalElements = condition.getConditionalElements();
 		assertThat(conditionalElements, hasSize(2));
@@ -601,7 +567,7 @@ public class ParserTest {
 			assertThat(conditionalElement, instanceOf(NegatedExistentialConditionalElement.class));
 			final NegatedExistentialConditionalElement negatedExistentialConditionalElement =
 					(NegatedExistentialConditionalElement) conditionalElement;
-			assertEquals(x1.getFactVariable(), y.getFactVariable());
+			assertEquals(x1.getFactVariable(), ySlot.getFactVariable());
 
 			assertThat(x1.getFactVariable(), isIn(getFactVariablesForCE(negatedExistentialConditionalElement)));
 			final List<ConditionalElement> negChildren = negatedExistentialConditionalElement.getChildren();
@@ -616,7 +582,7 @@ public class ParserTest {
 				final TemplatePatternConditionalElement tpce = (TemplatePatternConditionalElement) child;
 				assertThat(tpce.getChildren(), hasSize(0));
 				assertSame(x1.getFactVariable(), tpce.getFactVariable());
-				assertSame(y.getFactVariable(), tpce.getFactVariable());
+				assertSame(ySlot.getFactVariable(), tpce.getFactVariable());
 			}
 			{
 				final ConditionalElement child = andChildren.get(1);
@@ -646,7 +612,7 @@ public class ParserTest {
 				assertEquals(2, arguments.length);
 				final FunctionWithArguments<SymbolLeaf> firstArg = arguments[0];
 				assertThat(firstArg, instanceOf(SymbolLeaf.class));
-				assertEquals(y.getSymbol(), ((SymbolLeaf) firstArg).getSymbol());
+				assertEquals(y, ((SymbolLeaf) firstArg).getSymbol());
 				final FunctionWithArguments<SymbolLeaf> secondArg = arguments[1];
 				assertThat(secondArg, instanceOf(ConstantLeaf.class));
 				assertEquals(0.5, ((ConstantLeaf<SymbolLeaf>) secondArg).getValue());

@@ -17,8 +17,8 @@ package org.jamocha.dn.compiler;
 import java.util.Map;
 
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
-import org.jamocha.filter.Path;
 import org.jamocha.function.fwa.Assert;
 import org.jamocha.function.fwa.ConstantLeaf;
 import org.jamocha.function.fwa.FunctionWithArguments;
@@ -30,42 +30,41 @@ import org.jamocha.function.fwa.PredicateWithArguments;
 import org.jamocha.function.fwa.PredicateWithArgumentsComposite;
 import org.jamocha.function.fwa.Retract;
 import org.jamocha.function.fwa.SymbolLeaf;
-import org.jamocha.languages.common.SingleFactVariable;
-import org.jamocha.languages.common.SingleFactVariable.SingleSlotVariable;
+import org.jamocha.languages.common.RuleCondition.EquivalenceClass;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  * @author Christoph Terwelp <christoph.terwelp@rwth-aachen.de>
  */
+@RequiredArgsConstructor
 public class SymbolToPathTranslator implements FunctionWithArgumentsVisitor<SymbolLeaf> {
 
 	@Getter
 	private FunctionWithArguments<PathLeaf> result;
-	private final Map<SingleFactVariable, Path> paths;
-
-	public SymbolToPathTranslator(final Map<SingleFactVariable, Path> paths) {
-		this.paths = paths;
-	}
+	private final Map<EquivalenceClass, PathLeaf> equivalenceClassToPathLeaf;
 
 	public static FunctionWithArguments<PathLeaf> translate(final FunctionWithArguments<SymbolLeaf> toTranslate,
-			final Map<SingleFactVariable, Path> paths) {
-		return toTranslate.accept(new SymbolToPathTranslator(paths)).result;
+			final Map<EquivalenceClass, PathLeaf> equivalenceClassToPathLeaf) {
+		return toTranslate.accept(new SymbolToPathTranslator(equivalenceClassToPathLeaf)).result;
 	}
 
 	public static PredicateWithArgumentsComposite<PathLeaf> translate(
-			final PredicateWithArgumentsComposite<SymbolLeaf> toTranslate, final Map<SingleFactVariable, Path> paths) {
-		return (PredicateWithArgumentsComposite<PathLeaf>) toTranslate.accept(new SymbolToPathTranslator(paths)).result;
+			final PredicateWithArgumentsComposite<SymbolLeaf> toTranslate,
+			final Map<EquivalenceClass, PathLeaf> equivalenceClassToPathLeaf) {
+		return (PredicateWithArgumentsComposite<PathLeaf>) toTranslate.accept(new SymbolToPathTranslator(
+				equivalenceClassToPathLeaf)).result;
 	}
 
 	public static PredicateWithArguments<PathLeaf> translate(final PredicateWithArguments<SymbolLeaf> toTranslate,
-			final Map<SingleFactVariable, Path> paths) {
-		return (PredicateWithArguments<PathLeaf>) toTranslate.accept(new SymbolToPathTranslator(paths)).result;
+			final Map<EquivalenceClass, PathLeaf> equivalenceClassToPathLeaf) {
+		return (PredicateWithArguments<PathLeaf>) toTranslate.accept(new SymbolToPathTranslator(
+				equivalenceClassToPathLeaf)).result;
 	}
 
 	@SuppressWarnings("unchecked")
 	private void handleArgs(final FunctionWithArguments<SymbolLeaf> fwa, final FunctionWithArguments<?>[] args) {
 		for (int i = 0; i < args.length; ++i) {
-			args[i] = translate((FunctionWithArguments<SymbolLeaf>) args[i], paths);
+			args[i] = translate((FunctionWithArguments<SymbolLeaf>) args[i], equivalenceClassToPathLeaf);
 		}
 		this.result = (FunctionWithArguments<PathLeaf>) (FunctionWithArguments<?>) fwa;
 	}
@@ -108,15 +107,13 @@ public class SymbolToPathTranslator implements FunctionWithArgumentsVisitor<Symb
 
 	@Override
 	public void visit(final Modify.SlotAndValue<SymbolLeaf> fwa) {
-		this.result = new Modify.SlotAndValue<PathLeaf>(fwa.getSlotName(), translate(fwa.getValue(), paths));
+		this.result =
+				new Modify.SlotAndValue<PathLeaf>(fwa.getSlotName(), translate(fwa.getValue(),
+						equivalenceClassToPathLeaf));
 	}
 
 	@Override
 	public void visit(final SymbolLeaf fwa) {
-		assert (fwa.getSymbol().getPositiveSlotVariables().size() > 0);
-		final SingleSlotVariable variable = fwa.getSymbol().getPositiveSlotVariables().get(0);
-		final Path path = this.paths.get(variable.getFactVariable());
-		assert null != path;
-		result = new PathLeaf(path, variable.getSlot());
+		result = equivalenceClassToPathLeaf.get(fwa.getSymbol().getEqual());
 	}
 }

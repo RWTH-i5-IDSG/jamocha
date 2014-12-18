@@ -33,7 +33,6 @@ import org.jamocha.dn.compiler.SymbolToPathTranslator;
 import org.jamocha.dn.memory.MemoryHandlerTerminal.AssertOrRetract;
 import org.jamocha.dn.memory.Template;
 import org.jamocha.dn.nodes.SlotInFactAddress;
-import org.jamocha.filter.Path;
 import org.jamocha.filter.PathFilterList.PathFilterSharedListWrapper;
 import org.jamocha.function.Function;
 import org.jamocha.function.fwa.Assert;
@@ -44,7 +43,7 @@ import org.jamocha.function.fwa.SymbolLeaf;
 import org.jamocha.function.fwatransformer.FWADeepCopy;
 import org.jamocha.function.fwatransformer.FWAPathToAddressTranslator;
 import org.jamocha.languages.common.RuleCondition;
-import org.jamocha.languages.common.SingleFactVariable;
+import org.jamocha.languages.common.RuleCondition.EquivalenceClass;
 import org.jamocha.logging.MarkerType;
 
 /**
@@ -91,14 +90,13 @@ public class ConstructCache {
 		}
 
 		public TranslatedPath newTranslated(final PathFilterSharedListWrapper.PathFilterSharedList condition,
-				final Map<SingleFactVariable, Path> pathTranslationMap) {
+				final Map<EquivalenceClass, PathLeaf> equivalenceClassToPathLeaf) {
 			@SuppressWarnings("unchecked")
 			final TranslatedPath translated =
-					new TranslatedPath(condition,
-							new PathActionList(toArray(
-									Arrays.stream(actionList).map(
-											fwa -> SymbolToPathTranslator.translate(FWADeepCopy.copy(fwa),
-													pathTranslationMap)), FunctionWithArguments[]::new)));
+					new TranslatedPath(condition, new PathActionList(toArray(
+							Arrays.stream(actionList).map(
+									fwa -> SymbolToPathTranslator.translate(FWADeepCopy.copy(fwa), equivalenceClassToPathLeaf)),
+							FunctionWithArguments[]::new)));
 			translatedPathVersions.add(translated);
 			return translated;
 		}

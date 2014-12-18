@@ -14,7 +14,11 @@
  */
 package org.jamocha.languages.common;
 
-import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -25,8 +29,10 @@ import lombok.NonNull;
 import org.jamocha.dn.memory.SlotAddress;
 import org.jamocha.dn.memory.SlotType;
 import org.jamocha.dn.memory.Template;
-import org.jamocha.function.fwa.SymbolLeaf;
-import org.jamocha.languages.common.ScopeStack.Symbol;
+import org.jamocha.filter.Path;
+import org.jamocha.function.fwa.PathLeaf;
+import org.jamocha.languages.common.RuleCondition.EquivalenceClass;
+import org.jamocha.languages.common.ScopeStack.VariableSymbol;
 
 /**
  * Gathers relevant information about a variable.
@@ -37,34 +43,41 @@ import org.jamocha.languages.common.ScopeStack.Symbol;
 @EqualsAndHashCode
 public class SingleFactVariable {
 	@NonNull
-	final Symbol symbol;
-	@NonNull
 	final Template template;
-	final ArrayList<SingleSlotVariable> slotVariables = new ArrayList<>();
+	@NonNull
+	final EquivalenceClass equal;
+	final HashMap<SlotAddress, SingleSlotVariable> slots = new HashMap<>();
 
-	public SingleFactVariable(final Symbol symbol, final Template template) {
-		this.symbol = symbol;
+	public SingleFactVariable(final Template template, final VariableSymbol symbol) {
 		this.template = template;
-		symbol.setFactVariable(this);
+		assert null != symbol.equal;
+		this.equal = symbol.equal;
+		this.equal.add(this);
 	}
 
-	public SingleSlotVariable newSingleSlotVariable(final Symbol symbol, final SlotAddress slot, final boolean negated) {
-		final SingleSlotVariable instance = new SingleSlotVariable(symbol, slot, negated);
-		symbol.addSlotVariable(instance);
-		this.slotVariables.add(instance);
+	public SingleSlotVariable newSingleSlotVariable(final SlotAddress slot, final VariableSymbol symbol) {
+		final SingleSlotVariable instance = slots.computeIfAbsent(slot, SingleSlotVariable::new);
+		assert null != symbol.equal;
+		instance.equal.add(symbol.equal);
+		symbol.equal.add(instance);
 		return instance;
+	}
+
+	public Collection<SingleSlotVariable> getSlotVariables() {
+		return slots.values();
+	}
+
+	public PathLeaf getPathLeaf(final Map<SingleFactVariable, Path> pathMap) {
+		return new PathLeaf(pathMap.get(this), null);
 	}
 
 	@Getter
 	@AllArgsConstructor(access = AccessLevel.PRIVATE)
-	@EqualsAndHashCode
 	public class SingleSlotVariable {
 		@NonNull
-		final Symbol symbol;
-		@NonNull
 		final SlotAddress slot;
-		// occurrence of symbol was negated by ~
-		final boolean negated;
+		@NonNull
+		final Set<EquivalenceClass> equal = new HashSet<>();
 
 		public SlotType getType() {
 			return template.getSlotType(slot);
@@ -74,8 +87,9 @@ public class SingleFactVariable {
 			return SingleFactVariable.this;
 		}
 
-		public SymbolLeaf toSymbolLeaf() {
-			return new SymbolLeaf(getSymbol());
+		public PathLeaf getPathLeaf(final Map<SingleFactVariable, Path> pathMap) {
+			final Path path = pathMap.get(getFactVariable());
+			return null == path ? null : new PathLeaf(path, slot);
 		}
 	}
 }

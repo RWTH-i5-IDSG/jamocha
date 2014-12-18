@@ -15,28 +15,23 @@
 package org.jamocha.filter;
 
 import static java.util.stream.Collectors.groupingBy;
-import static java.util.stream.Collectors.toCollection;
-import static java.util.stream.Collectors.toList;
-import static org.jamocha.util.ToArray.toArray;
+import static java.util.stream.Collectors.toSet;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.LinkedList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Supplier;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import lombok.Getter;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.jamocha.function.fwa.FunctionWithArguments;
-import org.jamocha.languages.common.ConditionalElement;
-import org.jamocha.languages.common.ConditionalElement.TemplatePatternConditionalElement;
-import org.jamocha.languages.common.DefaultConditionalElementsVisitor;
 import org.jamocha.languages.common.RuleCondition;
 import org.jamocha.languages.common.ScopeStack.Symbol;
+import org.jamocha.languages.common.ScopeStack.VariableSymbol;
 import org.jamocha.languages.common.SingleFactVariable;
 import org.jamocha.languages.common.SingleFactVariable.SingleSlotVariable;
 
@@ -48,78 +43,40 @@ import org.jamocha.languages.common.SingleFactVariable.SingleSlotVariable;
  * @param <T>
  *            collection type to use while collecting the paths
  */
-public class SymbolCollector<T extends Collection<Symbol>, U extends Collection<SingleSlotVariable>> implements
-		DefaultConditionalElementsVisitor {
+public class SymbolCollector {
 	@Getter
-	private final T symbols;
-	private final Supplier<U> supplier;
+	private Set<VariableSymbol> symbols;
 
-	public SymbolCollector(final T symbols, final Supplier<U> supplier) {
-		this.symbols = symbols;
-		this.supplier = supplier;
+	public SymbolCollector(final RuleCondition rc) {
+		this.symbols = rc.getVariableSymbols();
 	}
 
-	public SymbolCollector<T, U> collect(final ConditionalElement ce) {
-		ce.accept(this);
-		return this;
+	public Set<VariableSymbol> getNonDummySymbols() {
+		return symbols.stream().filter(s -> !s.isDummy()).collect(toSet());
 	}
 
-	public SymbolCollector<T, U> collect(final RuleCondition rc) {
-		return collect(rc.getConditionalElements());
+	public Set<VariableSymbol> getDummySymbols() {
+		return symbols.stream().filter(Symbol::isDummy).collect(toSet());
 	}
 
-	public SymbolCollector<T, U> collect(final List<ConditionalElement> ces) {
-		ces.forEach(this::collect);
-		return this;
-	}
-
-	public static SymbolCollector<HashSet<Symbol>, HashSet<SingleSlotVariable>> newHashSet() {
-		return new SymbolCollector<>(new HashSet<Symbol>(), HashSet::new);
-	}
-
-	public static SymbolCollector<LinkedHashSet<Symbol>, LinkedHashSet<SingleSlotVariable>> newLinkedHashSet() {
-		return new SymbolCollector<>(new LinkedHashSet<Symbol>(), LinkedHashSet::new);
-	}
-
-	public static SymbolCollector<ArrayList<Symbol>, ArrayList<SingleSlotVariable>> newArrayList() {
-		return new SymbolCollector<>(new ArrayList<Symbol>(), ArrayList::new);
-	}
-
-	public static SymbolCollector<LinkedList<Symbol>, LinkedList<SingleSlotVariable>> newLinkedList() {
-		return new SymbolCollector<>(new LinkedList<Symbol>(), LinkedList::new);
-	}
-
-	public Symbol[] getSymbolArray() {
-		return toArray(symbols, Symbol[]::new);
-	}
-
-	private Stream<SingleSlotVariable> getSlotVariableStream() {
+	private Stream<Pair<VariableSymbol, SingleSlotVariable>> getSlotVariableStream() {
 		return this.symbols.stream().flatMap(
-				symbol -> Stream.concat(symbol.getPositiveSlotVariables().stream(), symbol.getNegativeSlotVariables()
-						.stream()));
+				symbol -> StreamSupport.stream(symbol.getEqual().getEqualSlotVariables().spliterator(), true).map(
+						sv -> Pair.of(symbol, sv)));
 	}
 
-	public Map<SingleFactVariable, List<SingleSlotVariable>> toSlotVariablesByFactVariable() {
-		return getSlotVariableStream().collect(groupingBy((final SingleSlotVariable ssv) -> ssv.getFactVariable()));
-	}
-
-	public U toSlotVariables() {
-		return getSlotVariableStream().collect(toCollection(supplier));
-	}
-
-	public SingleSlotVariable[] toSlotVariableArray() {
-		return toArray(toSlotVariables(), SingleSlotVariable[]::new);
-	}
-
-	@Override
-	public void defaultAction(final ConditionalElement ce) {
-		ce.getChildren().forEach(c -> c.accept(this));
-	}
-
-	@Override
-	public void visit(final TemplatePatternConditionalElement ce) {
-		final SingleFactVariable factVariable = ce.getFactVariable();
-		symbols.add(factVariable.getSymbol());
-		symbols.addAll(factVariable.getSlotVariables().stream().map(SingleSlotVariable::getSymbol).collect(toList()));
+	public Map<SingleFactVariable, Pair<VariableSymbol, List<Pair<VariableSymbol, SingleSlotVariable>>>> toSlotVariablesByFactVariable() {
+		final Map<SingleFactVariable, List<Pair<VariableSymbol, SingleSlotVariable>>> fvToSv =
+				getSlotVariableStream().collect(groupingBy(pvs -> pvs.getRight().getFactVariable()));
+		final Map<SingleFactVariable, Pair<VariableSymbol, List<Pair<VariableSymbol, SingleSlotVariable>>>> map =
+				new HashMap<>();
+		for (final Map.Entry<SingleFactVariable, List<Pair<VariableSymbol, SingleSlotVariable>>> entry : fvToSv
+				.entrySet()) {
+			final SingleFactVariable fv = entry.getKey();
+			final Optional<VariableSymbol> symbol =
+					symbols.stream().filter(vs -> fv.equals(vs.getEqual().getFactVariable().orElse(null))).findAny();
+			map.put(fv, Pair.of(symbol.orElse(null), fvToSv.get(fv)));
+		}
+		return map;
 	}
 }

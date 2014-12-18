@@ -19,6 +19,7 @@ import java.util.Map;
 
 import lombok.AllArgsConstructor;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.jamocha.languages.common.ConditionalElement;
 import org.jamocha.languages.common.ConditionalElement.AndFunctionConditionalElement;
 import org.jamocha.languages.common.ConditionalElement.ExistentialConditionalElement;
@@ -30,6 +31,8 @@ import org.jamocha.languages.common.ConditionalElement.SharedConditionalElementW
 import org.jamocha.languages.common.ConditionalElement.TemplatePatternConditionalElement;
 import org.jamocha.languages.common.ConditionalElement.TestConditionalElement;
 import org.jamocha.languages.common.ConditionalElementsVisitor;
+import org.jamocha.languages.common.ScopeStack;
+import org.jamocha.languages.common.ScopeStack.VariableSymbol;
 import org.jamocha.languages.common.SingleFactVariable;
 import org.jamocha.languages.common.SingleFactVariable.SingleSlotVariable;
 
@@ -40,7 +43,7 @@ import org.jamocha.languages.common.SingleFactVariable.SingleSlotVariable;
 @AllArgsConstructor
 public class ConditionalElementFormatter implements Formatter<ConditionalElement> {
 
-	final Map<SingleFactVariable, List<SingleSlotVariable>> slotVariablesByTemplate;
+	final Map<SingleFactVariable, Pair<VariableSymbol, List<Pair<VariableSymbol, SingleSlotVariable>>>> slotVariablesByTemplate;
 
 	@Override
 	public String format(final ConditionalElement ce) {
@@ -118,14 +121,19 @@ public class ConditionalElementFormatter implements Formatter<ConditionalElement
 		}
 
 		private void formatSingleVariables(final SingleFactVariable factVariable) {
-			final List<SingleSlotVariable> singleSlotVariables = slotVariablesByTemplate.get(factVariable);
+			final Pair<VariableSymbol, List<Pair<VariableSymbol, SingleSlotVariable>>> pair =
+					slotVariablesByTemplate.get(factVariable);
+			if (null == pair)
+				return;
+			final List<Pair<VariableSymbol, SingleSlotVariable>> singleSlotVariables = pair.getRight();
 			if (null == singleSlotVariables || singleSlotVariables.isEmpty())
 				return;
 			sb.append(" ");
-			sb.append(factVariable.getSymbol().toString());
+			final VariableSymbol factVariableSymbol = pair.getLeft();
+			sb.append((null == factVariableSymbol) ? ScopeStack.dummySymbolImage : factVariableSymbol.toString());
 			singleSlotVariables.forEach(slotVariable -> sb.append(" (")
-					.append(slotVariable.getSlot().getSlotName(factVariable.getTemplate())).append(" ")
-					.append(slotVariable.getSymbol().toString()).append(")"));
+					.append(slotVariable.getRight().getSlot().getSlotName(factVariable.getTemplate())).append(" ")
+					.append(slotVariable.getLeft().toString()).append(")"));
 		}
 	}
 }

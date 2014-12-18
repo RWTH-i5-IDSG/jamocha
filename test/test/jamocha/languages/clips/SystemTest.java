@@ -56,6 +56,10 @@ public class SystemTest {
 	 */
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
+		@SuppressWarnings("unused")
+		final Network network = new Network();
+		@SuppressWarnings("unused")
+		int a = 5;
 	}
 
 	/**
@@ -80,7 +84,8 @@ public class SystemTest {
 	}
 
 	/**
-	 * Get the calling method name. <br /> Utility function
+	 * Get the calling method name. <br />
+	 * Utility function
 	 *
 	 * @return method name
 	 */
@@ -98,80 +103,63 @@ public class SystemTest {
 
 		while (true) {
 			final SFPStart n = parser.Start();
-			if (n == null) return Pair.of(values, visitor.getWarnings());
+			if (n == null)
+				return Pair.of(values, visitor.getWarnings());
 			final Object value = n.jjtAccept(visitor, null);
 			if (null != value) {
 				values.add(value);
 			}
 		}
 	}
-	
+
 	private static ByteArrayOutputStream initializeAppender(Network network) {
 		final ByteArrayOutputStream out = new ByteArrayOutputStream();
 		network.clearAppender();
 		network.addAppender(out, true);
 		return out;
 	}
-	
+
 	@Test
 	public void testOrCondition() throws ParseException {
 		final Network network = new Network();
 		initializeAppender(network);
 		{
-			run(network, "(deftemplate templ1 (slot slot1 (type INTEGER)))\n" + 
-					"(defrule rule1 \n" + 
-					"(templ1 (slot1 ?x)) (templ1 (slot1 ?y)) (templ1 (slot1 ?z))\n" + 
-					"	(or\n" + 
-					"		(test (> ?x ?y))\n" + 
-					"		(test (> ?x ?z))\n" + 
-					"	)\n" + 
-					"	(test (< ?x ?y))\n" +
-					"=> )\n");
+			run(network, "(deftemplate templ1 (slot slot1 (type INTEGER)))\n" + "(defrule rule1 \n"
+					+ "(templ1 (slot1 ?x)) (templ1 (slot1 ?y)) (templ1 (slot1 ?z))\n" + "	(or\n"
+					+ "		(test (> ?x ?y))\n" + "		(test (> ?x ?z))\n" + "	)\n" + "	(test (< ?x ?y))\n" + "=> )\n");
 		}
 	}
-	
+
 	@Test
 	public void testOnlyOrCondition() throws ParseException {
 		final Network network = new Network();
 		initializeAppender(network);
 		{
-			run(network, "(deftemplate templ1 (slot slot1 (type INTEGER)))\n" + 
-					"(defrule rule1 \n" + 
-					"(templ1 (slot1 ?x)) (templ1 (slot1 ?y)) (templ1 (slot1 ?z))\n" + 
-					"	(or\n" + 
-					"		(test (< ?x ?y))\n" + 
-					"		(test (< ?x ?z))\n" + 
-					"	)\n" + 
-					"=> )\n");
+			run(network, "(deftemplate templ1 (slot slot1 (type INTEGER)))\n" + "(defrule rule1 \n"
+					+ "(templ1 (slot1 ?x)) (templ1 (slot1 ?y)) (templ1 (slot1 ?z))\n" + "	(or\n"
+					+ "		(test (< ?x ?y))\n" + "		(test (< ?x ?z))\n" + "	)\n" + "=> )\n");
 		}
 	}
-	
+
 	@Test
 	public void testUnderUsedTemplatesCondition() throws ParseException {
 		final Network network = new Network();
 		initializeAppender(network);
 		{
-			run(network, "(deftemplate templ1 (slot slot1 (type INTEGER)))\n" + 
-					"(defrule rule1 \n" + 
-					"(templ1 (slot1 ?x)) (templ1 (slot1 ?y)) (templ1 (slot1 ?z))\n" +  
-					"	(test (> ?x ?y))\n" +
-					"=> )\n");
+			run(network, "(deftemplate templ1 (slot slot1 (type INTEGER)))\n" + "(defrule rule1 \n"
+					+ "(templ1 (slot1 ?x)) (templ1 (slot1 ?y)) (templ1 (slot1 ?z))\n" + "	(test (> ?x ?y))\n"
+					+ "=> )\n");
 		}
 	}
-	
+
 	@Test
 	public void testUnderfullOrCondition() throws ParseException {
 		final Network network = new Network();
 		initializeAppender(network);
 		{
-			run(network, "(deftemplate templ1 (slot slot1 (type INTEGER)))\n" + 
-					"(defrule rule1 \n" + 
-					"(templ1 (slot1 ?x)) (templ1 (slot1 ?y)) (templ1 (slot1 ?z))\n" + 
-					"	(or\n" +  
-					"		(test (> ?x ?z))\n" + 
-					"	)\n" + 
-					"	(test (> ?x ?y))\n" +
-					"=> )\n");
+			run(network, "(deftemplate templ1 (slot slot1 (type INTEGER)))\n" + "(defrule rule1 \n"
+					+ "(templ1 (slot1 ?x)) (templ1 (slot1 ?y)) (templ1 (slot1 ?z))\n" + "	(or\n"
+					+ "		(test (> ?x ?z))\n" + "	)\n" + "	(test (> ?x ?y))\n" + "=> )\n");
 		}
 	}
 
@@ -321,10 +309,76 @@ public class SystemTest {
 			assertThat(returnValues.getRight(), empty());
 			final String[] lines = out.toString().split(linesep);
 			assertThat(lines, arrayWithSize(2));
-			assertThat(lines,
-					either(arrayContaining(equalTo("==> f-3\t(t1 (s1 888))"), equalTo("==> f-4\t(t1 (s1 999))")))
-							.or(arrayContaining(equalTo("==> f-3\t(t1 (s1 999))"), equalTo("==> f-4\t(t1 (s1 888))")
-							)));
+			assertThat(
+					lines,
+					either(arrayContaining(equalTo("==> f-3\t(t1 (s1 888))"), equalTo("==> f-4\t(t1 (s1 999))"))).or(
+							arrayContaining(equalTo("==> f-3\t(t1 (s1 999))"), equalTo("==> f-4\t(t1 (s1 888))"))));
+			out.reset();
+		}
+	}
+
+	@Test
+	public void testEquivalenceClasses() throws ParseException {
+		final Network network = new Network();
+		final ByteArrayOutputStream out = initializeAppender(network);
+		{
+			final Pair<Queue<Object>, Queue<Warning>> returnValues = run(network, "(unwatch all)\n(watch facts)\n");
+			assertThat(returnValues.getLeft(), empty());
+			assertThat(returnValues.getRight(), empty());
+			assertThat(out.toString(), isEmptyString());
+		}
+		{
+			final Pair<Queue<Object>, Queue<Warning>> returnValues =
+					run(network, "(deftemplate t1 (slot s1 (type INTEGER)))\n");
+			assertThat(returnValues.getLeft(), empty());
+			assertThat(returnValues.getRight(), empty());
+			assertThat(out.toString(), isEmptyString());
+		}
+		{
+			final Pair<Queue<Object>, Queue<Warning>> returnValues =
+					run(network, "(deftemplate t2 (slot s1 (type INTEGER)))\n");
+			assertThat(returnValues.getLeft(), empty());
+			assertThat(returnValues.getRight(), empty());
+			assertThat(out.toString(), isEmptyString());
+		}
+		{
+			final Pair<Queue<Object>, Queue<Warning>> returnValues =
+					run(network, "(defrule r1 (t1 (s1 ?x)) (t2 (s1 ?x)) => (assert (t1 (s1 999))) )\n");
+			assertThat(returnValues.getLeft(), empty());
+			assertThat(returnValues.getRight(), empty());
+			assertThat(out.toString(), isEmptyString());
+		}
+		{
+			final Pair<Queue<Object>, Queue<Warning>> returnValues = run(network, "(assert (t1 (s1 5)))\n");
+			final Queue<Object> values = returnValues.getLeft();
+			assertThat(values, hasSize(1));
+			final Object value = values.iterator().next();
+			assertThat(value, instanceOf(String.class));
+			assertEquals("<Fact-2>", value);
+			assertThat(returnValues.getRight(), empty());
+			final String[] lines = out.toString().split(linesep);
+			assertThat(lines, arrayWithSize(1));
+			assertEquals("==> f-2\t(t1 (s1 5))", lines[0]);
+			out.reset();
+		}
+		{
+			final Pair<Queue<Object>, Queue<Warning>> returnValues = run(network, "(assert (t2 (s1 9)))\n");
+			final Queue<Object> values = returnValues.getLeft();
+			assertThat(values, hasSize(1));
+			final Object value = values.iterator().next();
+			assertThat(value, instanceOf(String.class));
+			assertEquals("<Fact-3>", value);
+			assertThat(returnValues.getRight(), empty());
+			final String[] lines = out.toString().split(linesep);
+			assertThat(lines, arrayWithSize(1));
+			assertEquals("==> f-3\t(t2 (s1 9))", lines[0]);
+			out.reset();
+		}
+		{
+			final Pair<Queue<Object>, Queue<Warning>> returnValues = run(network, "(run)\n");
+			assertThat(returnValues.getLeft(), empty());
+			assertThat(returnValues.getRight(), empty());
+			assertThat(out.toString(), isEmptyString());
 			out.reset();
 		}
 	}

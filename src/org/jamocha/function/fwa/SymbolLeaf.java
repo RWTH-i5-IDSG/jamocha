@@ -21,7 +21,7 @@ import lombok.ToString;
 
 import org.jamocha.dn.memory.SlotType;
 import org.jamocha.function.Function;
-import org.jamocha.languages.common.ScopeStack.Symbol;
+import org.jamocha.languages.common.ScopeStack.VariableSymbol;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
@@ -31,7 +31,7 @@ import org.jamocha.languages.common.ScopeStack.Symbol;
 @Getter
 @ToString(of = { "symbol" })
 public class SymbolLeaf implements ExchangeableLeaf<SymbolLeaf> {
-	private final Symbol symbol;
+	private final VariableSymbol symbol;
 
 	@Getter(lazy = true)
 	private final int hashCode = initHashCode();

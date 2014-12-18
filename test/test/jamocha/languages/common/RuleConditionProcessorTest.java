@@ -56,8 +56,9 @@ import org.jamocha.languages.common.ConditionalElement.OrFunctionConditionalElem
 import org.jamocha.languages.common.ConditionalElement.SharedConditionalElementWrapper;
 import org.jamocha.languages.common.ConditionalElement.TemplatePatternConditionalElement;
 import org.jamocha.languages.common.ConditionalElement.TestConditionalElement;
+import org.jamocha.languages.common.RuleCondition;
 import org.jamocha.languages.common.RuleConditionProcessor;
-import org.jamocha.languages.common.ScopeStack.Symbol;
+import org.jamocha.languages.common.ScopeStack.VariableSymbol;
 import org.jamocha.languages.common.SingleFactVariable.SingleSlotVariable;
 import org.jamocha.languages.common.Warning;
 import org.jamocha.logging.formatter.ConditionalElementFormatter;
@@ -86,7 +87,7 @@ public class RuleConditionProcessorTest {
 		}
 	}
 
-	private static List<ConditionalElement> clipsToCondition(final String condition) throws ParseException {
+	private static RuleCondition clipsToCondition(final String condition) throws ParseException {
 		final StringReader parserInput =
 				new StringReader(new StringBuilder().append(templateString).append(preRule).append(condition)
 						.append(postRule).toString());
@@ -95,13 +96,14 @@ public class RuleConditionProcessorTest {
 		final SFPVisitorImpl visitor = new SFPVisitorImpl(ptn, ptn);
 		run(parser, visitor);
 		final Defrule rule = ptn.getRule("rule1");
-		return rule.getCondition().getConditionalElements();
+		return rule.getCondition();
 	}
 
 	@Test
 	public void trivialTest() throws ParseException {
 		final String input = "(templ1 (slot1 10))";
-		final List<ConditionalElement> conditionalElements = clipsToCondition(input);
+		final RuleCondition ruleCondition = clipsToCondition(input);
+		final List<ConditionalElement> conditionalElements = ruleCondition.getConditionalElements();
 		RuleConditionProcessor.flatten(conditionalElements);
 
 		assertThat(conditionalElements, hasSize(1));
@@ -120,8 +122,8 @@ public class RuleConditionProcessorTest {
 		final FunctionWithArguments<SymbolLeaf>[] args = ((PredicateWithArgumentsComposite<SymbolLeaf>) fwa).getArgs();
 		final FunctionWithArguments<SymbolLeaf> symbolLeaf = args[0];
 		assertThat(symbolLeaf, instanceOf(SymbolLeaf.class));
-		final Symbol symbol = ((SymbolLeaf) symbolLeaf).getSymbol();
-		final ArrayList<SingleSlotVariable> positiveSlotVariables = symbol.getPositiveSlotVariables();
+		final VariableSymbol symbol = ((SymbolLeaf) symbolLeaf).getSymbol();
+		final ArrayList<SingleSlotVariable> positiveSlotVariables = symbol.getEqual().getEqualSlotVariables();
 		assertThat(positiveSlotVariables, hasSize(1));
 		final SingleSlotVariable singleSlotVariable = positiveSlotVariables.get(0);
 		final Template slotTemplate = singleSlotVariable.getFactVariable().getTemplate();
@@ -136,7 +138,8 @@ public class RuleConditionProcessorTest {
 	@Test
 	public void surroundingAddTest() throws ParseException {
 		final String input = "(templ1 (slot1 ?x)) (test (> ?x 10)) (test (< ?x 15))";
-		final List<ConditionalElement> conditionalElements = clipsToCondition(input);
+		final RuleCondition ruleCondition = clipsToCondition(input);
+		final List<ConditionalElement> conditionalElements = ruleCondition.getConditionalElements();
 
 		assertThat(conditionalElements, hasSize(3));
 		final ConditionalElement templ1 = conditionalElements.get(0);
@@ -144,8 +147,7 @@ public class RuleConditionProcessorTest {
 		final ConditionalElement test15 = conditionalElements.get(2);
 
 		final ConditionalElementFormatter cef =
-				new ConditionalElementFormatter(SymbolCollector.newHashSet().collect(conditionalElements)
-						.toSlotVariablesByFactVariable());
+				new ConditionalElementFormatter(new SymbolCollector(ruleCondition).toSlotVariablesByFactVariable());
 
 		assertThat(cef.format(templ1), RegexMatcher.matches("\\(template templ1 Dummy:\\d* \\(slot1 \\?x\\)\\)"));
 		assertThat(cef.format(test10), RegexMatcher.matches("\\(test \\(> \\?x 10\\)\\)"));
@@ -166,7 +168,8 @@ public class RuleConditionProcessorTest {
 	@Test
 	public void simpleUnexandableOr() throws ParseException {
 		final String input = "(templ1 (slot1 ?x)) (or (test (> ?x 10)) (test (< ?x 15)))";
-		final List<ConditionalElement> conditionalElements = clipsToCondition(input);
+		final RuleCondition ruleCondition = clipsToCondition(input);
+		final List<ConditionalElement> conditionalElements = ruleCondition.getConditionalElements();
 
 		assertThat(conditionalElements, hasSize(2));
 		final ConditionalElement templ1 = conditionalElements.get(0);
@@ -177,8 +180,7 @@ public class RuleConditionProcessorTest {
 		final ConditionalElement test15 = orElements.get(1);
 
 		final ConditionalElementFormatter cef =
-				new ConditionalElementFormatter(SymbolCollector.newHashSet().collect(conditionalElements)
-						.toSlotVariablesByFactVariable());
+				new ConditionalElementFormatter(new SymbolCollector(ruleCondition).toSlotVariablesByFactVariable());
 
 		assertThat(cef.format(templ1), RegexMatcher.matches("\\(template templ1 Dummy:\\d* \\(slot1 \\?x\\)\\)"));
 		assertThat(cef.format(test10), RegexMatcher.matches("\\(test \\(> \\?x 10\\)\\)"));
@@ -216,7 +218,8 @@ public class RuleConditionProcessorTest {
 	@Test
 	public void simpleExpandableOr() throws ParseException {
 		final String input = "(templ1 (slot1 ?x)) (or (test (> ?x 10)) (test (< ?x 15))) (test (< ?x 16))";
-		final List<ConditionalElement> conditionalElements = clipsToCondition(input);
+		final RuleCondition ruleCondition = clipsToCondition(input);
+		final List<ConditionalElement> conditionalElements = ruleCondition.getConditionalElements();
 
 		assertThat(conditionalElements, hasSize(3));
 		final ConditionalElement templ1 = conditionalElements.get(0);
@@ -228,8 +231,7 @@ public class RuleConditionProcessorTest {
 		final ConditionalElement test15 = orElements.get(1);
 
 		final ConditionalElementFormatter cef =
-				new ConditionalElementFormatter(SymbolCollector.newHashSet().collect(conditionalElements)
-						.toSlotVariablesByFactVariable());
+				new ConditionalElementFormatter(new SymbolCollector(ruleCondition).toSlotVariablesByFactVariable());
 
 		assertThat(cef.format(templ1), RegexMatcher.matches("\\(template templ1 Dummy:\\d* \\(slot1 \\?x\\)\\)"));
 		assertThat(cef.format(test10), RegexMatcher.matches("\\(test \\(> \\?x 10\\)\\)"));
@@ -274,7 +276,8 @@ public class RuleConditionProcessorTest {
 	public void complexExpandableOr() throws ParseException {
 		final String input =
 				"(templ1 (slot1 ?x)) (or (test (< ?x 1)) (test (< ?x 2))) (or (test (< ?x 3)) (test (< ?x 4))) (test (< ?x 5)) (test (< ?x 6))";
-		final List<ConditionalElement> conditionalElements = clipsToCondition(input);
+		final RuleCondition ruleCondition = clipsToCondition(input);
+		final List<ConditionalElement> conditionalElements = ruleCondition.getConditionalElements();
 
 		assertThat(conditionalElements, hasSize(5));
 		final ConditionalElement templ1 = conditionalElements.get(0);
@@ -299,8 +302,7 @@ public class RuleConditionProcessorTest {
 		final ConditionalElement test6 = conditionalElements.get(4);
 
 		final ConditionalElementFormatter cef =
-				new ConditionalElementFormatter(SymbolCollector.newHashSet().collect(conditionalElements)
-						.toSlotVariablesByFactVariable());
+				new ConditionalElementFormatter(new SymbolCollector(ruleCondition).toSlotVariablesByFactVariable());
 
 		assertThat(cef.format(templ1), RegexMatcher.matches("\\(template templ1 Dummy:\\d* \\(slot1 \\?x\\)\\)"));
 		assertThat(cef.format(test1), RegexMatcher.matches("\\(test \\(< \\?x 1\\)\\)"));
@@ -438,7 +440,8 @@ public class RuleConditionProcessorTest {
 	@Test
 	public void simpleOrWithinExists() throws ParseException {
 		final String input = "(exists (or (templ1 (slot1 1)) (templ1 (slot1 2))))";
-		final List<ConditionalElement> conditionalElements = clipsToCondition(input);
+		final RuleCondition ruleCondition = clipsToCondition(input);
+		final List<ConditionalElement> conditionalElements = ruleCondition.getConditionalElements();
 
 		final ConditionalElement tpce1, tpce2, test1, test2;
 		assertThat(conditionalElements, hasSize(2));
@@ -480,8 +483,7 @@ public class RuleConditionProcessorTest {
 		}
 
 		final ConditionalElementFormatter cef =
-				new ConditionalElementFormatter(SymbolCollector.newHashSet().collect(conditionalElements)
-						.toSlotVariablesByFactVariable());
+				new ConditionalElementFormatter(new SymbolCollector(ruleCondition).toSlotVariablesByFactVariable());
 
 		assertThat(cef.format(tpce1), RegexMatcher.matches("\\(template templ1 Dummy:\\d* \\(slot1 Dummy:\\d*\\)\\)"));
 		assertThat(cef.format(tpce2), RegexMatcher.matches("\\(template templ1 Dummy:\\d* \\(slot1 Dummy:\\d*\\)\\)"));
@@ -543,7 +545,8 @@ public class RuleConditionProcessorTest {
 	public void complexOrWithinExists() throws ParseException {
 		final String input =
 				"(templ1 (slot1 ?x)) (or (test (> ?x 1)) (test (< ?x 2)) (exists (and (or (templ1 (slot1 ?y)) (templ2 (slot1 ?y)) ) (test (= ?x ?y)) )) )";
-		final List<ConditionalElement> conditionalElements = clipsToCondition(input);
+		final RuleCondition ruleCondition = clipsToCondition(input);
+		final List<ConditionalElement> conditionalElements = ruleCondition.getConditionalElements();
 
 		final ConditionalElement tpce1x, tpce1y, tpce2y, test1, test2, test3;
 		assertThat(conditionalElements, hasSize(2));
@@ -603,8 +606,7 @@ public class RuleConditionProcessorTest {
 		}
 
 		final ConditionalElementFormatter cef =
-				new ConditionalElementFormatter(SymbolCollector.newHashSet().collect(conditionalElements)
-						.toSlotVariablesByFactVariable());
+				new ConditionalElementFormatter(new SymbolCollector(ruleCondition).toSlotVariablesByFactVariable());
 
 		assertThat(cef.format(tpce1x), RegexMatcher.matches("\\(template templ1 Dummy:\\d* \\(slot1 \\?x\\)\\)"));
 		assertThat(cef.format(tpce1y), RegexMatcher.matches("\\(template templ1 Dummy:\\d* \\(slot1 \\?y\\)\\)"));
@@ -728,7 +730,8 @@ public class RuleConditionProcessorTest {
 	public void complexOrWithinNotExists() throws ParseException {
 		final String input =
 				"(templ1 (slot1 ?x)) (or (test (> ?x 1)) (test (< ?x 2)) (not (and (or (templ1 (slot1 ?y)) (templ2 (slot1 ?y)) ) (test (= ?x ?y)) )) )";
-		final List<ConditionalElement> conditionalElements = clipsToCondition(input);
+		final RuleCondition ruleCondition = clipsToCondition(input);
+		final List<ConditionalElement> conditionalElements = ruleCondition.getConditionalElements();
 
 		final ConditionalElement tpce1x, tpce1y, tpce2y, test1, test2, test3;
 		assertThat(conditionalElements, hasSize(2));
@@ -788,8 +791,7 @@ public class RuleConditionProcessorTest {
 		}
 
 		final ConditionalElementFormatter cef =
-				new ConditionalElementFormatter(SymbolCollector.newHashSet().collect(conditionalElements)
-						.toSlotVariablesByFactVariable());
+				new ConditionalElementFormatter(new SymbolCollector(ruleCondition).toSlotVariablesByFactVariable());
 
 		assertThat(cef.format(tpce1x), RegexMatcher.matches("\\(template templ1 Dummy:\\d* \\(slot1 \\?x\\)\\)"));
 		assertThat(cef.format(tpce1y), RegexMatcher.matches("\\(template templ1 Dummy:\\d* \\(slot1 \\?y\\)\\)"));

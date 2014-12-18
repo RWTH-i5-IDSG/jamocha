@@ -58,8 +58,8 @@ public class PathLeaf implements ExchangeableLeaf<PathLeaf> {
 
 	private int initHashCode() {
 		return FunctionWithArguments.hash(
-				Arrays.asList(this.path.getTemplate(), this.slot).stream().mapToInt(Object::hashCode).toArray(),
-				FunctionWithArguments.positionIsIrrelevant);
+				Arrays.asList(this.path.getTemplate(), this.slot).stream().mapToInt(java.util.Objects::hashCode)
+						.toArray(), FunctionWithArguments.positionIsIrrelevant);
 	}
 
 	@Override
@@ -79,6 +79,8 @@ public class PathLeaf implements ExchangeableLeaf<PathLeaf> {
 
 	@Override
 	public SlotType getReturnType() {
+		if (null == slot)
+			return SlotType.FACTADDRESS;
 		return getSlot().getSlotType(getPath().getTemplate());
 	}
 
