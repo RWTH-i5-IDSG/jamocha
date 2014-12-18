@@ -26,9 +26,13 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
+import org.jamocha.dn.SideEffectFunctionToNetwork;
 import org.jamocha.dn.memory.SlotType;
 import org.jamocha.function.Function;
+import org.jamocha.function.FunctionDictionary;
+import org.jamocha.function.Predicate;
 import org.jamocha.function.impls.FunctionVisitor;
+import org.jamocha.languages.common.errors.VariableNotDeclaredError;
 
 /**
  * This class is the composite of the {@link FunctionWithArguments} hierarchy. It stores a
@@ -44,8 +48,8 @@ import org.jamocha.function.impls.FunctionVisitor;
  */
 @EqualsAndHashCode
 @Getter
-public abstract class GenericWithArgumentsComposite<R, F extends Function<? extends R>, L extends ExchangeableLeaf<L>> implements
-		FunctionWithArguments<L> {
+public abstract class GenericWithArgumentsComposite<R, F extends Function<? extends R>, L extends ExchangeableLeaf<L>>
+		implements FunctionWithArguments<L> {
 
 	final F function;
 	final FunctionWithArguments<L> args[];
@@ -148,8 +152,9 @@ public abstract class GenericWithArgumentsComposite<R, F extends Function<? exte
 				params);
 	}
 
-	static <R, L extends ExchangeableLeaf<L>> Function<R> staticLazyEvaluate(final java.util.function.Function<Function<?>[], R> function,
-			final String inClips, final FunctionWithArguments<L>[] args, final Function<?>[] params) {
+	static <R, L extends ExchangeableLeaf<L>> Function<R> staticLazyEvaluate(
+			final java.util.function.Function<Function<?>[], R> function, final String inClips,
+			final FunctionWithArguments<L>[] args, final Function<?>[] params) {
 		return new Function<R>() {
 			@Override
 			public SlotType[] getParamTypes() {
@@ -211,5 +216,41 @@ public abstract class GenericWithArgumentsComposite<R, F extends Function<? exte
 	@Override
 	public int hash() {
 		return this.function.hash(this);
+	}
+
+	@SafeVarargs
+	public static FunctionWithArguments<SymbolLeaf> newInstance(
+			final SideEffectFunctionToNetwork sideEffectFunctionToNetwork, final boolean sideEffectsAllowed,
+			final String inClips, final FunctionWithArguments<SymbolLeaf>... arguments) {
+		final SlotType[] argTypes = getArgumentTypes(arguments);
+		final Function<?> function =
+				sideEffectsAllowed ? FunctionDictionary.lookupWithSideEffects(sideEffectFunctionToNetwork, inClips,
+						argTypes) : FunctionDictionary.lookup(inClips, argTypes);
+		return SlotType.BOOLEAN == function.getReturnType() ? new PredicateWithArgumentsComposite<SymbolLeaf>(
+				(Predicate) function, arguments) : new FunctionWithArgumentsComposite<SymbolLeaf>(function, arguments);
+	}
+
+	@SafeVarargs
+	public static PredicateWithArguments<SymbolLeaf> newPredicateInstance(final String inClips,
+			final FunctionWithArguments<SymbolLeaf>... arguments) {
+		final SlotType[] argTypes = getArgumentTypes(arguments);
+		final Predicate predicate = FunctionDictionary.lookupPredicate(inClips, argTypes);
+		return new PredicateWithArgumentsComposite<SymbolLeaf>(predicate, arguments);
+	}
+
+	@SafeVarargs
+	private static SlotType[] getArgumentTypes(final FunctionWithArguments<SymbolLeaf>... arguments)
+			throws VariableNotDeclaredError {
+		final SlotType[] argTypes =
+				toArray(Arrays.stream(arguments).map(FunctionWithArguments::getReturnType), SlotType[]::new);
+		for (int i = 0; i < argTypes.length; i++) {
+			final SlotType type = argTypes[i];
+			if (null == type) {
+				final FunctionWithArguments<SymbolLeaf> fwa = arguments[i];
+				assert fwa instanceof SymbolLeaf;
+				throw new VariableNotDeclaredError(((SymbolLeaf) fwa).getSymbol());
+			}
+		}
+		return argTypes;
 	}
 }

@@ -43,14 +43,13 @@ import org.jamocha.dn.memory.SlotType;
 import org.jamocha.dn.memory.Template;
 import org.jamocha.dn.memory.Template.Slot;
 import org.jamocha.filter.SymbolCollector;
-import org.jamocha.function.Function;
 import org.jamocha.function.FunctionDictionary;
 import org.jamocha.function.Predicate;
 import org.jamocha.function.fwa.Assert;
 import org.jamocha.function.fwa.Assert.TemplateContainer;
 import org.jamocha.function.fwa.ConstantLeaf;
 import org.jamocha.function.fwa.FunctionWithArguments;
-import org.jamocha.function.fwa.FunctionWithArgumentsComposite;
+import org.jamocha.function.fwa.GenericWithArgumentsComposite;
 import org.jamocha.function.fwa.Modify;
 import org.jamocha.function.fwa.PredicateWithArguments;
 import org.jamocha.function.fwa.PredicateWithArgumentsComposite;
@@ -746,14 +745,8 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 						parent.factVariable.newSingleSlotVariable(slot, symbol);
 					} else {
 						final VariableSymbol csv = createConstraintVariable();
-						final Predicate equals =
-								FunctionDictionary.lookupPredicate(
-										org.jamocha.function.impls.predicates.Equals.inClips, csv.getType(),
-										symbol.getType());
-						final TestConditionalElement eq =
-								new TestConditionalElement(new PredicateWithArgumentsComposite<>(equals,
-										new SymbolLeaf(csv), new SymbolLeaf(symbol)));
-						constraintAdder.accept(eq);
+						constraintAdder.accept(new TestConditionalElement(GenericWithArgumentsComposite
+								.newPredicateInstance(Equals.inClips, new SymbolLeaf(csv), new SymbolLeaf(symbol))));
 					}
 				}
 				return data;
@@ -768,16 +761,11 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 				assert 1 == node.jjtGetNumChildren();
 				final SFPValueVisitor constantVisitor =
 						SelectiveSFPVisitor.sendVisitor(new SFPValueVisitor(), node.jjtGetChild(0), data);
-				createConstraintVariable();
+				final VariableSymbol csv = createConstraintVariable();
 				// create equals test
-				final Predicate equals =
-						FunctionDictionary.lookupPredicate(org.jamocha.function.impls.predicates.Equals.inClips,
-								template.getSlotType(slot), constantVisitor.type);
-				final TestConditionalElement eq =
-						new TestConditionalElement(new PredicateWithArgumentsComposite<>(equals, new SymbolLeaf(
-								constraintVariable.get()), new ConstantLeaf<>(constantVisitor.value,
-								constantVisitor.type)));
-				constraintAdder.accept(negate(eq));
+				constraintAdder.accept(negate(new TestConditionalElement(GenericWithArgumentsComposite
+						.newPredicateInstance(Equals.inClips, new SymbolLeaf(csv), new ConstantLeaf<>(
+								constantVisitor.value, constantVisitor.type)))));
 				return data;
 			}
 
@@ -798,19 +786,14 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 			public Object visit(final SFPEquals node, final Object data) {
 				// return-value constraint
 				assert 1 == node.jjtGetNumChildren();
-				createConstraintVariable();
+				final VariableSymbol csv = createConstraintVariable();
 				// get function call following the = sign
 				final FunctionWithArguments<SymbolLeaf> functionCall =
 						SelectiveSFPVisitor.sendVisitor(new SFPFunctionCallElementsVisitor(parent.contextStack,
 								SymbolToFunctionWithArguments.bySymbol(), false), node.jjtGetChild(0), data).expression;
 				// create equals test
-				final Predicate equals =
-						FunctionDictionary.lookupPredicate(org.jamocha.function.impls.predicates.Equals.inClips,
-								template.getSlotType(slot), functionCall.getReturnType());
-				final TestConditionalElement eq =
-						new TestConditionalElement(new PredicateWithArgumentsComposite<>(equals, new SymbolLeaf(
-								constraintVariable.get()), functionCall));
-				constraintAdder.accept(negate(eq));
+				constraintAdder.accept(negate(new TestConditionalElement(GenericWithArgumentsComposite
+						.newPredicateInstance(Equals.inClips, new SymbolLeaf(csv), functionCall))));
 				return data;
 			}
 		}
@@ -1559,30 +1542,14 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 			assert node.jjtGetNumChildren() > 0;
 			final Symbol symbol =
 					SelectiveSFPVisitor.sendVisitor(new SFPSymbolVisitor(), node.jjtGetChild(0), data).symbol;
-			final List<FunctionWithArguments<SymbolLeaf>> arguments =
-					SelectiveSFPVisitor
-							.stream(node, 1)
-							.map(n -> SelectiveSFPVisitor.sendVisitor(new SFPExpressionVisitor(rc, this.mapper,
-									this.sideEffectsAllowed), n, data).expression).collect(Collectors.toList());
-			final SlotType[] argTypes = toArray(arguments.stream().map(e -> e.getReturnType()), SlotType[]::new);
-			for (int i = 0; i < argTypes.length; i++) {
-				final SlotType type = argTypes[i];
-				if (null == type) {
-					final FunctionWithArguments<SymbolLeaf> fwa = arguments.get(i);
-					if (fwa instanceof SymbolLeaf)
-						throw new ClipsVariableNotDeclaredError(((SymbolLeaf) fwa).getSymbol(), node);
-					else
-						throw new ClipsVariableNotDeclaredError(null, node);
-				}
-			}
-			final Function<?> function =
-					sideEffectsAllowed ? FunctionDictionary.lookupWithSideEffects(sideEffectFunctionToNetwork,
-							symbol.getImage(), argTypes) : FunctionDictionary.lookup(symbol.getImage(), argTypes);
+			@SuppressWarnings("unchecked")
+			final FunctionWithArguments<SymbolLeaf>[] arguments =
+					toArray(SelectiveSFPVisitor.stream(node, 1).map(
+							n -> SelectiveSFPVisitor.sendVisitor(new SFPExpressionVisitor(rc, this.mapper,
+									this.sideEffectsAllowed), n, data).expression), FunctionWithArguments[]::new);
 			this.expression =
-					SlotType.BOOLEAN == function.getReturnType() ? new PredicateWithArgumentsComposite<SymbolLeaf>(
-							(Predicate) function, toArray(arguments, FunctionWithArguments[]::new))
-							: new FunctionWithArgumentsComposite<SymbolLeaf>(function, toArray(arguments,
-									FunctionWithArguments[]::new));
+					GenericWithArgumentsComposite.newInstance(sideEffectFunctionToNetwork, sideEffectsAllowed,
+							symbol.getImage(), arguments);
 			return data;
 		}
 
@@ -1590,16 +1557,12 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 		@Override
 		public Object visit(final SFPEqualsFunction node, final Object data) {
 			assert node.jjtGetNumChildren() > 0;
-			final List<FunctionWithArguments<SymbolLeaf>> arguments =
-					SelectiveSFPVisitor
-							.stream(node, 0)
-							.map(n -> SelectiveSFPVisitor.sendVisitor(new SFPExpressionVisitor(rc, this.mapper,
-									this.sideEffectsAllowed), n, data).expression).collect(Collectors.toList());
-			final SlotType[] argTypes = toArray(arguments.stream().map(e -> e.getReturnType()), SlotType[]::new);
-			final Predicate function = FunctionDictionary.lookupPredicate(Equals.inClips, argTypes);
-			this.expression =
-					new PredicateWithArgumentsComposite<SymbolLeaf>(function, toArray(arguments,
-							FunctionWithArguments[]::new));
+			@SuppressWarnings("unchecked")
+			final FunctionWithArguments<SymbolLeaf>[] arguments =
+					toArray(SelectiveSFPVisitor.stream(node, 0).map(
+							n -> SelectiveSFPVisitor.sendVisitor(new SFPExpressionVisitor(rc, this.mapper,
+									this.sideEffectsAllowed), n, data).expression), FunctionWithArguments[]::new);
+			this.expression = GenericWithArgumentsComposite.newPredicateInstance(Equals.inClips, arguments);
 			return data;
 		}
 
