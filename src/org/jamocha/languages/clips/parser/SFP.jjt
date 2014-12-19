@@ -1214,6 +1214,7 @@ SimpleNode RHSSlot() :
 SimpleNode RHSPattern() :
 {}
 {
+	(
 	<LBRACE>
 		Symbol() //Template Name
 		[
@@ -1228,7 +1229,10 @@ SimpleNode RHSPattern() :
 	<RBRACE>
 
 	{ return jjtThis; }
+	)
+	| <EOF> { return null; }
 }
+
 
 
 /**
