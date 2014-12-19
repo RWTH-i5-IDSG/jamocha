@@ -17,6 +17,8 @@ package org.jamocha.dn.memory.javaimpl;
 import static org.jamocha.util.ToArray.toArray;
 
 import java.util.Arrays;
+import java.util.Objects;
+import java.util.stream.StreamSupport;
 
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
@@ -59,7 +61,7 @@ public class MemoryHandlerBase implements MemoryHandler {
 	 */
 	@Override
 	public int size() {
-		return validRows.size();
+		return (int) StreamSupport.stream(validRows.spliterator(), false).filter(Objects::nonNull).count();
 	}
 
 	@Override

@@ -828,4 +828,8 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements org.jamo
 		return counterUpdates;
 	}
 
+	@Override
+	public int size() {
+		return valid ? super.size() : 0;
+	}
 }
