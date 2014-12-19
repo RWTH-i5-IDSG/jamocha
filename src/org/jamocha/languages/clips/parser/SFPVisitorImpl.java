@@ -1679,11 +1679,9 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 												this.mapper, this.sideEffectsAllowed), n, data);
 								return new Modify.SlotAndValue<>(visitor.slotName, visitor.value);
 							}), Modify.SlotAndValue[]::new);
-			Arrays.stream(array).forEach(fwa -> {
-				if (!FactIdentifierTypes.contains(fwa.getValue().getReturnType())) {
-					throw new ClipsTypeMismatchError(null, node);
-				}
-			});
+			if (!FactIdentifierTypes.contains(target.getReturnType())) {
+				throw new ClipsTypeMismatchError(null, node);
+			}
 			this.expression = new Modify<>(sideEffectFunctionToNetwork, target, array);
 			return data;
 		}
