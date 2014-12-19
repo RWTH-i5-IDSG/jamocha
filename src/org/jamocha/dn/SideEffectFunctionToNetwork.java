@@ -78,4 +78,12 @@ public interface SideEffectFunctionToNetwork {
 	ConflictResolutionStrategy getConflictResolutionStrategy();
 
 	Symbol createTopLevelSymbol(final String image);
+
+	boolean loadFromFile(final String path, final boolean progressInformation);
+
+	boolean saveToFile(final String path);
+
+	boolean loadFactsFromFile(final String path);
+
+	boolean saveFactsToFile(final String path);
 }

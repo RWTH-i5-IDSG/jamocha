@@ -80,4 +80,14 @@ public interface FunctionVisitor extends Visitor {
 	void visit(final org.jamocha.function.impls.sideeffects.SetStrategy function);
 
 	void visit(final org.jamocha.function.impls.sideeffects.GetStrategy function);
+
+	void visit(final org.jamocha.function.impls.sideeffects.Load function);
+
+	void visit(final org.jamocha.function.impls.sideeffects.LoadAsterisk function);
+
+	void visit(final org.jamocha.function.impls.sideeffects.LoadFacts function);
+
+	void visit(final org.jamocha.function.impls.sideeffects.Save function);
+
+	void visit(final org.jamocha.function.impls.sideeffects.SaveFacts function);
 }

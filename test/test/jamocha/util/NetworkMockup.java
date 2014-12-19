@@ -237,4 +237,24 @@ public class NetworkMockup implements ParserToNetwork, SideEffectFunctionToNetwo
 	public Symbol createTopLevelSymbol(String image) {
 		return null;
 	}
+
+	@Override
+	public boolean loadFromFile(String path, boolean progressInformation) {
+		return false;
+	}
+
+	@Override
+	public boolean saveToFile(String path) {
+		return false;
+	}
+
+	@Override
+	public boolean loadFactsFromFile(String path) {
+		return false;
+	}
+
+	@Override
+	public boolean saveFactsToFile(String path) {
+		return false;
+	}
 }

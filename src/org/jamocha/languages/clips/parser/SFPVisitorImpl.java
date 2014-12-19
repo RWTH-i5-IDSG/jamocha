@@ -197,6 +197,34 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 		return SelectiveSFPVisitor.sendVisitor(new SFPStartVisitor(), node.jjtGetChild(0), data).value;
 	}
 
+	@Override
+	public Object visit(final SFPRHSPattern node, final Object data) {
+		assert node.jjtGetNumChildren() > 0;
+		final SymbolToFunctionWithArguments mapper = SymbolToFunctionWithArguments.bySymbol();
+		final boolean sideEffectsAllowed = true;
+		final Symbol symbol = SelectiveSFPVisitor.sendVisitor(new SFPSymbolVisitor(), node.jjtGetChild(0), data).symbol;
+		final Template template = parserToNetwork.getTemplate(symbol.getImage());
+		if (null == template) {
+			throw new ClipsTemplateNotDefinedError(symbol, node);
+		}
+		final AssertTemplateContainerBuilder builder = new AssertTemplateContainerBuilder(template);
+		SelectiveSFPVisitor.stream(node, 1).forEach(
+				n -> {
+					final SFPRHSPatternElementsVisitor visitor =
+							SelectiveSFPVisitor.sendVisitor(new SFPRHSPatternElementsVisitor((RuleCondition) null,
+									mapper, sideEffectsAllowed), n, data);
+					;
+					final SlotAddress slotAddress = template.getSlotAddress(visitor.slotName);
+					if (null == slotAddress) {
+						throw new ClipsNoSlotForThatNameError(symbol.getImage(), node);
+					}
+					builder.addValue(slotAddress, visitor.value);
+				});
+		final TemplateContainer<SymbolLeaf> templateContainer = builder.build();
+		templateContainer.evaluate();
+		return data;
+	}
+
 	public static enum ExistentialState {
 		NORMAL, EXISTENTIAL, NEGATED;
 	}
@@ -1429,6 +1457,77 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 		}
 	}
 
+	// RHSSlot() : <LBRACE> Symbol() ( RHSField() )* <RBRACE>
+	// void RHSField() : ( Variable() | Constant() | FunctionCall() )
+	// void FunctionCall() : <LBRACE> ( AssertFunc() | Modify() | RetractFunc() |
+	// FindFactByFactFunc() | IfElseFunc() | WhileFunc() | LoopForCountFunc() | AnyFunction() |
+	// SwitchCaseFunc() ) <RBRACE>
+	@RequiredArgsConstructor
+	class SFPRHSSlotElementsVisitor implements SelectiveFunctionCallVisitor {
+		final RuleCondition rc;
+		@NonNull
+		final SymbolToFunctionWithArguments mapper;
+		final boolean sideEffectsAllowed;
+		FunctionWithArguments<SymbolLeaf> value;
+
+		@Override
+		public Object visit(final SFPSingleVariable node, final Object data) {
+			final VariableSymbol symbol =
+					SelectiveSFPVisitor.sendVisitor(new SFPSingleVariableVisitor(rc), node, data).symbol;
+			this.value = this.mapper.apply(symbol, node);
+			return data;
+		}
+
+		@Override
+		public Object visit(final SFPGlobalVariable node, final Object data) {
+			this.value =
+					new GlobalVariableLeaf<>(SFPVisitorImpl.this.parserToNetwork.getScope().getGlobalVariable(
+							SelectiveSFPVisitor.sendVisitor(new GlobalVariableVisitor(), node, data).symbol));
+			return data;
+		}
+
+		@Override
+		public Object visit(final SFPConstant node, final Object data) {
+			final SFPValueVisitor visitor = SelectiveSFPVisitor.sendVisitor(new SFPValueVisitor(), node, data);
+			this.value = new ConstantLeaf<SymbolLeaf>(visitor.value, visitor.type);
+			return data;
+		}
+
+		@Override
+		public Object handleFunctionCall(final SimpleNode node, final Object data) {
+			this.value =
+					SelectiveSFPVisitor.sendVisitor(new SFPFunctionCallElementsVisitor(rc, this.mapper,
+							this.sideEffectsAllowed), node, data).expression;
+			return data;
+		}
+	}
+
+	@RequiredArgsConstructor
+	class SFPRHSPatternElementsVisitor implements SelectiveSFPVisitor {
+		final RuleCondition rc;
+		@NonNull
+		final SymbolToFunctionWithArguments mapper;
+		final boolean sideEffectsAllowed;
+		String slotName;
+		FunctionWithArguments<SymbolLeaf> value;
+
+		@Override
+		public Object visit(final SFPRHSSlot node, final Object data) {
+			assert node.jjtGetNumChildren() >= 2;
+			if (node.jjtGetNumChildren() > 2) {
+				throw new UnsupportedOperationException(
+						"You can only specify one value per slot in an assert/modify statement!");
+			}
+			final Symbol symbol =
+					SelectiveSFPVisitor.sendVisitor(new SFPSymbolVisitor(), node.jjtGetChild(0), data).symbol;
+			this.slotName = symbol.getImage();
+			this.value =
+					SelectiveSFPVisitor.sendVisitor(new SFPRHSSlotElementsVisitor(rc, this.mapper,
+							this.sideEffectsAllowed), node.jjtGetChild(1), data).value;
+			return data;
+		}
+	}
+
 	@RequiredArgsConstructor
 	class SFPFunctionCallElementsVisitor implements SelectiveSFPVisitor {
 		FunctionWithArguments<SymbolLeaf> expression;
@@ -1436,75 +1535,6 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 		@NonNull
 		final SymbolToFunctionWithArguments mapper;
 		final boolean sideEffectsAllowed;
-
-		// RHSSlot() : <LBRACE> Symbol() ( RHSField() )* <RBRACE>
-		// void RHSField() : ( Variable() | Constant() | FunctionCall() )
-		// void FunctionCall() : <LBRACE> ( AssertFunc() | Modify() | RetractFunc() |
-		// FindFactByFactFunc() | IfElseFunc() | WhileFunc() | LoopForCountFunc() | AnyFunction() |
-		// SwitchCaseFunc() ) <RBRACE>
-		@RequiredArgsConstructor
-		class SFPRHSSlotElementsVisitor implements SelectiveFunctionCallVisitor {
-			@NonNull
-			final SymbolToFunctionWithArguments mapper;
-			final boolean sideEffectsAllowed;
-			FunctionWithArguments<SymbolLeaf> value;
-
-			@Override
-			public Object visit(final SFPSingleVariable node, final Object data) {
-				final VariableSymbol symbol =
-						SelectiveSFPVisitor.sendVisitor(new SFPSingleVariableVisitor(rc), node, data).symbol;
-				this.value = this.mapper.apply(symbol, node);
-				return data;
-			}
-
-			@Override
-			public Object visit(final SFPGlobalVariable node, final Object data) {
-				this.value =
-						new GlobalVariableLeaf<>(SFPVisitorImpl.this.parserToNetwork.getScope().getGlobalVariable(
-								SelectiveSFPVisitor.sendVisitor(new GlobalVariableVisitor(), node, data).symbol));
-				return data;
-			}
-
-			@Override
-			public Object visit(final SFPConstant node, final Object data) {
-				final SFPValueVisitor visitor = SelectiveSFPVisitor.sendVisitor(new SFPValueVisitor(), node, data);
-				this.value = new ConstantLeaf<SymbolLeaf>(visitor.value, visitor.type);
-				return data;
-			}
-
-			@Override
-			public Object handleFunctionCall(final SimpleNode node, final Object data) {
-				this.value =
-						SelectiveSFPVisitor.sendVisitor(new SFPFunctionCallElementsVisitor(rc, this.mapper,
-								this.sideEffectsAllowed), node, data).expression;
-				return data;
-			}
-		}
-
-		@RequiredArgsConstructor
-		class SFPRHSPatternElementsVisitor implements SelectiveSFPVisitor {
-			@NonNull
-			final SymbolToFunctionWithArguments mapper;
-			final boolean sideEffectsAllowed;
-			String slotName;
-			FunctionWithArguments<SymbolLeaf> value;
-
-			@Override
-			public Object visit(final SFPRHSSlot node, final Object data) {
-				assert node.jjtGetNumChildren() >= 2;
-				if (node.jjtGetNumChildren() > 2) {
-					throw new UnsupportedOperationException(
-							"You can only specify one value per slot in an assert/modify statement!");
-				}
-				final Symbol symbol =
-						SelectiveSFPVisitor.sendVisitor(new SFPSymbolVisitor(), node.jjtGetChild(0), data).symbol;
-				this.slotName = symbol.getImage();
-				this.value =
-						SelectiveSFPVisitor.sendVisitor(new SFPRHSSlotElementsVisitor(this.mapper,
-								this.sideEffectsAllowed), node.jjtGetChild(1), data).value;
-				return data;
-			}
-		}
 
 		@RequiredArgsConstructor
 		class SFPAssertFuncElementsVisitor implements SelectiveSFPVisitor {
@@ -1526,7 +1556,7 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 				SelectiveSFPVisitor.stream(node, 1).forEach(
 						n -> {
 							final SFPRHSPatternElementsVisitor visitor =
-									SelectiveSFPVisitor.sendVisitor(new SFPRHSPatternElementsVisitor(this.mapper,
+									SelectiveSFPVisitor.sendVisitor(new SFPRHSPatternElementsVisitor(rc, this.mapper,
 											this.sideEffectsAllowed), n, data);
 							;
 							final SlotAddress slotAddress = template.getSlotAddress(visitor.slotName);
@@ -1645,8 +1675,8 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 					toArray(SelectiveSFPVisitor.stream(node, 1).map(
 							n -> {
 								final SFPRHSPatternElementsVisitor visitor =
-										SelectiveSFPVisitor.sendVisitor(new SFPRHSPatternElementsVisitor(this.mapper,
-												this.sideEffectsAllowed), n, data);
+										SelectiveSFPVisitor.sendVisitor(new SFPRHSPatternElementsVisitor(rc,
+												this.mapper, this.sideEffectsAllowed), n, data);
 								return new Modify.SlotAndValue<>(visitor.slotName, visitor.value);
 							}), Modify.SlotAndValue[]::new);
 			Arrays.stream(array).forEach(fwa -> {

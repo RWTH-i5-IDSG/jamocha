@@ -39,5 +39,10 @@ public class SideEffects {
 		FunctionDictionary.addImpl(org.jamocha.function.impls.sideeffects.Watch.class);
 		FunctionDictionary.addImpl(org.jamocha.function.impls.sideeffects.SetStrategy.class);
 		FunctionDictionary.addImpl(org.jamocha.function.impls.sideeffects.GetStrategy.class);
+		FunctionDictionary.addImpl(org.jamocha.function.impls.sideeffects.Load.class);
+		FunctionDictionary.addImpl(org.jamocha.function.impls.sideeffects.LoadAsterisk.class);
+		FunctionDictionary.addImpl(org.jamocha.function.impls.sideeffects.LoadFacts.class);
+		FunctionDictionary.addImpl(org.jamocha.function.impls.sideeffects.Save.class);
+		FunctionDictionary.addImpl(org.jamocha.function.impls.sideeffects.SaveFacts.class);
 	}
 }

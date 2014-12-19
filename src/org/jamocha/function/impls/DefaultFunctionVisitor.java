@@ -168,4 +168,29 @@ public interface DefaultFunctionVisitor extends FunctionVisitor {
 	default void visit(final org.jamocha.function.impls.sideeffects.GetStrategy function) {
 		defaultAction(function);
 	}
+
+	@Override
+	default void visit(final org.jamocha.function.impls.sideeffects.Load function) {
+		defaultAction(function);
+	}
+
+	@Override
+	default void visit(final org.jamocha.function.impls.sideeffects.LoadAsterisk function) {
+		defaultAction(function);
+	}
+
+	@Override
+	default void visit(final org.jamocha.function.impls.sideeffects.LoadFacts function) {
+		defaultAction(function);
+	}
+
+	@Override
+	default void visit(final org.jamocha.function.impls.sideeffects.Save function) {
+		defaultAction(function);
+	}
+
+	@Override
+	default void visit(final org.jamocha.function.impls.sideeffects.SaveFacts function) {
+		defaultAction(function);
+	}
 }

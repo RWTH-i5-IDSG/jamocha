@@ -16,6 +16,9 @@ package org.jamocha.dn;
 
 import static org.jamocha.util.ToArray.toArray;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.OutputStream;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
@@ -77,6 +80,11 @@ import org.jamocha.function.FunctionDictionary;
 import org.jamocha.function.fwa.Assert.TemplateContainer;
 import org.jamocha.function.fwa.PathLeaf.ParameterLeaf;
 import org.jamocha.languages.clips.ClipsLogFormatter;
+import org.jamocha.languages.clips.parser.SFPVisitorImpl;
+import org.jamocha.languages.clips.parser.generated.ParseException;
+import org.jamocha.languages.clips.parser.generated.SFPParser;
+import org.jamocha.languages.clips.parser.generated.SFPStart;
+import org.jamocha.languages.clips.parser.generated.SimpleNode;
 import org.jamocha.languages.common.RuleConditionProcessor;
 import org.jamocha.languages.common.ScopeStack;
 import org.jamocha.languages.common.ScopeStack.Symbol;
@@ -573,13 +581,61 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 	}
 
 	@Override
-	public void setConflictResolutionStrategy(ConflictResolutionStrategy conflictResolutionStrategy) {
+	public void setConflictResolutionStrategy(final ConflictResolutionStrategy conflictResolutionStrategy) {
 		conflictSet.setConflictResolutionStrategy(conflictResolutionStrategy);
 	}
 
 	@Override
 	public Symbol createTopLevelSymbol(final String image) {
 		return this.scope.getOrCreateTopLevelSymbol(image);
+	}
+
+	@Override
+	public boolean loadFromFile(final String path, final boolean progressInformation) {
+		final SFPVisitorImpl visitor = new SFPVisitorImpl(this, this);
+		try (final FileInputStream inputStream = new FileInputStream(new File(path))) {
+			final SFPParser parser = new SFPParser(inputStream);
+			while (true) {
+				final SFPStart n = parser.Start();
+				if (null == n)
+					break;
+				n.jjtAccept(visitor, null);
+			}
+			return true;
+		} catch (final IOException | ParseException e) {
+			e.printStackTrace();
+		}
+		return false;
+	}
+
+	@Override
+	public boolean saveToFile(final String path) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean loadFactsFromFile(final String path) {
+		final SFPVisitorImpl visitor = new SFPVisitorImpl(this, this);
+		try (final FileInputStream inputStream = new FileInputStream(new File(path))) {
+			final SFPParser parser = new SFPParser(inputStream);
+			while (true) {
+				final SimpleNode n = parser.RHSPattern();
+				if (null == n)
+					break;
+				n.jjtAccept(visitor, null);
+			}
+			return true;
+		} catch (final IOException | ParseException e) {
+			e.printStackTrace();
+		}
+		return false;
+	}
+
+	@Override
+	public boolean saveFactsToFile(final String path) {
+		// TODO Auto-generated method stub
+		return false;
 	}
 
 	/**
