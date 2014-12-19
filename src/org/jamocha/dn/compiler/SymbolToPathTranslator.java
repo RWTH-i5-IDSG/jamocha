@@ -26,6 +26,7 @@ import org.jamocha.function.fwa.FunctionWithArgumentsComposite;
 import org.jamocha.function.fwa.FunctionWithArgumentsVisitor;
 import org.jamocha.function.fwa.GlobalVariableLeaf;
 import org.jamocha.function.fwa.Modify;
+import org.jamocha.function.fwa.Modify.SlotAndValue;
 import org.jamocha.function.fwa.PathLeaf;
 import org.jamocha.function.fwa.PredicateWithArguments;
 import org.jamocha.function.fwa.PredicateWithArgumentsComposite;
@@ -107,9 +108,16 @@ public class SymbolToPathTranslator implements FunctionWithArgumentsVisitor<Symb
 		handleArgs(fwa, fwa.getArgs());
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public void visit(final Modify<SymbolLeaf> fwa) {
-		handleArgs(fwa, fwa.getArgs());
+		final FunctionWithArguments<?>[] args = fwa.getArgs();
+		for (int i = 0; i < args.length; ++i) {
+			args[i] = translate((Modify.SlotAndValue<SymbolLeaf>) args[i], equivalenceClassToPathLeaf);
+		}
+		this.result =
+				new Modify<PathLeaf>(fwa.getNetwork(), translate(fwa.getTargetFact(), equivalenceClassToPathLeaf),
+						(SlotAndValue<PathLeaf>[]) args);
 	}
 
 	@Override
