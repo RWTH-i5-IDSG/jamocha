@@ -94,6 +94,8 @@ public class ConflictSet {
 	 *            {@link Assert} to add
 	 */
 	synchronized public void addAssert(final TerminalNode terminal, final Assert plus) {
+		if (plus.getMem().size() <= 0)
+			return;
 		final Translated rule = terminal.getRule();
 		network.getLogFormatter().messageRuleActivation(network, rule, plus);
 		getRATSet(rule.getParent().getSalience()).add(
@@ -109,6 +111,8 @@ public class ConflictSet {
 	 *            {@link Retract} to add
 	 */
 	synchronized public void addRetract(final TerminalNode terminal, final Retract minus) {
+		if (minus.getMem().size() <= 0)
+			return;
 		final Translated rule = terminal.getRule();
 		network.getLogFormatter().messageRuleDeactivation(network, rule, minus);
 		getRATSet(rule.getParent().getSalience()).add(
@@ -126,14 +130,18 @@ public class ConflictSet {
 	 * Deletes all revoked asserts and all retracts.
 	 */
 	synchronized public void deleteRevokedEntries() {
-		for (final TreeSet<RuleAndToken> rulesAndTokens : this.rulesAndTokensBySalience.values()) {
+		for (final Entry<Integer, TreeSet<RuleAndToken>> entry : this.rulesAndTokensBySalience.entrySet()) {
+			final TreeSet<RuleAndToken> rulesAndTokens = entry.getValue();
 			final Iterator<RuleAndToken> iterator = rulesAndTokens.iterator();
 			while (iterator.hasNext()) {
 				final RuleAndToken nodeAndToken = iterator.next();
 				final AssertOrRetract<?> token = nodeAndToken.getToken();
-				if (token.isRevokedOrMinus()) {
+				if (token.isRevokedOrMinus() || 0 == token.getMem().size()) {
 					iterator.remove();
 				}
+			}
+			if (rulesAndTokens.isEmpty()) {
+				this.rulesAndTokensBySalience.remove(entry.getKey());
 			}
 		}
 	}
