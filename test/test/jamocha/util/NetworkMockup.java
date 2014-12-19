@@ -27,6 +27,7 @@ import java.util.Set;
 import lombok.Getter;
 
 import org.apache.logging.log4j.Logger;
+import org.jamocha.dn.ConflictResolutionStrategy;
 import org.jamocha.dn.ConstructCache.Deffacts;
 import org.jamocha.dn.ConstructCache.Defrule;
 import org.jamocha.dn.ParserToNetwork;
@@ -42,6 +43,7 @@ import org.jamocha.dn.nodes.TerminalNode;
 import org.jamocha.function.fwa.Assert.TemplateContainer;
 import org.jamocha.function.fwa.PathLeaf.ParameterLeaf;
 import org.jamocha.languages.common.ScopeStack;
+import org.jamocha.languages.common.ScopeStack.Symbol;
 import org.jamocha.logging.LogFormatter;
 import org.jamocha.logging.TypedFilter;
 
@@ -214,7 +216,25 @@ public class NetworkMockup implements ParserToNetwork, SideEffectFunctionToNetwo
 	}
 
 	@Override
+	public void halt() {
+	}
+
+	@Override
 	public Set<TerminalNode> getTerminalNodes() {
+		return null;
+	}
+
+	@Override
+	public ConflictResolutionStrategy getConflictResolutionStrategy() {
+		return null;
+	}
+
+	@Override
+	public void setConflictResolutionStrategy(ConflictResolutionStrategy conflictResolutionStrategy) {
+	}
+
+	@Override
+	public Symbol createTopLevelSymbol(String image) {
 		return null;
 	}
 }

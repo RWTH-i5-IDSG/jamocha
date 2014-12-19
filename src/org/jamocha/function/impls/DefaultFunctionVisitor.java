@@ -138,7 +138,12 @@ public interface DefaultFunctionVisitor extends FunctionVisitor {
 	default void visit(final org.jamocha.function.impls.sideeffects.Run function) {
 		defaultAction(function);
 	}
-	
+
+	@Override
+	default void visit(final org.jamocha.function.impls.sideeffects.Halt function) {
+		defaultAction(function);
+	}
+
 	@Override
 	default void visit(final org.jamocha.function.impls.sideeffects.ExportGv function) {
 		defaultAction(function);
@@ -151,6 +156,16 @@ public interface DefaultFunctionVisitor extends FunctionVisitor {
 
 	@Override
 	default void visit(final org.jamocha.function.impls.sideeffects.Watch function) {
+		defaultAction(function);
+	}
+
+	@Override
+	default void visit(final org.jamocha.function.impls.sideeffects.SetStrategy function) {
+		defaultAction(function);
+	}
+
+	@Override
+	default void visit(final org.jamocha.function.impls.sideeffects.GetStrategy function) {
 		defaultAction(function);
 	}
 }

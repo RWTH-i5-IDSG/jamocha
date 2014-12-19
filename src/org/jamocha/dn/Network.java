@@ -28,7 +28,6 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 
 import lombok.AccessLevel;
@@ -80,6 +79,7 @@ import org.jamocha.function.fwa.PathLeaf.ParameterLeaf;
 import org.jamocha.languages.clips.ClipsLogFormatter;
 import org.jamocha.languages.common.RuleConditionProcessor;
 import org.jamocha.languages.common.ScopeStack;
+import org.jamocha.languages.common.ScopeStack.Symbol;
 import org.jamocha.logging.LayoutAdapter;
 import org.jamocha.logging.LogFormatter;
 import org.jamocha.logging.OutstreamAppender;
@@ -177,6 +177,8 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 	@Getter(onMethod = @__(@Override))
 	final EnumMap<SlotType, Object> defaultValues = new EnumMap<>(SlotType.class);
 
+	boolean haltWasCalled = false;
+
 	/**
 	 * Creates a new network object.
 	 *
@@ -192,7 +194,7 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 		this.memoryFactory = memoryFactory;
 		this.tokenQueueCapacity = tokenQueueCapacity;
 		this.scheduler = scheduler;
-		this.conflictSet = new ConflictSet(this);
+		this.conflictSet = new ConflictSet(this, ConflictResolutionStrategy.DEPTH);
 		this.rootNode = new RootNode();
 		this.logFormatter = logFormatter;
 		createInitialDeffact();
@@ -530,19 +532,24 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 
 	@Override
 	public void run(final long maxNumRules) {
+		haltWasCalled = false;
 		long numRules = 0;
 		do {
 			this.scheduler.waitForNoUnfinishedJobs();
 			conflictSet.deleteRevokedEntries();
-			final Optional<RuleAndToken> optional = ConflictResolutionStrategy.random.pick(this.conflictSet);
-			if (!optional.isPresent())
+			final RuleAndToken ruleAndToken = this.conflictSet.getCurrentlySelectedRuleAndToken();
+			if (null == ruleAndToken)
 				break;
-			final RuleAndToken ruleAndToken = optional.get();
 			this.logFormatter.messageRuleFiring(this, ruleAndToken.getRule(), (Assert) ruleAndToken.getToken());
 			ruleAndToken.getRule().getActionList().evaluate(ruleAndToken.getToken());
 			this.conflictSet.remove(ruleAndToken);
 			++numRules;
-		} while (0L == maxNumRules || numRules < maxNumRules);
+		} while (!haltWasCalled && 0L == maxNumRules || numRules < maxNumRules);
+	}
+
+	@Override
+	public void halt() {
+		haltWasCalled = true;
 	}
 
 	public void shutdown() {
@@ -558,6 +565,21 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 		RuleConditionProcessor.flatten(rule.getCondition());
 		// Transform TestCEs to PathFilters
 		new PathFilterConsolidator(this.initialFactTemplate, rule).consolidate();
+	}
+
+	@Override
+	public ConflictResolutionStrategy getConflictResolutionStrategy() {
+		return conflictSet.getConflictResolutionStrategy();
+	}
+
+	@Override
+	public void setConflictResolutionStrategy(ConflictResolutionStrategy conflictResolutionStrategy) {
+		conflictSet.setConflictResolutionStrategy(conflictResolutionStrategy);
+	}
+
+	@Override
+	public Symbol createTopLevelSymbol(final String image) {
+		return this.scope.getOrCreateTopLevelSymbol(image);
 	}
 
 	/**

@@ -14,31 +14,42 @@
  */
 package org.jamocha.dn;
 
-import java.util.Arrays;
-import java.util.Optional;
-import java.util.stream.StreamSupport;
+import java.util.Comparator;
 
-import org.apache.commons.lang3.RandomUtils;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+
+import org.apache.commons.lang3.builder.CompareToBuilder;
 import org.jamocha.dn.ConflictSet.RuleAndToken;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
-public interface ConflictResolutionStrategy {
-
-	public Optional<ConflictSet.RuleAndToken> pick(final ConflictSet conflictSet);
-
-	public static ConflictResolutionStrategy random = new ConflictResolutionStrategy() {
-
+@RequiredArgsConstructor
+@Getter
+public enum ConflictResolutionStrategy implements Comparator<ConflictSet.RuleAndToken> {
+	DEPTH(new Comparator<ConflictSet.RuleAndToken>() {
 		@Override
-		public Optional<RuleAndToken> pick(final ConflictSet conflictSet) {
-			final RuleAndToken[] rulesAndTokens = conflictSet.getRulesAndTokens();
-			return 0 == rulesAndTokens.length ? Optional.empty() : Optional.of(rulesAndTokens[RandomUtils.nextInt(0,
-					rulesAndTokens.length)]);
+		public int compare(final RuleAndToken o1, final RuleAndToken o2) {
+			return Long.compare(o1.getActivationCounter(), o2.getActivationCounter());
 		}
-	};
+	}), BREADTH(new Comparator<ConflictSet.RuleAndToken>() {
+		@Override
+		public int compare(final RuleAndToken o1, final RuleAndToken o2) {
+			return -Long.compare(o1.getActivationCounter(), o2.getActivationCounter());
+		}
+	}), SIMPLICITY(null), COMPLEXITY(null), LEX(null), MEA(null), RANDOM(new Comparator<ConflictSet.RuleAndToken>() {
+		@Override
+		public int compare(final RuleAndToken o1, final RuleAndToken o2) {
+			return new CompareToBuilder().append(o1.getRandom(), o2.getRandom())
+					.append(o1.getActivationCounter(), o2.getActivationCounter()).build();
+		}
+	});
 
-	public static ConflictResolutionStrategy maxSalience = (final ConflictSet conflictSet) -> StreamSupport.stream(
-			Arrays.stream(conflictSet.getRulesAndTokens()).spliterator(), true).max(
-			(a, b) -> Integer.compare(a.getRule().getParent().getSalience(), b.getRule().getParent().getSalience()));
+	final Comparator<ConflictSet.RuleAndToken> strategy;
+
+	@Override
+	public int compare(RuleAndToken o1, RuleAndToken o2) {
+		return strategy.compare(o1, o2);
+	}
 }

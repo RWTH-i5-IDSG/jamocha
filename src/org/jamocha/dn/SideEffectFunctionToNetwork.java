@@ -27,6 +27,7 @@ import org.jamocha.dn.memory.MemoryFact;
 import org.jamocha.dn.memory.MemoryFactToFactIdentifier;
 import org.jamocha.dn.memory.Template;
 import org.jamocha.dn.nodes.TerminalNode;
+import org.jamocha.languages.common.ScopeStack.Symbol;
 import org.jamocha.logging.LogFormatter;
 import org.jamocha.logging.TypedFilter;
 
@@ -64,9 +65,17 @@ public interface SideEffectFunctionToNetwork {
 
 	void run(final long maxNumRules);
 
+	void halt();
+
 	void clear();
 
 	void reset();
 
 	Set<TerminalNode> getTerminalNodes();
+
+	void setConflictResolutionStrategy(final ConflictResolutionStrategy conflictResolutionStrategy);
+
+	ConflictResolutionStrategy getConflictResolutionStrategy();
+
+	Symbol createTopLevelSymbol(final String image);
 }

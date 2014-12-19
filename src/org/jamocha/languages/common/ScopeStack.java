@@ -172,4 +172,11 @@ public class ScopeStack {
 	public GlobalVariable getGlobalVariable(final Symbol symbol) {
 		return globalVariables.get(symbol);
 	}
+
+	public Symbol getOrCreateTopLevelSymbol(final String image) {
+		Scope top = currentScope;
+		while (top.parentScope != null)
+			top = top.parentScope;
+		return top.getOrCreateSymbol(image, Symbol::new);
+	}
 }

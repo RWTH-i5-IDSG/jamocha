@@ -33,8 +33,11 @@ public class SideEffects {
 		FunctionDictionary.addImpl(org.jamocha.function.impls.sideeffects.Printout.class);
 		FunctionDictionary.addImpl(org.jamocha.function.impls.sideeffects.Reset.class);
 		FunctionDictionary.addImpl(org.jamocha.function.impls.sideeffects.Run.class);
+		FunctionDictionary.addImpl(org.jamocha.function.impls.sideeffects.Halt.class);
 		FunctionDictionary.addImpl(org.jamocha.function.impls.sideeffects.ExportGv.class);
 		FunctionDictionary.addImpl(org.jamocha.function.impls.sideeffects.Unwatch.class);
 		FunctionDictionary.addImpl(org.jamocha.function.impls.sideeffects.Watch.class);
+		FunctionDictionary.addImpl(org.jamocha.function.impls.sideeffects.SetStrategy.class);
+		FunctionDictionary.addImpl(org.jamocha.function.impls.sideeffects.GetStrategy.class);
 	}
 }

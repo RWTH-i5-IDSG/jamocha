@@ -264,6 +264,8 @@ public class ClipsLogFormatter implements LogFormatter {
 			return "watchable symbol";
 		case FACT:
 			return "fact";
+		case CONFLICT_RESOLUTION_STRATEGY:
+			return "conflict resolution strategy";
 		}
 		return null;
 	}
@@ -286,6 +288,8 @@ public class ClipsLogFormatter implements LogFormatter {
 			return ((Symbol) value).getImage();
 		case FACT:
 			return "f-" + ((FactIdentifier) value).getId();
+		case CONFLICT_RESOLUTION_STRATEGY:
+			return formatTypeValue(Type.SYMBOL, value);
 		}
 		return null;
 	}

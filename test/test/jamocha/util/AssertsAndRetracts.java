@@ -32,7 +32,7 @@ public class AssertsAndRetracts {
 	public static AssertsAndRetracts countAssertsAndRetractsInConflictSet(final ConflictSet cs) {
 		final List<Assert> asserts = new ArrayList<>();
 		final List<Retract> retracts = new ArrayList<>();
-		for (final RuleAndToken nat : cs.getRulesAndTokens()) {
+		for (final RuleAndToken nat : cs.getAllRulesAndTokens()) {
 			nat.getToken().accept(new AssertOrRetractVisitor() {
 				@Override
 				public void visit(final Retract mem) {
