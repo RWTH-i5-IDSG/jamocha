@@ -21,7 +21,7 @@ package org.jamocha.dn.memory;
  * @see Template
  * @see SlotType
  */
-public interface SlotAddress {
+public interface SlotAddress extends Comparable<SlotAddress> {
 	/**
 	 * Gets the {@link SlotType} of the slot this address identifies.
 	 * 

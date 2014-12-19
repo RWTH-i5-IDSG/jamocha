@@ -37,4 +37,9 @@ public class SlotAddressMockup implements SlotAddress {
 	public String getSlotName(final Template template) {
 		return ((org.jamocha.dn.memory.javaimpl.Template) template).getSlotName(getIndex());
 	}
+
+	@Override
+	public int compareTo(org.jamocha.dn.memory.SlotAddress o) {
+		return Integer.compare(index, ((SlotAddressMockup) o).index);
+	}
 }

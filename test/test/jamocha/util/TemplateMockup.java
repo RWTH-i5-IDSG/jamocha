@@ -64,6 +64,10 @@ public class TemplateMockup implements Template {
 			return template.getSlotName(this);
 		}
 
+		@Override
+		public int compareTo(org.jamocha.dn.memory.SlotAddress o) {
+			return Integer.compare(index, ((SlotAddressMockup) o).index);
+		}
 	}
 
 	/*
