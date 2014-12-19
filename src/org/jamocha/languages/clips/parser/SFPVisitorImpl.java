@@ -39,6 +39,7 @@ import lombok.RequiredArgsConstructor;
 import org.jamocha.dn.ConstructCache.Defrule;
 import org.jamocha.dn.ParserToNetwork;
 import org.jamocha.dn.SideEffectFunctionToNetwork;
+import org.jamocha.dn.memory.Fact;
 import org.jamocha.dn.memory.SlotAddress;
 import org.jamocha.dn.memory.SlotType;
 import org.jamocha.dn.memory.Template;
@@ -221,7 +222,7 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 					builder.addValue(slotAddress, visitor.value);
 				});
 		final TemplateContainer<SymbolLeaf> templateContainer = builder.build();
-		templateContainer.evaluate();
+		sideEffectFunctionToNetwork.assertFacts((Fact) templateContainer.evaluate());
 		return data;
 	}
 
