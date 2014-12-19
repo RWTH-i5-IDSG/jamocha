@@ -66,9 +66,11 @@ public class PathLeaf implements ExchangeableLeaf<PathLeaf> {
 	public String toString() {
 		final StringBuilder sb = new StringBuilder();
 		sb.append(getPath().toString());
-		sb.append(" [");
-		sb.append(getSlot().toString());
-		sb.append("]");
+		if (slot != null) {
+			sb.append(" [");
+			sb.append(getSlot().toString());
+			sb.append("]");
+		}
 		return sb.toString();
 	}
 
