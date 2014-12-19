@@ -318,7 +318,8 @@ public class PathFilterConsolidator implements DefaultConditionalElementsVisitor
 						assert equiv.getFactVariable().isPresent();
 					} else {
 						final Set<FunctionWithArguments<PathLeaf>> equalPathLeafs =
-								equiv.getEqualSlotVariables().stream().map(sv -> sv.getPathLeaf(pathMap))
+								equiv.getEqualSlotVariables().stream()
+										.map(sv -> equivalenceClassToPathLeaf.get(sv.getFactVariable().getEqual()))
 										.collect(toSet());
 						equiv.getFactVariable().map(fv -> fv.getPathLeaf(pathMap)).ifPresent(equalPathLeafs::add);
 						if (equalPathLeafs.size() > 1) {
