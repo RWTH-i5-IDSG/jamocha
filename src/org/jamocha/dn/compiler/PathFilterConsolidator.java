@@ -42,6 +42,7 @@ import org.jamocha.function.FunctionNormaliser;
 import org.jamocha.function.Predicate;
 import org.jamocha.function.fwa.DefaultFunctionWithArgumentsVisitor;
 import org.jamocha.function.fwa.FunctionWithArguments;
+import org.jamocha.function.fwa.GenericWithArgumentsComposite;
 import org.jamocha.function.fwa.PathLeaf;
 import org.jamocha.function.fwa.PredicateWithArguments;
 import org.jamocha.function.fwa.PredicateWithArgumentsComposite;
@@ -192,7 +193,7 @@ public class PathFilterConsolidator implements DefaultConditionalElementsVisitor
 			}
 
 			/* check that all variables are bound */
-			final Set<VariableSymbol> symbolsInLeafs = new SymbolInSymbolLeafsCollector(ce).getSymbols();
+			final Set<VariableSymbol> symbolsInLeafs = SymbolInSymbolLeafsCollector.collect(ce);
 			for (final VariableSymbol vs : symbols) {
 				final EquivalenceClass ec = vs.getEqual();
 				if (!ec.getFactVariable().isPresent() && ec.getEqualSlotVariables().isEmpty()) {
@@ -313,7 +314,6 @@ public class PathFilterConsolidator implements DefaultConditionalElementsVisitor
 			}
 		}
 
-		@SuppressWarnings("unchecked")
 		private static TranslatedPath consolidateOnCopiedEquivalenceClasses(final Template initialFactTemplate,
 				final Defrule rule, final Map<Path, Set<Path>> pathToJoinedWith, final ConditionalElement ce,
 				final Set<EquivalenceClass> equivalenceClasses) {
@@ -335,69 +335,9 @@ public class PathFilterConsolidator implements DefaultConditionalElementsVisitor
 			// add the tests for the equivalence classes
 			{
 				final Set<EquivalenceClass> neqAlreadyDone = new HashSet<>();
-				// TODO improve the test generation by doing something smart
-
 				for (final EquivalenceClass equiv : equivalenceClasses) {
-					if (!neqAlreadyDone.add(equiv))
-						continue;
-					final FunctionWithArguments<PathLeaf> element = equivalenceClassToPathLeaf.get(equiv);
-					if (null == element)
-						continue;
-
-					if (equiv.getEqualSlotVariables().isEmpty()) {
-						assert equiv.getFactVariable().isPresent();
-					} else {
-						for (final SingleSlotVariable sv : equiv.getEqualSlotVariables()) {
-							assert equivalenceClassToPathLeaf.containsKey(sv.getFactVariable().getEqual());
-						}
-						final Set<FunctionWithArguments<PathLeaf>> equalPathLeafs =
-								equiv.getEqualSlotVariables().stream()
-										.map(sv -> equivalenceClassToPathLeaf.get(sv.getFactVariable().getEqual()))
-										.collect(toSet());
-						equiv.getFactVariable().map(fv -> fv.getPathLeaf(pathMap)).ifPresent(equalPathLeafs::add);
-						if (equalPathLeafs.size() > 1) {
-							final PathFilter eqTest =
-									new PathFilter(new PathFilterElement(new PredicateWithArgumentsComposite<PathLeaf>(
-											FunctionDictionary.lookupPredicate(Equals.inClips,
-													SlotType.nCopies(equiv.getType(), equalPathLeafs.size())), toArray(
-													equalPathLeafs, FunctionWithArguments[]::new))));
-							joinPaths(pathToJoinedWith, eqTest);
-							pathFilters.add(eqTest);
-						}
-					}
-					if (!equiv.getEqualFWAs().isEmpty()) {
-						final FunctionWithArguments<PathLeaf>[] equalFWAsArray =
-								new FunctionWithArguments[equiv.getEqualFWAs().size() + 1];
-						equalFWAsArray[0] = element;
-						int i = 1;
-						for (final FunctionWithArguments<SymbolLeaf> fwa : equiv.getEqualFWAs()) {
-							equalFWAsArray[i++] = SymbolToPathTranslator.translate(fwa, equivalenceClassToPathLeaf);
-						}
-						final PathFilter eqTest =
-								new PathFilter(new PathFilterElement(new PredicateWithArgumentsComposite<PathLeaf>(
-										FunctionDictionary.lookupPredicate(Equals.inClips,
-												SlotType.nCopies(equiv.getType(), equalFWAsArray.length + 1)),
-										equalFWAsArray)));
-						joinPaths(pathToJoinedWith, eqTest);
-						pathFilters.add(eqTest);
-					}
-					if (!equiv.getUnequalEquivalenceClasses().isEmpty()) {
-						final Predicate not = FunctionDictionary.lookupPredicate(Not.inClips, SlotType.BOOLEAN);
-						for (final EquivalenceClass nequiv : equiv.getUnequalEquivalenceClasses()) {
-							if (!neqAlreadyDone.contains(nequiv)) {
-								final PathLeaf pathLeaf = equivalenceClassToPathLeaf.get(nequiv);
-								final PathFilter neqTest =
-										new PathFilter(new PathFilterElement(
-												new PredicateWithArgumentsComposite<PathLeaf>(not,
-														new PredicateWithArgumentsComposite<PathLeaf>(
-																FunctionDictionary.lookupPredicate(Equals.inClips,
-																		element.getReturnType(),
-																		pathLeaf.getReturnType()), element, pathLeaf))));
-								joinPaths(pathToJoinedWith, neqTest);
-								pathFilters.add(neqTest);
-							}
-						}
-					}
+					createEquivalenceClassTests(pathToJoinedWith, pathMap, equivalenceClassToPathLeaf, pathFilters,
+							neqAlreadyDone, equiv);
 				}
 			}
 
@@ -418,6 +358,60 @@ public class PathFilterConsolidator implements DefaultConditionalElementsVisitor
 			joinPaths(pathToJoinedWith, dummy);
 			pathFilters.add(dummy);
 			return translated;
+		}
+
+		private static final Predicate not = FunctionDictionary.lookupPredicate(Not.inClips, SlotType.BOOLEAN);
+
+		private static void createEquivalenceClassTests(final Map<Path, Set<Path>> pathToJoinedWith,
+				final Map<SingleFactVariable, Path> pathMap,
+				final Map<EquivalenceClass, PathLeaf> equivalenceClassToPathLeaf,
+				final List<PathFilterList> pathFilters, final Set<EquivalenceClass> neqAlreadyDone,
+				final EquivalenceClass equiv) {
+			// TODO improve the test generation by doing something smart
+			if (!neqAlreadyDone.add(equiv))
+				return;
+			final FunctionWithArguments<PathLeaf> element = equivalenceClassToPathLeaf.get(equiv);
+			if (null == element)
+				return;
+
+			if (!equiv.getEqualSlotVariables().isEmpty()) {
+				final Set<FunctionWithArguments<PathLeaf>> equalPathLeafs =
+						equiv.getEqualSlotVariables().stream().map(sv -> sv.getPathLeaf(pathMap)).collect(toSet());
+				equiv.getFactVariable().map(fv -> fv.getPathLeaf(pathMap)).ifPresent(equalPathLeafs::add);
+				if (equalPathLeafs.size() > 1) {
+					equalPathLeafs.remove(element);
+					for (final FunctionWithArguments<PathLeaf> other : equalPathLeafs) {
+						final PathFilter eqTest =
+								new PathFilter(new PathFilterElement(
+										GenericWithArgumentsComposite.newPredicateInstance(Equals.inClips, element,
+												other)));
+						joinPaths(pathToJoinedWith, eqTest);
+						pathFilters.add(eqTest);
+					}
+				}
+			}
+			if (!equiv.getEqualFWAs().isEmpty()) {
+				for (final FunctionWithArguments<SymbolLeaf> other : equiv.getEqualFWAs()) {
+					final PathFilter eqTest =
+							new PathFilter(new PathFilterElement(GenericWithArgumentsComposite.newPredicateInstance(
+									Equals.inClips, element,
+									SymbolToPathTranslator.translate(other, equivalenceClassToPathLeaf))));
+					joinPaths(pathToJoinedWith, eqTest);
+					pathFilters.add(eqTest);
+				}
+			}
+			if (!equiv.getUnequalEquivalenceClasses().isEmpty()) {
+				for (final EquivalenceClass nequiv : equiv.getUnequalEquivalenceClasses()) {
+					if (!neqAlreadyDone.contains(nequiv)) {
+						final PathFilter neqTest =
+								new PathFilter(new PathFilterElement(new PredicateWithArgumentsComposite<PathLeaf>(not,
+										GenericWithArgumentsComposite.newPredicateInstance(Equals.inClips, element,
+												equivalenceClassToPathLeaf.get(nequiv)))));
+						joinPaths(pathToJoinedWith, neqTest);
+						pathFilters.add(neqTest);
+					}
+				}
+			}
 		}
 
 		private <T extends ConditionalElement> NoORsPFC collect(final T ce) {
