@@ -64,6 +64,9 @@ import org.jamocha.languages.common.SingleFactVariable;
 import org.jamocha.languages.common.SingleFactVariable.SingleSlotVariable;
 import org.jamocha.languages.common.errors.VariableNotDeclaredError;
 
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
+
 /**
  * Collect all PathFilters inside all children of an OrFunctionConditionalElement, returning a List
  * of Lists. Each inner List contains the PathFilters of one child.
@@ -130,15 +133,18 @@ public class PathFilterConsolidator implements DefaultConditionalElementsVisitor
 		public static TranslatedPath consolidate(final Template initialFactTemplate, final Defrule rule,
 				final Map<Path, Set<Path>> pathToJoinedWith, final ConditionalElement ce,
 				final Map<VariableSymbol, EquivalenceClass> symbolToECbackup) {
-			// copy the equivalence classes
-			final Map<EquivalenceClass, EquivalenceClass> oldToNew =
-					symbolToECbackup.values().stream().collect(toMap(Function.identity(), EquivalenceClass::new));
-			// update the negation references between the sets
-			oldToNew.values().stream().forEach(n -> n.replace(oldToNew));
-			// use the new equivalence classes in the symbols
-			symbolToECbackup.forEach((vs, ec) -> vs.setEqual(oldToNew.get(ec)));
-
 			final Set<VariableSymbol> symbols = symbolToECbackup.keySet();
+			// copy the equivalence classes
+			final BiMap<EquivalenceClass, EquivalenceClass> oldToNew =
+					HashBiMap
+							.create(symbolToECbackup
+									.values()
+									.stream()
+									.collect(
+											toMap(Function.identity(),
+													(final EquivalenceClass ec) -> new EquivalenceClass(ec))));
+			replaceEC(symbols, oldToNew);
+
 			final HashSet<FunctionWithArguments<SymbolLeaf>> occurringFWAs =
 					FWACollector.newHashSet().collect(ce).getFwas();
 			final HashSet<SingleFactVariable> occurringFactVariables =
@@ -180,10 +186,7 @@ public class PathFilterConsolidator implements DefaultConditionalElementsVisitor
 					while (ecIter.hasNext()) {
 						final EquivalenceClass other = ecIter.next();
 						first.add(other);
-						symbols.forEach(sym -> {
-							if (other == sym.getEqual())
-								sym.setEqual(first);
-						});
+						replaceEC(symbols, Collections.singletonMap(other, first));
 					}
 				}
 			}
@@ -208,8 +211,35 @@ public class PathFilterConsolidator implements DefaultConditionalElementsVisitor
 
 			// reset the symbol - equivalence class mapping
 			symbolToECbackup.forEach((vs, ec) -> vs.setEqual(ec));
-
+			replaceEC(symbols, oldToNew.inverse());
 			return result;
+		}
+
+		// there are references to EquivalenceClass in:
+		// VariableSymbol.equal
+		// SingleFactVariable.equal
+		// SingleSlotVariable.equal (Set)
+		// EquivalenceClass.unequalEquivalenceClasses (Set)
+		private static void replaceEC(final Set<VariableSymbol> symbols,
+				final Map<EquivalenceClass, EquivalenceClass> map) {
+			// VariableSymbol.equal
+			symbols.forEach(sym -> sym.setEqual(map.getOrDefault(sym.getEqual(), sym.getEqual())));
+			for (final Map.Entry<EquivalenceClass, EquivalenceClass> entry : map.entrySet()) {
+				final EquivalenceClass oldEC = entry.getKey();
+				final EquivalenceClass newEC = entry.getValue();
+				// SingleFactVariable.equal
+				oldEC.getFactVariable().ifPresent(fv -> fv.setEqual(newEC));
+				// SingleSlotVariable.equal (Set)
+				for (final SingleSlotVariable sv : oldEC.getEqualSlotVariables()) {
+					final Set<EquivalenceClass> equalSet = sv.getEqual();
+					for (final Map.Entry<EquivalenceClass, EquivalenceClass> innerEntry : map.entrySet()) {
+						if (equalSet.remove(innerEntry.getKey()))
+							equalSet.add(innerEntry.getValue());
+					}
+				}
+				// EquivalenceClass.unequalEquivalenceClasses (Set)
+				newEC.replace(map);
+			}
 		}
 
 		static class CEEquivalenceClassBuilder implements DefaultConditionalElementsVisitor {
@@ -251,10 +281,7 @@ public class PathFilterConsolidator implements DefaultConditionalElementsVisitor
 								final EquivalenceClass right = getEC(arg);
 								left.add(right);
 								equivalenceClasses.put(arg, left);
-								occurringSymbols.forEach(sym -> {
-									if (right == sym.getEqual())
-										sym.setEqual(left);
-								});
+								replaceEC(occurringSymbols, Collections.singletonMap(right, left));
 							}
 						}
 					}
@@ -317,6 +344,9 @@ public class PathFilterConsolidator implements DefaultConditionalElementsVisitor
 					if (equiv.getEqualSlotVariables().isEmpty()) {
 						assert equiv.getFactVariable().isPresent();
 					} else {
+						for (final SingleSlotVariable sv : equiv.getEqualSlotVariables()) {
+							assert equivalenceClassToPathLeaf.containsKey(sv.getFactVariable().getEqual());
+						}
 						final Set<FunctionWithArguments<PathLeaf>> equalPathLeafs =
 								equiv.getEqualSlotVariables().stream()
 										.map(sv -> equivalenceClassToPathLeaf.get(sv.getFactVariable().getEqual()))
