@@ -143,7 +143,7 @@ public class Path {
 
 	@Override
 	public String toString() {
-		return "Path" + this.hashCode();
+		return "Path" + this.hashCode() + " [" + template.getName() + "]";
 	}
 
 	public void cachedOverride(final Node currentlyLowestNode, final FactAddress factAddressInCurrentlyLowestNode,
