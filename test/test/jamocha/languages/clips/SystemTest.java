@@ -308,11 +308,11 @@ public class SystemTest {
 			assertThat(returnValues.getLeft(), empty());
 			assertThat(returnValues.getRight(), empty());
 			final String[] lines = out.toString().split(linesep);
-			assertThat(lines, arrayWithSize(2));
 			assertThat(
 					lines,
 					either(arrayContaining(equalTo("==> f-3\t(t1 (s1 888))"), equalTo("==> f-4\t(t1 (s1 999))"))).or(
 							arrayContaining(equalTo("==> f-3\t(t1 (s1 999))"), equalTo("==> f-4\t(t1 (s1 888))"))));
+			assertThat(lines, arrayWithSize(2));
 			out.reset();
 		}
 	}
