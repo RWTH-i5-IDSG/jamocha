@@ -241,7 +241,8 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 		@Override
 		public Object visit(final SFPSymbol node, final Object data) {
 			this.symbol =
-					SFPVisitorImpl.this.parserToNetwork.getScope().getOrCreateSymbol(node.jjtGetValue().toString());
+					SFPVisitorImpl.this.parserToNetwork.getScope().getOrCreateTopLevelSymbol(
+							node.jjtGetValue().toString());
 			return data;
 		}
 	}
@@ -1694,7 +1695,7 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 		@Override
 		public Object visit(final SFPGlobalVariable node, final Object data) {
 			this.symbol =
-					SFPVisitorImpl.this.parserToNetwork.getScope().getOrCreateSymbol(
+					SFPVisitorImpl.this.parserToNetwork.getScope().getOrCreateTopLevelSymbol(
 							Objects.toString(node.jjtGetValue()));
 			return data;
 		}
