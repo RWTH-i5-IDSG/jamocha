@@ -38,12 +38,12 @@ public class SymbolInSymbolLeafsCollector implements DefaultConditionalElementsV
 	@Getter
 	private Set<VariableSymbol> symbols = new HashSet<>();
 
-	public SymbolInSymbolLeafsCollector(final ConditionalElement ce) {
-		ce.accept(this);
+	public static Set<VariableSymbol> collect(final ConditionalElement ce) {
+		return ce.accept(new SymbolInSymbolLeafsCollector()).symbols;
 	}
 
-	public static Set<VariableSymbol> collect(final ConditionalElement ce) {
-		return new SymbolInSymbolLeafsCollector(ce).symbols;
+	public static Set<VariableSymbol> collect(final FunctionWithArguments<SymbolLeaf> fwa) {
+		return fwa.accept(new SymbolInSymbolLeafsCollector()).symbols;
 	}
 
 	@Override
