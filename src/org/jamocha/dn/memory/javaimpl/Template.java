@@ -88,6 +88,8 @@ public class Template implements org.jamocha.dn.memory.Template {
 
 	@Override
 	public SlotType getSlotType(final org.jamocha.dn.memory.SlotAddress slotAddress) {
+		if (null == slotAddress)
+			return SlotType.FACTADDRESS;
 		return getSlotType(((SlotAddress) slotAddress).index);
 	}
 
