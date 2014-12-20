@@ -154,6 +154,7 @@ public class JamochaGui extends Application {
 			FileChooser fileChooser = new FileChooser();
 			ExtensionFilter filter = new ExtensionFilter("CLIPS files", "*.clips");
 			fileChooser.getExtensionFilters().add(filter);
+			fileChooser.getExtensionFilters().add(new ExtensionFilter("All files", "*.*"));
 			file = fileChooser.showOpenDialog(primaryStage);
 		}
 
