@@ -25,6 +25,7 @@ import java.util.OptionalInt;
 import java.util.stream.Stream;
 
 import lombok.Getter;
+import lombok.ToString;
 
 import org.apache.logging.log4j.Marker;
 import org.jamocha.dn.memory.Fact;
@@ -39,6 +40,7 @@ import org.jamocha.logging.MarkerType;
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  *
  */
+@ToString(of = { "name" })
 public class Template implements org.jamocha.dn.memory.Template {
 
 	/**

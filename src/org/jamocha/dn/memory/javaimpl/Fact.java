@@ -19,6 +19,7 @@ import java.util.Arrays;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.ToString;
 
 import org.jamocha.dn.memory.MemoryFact;
 import org.jamocha.dn.memory.MemoryFactToFactIdentifier;
@@ -32,6 +33,7 @@ import org.jamocha.dn.memory.Template;
  */
 @RequiredArgsConstructor
 @EqualsAndHashCode
+@ToString
 class Fact implements MemoryFact {
 	@Getter(onMethod = @__({ @Override }))
 	final Template template;

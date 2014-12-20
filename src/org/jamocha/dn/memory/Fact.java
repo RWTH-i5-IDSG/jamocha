@@ -15,6 +15,7 @@
 package org.jamocha.dn.memory;
 
 import lombok.Getter;
+import lombok.ToString;
 
 /**
  * Storage class for facts entering the network.
@@ -23,6 +24,7 @@ import lombok.Getter;
  * @see Template
  */
 @Getter
+@ToString
 public class Fact {
 	final Template template;
 	final Object slotValues[];
