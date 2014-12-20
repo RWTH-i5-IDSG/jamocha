@@ -76,7 +76,7 @@ public class PathLeaf implements ExchangeableLeaf<PathLeaf> {
 
 	@Override
 	public SlotType[] getParamTypes() {
-		return new SlotType[] { getSlot().getSlotType(getPath().getTemplate()) };
+		return new SlotType[] { getPath().getTemplate().getSlotType(getSlot()) };
 	}
 
 	@Override
