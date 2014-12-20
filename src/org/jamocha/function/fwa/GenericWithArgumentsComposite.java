@@ -219,34 +219,34 @@ public abstract class GenericWithArgumentsComposite<R, F extends Function<? exte
 	}
 
 	@SafeVarargs
-	public static FunctionWithArguments<SymbolLeaf> newInstance(
+	public static <L extends ExchangeableLeaf<L>> FunctionWithArguments<L> newInstance(
 			final SideEffectFunctionToNetwork sideEffectFunctionToNetwork, final boolean sideEffectsAllowed,
-			final String inClips, final FunctionWithArguments<SymbolLeaf>... arguments) {
+			final String inClips, final FunctionWithArguments<L>... arguments) {
 		final SlotType[] argTypes = getArgumentTypes(arguments);
 		final Function<?> function =
 				sideEffectsAllowed ? FunctionDictionary.lookupWithSideEffects(sideEffectFunctionToNetwork, inClips,
 						argTypes) : FunctionDictionary.lookup(inClips, argTypes);
-		return SlotType.BOOLEAN == function.getReturnType() ? new PredicateWithArgumentsComposite<SymbolLeaf>(
-				(Predicate) function, arguments) : new FunctionWithArgumentsComposite<SymbolLeaf>(function, arguments);
+		return SlotType.BOOLEAN == function.getReturnType() ? new PredicateWithArgumentsComposite<L>(
+				(Predicate) function, arguments) : new FunctionWithArgumentsComposite<L>(function, arguments);
 	}
 
 	@SafeVarargs
-	public static PredicateWithArguments<SymbolLeaf> newPredicateInstance(final String inClips,
-			final FunctionWithArguments<SymbolLeaf>... arguments) {
+	public static <L extends ExchangeableLeaf<L>> PredicateWithArguments<L> newPredicateInstance(final String inClips,
+			final FunctionWithArguments<L>... arguments) {
 		final SlotType[] argTypes = getArgumentTypes(arguments);
 		final Predicate predicate = FunctionDictionary.lookupPredicate(inClips, argTypes);
-		return new PredicateWithArgumentsComposite<SymbolLeaf>(predicate, arguments);
+		return new PredicateWithArgumentsComposite<L>(predicate, arguments);
 	}
 
 	@SafeVarargs
-	private static SlotType[] getArgumentTypes(final FunctionWithArguments<SymbolLeaf>... arguments)
-			throws VariableNotDeclaredError {
+	private static <L extends ExchangeableLeaf<L>> SlotType[] getArgumentTypes(
+			final FunctionWithArguments<L>... arguments) throws VariableNotDeclaredError {
 		final SlotType[] argTypes =
 				toArray(Arrays.stream(arguments).map(FunctionWithArguments::getReturnType), SlotType[]::new);
 		for (int i = 0; i < argTypes.length; i++) {
 			final SlotType type = argTypes[i];
 			if (null == type) {
-				final FunctionWithArguments<SymbolLeaf> fwa = arguments[i];
+				final FunctionWithArguments<L> fwa = arguments[i];
 				assert fwa instanceof SymbolLeaf;
 				throw new VariableNotDeclaredError(((SymbolLeaf) fwa).getSymbol());
 			}
