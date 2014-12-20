@@ -25,6 +25,8 @@ import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NonNull;
+import lombok.Setter;
+import lombok.ToString;
 
 import org.jamocha.dn.memory.SlotAddress;
 import org.jamocha.dn.memory.SlotType;
@@ -41,11 +43,13 @@ import org.jamocha.languages.common.ScopeStack.VariableSymbol;
  */
 @Getter
 @EqualsAndHashCode
+@ToString(of = { "template" })
 public class SingleFactVariable {
 	@NonNull
 	final Template template;
 	@NonNull
-	final EquivalenceClass equal;
+	@Setter
+	EquivalenceClass equal;
 	final HashMap<SlotAddress, SingleSlotVariable> slots = new HashMap<>();
 
 	public SingleFactVariable(final Template template, final VariableSymbol symbol) {
@@ -90,6 +94,11 @@ public class SingleFactVariable {
 		public PathLeaf getPathLeaf(final Map<SingleFactVariable, Path> pathMap) {
 			final Path path = pathMap.get(getFactVariable());
 			return null == path ? null : new PathLeaf(path, slot);
+		}
+
+		@Override
+		public String toString() {
+			return "SingleSlotVariable(" + getFactVariable().toString() + "[" + slot.toString() + "])";
 		}
 	}
 }
