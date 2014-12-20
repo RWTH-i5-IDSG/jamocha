@@ -467,6 +467,9 @@ public class PathFilterConsolidator implements DefaultConditionalElementsVisitor
 			final List<PathFilterList> resultFilters = new ArrayList<>(pureExistentialFilters);
 
 			if (nonPureExistentialFilters.isEmpty()) {
+				// there are only existential filters
+				// FIXME satisfy equivalence classes before the closure
+
 				// if there are only existential filters, append one combining them with an initial
 				// fact path
 				assert null != initialFactPath;
@@ -576,6 +579,7 @@ public class PathFilterConsolidator implements DefaultConditionalElementsVisitor
 				resultFilters.add(combiningFilter);
 				processedExistentialPaths.addAll(collectedExistentialPaths);
 			}
+			// FIXME satisfy equivalence classes
 
 			{
 				// if not all paths within this existential CE have been used in some test, add a
@@ -588,7 +592,7 @@ public class PathFilterConsolidator implements DefaultConditionalElementsVisitor
 									new PathFilter.DummyPathFilterElement(toArray(unprocessedExistentialPaths,
 											Path[]::new)));
 					joinPaths(pathToJoinedWith, dummy);
-					resultFilters.add(dummy);
+					return Arrays.asList(new PathFilterList.PathFilterExistentialList(resultFilters, dummy));
 				}
 			}
 
