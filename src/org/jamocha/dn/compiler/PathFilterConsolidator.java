@@ -14,6 +14,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
@@ -40,6 +41,7 @@ import org.jamocha.filter.SymbolInSymbolLeafsCollector;
 import org.jamocha.function.FunctionDictionary;
 import org.jamocha.function.FunctionNormaliser;
 import org.jamocha.function.Predicate;
+import org.jamocha.function.fwa.ConstantLeaf;
 import org.jamocha.function.fwa.DefaultFunctionWithArgumentsVisitor;
 import org.jamocha.function.fwa.FunctionWithArguments;
 import org.jamocha.function.fwa.GenericWithArgumentsComposite;
@@ -418,6 +420,20 @@ public class PathFilterConsolidator implements DefaultConditionalElementsVisitor
 			return ce.accept(this);
 		}
 
+		private static Map<SingleSlotVariable, SingleSlotVariable> getMatchingSVs(final SingleFactVariable fv,
+				final Set<SingleSlotVariable> targets) {
+			final Map<EquivalenceClass, SingleSlotVariable> targetMap =
+					targets.stream().collect(toMap(sv -> sv.getEqual().iterator().next(), Function.identity()));
+			final Map<SingleSlotVariable, SingleSlotVariable> fvToTarget = new HashMap<>();
+			for (final SingleSlotVariable sv : fv.getSlotVariables()) {
+				final EquivalenceClass ec = sv.getEqual().iterator().next();
+				if (targetMap.keySet().contains(ec)) {
+					fvToTarget.put(sv, targetMap.get(ec));
+				}
+			}
+			return fvToTarget;
+		}
+
 		static List<PathFilterList> processExistentialCondition(final Template initialFactTemplate,
 				final Path initialFactPath, final ConditionalElement ce, final Map<SingleFactVariable, Path> fact2Path,
 				final Map<Path, Set<Path>> pathToJoinedWith,
@@ -425,24 +441,111 @@ public class PathFilterConsolidator implements DefaultConditionalElementsVisitor
 			// Collect the existential FactVariables and corresponding paths from the existentialCE
 			final Pair<Path, Map<SingleFactVariable, Path>> initialFactAndPathMap =
 					ShallowFactVariableCollector.generatePaths(initialFactTemplate, ce);
-			final Map<SingleFactVariable, Path> existentialFact2Path = initialFactAndPathMap.getRight();
+			final Map<SingleFactVariable, Path> shallowExistentialFact2Path = initialFactAndPathMap.getRight();
 
 			// combine existential FactVariables and Paths with non existential ones for PathFilter
 			// generation
-			final Map<SingleFactVariable, Path> combinedFact2Path = new HashMap<SingleFactVariable, Path>(fact2Path);
-			combinedFact2Path.putAll(existentialFact2Path);
+			fact2Path.putAll(shallowExistentialFact2Path);
+
+			final List<SingleFactVariable> deepExistentialFactVariables = DeepFactVariableCollector.collect(ce);
 
 			for (final EquivalenceClass equiv : equivalenceClassToPathLeaf.keySet()) {
-				equivalenceClassToPathLeaf.computeIfAbsent(equiv, e -> e.getPathLeaf(combinedFact2Path));
+				equivalenceClassToPathLeaf.computeIfAbsent(equiv, e -> e.getPathLeaf(fact2Path));
 			}
 
 			// Only existential Paths without Variables
-			final Set<Path> existentialPaths = new HashSet<>(existentialFact2Path.values());
+			final Set<Path> shallowExistentialPaths = new HashSet<>(shallowExistentialFact2Path.values());
 
 			// Generate PathFilters from CE (recurse)
 			final List<PathFilterList> filters =
-					new NoORsPFC(initialFactTemplate, initialFactAndPathMap.getLeft(), combinedFact2Path,
-							pathToJoinedWith, equivalenceClassToPathLeaf, false).collect(ce).getPathFilters();
+					new NoORsPFC(initialFactTemplate, initialFactAndPathMap.getLeft(), fact2Path, pathToJoinedWith,
+							equivalenceClassToPathLeaf, false).collect(ce).getPathFilters();
+
+			final Map<SingleFactVariable, Path> deepExistentialFact2Path =
+					deepExistentialFactVariables.stream().collect(toMap(Function.identity(), fv -> fact2Path.get(fv)));
+			final HashSet<Path> deepExistentialPaths = new HashSet<>(deepExistentialFact2Path.values());
+
+			{
+				final Set<SingleFactVariable> shallowExistentialFVs = shallowExistentialFact2Path.keySet();
+				for (final SingleFactVariable exFV : shallowExistentialFVs) {
+					final Set<SingleSlotVariable> slotVariables = new HashSet<>(exFV.getSlotVariables());
+					slotLoop: while (!slotVariables.isEmpty()) {
+						final SingleSlotVariable slotVariable = slotVariables.iterator().next();
+						final Set<EquivalenceClass> eqSet = slotVariable.getEqual();
+						assert eqSet.size() == 1;
+						final EquivalenceClass equal = eqSet.iterator().next();
+						final Set<SingleSlotVariable> equalSlotVariables = new HashSet<>(equal.getEqualSlotVariables());
+						final ArrayList<FunctionWithArguments<SymbolLeaf>> equalFWAs = equal.getEqualFWAs();
+						// remove the slot variable from the equivalence class as it will not be
+						// accessible outside of the existential part
+						equalSlotVariables.remove(slotVariable);
+						if (equalSlotVariables.size() < 1 && equalFWAs.isEmpty()) {
+							// nothing to do
+							slotVariables.remove(slotVariable);
+							continue;
+						}
+						// we have to insert an equality test
+
+						// just checking equality regarding FWAs breaks if we allow FWAs to return
+						// different values for different calls with the same arguments such as
+						// (random 0 1).
+						// without knowing anything about the equal FWAs we would have to:
+						// if there are equalFWAs: join everything at once
+						// if there are no equalFWAs: join at least one of the FVs of the equal SVs
+
+						if (!equalFWAs.isEmpty()) {
+							// to make use of the fact that the slot would easily be covered by a
+							// ConstantLeaf, we inspect the equalFWAs
+							final Optional<FunctionWithArguments<SymbolLeaf>> optConstantLeaf =
+									equalFWAs.stream().filter(fwa -> fwa instanceof ConstantLeaf).findAny();
+							if (optConstantLeaf.isPresent()) {
+								// no path merging needed
+								filters.add(new PathFilter(new PathFilterElement(GenericWithArgumentsComposite
+										.newPredicateInstance(Equals.inClips, equivalenceClassToPathLeaf.get(equal),
+												SymbolToPathTranslator.translate(optConstantLeaf.get(),
+														equivalenceClassToPathLeaf)))));
+								slotVariables.remove(slotVariable);
+								equal.getEqualSlotVariables().remove(slotVariable);
+								continue slotLoop;
+							} else {
+								// the hard way: join everything
+								// FIXME THE HARD WAY
+								System.err.println(" THE HARD WAY ");
+								throw new Error("not yet implemented");
+								// continue slotLoop;
+							}
+						} else {
+							// no equal FWAs: join at least one of the FVs of the equal SVs
+							final Optional<Map<SingleSlotVariable, SingleSlotVariable>> optBestCandidate =
+									slotVariables
+											.stream()
+											.flatMap(
+													sv -> sv.getEqual().iterator().next().getEqualSlotVariables()
+															.stream().map(SingleSlotVariable::getFactVariable))
+											.distinct().filter(fv -> !fv.equals(exFV) && fact2Path.containsKey(fv))
+											.map(fv -> getMatchingSVs(fv, slotVariables))
+											.max((a, b) -> Integer.compare(a.size(), b.size()));
+							if (!optBestCandidate.isPresent())
+								throw new Error("What just happened?");
+							final Map<SingleSlotVariable, SingleSlotVariable> merged = optBestCandidate.get();
+							for (final Entry<SingleSlotVariable, SingleSlotVariable> entry : merged.entrySet()) {
+								final PathFilter filter =
+										new PathFilter(new PathFilterElement(
+												GenericWithArgumentsComposite.newPredicateInstance(Equals.inClips,
+														entry.getKey().getPathLeaf(fact2Path), entry.getValue()
+																.getPathLeaf(fact2Path))));
+								joinPaths(pathToJoinedWith, filter);
+								filters.add(filter);
+							}
+							for (final SingleSlotVariable sv : merged.values()) {
+								sv.getEqual().iterator().next().getEqualSlotVariables().remove(sv);
+							}
+							slotVariables.removeAll(merged.values());
+							continue slotLoop;
+						}
+					}
+				}
+			}
 
 			// Collect all used Paths for every PathFilter
 			final Map<PathFilterList, HashSet<Path>> filter2Paths =
@@ -452,30 +555,31 @@ public class PathFilterConsolidator implements DefaultConditionalElementsVisitor
 
 			// Split PathFilters into those only using existential Paths and those also using non
 			// existential Paths
-			final Map<Boolean, LinkedList<PathFilterList>> tmp =
-					filters.stream().collect(
-							Collectors.partitioningBy(filter -> existentialPaths.containsAll(filter2Paths.get(filter)),
-									toCollection(LinkedList::new)));
-			final LinkedList<PathFilterList> pureExistentialFilters = tmp.get(Boolean.TRUE);
-			final LinkedList<PathFilterList> nonPureExistentialFilters = tmp.get(Boolean.FALSE);
+			final LinkedList<PathFilterList> pureExistentialFilters, nonPureExistentialFilters;
+			{
+				final Map<Boolean, LinkedList<PathFilterList>> tmp =
+						filters.stream().collect(
+								Collectors.partitioningBy(
+										filter -> deepExistentialPaths.containsAll(filter2Paths.get(filter)),
+										toCollection(LinkedList::new)));
+				pureExistentialFilters = tmp.get(Boolean.TRUE);
+				nonPureExistentialFilters = tmp.get(Boolean.FALSE);
+			}
 
 			// Add all pureExistentialFilters to result List because they don't have to be combined
 			// or ordered
 			final List<PathFilterList> resultFilters = new ArrayList<>(pureExistentialFilters);
 
 			if (nonPureExistentialFilters.isEmpty()) {
-				// there are only existential filters
-				// FIXME satisfy equivalence classes before the closure
-
 				// if there are only existential filters, append one combining them with an initial
 				// fact path
 				assert null != initialFactPath;
 				final ArrayList<Path> paths = new ArrayList<>();
-				paths.addAll(existentialPaths);
+				paths.addAll(shallowExistentialPaths);
 				paths.add(initialFactPath);
 				final PathFilter existentialClosure =
-						new PathFilter(isPositive, existentialPaths, new PathFilter.DummyPathFilterElement(toArray(
-								paths, Path[]::new)));
+						new PathFilter(isPositive, shallowExistentialPaths, new PathFilter.DummyPathFilterElement(
+								toArray(paths, Path[]::new)));
 				joinPaths(pathToJoinedWith, existentialClosure);
 				return Arrays.asList(new PathFilterList.PathFilterExistentialList(resultFilters, existentialClosure));
 			}
@@ -486,7 +590,9 @@ public class PathFilterConsolidator implements DefaultConditionalElementsVisitor
 					x -> new HashSet<>()).add(pathFilter)));
 
 			// Find connected components of the existential Paths
-			final Map<Path, Set<Path>> joinedExistentialPaths = new HashMap<>();
+			final Map<Path, Set<Path>> joinedExistentialPaths =
+					deepExistentialPaths.stream().collect(
+							toMap(Function.identity(), p -> new HashSet<>(Arrays.asList(p))));
 			final Set<Path> processedExistentialPaths = new HashSet<>();
 			// While there are unjoined Filters continue
 			while (!pureExistentialFilters.isEmpty()) {
@@ -536,7 +642,7 @@ public class PathFilterConsolidator implements DefaultConditionalElementsVisitor
 					final Set<Path> newCollectedExistentialPaths =
 							newCollectedFilters.stream()
 									.flatMap((final PathFilterList f) -> filter2Paths.get(f).stream()).collect(toSet());
-					newCollectedExistentialPaths.retainAll(existentialPaths);
+					newCollectedExistentialPaths.retainAll(shallowExistentialPaths);
 					// removed already known paths
 					newCollectedExistentialPaths.removeAll(collectedExistentialPaths);
 					// add all existential paths already joined with the new paths
@@ -576,12 +682,11 @@ public class PathFilterConsolidator implements DefaultConditionalElementsVisitor
 				resultFilters.add(combiningFilter);
 				processedExistentialPaths.addAll(collectedExistentialPaths);
 			}
-			// FIXME satisfy equivalence classes
 
 			{
 				// if not all paths within this existential CE have been used in some test, add a
 				// dummy filter element to have them joined, too
-				final Set<Path> unprocessedExistentialPaths = new HashSet<>(existentialPaths);
+				final Set<Path> unprocessedExistentialPaths = new HashSet<>(shallowExistentialPaths);
 				unprocessedExistentialPaths.removeAll(processedExistentialPaths);
 				if (!unprocessedExistentialPaths.isEmpty()) {
 					final PathFilter dummy =
