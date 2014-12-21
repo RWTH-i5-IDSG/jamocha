@@ -1,6 +1,7 @@
 package org.jamocha.dn;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -67,10 +68,14 @@ public class NetworkToDot implements NodeVisitor {
 		return nameNodes.getNodeName(node);
 	}
 
-	public NetworkToDot(SideEffectFunctionToNetwork network) {
+	public NetworkToDot(final SideEffectFunctionToNetwork network, final String... rules) {
 		super();
+		Arrays.sort(rules);
 		for (TerminalNode terminalNode : network.getTerminalNodes()) {
 			final String ruleName = terminalNode.getRule().getParent().getName();
+			if (rules.length != 0 && Arrays.binarySearch(rules, ruleName) < 0) {
+				continue;
+			}
 			terminalNodes.put(terminalNode, ruleName);
 			final Node sourceNode = terminalNode.getEdge().getSourceNode();
 			final String sourceNodeName = getNodeName(sourceNode);

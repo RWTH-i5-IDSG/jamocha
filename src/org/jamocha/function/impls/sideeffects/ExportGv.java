@@ -14,8 +14,11 @@
  */
 package org.jamocha.function.impls.sideeffects;
 
+import static org.jamocha.util.ToArray.toArray;
+
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Arrays;
 
 import org.jamocha.dn.NetworkToDot;
 import org.jamocha.dn.SideEffectFunctionToNetwork;
@@ -23,6 +26,7 @@ import org.jamocha.dn.memory.SlotType;
 import org.jamocha.function.Function;
 import org.jamocha.function.FunctionDictionary;
 import org.jamocha.function.impls.FunctionVisitor;
+import org.jamocha.languages.common.ScopeStack.Symbol;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
@@ -61,6 +65,31 @@ public abstract class ExportGv implements Function<Object> {
 					final String fileName = (String) params[0].evaluate();
 					try (final FileWriter fileWriter = new FileWriter(fileName)) {
 						fileWriter.write(new NetworkToDot(network).toString());
+					} catch (final IOException e) {
+						e.printStackTrace();
+					}
+					return null;
+				}
+			};
+		});
+		FunctionDictionary.addVarArgsGeneratorWithSideEffects(inClips, (final SideEffectFunctionToNetwork network,
+				final SlotType[] paramTypes) -> {
+			if (paramTypes.length < 2 || paramTypes[0] != SlotType.STRING) {
+				return null;
+			}
+			for (int i = 1; i < paramTypes.length; ++i) {
+				if (paramTypes[i] != SlotType.SYMBOL) {
+					return null;
+				}
+			}
+			return new ExportGv() {
+				@Override
+				public Object evaluate(final Function<?>... params) {
+					final String fileName = (String) params[0].evaluate();
+					try (final FileWriter fileWriter = new FileWriter(fileName)) {
+						fileWriter.write(new NetworkToDot(network, toArray(
+								Arrays.stream(params, 1, params.length).map(f -> ((Symbol) f.evaluate()).getImage()),
+								String[]::new)).toString());
 					} catch (final IOException e) {
 						e.printStackTrace();
 					}
