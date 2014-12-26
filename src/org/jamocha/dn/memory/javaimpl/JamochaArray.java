@@ -103,6 +103,8 @@ public class JamochaArray<T> implements RandomAccess, Iterable<T> {
 	}
 
 	public Object[] toArray() {
+		if (values.length > size)
+			return Arrays.copyOf(values, size);
 		return values;
 	}
 
@@ -121,6 +123,11 @@ public class JamochaArray<T> implements RandomAccess, Iterable<T> {
 	public void clear() {
 		Arrays.fill(values, 0, size, null);
 		size = 0;
+	}
+	
+	@Override
+	public String toString() {
+		return Arrays.toString(toArray());
 	}
 
 	@Override
