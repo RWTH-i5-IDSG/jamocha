@@ -15,6 +15,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
@@ -50,6 +51,7 @@ import org.jamocha.function.fwa.PredicateWithArguments;
 import org.jamocha.function.fwa.PredicateWithArgumentsComposite;
 import org.jamocha.function.fwa.SymbolLeaf;
 import org.jamocha.function.fwatransformer.FWADeepCopy;
+import org.jamocha.function.impls.predicates.And;
 import org.jamocha.function.impls.predicates.Equals;
 import org.jamocha.function.impls.predicates.Not;
 import org.jamocha.languages.common.ConditionalElement;
@@ -171,7 +173,7 @@ public class PathFilterConsolidator implements DefaultConditionalElementsVisitor
 					if (!occurringFactVariables.contains(sv.getFactVariable())) {
 						// not contained, remove the SV and its reference to this EC
 						iterator.remove();
-						sv.getEqual().remove(ec);
+						sv.getEqualSet().remove(ec);
 					}
 				}
 				// for every FWA, check whether the FWA occurs in the CE
@@ -182,9 +184,9 @@ public class PathFilterConsolidator implements DefaultConditionalElementsVisitor
 			for (final VariableSymbol vs : symbols) {
 				final EquivalenceClass ec = vs.getEqual();
 				for (final SingleSlotVariable sv : ec.getEqualSlotVariables()) {
-					if (sv.getEqual().size() <= 1)
+					if (sv.getEqualSet().size() <= 1)
 						continue;
-					final Iterator<EquivalenceClass> ecIter = sv.getEqual().iterator();
+					final Iterator<EquivalenceClass> ecIter = sv.getEqualSet().iterator();
 					final EquivalenceClass first = ecIter.next();
 					while (ecIter.hasNext()) {
 						final EquivalenceClass other = ecIter.next();
@@ -217,7 +219,7 @@ public class PathFilterConsolidator implements DefaultConditionalElementsVisitor
 			replaceEC(symbols, oldToNew.inverse());
 			// restore the SlotVariable - equivalence class mapping
 			symbolToECbackup.forEach((vs, ec) -> vs.getEqual().getEqualSlotVariables()
-					.forEach(sv -> sv.getEqual().add(ec)));
+					.forEach(sv -> sv.getEqualSet().add(ec)));
 			return result;
 		}
 
@@ -237,7 +239,7 @@ public class PathFilterConsolidator implements DefaultConditionalElementsVisitor
 				oldEC.getFactVariable().ifPresent(fv -> fv.setEqual(newEC));
 				// SingleSlotVariable.equal (Set)
 				for (final SingleSlotVariable sv : oldEC.getEqualSlotVariables()) {
-					final Set<EquivalenceClass> equalSet = sv.getEqual();
+					final Set<EquivalenceClass> equalSet = sv.getEqualSet();
 					for (final Map.Entry<EquivalenceClass, EquivalenceClass> innerEntry : map.entrySet()) {
 						if (equalSet.remove(innerEntry.getKey()))
 							equalSet.add(innerEntry.getValue());
@@ -343,23 +345,27 @@ public class PathFilterConsolidator implements DefaultConditionalElementsVisitor
 				}
 			}
 
+			mergeMissingPathsViaDummy(allPaths, pathFilters, pathToJoinedWith);
+			return rule.newTranslated(new PathFilterSharedListWrapper().newSharedElement(pathFilters),
+					equivalenceClassToPathLeaf);
+		}
+
+		private static void mergeMissingPathsViaDummy(final Set<Path> allPaths, final List<PathFilterList> pathFilters,
+				final Map<Path, Set<Path>> pathToJoinedWith) {
 			final Set<Path> collectedPaths =
 					(pathFilters.isEmpty() ? Collections.<Path> emptySet() : PathCollector.newHashSet()
 							.collectOnlyInFilterElements(pathFilters.get(pathFilters.size() - 1)).getPaths().stream()
 							.flatMap((p) -> pathToJoinedWith.get(p).stream()).collect(toSet()));
 
-			final TranslatedPath translated =
-					rule.newTranslated(new PathFilterSharedListWrapper().newSharedElement(pathFilters),
-							equivalenceClassToPathLeaf);
 			if (collectedPaths.containsAll(allPaths)) {
-				return translated;
+				return;
 			}
 			allPaths.addAll(collectedPaths);
 			final PathFilter dummy =
 					new PathFilter(new PathFilter.DummyPathFilterElement(toArray(allPaths, Path[]::new)));
 			joinPaths(pathToJoinedWith, dummy);
 			pathFilters.add(dummy);
-			return translated;
+			return;
 		}
 
 		private static final Predicate not = FunctionDictionary.lookupPredicate(Not.inClips, SlotType.BOOLEAN);
@@ -377,29 +383,13 @@ public class PathFilterConsolidator implements DefaultConditionalElementsVisitor
 				return;
 
 			if (!equiv.getEqualSlotVariables().isEmpty()) {
-				final Set<FunctionWithArguments<PathLeaf>> equalPathLeafs =
-						equiv.getEqualSlotVariables().stream().map(sv -> sv.getPathLeaf(pathMap)).collect(toSet());
-				equiv.getFactVariable().map(fv -> fv.getPathLeaf(pathMap)).ifPresent(equalPathLeafs::add);
-				if (equalPathLeafs.size() > 1) {
-					equalPathLeafs.remove(element);
-					for (final FunctionWithArguments<PathLeaf> other : equalPathLeafs) {
-						final PathFilter eqTest =
-								new PathFilter(new PathFilterElement(
-										GenericWithArgumentsComposite.newPredicateInstance(Equals.inClips, element,
-												other)));
-						joinPaths(pathToJoinedWith, eqTest);
-						pathFilters.add(eqTest);
-					}
-				}
+				createEqualSlotsAndFactsTests(equiv, pathFilters, pathToJoinedWith, pathMap, (x) -> true,
+						(x) -> element);
 			}
 			if (!equiv.getEqualFWAs().isEmpty()) {
 				for (final FunctionWithArguments<SymbolLeaf> other : equiv.getEqualFWAs()) {
-					final PathFilter eqTest =
-							new PathFilter(new PathFilterElement(GenericWithArgumentsComposite.newPredicateInstance(
-									Equals.inClips, element,
-									SymbolToPathTranslator.translate(other, equivalenceClassToPathLeaf))));
-					joinPaths(pathToJoinedWith, eqTest);
-					pathFilters.add(eqTest);
+					addEqualityTestTo(pathFilters, pathToJoinedWith, element,
+							SymbolToPathTranslator.translate(other, equivalenceClassToPathLeaf));
 				}
 			}
 			if (!equiv.getUnequalEquivalenceClasses().isEmpty()) {
@@ -416,22 +406,72 @@ public class PathFilterConsolidator implements DefaultConditionalElementsVisitor
 			}
 		}
 
+		private static void createEqualSlotsAndFactsTests(
+				final EquivalenceClass equiv,
+				final List<PathFilterList> pathFilters,
+				final Map<Path, Set<Path>> pathToJoinedWith,
+				final Map<SingleFactVariable, Path> pathMap,
+				final java.util.function.Predicate<? super SingleFactVariable> pred,
+				final Function<? super Set<FunctionWithArguments<PathLeaf>>, ? extends FunctionWithArguments<PathLeaf>> elementChooser) {
+			final Set<FunctionWithArguments<PathLeaf>> equalPathLeafs =
+					equiv.getEqualSlotVariables().stream().filter(sv -> pred.test(sv.getFactVariable()))
+							.map(sv -> sv.getPathLeaf(pathMap)).collect(toSet());
+			equiv.getFactVariable().filter(pred).map(fv -> fv.getPathLeaf(pathMap)).ifPresent(equalPathLeafs::add);
+			if (equalPathLeafs.size() <= 1) {
+				return;
+			}
+			final FunctionWithArguments<PathLeaf> element = elementChooser.apply(equalPathLeafs);
+			equalPathLeafs.remove(element);
+			for (Iterator<FunctionWithArguments<PathLeaf>> iterator = equalPathLeafs.iterator(); iterator.hasNext();) {
+				final FunctionWithArguments<PathLeaf> other = iterator.next();
+				final PathFilter eqTest =
+						new PathFilter(new PathFilterElement(GenericWithArgumentsComposite.newPredicateInstance(
+								Equals.inClips, element, other)));
+				joinPaths(pathToJoinedWith, eqTest);
+				pathFilters.add(eqTest);
+			}
+			// remove all used single slot variables and the fact variable except the for the
+			// _element_ chosen (which is not part of equalPathLeafs)
+			equiv.getEqualSlotVariables().removeIf(sv -> equalPathLeafs.contains(sv.getPathLeaf(pathMap)));
+			equiv.getFactVariable().filter(fv -> equalPathLeafs.contains(fv.getPathLeaf(pathMap)))
+					.ifPresent(fv -> equiv.removeFactVariable());
+		}
+
 		private <T extends ConditionalElement> NoORsPFC collect(final T ce) {
 			return ce.accept(this);
 		}
 
-		private static Map<SingleSlotVariable, SingleSlotVariable> getMatchingSVs(final SingleFactVariable fv,
-				final Set<SingleSlotVariable> targets) {
-			final Map<EquivalenceClass, SingleSlotVariable> targetMap =
-					targets.stream().collect(toMap(sv -> sv.getEqual().iterator().next(), Function.identity()));
-			final Map<SingleSlotVariable, SingleSlotVariable> fvToTarget = new HashMap<>();
+		private static Map<EquivalenceClass, SingleSlotVariable> getMatchingSVs(final SingleFactVariable fv,
+				final Set<EquivalenceClass> targets) {
+			final Map<EquivalenceClass, SingleSlotVariable> fvToTarget = new HashMap<>();
 			for (final SingleSlotVariable sv : fv.getSlotVariables()) {
-				final EquivalenceClass ec = sv.getEqual().iterator().next();
-				if (targetMap.keySet().contains(ec)) {
-					fvToTarget.put(sv, targetMap.get(ec));
+				final EquivalenceClass ec = sv.getEqual();
+				if (targets.contains(ec)) {
+					fvToTarget.put(ec, sv);
 				}
 			}
 			return fvToTarget;
+		}
+
+		// merge the fact variables given and apply all tests between them
+		private static void mergeFVs(final Set<SingleFactVariable> shallowExistentialFVs,
+				final Map<Path, Set<Path>> pathToJoinedWith, final Map<SingleFactVariable, Path> pathMap,
+				final List<PathFilterList> pathFilters) {
+			if (shallowExistentialFVs.size() == 1)
+				return;
+			final Set<EquivalenceClass> done = new HashSet<>();
+			for (final SingleFactVariable factVariable : shallowExistentialFVs) {
+				for (final SingleSlotVariable slotVariable : factVariable.getSlotVariables()) {
+					final EquivalenceClass equiv = slotVariable.getEqual();
+					if (!done.add(equiv))
+						continue;
+					createEqualSlotsAndFactsTests(equiv, pathFilters, pathToJoinedWith, pathMap,
+							shallowExistentialFVs::contains, set -> set.iterator().next());
+				}
+			}
+			final Set<Path> existentialPaths =
+					shallowExistentialFVs.stream().map(fv -> pathMap.get(fv)).collect(toSet());
+			mergeMissingPathsViaDummy(existentialPaths, pathFilters, pathToJoinedWith);
 		}
 
 		static List<PathFilterList> processExistentialCondition(final Template initialFactTemplate,
@@ -467,82 +507,160 @@ public class PathFilterConsolidator implements DefaultConditionalElementsVisitor
 
 			{
 				final Set<SingleFactVariable> shallowExistentialFVs = shallowExistentialFact2Path.keySet();
-				for (final SingleFactVariable exFV : shallowExistentialFVs) {
-					final Set<SingleSlotVariable> slotVariables = new HashSet<>(exFV.getSlotVariables());
-					slotLoop: while (!slotVariables.isEmpty()) {
-						final SingleSlotVariable slotVariable = slotVariables.iterator().next();
-						final Set<EquivalenceClass> eqSet = slotVariable.getEqual();
-						assert eqSet.size() == 1;
-						final EquivalenceClass equal = eqSet.iterator().next();
-						final Set<SingleSlotVariable> equalSlotVariables = new HashSet<>(equal.getEqualSlotVariables());
-						final ArrayList<FunctionWithArguments<SymbolLeaf>> equalFWAs = equal.getEqualFWAs();
-						// remove the slot variable from the equivalence class as it will not be
-						// accessible outside of the existential part
-						equalSlotVariables.remove(slotVariable);
-						if (equalSlotVariables.size() < 1 && equalFWAs.isEmpty()) {
-							// nothing to do
-							slotVariables.remove(slotVariable);
-							continue;
-						}
-						// we have to insert an equality test
+				// we can ignore the equivalence classes of the fact variables here as fact variable
+				// bindings would only be valid here and in our children and are thus covered here
+				// or by our children via slot variables
+				final Set<EquivalenceClass> shallowEquivalenceClassesContainingExistentials =
+						shallowExistentialFVs.stream()
+								.flatMap(fv -> fv.getSlotVariables().stream().map(SingleSlotVariable::getEqual))
+								.collect(toSet());
 
-						// just checking equality regarding FWAs breaks if we allow FWAs to return
-						// different values for different calls with the same arguments such as
-						// (random 0 1).
-						// without knowing anything about the equal FWAs we would have to:
-						// if there are equalFWAs: join everything at once
-						// if there are no equalFWAs: join at least one of the FVs of the equal SVs
+				// if there is more than just one TPCE (i.e. there is more than one FactVariable),
+				// we have to join those in an own node first (thus they all come in via the same
+				// edge) to be able to access all relevant information in the test of the
+				// "existential CE"
+				// equal slot variables within the existential-CE always have to be included in the
+				// test, so add them too
+				mergeFVs(shallowExistentialFVs, pathToJoinedWith, fact2Path, filters);
+				// after the merge, the mapping between Slot Variables of the existential FVs and
+				// their equivalence classes should be 1:1 if you ignore the SlotVariables that are
+				// no longer contained in their equivalence class
+				final Map<EquivalenceClass, SingleSlotVariable> ecToSVs =
+						shallowExistentialFVs
+								.stream()
+								.flatMap(exFV -> exFV.getSlotVariables().stream())
+								.collect(
+										toMap(sv -> sv.getEqual(), Function.identity(), (a, b) -> (a.getEqual()
+												.getEqualSlotVariables().contains(a) ? a : b)));
 
-						if (!equalFWAs.isEmpty()) {
-							// to make use of the fact that the slot would easily be covered by a
-							// ConstantLeaf, we inspect the equalFWAs
-							final Optional<FunctionWithArguments<SymbolLeaf>> optConstantLeaf =
-									equalFWAs.stream().filter(fwa -> fwa instanceof ConstantLeaf).findAny();
-							if (optConstantLeaf.isPresent()) {
-								// no path merging needed
-								filters.add(new PathFilter(new PathFilterElement(GenericWithArgumentsComposite
-										.newPredicateInstance(Equals.inClips, equivalenceClassToPathLeaf.get(equal),
-												SymbolToPathTranslator.translate(optConstantLeaf.get(),
-														equivalenceClassToPathLeaf)))));
-								slotVariables.remove(slotVariable);
-								equal.getEqualSlotVariables().remove(slotVariable);
-								continue slotLoop;
-							} else {
-								// the hard way: join everything
-								// FIXME THE HARD WAY
-								System.err.println(" THE HARD WAY ");
-								throw new Error("not yet implemented");
-								// continue slotLoop;
-							}
-						} else {
-							// no equal FWAs: join at least one of the FVs of the equal SVs
-							final Optional<Map<SingleSlotVariable, SingleSlotVariable>> optBestCandidate =
-									slotVariables
-											.stream()
-											.flatMap(
-													sv -> sv.getEqual().iterator().next().getEqualSlotVariables()
-															.stream().map(SingleSlotVariable::getFactVariable))
-											.distinct().filter(fv -> !fv.equals(exFV) && fact2Path.containsKey(fv))
-											.map(fv -> getMatchingSVs(fv, slotVariables))
-											.max((a, b) -> Integer.compare(a.size(), b.size()));
-							if (!optBestCandidate.isPresent())
-								throw new Error("What just happened?");
-							final Map<SingleSlotVariable, SingleSlotVariable> merged = optBestCandidate.get();
-							for (final Entry<SingleSlotVariable, SingleSlotVariable> entry : merged.entrySet()) {
-								final PathFilter filter =
-										new PathFilter(new PathFilterElement(
-												GenericWithArgumentsComposite.newPredicateInstance(Equals.inClips,
-														entry.getKey().getPathLeaf(fact2Path), entry.getValue()
-																.getPathLeaf(fact2Path))));
-								joinPaths(pathToJoinedWith, filter);
-								filters.add(filter);
-							}
-							for (final SingleSlotVariable sv : merged.values()) {
-								sv.getEqual().iterator().next().getEqualSlotVariables().remove(sv);
-							}
-							slotVariables.removeAll(merged.values());
-							continue slotLoop;
+				/*
+				 * if there are no symbol occurrences outside (which means we have at most one equal
+				 * slot variable left), work off the CE now
+				 */
+				final Set<EquivalenceClass> localEquivalenceClasses =
+						ecToSVs.entrySet().stream().filter(e -> e.getKey().getEqualSlotVariables().size() <= 1)
+								.map(Entry::getKey).collect(toSet());
+				for (final EquivalenceClass localEquivalenceClass : localEquivalenceClasses) {
+					final FunctionWithArguments<PathLeaf> element =
+							equivalenceClassToPathLeaf.get(localEquivalenceClass);
+					for (final FunctionWithArguments<SymbolLeaf> fwa : localEquivalenceClass.getEqualFWAs()) {
+						addEqualityTestTo(filters, pathToJoinedWith, element,
+								SymbolToPathTranslator.translate(fwa, equivalenceClassToPathLeaf));
+					}
+					for (final EquivalenceClass unequal : localEquivalenceClass.getUnequalEquivalenceClasses()) {
+						final PathLeaf other = equivalenceClassToPathLeaf.get(unequal);
+						addEqualityTestTo(filters, pathToJoinedWith, element, other);
+						localEquivalenceClass.removeNegatedEdge(unequal);
+					}
+				}
+
+				/*
+				 * the equal FWAs have to be scanned for existential symbols - those containing any
+				 * need to be joined here in every case
+				 */
+				{
+					final Set<EquivalenceClass> nonLocalEquivalenceClasses =
+							ecToSVs.entrySet().stream().filter(e -> !localEquivalenceClasses.contains(e.getKey()))
+									.map(Entry::getKey).collect(toSet());
+					for (final EquivalenceClass nonLocalEquivalenceClass : nonLocalEquivalenceClasses) {
+						final LinkedList<FunctionWithArguments<SymbolLeaf>> equalFWAs =
+								nonLocalEquivalenceClass.getEqualFWAs();
+						final FunctionWithArguments<PathLeaf> element =
+								equivalenceClassToPathLeaf.get(nonLocalEquivalenceClass);
+						final Set<FunctionWithArguments<SymbolLeaf>> equalFWAsContainingCurrentExistentialSymbols =
+								equalFWAs
+										.stream()
+										.filter(fwa -> SymbolInSymbolLeafsCollector.collect(fwa).stream()
+												.map(vs -> vs.getEqual())
+												.filter(shallowEquivalenceClassesContainingExistentials::contains)
+												.findAny().isPresent()).collect(toSet());
+						for (final FunctionWithArguments<SymbolLeaf> other : equalFWAsContainingCurrentExistentialSymbols) {
+							addEqualityTestTo(filters, pathToJoinedWith, element,
+									SymbolToPathTranslator.translate(other, equivalenceClassToPathLeaf));
+							equalFWAs.remove(other);
 						}
+					}
+
+					/*
+					 * just checking equality regarding FWAs breaks if we allow FWAs to return
+					 * different values for different calls with the same arguments such as (random
+					 * 0 1). without knowing anything about the equal FWAs we would have to: if
+					 * there are equalFWAs: join everything at once if there are no equalFWAs: join
+					 * at least one of the FVs of the equal SVs
+					 */
+
+					/*
+					 * now, the only thing left to do should be to find non-existential fact
+					 * variables or constants which we can use to create a final test establishing
+					 * the ties to the non-existential parts of the non-local equivalence classes
+					 * after which all existential parts are converted into a number in its counter
+					 * column
+					 */
+					final ArrayList<PredicateWithArguments<PathLeaf>> finalisingFilterParts = new ArrayList<>();
+					final Set<SingleFactVariable> finalisingFilterFactVariablesToPrepare = new HashSet<>();
+					// use constants where possible
+					final Set<Pair<EquivalenceClass, FunctionWithArguments<SymbolLeaf>>> ecToConstant =
+							nonLocalEquivalenceClasses
+									.stream()
+									.map(ec -> ec.getEqualFWAs().stream().filter(fwa -> fwa instanceof ConstantLeaf)
+											.findAny().map(c -> Pair.of(ec, c)).orElse(null)).filter(Objects::nonNull)
+									.collect(toSet());
+					for (final Pair<EquivalenceClass, FunctionWithArguments<SymbolLeaf>> ecAndConstant : ecToConstant) {
+						final EquivalenceClass equal = ecAndConstant.getLeft();
+						final PathLeaf element = equivalenceClassToPathLeaf.get(equal);
+						final FunctionWithArguments<PathLeaf> other =
+								SymbolToPathTranslator.translate(ecAndConstant.getRight(), equivalenceClassToPathLeaf);
+						finalisingFilterParts.add(GenericWithArgumentsComposite.newPredicateInstance(Equals.inClips,
+								element, other));
+						nonLocalEquivalenceClasses.remove(equal);
+					}
+					// no constants found for the following ones, join non-existential fact
+					// variables
+					while (!nonLocalEquivalenceClasses.isEmpty()) {
+						final Optional<Map<EquivalenceClass, SingleSlotVariable>> optBestCandidate =
+								nonLocalEquivalenceClasses
+										.stream()
+										.flatMap(
+												ec -> ec.getEqualSlotVariables().stream()
+														.map(SingleSlotVariable::getFactVariable)).distinct()
+										.filter(fv -> !shallowExistentialFVs.contains(fv) && fact2Path.containsKey(fv))
+										.map(fv -> getMatchingSVs(fv, nonLocalEquivalenceClasses))
+										.max((a, b) -> Integer.compare(a.size(), b.size()));
+						if (!optBestCandidate.isPresent())
+							throw new Error("What just happened?");
+						final Map<EquivalenceClass, SingleSlotVariable> merged = optBestCandidate.get();
+						for (final Entry<EquivalenceClass, SingleSlotVariable> entry : merged.entrySet()) {
+							final SingleSlotVariable svDone = ecToSVs.get(entry.getKey());
+							final SingleSlotVariable svTarget = entry.getValue();
+							finalisingFilterFactVariablesToPrepare.add(svTarget.getFactVariable());
+							finalisingFilterParts.add(GenericWithArgumentsComposite.newPredicateInstance(
+									Equals.inClips, svDone.getPathLeaf(fact2Path), svTarget.getPathLeaf(fact2Path)));
+							svTarget.getEqual().getEqualSlotVariables().remove(svDone);
+						}
+						nonLocalEquivalenceClasses.removeAll(merged.keySet());
+					}
+					{
+						final ArrayList<PathFilterList> preparingFactVariables = new ArrayList<>();
+						mergeFVs(finalisingFilterFactVariablesToPrepare, pathToJoinedWith, fact2Path,
+								preparingFactVariables);
+						final LinkedList<PathFilterElement> pfes = new LinkedList<>();
+						for (final PathFilterList partFilterList : preparingFactVariables) {
+							for (final PathFilter partFilter : partFilterList) {
+								for (final PathFilterElement pfe : partFilter.getFilterElements()) {
+									pfes.add(pfe);
+								}
+							}
+						}
+						pfes.addLast(new PathFilterElement(
+								finalisingFilterParts.size() > 1 ? GenericWithArgumentsComposite.newPredicateInstance(
+										And.inClips,
+										(FunctionWithArguments<PathLeaf>[]) toArray(finalisingFilterParts,
+												PredicateWithArguments[]::new)) : finalisingFilterParts.get(0)));
+						final PathFilter filter =
+								new PathFilter(isPositive, shallowExistentialPaths, toArray(pfes,
+										PathFilterElement[]::new));
+						joinPaths(pathToJoinedWith, filter);
+						filters.add(filter);
 					}
 				}
 			}
@@ -699,6 +817,16 @@ public class PathFilterConsolidator implements DefaultConditionalElementsVisitor
 			}
 
 			return resultFilters;
+		}
+
+		private static void addEqualityTestTo(final List<PathFilterList> filters,
+				final Map<Path, Set<Path>> pathToJoinedWith, final FunctionWithArguments<PathLeaf> element,
+				final FunctionWithArguments<PathLeaf> other) {
+			final PathFilter eqTest =
+					new PathFilter(new PathFilterElement(GenericWithArgumentsComposite.newPredicateInstance(
+							Equals.inClips, element, other)));
+			joinPaths(pathToJoinedWith, eqTest);
+			filters.add(eqTest);
 		}
 
 		@Override
