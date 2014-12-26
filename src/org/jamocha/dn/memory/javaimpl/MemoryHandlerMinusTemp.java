@@ -207,8 +207,8 @@ public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements org.jam
 		final JamochaArray<Row> originalFacts = targetMain.validRows;
 		final int originalFactsSize = originalFacts.size();
 		final JamochaArray<Row> remainingFacts =
-				getRemainingFactTuples(originalFacts, deletedRowConsumer, validDeletedRows, factAddresses, marked,
-						EqualityChecker.equalRow);
+				getRemainingFactTuples(originalFacts, deletedRowConsumer, validDeletedRows, factAddresses,
+						new boolean[validDeletedRows.size()], EqualityChecker.equalRow);
 		if (remainingFacts.size() != originalFactsSize) {
 			targetMain.acquireWriteLock();
 			targetMain.validRows = remainingFacts;
