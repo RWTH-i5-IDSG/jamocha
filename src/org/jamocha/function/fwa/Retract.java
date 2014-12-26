@@ -81,7 +81,7 @@ public class Retract<L extends ExchangeableLeaf<L>> extends GenericWithArguments
 		if (value instanceof Long) {
 			return new FactIdentifier(((Long) value).intValue());
 		}
-		assert param.getReturnType() == SlotType.FACTADDRESS;
+		assert param instanceof LazyObject || param.getReturnType() == SlotType.FACTADDRESS;
 		return ((FactIdentifier) value);
 	}
 
