@@ -107,7 +107,9 @@ public abstract class GenericWithArgumentsComposite<R, F extends Function<? exte
 	@Override
 	public String toString() {
 		final StringBuilder sb = new StringBuilder();
-		sb.append(this.function.toString());
+		sb.append('\'');
+		sb.append(this.function.inClips());
+		sb.append('\'');
 		sb.append('(');
 		sb.append(Arrays.stream(this.args).map(FunctionWithArguments::toString).collect(joining(", ")));
 		sb.append(')');
