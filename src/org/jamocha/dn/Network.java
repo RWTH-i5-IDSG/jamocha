@@ -414,7 +414,8 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 		final ArrayList<Node> nodes = new ArrayList<>();
 		for (final PathFilter filter : filters) {
 			if (!tryToShareNode(filter))
-				if (PathCollector.newLinkedHashSet().collectAll(filter).getPaths().size() == 1) {
+				if (PathCollector.newLinkedHashSet().collectAll(filter).getPaths().stream()
+						.flatMap(p -> p.getJoinedWith().stream()).distinct().count() == 1) {
 					nodes.add(new AlphaNode(this, filter));
 				} else {
 					nodes.add(new BetaNode(this, filter));
