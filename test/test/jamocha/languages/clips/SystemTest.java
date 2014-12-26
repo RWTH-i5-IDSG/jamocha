@@ -381,6 +381,28 @@ public class SystemTest {
 			assertThat(out.toString(), isEmptyString());
 			out.reset();
 		}
+		{
+			final Pair<Queue<Object>, Queue<Warning>> returnValues = run(network, "(assert (t2 (s1 5)))\n");
+			final Queue<Object> values = returnValues.getLeft();
+			assertThat(values, hasSize(1));
+			final Object value = values.iterator().next();
+			assertThat(value, instanceOf(String.class));
+			assertEquals("<Fact-4>", value);
+			assertThat(returnValues.getRight(), empty());
+			final String[] lines = out.toString().split(linesep);
+			assertThat(lines, arrayWithSize(1));
+			assertEquals("==> f-4\t(t2 (s1 5))", lines[0]);
+			out.reset();
+		}
+		{
+			final Pair<Queue<Object>, Queue<Warning>> returnValues = run(network, "(run)\n");
+			assertThat(returnValues.getLeft(), empty());
+			assertThat(returnValues.getRight(), empty());
+			final String[] lines = out.toString().split(linesep);
+			assertThat(lines, arrayWithSize(1));
+			assertEquals("==> f-5\t(t1 (s1 999))", lines[0]);
+			out.reset();
+		}
 	}
 
 	@Test
