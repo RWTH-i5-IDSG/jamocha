@@ -26,7 +26,6 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 import java.io.StringReader;
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
@@ -123,7 +122,7 @@ public class RuleConditionProcessorTest {
 		final FunctionWithArguments<SymbolLeaf> symbolLeaf = args[0];
 		assertThat(symbolLeaf, instanceOf(SymbolLeaf.class));
 		final VariableSymbol symbol = ((SymbolLeaf) symbolLeaf).getSymbol();
-		final ArrayList<SingleSlotVariable> positiveSlotVariables = symbol.getEqual().getEqualSlotVariables();
+		final LinkedList<SingleSlotVariable> positiveSlotVariables = symbol.getEqual().getEqualSlotVariables();
 		assertThat(positiveSlotVariables, hasSize(1));
 		final SingleSlotVariable singleSlotVariable = positiveSlotVariables.get(0);
 		final Template slotTemplate = singleSlotVariable.getFactVariable().getTemplate();

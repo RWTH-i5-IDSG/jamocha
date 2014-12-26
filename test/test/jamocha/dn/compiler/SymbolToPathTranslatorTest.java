@@ -25,8 +25,8 @@ import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertThat;
 
 import java.io.StringReader;
-import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
@@ -110,7 +110,7 @@ public class SymbolToPathTranslatorTest {
 		final Set<VariableSymbol> collectedSymbols = new SymbolCollector(ruleCondition).getNonDummySymbols();
 		assertThat(collectedSymbols, hasSize(1));
 		final VariableSymbol xSymbol = collectedSymbols.iterator().next();
-		final ArrayList<SingleSlotVariable> xEqualSVs = xSymbol.getEqual().getEqualSlotVariables();
+		final LinkedList<SingleSlotVariable> xEqualSVs = xSymbol.getEqual().getEqualSlotVariables();
 		assertThat(xEqualSVs, hasSize(1));
 		final Map<EquivalenceClass, PathLeaf> symbolToPathLeaf =
 				Collections.singletonMap(xSymbol.getEqual(), xEqualSVs.get(0).getPathLeaf(paths));
@@ -154,7 +154,7 @@ public class SymbolToPathTranslatorTest {
 		final Set<VariableSymbol> collectedSymbols = new SymbolCollector(ruleCondition).getNonDummySymbols();
 		assertThat(collectedSymbols, hasSize(1));
 		final VariableSymbol xSymbol = collectedSymbols.iterator().next();
-		final ArrayList<SingleSlotVariable> xEqualSVs = xSymbol.getEqual().getEqualSlotVariables();
+		final LinkedList<SingleSlotVariable> xEqualSVs = xSymbol.getEqual().getEqualSlotVariables();
 		assertThat(xEqualSVs, hasSize(1));
 		final Map<EquivalenceClass, PathLeaf> symbolToPathLeaf =
 				Collections.singletonMap(xSymbol.getEqual(), xEqualSVs.get(0).getPathLeaf(paths));
@@ -219,7 +219,7 @@ public class SymbolToPathTranslatorTest {
 			final Set<VariableSymbol> collectedSymbols = new SymbolCollector(ruleCondition).getNonDummySymbols();
 			assertThat(collectedSymbols, hasSize(1));
 			final VariableSymbol xSymbol = collectedSymbols.iterator().next();
-			final ArrayList<SingleSlotVariable> xEqualSVs = xSymbol.getEqual().getEqualSlotVariables();
+			final LinkedList<SingleSlotVariable> xEqualSVs = xSymbol.getEqual().getEqualSlotVariables();
 			assertThat(xEqualSVs, hasSize(1));
 			final Map<EquivalenceClass, PathLeaf> symbolToPathLeaf =
 					Collections.singletonMap(xSymbol.getEqual(), xEqualSVs.get(0).getPathLeaf(paths));
@@ -260,7 +260,7 @@ public class SymbolToPathTranslatorTest {
 			final Set<VariableSymbol> collectedSymbols = new SymbolCollector(ruleCondition).getNonDummySymbols();
 			assertThat(collectedSymbols, hasSize(1));
 			final VariableSymbol xSymbol = collectedSymbols.iterator().next();
-			final ArrayList<SingleSlotVariable> xEqualSVs = xSymbol.getEqual().getEqualSlotVariables();
+			final LinkedList<SingleSlotVariable> xEqualSVs = xSymbol.getEqual().getEqualSlotVariables();
 			assertThat(xEqualSVs, hasSize(1));
 			final Map<EquivalenceClass, PathLeaf> symbolToPathLeaf =
 					Collections.singletonMap(xSymbol.getEqual(), xEqualSVs.get(0).getPathLeaf(paths));

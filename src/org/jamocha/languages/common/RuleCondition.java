@@ -15,8 +15,9 @@
 package org.jamocha.languages.common;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -60,33 +61,34 @@ public class RuleCondition {
 	@AllArgsConstructor(access = AccessLevel.PRIVATE)
 	public static class EquivalenceClass {
 		Optional<SingleFactVariable> factVariable;
-		final ArrayList<SingleSlotVariable> equalSlotVariables;
-		final ArrayList<FunctionWithArguments<SymbolLeaf>> equalFWAs;
+		final LinkedList<SingleSlotVariable> equalSlotVariables;
+		final LinkedList<FunctionWithArguments<SymbolLeaf>> equalFWAs;
 		final Set<EquivalenceClass> unequalEquivalenceClasses = new HashSet<>();
 		SlotType type;
 
 		public EquivalenceClass() {
-			this(Optional.empty(), new ArrayList<>(), new ArrayList<>(), null);
+			this(Optional.empty(), new LinkedList<>(), new LinkedList<>(), null);
 		}
 
 		public EquivalenceClass(final SlotType type) {
-			this(Optional.empty(), new ArrayList<>(), new ArrayList<>(), type);
+			this(Optional.empty(), new LinkedList<>(), new LinkedList<>(), type);
 		}
 
 		public EquivalenceClass(final FunctionWithArguments<SymbolLeaf> fwa) {
-			this(Optional.empty(), new ArrayList<>(), new ArrayList<>(Arrays.asList(fwa)), fwa.getReturnType());
+			this(Optional.empty(), new LinkedList<>(), new LinkedList<>(Collections.singletonList(fwa)), fwa
+					.getReturnType());
 		}
 
 		public EquivalenceClass(final SingleFactVariable fv) {
-			this(Optional.of(fv), new ArrayList<>(), new ArrayList<>(), SlotType.FACTADDRESS);
+			this(Optional.of(fv), new LinkedList<>(), new LinkedList<>(), SlotType.FACTADDRESS);
 		}
 
 		public EquivalenceClass(final SingleSlotVariable sv) {
-			this(Optional.empty(), new ArrayList<>(Arrays.asList(sv)), new ArrayList<>(), sv.getType());
+			this(Optional.empty(), new LinkedList<>(Collections.singletonList(sv)), new LinkedList<>(), sv.getType());
 		}
 
 		public EquivalenceClass(final EquivalenceClass copy) {
-			this(copy.factVariable, new ArrayList<>(copy.equalSlotVariables), new ArrayList<>(copy.equalFWAs),
+			this(copy.factVariable, new LinkedList<>(copy.equalSlotVariables), new LinkedList<>(copy.equalFWAs),
 					copy.type);
 		}
 

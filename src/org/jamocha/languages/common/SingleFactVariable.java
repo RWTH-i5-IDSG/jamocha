@@ -62,7 +62,7 @@ public class SingleFactVariable {
 	public SingleSlotVariable newSingleSlotVariable(final SlotAddress slot, final VariableSymbol symbol) {
 		final SingleSlotVariable instance = slots.computeIfAbsent(slot, SingleSlotVariable::new);
 		assert null != symbol.equal;
-		instance.equal.add(symbol.equal);
+		instance.equalSet.add(symbol.equal);
 		symbol.equal.add(instance);
 		return instance;
 	}
@@ -81,7 +81,7 @@ public class SingleFactVariable {
 		@NonNull
 		final SlotAddress slot;
 		@NonNull
-		final Set<EquivalenceClass> equal = new HashSet<>();
+		final Set<EquivalenceClass> equalSet = new HashSet<>();
 
 		public SlotType getType() {
 			return template.getSlotType(slot);
@@ -96,9 +96,16 @@ public class SingleFactVariable {
 			return null == path ? null : new PathLeaf(path, slot);
 		}
 
+		public EquivalenceClass getEqual() {
+			if (equalSet.size() > 1) {
+				throw new UnsupportedOperationException("Only to be called after merging!");
+			}
+			return equalSet.iterator().next();
+		}
+
 		@Override
 		public String toString() {
-			return "SingleSlotVariable(" + getFactVariable().toString() + "[" + slot.toString() + "])";
+			return "SingleSlotVariable(" + template.getName() + "::" + template.getSlotName(slot) + ")";
 		}
 	}
 }
