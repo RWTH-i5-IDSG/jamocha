@@ -90,6 +90,7 @@ public class RuleCondition {
 		public EquivalenceClass(final EquivalenceClass copy) {
 			this(copy.factVariable, new LinkedList<>(copy.equalSlotVariables), new LinkedList<>(copy.equalFWAs),
 					copy.type);
+			this.unequalEquivalenceClasses.addAll(copy.unequalEquivalenceClasses);
 		}
 
 		public void setFactVariable(final Optional<SingleFactVariable> fv) {
