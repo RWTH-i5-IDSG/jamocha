@@ -668,7 +668,9 @@ public class PathFilterConsolidator implements DefaultConditionalElementsVisitor
 								new PathFilter(isPositive, shallowExistentialPaths, toArray(pfes,
 										PathFilterElement[]::new));
 						joinPaths(pathToJoinedWith, filter);
-						filters.add(filter);
+						final ArrayList<PathFilterList> nonExistentialPart = new ArrayList<>(filters);
+						filters.clear();
+						filters.add(new PathFilterList.PathFilterExistentialList(nonExistentialPart, filter));
 					}
 				}
 			}
