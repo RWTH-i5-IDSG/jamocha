@@ -390,6 +390,17 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 			}
 			candidates.retainAll(cutSet);
 		}
+
+		for (final Iterator<Node> iterator = candidates.iterator(); iterator.hasNext();) {
+			final Node candidate = iterator.next();
+			final Edge[] incomingEdges = candidate.getIncomingEdges();
+			for (final Edge incomingEdge : incomingEdges) {
+				if (!filterPathNodes.contains(incomingEdge.getSourceNode())) {
+					iterator.remove();
+					break;
+				}
+			}
+		}
 		return candidates;
 	}
 

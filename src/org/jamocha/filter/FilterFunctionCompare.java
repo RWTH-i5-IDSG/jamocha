@@ -630,6 +630,12 @@ public abstract class FilterFunctionCompare<L extends ExchangeableLeaf<L>> {
 	 *         targetNode
 	 */
 	public static Map<Path, FactAddress> equals(final Node targetNode, final PathFilter pathFilter) {
+		if (targetNode.getFilter().getNegativeExistentialAddresses().size() != pathFilter.getNegativeExistentialPaths()
+				.size()
+				|| targetNode.getFilter().getPositiveExistentialAddresses().size() != pathFilter
+						.getPositiveExistentialPaths().size()) {
+			return null;
+		}
 		final List<Path> pathsPermutation = new LinkedList<>();
 		final ComponentwisePermutation<Path> componentwisePermutation;
 		// FIXME remove unnecessary permutations (only the first path found for an edge defines the
