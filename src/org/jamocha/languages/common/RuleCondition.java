@@ -150,6 +150,12 @@ public class RuleCondition {
 			this.unequalEquivalenceClasses.add(ec);
 		}
 
+		public void removeNegatedEdge(final EquivalenceClass ec) {
+			assert this.unequalEquivalenceClasses.contains(ec);
+			ec.unequalEquivalenceClasses.remove(this);
+			this.unequalEquivalenceClasses.remove(ec);
+		}
+
 		public void replace(final Map<EquivalenceClass, EquivalenceClass> map) {
 			// iterate over the map as the set can't be modified during iteration
 			map.forEach((o, n) -> {
