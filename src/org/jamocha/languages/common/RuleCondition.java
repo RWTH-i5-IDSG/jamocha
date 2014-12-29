@@ -27,7 +27,10 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
+import org.jamocha.dn.memory.SlotAddress;
 import org.jamocha.dn.memory.SlotType;
+import org.jamocha.dn.memory.Template;
+import org.jamocha.dn.memory.Template.Slot;
 import org.jamocha.filter.Path;
 import org.jamocha.function.fwa.FunctionWithArguments;
 import org.jamocha.function.fwa.PathLeaf;
@@ -49,9 +52,6 @@ public class RuleCondition {
 		this.variableSymbols.add(symbol);
 	}
 
-	// private final Map<ConditionalElement, EquivalenceClasses> equivalenceClassesPerToplevelCE =
-	// new HashMap<>();
-
 	/**
 	 * Equivalence class whose elements are equal to each other.
 	 * 
@@ -60,92 +60,157 @@ public class RuleCondition {
 	@Getter
 	@AllArgsConstructor(access = AccessLevel.PRIVATE)
 	public static class EquivalenceClass {
-		Optional<SingleFactVariable> factVariable;
+		final LinkedList<SingleFactVariable> factVariables;
 		final LinkedList<SingleSlotVariable> equalSlotVariables;
 		final LinkedList<FunctionWithArguments<SymbolLeaf>> equalFWAs;
 		final Set<EquivalenceClass> unequalEquivalenceClasses = new HashSet<>();
+		@Getter(AccessLevel.NONE)
+		final Set<SingleFactVariable> merged = new HashSet<>();
 		SlotType type;
 
 		public EquivalenceClass() {
-			this(Optional.empty(), new LinkedList<>(), new LinkedList<>(), null);
+			this(new LinkedList<>(), new LinkedList<>(), new LinkedList<>(), null);
 		}
 
 		public EquivalenceClass(final SlotType type) {
-			this(Optional.empty(), new LinkedList<>(), new LinkedList<>(), type);
+			this(new LinkedList<>(), new LinkedList<>(), new LinkedList<>(), type);
 		}
 
 		public EquivalenceClass(final FunctionWithArguments<SymbolLeaf> fwa) {
-			this(Optional.empty(), new LinkedList<>(), new LinkedList<>(Collections.singletonList(fwa)), fwa
+			this(new LinkedList<>(), new LinkedList<>(), new LinkedList<>(Collections.singletonList(fwa)), fwa
 					.getReturnType());
 		}
 
 		public EquivalenceClass(final SingleFactVariable fv) {
-			this(Optional.of(fv), new LinkedList<>(), new LinkedList<>(), SlotType.FACTADDRESS);
+			this(new LinkedList<>(Collections.singleton(fv)), new LinkedList<>(), new LinkedList<>(),
+					SlotType.FACTADDRESS);
 		}
 
 		public EquivalenceClass(final SingleSlotVariable sv) {
-			this(Optional.empty(), new LinkedList<>(Collections.singletonList(sv)), new LinkedList<>(), sv.getType());
+			this(new LinkedList<>(), new LinkedList<>(Collections.singletonList(sv)), new LinkedList<>(), sv.getType());
 		}
 
 		public EquivalenceClass(final EquivalenceClass copy) {
-			this(copy.factVariable, new LinkedList<>(copy.equalSlotVariables), new LinkedList<>(copy.equalFWAs),
+			this(copy.factVariables, new LinkedList<>(copy.equalSlotVariables), new LinkedList<>(copy.equalFWAs),
 					copy.type);
 			this.unequalEquivalenceClasses.addAll(copy.unequalEquivalenceClasses);
 		}
 
-		public void setFactVariable(final Optional<SingleFactVariable> fv) {
-			assert !this.factVariable.isPresent();
-			this.factVariable = fv;
-		}
-
-		public void add(final EquivalenceClass other) {
+		public void merge(final EquivalenceClass other) {
 			if (this == other)
 				return;
-			if (!this.factVariable.isPresent())
-				this.factVariable = other.factVariable;
-			else
-				assert !other.factVariable.isPresent();
-			this.equalSlotVariables.addAll(other.equalSlotVariables);
-			this.equalFWAs.addAll(other.equalFWAs);
+			other.factVariables.forEach(this::add);
+			other.equalSlotVariables.forEach(this::add);
+			other.equalFWAs.forEach(this::add);
 			for (final EquivalenceClass ec : other.unequalEquivalenceClasses) {
 				ec.unequalEquivalenceClasses.remove(other);
 				addNegatedEdge(ec);
 			}
 			if (null == this.type)
 				this.type = other.type;
-			else
-				assert null == other.type || other.type == this.type;
+			else if (null != other.type && other.type != this.type)
+				throw new IllegalArgumentException("Only equivalence classes of equal types can be merged!");
+		}
+
+		/**
+		 * Merges the equivalence classes contained in the slots of the equal fact variables. Does
+		 * nothing if there are less than two fact variables. Does not necessarily completely merge
+		 * all equivalence classes if there are fact variables of different templates in the
+		 * equivalence class.
+		 */
+		public void mergeEquivalenceClassesOfFactVariables() {
+			if (this.factVariables.isEmpty()) {
+				return;
+			}
+			assert SlotType.FACTADDRESS == type;
+			while (true) {
+				final Optional<SingleFactVariable> optFactVariable =
+						this.factVariables.stream().filter(fv -> !merged.contains(fv)).findAny();
+				if (!optFactVariable.isPresent())
+					break;
+				final SingleFactVariable thisFV = optFactVariable.get();
+				final SingleFactVariable mergeFV =
+						merged.stream()
+								.filter(fv -> fv.template == thisFV.template)
+								.findAny()
+								.orElseGet(
+										() -> factVariables.stream()
+												.filter(fv -> thisFV != fv && fv.template == thisFV.template).findAny()
+												.orElse(null));
+				if (null == mergeFV)
+					break;
+				final Template template = thisFV.template;
+				for (final Slot slot : template.getSlots()) {
+					final SlotAddress slotAddress = template.getSlotAddress(slot.getName());
+					final SingleSlotVariable thisSV = thisFV.getSlots().get(slotAddress);
+					final SingleSlotVariable mergeSV = mergeFV.getSlots().get(slotAddress);
+					if (null != thisSV && null != mergeSV) {
+						final EquivalenceClass thisEC = thisSV.getEqual();
+						final EquivalenceClass mergeEC = mergeSV.getEqual();
+						thisEC.merge(mergeEC);
+						mergeSV.equalSet.clear();
+						mergeSV.equalSet.add(thisEC);
+						thisEC.mergeEquivalenceClassesOfFactVariables();
+					}
+				}
+				merged.add(thisFV);
+				merged.add(mergeFV);
+			}
 		}
 
 		public void add(final SingleFactVariable fv) {
-			assert !this.factVariable.isPresent();
 			if (null == type)
 				type = SlotType.FACTADDRESS;
-			assert SlotType.FACTADDRESS == type;
-			this.factVariable = Optional.of(fv);
+			if (SlotType.FACTADDRESS != type)
+				throw new IllegalArgumentException("Tried to add a SingleFactVariable to an EquivalenceClass of type "
+						+ type + " instead of FACTADDRESS!");
+			if (!this.factVariables.isEmpty() && fv.getTemplate() != this.factVariables.iterator().next().getTemplate()) {
+				throw new IllegalArgumentException(
+						"All fact variables of an equivalence class need to have the same template!");
+			}
+			this.factVariables.add(fv);
 		}
 
 		public void add(final SingleSlotVariable sv) {
 			if (null == type)
 				type = sv.getType();
-			assert sv.getType() == type;
-			assert !this.equalSlotVariables.contains(sv);
+			if (sv.getType() != type) {
+				throw new IllegalArgumentException("Tried to add a SingleSlotVariable of type " + sv.getType()
+						+ " to an EquivalenceClass of type " + type + "!");
+			}
+			if (this.equalSlotVariables.contains(sv)) {
+				throw new IllegalArgumentException(
+						"Tried to add a SingleSlotVariable to an EquivalenceClass that already contained it!");
+			}
 			this.equalSlotVariables.add(sv);
 		}
 
 		public void add(final FunctionWithArguments<SymbolLeaf> fwa) {
 			if (null == type)
 				type = fwa.getReturnType();
-			assert fwa.getReturnType() == type;
-			assert !this.equalFWAs.contains(fwa);
+			if (fwa.getReturnType() != type) {
+				throw new IllegalArgumentException("Tried to add a FunctionWithArguments of type "
+						+ fwa.getReturnType() + " to an EquivalenceClass of type " + type + "!");
+			}
+			if (this.equalFWAs.contains(fwa)) {
+				throw new IllegalArgumentException(
+						"Tried to add a FunctionWithArguments to an EquivalenceClass that already contained it!");
+			}
 			this.equalFWAs.add(fwa);
 		}
 
 		public void addNegatedEdge(final EquivalenceClass ec) {
+			if (this == ec) {
+				throw new IllegalArgumentException("Tried to insert a negated edge as a loop!");
+			}
 			assert this != ec;
 			if (null == type)
 				type = ec.type;
-			assert null == ec.type || type == ec.type;
+			if (null != ec.type && type != ec.type) {
+				throw new IllegalArgumentException(
+						"Tried to add a negated edge between EquivalenceClasses of different types (left=" + type
+								+ ", right=" + ec.type + ")!");
+			}
 			ec.unequalEquivalenceClasses.add(this);
 			this.unequalEquivalenceClasses.add(ec);
 		}
@@ -165,8 +230,8 @@ public class RuleCondition {
 		}
 
 		public PathLeaf getPathLeaf(final Map<SingleFactVariable, Path> pathMap, final SingleSlotVariable sv) {
-			if (factVariable.isPresent()) {
-				final Path path = pathMap.get(factVariable.get());
+			if (!factVariables.isEmpty()) {
+				final Path path = pathMap.get(factVariables.iterator().next());
 				return null == path ? null : new PathLeaf(path, null);
 			}
 			return null == sv ? null : sv.getPathLeaf(pathMap);
@@ -174,10 +239,6 @@ public class RuleCondition {
 
 		public PathLeaf getPathLeaf(final Map<SingleFactVariable, Path> pathMap) {
 			return getPathLeaf(pathMap, (equalSlotVariables.isEmpty() ? null : equalSlotVariables.get(0)));
-		}
-
-		public void removeFactVariable() {
-			this.factVariable = Optional.empty();
 		}
 	}
 }

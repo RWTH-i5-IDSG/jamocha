@@ -74,7 +74,7 @@ public class SymbolCollector {
 				.entrySet()) {
 			final SingleFactVariable fv = entry.getKey();
 			final Optional<VariableSymbol> symbol =
-					symbols.stream().filter(vs -> fv.equals(vs.getEqual().getFactVariable().orElse(null))).findAny();
+					symbols.stream().filter(vs -> vs.getEqual().getFactVariables().contains(fv)).findAny();
 			map.put(fv, Pair.of(symbol.orElse(null), fvToSv.get(fv)));
 		}
 		return map;

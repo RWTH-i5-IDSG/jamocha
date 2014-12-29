@@ -22,13 +22,12 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
 
 import java.io.Reader;
 import java.io.StringReader;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
-import java.util.Optional;
 import java.util.Queue;
 import java.util.Set;
 
@@ -151,7 +150,7 @@ public class ParserTest {
 		run(parser, visitor);
 	}
 
-	@Test(expected = NameClashError.class)
+	@Test
 	public void testDefruleAssignedPatternCENameReuse() throws ParseException {
 		final Reader parserInput =
 				new StringReader("(deftemplate f1 (slot s1 (type INTEGER)))\n"
@@ -287,10 +286,9 @@ public class ParserTest {
 		}
 		{
 			z = getSymbol(condition, "?z");
-			final Optional<SingleFactVariable> optVar = z.getEqual().getFactVariable();
-			assertNotNull(optVar);
-			assertTrue(optVar.isPresent());
-			final SingleFactVariable var = optVar.get();
+			final LinkedList<SingleFactVariable> factVariables = z.getEqual().getFactVariables();
+			assertThat(factVariables, hasSize(1));
+			final SingleFactVariable var = factVariables.getFirst();
 			final Template template = network.getTemplate("f2");
 			assertSame(template, var.getTemplate());
 		}
@@ -301,8 +299,9 @@ public class ParserTest {
 			assertThat(conditionalElement, instanceOf(TemplatePatternConditionalElement.class));
 			final SingleFactVariable factVariable =
 					((TemplatePatternConditionalElement) conditionalElement).getFactVariable();
-			assertTrue(z.getEqual().getFactVariable().isPresent());
-			assertSame(z.getEqual().getFactVariable().get(), factVariable);
+			final LinkedList<SingleFactVariable> factVariables = z.getEqual().getFactVariables();
+			assertThat(factVariables, hasSize(1));
+			assertSame(factVariables.getFirst(), factVariable);
 		}
 		{
 			final ConditionalElement conditionalElement = conditionalElements.get(2);
