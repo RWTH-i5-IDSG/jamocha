@@ -23,7 +23,6 @@ import lombok.extern.log4j.Log4j2;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.jamocha.dn.Network;
-import org.jamocha.dn.PlainScheduler;
 import org.jamocha.languages.clips.parser.SFPVisitorImpl;
 import org.jamocha.languages.clips.parser.generated.ParseException;
 import org.jamocha.languages.clips.parser.generated.SFPParser;
@@ -36,7 +35,7 @@ import org.jamocha.languages.common.Warning;
  */
 @Log4j2
 public class Jamocha {
-	
+
 	@Getter
 	final private Network network;
 
@@ -44,17 +43,18 @@ public class Jamocha {
 	final SFPVisitorImpl visitor;
 
 	public Jamocha() {
-		network = new Network(Integer.MAX_VALUE, new PlainScheduler());
+		network = new Network();
 		visitor = new SFPVisitorImpl(network, network);
 	}
-	
+
 	public void loadParser(InputStream inputStream) {
 		parser = new SFPParser(inputStream);
 	}
 
 	public Pair<Queue<Warning>, String> parse() throws ParseException {
 		final SFPStart n = parser.Start();
-		if (null == n) return null;
+		if (null == n)
+			return null;
 		final String value = Objects.toString(n.jjtAccept(visitor, null));
 		return Pair.of(visitor.getWarnings(), value);
 	}
@@ -62,7 +62,7 @@ public class Jamocha {
 	public void shutdown() {
 		network.shutdown();
 	}
-	
+
 	public static void main(final String[] args) {
 		Jamocha jamocha = new Jamocha();
 		jamocha.loadParser(System.in);
@@ -70,7 +70,7 @@ public class Jamocha {
 		while (true) {
 			try {
 				System.out.print("SFP> ");
-				final Pair<Queue<Warning>,String> parserReturn = jamocha.parse();
+				final Pair<Queue<Warning>, String> parserReturn = jamocha.parse();
 				if (null == parserReturn)
 					System.exit(0);
 				final String expression = parserReturn.getRight();
