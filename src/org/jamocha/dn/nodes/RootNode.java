@@ -24,8 +24,9 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
-import java.util.WeakHashMap;
 import java.util.stream.IntStream;
+
+import lombok.NonNull;
 
 import org.jamocha.dn.Network;
 import org.jamocha.dn.memory.Fact;
@@ -34,6 +35,9 @@ import org.jamocha.dn.memory.MemoryFact;
 import org.jamocha.dn.memory.MemoryFactToFactIdentifier;
 import org.jamocha.dn.memory.Template;
 import org.jamocha.filter.Path;
+
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
 
 /**
  * Root node implementation (not part of the {@link Node} type hierarchy).
@@ -47,11 +51,7 @@ public class RootNode implements MemoryFactToFactIdentifier {
 	 * Maps from {@link Template} to corresponding {@link ObjectTypeNode}
 	 */
 	private final Map<Template, ObjectTypeNode> templateToOTN = new HashMap<>();
-
-	private final Map<FactIdentifier, MemoryFact> facts = new HashMap<>();
-	// store weak MemoryFact references mapping them to their FactIdentifiers
-	private final Map<MemoryFact, FactIdentifier> factIdentifiers = new WeakHashMap<>();
-	private int factIdentifierCounter = 0;
+	private final FactIdentification factIdentification = new FactIdentification();
 
 	/**
 	 * Passes the {@link Fact} given to the {@link ObjectTypeNode} corresponding to its
@@ -74,11 +74,7 @@ public class RootNode implements MemoryFactToFactIdentifier {
 			if (null == memoryFact) {
 				continue;
 			}
-			final int id = factIdentifierCounter++;
-			final FactIdentifier factIdentifier = new FactIdentifier(id);
-			factIdentifiers[i] = factIdentifier;
-			this.facts.put(factIdentifier, memoryFact);
-			this.factIdentifiers.put(memoryFact, factIdentifier);
+			factIdentifiers[i] = this.factIdentification.addFact(memoryFact);
 		}
 		return factIdentifiers;
 	}
@@ -91,7 +87,7 @@ public class RootNode implements MemoryFactToFactIdentifier {
 	 *            {@link Fact} to be retracted
 	 */
 	public void retractFacts(final FactIdentifier... factIdentifiers) {
-		Arrays.stream(factIdentifiers).map(facts::remove).filter(Objects::nonNull)
+		Arrays.stream(factIdentifiers).map(factIdentification::remove).filter(Objects::nonNull)
 				.collect(groupingBy(f -> f.getTemplate()))
 				.forEach((t, f) -> this.templateToOTN.get(t).retractFact(toArray(f, MemoryFact[]::new)));
 	}
@@ -101,20 +97,20 @@ public class RootNode implements MemoryFactToFactIdentifier {
 	 */
 	public void reset() {
 		retractFacts(toArray(getMemoryFacts().keySet(), FactIdentifier[]::new));
-		this.factIdentifierCounter = 0;
+		this.factIdentification.reset();
 	}
 
 	public MemoryFact getMemoryFact(final FactIdentifier factIdentifier) {
-		return this.facts.get(factIdentifier);
+		return this.factIdentification.get(factIdentifier);
 	}
 
 	@Override
 	public FactIdentifier getFactIdentifier(final MemoryFact memoryFact) {
-		return this.factIdentifiers.get(memoryFact);
+		return this.factIdentification.get(memoryFact);
 	}
 
 	public Map<FactIdentifier, MemoryFact> getMemoryFacts() {
-		return Collections.unmodifiableMap(this.facts);
+		return this.factIdentification.getMemoryFacts();
 	}
 
 	/**
@@ -152,9 +148,7 @@ public class RootNode implements MemoryFactToFactIdentifier {
 	 */
 	public void clear() {
 		this.templateToOTN.clear();
-		this.facts.clear();
-		this.factIdentifiers.clear();
-		this.factIdentifierCounter = 0;
+		this.factIdentification.clear();
 	}
 
 	/**
@@ -171,5 +165,41 @@ public class RootNode implements MemoryFactToFactIdentifier {
 			this.templateToOTN.computeIfAbsent(path.getTemplate(), t -> new ObjectTypeNode(network, t)).shareNode(
 					Collections.emptyMap(), path);
 		}
+	}
+}
+
+class FactIdentification {
+	private final BiMap<FactIdentifier, MemoryFact> facts = HashBiMap.create();
+	private int factIdentifierCounter = 0;
+
+	FactIdentifier addFact(@NonNull final MemoryFact memoryFact) {
+		final FactIdentifier factIdentifier = new FactIdentifier(factIdentifierCounter++);
+		this.facts.put(factIdentifier, memoryFact);
+		return factIdentifier;
+	}
+
+	MemoryFact remove(final FactIdentifier identifier) {
+		return this.facts.remove(identifier);
+	}
+
+	MemoryFact get(final FactIdentifier identifier) {
+		return this.facts.get(identifier);
+	}
+
+	FactIdentifier get(final MemoryFact memoryFact) {
+		return this.facts.inverse().get(memoryFact);
+	}
+
+	Map<FactIdentifier, MemoryFact> getMemoryFacts() {
+		return Collections.unmodifiableMap(this.facts);
+	}
+
+	void clear() {
+		this.facts.clear();
+		reset();
+	}
+
+	void reset() {
+		this.factIdentifierCounter = 0;
 	}
 }
