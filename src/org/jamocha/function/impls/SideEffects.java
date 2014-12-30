@@ -27,6 +27,7 @@ import org.jamocha.function.FunctionDictionary;
 public class SideEffects {
 	static {
 		FunctionDictionary.addImpl(org.jamocha.function.impls.sideeffects.Clear.class);
+		FunctionDictionary.addImpl(org.jamocha.function.impls.sideeffects.Exit.class);
 		FunctionDictionary.addImpl(org.jamocha.function.impls.sideeffects.Facts.class);
 		FunctionDictionary.addImpl(org.jamocha.function.impls.sideeffects.ListDeftemplates.class);
 		FunctionDictionary.addImpl(org.jamocha.function.impls.sideeffects.Ppdeftemplate.class);

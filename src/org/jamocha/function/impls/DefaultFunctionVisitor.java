@@ -110,6 +110,11 @@ public interface DefaultFunctionVisitor extends FunctionVisitor {
 	}
 
 	@Override
+	default void visit(final org.jamocha.function.impls.sideeffects.Exit function) {
+		defaultAction(function);
+	}
+
+	@Override
 	default void visit(final org.jamocha.function.impls.sideeffects.ListDeftemplates function) {
 		defaultAction(function);
 	}
