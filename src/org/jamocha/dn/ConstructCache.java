@@ -22,6 +22,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.StreamSupport;
 
 import lombok.AccessLevel;
 import lombok.Data;
@@ -90,15 +91,21 @@ public class ConstructCache {
 		}
 
 		public TranslatedPath newTranslated(final PathFilterSharedListWrapper.PathFilterSharedList condition,
-				final Map<EquivalenceClass, PathLeaf> equivalenceClassToPathLeaf) {
+				final Map<EquivalenceClass, PathLeaf> equivalenceClassToPathLeaf, final int specificity) {
 			@SuppressWarnings("unchecked")
 			final TranslatedPath translated =
 					new TranslatedPath(condition, new PathActionList(toArray(
 							Arrays.stream(actionList).map(
-									fwa -> SymbolToPathTranslator.translate(FWADeepCopy.copy(fwa), equivalenceClassToPathLeaf)),
-							FunctionWithArguments[]::new)));
+									fwa -> SymbolToPathTranslator.translate(FWADeepCopy.copy(fwa),
+											equivalenceClassToPathLeaf)), FunctionWithArguments[]::new)), specificity);
 			translatedPathVersions.add(translated);
 			return translated;
+		}
+
+		public TranslatedPath newTranslated(final PathFilterSharedListWrapper.PathFilterSharedList condition,
+				final Map<EquivalenceClass, PathLeaf> equivalenceClassToPathLeaf) {
+			return newTranslated(condition, equivalenceClassToPathLeaf,
+					(int) StreamSupport.stream(condition.spliterator(), false).count());
 		}
 
 		@Data
@@ -106,13 +113,14 @@ public class ConstructCache {
 		public class TranslatedPath {
 			final PathFilterSharedListWrapper.PathFilterSharedList condition;
 			final PathActionList actionList;
+			final int specificity;
 
 			public Defrule getParent() {
 				return Defrule.this;
 			}
 
 			public Translated translatePathToAddress() {
-				return new Translated(condition, actionList.translatePathToAddress());
+				return new Translated(condition, actionList.translatePathToAddress(), specificity);
 			}
 		}
 
@@ -120,6 +128,7 @@ public class ConstructCache {
 		public class Translated {
 			final PathFilterSharedListWrapper.PathFilterSharedList condition;
 			final AddressesActionList actionList;
+			final int specificity;
 
 			public Defrule getParent() {
 				return Defrule.this;

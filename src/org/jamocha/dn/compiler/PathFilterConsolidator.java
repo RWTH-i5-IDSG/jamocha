@@ -217,7 +217,7 @@ public class PathFilterConsolidator implements DefaultConditionalElementsVisitor
 
 			final TranslatedPath result =
 					consolidateOnCopiedEquivalenceClasses(initialFactTemplate, rule, pathToJoinedWith, ce, symbols
-							.stream().map(VariableSymbol::getEqual).collect(toSet()));
+							.stream().map(VariableSymbol::getEqual).collect(toSet()), Specificity.calculate(ce));
 
 			// reset the symbol - equivalence class mapping
 			symbolToECbackup.forEach((vs, ec) -> vs.setEqual(ec));
@@ -325,7 +325,7 @@ public class PathFilterConsolidator implements DefaultConditionalElementsVisitor
 
 		private static TranslatedPath consolidateOnCopiedEquivalenceClasses(final Template initialFactTemplate,
 				final Defrule rule, final Map<Path, Set<Path>> pathToJoinedWith, final ConditionalElement ce,
-				final Set<EquivalenceClass> equivalenceClasses) {
+				final Set<EquivalenceClass> equivalenceClasses, final int specificity) {
 			final Pair<Path, Map<SingleFactVariable, Path>> initialFactAndPathMap =
 					ShallowFactVariableCollector.generatePaths(initialFactTemplate, ce);
 			final Map<SingleFactVariable, Path> pathMap = initialFactAndPathMap.getRight();
@@ -352,7 +352,7 @@ public class PathFilterConsolidator implements DefaultConditionalElementsVisitor
 
 			mergeMissingPathsViaDummy(allPaths, pathFilters, pathToJoinedWith);
 			return rule.newTranslated(new PathFilterSharedListWrapper().newSharedElement(pathFilters),
-					equivalenceClassToPathLeaf);
+					equivalenceClassToPathLeaf, specificity);
 		}
 
 		private static void mergeMissingPathsViaDummy(final Set<Path> allPaths, final List<PathFilterList> pathFilters,
