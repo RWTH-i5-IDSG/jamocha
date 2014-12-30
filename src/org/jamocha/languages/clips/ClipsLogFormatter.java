@@ -127,6 +127,9 @@ public class ClipsLogFormatter implements LogFormatter {
 	@Override
 	public void messageRuleActivation(final SideEffectFunctionToNetwork network, final Translated translated,
 			final Assert plus) {
+		if (!network.getTypedFilter().isRelevant(MarkerType.ACTIVATIONS)) {
+			return;
+		}
 		network.getInteractiveEventsLogger().info(translated.getParent().getActivationMarker(),
 				"==> Activation\t{}: {}", translated.getParent().getName(), formatFactIdentifierArray(plus));
 	}
@@ -134,6 +137,9 @@ public class ClipsLogFormatter implements LogFormatter {
 	@Override
 	public void messageRuleDeactivation(final SideEffectFunctionToNetwork network, final Translated translated,
 			final Retract minus) {
+		if (!network.getTypedFilter().isRelevant(MarkerType.ACTIVATIONS)) {
+			return;
+		}
 		network.getInteractiveEventsLogger().info(translated.getParent().getActivationMarker(),
 				"==> Deactivation\t{}: {}", translated.getParent().getName(), formatFactIdentifierArray(minus));
 	}
@@ -141,6 +147,9 @@ public class ClipsLogFormatter implements LogFormatter {
 	@Override
 	public void messageRuleFiring(final SideEffectFunctionToNetwork network, final Translated translated,
 			final Assert plus) {
+		if (!network.getTypedFilter().isRelevant(MarkerType.RULES)) {
+			return;
+		}
 		network.getInteractiveEventsLogger().info(translated.getParent().getFireMarker(), "FIRE {} : {}",
 				translated.getParent().getName(), formatFactIdentifierArray(plus));
 	}
