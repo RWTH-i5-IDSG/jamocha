@@ -1,7 +1,7 @@
 (clear)
 (unwatch compilations)
 (watch statistics)
-(set-strategy depth)
+(set-strategy lex)
 (load clipsfiles/miss-manners/manners.clp)
 (reset)
 (load-facts clipsfiles/miss-manners/manners64.fct)
