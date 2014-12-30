@@ -28,23 +28,44 @@ import org.jamocha.dn.ConflictSet.RuleAndToken;
 @RequiredArgsConstructor
 @Getter
 public enum ConflictResolutionStrategy implements Comparator<ConflictSet.RuleAndToken> {
-	DEPTH(new Comparator<ConflictSet.RuleAndToken>() {
-		@Override
-		public int compare(final RuleAndToken o1, final RuleAndToken o2) {
-			return Long.compare(o1.getActivationCounter(), o2.getActivationCounter());
+	activationCounterComparator((o1, o2) -> Long.compare(o1.getActivationCounter(), o2.getActivationCounter())),
+
+	activationCounterComparatorInverse((o1, o2) -> activationCounterComparator.compare(o2, o1)),
+
+	specificityComparator((o1, o2) -> Integer.compare(o1.getRule().getSpecificity(), o2.getRule().getSpecificity())),
+
+	specificityComparatorInverse((o1, o2) -> specificityComparator.compare(o2, o1)),
+
+	recencyArrayComparator((o1, o2) -> {
+		final int[] a1 = o1.getRecencyArray();
+		final int[] a2 = o2.getRecencyArray();
+		final int minLength = Math.min(a1.length, a2.length);
+		for (int i = 0; i < minLength; ++i) {
+			final int compare = Integer.compare(a1[i], a2[i]);
+			if (0 != compare) {
+				return compare;
+			}
 		}
-	}), BREADTH(new Comparator<ConflictSet.RuleAndToken>() {
-		@Override
-		public int compare(final RuleAndToken o1, final RuleAndToken o2) {
-			return -Long.compare(o1.getActivationCounter(), o2.getActivationCounter());
-		}
-	}), SIMPLICITY(null), COMPLEXITY(null), LEX(null), MEA(null), RANDOM(new Comparator<ConflictSet.RuleAndToken>() {
-		@Override
-		public int compare(final RuleAndToken o1, final RuleAndToken o2) {
-			return new CompareToBuilder().append(o1.getRandom(), o2.getRandom())
-					.append(o1.getActivationCounter(), o2.getActivationCounter()).build();
-		}
-	});
+		return Integer.compare(a1.length, a2.length);
+	}),
+
+	DEPTH(activationCounterComparator),
+
+	BREADTH(activationCounterComparatorInverse),
+
+	SIMPLICITY((o1, o2) -> new CompareToBuilder().append(o1, o2, specificityComparatorInverse).append(o1, o2, DEPTH)
+			.toComparison()),
+
+	COMPLEXITY((o1, o2) -> new CompareToBuilder().append(o1, o2, specificityComparator).append(o1, o2, DEPTH)
+			.toComparison()),
+
+	LEX((o1, o2) -> new CompareToBuilder().append(o1, o2, recencyArrayComparator).append(o1, o2, specificityComparator)
+			.toComparison()),
+
+	MEA(null),
+
+	RANDOM((o1, o2) -> new CompareToBuilder().append(o1.getRandom(), o2.getRandom()).append(o1, o2, DEPTH)
+			.toComparison());
 
 	final Comparator<ConflictSet.RuleAndToken> strategy;
 

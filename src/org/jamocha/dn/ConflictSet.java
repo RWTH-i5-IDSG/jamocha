@@ -16,6 +16,7 @@ package org.jamocha.dn;
 
 import static org.jamocha.util.ToArray.toArray;
 
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Map.Entry;
 import java.util.Random;
@@ -26,6 +27,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.Value;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.jamocha.dn.ConstructCache.Defrule;
 import org.jamocha.dn.ConstructCache.Defrule.Translated;
 import org.jamocha.dn.memory.MemoryHandlerTerminal.Assert;
@@ -64,6 +66,19 @@ public class ConflictSet {
 		AssertOrRetract<?> token;
 		long activationCounter;
 		int random;
+		int[] recencyArray;
+
+		RuleAndToken(final Defrule.Translated rule, final AssertOrRetract<?> token, final long activationCounter,
+				final int random) {
+			this.rule = rule;
+			this.token = token;
+			this.activationCounter = activationCounter;
+			this.random = random;
+			this.recencyArray =
+					Arrays.stream(token.getFactIdentifiers()).mapToInt(fi -> null == fi ? -1 : fi.getId()).sorted()
+							.toArray();
+			ArrayUtils.reverse(recencyArray);
+		}
 	}
 
 	private final TreeMap<Integer, TreeSet<RuleAndToken>> rulesAndTokensBySalience = new TreeMap<>();
