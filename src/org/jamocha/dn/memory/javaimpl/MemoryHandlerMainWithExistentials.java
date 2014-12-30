@@ -17,7 +17,6 @@ package org.jamocha.dn.memory.javaimpl;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jamocha.dn.memory.FactIdentifier;
 import org.jamocha.dn.memory.MemoryFact;
-import org.jamocha.dn.memory.MemoryFactToFactIdentifier;
 import org.jamocha.dn.memory.Template;
 import org.jamocha.dn.nodes.CouldNotAcquireLockException;
 import org.jamocha.dn.nodes.Edge;
@@ -33,9 +32,9 @@ public class MemoryHandlerMainWithExistentials extends MemoryHandlerMain {
 	final boolean[] existential;
 	JamochaArray<Row> allRows = new JamochaArray<>();
 
-	MemoryHandlerMainWithExistentials(final MemoryFactToFactIdentifier memoryFactToFactIdentifier,
-			final Template[] template, final Counter counter, final FactAddress[] addresses, final boolean[] existential) {
-		super(memoryFactToFactIdentifier, template, counter, addresses);
+	MemoryHandlerMainWithExistentials(final Template[] template, final Counter counter, final FactAddress[] addresses,
+			final boolean[] existential) {
+		super(template, counter, addresses);
 		this.existential = existential;
 	}
 

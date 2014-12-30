@@ -23,7 +23,6 @@ import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.Marker;
 import org.jamocha.dn.memory.Fact;
 import org.jamocha.dn.memory.MemoryFact;
-import org.jamocha.dn.memory.MemoryFactToFactIdentifier;
 import org.jamocha.dn.memory.SlotAddress;
 import org.jamocha.dn.memory.SlotType;
 import org.jamocha.dn.memory.Template;
@@ -157,8 +156,7 @@ public class TemplateMockup implements Template {
 	 * org.jamocha.dn.memory.SlotAddress)
 	 */
 	@Override
-	public Object getValue(final MemoryFactToFactIdentifier memoryFactToFactIdentifier, final MemoryFact fact,
-			final SlotAddress slot) {
+	public Object getValue(final MemoryFact fact, final SlotAddress slot) {
 		return null;
 	}
 

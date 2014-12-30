@@ -24,7 +24,6 @@ import lombok.Getter;
 
 import org.jamocha.dn.memory.FactAddress;
 import org.jamocha.dn.memory.FactIdentifier;
-import org.jamocha.dn.memory.MemoryFactToFactIdentifier;
 import org.jamocha.dn.memory.MemoryHandler;
 import org.jamocha.dn.memory.SlotAddress;
 import org.jamocha.dn.memory.Template;
@@ -40,8 +39,6 @@ import org.jamocha.dn.memory.Template;
 public class MemoryHandlerBase implements MemoryHandler {
 
 	@Getter
-	final MemoryFactToFactIdentifier memoryFactToFactIdentifier;
-	@Getter
 	final Template[] template;
 	JamochaArray<Row> validRows;
 
@@ -51,7 +48,7 @@ public class MemoryHandlerBase implements MemoryHandler {
 	@Override
 	public Object getValue(final FactAddress address, final SlotAddress slot, final int row) {
 		return validRows.get(row).getFactTuple()[((org.jamocha.dn.memory.javaimpl.FactAddress) address).getIndex()]
-				.getValue(memoryFactToFactIdentifier, slot);
+				.getValue(slot);
 	}
 
 	/**
@@ -70,8 +67,7 @@ public class MemoryHandlerBase implements MemoryHandler {
 
 	@Override
 	public FactIdentifier[] getFactIdentifiers(final int row) {
-		return toArray(
-				Arrays.stream(validRows.get(row).getFactTuple()).map(memoryFactToFactIdentifier::getFactIdentifier),
+		return toArray(Arrays.stream(validRows.get(row).getFactTuple()).map(f -> null == f ? null : f.factIdentifier),
 				FactIdentifier[]::new);
 	}
 }

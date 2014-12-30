@@ -35,7 +35,6 @@ import org.jamocha.dn.SideEffectFunctionToNetwork;
 import org.jamocha.dn.memory.Fact;
 import org.jamocha.dn.memory.FactIdentifier;
 import org.jamocha.dn.memory.MemoryFact;
-import org.jamocha.dn.memory.MemoryFactToFactIdentifier;
 import org.jamocha.dn.memory.SlotType;
 import org.jamocha.dn.memory.Template;
 import org.jamocha.dn.memory.Template.Slot;
@@ -169,11 +168,6 @@ public class NetworkMockup implements ParserToNetwork, SideEffectFunctionToNetwo
 
 	@Override
 	public MemoryFact getMemoryFact(final FactIdentifier id) {
-		return null;
-	}
-
-	@Override
-	public MemoryFactToFactIdentifier getMemoryFactToFactIdentifier() {
 		return null;
 	}
 

@@ -28,6 +28,7 @@ import org.jamocha.dn.memory.Fact;
 import org.jamocha.dn.memory.FactIdentifier;
 import org.jamocha.dn.memory.MemoryFact;
 import org.jamocha.dn.memory.MemoryHandlerTerminal.Assert;
+import org.jamocha.dn.memory.MemoryHandlerTerminal.AssertOrRetract;
 import org.jamocha.dn.memory.MemoryHandlerTerminal.Retract;
 import org.jamocha.dn.memory.SlotType;
 import org.jamocha.dn.memory.Template;
@@ -126,34 +127,27 @@ public class ClipsLogFormatter implements LogFormatter {
 	@Override
 	public void messageRuleActivation(final SideEffectFunctionToNetwork network, final Translated translated,
 			final Assert plus) {
-		network.getInteractiveEventsLogger().info(
-				translated.getParent().getActivationMarker(),
-				new StringBuilder()
-						.append("==> Activation\t")
-						.append(translated.getParent().getName())
-						.append(": ")
-						.append(Arrays.stream(plus.getFactIdentifiers(network.getMemoryFactToFactIdentifier()))
-								.map(fi -> null == fi ? "*" : formatTypeValue(Type.FACT, fi)).collect(joining(","))));
+		network.getInteractiveEventsLogger().info(translated.getParent().getActivationMarker(),
+				"==> Activation\t{}: {}", translated.getParent().getName(), formatFactIdentifierArray(plus));
 	}
 
 	@Override
 	public void messageRuleDeactivation(final SideEffectFunctionToNetwork network, final Translated translated,
 			final Retract minus) {
-		network.getInteractiveEventsLogger().info(
-				translated.getParent().getActivationMarker(),
-				new StringBuilder()
-						.append("==> Deactivation\t")
-						.append(translated.getParent().getName())
-						.append(": ")
-						.append(Arrays.stream(minus.getFactIdentifiers(network.getMemoryFactToFactIdentifier()))
-								.map(fi -> null == fi ? "*" : formatTypeValue(Type.FACT, fi)).collect(joining(","))));
+		network.getInteractiveEventsLogger().info(translated.getParent().getActivationMarker(),
+				"==> Deactivation\t{}: {}", translated.getParent().getName(), formatFactIdentifierArray(minus));
 	}
 
 	@Override
 	public void messageRuleFiring(final SideEffectFunctionToNetwork network, final Translated translated,
 			final Assert plus) {
-		network.getInteractiveEventsLogger().info(translated.getParent().getFireMarker(),
-				"Rule " + translated.getParent().getName() + " firing!");
+		network.getInteractiveEventsLogger().info(translated.getParent().getFireMarker(), "FIRE {} : {}",
+				translated.getParent().getName(), formatFactIdentifierArray(plus));
+	}
+
+	protected String formatFactIdentifierArray(final AssertOrRetract<?> token) {
+		return Arrays.stream(token.getFactIdentifiers()).map(fi -> null == fi ? "*" : formatTypeValue(Type.FACT, fi))
+				.collect(joining(","));
 	}
 
 	@Override

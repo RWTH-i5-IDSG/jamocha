@@ -358,7 +358,7 @@ public abstract class Node implements Visitable<NodeVisitor> {
 		}
 		this.filter = AddressFilter.empty;
 		final MemoryHandlerMainAndCounterColumnMatcher memoryHandlerMainAndCounterColumnMatcher =
-				network.getMemoryFactory().newMemoryHandlerMain(network.getRootNode(), PathFilter.empty, edgesAndPaths);
+				network.getMemoryFactory().newMemoryHandlerMain(PathFilter.empty, edgesAndPaths);
 		this.memory = memoryHandlerMainAndCounterColumnMatcher.getMemoryHandlerMain();
 	}
 
@@ -366,7 +366,7 @@ public abstract class Node implements Visitable<NodeVisitor> {
 		this.network = network;
 		this.tokenQueue = new TokenQueue(network.getScheduler());
 		this.incomingEdges = new Edge[0];
-		this.memory = network.getMemoryFactory().newMemoryHandlerMain(network.getRootNode(), template, paths);
+		this.memory = network.getMemoryFactory().newMemoryHandlerMain(template, paths);
 		this.filter = AddressFilter.empty;
 	}
 
@@ -401,7 +401,7 @@ public abstract class Node implements Visitable<NodeVisitor> {
 		// create new main memory
 		// this also produces translation maps on all our edges
 		final MemoryHandlerMainAndCounterColumnMatcher memoryHandlerMainAndCounterColumnMatcher =
-				network.getMemoryFactory().newMemoryHandlerMain(network.getRootNode(), filter, edgesAndPaths);
+				network.getMemoryFactory().newMemoryHandlerMain(filter, edgesAndPaths);
 		this.memory = memoryHandlerMainAndCounterColumnMatcher.getMemoryHandlerMain();
 		// update all Paths from joinedWith to new addresses
 		for (final Entry<Edge, Set<Path>> entry : edgesAndPaths.entrySet()) {

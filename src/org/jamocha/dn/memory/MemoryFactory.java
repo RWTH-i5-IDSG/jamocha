@@ -65,8 +65,7 @@ public interface MemoryFactory {
 	 * @see Template
 	 * @see Path
 	 */
-	public MemoryHandlerMain newMemoryHandlerMain(final MemoryFactToFactIdentifier memoryFactToFactIdentifier,
-			final Template template, final Path... paths);
+	public MemoryHandlerMain newMemoryHandlerMain(final Template template, final Path... paths);
 
 	/**
 	 * Creates a new {@link MemoryHandlerMain} capable of storing facts merged from the {@link Path
@@ -85,8 +84,7 @@ public interface MemoryFactory {
 	 * @see MemoryHandlerMain
 	 * @see Edge
 	 */
-	public MemoryHandlerMainAndCounterColumnMatcher newMemoryHandlerMain(
-			final MemoryFactToFactIdentifier memoryFactToFactIdentifier, final PathFilter filter,
+	public MemoryHandlerMainAndCounterColumnMatcher newMemoryHandlerMain(final PathFilter filter,
 			final Map<Edge, Set<Path>> edgesAndPaths);
 
 }

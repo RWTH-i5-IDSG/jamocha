@@ -32,12 +32,8 @@ import org.jamocha.dn.Network;
 import org.jamocha.dn.memory.Fact;
 import org.jamocha.dn.memory.FactIdentifier;
 import org.jamocha.dn.memory.MemoryFact;
-import org.jamocha.dn.memory.MemoryFactToFactIdentifier;
 import org.jamocha.dn.memory.Template;
 import org.jamocha.filter.Path;
-
-import com.google.common.collect.BiMap;
-import com.google.common.collect.HashBiMap;
 
 /**
  * Root node implementation (not part of the {@link Node} type hierarchy).
@@ -45,7 +41,7 @@ import com.google.common.collect.HashBiMap;
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  * @author Christoph Terwelp <christoph.terwelp@rwth-aachen.de>
  */
-public class RootNode implements MemoryFactToFactIdentifier {
+public class RootNode {
 
 	/**
 	 * Maps from {@link Template} to corresponding {@link ObjectTypeNode}
@@ -102,11 +98,6 @@ public class RootNode implements MemoryFactToFactIdentifier {
 
 	public MemoryFact getMemoryFact(final FactIdentifier factIdentifier) {
 		return this.factIdentification.get(factIdentifier);
-	}
-
-	@Override
-	public FactIdentifier getFactIdentifier(final MemoryFact memoryFact) {
-		return this.factIdentification.get(memoryFact);
 	}
 
 	public Map<FactIdentifier, MemoryFact> getMemoryFacts() {
@@ -169,12 +160,13 @@ public class RootNode implements MemoryFactToFactIdentifier {
 }
 
 class FactIdentification {
-	private final BiMap<FactIdentifier, MemoryFact> facts = HashBiMap.create();
+	private final Map<FactIdentifier, MemoryFact> facts = new HashMap<>();
 	private int factIdentifierCounter = 0;
 
 	FactIdentifier addFact(@NonNull final MemoryFact memoryFact) {
 		final FactIdentifier factIdentifier = new FactIdentifier(factIdentifierCounter++);
 		this.facts.put(factIdentifier, memoryFact);
+		memoryFact.setFactIdentifier(factIdentifier);
 		return factIdentifier;
 	}
 
@@ -184,10 +176,6 @@ class FactIdentification {
 
 	MemoryFact get(final FactIdentifier identifier) {
 		return this.facts.get(identifier);
-	}
-
-	FactIdentifier get(final MemoryFact memoryFact) {
-		return this.facts.inverse().get(memoryFact);
 	}
 
 	Map<FactIdentifier, MemoryFact> getMemoryFacts() {

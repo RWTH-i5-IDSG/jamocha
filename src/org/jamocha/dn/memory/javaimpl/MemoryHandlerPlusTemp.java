@@ -30,7 +30,6 @@ import lombok.Value;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.jamocha.dn.memory.MemoryFact;
-import org.jamocha.dn.memory.MemoryFactToFactIdentifier;
 import org.jamocha.dn.memory.MemoryHandler;
 import org.jamocha.dn.memory.SlotAddress;
 import org.jamocha.dn.memory.Template;
@@ -54,7 +53,7 @@ import org.jamocha.function.fwa.PredicateWithArguments;
 @ToString(callSuper = true, of = "valid")
 public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements org.jamocha.dn.memory.MemoryHandlerPlusTemp {
 
-	private static MemoryHandlerPlusTemp empty = new MemoryHandlerPlusTemp(null, new Template[0], null,
+	private static MemoryHandlerPlusTemp empty = new MemoryHandlerPlusTemp(new Template[0], null,
 			new JamochaArray<Row>(), 0, true);
 
 	static class Semaphore {
@@ -85,10 +84,9 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements org.jamo
 		this.filtered = Optional.of(filteredRows);
 	}
 
-	protected MemoryHandlerPlusTemp(final MemoryFactToFactIdentifier memoryFactToFactIdentifier,
-			final Template[] template, final MemoryHandlerMain originatingMainHandler, final JamochaArray<Row> rows,
-			final int numChildren, final boolean omitSemaphore) {
-		super(memoryFactToFactIdentifier, template, originatingMainHandler, rows);
+	protected MemoryHandlerPlusTemp(final Template[] template, final MemoryHandlerMain originatingMainHandler,
+			final JamochaArray<Row> rows, final int numChildren, final boolean omitSemaphore) {
+		super(template, originatingMainHandler, rows);
 		if (rows.isEmpty()) {
 			this.lock = null;
 			this.valid = false;
@@ -105,11 +103,9 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements org.jamo
 		}
 	}
 
-	protected MemoryHandlerPlusTemp(final MemoryFactToFactIdentifier memoryFactToFactIdentifier,
-			final MemoryHandlerMain originatingMainHandler, final JamochaArray<Row> rows, final int numChildren,
-			final boolean omitSemaphore) {
-		this(memoryFactToFactIdentifier, originatingMainHandler.template, originatingMainHandler, rows, numChildren,
-				omitSemaphore);
+	protected MemoryHandlerPlusTemp(final MemoryHandlerMain originatingMainHandler, final JamochaArray<Row> rows,
+			final int numChildren, final boolean omitSemaphore) {
+		this(originatingMainHandler.template, originatingMainHandler, rows, numChildren, omitSemaphore);
 	}
 
 	@Override
@@ -157,9 +153,8 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements org.jamo
 		return true;
 	}
 
-	public static MemoryHandlerPlusTemp newNewNodeTemp(final MemoryFactToFactIdentifier memoryFactToFactIdentifier,
-			final Template[] template, final JamochaArray<Row> rows) {
-		return new MemoryHandlerPlusTemp(memoryFactToFactIdentifier, template, (MemoryHandlerMain) null, rows, 0, true);
+	public static MemoryHandlerPlusTemp newNewNodeTemp(final Template[] template, final JamochaArray<Row> rows) {
+		return new MemoryHandlerPlusTemp(template, (MemoryHandlerMain) null, rows, 0, true);
 	}
 
 	@Override
@@ -194,8 +189,7 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements org.jamo
 		factLoop: for (final Row row : token.validRows) {
 			assert row.getFactTuple().length == 1;
 			for (final AddressFilterElement filterElement : filter.getFilterElements()) {
-				if (!applyFilterElement(originatingMainHandler.memoryFactToFactIdentifier, row.getFactTuple()[0],
-						filterElement)) {
+				if (!applyFilterElement(row.getFactTuple()[0], filterElement)) {
 					continue factLoop;
 				}
 			}
@@ -204,9 +198,8 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements org.jamo
 		if (factList.isEmpty()) {
 			return empty;
 		}
-		return new MemoryHandlerPlusTemp(originatingMainHandler.memoryFactToFactIdentifier, originatingMainHandler,
-				factList, originIncomingEdge.getTargetNode().getNumberOfOutgoingEdges(),
-				canOmitSemaphore(originIncomingEdge));
+		return new MemoryHandlerPlusTemp(originatingMainHandler, factList, originIncomingEdge.getTargetNode()
+				.getNumberOfOutgoingEdges(), canOmitSemaphore(originIncomingEdge));
 	}
 
 	@Override
@@ -248,8 +241,8 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements org.jamo
 			memoryFacts[i] = memoryFact;
 			factList.add(originatingMainHandler.newRow(new Fact[] { memoryFact }));
 		}
-		return Pair.of(new MemoryHandlerPlusTemp(originatingMainHandler.memoryFactToFactIdentifier,
-				originatingMainHandler, factList, otn.getNumberOfOutgoingEdges(), canOmitSemaphore(otn)), memoryFacts);
+		return Pair.of(new MemoryHandlerPlusTemp(originatingMainHandler, factList, otn.getNumberOfOutgoingEdges(),
+				canOmitSemaphore(otn)), memoryFacts);
 	}
 
 	static abstract class StackElement {
@@ -262,8 +255,7 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements org.jamo
 			this.offset = offset;
 		}
 
-		public static StackElement ordinaryInput(final MemoryFactToFactIdentifier memoryFactToFactIdentifier,
-				final Edge edge, final int offset) {
+		public static StackElement ordinaryInput(final Edge edge, final int offset) {
 			final LinkedList<? extends MemoryHandler> temps = edge.getTempMemories();
 			final JamochaArray<JamochaArray<Row>> memStack = new JamochaArray<JamochaArray<Row>>(temps.size() + 1);
 			memStack.add(((org.jamocha.dn.memory.javaimpl.MemoryHandlerMain) edge.getSourceNode().getMemory()).validRows);
@@ -279,13 +271,13 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements org.jamo
 				@Override
 				Object getValue(final AddressPredecessor addr, final SlotAddress slot) {
 					return this.getRow().getFactTuple()[((org.jamocha.dn.memory.javaimpl.FactAddress) addr.getAddress()).index]
-							.getValue(memoryFactToFactIdentifier, slot);
+							.getValue(slot);
 				}
 			};
 		}
 
-		public static StackElement originInput(final MemoryFactToFactIdentifier memoryFactToFactIdentifier,
-				final int columns, final Edge originEdge, final JamochaArray<Row> tokenRows, final int offset) {
+		public static StackElement originInput(final int columns, final Edge originEdge,
+				final JamochaArray<Row> tokenRows, final int offset) {
 			final JamochaArray<Row> listWithHoles = new JamochaArray<>(tokenRows.size());
 			for (final Row row : tokenRows) {
 				final Row wideRow = ((MemoryHandlerMain) originEdge.getTargetNode().getMemory()).newRow();
@@ -299,7 +291,7 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements org.jamo
 				@Override
 				Object getValue(final AddressPredecessor addr, final SlotAddress slot) {
 					return this.getRow().getFactTuple()[((org.jamocha.dn.memory.javaimpl.FactAddress) addr.getEdge()
-							.localizeAddress(addr.getAddress())).index].getValue(memoryFactToFactIdentifier, slot);
+							.localizeAddress(addr.getAddress())).index].getValue(slot);
 				}
 			};
 		}
@@ -396,8 +388,7 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements org.jamo
 		return TR;
 	}
 
-	private static final LinkedHashMap<Edge, StackElement> getLocksAndStack(
-			final MemoryFactToFactIdentifier memoryFactToFactIdentifier, final JamochaArray<Row> tokenRows,
+	private static final LinkedHashMap<Edge, StackElement> getLocksAndStack(final JamochaArray<Row> tokenRows,
 			final Edge originIncomingEdge) throws CouldNotAcquireLockException {
 		// get a fixed-size array of indices (size: #inputs of the node),
 		// determine number of inputs for the current join as maxIndex
@@ -416,9 +407,7 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements org.jamo
 			int offset = 0;
 			for (final Edge incomingEdge : nodeIncomingEdges) {
 				if (incomingEdge == originIncomingEdge) {
-					tempOriginElement =
-							StackElement.originInput(memoryFactToFactIdentifier, columns, originIncomingEdge,
-									tokenRows, offset);
+					tempOriginElement = StackElement.originInput(columns, originIncomingEdge, tokenRows, offset);
 					offset += incomingEdge.getSourceNode().getMemory().getTemplate().length;
 					// don't lock the originInput
 					continue;
@@ -433,8 +422,7 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements org.jamo
 				} catch (final InterruptedException ex) {
 					throw new Error("Should not happen, interruption of this method is not supported!", ex);
 				}
-				edgeToStack.put(incomingEdge,
-						StackElement.ordinaryInput(memoryFactToFactIdentifier, incomingEdge, offset));
+				edgeToStack.put(incomingEdge, StackElement.ordinaryInput(incomingEdge, offset));
 				offset += incomingEdge.getSourceNode().getMemory().getTemplate().length;
 			}
 			originElement = tempOriginElement;
@@ -458,14 +446,12 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements org.jamo
 			throws CouldNotAcquireLockException {
 		final JamochaArray<Row> facts = regularLockJoinAndUnlock(filter, token, originEdge);
 		final int numChildren = originEdge.getTargetNode().getNumberOfOutgoingEdges();
-		return new MemoryHandlerPlusTemp(originatingMainHandler.memoryFactToFactIdentifier, originatingMainHandler,
-				facts, numChildren, canOmitSemaphore(originEdge));
+		return new MemoryHandlerPlusTemp(originatingMainHandler, facts, numChildren, canOmitSemaphore(originEdge));
 	}
 
 	private static JamochaArray<Row> regularLockJoinAndUnlock(final AddressFilter filter,
 			final MemoryHandlerPlusTemp token, final Edge originEdge) throws CouldNotAcquireLockException {
-		final LinkedHashMap<Edge, StackElement> edgeToStack =
-				getLocksAndStack(token.memoryFactToFactIdentifier, token.validRows, originEdge);
+		final LinkedHashMap<Edge, StackElement> edgeToStack = getLocksAndStack(token.validRows, originEdge);
 
 		performJoin(filter, edgeToStack, originEdge);
 
@@ -504,8 +490,8 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements org.jamo
 				return empty;
 			}
 			final int numChildren = originEdge.getTargetNode().getNumberOfOutgoingEdges();
-			return new MemoryHandlerPlusTemp(originatingMainHandler.memoryFactToFactIdentifier, originatingMainHandler,
-					newValidRows, numChildren, canOmitSemaphore(originEdge));
+			return new MemoryHandlerPlusTemp(originatingMainHandler, newValidRows, numChildren,
+					canOmitSemaphore(originEdge));
 
 		}
 		return handleExistentialEdge(originatingMainHandler, filter, token.validRows, originEdge,
@@ -695,8 +681,7 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements org.jamo
 		}
 		// read-lock all other input-mains
 		final LinkedHashMap<Edge, StackElement> edgeToStack =
-				MemoryHandlerPlusTemp.getLocksAndStack(originatingMainHandler.memoryFactToFactIdentifier, tokenRows,
-						originEdge);
+				MemoryHandlerPlusTemp.getLocksAndStack(tokenRows, originEdge);
 
 		// perform the actual join to get the counter updates
 		final JamochaArray<CounterUpdate> counterUpdates =
@@ -741,13 +726,12 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements org.jamo
 		final int numChildren = originEdge.getTargetNode().getNumberOfOutgoingEdges();
 		if (noLinesToDel) {
 			// create + token for validated rows
-			return new MemoryHandlerPlusTemp(originatingMainHandler.memoryFactToFactIdentifier, originatingMainHandler,
-					rowsToAdd, numChildren, canOmitSemaphore(originEdge));
+			return new MemoryHandlerPlusTemp(originatingMainHandler, rowsToAdd, numChildren,
+					canOmitSemaphore(originEdge));
 		}
 		// create both tokens as above and wrap them
-		return new MemoryHandlerTempPairDistributer(new MemoryHandlerPlusTemp(
-				originatingMainHandler.memoryFactToFactIdentifier, originatingMainHandler, rowsToAdd, numChildren,
-				canOmitSemaphore(originEdge)), MemoryHandlerMinusTemp.newExistentialBetaFromRowsToDelete(
+		return new MemoryHandlerTempPairDistributer(new MemoryHandlerPlusTemp(originatingMainHandler, rowsToAdd,
+				numChildren, canOmitSemaphore(originEdge)), MemoryHandlerMinusTemp.newExistentialBetaFromRowsToDelete(
 				originatingMainHandler, rowsToDel, originEdge));
 	}
 
@@ -808,8 +792,8 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements org.jamo
 							factBase = mainFactTuple;
 						}
 						params[i] =
-								factBase[((FactAddress) address.getFactAddress()).index].getValue(
-										memoryHandlerMain.memoryFactToFactIdentifier, address.getSlotAddress());
+								factBase[((FactAddress) address.getFactAddress()).index].getValue(address
+										.getSlotAddress());
 					}
 					// if combined row doesn't match, try the next token row
 					if (!predicate.evaluate(params)) {

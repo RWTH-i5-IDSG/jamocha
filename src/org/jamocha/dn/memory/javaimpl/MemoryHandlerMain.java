@@ -32,7 +32,6 @@ import lombok.ToString;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.jamocha.dn.memory.MemoryFact;
-import org.jamocha.dn.memory.MemoryFactToFactIdentifier;
 import org.jamocha.dn.memory.Template;
 import org.jamocha.dn.nodes.CouldNotAcquireLockException;
 import org.jamocha.dn.nodes.Edge;
@@ -63,9 +62,9 @@ public class MemoryHandlerMain extends MemoryHandlerBase implements org.jamocha.
 	final protected Queue<MemoryHandlerPlusTemp> validOutgoingPlusTokens = new LinkedList<>();
 	final Counter counter;
 
-	MemoryHandlerMain(final MemoryFactToFactIdentifier memoryFactToFactIdentifier, final Template template,
+	MemoryHandlerMain(final Template template,
 			final Path... paths) {
-		super(memoryFactToFactIdentifier, new Template[] { template }, new JamochaArray<Row>());
+		super( new Template[] { template }, new JamochaArray<Row>());
 		final FactAddress address = new FactAddress(0);
 		this.addresses = new FactAddress[] { address };
 		for (final Path path : paths) {
@@ -75,15 +74,15 @@ public class MemoryHandlerMain extends MemoryHandlerBase implements org.jamocha.
 		this.counter = Counter.newCounter();
 	}
 
-	MemoryHandlerMain(final MemoryFactToFactIdentifier memoryFactToFactIdentifier, final Template[] template,
+	MemoryHandlerMain(final Template[] template,
 			final Counter counter, final FactAddress[] addresses) {
-		super(memoryFactToFactIdentifier, template, new JamochaArray<>());
+		super( template, new JamochaArray<>());
 		this.addresses = addresses;
 		this.counter = counter;
 	}
 
 	public static org.jamocha.dn.memory.MemoryHandlerMainAndCounterColumnMatcher newMemoryHandlerMain(
-			final MemoryFactToFactIdentifier memoryFactToFactIdentifier, final PathFilter filter,
+			final PathFilter filter,
 			final Map<Edge, Set<Path>> edgesAndPaths) {
 		final ArrayList<Template> template = new ArrayList<>();
 		final ArrayList<FactAddress> addresses = new ArrayList<>();
@@ -134,11 +133,11 @@ public class MemoryHandlerMain extends MemoryHandlerBase implements org.jamocha.
 						index++));
 			}
 			return new MemoryHandlerMainAndCounterColumnMatcher(new MemoryHandlerMainWithExistentials(
-					memoryFactToFactIdentifier, templArray,
+					 templArray,
 					Counter.newCounter(filter, pathFilterElementToCounterColumn), addrArray, existential),
 					pathFilterElementToCounterColumn);
 		}
-		return new MemoryHandlerMainAndCounterColumnMatcher(new MemoryHandlerMain(memoryFactToFactIdentifier,
+		return new MemoryHandlerMainAndCounterColumnMatcher(new MemoryHandlerMain(
 				templArray, Counter.newCounter(filter, pathFilterElementToCounterColumn), addrArray),
 				pathFilterElementToCounterColumn);
 	}
@@ -188,7 +187,7 @@ public class MemoryHandlerMain extends MemoryHandlerBase implements org.jamocha.
 			rows.addAll(plus.validRows);
 		}
 		this.lock.readLock().unlock();
-		return MemoryHandlerPlusTemp.newNewNodeTemp(memoryFactToFactIdentifier, this.template, rows);
+		return MemoryHandlerPlusTemp.newNewNodeTemp(this.template, rows);
 	}
 
 	@Override

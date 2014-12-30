@@ -63,8 +63,8 @@ public class ObjectTypeNode extends AlphaNode {
 	/**
 	 * Creates a new plus token for the given fact and passes it to children.
 	 * 
-	 * @param fact
-	 *            {@link Fact} to be asserted
+	 * @param facts
+	 *            {@link Fact}s to be asserted
 	 */
 	public MemoryFact[] assertFact(final Fact... facts) {
 		assert !Arrays.stream(facts).filter(fact -> fact.getTemplate() != this.template).findAny().isPresent();
@@ -78,8 +78,8 @@ public class ObjectTypeNode extends AlphaNode {
 	/**
 	 * Creates a new minus token for the given fact and passes it to children.
 	 * 
-	 * @param fact
-	 *            {@link Fact} to be retracted
+	 * @param facts
+	 *            {@link Fact}s to be retracted
 	 */
 	public void retractFact(final MemoryFact... facts) {
 		assert !Arrays.stream(facts).filter(fact -> fact.getTemplate() != this.template).findAny().isPresent();

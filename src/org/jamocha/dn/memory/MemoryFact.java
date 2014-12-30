@@ -20,5 +20,9 @@ package org.jamocha.dn.memory;
 public interface MemoryFact {
 	public Template getTemplate();
 
+	public FactIdentifier getFactIdentifier();
+
 	public Fact toMutableFact();
+
+	public void setFactIdentifier(final FactIdentifier factIdentifier);
 }

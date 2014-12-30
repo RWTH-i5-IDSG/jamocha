@@ -24,7 +24,6 @@ import org.jamocha.dn.ConstructCache.Defrule;
 import org.jamocha.dn.memory.Fact;
 import org.jamocha.dn.memory.FactIdentifier;
 import org.jamocha.dn.memory.MemoryFact;
-import org.jamocha.dn.memory.MemoryFactToFactIdentifier;
 import org.jamocha.dn.memory.Template;
 import org.jamocha.dn.nodes.TerminalNode;
 import org.jamocha.languages.common.ScopeStack.Symbol;
@@ -38,8 +37,6 @@ public interface SideEffectFunctionToNetwork {
 	Map<FactIdentifier, MemoryFact> getMemoryFacts();
 
 	MemoryFact getMemoryFact(final FactIdentifier id);
-
-	MemoryFactToFactIdentifier getMemoryFactToFactIdentifier();
 
 	Template getTemplate(final String name);
 
