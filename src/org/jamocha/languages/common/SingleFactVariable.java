@@ -71,8 +71,8 @@ public class SingleFactVariable {
 		return slots.values();
 	}
 
-	public PathLeaf getPathLeaf(final Map<SingleFactVariable, Path> pathMap) {
-		return new PathLeaf(pathMap.get(this), null);
+	public PathLeaf getPathLeaf(final Map<EquivalenceClass, Path> ec2Path) {
+		return new PathLeaf(ec2Path.get(equal), null);
 	}
 
 	@Getter
@@ -91,8 +91,8 @@ public class SingleFactVariable {
 			return SingleFactVariable.this;
 		}
 
-		public PathLeaf getPathLeaf(final Map<SingleFactVariable, Path> pathMap) {
-			final Path path = pathMap.get(getFactVariable());
+		public PathLeaf getPathLeaf(final Map<EquivalenceClass, Path> ec2Path) {
+			final Path path = ec2Path.get(getFactVariable().getEqual());
 			return null == path ? null : new PathLeaf(path, slot);
 		}
 

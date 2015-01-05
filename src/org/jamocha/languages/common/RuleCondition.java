@@ -64,7 +64,6 @@ public class RuleCondition {
 		final LinkedList<SingleSlotVariable> equalSlotVariables;
 		final LinkedList<FunctionWithArguments<SymbolLeaf>> equalFWAs;
 		final Set<EquivalenceClass> unequalEquivalenceClasses = new HashSet<>();
-		@Getter(AccessLevel.NONE)
 		final Set<SingleFactVariable> merged = new HashSet<>();
 		SlotType type;
 
@@ -110,6 +109,11 @@ public class RuleCondition {
 				this.type = other.type;
 			else if (null != other.type && other.type != this.type)
 				throw new IllegalArgumentException("Only equivalence classes of equal types can be merged!");
+			other.factVariables.forEach(fv -> fv.setEqual(this));
+			other.equalSlotVariables.forEach(sv -> {
+				sv.getEqualSet().clear();
+				sv.getEqualSet().add(this);
+			});
 		}
 
 		/**
@@ -131,15 +135,17 @@ public class RuleCondition {
 				final SingleFactVariable thisFV = optFactVariable.get();
 				final SingleFactVariable mergeFV =
 						merged.stream()
-								.filter(fv -> fv.template == thisFV.template)
 								.findAny()
 								.orElseGet(
-										() -> factVariables.stream()
-												.filter(fv -> thisFV != fv && fv.template == thisFV.template).findAny()
-												.orElse(null));
+										() -> factVariables.stream().filter(fv -> thisFV != fv).findAny().orElse(null));
 				if (null == mergeFV)
 					break;
+				merged.add(thisFV);
+				merged.add(mergeFV);
+				factVariables.remove(thisFV);
+				factVariables.remove(mergeFV);
 				final Template template = thisFV.template;
+				assert thisFV.template == mergeFV.template;
 				for (final Slot slot : template.getSlots()) {
 					final SlotAddress slotAddress = template.getSlotAddress(slot.getName());
 					final SingleSlotVariable thisSV = thisFV.getSlots().get(slotAddress);
@@ -148,13 +154,12 @@ public class RuleCondition {
 						final EquivalenceClass thisEC = thisSV.getEqual();
 						final EquivalenceClass mergeEC = mergeSV.getEqual();
 						thisEC.merge(mergeEC);
-						mergeSV.equalSet.clear();
-						mergeSV.equalSet.add(thisEC);
 						thisEC.mergeEquivalenceClassesOfFactVariables();
 					}
 				}
-				merged.add(thisFV);
-				merged.add(mergeFV);
+			}
+			if (factVariables.isEmpty()) {
+				factVariables.add(merged.iterator().next());
 			}
 		}
 
@@ -229,16 +234,16 @@ public class RuleCondition {
 			});
 		}
 
-		public PathLeaf getPathLeaf(final Map<SingleFactVariable, Path> pathMap, final SingleSlotVariable sv) {
+		public PathLeaf getPathLeaf(final Map<EquivalenceClass, Path> ec2Path, final SingleSlotVariable sv) {
 			if (!factVariables.isEmpty()) {
-				final Path path = pathMap.get(factVariables.iterator().next());
+				final Path path = ec2Path.get(factVariables.iterator().next().getEqual());
 				return null == path ? null : new PathLeaf(path, null);
 			}
-			return null == sv ? null : sv.getPathLeaf(pathMap);
+			return null == sv ? null : sv.getPathLeaf(ec2Path);
 		}
 
-		public PathLeaf getPathLeaf(final Map<SingleFactVariable, Path> pathMap) {
-			return getPathLeaf(pathMap, (equalSlotVariables.isEmpty() ? null : equalSlotVariables.get(0)));
+		public PathLeaf getPathLeaf(final Map<EquivalenceClass, Path> ec2Path) {
+			return getPathLeaf(ec2Path, (equalSlotVariables.isEmpty() ? null : equalSlotVariables.get(0)));
 		}
 	}
 }

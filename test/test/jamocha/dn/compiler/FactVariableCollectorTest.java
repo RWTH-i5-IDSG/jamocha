@@ -40,6 +40,7 @@ import org.jamocha.languages.clips.parser.generated.SFPParser;
 import org.jamocha.languages.clips.parser.generated.SFPStart;
 import org.jamocha.languages.common.ConditionalElement;
 import org.jamocha.languages.common.RuleCondition;
+import org.jamocha.languages.common.RuleCondition.EquivalenceClass;
 import org.jamocha.languages.common.ScopeStack.VariableSymbol;
 import org.jamocha.languages.common.SingleFactVariable;
 import org.jamocha.languages.common.Warning;
@@ -104,17 +105,17 @@ public class FactVariableCollectorTest {
 		final RuleCondition ruleCondition = clipsToCondition(ptn, input);
 		final List<ConditionalElement> conditionalElements = ruleCondition.getConditionalElements();
 		assertEquals(1, conditionalElements.size());
-		final Map<SingleFactVariable, Path> variables =
+		final Map<EquivalenceClass, Path> ec2Path =
 				ShallowFactVariableCollector.generatePaths(ptn.getInitialFactTemplate(), conditionalElements.get(0))
 						.getRight();
-		assertEquals(1, variables.size());
-		final Entry<SingleFactVariable, Path> entry = variables.entrySet().iterator().next();
+		assertEquals(1, ec2Path.size());
+		final Entry<EquivalenceClass, Path> entry = ec2Path.entrySet().iterator().next();
 		final Set<VariableSymbol> dummySymbols = new SymbolCollector(ruleCondition).getDummySymbols();
 		assertThat(dummySymbols, hasSize(1));
 		final VariableSymbol dummySymbol = dummySymbols.iterator().next();
-		assertEquals(dummySymbol.getEqual(), entry.getKey().getEqual());
-		assertEquals(templateName, entry.getKey().getTemplate().getName());
-		assertSame(entry.getKey().getTemplate(), entry.getValue().getTemplate());
+		assertEquals(dummySymbol.getEqual(), entry.getKey());
+		assertEquals(templateName, entry.getKey().getFactVariables().getFirst().getTemplate().getName());
+		assertSame(entry.getKey().getFactVariables().getFirst(), entry.getValue().getTemplate());
 	}
 
 	@Test

@@ -33,6 +33,7 @@ import org.jamocha.languages.common.ConditionalElement.OrFunctionConditionalElem
 import org.jamocha.languages.common.ConditionalElement.SharedConditionalElementWrapper;
 import org.jamocha.languages.common.ConditionalElement.TemplatePatternConditionalElement;
 import org.jamocha.languages.common.DefaultConditionalElementsVisitor;
+import org.jamocha.languages.common.RuleCondition.EquivalenceClass;
 import org.jamocha.languages.common.SingleFactVariable;
 
 /**
@@ -44,7 +45,7 @@ public class ShallowFactVariableCollector implements DefaultConditionalElementsV
 	@Getter
 	private List<SingleFactVariable> factVariables;
 
-	public static Pair<Path, Map<SingleFactVariable, Path>> generatePaths(final Template initialFactTemplate,
+	public static Pair<Path, Map<EquivalenceClass, Path>> generatePaths(final Template initialFactTemplate,
 			final ConditionalElement ce) {
 		final ShallowFactVariableCollector instance = new ShallowFactVariableCollector();
 		// Collect all FactVariables defined in the CEs TemplateCEs and InitialFactCEs
@@ -53,16 +54,21 @@ public class ShallowFactVariableCollector implements DefaultConditionalElementsV
 		final Path initialFactPath = new Path(initialFactTemplate);
 		assert !factVariables.stream().anyMatch(sfv -> sfv.getTemplate() == initialFactTemplate)
 				|| null != initialFactPath;
-		return Pair
-				.of(initialFactPath,
-						factVariables.stream()
-								// Create Paths with the corresponding Templates for all collected
-								// FactVariables
-								.collect(
-										Collectors.toMap(
-												Function.identity(),
-												(final SingleFactVariable variable) -> (variable.getTemplate() == initialFactTemplate ? initialFactPath
-														: new Path(variable.getTemplate())))));
+		return Pair.of(
+				initialFactPath,
+				factVariables
+						.stream()
+						// Create Paths with the corresponding Templates for all collected
+						// FactVariables
+						.map(SingleFactVariable::getEqual)
+						.distinct()
+						.collect(
+								Collectors.toMap(Function.identity(),
+										(final EquivalenceClass ec) -> {
+											final SingleFactVariable fv = ec.getFactVariables().getFirst();
+											return (fv.getTemplate() == initialFactTemplate ? initialFactPath
+													: new Path(fv.getTemplate()));
+										})));
 	}
 
 	public static List<SingleFactVariable> collect(final ConditionalElement ce) {

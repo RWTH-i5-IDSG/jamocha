@@ -235,6 +235,12 @@ public abstract class GenericWithArgumentsComposite<R, F extends Function<? exte
 	@SafeVarargs
 	public static <L extends ExchangeableLeaf<L>> PredicateWithArguments<L> newPredicateInstance(final String inClips,
 			final FunctionWithArguments<L>... arguments) {
+		return newPredicateInstance(true, inClips, arguments);
+	}
+
+	@SafeVarargs
+	public static <L extends ExchangeableLeaf<L>> PredicateWithArguments<L> newPredicateInstance(
+			final boolean isPositive, final String inClips, final FunctionWithArguments<L>... arguments) {
 		final SlotType[] argTypes = getArgumentTypes(arguments);
 		final Predicate predicate = FunctionDictionary.lookupPredicate(inClips, argTypes);
 		return new PredicateWithArgumentsComposite<L>(predicate, arguments);

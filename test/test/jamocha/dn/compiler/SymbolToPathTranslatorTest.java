@@ -105,7 +105,7 @@ public class SymbolToPathTranslatorTest {
 		final List<ConditionalElement> conditionalElements = ruleCondition.getConditionalElements();
 		assertThat(conditionalElements, hasSize(1));
 		final ConditionalElement andCe = conditionalElements.get(0);
-		final Map<SingleFactVariable, Path> paths =
+		final Map<EquivalenceClass, Path> ec2Path =
 				ShallowFactVariableCollector.generatePaths(ptn.getInitialFactTemplate(), andCe).getRight();
 		final Set<VariableSymbol> collectedSymbols = new SymbolCollector(ruleCondition).getNonDummySymbols();
 		assertThat(collectedSymbols, hasSize(1));
@@ -113,7 +113,7 @@ public class SymbolToPathTranslatorTest {
 		final LinkedList<SingleSlotVariable> xEqualSVs = xSymbol.getEqual().getEqualSlotVariables();
 		assertThat(xEqualSVs, hasSize(1));
 		final Map<EquivalenceClass, PathLeaf> symbolToPathLeaf =
-				Collections.singletonMap(xSymbol.getEqual(), xEqualSVs.get(0).getPathLeaf(paths));
+				Collections.singletonMap(xSymbol.getEqual(), xEqualSVs.get(0).getPathLeaf(ec2Path));
 
 		final List<ConditionalElement> andChildren = andCe.getChildren();
 		assertThat(andChildren, hasSize(2));
@@ -137,7 +137,7 @@ public class SymbolToPathTranslatorTest {
 			assertThat(x, instanceOf(PathLeaf.class));
 			final Path path = ((PathLeaf) x).getPath();
 			assertEquals(path.getTemplate().getName(), "templ1");
-			assertSame(path, paths.get(xFactVar));
+			assertSame(path, ec2Path.get(xFactVar));
 		}
 	}
 
@@ -149,7 +149,7 @@ public class SymbolToPathTranslatorTest {
 		final List<ConditionalElement> conditionalElements = ruleCondition.getConditionalElements();
 		assertThat(conditionalElements, hasSize(1));
 		final ConditionalElement andCe = conditionalElements.get(0);
-		final Map<SingleFactVariable, Path> paths =
+		final Map<EquivalenceClass, Path> ec2Path =
 				ShallowFactVariableCollector.generatePaths(ptn.getInitialFactTemplate(), andCe).getRight();
 		final Set<VariableSymbol> collectedSymbols = new SymbolCollector(ruleCondition).getNonDummySymbols();
 		assertThat(collectedSymbols, hasSize(1));
@@ -157,7 +157,7 @@ public class SymbolToPathTranslatorTest {
 		final LinkedList<SingleSlotVariable> xEqualSVs = xSymbol.getEqual().getEqualSlotVariables();
 		assertThat(xEqualSVs, hasSize(1));
 		final Map<EquivalenceClass, PathLeaf> symbolToPathLeaf =
-				Collections.singletonMap(xSymbol.getEqual(), xEqualSVs.get(0).getPathLeaf(paths));
+				Collections.singletonMap(xSymbol.getEqual(), xEqualSVs.get(0).getPathLeaf(ec2Path));
 
 		final List<ConditionalElement> andChildren = andCe.getChildren();
 		assertThat(andChildren, hasSize(3));
@@ -181,7 +181,7 @@ public class SymbolToPathTranslatorTest {
 			assertThat(x, instanceOf(PathLeaf.class));
 			final Path path = ((PathLeaf) x).getPath();
 			assertEquals(path.getTemplate().getName(), "templ1");
-			assertSame(path, paths.get(xFactVar));
+			assertSame(path, ec2Path.get(xFactVar));
 		}
 		{
 			final ConditionalElement testCe = andChildren.get(2);
@@ -197,7 +197,7 @@ public class SymbolToPathTranslatorTest {
 			assertThat(x, instanceOf(PathLeaf.class));
 			final Path path = ((PathLeaf) x).getPath();
 			assertEquals(path.getTemplate().getName(), "templ1");
-			assertSame(path, paths.get(xFactVar));
+			assertSame(path, ec2Path.get(xFactVar));
 		}
 	}
 
@@ -214,7 +214,7 @@ public class SymbolToPathTranslatorTest {
 		final Path firstPath;
 		{
 			final ConditionalElement andCe = orChildren.get(0);
-			final Map<SingleFactVariable, Path> paths =
+			final Map<EquivalenceClass, Path> ec2Path =
 					ShallowFactVariableCollector.generatePaths(ptn.getInitialFactTemplate(), andCe).getRight();
 			final Set<VariableSymbol> collectedSymbols = new SymbolCollector(ruleCondition).getNonDummySymbols();
 			assertThat(collectedSymbols, hasSize(1));
@@ -222,7 +222,7 @@ public class SymbolToPathTranslatorTest {
 			final LinkedList<SingleSlotVariable> xEqualSVs = xSymbol.getEqual().getEqualSlotVariables();
 			assertThat(xEqualSVs, hasSize(1));
 			final Map<EquivalenceClass, PathLeaf> symbolToPathLeaf =
-					Collections.singletonMap(xSymbol.getEqual(), xEqualSVs.get(0).getPathLeaf(paths));
+					Collections.singletonMap(xSymbol.getEqual(), xEqualSVs.get(0).getPathLeaf(ec2Path));
 
 			final List<ConditionalElement> andChildren = andCe.getChildren();
 			assertThat(andChildren, hasSize(2));
@@ -233,7 +233,7 @@ public class SymbolToPathTranslatorTest {
 				final ConditionalElement templCe = ((SharedConditionalElementWrapper) shared).getCe();
 				assertThat(templCe, instanceOf(TemplatePatternConditionalElement.class));
 				xFactVar = ((TemplatePatternConditionalElement) templCe).getFactVariable();
-				assertThat(paths, hasKey(xFactVar));
+				assertThat(ec2Path, hasKey(xFactVar));
 			}
 			{
 				final ConditionalElement testCe = andChildren.get(1);
@@ -249,13 +249,13 @@ public class SymbolToPathTranslatorTest {
 				assertThat(x, instanceOf(PathLeaf.class));
 				final Path path = ((PathLeaf) x).getPath();
 				assertEquals(path.getTemplate().getName(), "templ1");
-				assertSame(path, paths.get(xFactVar));
+				assertSame(path, ec2Path.get(xFactVar));
 				firstPath = path;
 			}
 		}
 		{
 			final ConditionalElement andCe = orChildren.get(1);
-			final Map<SingleFactVariable, Path> paths =
+			final Map<EquivalenceClass, Path> ec2Path =
 					ShallowFactVariableCollector.generatePaths(ptn.getInitialFactTemplate(), andCe).getRight();
 			final Set<VariableSymbol> collectedSymbols = new SymbolCollector(ruleCondition).getNonDummySymbols();
 			assertThat(collectedSymbols, hasSize(1));
@@ -263,7 +263,7 @@ public class SymbolToPathTranslatorTest {
 			final LinkedList<SingleSlotVariable> xEqualSVs = xSymbol.getEqual().getEqualSlotVariables();
 			assertThat(xEqualSVs, hasSize(1));
 			final Map<EquivalenceClass, PathLeaf> symbolToPathLeaf =
-					Collections.singletonMap(xSymbol.getEqual(), xEqualSVs.get(0).getPathLeaf(paths));
+					Collections.singletonMap(xSymbol.getEqual(), xEqualSVs.get(0).getPathLeaf(ec2Path));
 
 			final List<ConditionalElement> andChildren = andCe.getChildren();
 			assertThat(andChildren, hasSize(2));
@@ -274,7 +274,7 @@ public class SymbolToPathTranslatorTest {
 				final ConditionalElement templCe = ((SharedConditionalElementWrapper) shared).getCe();
 				assertThat(templCe, instanceOf(TemplatePatternConditionalElement.class));
 				xFactVar = ((TemplatePatternConditionalElement) templCe).getFactVariable();
-				assertThat(paths, hasKey(xFactVar));
+				assertThat(ec2Path, hasKey(xFactVar));
 			}
 			{
 				final ConditionalElement testCe = andChildren.get(1);
@@ -290,7 +290,7 @@ public class SymbolToPathTranslatorTest {
 				assertThat(x, instanceOf(PathLeaf.class));
 				final Path path = ((PathLeaf) x).getPath();
 				assertEquals(path.getTemplate().getName(), "templ1");
-				assertSame(path, paths.get(xFactVar));
+				assertSame(path, ec2Path.get(xFactVar));
 				assertNotSame(firstPath, path);
 			}
 		}
