@@ -1595,9 +1595,7 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 
 		@Override
 		public Object visit(final SFPAnyFunction node, final Object data) {
-			assert node.jjtGetNumChildren() > 0;
-			final Symbol symbol =
-					SelectiveSFPVisitor.sendVisitor(new SFPSymbolVisitor(), node.jjtGetChild(0), data).symbol;
+			final String functionName = node.jjtGetValue().toString();
 			@SuppressWarnings("unchecked")
 			final FunctionWithArguments<SymbolLeaf>[] arguments =
 					toArray(SelectiveSFPVisitor.stream(node, 1).map(
@@ -1605,7 +1603,7 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 									this.sideEffectsAllowed), n, data).expression), FunctionWithArguments[]::new);
 			this.expression =
 					GenericWithArgumentsComposite.newInstance(sideEffectFunctionToNetwork, sideEffectsAllowed,
-							symbol.getImage(), arguments);
+							functionName, arguments);
 			return data;
 		}
 

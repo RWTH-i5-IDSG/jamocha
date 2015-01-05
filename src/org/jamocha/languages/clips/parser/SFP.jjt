@@ -695,16 +695,19 @@ void FunctionCall() #void:
 **/
 
 SimpleNode AnyFunction() :
-{}
+{ Token t; }
 {
  	(
- 		Symbol()
+ 		t=<SYMBOL> | t=<AND> | t=<OR> | t=<NOT>
  		(
  			Expression()
  		)*
  	)
 
-	{ return jjtThis; }
+	{
+		jjtThis.jjtSetValue(t.image);
+		return jjtThis;
+	}
 }
 
 
@@ -1647,7 +1650,7 @@ void BooleanFunction() #void:
 
 
 /**
-*		And Function
+*		Not Function
 **/
 
 SimpleNode NotFunction():
