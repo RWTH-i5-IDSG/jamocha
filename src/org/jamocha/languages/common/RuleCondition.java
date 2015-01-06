@@ -90,8 +90,8 @@ public class RuleCondition {
 		}
 
 		public EquivalenceClass(final EquivalenceClass copy) {
-			this(copy.factVariables, new LinkedList<>(copy.equalSlotVariables), new LinkedList<>(copy.equalFWAs),
-					copy.type);
+			this(new LinkedList<>(copy.factVariables), new LinkedList<>(copy.equalSlotVariables), new LinkedList<>(
+					copy.equalFWAs), copy.type);
 			this.unequalEquivalenceClasses.addAll(copy.unequalEquivalenceClasses);
 		}
 
