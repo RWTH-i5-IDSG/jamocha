@@ -551,7 +551,7 @@ public class PathFilterConsolidator implements DefaultConditionalElementsVisitor
 								.collect(
 										partitioningBy(
 												ec -> ec.getEqualSlotVariables().size() <= 1
-														&& !Optional.ofNullable(ec.getFactVariables().getFirst())
+														&& !Optional.ofNullable(ec.getFactVariables().peekFirst())
 																.filter(fv -> !shallowExistentialFVs.contains(fv))
 																.isPresent(), toSet()));
 				final Set<EquivalenceClass> localEquivalenceClasses = partitionedEquivalenceClasses.get(Boolean.TRUE);
@@ -840,11 +840,17 @@ public class PathFilterConsolidator implements DefaultConditionalElementsVisitor
 					final ArrayList<DummyPathFilterElement> fes = new ArrayList<>();
 					// gather the corresponding filters
 					final List<PathFilterList> unprocessedExistentialFilters = new ArrayList<>();
-					unprocessedExistentialPaths.stream().map(joinedExistentialPaths::get).distinct().forEach((set) -> {
-						unprocessedExistentialFilters.addAll(joinedExistentialFilters.get(set));
-						set.add(initialFactPath);
-						fes.add(new DummyPathFilterElement(toArray(set, Path[]::new)));
-					});
+					unprocessedExistentialPaths
+							.stream()
+							.map(joinedExistentialPaths::get)
+							.distinct()
+							.forEach(
+									(set) -> {
+										unprocessedExistentialFilters.addAll(joinedExistentialFilters.getOrDefault(set,
+												Collections.emptyList()));
+										set.add(initialFactPath);
+										fes.add(new DummyPathFilterElement(toArray(set, Path[]::new)));
+									});
 					final PathFilter dummy =
 							new PathFilter(isPositive, unprocessedExistentialPaths, toArray(fes,
 									DummyPathFilterElement[]::new));
