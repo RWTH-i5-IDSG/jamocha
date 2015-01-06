@@ -698,7 +698,9 @@ SimpleNode AnyFunction() :
 { Token t; }
 {
  	(
- 		t=<SYMBOL> | t=<AND> | t=<OR> | t=<NOT>
+ 		(
+ 			t=<SYMBOL> | t=<AND> | t=<OR> | t=<NOT>
+ 		)
  		(
  			Expression()
  		)*

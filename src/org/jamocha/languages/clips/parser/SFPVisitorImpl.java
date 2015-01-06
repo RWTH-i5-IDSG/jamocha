@@ -1598,7 +1598,7 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 			final String functionName = node.jjtGetValue().toString();
 			@SuppressWarnings("unchecked")
 			final FunctionWithArguments<SymbolLeaf>[] arguments =
-					toArray(SelectiveSFPVisitor.stream(node, 1).map(
+					toArray(SelectiveSFPVisitor.stream(node, 0).map(
 							n -> SelectiveSFPVisitor.sendVisitor(new SFPExpressionVisitor(rc, this.mapper,
 									this.sideEffectsAllowed), n, data).expression), FunctionWithArguments[]::new);
 			this.expression =
