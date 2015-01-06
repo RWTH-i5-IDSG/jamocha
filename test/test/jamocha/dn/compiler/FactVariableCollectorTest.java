@@ -109,13 +109,15 @@ public class FactVariableCollectorTest {
 				ShallowFactVariableCollector.generatePaths(ptn.getInitialFactTemplate(), conditionalElements.get(0))
 						.getRight();
 		assertEquals(1, ec2Path.size());
-		final Entry<EquivalenceClass, Path> entry = ec2Path.entrySet().iterator().next();
+		final Entry<EquivalenceClass, Path> ecAndPath = ec2Path.entrySet().iterator().next();
+		final EquivalenceClass ec = ecAndPath.getKey();
+		final Path path = ecAndPath.getValue();
 		final Set<VariableSymbol> dummySymbols = new SymbolCollector(ruleCondition).getDummySymbols();
 		assertThat(dummySymbols, hasSize(1));
 		final VariableSymbol dummySymbol = dummySymbols.iterator().next();
-		assertEquals(dummySymbol.getEqual(), entry.getKey());
-		assertEquals(templateName, entry.getKey().getFactVariables().getFirst().getTemplate().getName());
-		assertSame(entry.getKey().getFactVariables().getFirst(), entry.getValue().getTemplate());
+		assertEquals(dummySymbol.getEqual(), ec);
+		assertEquals(templateName, ec.getFactVariables().getFirst().getTemplate().getName());
+		assertSame(ec.getFactVariables().getFirst().getTemplate(), path.getTemplate());
 	}
 
 	@Test

@@ -137,7 +137,7 @@ public class SymbolToPathTranslatorTest {
 			assertThat(x, instanceOf(PathLeaf.class));
 			final Path path = ((PathLeaf) x).getPath();
 			assertEquals(path.getTemplate().getName(), "templ1");
-			assertSame(path, ec2Path.get(xFactVar));
+			assertSame(path, ec2Path.get(xFactVar.getEqual()));
 		}
 	}
 
@@ -181,7 +181,7 @@ public class SymbolToPathTranslatorTest {
 			assertThat(x, instanceOf(PathLeaf.class));
 			final Path path = ((PathLeaf) x).getPath();
 			assertEquals(path.getTemplate().getName(), "templ1");
-			assertSame(path, ec2Path.get(xFactVar));
+			assertSame(path, ec2Path.get(xFactVar.getEqual()));
 		}
 		{
 			final ConditionalElement testCe = andChildren.get(2);
@@ -197,7 +197,7 @@ public class SymbolToPathTranslatorTest {
 			assertThat(x, instanceOf(PathLeaf.class));
 			final Path path = ((PathLeaf) x).getPath();
 			assertEquals(path.getTemplate().getName(), "templ1");
-			assertSame(path, ec2Path.get(xFactVar));
+			assertSame(path, ec2Path.get(xFactVar.getEqual()));
 		}
 	}
 
@@ -233,7 +233,7 @@ public class SymbolToPathTranslatorTest {
 				final ConditionalElement templCe = ((SharedConditionalElementWrapper) shared).getCe();
 				assertThat(templCe, instanceOf(TemplatePatternConditionalElement.class));
 				xFactVar = ((TemplatePatternConditionalElement) templCe).getFactVariable();
-				assertThat(ec2Path, hasKey(xFactVar));
+				assertThat(ec2Path, hasKey(xFactVar.getEqual()));
 			}
 			{
 				final ConditionalElement testCe = andChildren.get(1);
@@ -249,7 +249,7 @@ public class SymbolToPathTranslatorTest {
 				assertThat(x, instanceOf(PathLeaf.class));
 				final Path path = ((PathLeaf) x).getPath();
 				assertEquals(path.getTemplate().getName(), "templ1");
-				assertSame(path, ec2Path.get(xFactVar));
+				assertSame(path, ec2Path.get(xFactVar.getEqual()));
 				firstPath = path;
 			}
 		}
@@ -274,7 +274,7 @@ public class SymbolToPathTranslatorTest {
 				final ConditionalElement templCe = ((SharedConditionalElementWrapper) shared).getCe();
 				assertThat(templCe, instanceOf(TemplatePatternConditionalElement.class));
 				xFactVar = ((TemplatePatternConditionalElement) templCe).getFactVariable();
-				assertThat(ec2Path, hasKey(xFactVar));
+				assertThat(ec2Path, hasKey(xFactVar.getEqual()));
 			}
 			{
 				final ConditionalElement testCe = andChildren.get(1);
@@ -290,7 +290,7 @@ public class SymbolToPathTranslatorTest {
 				assertThat(x, instanceOf(PathLeaf.class));
 				final Path path = ((PathLeaf) x).getPath();
 				assertEquals(path.getTemplate().getName(), "templ1");
-				assertSame(path, ec2Path.get(xFactVar));
+				assertSame(path, ec2Path.get(xFactVar.getEqual()));
 				assertNotSame(firstPath, path);
 			}
 		}
