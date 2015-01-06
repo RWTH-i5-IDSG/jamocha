@@ -102,6 +102,11 @@ public class PathCollector<T extends Collection<Path>> implements PathFilterElem
 		return this;
 	}
 
+	public PathCollector<T> collect(final FunctionWithArguments<PathLeaf> fwa) {
+		fwa.accept(new PathCollectorInFWA());
+		return this;
+	}
+
 	public static PathCollector<HashSet<Path>> newHashSet() {
 		return new PathCollector<>(new HashSet<>());
 	}
@@ -137,7 +142,7 @@ public class PathCollector<T extends Collection<Path>> implements PathFilterElem
 		@Override
 		public void visit(final ConstantLeaf<PathLeaf> constantLeaf) {
 		}
-		
+
 		@Override
 		public void visit(final GlobalVariableLeaf<PathLeaf> globalVariableLeaf) {
 		}
