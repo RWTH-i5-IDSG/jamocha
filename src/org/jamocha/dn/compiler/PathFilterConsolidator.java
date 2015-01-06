@@ -354,18 +354,24 @@ public class PathFilterConsolidator implements DefaultConditionalElementsVisitor
 				}
 			}
 
-			mergeMissingPathsViaDummy(allPaths, pathFilters, pathToJoinedWith);
+			mergeMissingPathsViaDummy(allPaths, pathFilters, pathToJoinedWith, initialFactAndEc2Path.getLeft());
 			return rule.newTranslated(new PathFilterSharedListWrapper().newSharedElement(pathFilters),
 					equivalenceClassToPathLeaf, specificity);
 		}
 
 		private static void mergeMissingPathsViaDummy(final Set<Path> allPaths, final List<PathFilterList> pathFilters,
-				final Map<Path, Set<Path>> pathToJoinedWith) {
+				final Map<Path, Set<Path>> pathToJoinedWith, final Path initialFactPath) {
 			final Set<Path> collectedPaths =
 					(pathFilters.isEmpty() ? Collections.<Path> emptySet() : PathCollector.newHashSet()
 							.collectOnlyInFilterElements(pathFilters.get(pathFilters.size() - 1)).getPaths().stream()
 							.flatMap((p) -> pathToJoinedWith.get(p).stream()).collect(toSet()));
-
+			{
+				final PathCollector<HashSet<Path>> pc = PathCollector.newHashSet();
+				pathFilters.forEach(pc::collectAll);
+				if (pc.getPaths().contains(initialFactPath)) {
+					allPaths.add(initialFactPath);
+				}
+			}
 			if (collectedPaths.containsAll(allPaths)) {
 				return;
 			}
