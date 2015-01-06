@@ -32,6 +32,7 @@ import org.jamocha.function.Function;
 import org.jamocha.function.FunctionDictionary;
 import org.jamocha.function.Predicate;
 import org.jamocha.function.impls.FunctionVisitor;
+import org.jamocha.function.impls.predicates.Not;
 import org.jamocha.languages.common.errors.VariableNotDeclaredError;
 
 /**
@@ -243,7 +244,9 @@ public abstract class GenericWithArgumentsComposite<R, F extends Function<? exte
 			final boolean isPositive, final String inClips, final FunctionWithArguments<L>... arguments) {
 		final SlotType[] argTypes = getArgumentTypes(arguments);
 		final Predicate predicate = FunctionDictionary.lookupPredicate(inClips, argTypes);
-		return new PredicateWithArgumentsComposite<L>(predicate, arguments);
+		final PredicateWithArgumentsComposite<L> pwac = new PredicateWithArgumentsComposite<L>(predicate, arguments);
+		return isPositive ? pwac : new PredicateWithArgumentsComposite<L>(FunctionDictionary.lookupPredicate(
+				Not.inClips, SlotType.BOOLEAN), pwac);
 	}
 
 	@SafeVarargs
