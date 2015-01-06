@@ -18,6 +18,8 @@ package org.jamocha.dn.nodes;
 import java.util.Arrays;
 import java.util.Map;
 
+import lombok.Getter;
+
 import org.apache.commons.lang3.tuple.Pair;
 import org.jamocha.dn.Network;
 import org.jamocha.dn.memory.Fact;
@@ -32,10 +34,13 @@ import org.jamocha.filter.Path;
  * Object-type {@link Node} implementation.
  * 
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
+ * @author Christoph Terwelp <christoph.terwelp@rwth-aachen.de>
  */
 public class ObjectTypeNode extends AlphaNode {
 
 	protected final Template template;
+	
+	@Getter
 	protected final FactAddress factAddress;
 
 	private ObjectTypeNode(final Network network, final Template template, final Path path) {
