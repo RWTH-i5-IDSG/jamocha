@@ -81,6 +81,7 @@ public class Jamocha {
 				warnings.forEach(w -> log.warn("Warning: " + w.getMessage()));
 			} catch (final ParseException e) {
 				log.catching(e);
+				return;
 			} catch (final Throwable e) {
 				log.catching(e);
 			}
