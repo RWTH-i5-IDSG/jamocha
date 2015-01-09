@@ -525,4 +525,118 @@ public class SystemTest {
 			out.reset();
 		}
 	}
+
+	@Test
+	public void testRegularSlotVariableExistentialFactVariable() throws ParseException {
+		final Network network = new Network();
+		final ByteArrayOutputStream out = initializeAppender(network);
+		{
+			final Pair<Queue<Object>, Queue<Warning>> returnValues = run(network, "(unwatch all)\n(watch facts)\n");
+			assertThat(returnValues.getLeft(), empty());
+			assertThat(returnValues.getRight(), empty());
+			assertThat(out.toString(), isEmptyString());
+		}
+		{
+			final Pair<Queue<Object>, Queue<Warning>> returnValues =
+					run(network, "(deftemplate t1 (slot s1 (type FACT-ADDRESS)))\n");
+			assertThat(returnValues.getLeft(), empty());
+			assertThat(returnValues.getRight(), empty());
+			assertThat(out.toString(), isEmptyString());
+		}
+		{
+			final Pair<Queue<Object>, Queue<Warning>> returnValues =
+					run(network, "(defrule r1 ?x <- (initial-fact) (not (t1)) => (assert (t1 (s1 ?x))) )\n");
+			assertThat(returnValues.getLeft(), empty());
+			assertThat(returnValues.getRight(), empty());
+			assertThat(out.toString(), isEmptyString());
+		}
+		{
+			final Pair<Queue<Object>, Queue<Warning>> returnValues =
+					run(network, "(defrule r2 (t1 (s1 ?x)) (exists ?x <- (initial-fact)) => )\n");
+			assertThat(returnValues.getLeft(), empty());
+			assertThat(returnValues.getRight(), empty());
+			assertThat(out.toString(), isEmptyString());
+		}
+		{
+			final Pair<Queue<Object>, Queue<Warning>> returnValues = run(network, "(run 1)\n");
+			assertThat(returnValues.getLeft(), empty());
+			assertThat(returnValues.getRight(), empty());
+			final String[] lines = out.toString().split(linesep);
+			assertThat(lines, arrayWithSize(1));
+			assertEquals("==> f-2\t(t1 (s1 <Fact-1>))", lines[0]);
+			out.reset();
+		}
+		{
+			final Pair<Queue<Object>, Queue<Warning>> returnValues = run(network, "(watch rules)\n");
+			assertThat(returnValues.getLeft(), empty());
+			assertThat(returnValues.getRight(), empty());
+			assertThat(out.toString(), isEmptyString());
+		}
+		{
+			final Pair<Queue<Object>, Queue<Warning>> returnValues = run(network, "(run 1)\n");
+			assertThat(returnValues.getLeft(), empty());
+			assertThat(returnValues.getRight(), empty());
+			final String[] lines = out.toString().split(linesep);
+			assertThat(lines, arrayWithSize(1));
+			assertEquals("FIRE r2 : f-1,f-2", lines[0]);
+			out.reset();
+		}
+	}
+
+	@Test
+	public void testExistentialSlotAndFactVariable() throws ParseException {
+		final Network network = new Network();
+		final ByteArrayOutputStream out = initializeAppender(network);
+		{
+			final Pair<Queue<Object>, Queue<Warning>> returnValues = run(network, "(unwatch all)\n(watch facts)\n");
+			assertThat(returnValues.getLeft(), empty());
+			assertThat(returnValues.getRight(), empty());
+			assertThat(out.toString(), isEmptyString());
+		}
+		{
+			final Pair<Queue<Object>, Queue<Warning>> returnValues =
+					run(network, "(deftemplate t1 (slot s1 (type FACT-ADDRESS)))\n");
+			assertThat(returnValues.getLeft(), empty());
+			assertThat(returnValues.getRight(), empty());
+			assertThat(out.toString(), isEmptyString());
+		}
+		{
+			final Pair<Queue<Object>, Queue<Warning>> returnValues =
+					run(network, "(defrule r1 ?x <- (initial-fact) (not (t1)) => (assert (t1 (s1 ?x))) )\n");
+			assertThat(returnValues.getLeft(), empty());
+			assertThat(returnValues.getRight(), empty());
+			assertThat(out.toString(), isEmptyString());
+		}
+		{
+			final Pair<Queue<Object>, Queue<Warning>> returnValues =
+					run(network, "(defrule r2 (exists ?x <- (t1 (s1 ~?x))) => )\n");
+			assertThat(returnValues.getLeft(), empty());
+			assertThat(returnValues.getRight(), empty());
+			assertThat(out.toString(), isEmptyString());
+		}
+		{
+			final Pair<Queue<Object>, Queue<Warning>> returnValues = run(network, "(run 1)\n");
+			assertThat(returnValues.getLeft(), empty());
+			assertThat(returnValues.getRight(), empty());
+			final String[] lines = out.toString().split(linesep);
+			assertThat(lines, arrayWithSize(1));
+			assertEquals("==> f-2\t(t1 (s1 <Fact-1>))", lines[0]);
+			out.reset();
+		}
+		{
+			final Pair<Queue<Object>, Queue<Warning>> returnValues = run(network, "(watch rules)\n");
+			assertThat(returnValues.getLeft(), empty());
+			assertThat(returnValues.getRight(), empty());
+			assertThat(out.toString(), isEmptyString());
+		}
+		{
+			final Pair<Queue<Object>, Queue<Warning>> returnValues = run(network, "(run 1)\n");
+			assertThat(returnValues.getLeft(), empty());
+			assertThat(returnValues.getRight(), empty());
+			final String[] lines = out.toString().split(linesep);
+			assertThat(lines, arrayWithSize(1));
+			assertEquals("FIRE r2 : *,f-1", lines[0]);
+			out.reset();
+		}
+	}
 }
