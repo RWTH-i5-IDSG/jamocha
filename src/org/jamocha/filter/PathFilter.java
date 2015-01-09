@@ -70,7 +70,7 @@ public class PathFilter extends Filter<PathLeaf, PathFilter.PathFilterElement> i
 		final Path[] paths;
 
 		public DummyPathFilterElement(final Path... paths) {
-			super(new PredicateWithArgumentsComposite<>(DummyPredicate.instance));
+			super(new PredicateWithArgumentsComposite<PathLeaf>(DummyPredicate.instance));
 			this.paths = paths;
 		}
 
