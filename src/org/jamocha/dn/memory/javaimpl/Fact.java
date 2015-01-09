@@ -20,11 +20,9 @@ import java.util.Objects;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import lombok.ToString;
 
 import org.jamocha.dn.memory.FactIdentifier;
 import org.jamocha.dn.memory.MemoryFact;
-import org.jamocha.dn.memory.Template;
 
 /**
  * Implementation of a Fact. Stores values as Objects.
@@ -34,7 +32,6 @@ import org.jamocha.dn.memory.Template;
  */
 @RequiredArgsConstructor
 @EqualsAndHashCode
-@ToString
 class Fact implements MemoryFact {
 	@Getter(onMethod = @__({ @Override }))
 	final Template template;
@@ -42,6 +39,21 @@ class Fact implements MemoryFact {
 	final Object slotValues[];
 
 	FactIdentifier factIdentifier;
+
+	@Override
+	public String toString() {
+		final StringBuilder sb = new StringBuilder();
+		sb.append("f-").append(null == factIdentifier ? "?" : factIdentifier.getId()).append(": (")
+				.append(template.getName());
+		for (int i = 0; i < slotValues.length; ++i) {
+			final Object value = slotValues[i];
+			if (null == value)
+				continue;
+			sb.append(" (").append(template.getSlotName(i)).append(' ').append(value).append(')');
+		}
+		sb.append(')');
+		return sb.toString();
+	}
 
 	@Override
 	public void setFactIdentifier(final FactIdentifier factIdentifier) {

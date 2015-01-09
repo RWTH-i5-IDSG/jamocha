@@ -232,7 +232,8 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements org.jamo
 			factLoop: for (int i = 0; i < facts.length; i++) {
 				final org.jamocha.dn.memory.Fact fact = facts[i];
 				assert fact.getTemplate() == otn.getMemory().getTemplate()[0];
-				final Fact memoryFact = new Fact(fact.getTemplate(), fact.getSlotValues());
+				final Fact memoryFact =
+						new Fact((org.jamocha.dn.memory.javaimpl.Template) fact.getTemplate(), fact.getSlotValues());
 				// spot internal duplicates
 				for (int j = 0; j < i; ++j) {
 					if (null != memoryFacts[j] && Fact.equalContent(memoryFact, memoryFacts[j])) {
