@@ -24,6 +24,7 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import lombok.ToString;
 import lombok.Value;
@@ -57,15 +58,15 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements org.jamo
 			new JamochaArray<Row>(), 0, true);
 
 	static class Semaphore {
-		int count;
+		final AtomicInteger count;
 
 		public Semaphore(final int count) {
 			super();
-			this.count = count;
+			this.count = new AtomicInteger(count);
 		}
 
-		public synchronized boolean release() {
-			return --this.count != 0;
+		public boolean release() {
+			return this.count.decrementAndGet() != 0;
 		}
 	}
 
