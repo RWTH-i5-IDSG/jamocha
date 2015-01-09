@@ -40,33 +40,6 @@ import org.jamocha.filter.Filter;
  * @see Node
  */
 public interface MemoryHandlerMain extends MemoryHandler {
-
-	/**
-	 * Try to acquire a read lock on the {@link MemoryHandlerMain}.
-	 * 
-	 * @return true iff the read lock was successfully acquired
-	 * @throws InterruptedException
-	 *             iff an {@link InterruptedException} was thrown while trying to acquire a read
-	 *             lock from the underlying lock
-	 */
-	public boolean tryReadLock() throws InterruptedException;
-
-	/**
-	 * Release the read lock.
-	 */
-	public void releaseReadLock();
-
-	/**
-	 * Acquires a write lock. The underlying lock will stall further read lock requests until the
-	 * write lock has been granted.
-	 */
-	public void acquireWriteLock();
-
-	/**
-	 * Release the write lock.
-	 */
-	public void releaseWriteLock();
-
 	/**
 	 * Creates a new {@link MemoryHandlerPlusTemp} that joins the given {@code token} with all other
 	 * incoming edges of the target beta {@link Node node} applying the given {@link Filter filter}.

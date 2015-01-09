@@ -34,6 +34,11 @@ import org.jamocha.dn.memory.MemoryFact;
 import org.jamocha.dn.memory.MemoryHandler;
 import org.jamocha.dn.memory.SlotAddress;
 import org.jamocha.dn.memory.Template;
+import org.jamocha.dn.memory.javaimpl.LockWrapper.MultipleReadLockWrapper;
+import org.jamocha.dn.memory.javaimpl.LockWrapper.ReadLockWrapper;
+import org.jamocha.dn.memory.javaimpl.LockWrapper.WriteLockWrapper;
+import org.jamocha.dn.memory.javaimpl.MemoryHandlerMain.SafeReadQueue;
+import org.jamocha.dn.memory.javaimpl.MemoryHandlerMain.SafeWriteQueue;
 import org.jamocha.dn.nodes.AddressPredecessor;
 import org.jamocha.dn.nodes.CouldNotAcquireLockException;
 import org.jamocha.dn.nodes.Edge;
@@ -91,16 +96,20 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements org.jamo
 		if (rows.isEmpty()) {
 			this.lock = null;
 			this.valid = false;
-		} else if (omitSemaphore || numChildren == 0) {
+		} else if (omitSemaphore) {
 			this.lock = null;
 			if (null == this.originatingMainHandler)
 				return;
-			originatingMainHandler.getValidOutgoingPlusTokens().add(this);
-			// commit and invalidate the token
-			commitAndInvalidate();
+			try (final SafeWriteQueue writeQueue = originatingMainHandler.getWriteableValidOutgoingPlusTokens()) {
+				writeQueue.add(this);
+				// commit and invalidate the token
+				commitAndInvalidate();
+			}
 		} else {
 			this.lock = new Semaphore(numChildren);
-			originatingMainHandler.getValidOutgoingPlusTokens().add(this);
+			try (final SafeWriteQueue writeQueue = originatingMainHandler.getWriteableValidOutgoingPlusTokens()) {
+				writeQueue.add(this);
+			}
 		}
 	}
 
@@ -119,19 +128,23 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements org.jamo
 	}
 
 	final protected void commitAndInvalidate() {
-		assert this == this.originatingMainHandler.getValidOutgoingPlusTokens().peek();
-		this.originatingMainHandler.getValidOutgoingPlusTokens().remove();
-		this.valid = false;
-		final JamochaArray<Row> rows = this.getFiltered();
-		// skip further code if no rows to add
-		if (rows.isEmpty())
-			return;
-		// add new filtered rows to main valid rows
-		this.originatingMainHandler.acquireWriteLock();
-		for (final Row row : rows) {
-			this.originatingMainHandler.validRows.add(row);
+		try (final SafeWriteQueue writeQueue = originatingMainHandler.getWriteableValidOutgoingPlusTokens()) {
+			assert this == writeQueue.peek();
+			writeQueue.remove();
+
+			final JamochaArray<Row> rows = this.getFiltered();
+			this.valid = false;
+			// skip further code if no rows to add
+			if (rows.isEmpty()) {
+				return;
+			}
+			// add new filtered rows to main valid rows
+			try (final WriteLockWrapper wlw = new WriteLockWrapper(originatingMainHandler.lock)) {
+				for (final Row row : rows) {
+					this.originatingMainHandler.validRows.add(row);
+				}
+			}
 		}
-		this.originatingMainHandler.releaseWriteLock();
 	}
 
 	@Override
@@ -146,6 +159,8 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements org.jamo
 	}
 
 	protected static boolean canOmitSemaphore(final Node targetNode) {
+		if (targetNode.getOutgoingEdges().isEmpty())
+			return true;
 		for (final Edge edge : targetNode.getOutgoingEdges()) {
 			if (edge.targetsBeta()) {
 				return false;
@@ -213,34 +228,36 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements org.jamo
 			final Node otn, final org.jamocha.dn.memory.Fact... facts) {
 		final JamochaArray<Row> factList = new JamochaArray<>(facts.length);
 		final Fact[] memoryFacts = new Fact[facts.length];
-		factLoop: for (int i = 0; i < facts.length; i++) {
-			final org.jamocha.dn.memory.Fact fact = facts[i];
-			assert fact.getTemplate() == otn.getMemory().getTemplate()[0];
-			final Fact memoryFact = new Fact(fact.getTemplate(), fact.getSlotValues());
-			// spot internal duplicates
-			for (int j = 0; j < i; ++j) {
-				if (null != memoryFacts[j] && Fact.equalContent(memoryFact, memoryFacts[j])) {
-					continue factLoop;
+		try (final SafeReadQueue readQueue = originatingMainHandler.getWithoutTimeoutReadableValidOutgoingPlusTokens()) {
+			factLoop: for (int i = 0; i < facts.length; i++) {
+				final org.jamocha.dn.memory.Fact fact = facts[i];
+				assert fact.getTemplate() == otn.getMemory().getTemplate()[0];
+				final Fact memoryFact = new Fact(fact.getTemplate(), fact.getSlotValues());
+				// spot internal duplicates
+				for (int j = 0; j < i; ++j) {
+					if (null != memoryFacts[j] && Fact.equalContent(memoryFact, memoryFacts[j])) {
+						continue factLoop;
+					}
 				}
-			}
-			// spot duplicates wrt main memory
-			for (final Row mainRow : originatingMainHandler.validRows) {
-				final Fact mainFact = mainRow.getFactTuple()[0];
-				if (Fact.equalContent(mainFact, memoryFact)) {
-					continue factLoop;
-				}
-			}
-			// spot duplicates wrt outgoing plus tokens
-			for (final MemoryHandlerPlusTemp temp : originatingMainHandler.getValidOutgoingPlusTokens()) {
-				for (final Row mainRow : temp.getFiltered()) {
+				// spot duplicates wrt main memory
+				for (final Row mainRow : originatingMainHandler.validRows) {
 					final Fact mainFact = mainRow.getFactTuple()[0];
 					if (Fact.equalContent(mainFact, memoryFact)) {
 						continue factLoop;
 					}
 				}
+				// spot duplicates wrt outgoing plus tokens
+				for (final MemoryHandlerPlusTemp temp : readQueue) {
+					for (final Row mainRow : temp.getFiltered()) {
+						final Fact mainFact = mainRow.getFactTuple()[0];
+						if (Fact.equalContent(mainFact, memoryFact)) {
+							continue factLoop;
+						}
+					}
+				}
+				memoryFacts[i] = memoryFact;
+				factList.add(originatingMainHandler.newRow(new Fact[] { memoryFact }));
 			}
-			memoryFacts[i] = memoryFact;
-			factList.add(originatingMainHandler.newRow(new Fact[] { memoryFact }));
 		}
 		return Pair.of(new MemoryHandlerPlusTemp(originatingMainHandler, factList, otn.getNumberOfOutgoingEdges(),
 				canOmitSemaphore(otn)), memoryFacts);
@@ -389,8 +406,8 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements org.jamo
 		return TR;
 	}
 
-	private static final LinkedHashMap<Edge, StackElement> getLocksAndStack(final JamochaArray<Row> tokenRows,
-			final Edge originIncomingEdge) throws CouldNotAcquireLockException {
+	private static final LinkedHashMap<Edge, StackElement> getStack(final JamochaArray<Row> tokenRows,
+			final Edge originIncomingEdge) {
 		// get a fixed-size array of indices (size: #inputs of the node),
 		// determine number of inputs for the current join as maxIndex
 		// loop through the inputs line-wise using array[0] .. array[maxIndex]
@@ -413,16 +430,6 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements org.jamo
 					// don't lock the originInput
 					continue;
 				}
-				try {
-					if (!incomingEdge.getSourceNode().getMemory().tryReadLock()) {
-						for (final Edge edge : edgeToStack.keySet()) {
-							edge.getSourceNode().getMemory().releaseReadLock();
-						}
-						throw new CouldNotAcquireLockException();
-					}
-				} catch (final InterruptedException ex) {
-					throw new Error("Should not happen, interruption of this method is not supported!", ex);
-				}
 				edgeToStack.put(incomingEdge, StackElement.ordinaryInput(incomingEdge, offset));
 				offset += incomingEdge.getSourceNode().getMemory().getTemplate().length;
 			}
@@ -430,16 +437,6 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements org.jamo
 		}
 		edgeToStack.put(originIncomingEdge, originElement);
 		return edgeToStack;
-	}
-
-	private static void releaseLocks(final Edge originEdge) {
-		final Edge[] nodeIncomingEdges = originEdge.getTargetNode().getIncomingEdges();
-		// release lock
-		for (final Edge incomingEdge : nodeIncomingEdges) {
-			if (incomingEdge == originEdge)
-				continue;
-			incomingEdge.getSourceNode().getMemory().releaseReadLock();
-		}
 	}
 
 	private static MemoryHandlerTemp newRegularBetaTemp(final MemoryHandlerMain originatingMainHandler,
@@ -452,14 +449,14 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements org.jamo
 
 	private static JamochaArray<Row> regularLockJoinAndUnlock(final AddressFilter filter,
 			final MemoryHandlerPlusTemp token, final Edge originEdge) throws CouldNotAcquireLockException {
-		final LinkedHashMap<Edge, StackElement> edgeToStack = getLocksAndStack(token.validRows, originEdge);
+		try (final MultipleReadLockWrapper mrlw = new MultipleReadLockWrapper(originEdge)) {
+			final LinkedHashMap<Edge, StackElement> edgeToStack = getStack(token.validRows, originEdge);
 
-		performJoin(filter, edgeToStack, originEdge);
+			performJoin(filter, edgeToStack, originEdge);
 
-		releaseLocks(originEdge);
-
-		final JamochaArray<Row> facts = edgeToStack.get(originEdge).getTable();
-		return facts;
+			final JamochaArray<Row> facts = edgeToStack.get(originEdge).getTable();
+			return facts;
+		}
 	}
 
 	static JamochaArray<Row> validPart(final Counter counter, final JamochaArray<Row> allRows) {
@@ -671,69 +668,67 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements org.jamo
 	static org.jamocha.dn.memory.MemoryHandlerTemp handleExistentialEdge(
 			final MemoryHandlerMainWithExistentials originatingMainHandler, final AddressFilter filter,
 			final JamochaArray<Row> tokenRows, final Edge originEdge, final CounterUpdater counterUpdater)
-			throws CouldNotAcquireLockException, Error {
+			throws CouldNotAcquireLockException {
+
+		final JamochaArray<CounterUpdate> counterUpdates;
 		// read-lock target main for existential join
-		try {
-			if (!originatingMainHandler.tryReadLock()) {
-				throw new CouldNotAcquireLockException();
+		try (final ReadLockWrapper rlw = ReadLockWrapper.withTimeout(originatingMainHandler.lock)) {
+			// read-lock all other input-mains
+			try (final MultipleReadLockWrapper mrlw = new MultipleReadLockWrapper(originEdge)) {
+				// get stack
+				final LinkedHashMap<Edge, StackElement> edgeToStack =
+						MemoryHandlerPlusTemp.getStack(tokenRows, originEdge);
+
+				// perform the actual join to get the counter updates
+				counterUpdates = performExistentialJoin(filter, edgeToStack, originEdge, counterUpdater);
 			}
-		} catch (final InterruptedException ex) {
-			throw new Error("Should not happen, interruption of this method is not supported!", ex);
 		}
-		// read-lock all other input-mains
-		final LinkedHashMap<Edge, StackElement> edgeToStack =
-				MemoryHandlerPlusTemp.getLocksAndStack(tokenRows, originEdge);
-
-		// perform the actual join to get the counter updates
-		final JamochaArray<CounterUpdate> counterUpdates =
-				performExistentialJoin(filter, edgeToStack, originEdge, counterUpdater);
-
-		// release the read locks
-		releaseLocks(originEdge);
-		originatingMainHandler.releaseReadLock();
-
-		// apply the counter updates and generate the actual temps
 
 		if (counterUpdates.isEmpty())
 			return empty;
-		final Counter counter = originatingMainHandler.counter;
-		final JamochaArray<Row> rowsToAdd = new JamochaArray<>();
-		final JamochaArray<Row> rowsToDel = new JamochaArray<>();
-		for (final CounterUpdate counterUpdate : counterUpdates) {
-			final Row row = counterUpdate.row;
-			final boolean wasValid = counter.isValid(row);
-			counterUpdate.apply();
-			final boolean isValid = counter.isValid(row);
-			if (!wasValid && isValid) {
-				// changed to valid
-				rowsToAdd.add(counterUpdate.row);
-			} else if (wasValid && !isValid) {
-				// changed to invalid
-				rowsToDel.add(counterUpdate.row);
+
+		// apply the counter updates and generate the actual temps
+		try (final WriteLockWrapper wlw = new WriteLockWrapper(originatingMainHandler.lock)) {
+			final JamochaArray<Row> rowsToAdd = new JamochaArray<>();
+			final JamochaArray<Row> rowsToDel = new JamochaArray<>();
+			final Counter counter = originatingMainHandler.counter;
+			for (final CounterUpdate counterUpdate : counterUpdates) {
+				final Row row = counterUpdate.row;
+				final boolean wasValid = counter.isValid(row);
+				counterUpdate.apply();
+				final boolean isValid = counter.isValid(row);
+				if (!wasValid && isValid) {
+					// changed to valid
+					rowsToAdd.add(counterUpdate.row);
+				} else if (wasValid && !isValid) {
+					// changed to invalid
+					rowsToDel.add(counterUpdate.row);
+				}
+				// else: no change
 			}
-			// else: no change
+			final boolean noLinesToAdd = rowsToAdd.isEmpty();
+			final boolean noLinesToDel = rowsToDel.isEmpty();
+			if (noLinesToAdd && noLinesToDel) {
+				// no change
+				return empty;
+			}
+			if (noLinesToAdd) {
+				// create -token for invalidated rows (deleting them while at it)
+				return MemoryHandlerMinusTemp.newExistentialBetaFromRowsToDelete(originatingMainHandler, rowsToDel,
+						originEdge);
+			}
+			final int numChildren = originEdge.getTargetNode().getNumberOfOutgoingEdges();
+			if (noLinesToDel) {
+				// create + token for validated rows
+				return new MemoryHandlerPlusTemp(originatingMainHandler, rowsToAdd, numChildren,
+						canOmitSemaphore(originEdge));
+			}
+			// create both tokens as above and wrap them
+			return new MemoryHandlerTempPairDistributer(new MemoryHandlerPlusTemp(originatingMainHandler, rowsToAdd,
+					numChildren, canOmitSemaphore(originEdge)),
+					MemoryHandlerMinusTemp.newExistentialBetaFromRowsToDelete(originatingMainHandler, rowsToDel,
+							originEdge));
 		}
-		final boolean noLinesToAdd = rowsToAdd.isEmpty();
-		final boolean noLinesToDel = rowsToDel.isEmpty();
-		if (noLinesToAdd && noLinesToDel) {
-			// no change
-			return empty;
-		}
-		if (noLinesToAdd) {
-			// create -token for invalidated rows (deleting them while at it)
-			return MemoryHandlerMinusTemp.newExistentialBetaFromRowsToDelete(originatingMainHandler, rowsToDel,
-					originEdge);
-		}
-		final int numChildren = originEdge.getTargetNode().getNumberOfOutgoingEdges();
-		if (noLinesToDel) {
-			// create + token for validated rows
-			return new MemoryHandlerPlusTemp(originatingMainHandler, rowsToAdd, numChildren,
-					canOmitSemaphore(originEdge));
-		}
-		// create both tokens as above and wrap them
-		return new MemoryHandlerTempPairDistributer(new MemoryHandlerPlusTemp(originatingMainHandler, rowsToAdd,
-				numChildren, canOmitSemaphore(originEdge)), MemoryHandlerMinusTemp.newExistentialBetaFromRowsToDelete(
-				originatingMainHandler, rowsToDel, originEdge));
 	}
 
 	@FunctionalInterface

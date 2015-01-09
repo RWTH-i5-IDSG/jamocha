@@ -14,7 +14,6 @@
  */
 package org.jamocha.dn.memory.javaimpl;
 
-import java.util.Queue;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 
@@ -22,6 +21,8 @@ import lombok.ToString;
 
 import org.jamocha.dn.memory.MemoryFact;
 import org.jamocha.dn.memory.Template;
+import org.jamocha.dn.memory.javaimpl.LockWrapper.WriteLockWrapper;
+import org.jamocha.dn.memory.javaimpl.MemoryHandlerMain.SafeWriteQueue;
 import org.jamocha.dn.memory.javaimpl.MemoryHandlerPlusTemp.CounterUpdater;
 import org.jamocha.dn.nodes.CouldNotAcquireLockException;
 import org.jamocha.dn.nodes.Edge;
@@ -167,7 +168,7 @@ public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements org.jam
 				originIncomingEdge, CounterUpdater.decrementer);
 	}
 
-	private static void filterOutgoingTemps(final Queue<MemoryHandlerPlusTemp> validOutgoingPlusTokens,
+	private static void filterOutgoingTemps(final Iterable<MemoryHandlerPlusTemp> validOutgoingPlusTokens,
 			final JamochaArray<Row> minusFacts, final FactAddress[] factAddresses, final boolean[] marked,
 			final EqualityChecker equalityChecker) {
 		for (final MemoryHandlerPlusTemp temp : validOutgoingPlusTokens) {
@@ -187,9 +188,9 @@ public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements org.jam
 				getRemainingFactTuples(originalFacts, deletedRowConsumer, minusFacts, factAddresses, marked,
 						equalityChecker);
 		if (remainingFacts.size() != originalFactsSize) {
-			targetMain.acquireWriteLock();
-			targetMain.validRows = remainingFacts;
-			targetMain.releaseWriteLock();
+			try (final WriteLockWrapper wlw = new WriteLockWrapper(targetMain.lock)) {
+				targetMain.validRows = remainingFacts;
+			}
 		}
 	}
 
@@ -207,9 +208,9 @@ public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements org.jam
 				getRemainingFactTuples(originalFacts, deletedRowConsumer, validDeletedRows, factAddresses,
 						new boolean[validDeletedRows.size()], EqualityChecker.equalRow);
 		if (remainingFacts.size() != originalFactsSize) {
-			targetMain.acquireWriteLock();
-			targetMain.validRows = remainingFacts;
-			targetMain.releaseWriteLock();
+			try (final WriteLockWrapper wlw = new WriteLockWrapper(targetMain.lock)) {
+				targetMain.validRows = remainingFacts;
+			}
 		}
 	}
 
@@ -273,7 +274,9 @@ public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements org.jam
 			final Consumer<Row> deletedRowConsumer) {
 		final boolean[] marked = new boolean[minusFacts.size()];
 		mainMemoryFilter.apply(targetMain, minusFacts, factAddresses, marked, equalityChecker, deletedRowConsumer);
-		filterOutgoingTemps(targetMain.getValidOutgoingPlusTokens(), minusFacts, factAddresses, marked, equalityChecker);
+		try (final SafeWriteQueue writeQueue = targetMain.getWriteableValidOutgoingPlusTokens()) {
+			filterOutgoingTemps(writeQueue, minusFacts, factAddresses, marked, equalityChecker);
+		}
 		return getMarkedFactTuples(minusFacts, marked);
 	}
 

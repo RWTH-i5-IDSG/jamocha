@@ -19,6 +19,7 @@ import static org.jamocha.util.ToArray.toArray;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
@@ -26,13 +27,17 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.stream.Stream;
 
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.jamocha.dn.memory.MemoryFact;
 import org.jamocha.dn.memory.Template;
+import org.jamocha.dn.memory.javaimpl.LockWrapper.ReadLockWrapper;
+import org.jamocha.dn.memory.javaimpl.LockWrapper.WriteLockWrapper;
 import org.jamocha.dn.nodes.CouldNotAcquireLockException;
 import org.jamocha.dn.nodes.Edge;
 import org.jamocha.dn.nodes.Node;
@@ -58,8 +63,8 @@ public class MemoryHandlerMain extends MemoryHandlerBase implements org.jamocha.
 
 	final ReadWriteLock lock = new ReentrantReadWriteLock(true);
 	final FactAddress[] addresses;
-	@Getter
-	final protected Queue<MemoryHandlerPlusTemp> validOutgoingPlusTokens = new LinkedList<>();
+	final private Queue<MemoryHandlerPlusTemp> validOutgoingPlusTokens = new LinkedList<>();
+	final private ReadWriteLock validOutgoingPlusTokensQueueLock = new ReentrantReadWriteLock(true);
 	final Counter counter;
 
 	MemoryHandlerMain(final Template template, final Path... paths) {
@@ -77,6 +82,94 @@ public class MemoryHandlerMain extends MemoryHandlerBase implements org.jamocha.
 		super(template, new JamochaArray<>());
 		this.addresses = addresses;
 		this.counter = counter;
+	}
+
+	static class SafeWriteQueue extends WriteLockWrapper implements Iterable<MemoryHandlerPlusTemp> {
+		@Getter
+		final Queue<MemoryHandlerPlusTemp> queue;
+
+		public SafeWriteQueue(final Queue<MemoryHandlerPlusTemp> queue, final ReadWriteLock lock) {
+			super(lock);
+			this.queue = queue;
+		}
+
+		/**
+		 * @see java.util.Queue#add(java.lang.Object)
+		 */
+		public boolean add(MemoryHandlerPlusTemp e) {
+			return queue.add(e);
+		}
+
+		/**
+		 * @see java.util.Queue#remove()
+		 */
+		public MemoryHandlerPlusTemp remove() {
+			return queue.remove();
+		}
+
+		/**
+		 * @see java.util.Collection#iterator()
+		 */
+		@Override
+		public Iterator<MemoryHandlerPlusTemp> iterator() {
+			return queue.iterator();
+		}
+
+		/**
+		 * @see java.util.Queue#peek()
+		 */
+		public MemoryHandlerPlusTemp peek() {
+			return queue.peek();
+		}
+
+		/**
+		 * @see java.util.Collection#stream()
+		 */
+		public Stream<MemoryHandlerPlusTemp> stream() {
+			return queue.stream();
+		}
+	}
+
+	@RequiredArgsConstructor
+	static class SafeReadQueue implements Iterable<MemoryHandlerPlusTemp>, AutoCloseable {
+		final Queue<MemoryHandlerPlusTemp> queue;
+		final ReadLockWrapper rlw;
+
+		/**
+		 * @see java.util.Collection#iterator()
+		 */
+		@Override
+		public Iterator<MemoryHandlerPlusTemp> iterator() {
+			return queue.iterator();
+		}
+
+		/**
+		 * @see java.util.Collection#stream()
+		 */
+		public Stream<MemoryHandlerPlusTemp> stream() {
+			return queue.stream();
+		}
+
+		/**
+		 * @see org.jamocha.dn.memory.javaimpl.LockWrapper.ReadLockWrapper#close()
+		 */
+		@Override
+		public void close() {
+			rlw.close();
+		}
+	}
+
+	public SafeWriteQueue getWriteableValidOutgoingPlusTokens() {
+		return new SafeWriteQueue(validOutgoingPlusTokens, validOutgoingPlusTokensQueueLock);
+	}
+
+	public SafeReadQueue getReadableValidOutgoingPlusTokens() throws CouldNotAcquireLockException {
+		return new SafeReadQueue(validOutgoingPlusTokens, ReadLockWrapper.withTimeout(validOutgoingPlusTokensQueueLock));
+	}
+
+	public SafeReadQueue getWithoutTimeoutReadableValidOutgoingPlusTokens() {
+		return new SafeReadQueue(validOutgoingPlusTokens,
+				ReadLockWrapper.withoutTimeout(validOutgoingPlusTokensQueueLock));
 	}
 
 	public static org.jamocha.dn.memory.MemoryHandlerMainAndCounterColumnMatcher newMemoryHandlerMain(
@@ -138,26 +231,6 @@ public class MemoryHandlerMain extends MemoryHandlerBase implements org.jamocha.
 	}
 
 	@Override
-	public boolean tryReadLock() throws InterruptedException {
-		return this.lock.readLock().tryLock(tryLockTimeout, tu);
-	}
-
-	@Override
-	public void releaseReadLock() {
-		this.lock.readLock().unlock();
-	}
-
-	@Override
-	public void acquireWriteLock() {
-		this.lock.writeLock().lock();
-	}
-
-	@Override
-	public void releaseWriteLock() {
-		this.lock.writeLock().unlock();
-	}
-
-	@Override
 	public org.jamocha.dn.memory.MemoryHandlerTemp processTokenInBeta(
 			final org.jamocha.dn.memory.MemoryHandlerTemp token, final Edge originIncomingEdge,
 			final AddressFilter filter) throws CouldNotAcquireLockException {
@@ -174,14 +247,16 @@ public class MemoryHandlerMain extends MemoryHandlerBase implements org.jamocha.
 
 	@Override
 	public org.jamocha.dn.memory.MemoryHandlerPlusTemp newNewNodeToken() {
-		this.lock.readLock().lock();
-		final int outgoingPlusRows =
-				this.getValidOutgoingPlusTokens().stream().mapToInt(token -> token.validRows.size()).sum();
-		final JamochaArray<Row> rows = new JamochaArray<>(validRows, validRows.size() + outgoingPlusRows);
-		for (final MemoryHandlerPlusTemp plus : this.getValidOutgoingPlusTokens()) {
-			rows.addAll(plus.validRows);
+		final JamochaArray<Row> rows;
+		try (final SafeReadQueue readQueue = this.getWithoutTimeoutReadableValidOutgoingPlusTokens()) {
+			final int outgoingPlusRows = readQueue.stream().mapToInt(token -> token.validRows.size()).sum();
+			this.lock.readLock().lock();
+			rows = new JamochaArray<>(validRows, validRows.size() + outgoingPlusRows);
+			this.lock.readLock().unlock();
+			for (final MemoryHandlerPlusTemp plus : readQueue) {
+				rows.addAll(plus.validRows);
+			}
 		}
-		this.lock.readLock().unlock();
 		return MemoryHandlerPlusTemp.newNewNodeTemp(this.template, rows);
 	}
 
