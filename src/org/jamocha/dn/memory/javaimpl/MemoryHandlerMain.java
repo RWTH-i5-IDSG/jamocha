@@ -62,9 +62,8 @@ public class MemoryHandlerMain extends MemoryHandlerBase implements org.jamocha.
 	final protected Queue<MemoryHandlerPlusTemp> validOutgoingPlusTokens = new LinkedList<>();
 	final Counter counter;
 
-	MemoryHandlerMain(final Template template,
-			final Path... paths) {
-		super( new Template[] { template }, new JamochaArray<Row>());
+	MemoryHandlerMain(final Template template, final Path... paths) {
+		super(new Template[] { template }, new JamochaArray<Row>());
 		final FactAddress address = new FactAddress(0);
 		this.addresses = new FactAddress[] { address };
 		for (final Path path : paths) {
@@ -74,16 +73,14 @@ public class MemoryHandlerMain extends MemoryHandlerBase implements org.jamocha.
 		this.counter = Counter.newCounter();
 	}
 
-	MemoryHandlerMain(final Template[] template,
-			final Counter counter, final FactAddress[] addresses) {
-		super( template, new JamochaArray<>());
+	MemoryHandlerMain(final Template[] template, final Counter counter, final FactAddress[] addresses) {
+		super(template, new JamochaArray<>());
 		this.addresses = addresses;
 		this.counter = counter;
 	}
 
 	public static org.jamocha.dn.memory.MemoryHandlerMainAndCounterColumnMatcher newMemoryHandlerMain(
-			final PathFilter filter,
-			final Map<Edge, Set<Path>> edgesAndPaths) {
+			final PathFilter filter, final Map<Edge, Set<Path>> edgesAndPaths) {
 		final ArrayList<Template> template = new ArrayList<>();
 		final ArrayList<FactAddress> addresses = new ArrayList<>();
 		final HashMap<FactAddress, FactAddress> newAddressesCache = new HashMap<>();
@@ -132,14 +129,12 @@ public class MemoryHandlerMain extends MemoryHandlerBase implements org.jamocha.
 				pathFilterElementToCounterColumn.putFilterElementToCounterColumn(pathFilterElement, new CounterColumn(
 						index++));
 			}
-			return new MemoryHandlerMainAndCounterColumnMatcher(new MemoryHandlerMainWithExistentials(
-					 templArray,
+			return new MemoryHandlerMainAndCounterColumnMatcher(new MemoryHandlerMainWithExistentials(templArray,
 					Counter.newCounter(filter, pathFilterElementToCounterColumn), addrArray, existential),
 					pathFilterElementToCounterColumn);
 		}
-		return new MemoryHandlerMainAndCounterColumnMatcher(new MemoryHandlerMain(
-				templArray, Counter.newCounter(filter, pathFilterElementToCounterColumn), addrArray),
-				pathFilterElementToCounterColumn);
+		return new MemoryHandlerMainAndCounterColumnMatcher(new MemoryHandlerMain(templArray, Counter.newCounter(
+				filter, pathFilterElementToCounterColumn), addrArray), pathFilterElementToCounterColumn);
 	}
 
 	@Override
@@ -181,9 +176,9 @@ public class MemoryHandlerMain extends MemoryHandlerBase implements org.jamocha.
 	public org.jamocha.dn.memory.MemoryHandlerPlusTemp newNewNodeToken() {
 		this.lock.readLock().lock();
 		final int outgoingPlusRows =
-				this.validOutgoingPlusTokens.stream().mapToInt(token -> token.validRows.size()).sum();
+				this.getValidOutgoingPlusTokens().stream().mapToInt(token -> token.validRows.size()).sum();
 		final JamochaArray<Row> rows = new JamochaArray<>(validRows, validRows.size() + outgoingPlusRows);
-		for (final MemoryHandlerPlusTemp plus : this.validOutgoingPlusTokens) {
+		for (final MemoryHandlerPlusTemp plus : this.getValidOutgoingPlusTokens()) {
 			rows.addAll(plus.validRows);
 		}
 		this.lock.readLock().unlock();
