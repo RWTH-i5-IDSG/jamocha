@@ -104,7 +104,7 @@ public class Loader {
 						.filter(entry -> !entry.isDirectory() && entry.getName().endsWith(".class")
 								&& entry.getName().startsWith(packageString)).forEach(entry -> {
 							final String className = filePathToClassName(entry.getName());
-							log.debug("Loading class {}.", className);
+							log.debug("Loading class {}", className);
 							try {
 								Class.forName(className, true, loader);
 							} catch (final ClassNotFoundException ex) {
