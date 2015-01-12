@@ -14,17 +14,19 @@
  */
 package org.jamocha.filter;
 
-import com.google.common.collect.Iterables;
-import lombok.AccessLevel;
-import lombok.Data;
-import lombok.RequiredArgsConstructor;
-import org.jamocha.dn.nodes.Node;
-import org.jamocha.visitor.Visitable;
-
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
+
+import lombok.AccessLevel;
+import lombok.Data;
+import lombok.RequiredArgsConstructor;
+
+import org.jamocha.dn.nodes.Node;
+import org.jamocha.visitor.Visitable;
+
+import com.google.common.collect.Iterables;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
