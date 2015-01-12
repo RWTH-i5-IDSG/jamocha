@@ -15,26 +15,31 @@
 package org.jamocha.function;
 
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import lombok.Value;
+import lombok.extern.log4j.Log4j2;
 
+import org.jamocha.classloading.Loader;
 import org.jamocha.dn.SideEffectFunctionToNetwork;
 import org.jamocha.dn.memory.SlotType;
-import org.jamocha.function.impls.Functions;
-import org.jamocha.function.impls.Predicates;
-import org.jamocha.function.impls.SideEffects;
 
 /**
  * This class gathers the implemented {@link Function Functions} and provides a
  * {@link FunctionDictionary#lookup(String, SlotType...) lookup} functionality to find them
  * identified by their string representation in CLIPS and their parameter types.
- * 
+ *
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  * @see Function
  * @see Predicate
  * @see SlotType
  */
+@Log4j2
 public class FunctionDictionary {
 
 	/**
@@ -58,10 +63,7 @@ public class FunctionDictionary {
 			new HashMap<>();
 
 	static {
-		addImpl(Predicates.class);
-		addImpl(Functions.class);
-		addImpl(SideEffects.class);
-		// specify further function packages here
+		Loader.loadClasses("org/jamocha/function/impls");
 	}
 
 	/**
@@ -82,7 +84,7 @@ public class FunctionDictionary {
 		try {
 			Class.forName(clazz.getName());
 		} catch (final ClassNotFoundException e) {
-			System.err.println(e);
+			log.catching(e);
 		}
 	}
 
