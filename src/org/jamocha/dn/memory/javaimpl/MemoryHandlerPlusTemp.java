@@ -128,21 +128,19 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements org.jamo
 	}
 
 	final protected void commitAndInvalidate() {
-		try (final SafeWriteQueue writeQueue = originatingMainHandler.getWriteableValidOutgoingPlusTokens()) {
-			assert this == writeQueue.peek();
-			writeQueue.remove();
+		try (final WriteLockWrapper wlw = new WriteLockWrapper(originatingMainHandler.lock)) {
+			try (final SafeWriteQueue writeQueue = originatingMainHandler.getWriteableValidOutgoingPlusTokens()) {
+				assert this == writeQueue.peek();
+				writeQueue.remove();
 
-			final JamochaArray<Row> rows = this.getFiltered();
-			this.valid = false;
-			// skip further code if no rows to add
-			if (rows.isEmpty()) {
-				return;
-			}
-			// add new filtered rows to main valid rows
-			try (final WriteLockWrapper wlw = new WriteLockWrapper(originatingMainHandler.lock)) {
-				for (final Row row : rows) {
-					this.originatingMainHandler.validRows.add(row);
+				final JamochaArray<Row> rows = this.getFiltered();
+				this.valid = false;
+				// skip further code if no rows to add
+				if (rows.isEmpty()) {
+					return;
 				}
+				// add new filtered rows to main valid rows
+				this.originatingMainHandler.validRows.addAll(rows);
 			}
 		}
 	}
