@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2014 The Jamocha Team
+ * Copyright 2002-2015 The Jamocha Team
  * 
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
@@ -19,13 +19,21 @@ import java.util.Collection;
 import org.jamocha.dn.ConstructCache.Defrule.TranslatedPath;
 
 /**
- * Common optimizer interface transforming a set of rules.
- * 
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
- * @author Christoph Terwelp <christoph.terwelp@rwth-aachen.de>
+ *
  */
-public interface Optimizer {
+public class SurplusNodesCombiningOptimizer implements Optimizer {
 
-	Collection<TranslatedPath> optimize(final Collection<TranslatedPath> rules);
+	static final String name = "SurplusNodesCombiner";
+	static final SurplusNodesCombiningOptimizer instance = new SurplusNodesCombiningOptimizer();
+	static {
+		OptimizerFactory.addImpl(name, () -> instance);
+	}
+
+	@Override
+	public Collection<TranslatedPath> optimize(final Collection<TranslatedPath> rules) {
+		// TODO Auto-generated method stub
+		return rules;
+	}
 
 }

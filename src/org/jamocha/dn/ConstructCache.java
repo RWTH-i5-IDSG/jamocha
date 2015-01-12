@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.StreamSupport;
 
-import lombok.AccessLevel;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.Value;
@@ -70,7 +69,6 @@ public class ConstructCache {
 		final int salience;
 		final RuleCondition condition;
 		final FunctionWithArguments<SymbolLeaf>[] actionList;
-		final ArrayList<TranslatedPath> translatedPathVersions = new ArrayList<>();
 		final Marker fireMarker;
 		final Marker activationMarker;
 
@@ -98,7 +96,6 @@ public class ConstructCache {
 							Arrays.stream(actionList).map(
 									fwa -> SymbolToPathTranslator.translate(FWADeepCopy.copy(fwa),
 											equivalenceClassToPathLeaf)), FunctionWithArguments[]::new)), specificity);
-			translatedPathVersions.add(translated);
 			return translated;
 		}
 
@@ -109,7 +106,7 @@ public class ConstructCache {
 		}
 
 		@Data
-		@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+		@RequiredArgsConstructor
 		public class TranslatedPath {
 			final PathFilterSharedListWrapper.PathFilterSharedList condition;
 			final PathActionList actionList;

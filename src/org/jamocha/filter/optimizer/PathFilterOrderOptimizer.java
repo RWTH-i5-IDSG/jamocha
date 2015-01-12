@@ -15,6 +15,7 @@
 package org.jamocha.filter.optimizer;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -25,6 +26,7 @@ import java.util.Set;
 
 import lombok.RequiredArgsConstructor;
 
+import org.jamocha.dn.ConstructCache.Defrule.TranslatedPath;
 import org.jamocha.filter.Path;
 import org.jamocha.filter.PathCollector;
 import org.jamocha.filter.PathFilter;
@@ -38,7 +40,13 @@ import org.jamocha.filter.PathFilterListVisitor;
  *
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
-public class PathFilterOrderOptimizer {
+public class PathFilterOrderOptimizer implements Optimizer {
+
+	static final String name = "PathFilterOrder";
+	static final PathFilterOrderOptimizer instance = new PathFilterOrderOptimizer();
+	static {
+		OptimizerFactory.addImpl(name, () -> instance);
+	}
 
 	/**
 	 * Graph class storing the mapping from filters to graph components and the edges between the
@@ -343,5 +351,13 @@ public class PathFilterOrderOptimizer {
 			optimizeUnsharedList(unshared);
 			elements.addAll(unshared);
 		}
+	}
+
+	@Override
+	public Collection<TranslatedPath> optimize(final Collection<TranslatedPath> rules) {
+		for (final TranslatedPath rule : rules) {
+			optimize(rule.getCondition());
+		}
+		return rules;
 	}
 }

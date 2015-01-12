@@ -27,6 +27,7 @@ import java.util.stream.Stream;
 
 import org.apache.commons.collections4.IteratorUtils;
 import org.jamocha.dn.ConstructCache.Defrule;
+import org.jamocha.dn.ConstructCache.Defrule.TranslatedPath;
 import org.jamocha.filter.Path;
 import org.jamocha.filter.PathCollector;
 import org.jamocha.filter.PathFilter;
@@ -38,6 +39,11 @@ import com.google.common.collect.Sets;
  *
  */
 public class NodeShareOptimizer implements Optimizer {
+
+	static final String name = "NodeSharing";
+	static {
+		OptimizerFactory.addImpl(name, () -> new NodeShareOptimizer());
+	}
 
 	final Map<Path, Set<PathFilter>> path2Filters = new HashMap<>();
 
@@ -51,31 +57,30 @@ public class NodeShareOptimizer implements Optimizer {
 
 	final PathFilterPool pool = new PathFilterPool();
 
-	public void optimize(Defrule... rules) {
-		for (Defrule rule : rules) {
-			for (Defrule.TranslatedPath translatedPath : rule.getTranslatedPathVersions()) {
-				allRules.add(translatedPath);
-				for (PathFilter pathFilter : translatedPath.getCondition()) {
-					pool.addFilter(pathFilter);
-					filter2Rule.put(pathFilter, translatedPath);
-					Set<Path> paths = PathCollector.newHashSet().collectAll(pathFilter).getPaths();
-					paths.addAll(pathFilter.getNegativeExistentialPaths());
-					paths.addAll(pathFilter.getPositiveExistentialPaths());
-					filter2Paths.put(pathFilter, paths);
-					for (Path path : paths) {
-						Set<PathFilter> set = path2Filters.computeIfAbsent(path, p -> new HashSet<>());
-						set.add(pathFilter);
-					}
+	@Override
+	public Collection<TranslatedPath> optimize(Collection<TranslatedPath> rules) {
+		for (Defrule.TranslatedPath translatedPath : rules) {
+			allRules.add(translatedPath);
+			for (PathFilter pathFilter : translatedPath.getCondition()) {
+				pool.addFilter(pathFilter);
+				filter2Rule.put(pathFilter, translatedPath);
+				Set<Path> paths = PathCollector.newHashSet().collectAll(pathFilter).getPaths();
+				paths.addAll(pathFilter.getNegativeExistentialPaths());
+				paths.addAll(pathFilter.getPositiveExistentialPaths());
+				filter2Paths.put(pathFilter, paths);
+				for (Path path : paths) {
+					Set<PathFilter> set = path2Filters.computeIfAbsent(path, p -> new HashSet<>());
+					set.add(pathFilter);
 				}
 			}
 		}
-		for (Defrule rule : rules) {
-			for (Defrule.TranslatedPath translatedPath : rule.getTranslatedPathVersions()) {
-				for (PathFilter pathFilter : translatedPath.getCondition()) {
-					buildBlock(translatedPath, pathFilter);
-				}
+		for (Defrule.TranslatedPath translatedPath : rules) {
+			for (PathFilter pathFilter : translatedPath.getCondition()) {
+				buildBlock(translatedPath, pathFilter);
 			}
 		}
+		// TODO perform actual optimisation
+		return rules;
 	}
 
 	private void buildBlock(final Defrule.TranslatedPath rule, final PathFilter pathFilter) {
@@ -127,9 +132,10 @@ public class NodeShareOptimizer implements Optimizer {
 		}
 		{
 			for (PathFilter filter : rule.getCondition()) {
-				if (preBlock.contains(filter)) continue;
+				if (preBlock.contains(filter))
+					continue;
 				for (Defrule.TranslatedPath otherRule : rule2PathMap.keySet()) {
-					//FIXME hier weiterarbeiten
+					// FIXME hier weiterarbeiten
 				}
 			}
 		}

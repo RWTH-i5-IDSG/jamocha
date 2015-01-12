@@ -23,6 +23,7 @@ import lombok.extern.log4j.Log4j2;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.jamocha.dn.Network;
+import org.jamocha.filter.optimizer.OptimizerFactory;
 import org.jamocha.languages.clips.parser.SFPVisitorImpl;
 import org.jamocha.languages.clips.parser.generated.ParseException;
 import org.jamocha.languages.clips.parser.generated.SFPParser;
@@ -43,7 +44,7 @@ public class Jamocha {
 	final SFPVisitorImpl visitor;
 
 	public Jamocha() {
-		network = new Network();
+		network = new Network(new OptimizerFactory.Configuration());
 		visitor = new SFPVisitorImpl(network, network);
 	}
 
