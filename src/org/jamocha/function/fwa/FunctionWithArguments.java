@@ -27,7 +27,8 @@ import org.jamocha.visitor.Visitable;
  * 
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
-public interface FunctionWithArguments<L extends ExchangeableLeaf<L>> extends Visitable<FunctionWithArgumentsVisitor<L>> {
+public interface FunctionWithArguments<L extends ExchangeableLeaf<L>> extends
+		Visitable<FunctionWithArgumentsVisitor<L>> {
 
 	/**
 	 * Getter for the list of the corresponding parameter types for the function.
@@ -86,7 +87,7 @@ public interface FunctionWithArguments<L extends ExchangeableLeaf<L>> extends Vi
 		final int PRIME = 59;
 		int result = 1;
 		for (int i = 0; i < hashes.length; i++) {
-			result = (result * PRIME) + positioner.applyAsInt(i, hashes[i]);
+			result ^= PRIME * positioner.applyAsInt(i, hashes[i]);
 		}
 		return result;
 	}
