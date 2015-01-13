@@ -15,6 +15,7 @@
 package org.jamocha.filter;
 
 import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.toSet;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -25,6 +26,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -43,6 +45,7 @@ import org.jamocha.filter.AddressFilter.AddressFilterElement;
 import org.jamocha.filter.PathFilter.DummyPathFilterElement;
 import org.jamocha.filter.PathFilter.PathFilterElement;
 import org.jamocha.function.CommutativeFunction;
+import org.jamocha.function.Function;
 import org.jamocha.function.fwa.ConstantLeaf;
 import org.jamocha.function.fwa.DefaultFunctionWithArgumentsVisitor;
 import org.jamocha.function.fwa.ExchangeableLeaf;
@@ -51,6 +54,7 @@ import org.jamocha.function.fwa.FunctionWithArgumentsComposite;
 import org.jamocha.function.fwa.GenericWithArgumentsComposite;
 import org.jamocha.function.fwa.PathLeaf;
 import org.jamocha.function.fwa.PathLeaf.ParameterLeaf;
+import org.jamocha.function.fwa.PredicateWithArguments;
 import org.jamocha.function.fwa.PredicateWithArgumentsComposite;
 
 /**
@@ -414,16 +418,10 @@ public abstract class FilterFunctionCompare<L extends ExchangeableLeaf<L>> {
 			// try permutations
 			final Map<Integer, List<FunctionWithArguments<A>>> duplicates =
 					Arrays.stream(pathArgs).collect(Collectors.groupingBy(FunctionWithArguments::hash));
-			if (!duplicates.values().stream().anyMatch((v) -> {
-				return v.size() > 1;
-			})) {
+			if (!duplicates.values().stream().anyMatch(v -> v.size() > 1)) {
 				return;
 			}
-			final int lcm = duplicates.values().stream().mapToInt((a) -> {
-				return a.size();
-			}).reduce((a, b) -> {
-				return lcm(a, b);
-			}).getAsInt();
+			final int lcm = duplicates.values().stream().mapToInt(a -> a.size()).reduce(1, (a, b) -> lcm(a, b));
 			final HashMap<FunctionWithArguments<A>, Integer> indices =
 					IntStream.range(0, pathArgs.length).collect(
 							HashMap::new,
@@ -437,26 +435,30 @@ public abstract class FilterFunctionCompare<L extends ExchangeableLeaf<L>> {
 			final Bool bool = new Bool(false);
 			for (int i = 0; i < lcm; ++i) {
 				final int permutation = i;
-				duplicates.values().stream().filter((v) -> {
-					return v.size() > 1;
-				}).forEach((final List<FunctionWithArguments<A>> v) -> {
-					final int size = v.size();
-					for (int j = 0; j < size; ++j) {
-						pathArgs[indices.get(v.get(j))] = pathArgs[indices.get(v.get((j + permutation) % size))];
-						if (!bool.equal) {
-							// equality not yet found to be true
-						compareArguments(addressArgs, pathArgs);
-					}
-					// else just permute back to original order
-					if (context.isValid()) {
-						// is actually equal
-						bool.equal = true;
-					} else {
-						// lets try again
-						context.equal = true;
-					}
-				}
-			}	);
+				duplicates
+						.values()
+						.stream()
+						.filter(v -> v.size() > 1)
+						.forEach(
+								(final List<FunctionWithArguments<A>> v) -> {
+									final int size = v.size();
+									for (int j = 0; j < size; ++j) {
+										pathArgs[indices.get(v.get(j))] =
+												pathArgs[indices.get(v.get((j + permutation) % size))];
+										if (!bool.equal) {
+											// equality not yet found to be true
+											compareArguments(addressArgs, pathArgs);
+										}
+										// else just permute back to original order
+										if (context.isValid()) {
+											// is actually equal
+											bool.equal = true;
+										} else {
+											// lets try again
+											context.equal = true;
+										}
+									}
+								});
 			}
 			if (!bool.equal) {
 				context.invalidate();
@@ -474,6 +476,9 @@ public abstract class FilterFunctionCompare<L extends ExchangeableLeaf<L>> {
 			}
 		}
 
+		/**
+		 * greatest common divisor
+		 */
 		private int gcd(final int x, final int y) {
 			int a = x, b = y;
 			while (b > 0) {
@@ -484,6 +489,9 @@ public abstract class FilterFunctionCompare<L extends ExchangeableLeaf<L>> {
 			return a;
 		}
 
+		/**
+		 * least common multiple
+		 */
 		private int lcm(final int a, final int b) {
 			return a * (b / gcd(a, b));
 		}
@@ -638,19 +646,76 @@ public abstract class FilterFunctionCompare<L extends ExchangeableLeaf<L>> {
 		}
 		final List<Path> pathsPermutation = new LinkedList<>();
 		final ComponentwisePermutation<Path> componentwisePermutation;
-		// FIXME remove unnecessary permutations (only the first path found for an edge defines the
-		// edge for all joined with it) (only occurring for self-joins of nodes with more than one
-		// output path)
-		// TODO commutative PWAs
-		// create list of Paths with permutable parts where self-joins occur
+		// create list of Paths with permutable parts where self-joins occur or commutative
+		// functions are used
 		{
-			final Map<FactAddress, List<Path>> pathsByNode =
-					PathCollector.newHashSet().collectAll(pathFilter).getPaths().stream()
-							.collect(groupingBy(path -> path.getFactAddressInCurrentlyLowestNode()));
-			final List<Range> ranges = new ArrayList<>(pathsByNode.size());
-			for (final List<Path> newPaths : pathsByNode.values()) {
+			// get the joined-with-sets (i.e. the edges) and group by nodes
+			final Map<Node, Set<Set<Path>>> pathSetByNode =
+					PathCollector.newHashSet().collectAll(pathFilter).getPaths().stream().map(p -> p.getJoinedWith())
+							.distinct().collect(groupingBy(s -> s.iterator().next().getCurrentlyLowestNode(), toSet()));
+			// now we have a set of components consisting of sets of joined-with-sets
+			final Set<Set<Set<Path>>> components = new HashSet<>(pathSetByNode.values());
+			// look for commutative functions and merge the components
+			for (final PathFilterElement filterElement : pathFilter.getFilterElements()) {
+				final PredicateWithArguments<PathLeaf> pwac = filterElement.getFunction();
+				final Set<Path> commutatingPaths = new HashSet<>();
+				pwac.accept(new DefaultFunctionWithArgumentsVisitor<PathLeaf>() {
+					private <R, F extends Function<? extends R>> void handleGWAC(
+							final GenericWithArgumentsComposite<R, F, PathLeaf> gwac) {
+						final Function<?> function = gwac.getFunction();
+						if (function instanceof CommutativeFunction) {
+							for (final FunctionWithArguments<PathLeaf> arg : gwac.getArgs()) {
+								arg.accept(this);
+							}
+						}
+					}
+
+					@Override
+					public void visit(final FunctionWithArgumentsComposite<PathLeaf> functionWithArgumentsComposite) {
+						handleGWAC(functionWithArgumentsComposite);
+					}
+
+					@Override
+					public void visit(final PredicateWithArgumentsComposite<PathLeaf> predicateWithArgumentsComposite) {
+						handleGWAC(predicateWithArgumentsComposite);
+					}
+
+					@Override
+					public void visit(final PathLeaf leaf) {
+						commutatingPaths.add(leaf.getPath());
+					}
+
+					@Override
+					public void defaultAction(final FunctionWithArguments<PathLeaf> function) {
+						// ignore
+					}
+				});
+				if (commutatingPaths.size() <= 1)
+					continue;
+				// get the components containing the joined-with-sets
+				final Set<Set<Set<Path>>> commutatingComponents =
+						commutatingPaths.stream().map(Path::getJoinedWith)
+								.map(s -> components.stream().filter(l -> l.contains(s)).findAny().get())
+								.collect(toSet());
+				// create a new merge-components replacing the commutating components
+				final Set<Set<Path>> newComponent = new HashSet<>();
+				for (final Set<Set<Path>> commutatingComponent : commutatingComponents) {
+					components.remove(commutatingComponent);
+					newComponent.addAll(commutatingComponent);
+				}
+				components.add(newComponent);
+			}
+
+			final List<Range> ranges = new ArrayList<>(components.size());
+			// create the permutation ranges
+			for (final Set<Set<Path>> component : components) {
+				assert !component.isEmpty();
 				final int start = pathsPermutation.size();
-				pathsPermutation.addAll(newPaths);
+				for (final Set<Path> joinedWithSet : component) {
+					assert !joinedWithSet.isEmpty();
+					// get one representative path per joined-with-set (i.e. per edge)
+					pathsPermutation.add(joinedWithSet.iterator().next());
+				}
 				final int end = pathsPermutation.size();
 				if (end - start > 1) {
 					ranges.add(new Range(start, end));
@@ -669,24 +734,23 @@ public abstract class FilterFunctionCompare<L extends ExchangeableLeaf<L>> {
 			final Map<Path, FactAddress> result = new HashMap<>();
 			final Edge[] edges = targetNode.getIncomingEdges();
 			final Set<Path> joinedPaths = new HashSet<>();
-			edgeloop: for (final Edge edge : edges) {
+			for (final Edge edge : edges) {
 				// search for first path in permutation matching current edge
-				for (final Path currentPath : paths) {
-					if (currentPath.getCurrentlyLowestNode() != edge.getSourceNode()) {
-						continue;
-					}
-					// map all paths joined with the found one by the current edge
-					for (final Path path : currentPath.getJoinedWith()) {
-						final FactAddress localizedAddress =
-								edge.localizeAddress(path.getFactAddressInCurrentlyLowestNode());
-						path.cachedOverride(targetNode, localizedAddress, joinedPaths);
-						result.put(path, localizedAddress);
-						joinedPaths.add(path);
-						paths.remove(path);
-					}
-					continue edgeloop;
+				final Optional<Path> optMatchingPath =
+						paths.stream().filter(p -> p.getCurrentlyLowestNode() == edge.getSourceNode()).findFirst();
+				if (!optMatchingPath.isPresent()) {
+					throw new Error("For one edge no paths were found.");
 				}
-				throw new Error("For one edge no paths were found.");
+				final Path matchingPath = optMatchingPath.get();
+				// map all paths joined with the found one by the current edge
+				for (final Path path : matchingPath.getJoinedWith()) {
+					final FactAddress localizedAddress =
+							edge.localizeAddress(path.getFactAddressInCurrentlyLowestNode());
+					path.cachedOverride(targetNode, localizedAddress, joinedPaths);
+					result.put(path, localizedAddress);
+					joinedPaths.add(path);
+					paths.remove(path);
+				}
 			}
 			assert paths.isEmpty();
 			final AddressFilter translatedFilter = PathFilterToAddressFilterTranslator.translate(pathFilter, a -> null);
