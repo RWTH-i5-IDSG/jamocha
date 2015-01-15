@@ -33,7 +33,7 @@ import org.jamocha.function.fwa.GenericWithArgumentsComposite;
 import org.jamocha.function.fwa.GlobalVariableLeaf;
 import org.jamocha.function.fwa.Modify;
 import org.jamocha.function.fwa.Modify.SlotAndValue;
-import org.jamocha.function.fwa.PathLeaf.ParameterLeaf;
+import org.jamocha.function.fwa.ParameterLeaf;
 import org.jamocha.function.fwa.PredicateWithArgumentsComposite;
 import org.jamocha.function.fwa.Retract;
 

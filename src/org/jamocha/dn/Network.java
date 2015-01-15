@@ -80,7 +80,7 @@ import org.jamocha.filter.optimizer.Optimizer;
 import org.jamocha.filter.optimizer.OptimizerFactory;
 import org.jamocha.function.FunctionDictionary;
 import org.jamocha.function.fwa.Assert.TemplateContainer;
-import org.jamocha.function.fwa.PathLeaf.ParameterLeaf;
+import org.jamocha.function.fwa.ParameterLeaf;
 import org.jamocha.languages.clips.ClipsLogFormatter;
 import org.jamocha.languages.clips.parser.SFPVisitorImpl;
 import org.jamocha.languages.clips.parser.generated.ParseException;

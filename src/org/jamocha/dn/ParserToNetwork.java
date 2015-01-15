@@ -24,7 +24,7 @@ import org.jamocha.dn.memory.SlotType;
 import org.jamocha.dn.memory.Template;
 import org.jamocha.dn.memory.Template.Slot;
 import org.jamocha.function.fwa.Assert;
-import org.jamocha.function.fwa.PathLeaf.ParameterLeaf;
+import org.jamocha.function.fwa.ParameterLeaf;
 import org.jamocha.languages.common.ScopeStack;
 
 /**

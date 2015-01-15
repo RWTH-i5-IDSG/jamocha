@@ -33,7 +33,7 @@ import org.jamocha.filter.AddressFilter.AddressFilterElement;
 import org.jamocha.filter.AddressFilter.ExistentialAddressFilterElement;
 import org.jamocha.filter.PathFilter.DummyPathFilterElement;
 import org.jamocha.filter.PathFilter.PathFilterElement;
-import org.jamocha.function.fwa.PathLeaf.ParameterLeaf;
+import org.jamocha.function.fwa.ParameterLeaf;
 import org.jamocha.function.fwa.PredicateWithArguments;
 import org.jamocha.function.fwatransformer.FWAPathToAddressTranslator;
 

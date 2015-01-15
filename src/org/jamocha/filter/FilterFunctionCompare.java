@@ -52,8 +52,8 @@ import org.jamocha.function.fwa.ExchangeableLeaf;
 import org.jamocha.function.fwa.FunctionWithArguments;
 import org.jamocha.function.fwa.FunctionWithArgumentsComposite;
 import org.jamocha.function.fwa.GenericWithArgumentsComposite;
+import org.jamocha.function.fwa.ParameterLeaf;
 import org.jamocha.function.fwa.PathLeaf;
-import org.jamocha.function.fwa.PathLeaf.ParameterLeaf;
 import org.jamocha.function.fwa.PredicateWithArgumentsComposite;
 
 /**

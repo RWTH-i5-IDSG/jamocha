@@ -49,8 +49,7 @@ import org.jamocha.filter.PathFilterToAddressFilterTranslator;
 import org.jamocha.function.FunctionDictionary;
 import org.jamocha.function.Predicate;
 import org.jamocha.function.fwa.FunctionWithArguments;
-import org.jamocha.function.fwa.PathLeaf;
-import org.jamocha.function.fwa.PathLeaf.ParameterLeaf;
+import org.jamocha.function.fwa.ParameterLeaf;
 import org.jamocha.function.fwa.PredicateWithArguments;
 import org.jamocha.function.fwa.PredicateWithArgumentsComposite;
 import org.junit.After;
@@ -276,8 +275,8 @@ public class MemoryHandlerTempTest {
 	@Test
 	public void testNewBetaTempSelectiveJoin() throws CouldNotAcquireLockException {
 		FunctionDictionary.load();
-		final FunctionWithArguments<ParameterLeaf> pl1 = new PathLeaf.ParameterLeaf(SlotType.STRING, 0);
-		final FunctionWithArguments<ParameterLeaf> pl2 = new PathLeaf.ParameterLeaf(SlotType.STRING, 1);
+		final FunctionWithArguments<ParameterLeaf> pl1 = new ParameterLeaf(SlotType.STRING, 0);
+		final FunctionWithArguments<ParameterLeaf> pl2 = new ParameterLeaf(SlotType.STRING, 1);
 		final Predicate eq = FunctionDictionary.lookupPredicate("=", SlotType.STRING, SlotType.STRING);
 		final PredicateWithArguments<ParameterLeaf> faw = new PredicateWithArgumentsComposite<>(eq, pl1, pl2);
 		final AddressFilterElement fe =

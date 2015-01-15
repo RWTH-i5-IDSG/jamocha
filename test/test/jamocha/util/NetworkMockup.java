@@ -40,7 +40,7 @@ import org.jamocha.dn.memory.Template;
 import org.jamocha.dn.memory.Template.Slot;
 import org.jamocha.dn.nodes.TerminalNode;
 import org.jamocha.function.fwa.Assert.TemplateContainer;
-import org.jamocha.function.fwa.PathLeaf.ParameterLeaf;
+import org.jamocha.function.fwa.ParameterLeaf;
 import org.jamocha.languages.common.ScopeStack;
 import org.jamocha.languages.common.ScopeStack.Symbol;
 import org.jamocha.logging.LogFormatter;

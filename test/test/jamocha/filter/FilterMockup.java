@@ -32,7 +32,7 @@ import org.jamocha.filter.Path;
 import org.jamocha.filter.PathFilter;
 import org.jamocha.filter.PathFilterToAddressFilterTranslator;
 import org.jamocha.function.Function;
-import org.jamocha.function.fwa.PathLeaf.ParameterLeaf;
+import org.jamocha.function.fwa.ParameterLeaf;
 import org.jamocha.function.impls.FunctionVisitor;
 import org.junit.experimental.theories.Theories;
 import org.junit.experimental.theories.Theory;

@@ -20,7 +20,7 @@
  * {@link org.jamocha.filter.PathFilterToAddressFilterTranslator#translate(PathFilter, org.jamocha.dn.memory.CounterColumnMatcher)}
  * ) the filter to contain only {@link org.jamocha.function.fwa.GenericWithArgumentsComposite
  * GenericWithArgumentsComposite}, {@link org.jamocha.function.fwa.ConstantLeaf ConstantLeaf} ,
- * {@link org.jamocha.function.fwa.PathLeaf.ParameterLeaf ParameterLeaf}. During this step, the
+ * {@link org.jamocha.function.fwa.ParameterLeaf ParameterLeaf}. During this step, the
  * {@link org.jamocha.filter.Filter.PathFilterElement PathFilterElements} are translated into
  * {@link org.jamocha.filter.AddressFilter.AddressFilterElement AddressFilterElements} storing the
  * addresses formerly stored in the {@link org.jamocha.filter.Path paths}.
@@ -34,4 +34,6 @@
  * @see org.jamocha.filter.impls
  */
 package org.jamocha.filter;
+
+import org.jamocha.function.fwa.ParameterLeaf;
 
