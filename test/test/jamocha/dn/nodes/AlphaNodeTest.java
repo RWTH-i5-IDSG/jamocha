@@ -29,7 +29,6 @@ import org.jamocha.dn.Network;
 import org.jamocha.dn.memory.FactAddress;
 import org.jamocha.dn.memory.MemoryHandlerMain;
 import org.jamocha.dn.memory.javaimpl.SlotAddress;
-import org.jamocha.dn.memory.javaimpl.Template;
 import org.jamocha.dn.nodes.AlphaNode;
 import org.jamocha.dn.nodes.Edge;
 import org.jamocha.dn.nodes.ObjectTypeNode;
@@ -42,6 +41,7 @@ import org.junit.Test;
 
 import test.jamocha.filter.FilterMockup;
 import test.jamocha.filter.FilterMockup.PathAndSlotAddress;
+import test.jamocha.util.Slots;
 
 /**
  * Test class for {@link AlphaNode}.
@@ -87,8 +87,8 @@ public class AlphaNodeTest {
 	 */
 	@Test
 	public void testAlphaNode() {
-		final Path p1 = new Path(Template.STRING);
-		final ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK, Template.STRING);
+		final Path p1 = new Path(Slots.STRING);
+		final ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK, Slots.STRING);
 		otn.shareNode(Collections.emptyMap(), p1);
 		new AlphaNode(Network.DEFAULTNETWORK, new FilterMockup(false, new PathAndSlotAddress(p1, s1)));
 	}
@@ -98,9 +98,9 @@ public class AlphaNodeTest {
 	 */
 	@Test
 	public void testGetOutgoingEdges() {
-		final Path p1 = new Path(Template.BOOLEAN);
-		final Path p2 = new Path(Template.BOOLEAN);
-		final ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK, Template.BOOLEAN);
+		final Path p1 = new Path(Slots.BOOLEAN);
+		final Path p2 = new Path(Slots.BOOLEAN);
+		final ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK, Slots.BOOLEAN);
 		otn.shareNode(Collections.emptyMap(), p1, p2);
 		final AlphaNode alpha =
 				new AlphaNode(Network.DEFAULTNETWORK, new FilterMockup(true, new PathAndSlotAddress(p1, s1)));
@@ -128,8 +128,8 @@ public class AlphaNodeTest {
 	 */
 	@Test
 	public void testGetMemory() {
-		final Path p1 = new Path(Template.BOOLEAN);
-		final ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK, Template.BOOLEAN);
+		final Path p1 = new Path(Slots.BOOLEAN);
+		final ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK, Slots.BOOLEAN);
 		otn.shareNode(Collections.emptyMap(), p1);
 		final AlphaNode alpha =
 				new AlphaNode(Network.DEFAULTNETWORK, new FilterMockup(true, new PathAndSlotAddress(p1, s1)));
@@ -137,7 +137,7 @@ public class AlphaNodeTest {
 		assertNotNull(memory);
 		assertEquals(0, memory.size());
 		assertEquals(1, memory.getTemplate().length);
-		assertEquals(Template.BOOLEAN, memory.getTemplate()[0]);
+		assertEquals(Slots.BOOLEAN, memory.getTemplate()[0]);
 	}
 
 	/**
@@ -145,9 +145,9 @@ public class AlphaNodeTest {
 	 */
 	@Test
 	public void testNumberOfOutgoingEdges() {
-		final Path p1 = new Path(Template.BOOLEAN);
-		final Path p2 = new Path(Template.BOOLEAN);
-		final ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK, Template.BOOLEAN);
+		final Path p1 = new Path(Slots.BOOLEAN);
+		final Path p2 = new Path(Slots.BOOLEAN);
+		final ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK, Slots.BOOLEAN);
 		otn.shareNode(Collections.emptyMap(), p1, p2);
 		final AlphaNode alpha =
 				new AlphaNode(Network.DEFAULTNETWORK, new FilterMockup(true, new PathAndSlotAddress(p1, s1)));
@@ -170,9 +170,9 @@ public class AlphaNodeTest {
 	 */
 	@Test
 	public void testDelocalizeAddress() {
-		final Path p1 = new Path(Template.BOOLEAN);
-		final Path p2 = new Path(Template.BOOLEAN);
-		final ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK, Template.BOOLEAN);
+		final Path p1 = new Path(Slots.BOOLEAN);
+		final Path p2 = new Path(Slots.BOOLEAN);
+		final ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK, Slots.BOOLEAN);
 		otn.shareNode(Collections.emptyMap(), p1, p2);
 		final FactAddress fa1 = p1.getFactAddressInCurrentlyLowestNode();
 		final AlphaNode alpha =
@@ -190,9 +190,9 @@ public class AlphaNodeTest {
 	@SuppressWarnings("unchecked")
 	@Test
 	public void testGetIncomingEdges() {
-		final Path p1 = new Path(Template.BOOLEAN);
-		final Path p2 = new Path(Template.BOOLEAN);
-		final ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK, Template.BOOLEAN);
+		final Path p1 = new Path(Slots.BOOLEAN);
+		final Path p2 = new Path(Slots.BOOLEAN);
+		final ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK, Slots.BOOLEAN);
 		otn.shareNode(Collections.emptyMap(), p1, p2);
 		final AlphaNode alpha =
 				new AlphaNode(Network.DEFAULTNETWORK, new FilterMockup(true, new PathAndSlotAddress(p1, s1)));

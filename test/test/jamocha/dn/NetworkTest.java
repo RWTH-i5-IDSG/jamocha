@@ -31,7 +31,6 @@ import org.jamocha.dn.Network;
 import org.jamocha.dn.PlainScheduler;
 import org.jamocha.dn.memory.SlotType;
 import org.jamocha.dn.memory.Template;
-import org.jamocha.dn.memory.Template.Slot;
 import org.jamocha.dn.memory.javaimpl.MemoryFactory;
 import org.jamocha.dn.memory.javaimpl.SlotAddress;
 import org.jamocha.dn.nodes.RootNode;
@@ -98,7 +97,8 @@ public class NetworkTest {
 		final RootNode rootNode = network.getRootNode();
 
 		final Template template =
-				MemoryFactory.getMemoryFactory().newTemplate("", "", Slot.STRING, Slot.LONG, Slot.LONG, Slot.STRING);
+				MemoryFactory.getMemoryFactory().newTemplate("", "", Slots.newString("s1"), Slots.newLong("s2"),
+						Slots.newLong("s3"), Slots.newLong("s4"));
 		final Path pathOne = new Path(template), pathTwo = new Path(template), pathThree = new Path(template);
 
 		final SlotAddress slotStringOne = new SlotAddress(0), slotStringTwo = new SlotAddress(3), slotLongOne =
@@ -171,7 +171,8 @@ public class NetworkTest {
 		final RootNode rootNode = network.getRootNode();
 
 		final Template template =
-				MemoryFactory.getMemoryFactory().newTemplate("", "", Slot.STRING, Slot.LONG, Slot.LONG, Slot.STRING);
+				MemoryFactory.getMemoryFactory().newTemplate("", "", Slots.newString("s1"), Slots.newLong("s2"),
+						Slots.newLong("s3"), Slots.newLong("s4"));
 		final Path pathOneA = new Path(template), pathOneB = new Path(template), pathTwoA = new Path(template), pathTwoB =
 				new Path(template);
 
@@ -224,7 +225,8 @@ public class NetworkTest {
 		final RootNode rootNode = network.getRootNode();
 
 		final Template template =
-				MemoryFactory.getMemoryFactory().newTemplate("t1", "", Slot.STRING, Slot.LONG, Slot.LONG, Slot.STRING);
+				MemoryFactory.getMemoryFactory().newTemplate("t1", "", Slots.newString("s1"), Slots.newLong("s2"),
+						Slots.newLong("s3"), Slots.newLong("s4"));
 		final Path pathOneA = new Path(template), pathOneB = new Path(template), pathTwoA = new Path(template), pathTwoB =
 				new Path(template);
 
@@ -344,7 +346,8 @@ public class NetworkTest {
 		final Network network = new Network(Integer.MAX_VALUE, scheduler);
 
 		final Template template =
-				MemoryFactory.getMemoryFactory().newTemplate("", "", Slot.STRING, Slot.LONG, Slot.LONG, Slot.STRING);
+				MemoryFactory.getMemoryFactory().newTemplate("", "", Slots.newString("s1"), Slots.newLong("s2"),
+						Slots.newLong("s3"), Slots.newLong("s4"));
 		final Path pathOne = new Path(template), pathTwo = new Path(template), pathThree = new Path(template);
 
 		final SlotAddress slotStringOne = new SlotAddress(0), slotStringTwo = new SlotAddress(3), slotLongOne =
@@ -394,7 +397,8 @@ public class NetworkTest {
 		final Network network = new Network(Integer.MAX_VALUE, scheduler);
 
 		final Template template =
-				MemoryFactory.getMemoryFactory().newTemplate("", "", Slot.STRING, Slot.LONG, Slot.LONG, Slot.STRING);
+				MemoryFactory.getMemoryFactory().newTemplate("", "", Slots.newString("s1"), Slots.newLong("s2"),
+						Slots.newLong("s3"), Slots.newLong("s4"));
 		;
 		final Path pathOneA = new Path(template), pathOneB = new Path(template), pathTwoA = new Path(template), pathTwoB =
 				new Path(template);
@@ -437,7 +441,8 @@ public class NetworkTest {
 		final Network network = new Network(Integer.MAX_VALUE, scheduler);
 
 		final Template template =
-				MemoryFactory.getMemoryFactory().newTemplate("", "", Slot.STRING, Slot.LONG, Slot.LONG, Slot.STRING);
+				MemoryFactory.getMemoryFactory().newTemplate("", "", Slots.newString("s1"), Slots.newLong("s2"),
+						Slots.newLong("s3"), Slots.newLong("s4"));
 		final Path pathOneA = new Path(template), pathOneB = new Path(template), pathTwoA = new Path(template), pathTwoB =
 				new Path(template);
 
@@ -573,7 +578,7 @@ public class NetworkTest {
 		final RootNode rootNode = network.getRootNode();
 
 		final Template template =
-				MemoryFactory.getMemoryFactory().newTemplate("t1", "", Slot.STRING, Slot.LONG, Slot.LONG, Slot.STRING);
+				MemoryFactory.getMemoryFactory().newTemplate("t1", "", Slots.newString("s1"), Slots.newLong("s2"),
 		final Path path1A = new Path(template), path1B = new Path(template);
 		final Path path2A = new Path(template), path2B = new Path(template);
 

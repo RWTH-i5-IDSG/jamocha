@@ -19,14 +19,14 @@ import static org.junit.Assert.assertTrue;
 import static test.jamocha.util.CounterColumnMatcherMockup.counterColumnMatcherMockup;
 
 import org.jamocha.dn.memory.SlotType;
+import org.jamocha.dn.memory.Template;
 import org.jamocha.dn.memory.javaimpl.SlotAddress;
-import org.jamocha.dn.memory.javaimpl.Template;
 import org.jamocha.filter.AddressFilter;
 import org.jamocha.filter.FilterFunctionCompare;
-import org.jamocha.filter.PathFilterToAddressFilterTranslator;
 import org.jamocha.filter.Path;
 import org.jamocha.filter.PathFilter;
 import org.jamocha.filter.PathFilter.PathFilterElement;
+import org.jamocha.filter.PathFilterToAddressFilterTranslator;
 import org.jamocha.filter.UniformFunctionTranslator;
 import org.jamocha.function.Function;
 import org.jamocha.function.FunctionDictionary;
@@ -39,6 +39,7 @@ import org.junit.Test;
 
 import test.jamocha.util.FunctionBuilder;
 import test.jamocha.util.PredicateBuilder;
+import test.jamocha.util.Slots;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
@@ -1057,7 +1058,7 @@ public class UniformFunctionTranslatorTest {
 		final Predicate equalsDD =
 				FunctionDictionary.lookupPredicate(org.jamocha.function.impls.predicates.Equals.inClips,
 						SlotType.DOUBLE, SlotType.DOUBLE);
-		final Template template = Template.DOUBLE;
+		final Template template = Slots.DOUBLE;
 		final Path a = new Path(template), b = new Path(template), c = new Path(template), d = new Path(template), l =
 				new Path(template);
 		final SlotAddress s = new SlotAddress(0);
@@ -1134,7 +1135,7 @@ public class UniformFunctionTranslatorTest {
 		final Predicate equalsDD =
 				FunctionDictionary.lookupPredicate(org.jamocha.function.impls.predicates.Equals.inClips,
 						SlotType.DOUBLE, SlotType.DOUBLE);
-		final Template template = Template.DOUBLE;
+		final Template template = Slots.DOUBLE;
 		final Path a = new Path(template), b = new Path(template), c = new Path(template), d = new Path(template), e =
 				new Path(template), f = new Path(template), g = new Path(template), h = new Path(template), i =
 				new Path(template), j = new Path(template), k = new Path(template), l = new Path(template);

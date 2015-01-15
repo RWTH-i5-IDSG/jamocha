@@ -29,7 +29,6 @@ import org.jamocha.dn.Network;
 import org.jamocha.dn.memory.FactAddress;
 import org.jamocha.dn.memory.MemoryHandlerMain;
 import org.jamocha.dn.memory.javaimpl.SlotAddress;
-import org.jamocha.dn.memory.javaimpl.Template;
 import org.jamocha.dn.nodes.BetaNode;
 import org.jamocha.dn.nodes.Edge;
 import org.jamocha.dn.nodes.ObjectTypeNode;
@@ -42,6 +41,7 @@ import org.junit.Test;
 
 import test.jamocha.filter.FilterMockup;
 import test.jamocha.filter.FilterMockup.PathAndSlotAddress;
+import test.jamocha.util.Slots;
 
 /**
  * Test class for {@link BetaNode}.
@@ -83,8 +83,8 @@ public class BetaNodeTest {
 	}
 
 	public BetaNode createDummyBetaNode() {
-		final Path p1 = new Path(Template.STRING);
-		final ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK, Template.STRING);
+		final Path p1 = new Path(Slots.STRING);
+		final ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK, Slots.STRING);
 		otn.shareNode(Collections.emptyMap(), p1);
 		return new BetaNode(Network.DEFAULTNETWORK, new FilterMockup(true, new PathAndSlotAddress(p1, s1)));
 	}
@@ -103,10 +103,10 @@ public class BetaNodeTest {
 	 */
 	@Test
 	public void testSelfJoin() {
-		final Path p1 = new Path(Template.STRING);
-		final Path p2 = new Path(Template.STRING);
-		final Path p3 = new Path(Template.STRING);
-		final ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK, Template.STRING);
+		final Path p1 = new Path(Slots.STRING);
+		final Path p2 = new Path(Slots.STRING);
+		final Path p3 = new Path(Slots.STRING);
+		final ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK, Slots.STRING);
 		otn.shareNode(Collections.emptyMap(), p1, p2, p3);
 		final BetaNode beta =
 				new BetaNode(Network.DEFAULTNETWORK, new FilterMockup(true, new PathAndSlotAddress(p1, s1),
@@ -136,15 +136,15 @@ public class BetaNodeTest {
 	 */
 	@Test
 	public void testNodeSharing() {
-		final Path p1 = new Path(Template.STRING);
-		final Path p2 = new Path(Template.STRING);
-		final Path p3 = new Path(Template.STRING);
-		final Path p4 = new Path(Template.STRING);
-		final Path p5 = new Path(Template.STRING);
-		final Path p6 = new Path(Template.STRING);
-		final Path p7 = new Path(Template.STRING);
-		final Path p8 = new Path(Template.STRING);
-		final ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK, Template.STRING);
+		final Path p1 = new Path(Slots.STRING);
+		final Path p2 = new Path(Slots.STRING);
+		final Path p3 = new Path(Slots.STRING);
+		final Path p4 = new Path(Slots.STRING);
+		final Path p5 = new Path(Slots.STRING);
+		final Path p6 = new Path(Slots.STRING);
+		final Path p7 = new Path(Slots.STRING);
+		final Path p8 = new Path(Slots.STRING);
+		final ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK, Slots.STRING);
 		otn.shareNode(Collections.emptyMap(), p1, p2, p3, p4, p5, p6, p7, p8);
 		final BetaNode beta =
 				new BetaNode(Network.DEFAULTNETWORK, new FilterMockup(true, new PathAndSlotAddress(p1, s1),
@@ -243,9 +243,9 @@ public class BetaNodeTest {
 	 */
 	@Test
 	public void testDelocalizeAddress() {
-		final Path p1 = new Path(Template.STRING);
-		final Path p2 = new Path(Template.STRING);
-		final ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK, Template.STRING);
+		final Path p1 = new Path(Slots.STRING);
+		final Path p2 = new Path(Slots.STRING);
+		final ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK, Slots.STRING);
 		otn.shareNode(Collections.emptyMap(), p1, p2);
 		final FactAddress fa1 = p1.getFactAddressInCurrentlyLowestNode();
 		final FactAddress fa2 = p2.getFactAddressInCurrentlyLowestNode();
@@ -261,10 +261,10 @@ public class BetaNodeTest {
 	 */
 	@Test
 	public void testGetIncomingEdges() {
-		final Path p = new Path(Template.STRING);
-		final Path p1 = new Path(Template.STRING);
-		final Path p2 = new Path(Template.STRING);
-		final ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK, Template.STRING);
+		final Path p = new Path(Slots.STRING);
+		final Path p1 = new Path(Slots.STRING);
+		final Path p2 = new Path(Slots.STRING);
+		final ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK, Slots.STRING);
 		otn.shareNode(Collections.emptyMap(), p);
 		Set<Path> joinedWith = new HashSet<>();
 		joinedWith.add(p1);

@@ -5,15 +5,13 @@ import static org.junit.Assert.assertTrue;
 import static test.jamocha.util.CounterColumnMatcherMockup.counterColumnMatcherMockup;
 
 import org.jamocha.dn.memory.SlotType;
-import org.jamocha.dn.memory.Template.Slot;
 import org.jamocha.dn.memory.javaimpl.MemoryFactory;
 import org.jamocha.dn.memory.javaimpl.SlotAddress;
-import org.jamocha.dn.memory.javaimpl.Template;
 import org.jamocha.filter.FilterFunctionCompare;
-import org.jamocha.filter.PathFilterToAddressFilterTranslator;
 import org.jamocha.filter.Path;
 import org.jamocha.filter.PathFilter;
 import org.jamocha.filter.PathFilter.PathFilterElement;
+import org.jamocha.filter.PathFilterToAddressFilterTranslator;
 import org.jamocha.function.Function;
 import org.jamocha.function.FunctionDictionary;
 import org.jamocha.function.Predicate;
@@ -22,6 +20,7 @@ import org.junit.Test;
 
 import test.jamocha.util.FunctionBuilder;
 import test.jamocha.util.PredicateBuilder;
+import test.jamocha.util.Slots;
 
 public class FilterEqualsInFunctionTest {
 
@@ -32,9 +31,9 @@ public class FilterEqualsInFunctionTest {
 
 	@Test
 	public void testFunctionWithArgumentsCompositeEqualsInFunctionTrueEquality() {
-		final Path p1 = new Path(Template.DOUBLE);
-		final Path p2 = new Path(Template.DOUBLE);
-		final Path p3 = new Path(Template.DOUBLE);
+		final Path p1 = new Path(Slots.DOUBLE);
+		final Path p2 = new Path(Slots.DOUBLE);
+		final Path p3 = new Path(Slots.DOUBLE);
 		final SlotAddress a1 = new SlotAddress(0);
 		final SlotAddress a2 = new SlotAddress(0);
 		final SlotAddress a3 = new SlotAddress(0);
@@ -66,9 +65,11 @@ public class FilterEqualsInFunctionTest {
 
 	@Test
 	public void testEqualsInFunctionFalseDifferentSlotAddress() {
-		final Path p1 = new Path(MemoryFactory.getMemoryFactory().newTemplate("", "", Slot.DOUBLE, Slot.DOUBLE));
-		final Path p2 = new Path(Template.DOUBLE);
-		final Path p3 = new Path(Template.DOUBLE);
+		final Path p1 =
+				new Path(MemoryFactory.getMemoryFactory().newTemplate("", "", Slots.newDouble("s1"),
+						Slots.newDouble("s2")));
+		final Path p2 = new Path(Slots.DOUBLE);
+		final Path p3 = new Path(Slots.DOUBLE);
 		final SlotAddress a1 = new SlotAddress(0);
 		final SlotAddress a2 = new SlotAddress(0);
 		final SlotAddress a3 = new SlotAddress(0);
@@ -104,9 +105,9 @@ public class FilterEqualsInFunctionTest {
 
 	@Test
 	public void testFunctionWithArgumentsCompositeEqualsInFunctionTrueNormalize() {
-		final Path p1 = new Path(Template.DOUBLE);
-		final Path p2 = new Path(Template.DOUBLE);
-		final Path p3 = new Path(Template.DOUBLE);
+		final Path p1 = new Path(Slots.DOUBLE);
+		final Path p2 = new Path(Slots.DOUBLE);
+		final Path p3 = new Path(Slots.DOUBLE);
 		final SlotAddress a1 = new SlotAddress(0);
 		final SlotAddress a2 = new SlotAddress(0);
 		final SlotAddress a3 = new SlotAddress(0);
@@ -147,10 +148,10 @@ public class FilterEqualsInFunctionTest {
 
 	@Test
 	public void testFunctionWithArgumentsCompositeEqualsInFunctionTrueDifferentPath() {
-		final Path p1 = new Path(Template.DOUBLE);
-		final Path p2 = new Path(Template.DOUBLE);
-		final Path p3 = new Path(Template.DOUBLE);
-		final Path p4 = new Path(Template.DOUBLE);
+		final Path p1 = new Path(Slots.DOUBLE);
+		final Path p2 = new Path(Slots.DOUBLE);
+		final Path p3 = new Path(Slots.DOUBLE);
+		final Path p4 = new Path(Slots.DOUBLE);
 		final SlotAddress a1 = new SlotAddress(0);
 		final SlotAddress a2 = new SlotAddress(0);
 		final SlotAddress a3 = new SlotAddress(0);
@@ -180,9 +181,11 @@ public class FilterEqualsInFunctionTest {
 
 	@Test
 	public void testFilterEqualsInFunction() {
-		final Path p1 = new Path(MemoryFactory.getMemoryFactory().newTemplate("", "", Slot.STRING, Slot.LONG));
-		final Path p2 = new Path(Template.LONG);
-		final Path p3 = new Path(Template.LONG);
+		final Path p1 =
+				new Path(MemoryFactory.getMemoryFactory().newTemplate("", "", Slots.newString("s1"),
+						Slots.newLong("s2")));
+		final Path p2 = new Path(Slots.LONG);
+		final Path p3 = new Path(Slots.LONG);
 		final SlotAddress a1 = new SlotAddress(0);
 		final SlotAddress a3 = new SlotAddress(0);
 		final SlotAddress a4 = new SlotAddress(0);

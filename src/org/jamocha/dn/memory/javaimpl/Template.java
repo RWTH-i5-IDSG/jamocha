@@ -42,27 +42,6 @@ import org.jamocha.logging.MarkerType;
 @ToString(of = { "name" })
 public class Template implements org.jamocha.dn.memory.Template {
 
-	/**
-	 * Template holding exactly one {@link SlotType#STRING} type.
-	 */
-	final public static Template STRING = new Template("STRING", "Simple template holding exactly one string type.",
-			Slot.STRING);
-	/**
-	 * Template holding exactly one {@link SlotType#BOOLEAN} type.
-	 */
-	final public static Template BOOLEAN = new Template("BOOLEAN", "Simple template holding exactly one boolean type.",
-			Slot.BOOLEAN);
-	/**
-	 * Template holding exactly one {@link SlotType#DOUBLE} type.
-	 */
-	final public static Template DOUBLE = new Template("DOUBLE", "Simple template holding exactly one double type.",
-			Slot.DOUBLE);
-	/**
-	 * Template holding exactly one {@link SlotType#LONG} type.
-	 */
-	final public static Template LONG = new Template("LONG", "Simple template holding exactly one long type.",
-			Slot.LONG);
-
 	@Getter(onMethod = @__(@Override))
 	final String name;
 	@Getter(onMethod = @__(@Override))

@@ -20,12 +20,11 @@ import static org.junit.Assert.assertArrayEquals;
 import static test.jamocha.util.CounterColumnMatcherMockup.counterColumnMatcherMockup;
 
 import org.jamocha.dn.memory.Template;
-import org.jamocha.dn.memory.Template.Slot;
 import org.jamocha.dn.memory.javaimpl.MemoryFactory;
 import org.jamocha.dn.nodes.SlotInFactAddress;
-import org.jamocha.filter.PathFilterToAddressFilterTranslator;
 import org.jamocha.filter.Path;
 import org.jamocha.filter.PathFilter;
+import org.jamocha.filter.PathFilterToAddressFilterTranslator;
 import org.jamocha.filter.SlotInFactAddressCollector;
 import org.jamocha.function.FunctionDictionary;
 import org.jamocha.function.Predicate;
@@ -38,6 +37,7 @@ import org.junit.Test;
 import test.jamocha.util.FactAddressMockup;
 import test.jamocha.util.PredicateBuilder;
 import test.jamocha.util.SlotAddressMockup;
+import test.jamocha.util.Slots;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
@@ -46,7 +46,8 @@ import test.jamocha.util.SlotAddressMockup;
 public class FilterTranslatorTest {
 	final Predicate equals = FunctionDictionary.lookupPredicate("=", DOUBLE, DOUBLE);
 	final Predicate boolEq = FunctionDictionary.lookupPredicate("=", BOOLEAN, BOOLEAN);
-	final Template template = MemoryFactory.getMemoryFactory().newTemplate("", "", Slot.DOUBLE, Slot.DOUBLE);
+	final Template template = MemoryFactory.getMemoryFactory().newTemplate("", "", Slots.newDouble("s1"),
+			Slots.newDouble("s2"));
 	final SlotAddressMockup s1 = new SlotAddressMockup(0), s2 = new SlotAddressMockup(1);
 	final FactAddressMockup f1 = new FactAddressMockup(0), f2 = new FactAddressMockup(1),
 			f3 = new FactAddressMockup(2), f4 = new FactAddressMockup(3);
