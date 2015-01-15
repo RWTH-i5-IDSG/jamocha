@@ -98,7 +98,7 @@ public class NetworkTest {
 
 		final Template template =
 				MemoryFactory.getMemoryFactory().newTemplate("", "", Slots.newString("s1"), Slots.newLong("s2"),
-						Slots.newLong("s3"), Slots.newLong("s4"));
+						Slots.newLong("s3"), Slots.newString("s4"));
 		final Path pathOne = new Path(template), pathTwo = new Path(template), pathThree = new Path(template);
 
 		final SlotAddress slotStringOne = new SlotAddress(0), slotStringTwo = new SlotAddress(3), slotLongOne =
@@ -172,7 +172,7 @@ public class NetworkTest {
 
 		final Template template =
 				MemoryFactory.getMemoryFactory().newTemplate("", "", Slots.newString("s1"), Slots.newLong("s2"),
-						Slots.newLong("s3"), Slots.newLong("s4"));
+						Slots.newLong("s3"), Slots.newString("s4"));
 		final Path pathOneA = new Path(template), pathOneB = new Path(template), pathTwoA = new Path(template), pathTwoB =
 				new Path(template);
 
@@ -226,7 +226,7 @@ public class NetworkTest {
 
 		final Template template =
 				MemoryFactory.getMemoryFactory().newTemplate("t1", "", Slots.newString("s1"), Slots.newLong("s2"),
-						Slots.newLong("s3"), Slots.newLong("s4"));
+						Slots.newLong("s3"), Slots.newString("s4"));
 		final Path pathOneA = new Path(template), pathOneB = new Path(template), pathTwoA = new Path(template), pathTwoB =
 				new Path(template);
 
@@ -347,7 +347,7 @@ public class NetworkTest {
 
 		final Template template =
 				MemoryFactory.getMemoryFactory().newTemplate("", "", Slots.newString("s1"), Slots.newLong("s2"),
-						Slots.newLong("s3"), Slots.newLong("s4"));
+						Slots.newLong("s3"), Slots.newString("s4"));
 		final Path pathOne = new Path(template), pathTwo = new Path(template), pathThree = new Path(template);
 
 		final SlotAddress slotStringOne = new SlotAddress(0), slotStringTwo = new SlotAddress(3), slotLongOne =
@@ -398,7 +398,7 @@ public class NetworkTest {
 
 		final Template template =
 				MemoryFactory.getMemoryFactory().newTemplate("", "", Slots.newString("s1"), Slots.newLong("s2"),
-						Slots.newLong("s3"), Slots.newLong("s4"));
+						Slots.newLong("s3"), Slots.newString("s4"));
 		;
 		final Path pathOneA = new Path(template), pathOneB = new Path(template), pathTwoA = new Path(template), pathTwoB =
 				new Path(template);
@@ -442,7 +442,7 @@ public class NetworkTest {
 
 		final Template template =
 				MemoryFactory.getMemoryFactory().newTemplate("", "", Slots.newString("s1"), Slots.newLong("s2"),
-						Slots.newLong("s3"), Slots.newLong("s4"));
+						Slots.newLong("s3"), Slots.newString("s4"));
 		final Path pathOneA = new Path(template), pathOneB = new Path(template), pathTwoA = new Path(template), pathTwoB =
 				new Path(template);
 
@@ -579,6 +579,7 @@ public class NetworkTest {
 
 		final Template template =
 				MemoryFactory.getMemoryFactory().newTemplate("t1", "", Slots.newString("s1"), Slots.newLong("s2"),
+						Slots.newLong("s3"), Slots.newLong("s4"));
 		final Path path1A = new Path(template), path1B = new Path(template);
 		final Path path2A = new Path(template), path2B = new Path(template);
 

@@ -217,7 +217,7 @@ public class TokenProcessingTest {
 						scheduler);
 		final Template t1 =
 				MemoryFactory.getMemoryFactory().newTemplate("", "", Slots.newString("s1"), Slots.newLong("s1")), t2 =
-				MemoryFactory.getMemoryFactory().newTemplate("", "", Slots.newString("s1"), Slots.newLong("s2"));
+				MemoryFactory.getMemoryFactory().newTemplate("", "", Slots.newString("s1"), Slots.newBoolean("s2"));
 		final Path p1 = new Path(t1), p2 = new Path(t2);
 		final SlotAddress s1 = new SlotAddress(0), s2 = new SlotAddress(1);
 
@@ -290,7 +290,7 @@ public class TokenProcessingTest {
 						scheduler);
 		final Template t1 =
 				MemoryFactory.getMemoryFactory().newTemplate("", "", Slots.newString("s1"), Slots.newLong("s1")), t2 =
-				MemoryFactory.getMemoryFactory().newTemplate("", "", Slots.newString("s1"), Slots.newLong("s2"));
+				MemoryFactory.getMemoryFactory().newTemplate("", "", Slots.newString("s1"), Slots.newBoolean("s2"));
 		final Path p1 = new Path(t1), p2 = new Path(t2);
 		final SlotAddress s1 = new SlotAddress(0), s2 = new SlotAddress(1);
 
@@ -615,7 +615,7 @@ public class TokenProcessingTest {
 						scheduler);
 		final Template t1 =
 				MemoryFactory.getMemoryFactory().newTemplate("", "", Slots.newLong("s1"), Slots.newString("s2"),
-						Slots.newLong("s3"));
+						Slots.newBoolean("s3"));
 		final Path p1 = new Path(t1);
 		final SlotAddress slotLong = new SlotAddress(0), slotBool = new SlotAddress(2);
 
@@ -664,7 +664,7 @@ public class TokenProcessingTest {
 						scheduler);
 		final Template t1 =
 				MemoryFactory.getMemoryFactory().newTemplate("", "", Slots.newLong("s1"), Slots.newString("s2"),
-						Slots.newLong("s3"));
+						Slots.newBoolean("s3"));
 		final Path p1 = new Path(t1);
 
 		final FilterMockup filter = FilterMockup.alwaysTrue(new PathAndSlotAddress(p1, new SlotAddress(2)));
@@ -739,7 +739,7 @@ public class TokenProcessingTest {
 						scheduler);
 		final Template t1 =
 				MemoryFactory.getMemoryFactory().newTemplate("", "", Slots.newLong("s1"), Slots.newString("s2"),
-						Slots.newLong("s3"));
+						Slots.newBoolean("s3"));
 		final Path p1 = new Path(t1);
 
 		final FilterMockup filter = FilterMockup.alwaysTrue(new PathAndSlotAddress(p1, new SlotAddress(2)));
@@ -788,7 +788,7 @@ public class TokenProcessingTest {
 						scheduler);
 		final Template t1 =
 				MemoryFactory.getMemoryFactory().newTemplate("", "", Slots.newLong("s1"), Slots.newString("s2"),
-						Slots.newLong("s3"));
+						Slots.newBoolean("s3"));
 		final Path p1 = new Path(t1);
 		final SlotAddress slotLong = new SlotAddress(0), slotBool = new SlotAddress(2);
 
