@@ -27,7 +27,8 @@ import org.jamocha.languages.common.ScopeStack.Symbol;
  */
 public abstract class Load extends Predicate {
 	public static final String inClips = "load";
-	private static final SlotType[] paramTypes = new SlotType[] { SlotType.SYMBOL };
+	private static final SlotType[] symbol = new SlotType[] { SlotType.SYMBOL };
+	private static final SlotType[] string = new SlotType[] { SlotType.STRING };
 
 	@Override
 	public String inClips() {
@@ -40,18 +41,34 @@ public abstract class Load extends Predicate {
 		return visitor;
 	}
 
-	@Override
-	public SlotType[] getParamTypes() {
-		return paramTypes;
-	}
-
 	static {
-		FunctionDictionary.addFixedArgsGeneratorWithSideEffects(inClips, paramTypes, (
+		FunctionDictionary.addFixedArgsGeneratorWithSideEffects(inClips, symbol, (
 				final SideEffectFunctionToNetwork network, final SlotType[] paramTypes) -> {
 			return new Load() {
 				@Override
 				public Boolean evaluate(final Function<?>... params) {
 					return network.loadFromFile(((Symbol) params[0].evaluate()).getImage(), true);
+				}
+
+				@Override
+				public SlotType[] getParamTypes() {
+					return symbol;
+				}
+			};
+		});
+	}
+	static {
+		FunctionDictionary.addFixedArgsGeneratorWithSideEffects(inClips, string, (
+				final SideEffectFunctionToNetwork network, final SlotType[] paramTypes) -> {
+			return new Load() {
+				@Override
+				public Boolean evaluate(final Function<?>... params) {
+					return network.loadFromFile(((String) params[0].evaluate()), true);
+				}
+
+				@Override
+				public SlotType[] getParamTypes() {
+					return string;
 				}
 			};
 		});
