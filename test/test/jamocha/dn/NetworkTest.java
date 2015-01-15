@@ -619,4 +619,51 @@ public class NetworkTest {
 		assertEquals(path1B.getCurrentlyLowestNode(), path2B.getCurrentlyLowestNode());
 		assertEquals(path1B.getFactAddressInCurrentlyLowestNode(), path2B.getFactAddressInCurrentlyLowestNode());
 	}
+
+	@Test
+	public void testTryToShareNodeSimpleUnshareableCommutativeFunction() throws NoSuchMethodException,
+			SecurityException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+		final PlainScheduler scheduler = new PlainScheduler();
+		final Network network = new Network(Integer.MAX_VALUE, scheduler);
+		final RootNode rootNode = network.getRootNode();
+
+		final Template template =
+				MemoryFactory.getMemoryFactory().newTemplate("t1", "", Slots.newString("s1"), Slots.newLong("s2"),
+						Slots.newLong("s3"), Slots.newLong("s4"));
+		final Path path1A = new Path(template), path1B = new Path(template);
+		final Path path2A = new Path(template), path2B = new Path(template);
+
+		final SlotAddress slotLongOne = new SlotAddress(1), slotLongTwo = new SlotAddress(2);
+
+		final PathFilterList.PathFilterSharedListWrapper.PathFilterSharedList filterOne =
+				new PathFilterList.PathFilterSharedListWrapper().newSharedElement(Arrays.asList(new PathFilter(
+						new PredicateBuilder(eqL)
+								.addPath(path1A, slotLongOne)
+								.addFunction(
+										new FunctionBuilder(plusL).addPath(path1B, slotLongOne)
+												.addPath(path1B, slotLongTwo).build()).buildPFE())));
+		final PathFilter[] filterTwo =
+				new PathFilter[] { new PathFilter(new PredicateBuilder(eqL)
+						.addFunction(
+								new FunctionBuilder(plusL).addPath(path2B, slotLongTwo).addPath(path2A, slotLongOne)
+										.build()).addPath(path2B, slotLongOne).buildPFE()) };
+
+		network.buildRule(new Defrule("dummyrule", "", 0, (RuleCondition) null, new ArrayList<>()).newTranslated(
+				filterOne, (Map<EquivalenceClass, PathLeaf>) null));
+
+		{
+			final LinkedHashSet<Path> allPaths = new LinkedHashSet<>();
+			for (final PathFilter filter : filterTwo) {
+				final LinkedHashSet<Path> paths = PathCollector.newLinkedHashSet().collectAll(filter).getPaths();
+				allPaths.addAll(paths);
+			}
+			final Path[] pathArray = toArray(allPaths, Path[]::new);
+			rootNode.addPaths(network, pathArray);
+		}
+
+		assertFalse(tryToShareNode(network, filterTwo[0]));
+
+		assertNotEquals(path1A.getCurrentlyLowestNode(), path2A.getCurrentlyLowestNode());
+		assertNotEquals(path1B.getCurrentlyLowestNode(), path2B.getCurrentlyLowestNode());
+	}
 }
