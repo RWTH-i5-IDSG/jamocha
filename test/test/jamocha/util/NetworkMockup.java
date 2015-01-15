@@ -14,6 +14,7 @@
  */
 package test.jamocha.util;
 
+import java.lang.reflect.Array;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.Collection;
@@ -95,6 +96,16 @@ public class NetworkMockup implements ParserToNetwork, SideEffectFunctionToNetwo
 					break;
 				case FACTADDRESS:
 					defaultValues.put(type, dummyFactIdentifier);
+					break;
+				case BOOLEANS:
+				case DATETIMES:
+				case DOUBLES:
+				case FACTADDRESSES:
+				case LONGS:
+				case NILS:
+				case STRINGS:
+				case SYMBOLS:
+					defaultValues.put(type, Array.newInstance(type.getJavaClass(), 0));
 					break;
 				}
 			}

@@ -21,6 +21,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.lang.reflect.Array;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -248,6 +249,16 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 				case FACTADDRESS:
 					// should be handled by createDummyFact()
 					assert null != defaultValues.get(SlotType.FACTADDRESS);
+					break;
+				case BOOLEANS:
+				case DATETIMES:
+				case DOUBLES:
+				case FACTADDRESSES:
+				case LONGS:
+				case NILS:
+				case STRINGS:
+				case SYMBOLS:
+					defaultValues.put(type, Array.newInstance(type.getJavaClass(), 0));
 					break;
 				}
 			}

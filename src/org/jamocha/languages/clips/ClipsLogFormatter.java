@@ -224,6 +224,15 @@ public class ClipsLogFormatter implements LogFormatter {
 			return "STRING";
 		case SYMBOL:
 			return "SYMBOL";
+		case BOOLEANS:
+		case DATETIMES:
+		case DOUBLES:
+		case FACTADDRESSES:
+		case LONGS:
+		case NILS:
+		case STRINGS:
+		case SYMBOLS:
+			return formatSlotType(SlotType.arrayToSingle(type)) + "[]";
 		}
 		return type.name();
 	}

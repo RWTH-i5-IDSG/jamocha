@@ -36,35 +36,35 @@ public enum SlotType {
 	/**
 	 * Enum value for integer types.
 	 */
-	LONG(Long.class),
+	LONG(Long.class), LONGS(Long[].class),
 	/**
 	 * Enum value for floating point types.
 	 */
-	DOUBLE(Double.class),
+	DOUBLE(Double.class), DOUBLES(Double[].class),
 	/**
 	 * Enum value for string types.
 	 */
-	STRING(String.class),
+	STRING(String.class), STRINGS(String[].class),
 	/**
 	 * Enum value for boolean types.
 	 */
-	BOOLEAN(Boolean.class),
+	BOOLEAN(Boolean.class), BOOLEANS(Boolean[].class),
 	/**
 	 * Enum value for fact address types.
 	 */
-	FACTADDRESS(FactIdentifier.class),
+	FACTADDRESS(FactIdentifier.class), FACTADDRESSES(FactIdentifier[].class),
 	/**
 	 * Enum value for date time types.
 	 */
-	DATETIME(ZonedDateTime.class),
+	DATETIME(ZonedDateTime.class), DATETIMES(ZonedDateTime[].class),
 	/**
 	 * Enum value for nil values of undetermined type.
 	 */
-	NIL(Object.class),
+	NIL(Object.class), NILS(Object[].class),
 	/**
 	 * Enum value for symbol types.
 	 */
-	SYMBOL(Symbol.class);
+	SYMBOL(Symbol.class), SYMBOLS(Symbol[].class);
 
 	final private Class<?> javaClass;
 
@@ -78,6 +78,52 @@ public enum SlotType {
 		final SlotType[] types = new SlotType[num];
 		Arrays.fill(types, type);
 		return types;
+	}
+
+	final public static SlotType arrayToSingle(final SlotType type) {
+		switch (type) {
+		case BOOLEANS:
+			return BOOLEAN;
+		case DATETIMES:
+			return DATETIME;
+		case DOUBLES:
+			return DOUBLE;
+		case FACTADDRESSES:
+			return FACTADDRESS;
+		case LONGS:
+			return LONG;
+		case NILS:
+			return NIL;
+		case STRINGS:
+			return STRING;
+		case SYMBOLS:
+			return SYMBOL;
+		default:
+			throw new IllegalArgumentException(type.name() + " is not an array type!");
+		}
+	}
+
+	final public static SlotType singleToArray(final SlotType type) {
+		switch (type) {
+		case BOOLEAN:
+			return BOOLEANS;
+		case DATETIME:
+			return DATETIMES;
+		case DOUBLE:
+			return DOUBLES;
+		case FACTADDRESS:
+			return FACTADDRESSES;
+		case LONG:
+			return LONGS;
+		case NIL:
+			return NILS;
+		case STRING:
+			return STRINGS;
+		case SYMBOL:
+			return SYMBOLS;
+		default:
+			throw new IllegalArgumentException(type.name() + " is an array type!");
+		}
 	}
 
 	public static ZonedDateTime convert(final String image) {
