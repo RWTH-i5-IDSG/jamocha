@@ -49,6 +49,10 @@ public enum ConflictResolutionStrategy implements Comparator<ConflictSet.RuleAnd
 		return Integer.compare(a1.length, a2.length);
 	}),
 
+	firstRecencyEntryComparator((o1, o2) -> {
+		return Integer.compare(o1.getRecencyArray()[0], o2.getRecencyArray()[0]);
+	}),
+
 	DEPTH(activationCounterComparator),
 
 	BREADTH(activationCounterComparatorInverse),
@@ -62,7 +66,8 @@ public enum ConflictResolutionStrategy implements Comparator<ConflictSet.RuleAnd
 	LEX((o1, o2) -> new CompareToBuilder().append(o1, o2, recencyArrayComparator).append(o1, o2, specificityComparator)
 			.toComparison()),
 
-	MEA(null),
+	MEA((o1, o2) -> new CompareToBuilder().append(o1, o2, firstRecencyEntryComparator).append(o1, o2, LEX)
+			.toComparison()),
 
 	RANDOM((o1, o2) -> new CompareToBuilder().append(o1.getRandom(), o2.getRandom()).append(o1, o2, DEPTH)
 			.toComparison());
