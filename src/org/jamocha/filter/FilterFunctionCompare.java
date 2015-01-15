@@ -19,6 +19,7 @@ import static java.util.stream.Collectors.toSet;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -45,7 +46,6 @@ import org.jamocha.filter.AddressFilter.AddressFilterElement;
 import org.jamocha.filter.PathFilter.DummyPathFilterElement;
 import org.jamocha.filter.PathFilter.PathFilterElement;
 import org.jamocha.function.CommutativeFunction;
-import org.jamocha.function.Function;
 import org.jamocha.function.fwa.ConstantLeaf;
 import org.jamocha.function.fwa.DefaultFunctionWithArgumentsVisitor;
 import org.jamocha.function.fwa.ExchangeableLeaf;
@@ -54,7 +54,6 @@ import org.jamocha.function.fwa.FunctionWithArgumentsComposite;
 import org.jamocha.function.fwa.GenericWithArgumentsComposite;
 import org.jamocha.function.fwa.PathLeaf;
 import org.jamocha.function.fwa.PathLeaf.ParameterLeaf;
-import org.jamocha.function.fwa.PredicateWithArguments;
 import org.jamocha.function.fwa.PredicateWithArgumentsComposite;
 
 /**
@@ -646,75 +645,23 @@ public abstract class FilterFunctionCompare<L extends ExchangeableLeaf<L>> {
 		}
 		final List<Path> pathsPermutation = new LinkedList<>();
 		final ComponentwisePermutation<Path> componentwisePermutation;
-		// create list of Paths with permutable parts where self-joins occur or commutative
-		// functions are used
+		// create list of Paths with permutable parts where self-joins occur
 		{
-			// get the joined-with-sets (i.e. the edges) and group by nodes
-			final Map<Node, Set<Set<Path>>> pathSetByNode =
-					PathCollector.newHashSet().collectAll(pathFilter).getPaths().stream().map(p -> p.getJoinedWith())
-							.distinct().collect(groupingBy(s -> s.iterator().next().getCurrentlyLowestNode(), toSet()));
-			// now we have a set of components consisting of sets of joined-with-sets
-			final Set<Set<Set<Path>>> components = new HashSet<>(pathSetByNode.values());
-			// look for commutative functions and merge the components
-			for (final PathFilterElement filterElement : pathFilter.getFilterElements()) {
-				final PredicateWithArguments<PathLeaf> pwac = filterElement.getFunction();
-				final Set<Path> commutatingPaths = new HashSet<>();
-				pwac.accept(new DefaultFunctionWithArgumentsVisitor<PathLeaf>() {
-					private <R, F extends Function<? extends R>> void handleGWAC(
-							final GenericWithArgumentsComposite<R, F, PathLeaf> gwac) {
-						final Function<?> function = gwac.getFunction();
-						if (function instanceof CommutativeFunction) {
-							for (final FunctionWithArguments<PathLeaf> arg : gwac.getArgs()) {
-								arg.accept(this);
-							}
-						}
-					}
-
-					@Override
-					public void visit(final FunctionWithArgumentsComposite<PathLeaf> functionWithArgumentsComposite) {
-						handleGWAC(functionWithArgumentsComposite);
-					}
-
-					@Override
-					public void visit(final PredicateWithArgumentsComposite<PathLeaf> predicateWithArgumentsComposite) {
-						handleGWAC(predicateWithArgumentsComposite);
-					}
-
-					@Override
-					public void visit(final PathLeaf leaf) {
-						commutatingPaths.add(leaf.getPath());
-					}
-
-					@Override
-					public void defaultAction(final FunctionWithArguments<PathLeaf> function) {
-						// ignore
-					}
-				});
-				if (commutatingPaths.size() <= 1)
-					continue;
-				// get the components containing the joined-with-sets
-				final Set<Set<Set<Path>>> commutatingComponents =
-						commutatingPaths.stream().map(Path::getJoinedWith)
-								.map(s -> components.stream().filter(l -> l.contains(s)).findAny().get())
-								.collect(toSet());
-				// create a new merge-components replacing the commutating components
-				final Set<Set<Path>> newComponent = new HashSet<>();
-				for (final Set<Set<Path>> commutatingComponent : commutatingComponents) {
-					components.remove(commutatingComponent);
-					newComponent.addAll(commutatingComponent);
-				}
-				components.add(newComponent);
-			}
-
+			// get representatives for the joined-with-sets (i.e. the edges) and group by nodes
+			final Map<Node, Set<Path>> pathSetByNode =
+					PathCollector.newHashSet().collectAll(pathFilter).getPaths().stream()
+							.map(p -> p.getJoinedWith().iterator().next()).distinct()
+							.collect(groupingBy(s -> s.getCurrentlyLowestNode(), toSet()));
+			// now we have a set of components consisting of sets of representatives
+			final Collection<Set<Path>> components = pathSetByNode.values();
 			final List<Range> ranges = new ArrayList<>(components.size());
 			// create the permutation ranges
-			for (final Set<Set<Path>> component : components) {
+			for (final Set<Path> component : components) {
 				assert !component.isEmpty();
 				final int start = pathsPermutation.size();
-				for (final Set<Path> joinedWithSet : component) {
-					assert !joinedWithSet.isEmpty();
+				for (final Path representative : component) {
 					// get one representative path per joined-with-set (i.e. per edge)
-					pathsPermutation.add(joinedWithSet.iterator().next());
+					pathsPermutation.add(representative);
 				}
 				final int end = pathsPermutation.size();
 				if (end - start > 1) {
