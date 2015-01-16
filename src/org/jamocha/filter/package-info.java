@@ -35,5 +35,3 @@
  */
 package org.jamocha.filter;
 
-import org.jamocha.function.fwa.ParameterLeaf;
-
