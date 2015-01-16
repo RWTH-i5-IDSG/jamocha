@@ -796,8 +796,7 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements org.jamo
 					}
 					// token row matches main row, we can increment the counter
 					if (null == currentCounterUpdate) {
-						currentCounterUpdate = new CounterUpdate(mainRow);
-						counterUpdates.add(currentCounterUpdate);
+						counterUpdates.add(currentCounterUpdate = new CounterUpdate(mainRow));
 					}
 					counterUpdater.apply(currentCounterUpdate, counterColumn);
 				}
