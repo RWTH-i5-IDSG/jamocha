@@ -67,7 +67,8 @@ public class MemoryHandlerBase implements MemoryHandler {
 
 	@Override
 	public FactIdentifier[] getFactIdentifiers(final int row) {
-		return toArray(Arrays.stream(validRows.get(row).getFactTuple()).map(f -> null == f ? null : f.factIdentifier),
+		return toArray(
+				Arrays.stream(validRows.get(row).getFactTuple()).map(f -> null == f ? null : f.getFactIdentifier()),
 				FactIdentifier[]::new);
 	}
 }

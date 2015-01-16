@@ -34,11 +34,11 @@ import org.jamocha.dn.memory.MemoryFact;
 @EqualsAndHashCode
 class Fact implements MemoryFact {
 	@Getter(onMethod = @__({ @Override }))
-	final Template template;
+	private final Template template;
 
-	final Object slotValues[];
+	private final Object slotValues[];
 
-	FactIdentifier factIdentifier;
+	private FactIdentifier factIdentifier;
 
 	@Override
 	public String toString() {
