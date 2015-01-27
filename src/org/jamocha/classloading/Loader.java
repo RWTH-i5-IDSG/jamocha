@@ -63,6 +63,8 @@ public class Loader {
 					Class.forName(clazzName);
 				} catch (final ClassNotFoundException ex) {
 					log.catching(ex);
+				} catch (final ExceptionInInitializerError ex) {
+					log.catching(ex);
 				}
 			});
 		} catch (final IOException ex) {
@@ -108,6 +110,8 @@ public class Loader {
 							try {
 								Class.forName(className, true, loader);
 							} catch (final ClassNotFoundException ex) {
+								log.catching(ex);
+							} catch (final ExceptionInInitializerError ex) {
 								log.catching(ex);
 							}
 						});
