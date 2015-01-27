@@ -17,6 +17,7 @@ package org.jamocha.dn.memory.javaimpl;
 import java.util.Map;
 import java.util.Set;
 
+import org.jamocha.dn.memory.FactIdentifier;
 import org.jamocha.dn.memory.MemoryHandlerMainAndCounterColumnMatcher;
 import org.jamocha.dn.memory.Template;
 import org.jamocha.dn.memory.Template.Slot;
@@ -64,5 +65,16 @@ public class MemoryFactory implements org.jamocha.dn.memory.MemoryFactory {
 	public MemoryHandlerMainAndCounterColumnMatcher newMemoryHandlerMain(final PathFilter filter,
 			final Map<Edge, Set<Path>> edgesAndPaths) {
 		return MemoryHandlerMain.newMemoryHandlerMain(filter, edgesAndPaths);
+	}
+
+	protected int factIdentifierCounter = 0;
+
+	@Override
+	public void resetFactIdentifierCounter() {
+		factIdentifierCounter = 0;
+	}
+
+	public FactIdentifier getNextFactIdentifier() {
+		return new FactIdentifier(factIdentifierCounter++);
 	}
 }

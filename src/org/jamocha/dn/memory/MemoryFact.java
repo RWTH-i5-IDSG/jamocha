@@ -18,11 +18,11 @@ package org.jamocha.dn.memory;
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
 public interface MemoryFact {
+	public Object getValue(final SlotAddress slotAddress);
+
 	public Template getTemplate();
 
 	public FactIdentifier getFactIdentifier();
 
 	public Fact toMutableFact();
-
-	public void setFactIdentifier(final FactIdentifier factIdentifier);
 }

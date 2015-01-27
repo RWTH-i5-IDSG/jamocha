@@ -217,7 +217,7 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 		this.tokenQueueCapacity = tokenQueueCapacity;
 		this.scheduler = scheduler;
 		this.conflictSet = new ConflictSet(this, ConflictResolutionStrategy.DEPTH);
-		this.rootNode = new RootNode();
+		this.rootNode = new RootNode(memoryFactory);
 		this.logFormatter = logFormatter;
 		createInitialDeffact();
 		createDummyTemplate();

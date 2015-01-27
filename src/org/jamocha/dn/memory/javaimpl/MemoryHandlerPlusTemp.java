@@ -59,6 +59,8 @@ import org.jamocha.function.fwa.PredicateWithArguments;
 @ToString(callSuper = true, of = "valid")
 public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements org.jamocha.dn.memory.MemoryHandlerPlusTemp {
 
+	private static MemoryFactory memoryFactory = (MemoryFactory) MemoryFactory.getMemoryFactory();
+
 	private static MemoryHandlerPlusTemp empty = new MemoryHandlerPlusTemp(new Template[0], null,
 			new JamochaArray<Row>(), 0, true);
 
@@ -231,7 +233,8 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements org.jamo
 				final org.jamocha.dn.memory.Fact fact = facts[i];
 				assert fact.getTemplate() == otn.getMemory().getTemplate()[0];
 				final Fact memoryFact =
-						new Fact((org.jamocha.dn.memory.javaimpl.Template) fact.getTemplate(), fact.getSlotValues());
+						new Fact((org.jamocha.dn.memory.javaimpl.Template) fact.getTemplate(), fact.getSlotValues(),
+								memoryFactory.getNextFactIdentifier());
 				// spot internal duplicates
 				for (int j = 0; j < i; ++j) {
 					if (null != memoryFacts[j] && Fact.equalContent(memoryFact, memoryFacts[j])) {

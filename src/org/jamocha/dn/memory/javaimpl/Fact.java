@@ -15,7 +15,6 @@
 package org.jamocha.dn.memory.javaimpl;
 
 import java.util.Arrays;
-import java.util.Objects;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -38,7 +37,7 @@ class Fact implements MemoryFact {
 
 	private final Object slotValues[];
 
-	private FactIdentifier factIdentifier;
+	private final FactIdentifier factIdentifier;
 
 	@Override
 	public String toString() {
@@ -56,16 +55,7 @@ class Fact implements MemoryFact {
 	}
 
 	@Override
-	public void setFactIdentifier(final FactIdentifier factIdentifier) {
-		if (null != this.factIdentifier) {
-			throw new IllegalArgumentException("A Fact was reassigned a FactIdentifier!");
-		}
-		this.factIdentifier = factIdentifier;
-	}
-
-	@Override
 	public FactIdentifier getFactIdentifier() {
-		Objects.requireNonNull(factIdentifier, "A fact did not contain a FactIdentifier!");
 		return factIdentifier;
 	}
 
@@ -76,6 +66,7 @@ class Fact implements MemoryFact {
 	 *            {@link SlotAddress slot address} identifying the slot the value is stored in
 	 * @return the value stored in the slot identified by {@link SlotAddress slot}
 	 */
+	@Override
 	public Object getValue(final org.jamocha.dn.memory.SlotAddress slot) {
 		if (null == slot)
 			return factIdentifier;

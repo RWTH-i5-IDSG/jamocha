@@ -27,11 +27,13 @@ import java.util.Objects;
 import java.util.stream.IntStream;
 
 import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 
 import org.jamocha.dn.Network;
 import org.jamocha.dn.memory.Fact;
 import org.jamocha.dn.memory.FactIdentifier;
 import org.jamocha.dn.memory.MemoryFact;
+import org.jamocha.dn.memory.MemoryFactory;
 import org.jamocha.dn.memory.Template;
 import org.jamocha.filter.Path;
 
@@ -47,7 +49,11 @@ public class RootNode {
 	 * Maps from {@link Template} to corresponding {@link ObjectTypeNode}
 	 */
 	private final Map<Template, ObjectTypeNode> templateToOTN = new HashMap<>();
-	private final FactIdentification factIdentification = new FactIdentification();
+	private final FactIdentification factIdentification;
+
+	public RootNode(final MemoryFactory memoryFactory) {
+		this.factIdentification = new FactIdentification(memoryFactory);
+	}
 
 	/**
 	 * Passes the {@link Fact} given to the {@link ObjectTypeNode} corresponding to its
@@ -70,7 +76,8 @@ public class RootNode {
 			if (null == memoryFact) {
 				continue;
 			}
-			factIdentifiers[i] = this.factIdentification.addFact(memoryFact);
+			this.factIdentification.addFact(memoryFact);
+			factIdentifiers[i] = memoryFact.getFactIdentifier();
 		}
 		return factIdentifiers;
 	}
@@ -159,15 +166,13 @@ public class RootNode {
 	}
 }
 
+@RequiredArgsConstructor
 class FactIdentification {
+	private final MemoryFactory memoryFactory;
 	private final Map<FactIdentifier, MemoryFact> facts = new HashMap<>();
-	private int factIdentifierCounter = 0;
 
-	FactIdentifier addFact(@NonNull final MemoryFact memoryFact) {
-		final FactIdentifier factIdentifier = new FactIdentifier(factIdentifierCounter++);
-		this.facts.put(factIdentifier, memoryFact);
-		memoryFact.setFactIdentifier(factIdentifier);
-		return factIdentifier;
+	void addFact(@NonNull final MemoryFact memoryFact) {
+		this.facts.put(memoryFact.getFactIdentifier(), memoryFact);
 	}
 
 	MemoryFact remove(final FactIdentifier identifier) {
@@ -188,6 +193,6 @@ class FactIdentification {
 	}
 
 	void reset() {
-		this.factIdentifierCounter = 0;
+		memoryFactory.resetFactIdentifierCounter();
 	}
 }
