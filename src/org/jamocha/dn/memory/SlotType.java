@@ -14,6 +14,7 @@
  */
 package org.jamocha.dn.memory;
 
+import java.lang.reflect.Array;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatterBuilder;
 import java.time.temporal.ChronoField;
@@ -36,37 +37,38 @@ public enum SlotType {
 	/**
 	 * Enum value for integer types.
 	 */
-	LONG(Long.class), LONGS(Long[].class),
+	LONG(Long.class, false), LONGS(Long[].class, true),
 	/**
 	 * Enum value for floating point types.
 	 */
-	DOUBLE(Double.class), DOUBLES(Double[].class),
+	DOUBLE(Double.class, false), DOUBLES(Double[].class, true),
 	/**
 	 * Enum value for string types.
 	 */
-	STRING(String.class), STRINGS(String[].class),
+	STRING(String.class, false), STRINGS(String[].class, true),
 	/**
 	 * Enum value for boolean types.
 	 */
-	BOOLEAN(Boolean.class), BOOLEANS(Boolean[].class),
+	BOOLEAN(Boolean.class, false), BOOLEANS(Boolean[].class, true),
 	/**
 	 * Enum value for fact address types.
 	 */
-	FACTADDRESS(FactIdentifier.class), FACTADDRESSES(FactIdentifier[].class),
+	FACTADDRESS(FactIdentifier.class, false), FACTADDRESSES(FactIdentifier[].class, true),
 	/**
 	 * Enum value for date time types.
 	 */
-	DATETIME(ZonedDateTime.class), DATETIMES(ZonedDateTime[].class),
+	DATETIME(ZonedDateTime.class, false), DATETIMES(ZonedDateTime[].class, true),
 	/**
 	 * Enum value for nil values of undetermined type.
 	 */
-	NIL(Object.class), NILS(Object[].class),
+	NIL(Object.class, false), NILS(Object[].class, true),
 	/**
 	 * Enum value for symbol types.
 	 */
-	SYMBOL(Symbol.class), SYMBOLS(Symbol[].class);
+	SYMBOL(Symbol.class, false), SYMBOLS(Symbol[].class, true);
 
 	final private Class<?> javaClass;
+	final private boolean isArrayType;
 
 	/**
 	 * Static instance of an empty array of types. Can e.g. be used by functions without parameters
@@ -124,6 +126,11 @@ public enum SlotType {
 		default:
 			throw new IllegalArgumentException(type.name() + " is an array type!");
 		}
+	}
+
+	final public static Object[] newArrayInstance(final SlotType arrayType, final int length) {
+		assert arrayType.isArrayType;
+		return (Object[]) Array.newInstance(arrayToSingle(arrayType).javaClass, length);
 	}
 
 	public static ZonedDateTime convert(final String image) {
