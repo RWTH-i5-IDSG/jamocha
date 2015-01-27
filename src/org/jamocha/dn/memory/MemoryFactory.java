@@ -87,5 +87,8 @@ public interface MemoryFactory {
 	public MemoryHandlerMainAndCounterColumnMatcher newMemoryHandlerMain(final PathFilter filter,
 			final Map<Edge, Set<Path>> edgesAndPaths);
 
+	/**
+	 * Resets the fact identification counter.
+	 */
 	public void resetFactIdentifierCounter();
 }

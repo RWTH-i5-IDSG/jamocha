@@ -74,6 +74,11 @@ public class MemoryFactory implements org.jamocha.dn.memory.MemoryFactory {
 		factIdentifierCounter = 0;
 	}
 
+	/**
+	 * Returns a FactIdentifier containing the next available fact identifier.
+	 * 
+	 * @return a FactIdentifier containing the next available fact identifier
+	 */
 	public FactIdentifier getNextFactIdentifier() {
 		return new FactIdentifier(factIdentifierCounter++);
 	}
