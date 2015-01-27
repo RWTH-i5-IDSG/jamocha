@@ -27,7 +27,8 @@ import org.junit.runners.Suite.SuiteClasses;
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
 @RunWith(Suite.class)
-@SuiteClasses({ test.jamocha.languages.clips.ParserTest.class })
+@SuiteClasses({ test.jamocha.languages.clips.ParserTest.class, test.jamocha.languages.clips.SystemTest.class,
+		test.jamocha.languages.clips.BindTest.class })
 public class AllClipsTests {
 
 }
