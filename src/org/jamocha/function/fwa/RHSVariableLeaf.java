@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2014 The Jamocha Team
+ * Copyright 2002-2015 The Jamocha Team
  * 
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
@@ -14,26 +14,28 @@
  */
 package org.jamocha.function.fwa;
 
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+import lombok.AllArgsConstructor;
 
 import org.jamocha.dn.memory.SlotType;
 import org.jamocha.function.Function;
-import org.jamocha.function.fwa.GenericWithArgumentsComposite.LazyObject;
-import org.jamocha.languages.common.GlobalVariable;
+import org.jamocha.languages.common.ScopeStack.Symbol;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
-@Getter
-@EqualsAndHashCode
-@RequiredArgsConstructor
-public class GlobalVariableLeaf<L extends ExchangeableLeaf<L>> implements FunctionWithArguments<L>, VariableLeaf {
-	final GlobalVariable variable;
+@AllArgsConstructor
+public class RHSVariableLeaf implements ExchangeableLeaf<RHSVariableLeaf>, VariableLeaf {
+	final VariableValueContext context;
+	final Symbol key;
+	final SlotType type;
 
 	@Override
-	public <V extends FunctionWithArgumentsVisitor<L>> V accept(final V visitor) {
+	public Object evaluate(final Object... params) {
+		return context.get(key);
+	}
+
+	@Override
+	public <V extends FunctionWithArgumentsVisitor<RHSVariableLeaf>> V accept(final V visitor) {
 		visitor.visit(this);
 		return visitor;
 	}
@@ -45,38 +47,32 @@ public class GlobalVariableLeaf<L extends ExchangeableLeaf<L>> implements Functi
 
 	@Override
 	public SlotType getReturnType() {
-		return variable.getType();
+		return type;
 	}
 
 	@Override
 	public Function<?> lazyEvaluate(final Function<?>... params) {
-		return new LazyObject<>(variable.getValue().evaluate());
-	}
-
-	@Override
-	public Object evaluate(final Object... params) {
-		return variable.getValue().evaluate();
+		return new GenericWithArgumentsComposite.LazyObject<>(evaluate());
 	}
 
 	@Override
 	public int hashPositionIsIrrelevant() {
-		return variable.hashCode();
+		return 0;
 	}
 
 	@Override
-	public String toString() {
-		return variable.getSymbol().toString() + '[' + variable.getValue().evaluate() + ']';
+	public ExchangeableLeaf<RHSVariableLeaf> copy() {
+		throw new UnsupportedOperationException("Can't copy stateful leafs!");
 	}
 
 	@Override
 	public Object reset() {
-		variable.reset();
-		return variable.getValue().evaluate();
-	}
+		context.put(key, null);
+		return null;
+	};
 
 	@Override
 	public Object set(final Object value) {
-		final SlotType type = getReturnType();
 		final Object correct;
 		if (type.isArrayType()) {
 			final Object[] array = SlotType.newArrayInstance(type, 1);
@@ -85,14 +81,13 @@ public class GlobalVariableLeaf<L extends ExchangeableLeaf<L>> implements Functi
 		} else {
 			correct = value;
 		}
-		variable.setValue(new ConstantLeaf<L>(correct, type));
-		return variable.getValue();
-	}
+		context.put(key, correct);
+		return value;
+	};
 
 	@Override
 	public Object set(final Object[] values) {
-		assert getReturnType().isArrayType();
-		variable.setValue(new ConstantLeaf<L>(values, getReturnType()));
-		return variable.getValue();
-	}
+		context.put(key, values);
+		return values;
+	};
 }

@@ -26,6 +26,7 @@ import java.util.Set;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.Setter;
 
 import org.jamocha.dn.memory.SlotAddress;
 import org.jamocha.dn.memory.SlotType;
@@ -65,6 +66,7 @@ public class RuleCondition {
 		final LinkedList<FunctionWithArguments<SymbolLeaf>> equalFWAs;
 		final Set<EquivalenceClass> unequalEquivalenceClasses = new HashSet<>();
 		final Set<SingleFactVariable> merged = new HashSet<>();
+		@Setter
 		SlotType type;
 
 		public EquivalenceClass() {
@@ -237,7 +239,7 @@ public class RuleCondition {
 		public PathLeaf getPathLeaf(final Map<EquivalenceClass, Path> ec2Path, final SingleSlotVariable sv) {
 			if (!factVariables.isEmpty()) {
 				final Path path = ec2Path.get(factVariables.iterator().next().getEqual());
-				return null == path ? null : new PathLeaf(path, null);
+				return null == path ? null : new PathLeaf(path, (SlotAddress) null);
 			}
 			return null == sv ? null : sv.getPathLeaf(ec2Path);
 		}

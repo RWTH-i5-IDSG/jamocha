@@ -221,7 +221,8 @@ public class PathFilterConsolidator implements DefaultConditionalElementsVisitor
 
 			final TranslatedPath result =
 					consolidateOnCopiedEquivalenceClasses(initialFactTemplate, rule, pathToJoinedWith, ce, symbols
-							.stream().map(VariableSymbol::getEqual).collect(toSet()), Specificity.calculate(ce));
+							.stream().map(VariableSymbol::getEqual).collect(toSet()), Specificity.calculate(ce),
+							oldToNew);
 
 			// reset the symbol - equivalence class mapping
 			symbolToECbackup.forEach((vs, ec) -> vs.setEqual(ec));
@@ -329,7 +330,8 @@ public class PathFilterConsolidator implements DefaultConditionalElementsVisitor
 
 		private static TranslatedPath consolidateOnCopiedEquivalenceClasses(final Template initialFactTemplate,
 				final Defrule rule, final Map<Path, Set<Path>> pathToJoinedWith, final ConditionalElement ce,
-				final Set<EquivalenceClass> equivalenceClasses, final int specificity) {
+				final Set<EquivalenceClass> equivalenceClasses, final int specificity,
+				final Map<EquivalenceClass, EquivalenceClass> oldToNew) {
 			final Pair<Path, Map<EquivalenceClass, Path>> initialFactAndEc2Path =
 					ShallowFactVariableCollector.generatePaths(initialFactTemplate, ce);
 			final Map<EquivalenceClass, Path> ec2Path = initialFactAndEc2Path.getRight();
@@ -355,8 +357,10 @@ public class PathFilterConsolidator implements DefaultConditionalElementsVisitor
 			}
 
 			mergeMissingPathsViaDummy(allPaths, pathFilters, pathToJoinedWith, initialFactAndEc2Path.getLeft());
+			final Map<EquivalenceClass, PathLeaf> originalEC2PathLeaf = new HashMap<>();
+			oldToNew.forEach((k, v) -> originalEC2PathLeaf.put(k, equivalenceClassToPathLeaf.get(v)));
 			return rule.newTranslated(new PathFilterSharedListWrapper().newSharedElement(pathFilters),
-					equivalenceClassToPathLeaf, specificity);
+					originalEC2PathLeaf, specificity);
 		}
 
 		private static void mergeMissingPathsViaDummy(final Set<Path> allPaths, final List<PathFilterList> pathFilters,

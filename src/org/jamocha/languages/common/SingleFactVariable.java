@@ -72,7 +72,7 @@ public class SingleFactVariable {
 	}
 
 	public PathLeaf getPathLeaf(final Map<EquivalenceClass, Path> ec2Path) {
-		return new PathLeaf(ec2Path.get(equal), null);
+		return new PathLeaf(ec2Path.get(equal), (SlotAddress) null);
 	}
 
 	@Getter

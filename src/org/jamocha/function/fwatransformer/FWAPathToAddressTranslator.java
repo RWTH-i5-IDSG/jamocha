@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.jamocha.dn.memory.FactAddress;
 import org.jamocha.dn.nodes.SlotInFactAddress;
 import org.jamocha.function.fwa.Assert;
+import org.jamocha.function.fwa.Bind;
 import org.jamocha.function.fwa.ConstantLeaf;
 import org.jamocha.function.fwa.DefaultFunctionWithArgumentsVisitor;
 import org.jamocha.function.fwa.FunctionWithArguments;
@@ -78,6 +79,11 @@ public class FWAPathToAddressTranslator implements FunctionWithArgumentsVisitor<
 		final FactAddress factAddressInCurrentlyLowestNode = pathLeaf.getPath().getFactAddressInCurrentlyLowestNode();
 		this.addresses.add(new SlotInFactAddress(factAddressInCurrentlyLowestNode, pathLeaf.getSlot()));
 		this.functionWithArguments = new ParameterLeaf(pathLeaf.getReturnType(), pathLeaf.hash());
+	}
+
+	@Override
+	public void visit(final Bind<PathLeaf> fwa) {
+		this.functionWithArguments = new Bind<>(translateArgs(fwa.getArgs(), this.addresses));
 	}
 
 	@SuppressWarnings("unchecked")

@@ -20,6 +20,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 import org.jamocha.function.fwa.Assert;
+import org.jamocha.function.fwa.Bind;
 import org.jamocha.function.fwa.ConstantLeaf;
 import org.jamocha.function.fwa.FunctionWithArguments;
 import org.jamocha.function.fwa.FunctionWithArgumentsComposite;
@@ -91,6 +92,11 @@ public class SymbolToPathTranslator implements FunctionWithArgumentsVisitor<Symb
 	@Override
 	public void visit(GlobalVariableLeaf<SymbolLeaf> globalVariableLeaf) {
 		result = (FunctionWithArguments<PathLeaf>) (FunctionWithArguments<?>) globalVariableLeaf;
+	}
+
+	@Override
+	public void visit(final Bind<SymbolLeaf> fwa) {
+		handleArgs(fwa, fwa.getArgs());
 	}
 
 	@Override

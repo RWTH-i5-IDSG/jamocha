@@ -90,6 +90,11 @@ public class FWADeepCopy<L extends ExchangeableLeaf<L>> implements FunctionWithA
 	// this.result = new org.jamocha.function.fwa.PathLeaf(pathLeaf.getPath(), pathLeaf.getSlot());
 	// }
 
+	@Override
+	public void visit(final org.jamocha.function.fwa.Bind<L> fwa) {
+		this.result = new org.jamocha.function.fwa.Bind<L>(copyArgs(fwa.getArgs()));
+	}
+
 	@SuppressWarnings("unchecked")
 	@Override
 	public void visit(final org.jamocha.function.fwa.Assert<L> fwa) {

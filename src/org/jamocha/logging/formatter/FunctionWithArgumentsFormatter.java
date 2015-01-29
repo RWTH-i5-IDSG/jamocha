@@ -16,6 +16,7 @@ package org.jamocha.logging.formatter;
 
 import org.jamocha.function.fwa.Assert;
 import org.jamocha.function.fwa.Assert.TemplateContainer;
+import org.jamocha.function.fwa.Bind;
 import org.jamocha.function.fwa.ConstantLeaf;
 import org.jamocha.function.fwa.ExchangeableLeaf;
 import org.jamocha.function.fwa.FunctionWithArguments;
@@ -94,6 +95,11 @@ public class FunctionWithArgumentsFormatter<L extends ExchangeableLeaf<L>> imple
 		@Override
 		public void visit(final GlobalVariableLeaf<L> globalVariableLeaf) {
 			sb.append(globalVariableLeaf.toString());
+		}
+
+		@Override
+		public void visit(final Bind<L> fwa) {
+			sb.append(fwa.toString());
 		}
 
 		@Override

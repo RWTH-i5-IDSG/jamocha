@@ -25,6 +25,7 @@ import org.jamocha.dn.nodes.TerminalNode;
 import org.jamocha.filter.AddressFilter.AddressFilterElement;
 import org.jamocha.function.fwa.Assert;
 import org.jamocha.function.fwa.Assert.TemplateContainer;
+import org.jamocha.function.fwa.Bind;
 import org.jamocha.function.fwa.ConstantLeaf;
 import org.jamocha.function.fwa.FunctionWithArguments;
 import org.jamocha.function.fwa.FunctionWithArgumentsComposite;
@@ -59,7 +60,7 @@ public class NetworkToDot {
 		@Getter
 		private final StringBuffer sb = new StringBuffer();
 
-		private void visitComposite(GenericWithArgumentsComposite<?, ?, ParameterLeaf> gwac) {
+		private void visitComposite(final GenericWithArgumentsComposite<?, ?, ParameterLeaf> gwac) {
 			sb.append("(" + gwac.getFunction().inClips());
 			int pos = 0;
 			for (FunctionWithArguments<ParameterLeaf> functionWithArguments : gwac.getArgs()) {
@@ -73,53 +74,58 @@ public class NetworkToDot {
 		}
 
 		@Override
-		public void visit(FunctionWithArgumentsComposite<ParameterLeaf> functionWithArgumentsComposite) {
+		public void visit(final FunctionWithArgumentsComposite<ParameterLeaf> functionWithArgumentsComposite) {
 			visitComposite(functionWithArgumentsComposite);
 		}
 
 		@Override
-		public void visit(PredicateWithArgumentsComposite<ParameterLeaf> predicateWithArgumentsComposite) {
+		public void visit(final PredicateWithArgumentsComposite<ParameterLeaf> predicateWithArgumentsComposite) {
 			visitComposite(predicateWithArgumentsComposite);
 		}
 
 		@Override
-		public void visit(ConstantLeaf<ParameterLeaf> constantLeaf) {
+		public void visit(final ConstantLeaf<ParameterLeaf> constantLeaf) {
 			sb.append(constantLeaf.toString());
 		}
 
 		@Override
-		public void visit(GlobalVariableLeaf<ParameterLeaf> globalVariableLeaf) {
+		public void visit(final GlobalVariableLeaf<ParameterLeaf> globalVariableLeaf) {
 			sb.append(globalVariableLeaf.toString());
 		}
 
 		@Override
-		public void visit(ParameterLeaf leaf) {
+		public void visit(final ParameterLeaf leaf) {
 			assert params.length == 1;
 			sb.append(params[0]);
 		}
 
 		@Override
-		public void visit(Assert<ParameterLeaf> fwa) {
+		public void visit(final Bind<ParameterLeaf> fwa) {
+			throw new RuntimeException("There should not be a bind inside a rule condition!");
+		}
+
+		@Override
+		public void visit(final Assert<ParameterLeaf> fwa) {
 			throw new RuntimeException("There should not be an assert inside a rule condition!");
 		}
 
 		@Override
-		public void visit(TemplateContainer<ParameterLeaf> fwa) {
+		public void visit(final TemplateContainer<ParameterLeaf> fwa) {
 			throw new RuntimeException("There should not be a TemplateContainer inside a rule condition!");
 		}
 
 		@Override
-		public void visit(Retract<ParameterLeaf> fwa) {
+		public void visit(final Retract<ParameterLeaf> fwa) {
 			throw new RuntimeException("There should not be a retract inside a rule condition!");
 		}
 
 		@Override
-		public void visit(Modify<ParameterLeaf> fwa) {
+		public void visit(final Modify<ParameterLeaf> fwa) {
 			throw new RuntimeException("There should not be a modify inside a rule condition!");
 		}
 
 		@Override
-		public void visit(SlotAndValue<ParameterLeaf> fwa) {
+		public void visit(final SlotAndValue<ParameterLeaf> fwa) {
 			throw new RuntimeException("There should not be a SlotAndValue inside a rule condition!");
 		}
 

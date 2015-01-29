@@ -34,6 +34,13 @@ public interface DefaultFunctionWithArgumentsLeafVisitor<L extends ExchangeableL
 	}
 
 	@Override
+	public default void visit(final Bind<L> fwa) {
+		for (final FunctionWithArguments<L> arg : fwa.getArgs()) {
+			arg.accept(this);
+		}
+	}
+
+	@Override
 	public default void visit(final Assert<L> fwa) {
 		for (final FunctionWithArguments<L> arg : fwa.getArgs()) {
 			arg.accept(this);

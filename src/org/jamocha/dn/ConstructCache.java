@@ -17,7 +17,6 @@ package org.jamocha.dn;
 import static org.jamocha.util.ToArray.toArray;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -29,19 +28,18 @@ import lombok.RequiredArgsConstructor;
 import lombok.Value;
 
 import org.apache.logging.log4j.Marker;
-import org.jamocha.dn.compiler.SymbolToPathTranslator;
 import org.jamocha.dn.memory.MemoryHandlerTerminal.AssertOrRetract;
 import org.jamocha.dn.memory.Template;
-import org.jamocha.dn.nodes.SlotInFactAddress;
 import org.jamocha.filter.PathFilterList.PathFilterSharedListWrapper;
 import org.jamocha.function.Function;
 import org.jamocha.function.fwa.Assert;
 import org.jamocha.function.fwa.FunctionWithArguments;
 import org.jamocha.function.fwa.ParameterLeaf;
 import org.jamocha.function.fwa.PathLeaf;
+import org.jamocha.function.fwa.RHSVariableLeaf;
 import org.jamocha.function.fwa.SymbolLeaf;
-import org.jamocha.function.fwatransformer.FWADeepCopy;
-import org.jamocha.function.fwatransformer.FWAPathToAddressTranslator;
+import org.jamocha.function.fwa.VariableValueContext;
+import org.jamocha.function.fwatransformer.FWASymbolToRHSVariableLeafTranslator;
 import org.jamocha.languages.common.RuleCondition;
 import org.jamocha.languages.common.RuleCondition.EquivalenceClass;
 import org.jamocha.logging.MarkerType;
@@ -90,13 +88,7 @@ public class ConstructCache {
 
 		public TranslatedPath newTranslated(final PathFilterSharedListWrapper.PathFilterSharedList condition,
 				final Map<EquivalenceClass, PathLeaf> equivalenceClassToPathLeaf, final int specificity) {
-			@SuppressWarnings("unchecked")
-			final TranslatedPath translated =
-					new TranslatedPath(condition, new PathActionList(toArray(
-							Arrays.stream(actionList).map(
-									fwa -> SymbolToPathTranslator.translate(FWADeepCopy.copy(fwa),
-											equivalenceClassToPathLeaf)), FunctionWithArguments[]::new)), specificity);
-			return translated;
+			return new TranslatedPath(condition, actionList, equivalenceClassToPathLeaf, specificity);
 		}
 
 		public TranslatedPath newTranslated(final PathFilterSharedListWrapper.PathFilterSharedList condition,
@@ -109,7 +101,8 @@ public class ConstructCache {
 		@RequiredArgsConstructor
 		public class TranslatedPath {
 			final PathFilterSharedListWrapper.PathFilterSharedList condition;
-			final PathActionList actionList;
+			final FunctionWithArguments<SymbolLeaf>[] actionList;
+			final Map<EquivalenceClass, PathLeaf> equivalenceClassToPathLeaf;
 			final int specificity;
 
 			public Defrule getParent() {
@@ -117,7 +110,10 @@ public class ConstructCache {
 			}
 
 			public Translated translatePathToAddress() {
-				return new Translated(condition, actionList.translatePathToAddress(), specificity);
+				final VariableValueContext context = new VariableValueContext();
+				return new Translated(condition,
+						new AddressesActionList(context, FWASymbolToRHSVariableLeafTranslator.translate(
+								equivalenceClassToPathLeaf, context, actionList)), specificity);
 			}
 		}
 
@@ -134,41 +130,14 @@ public class ConstructCache {
 	}
 
 	@Value
-	public static class PathActionList {
-		final FunctionWithArguments<PathLeaf>[] actions;
-
-		public AddressesActionList translatePathToAddress() {
-			return new AddressesActionList(toArray(
-					Arrays.stream(actions).map(
-							action -> {
-								final ArrayList<SlotInFactAddress> addresses = new ArrayList<>();
-								final FunctionWithArguments<ParameterLeaf> fwa =
-										FWAPathToAddressTranslator.translate(action, addresses);
-								return new AddressesActionList.FWAWithAddresses(fwa, toArray(addresses,
-										SlotInFactAddress[]::new));
-							}), AddressesActionList.FWAWithAddresses[]::new));
-		}
-	}
-
-	@Value
 	public static class AddressesActionList {
-		@Value
-		private static class FWAWithAddresses {
-			FunctionWithArguments<ParameterLeaf> fwa;
-			SlotInFactAddress[] addresses;
-		}
-
-		final FWAWithAddresses[] actions;
+		final VariableValueContext context;
+		final FunctionWithArguments<RHSVariableLeaf>[] actions;
 
 		public void evaluate(final AssertOrRetract<?> token) {
-			for (final FWAWithAddresses action : actions) {
-				final SlotInFactAddress[] addresses = action.addresses;
-				final Object[] params = new Object[addresses.length];
-				for (int i = 0; i < addresses.length; ++i) {
-					final SlotInFactAddress slotInFactAddress = addresses[i];
-					params[i] = token.getValue(slotInFactAddress.getFactAddress(), slotInFactAddress.getSlotAddress());
-				}
-				action.fwa.evaluate(params);
+			context.initialize(token);
+			for (final FunctionWithArguments<RHSVariableLeaf> action : actions) {
+				action.evaluate();
 			}
 		}
 	}

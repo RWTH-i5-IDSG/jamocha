@@ -48,6 +48,11 @@ public interface DefaultFunctionWithArgumentsVisitor<L extends ExchangeableLeaf<
 	}
 
 	@Override
+	public default void visit(final Bind<L> fwa) {
+		defaultAction(fwa);
+	}
+
+	@Override
 	public default void visit(final Assert<L> fwa) {
 		defaultAction(fwa);
 	}

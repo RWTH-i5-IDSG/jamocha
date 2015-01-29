@@ -91,7 +91,8 @@ public class SurplusNodesCombiningOptimizer implements Optimizer {
 						joinSet2Filter.put(joined, combinedFilter);
 					}
 					return rule.getParent().new TranslatedPath(new PathFilterSharedListWrapper()
-							.newSharedElement(filters), rule.getActionList(), rule.getSpecificity());
+							.newSharedElement(filters), rule.getActionList(), rule.getEquivalenceClassToPathLeaf(),
+							rule.getSpecificity());
 				}).collect(toList());
 	}
 

@@ -16,6 +16,8 @@ public interface FunctionWithArgumentsVisitor<L extends ExchangeableLeaf<L>> ext
 
 	public void visit(final L leaf);
 
+	public void visit(final Bind<L> fwa);
+
 	public void visit(final Assert<L> fwa);
 
 	public void visit(final Assert.TemplateContainer<L> fwa);

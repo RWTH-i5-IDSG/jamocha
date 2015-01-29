@@ -22,8 +22,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Queue;
@@ -47,14 +49,18 @@ import org.jamocha.dn.memory.Template.Slot;
 import org.jamocha.filter.SymbolCollector;
 import org.jamocha.function.fwa.Assert;
 import org.jamocha.function.fwa.Assert.TemplateContainer;
+import org.jamocha.function.fwa.Bind;
 import org.jamocha.function.fwa.ConstantLeaf;
 import org.jamocha.function.fwa.FunctionWithArguments;
 import org.jamocha.function.fwa.GenericWithArgumentsComposite;
 import org.jamocha.function.fwa.GlobalVariableLeaf;
 import org.jamocha.function.fwa.Modify;
 import org.jamocha.function.fwa.PredicateWithArguments;
+import org.jamocha.function.fwa.RHSVariableLeaf;
 import org.jamocha.function.fwa.Retract;
 import org.jamocha.function.fwa.SymbolLeaf;
+import org.jamocha.function.fwa.VariableValueContext;
+import org.jamocha.function.fwatransformer.FWASymbolToRHSVariableLeafTranslator;
 import org.jamocha.function.impls.predicates.Equals;
 import org.jamocha.languages.clips.parser.ExistentialStack.ScopedExistentialStack;
 import org.jamocha.languages.clips.parser.errors.ClipsNameClashError;
@@ -185,6 +191,9 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 
 	final ParserToNetwork parserToNetwork;
 	final SideEffectFunctionToNetwork sideEffectFunctionToNetwork;
+
+	final VariableValueContext interactiveModeContext = new VariableValueContext();
+	final Map<VariableSymbol, SymbolLeaf> knownVariables = new HashMap<>();
 
 	public SFPVisitorImpl(final ParserToNetwork parserToNetwork,
 			final SideEffectFunctionToNetwork sideEffectFunctionToNetwork) {
@@ -1328,6 +1337,7 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 
 		@Override
 		public Object visit(final SFPActionList node, final Object data) {
+			// FIXME here we start being on the RHS!!!
 			this.actionList =
 					Optional.of(SelectiveSFPVisitor
 							.stream(node, 0)
@@ -1596,6 +1606,36 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 		@Override
 		public Object visit(final SFPAnyFunction node, final Object data) {
 			final String functionName = node.jjtGetValue().toString();
+			if (functionName.equals(Bind.inClips)) {
+				final Node variableExpression = node.jjtGetChild(0);
+				if (variableExpression.getId() != SFPParserTreeConstants.JJTEXPRESSION
+						|| variableExpression.jjtGetNumChildren() != 1) {
+					throw new UnsupportedOperationException();
+				}
+				// if we are on the right hand side (sideEffectsAllowed is true) don't pass the rule
+				// condition to prevent registration of local variables into the rule
+				final VariableSymbol var =
+						SelectiveSFPVisitor.sendVisitor(new SFPSingleVariableVisitor(sideEffectsAllowed ? null : rc),
+								variableExpression.jjtGetChild(0), data).symbol;
+				final SymbolLeaf symbolLeaf = knownVariables.computeIfAbsent(var, SymbolLeaf::new);
+				// visit the rest
+				final Stream<FunctionWithArguments<SymbolLeaf>> values =
+						SelectiveSFPVisitor.stream(node, 1).map(
+								n -> SelectiveSFPVisitor.sendVisitor(new SFPExpressionVisitor(rc, this.mapper,
+										this.sideEffectsAllowed), n, data).expression);
+				@SuppressWarnings("unchecked")
+				final FunctionWithArguments<SymbolLeaf>[] arguments =
+						toArray(Stream.concat(Stream.of(symbolLeaf), values), FunctionWithArguments[]::new);
+				if (null == var.getType()) {
+					if (2 == arguments.length) {
+						var.getEqual().setType(arguments[1].getReturnType());
+					} else if (2 < arguments.length) {
+						var.getEqual().setType(SlotType.singleToArray(arguments[1].getReturnType()));
+					}
+				}
+				this.expression = new Bind<SymbolLeaf>(arguments);
+				return data;
+			}
 			@SuppressWarnings("unchecked")
 			final FunctionWithArguments<SymbolLeaf>[] arguments =
 					toArray(SelectiveSFPVisitor.stream(node, 0).map(
@@ -1853,11 +1893,17 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 			// interactive mode
 			final FunctionWithArguments<SymbolLeaf> expression =
 					SelectiveSFPVisitor.sendVisitor(new SFPExpressionVisitor((RuleCondition) null, (s, n) -> {
-						throw new ClipsVariableNotDeclaredError(s, n);
+						final SymbolLeaf symbolLeaf = knownVariables.get(s);
+						if (null == symbolLeaf)
+							throw new ClipsVariableNotDeclaredError(s, n);
+						return symbolLeaf;
 					}, true), node, data).expression;
+			final FunctionWithArguments<RHSVariableLeaf> translatedExpression =
+					FWASymbolToRHSVariableLeafTranslator.translate(Collections.emptyMap(), interactiveModeContext,
+							expression)[0];
 			this.value =
 					sideEffectFunctionToNetwork.getLogFormatter().formatSlotValue(expression.getReturnType(),
-							expression.evaluate());
+							translatedExpression.evaluate());
 			return data;
 		}
 

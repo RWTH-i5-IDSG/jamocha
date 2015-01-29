@@ -18,6 +18,7 @@ import java.util.Arrays;
 
 import org.jamocha.function.fwa.Assert;
 import org.jamocha.function.fwa.Assert.TemplateContainer;
+import org.jamocha.function.fwa.Bind;
 import org.jamocha.function.fwa.ConstantLeaf;
 import org.jamocha.function.fwa.ExchangeableLeaf;
 import org.jamocha.function.fwa.FunctionWithArguments;
@@ -81,6 +82,13 @@ public abstract class FunctionNormaliser {
 
 		@Override
 		public void visit(final GlobalVariableLeaf<L> globalVariableLeaf) {
+		}
+
+		@Override
+		public void visit(final Bind<L> fwa) {
+			final FunctionWithArguments<L>[] args = fwa.getArgs();
+			recurseOverArgs(args);
+			sortArgs(args);
 		}
 
 		@Override

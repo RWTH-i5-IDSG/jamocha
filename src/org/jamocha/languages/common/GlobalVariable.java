@@ -22,6 +22,8 @@ import org.jamocha.function.fwa.FunctionWithArguments;
 import org.jamocha.languages.common.ScopeStack.Symbol;
 
 /**
+ * Class representing a global variable.
+ * 
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
 @Getter

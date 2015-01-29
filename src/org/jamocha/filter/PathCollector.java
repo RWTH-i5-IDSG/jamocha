@@ -26,6 +26,7 @@ import java.util.LinkedList;
 import org.jamocha.filter.PathFilter.DummyPathFilterElement;
 import org.jamocha.filter.PathFilter.PathFilterElement;
 import org.jamocha.function.fwa.Assert;
+import org.jamocha.function.fwa.Bind;
 import org.jamocha.function.fwa.ConstantLeaf;
 import org.jamocha.function.fwa.FunctionWithArguments;
 import org.jamocha.function.fwa.FunctionWithArgumentsComposite;
@@ -164,6 +165,13 @@ public class PathCollector<T extends Collection<Path>> implements PathFilterElem
 		@Override
 		public void visit(final PathLeaf pathLeaf) {
 			paths.add(pathLeaf.getPath());
+		}
+
+		@Override
+		public void visit(final Bind<PathLeaf> fwa) {
+			for (final FunctionWithArguments<PathLeaf> child : fwa.getArgs()) {
+				child.accept(this);
+			}
 		}
 
 		@Override
