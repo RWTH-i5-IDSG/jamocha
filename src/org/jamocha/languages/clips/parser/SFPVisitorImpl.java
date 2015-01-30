@@ -1635,7 +1635,7 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 						values.isEmpty() ? null : (1 == values.size() ? values.get(0).getReturnType() : SlotType
 								.singleToArray(values.get(0).getReturnType()));
 				for (final FunctionWithArguments<SymbolLeaf> value : values) {
-					if (type != value.getReturnType()) {
+					if (values.get(0).getReturnType() != value.getReturnType()) {
 						throw new TypeMismatchError(null);
 					}
 				}
