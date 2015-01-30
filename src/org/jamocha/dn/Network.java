@@ -263,7 +263,6 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 				}
 			}
 		}
-		FunctionDictionary.load();
 		{
 			// there seem to be two different log levels: one in the logger (aka in the
 			// PrivateConfig of the logger) and one in the LoggerConfig (which may be shared); the
@@ -289,6 +288,7 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 			// This causes all loggers to re-fetch information from their LoggerConfig
 			ctx.updateLoggers();
 		}
+		FunctionDictionary.load();
 	}
 
 	private void createInitialDeffact() {
