@@ -30,7 +30,6 @@ import lombok.extern.log4j.Log4j2;
 import org.jamocha.dn.memory.SlotAddress;
 import org.jamocha.dn.memory.SlotType;
 import org.jamocha.dn.memory.Template;
-import org.jamocha.function.fwa.FunctionWithArguments;
 import org.jamocha.languages.common.RuleCondition.EquivalenceClass;
 import org.jamocha.languages.common.SingleFactVariable.SingleSlotVariable;
 
@@ -163,8 +162,8 @@ public class ScopeStack {
 		return instance;
 	}
 
-	public GlobalVariable setOrCreateGlobalVariable(final Symbol symbol, final FunctionWithArguments<?> value) {
-		final GlobalVariable global = globalVariables.computeIfAbsent(symbol, s -> new GlobalVariable(s, value));
+	public GlobalVariable setOrCreateGlobalVariable(final Symbol symbol, final Object value, final SlotType type) {
+		final GlobalVariable global = globalVariables.computeIfAbsent(symbol, s -> new GlobalVariable(s, value, type));
 		global.setValue(value);
 		return global;
 	}

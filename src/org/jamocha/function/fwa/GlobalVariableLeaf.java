@@ -50,12 +50,12 @@ public class GlobalVariableLeaf<L extends ExchangeableLeaf<L>> implements Functi
 
 	@Override
 	public Function<?> lazyEvaluate(final Function<?>... params) {
-		return new LazyObject<>(variable.getValue().evaluate());
+		return new LazyObject<>(variable.getValue());
 	}
 
 	@Override
 	public Object evaluate(final Object... params) {
-		return variable.getValue().evaluate();
+		return variable.getValue();
 	}
 
 	@Override
@@ -65,13 +65,13 @@ public class GlobalVariableLeaf<L extends ExchangeableLeaf<L>> implements Functi
 
 	@Override
 	public String toString() {
-		return variable.getSymbol().toString() + '[' + variable.getValue().evaluate() + ']';
+		return variable.getSymbol().toString() + '[' + variable.getValue() + ']';
 	}
 
 	@Override
 	public Object reset() {
 		variable.reset();
-		return variable.getValue().evaluate();
+		return variable.getValue();
 	}
 
 	@Override

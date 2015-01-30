@@ -18,7 +18,6 @@ import lombok.Getter;
 import lombok.Setter;
 
 import org.jamocha.dn.memory.SlotType;
-import org.jamocha.function.fwa.FunctionWithArguments;
 import org.jamocha.languages.common.ScopeStack.Symbol;
 
 /**
@@ -29,16 +28,16 @@ import org.jamocha.languages.common.ScopeStack.Symbol;
 @Getter
 public class GlobalVariable {
 	@Setter
-	FunctionWithArguments<?> value;
+	Object value;
 	final Symbol symbol;
-	final FunctionWithArguments<?> defaultValue;
+	final Object defaultValue;
 	final SlotType type;
 
-	public GlobalVariable(final Symbol symbol, final FunctionWithArguments<?> value) {
+	public GlobalVariable(final Symbol symbol, final Object value, final SlotType type) {
 		this.symbol = symbol;
 		this.value = value;
 		this.defaultValue = value;
-		this.type = value.getReturnType();
+		this.type = type;
 	}
 
 	public void reset() {

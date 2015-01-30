@@ -162,6 +162,7 @@ import org.jamocha.languages.common.ConditionalElement.NotFunctionConditionalEle
 import org.jamocha.languages.common.ConditionalElement.OrFunctionConditionalElement;
 import org.jamocha.languages.common.ConditionalElement.TemplatePatternConditionalElement;
 import org.jamocha.languages.common.ConditionalElement.TestConditionalElement;
+import org.jamocha.languages.common.GlobalVariable;
 import org.jamocha.languages.common.RuleCondition;
 import org.jamocha.languages.common.ScopeCloser;
 import org.jamocha.languages.common.ScopeStack.Symbol;
@@ -169,6 +170,7 @@ import org.jamocha.languages.common.ScopeStack.VariableSymbol;
 import org.jamocha.languages.common.SingleFactVariable;
 import org.jamocha.languages.common.SlotBuilder;
 import org.jamocha.languages.common.Warning;
+import org.jamocha.languages.common.errors.TypeMismatchError;
 
 /**
  * This class is final to prevent accidental derived classes. All inner classes shall share the same
@@ -1612,27 +1614,28 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 						|| variableExpression.jjtGetNumChildren() != 1) {
 					throw new UnsupportedOperationException();
 				}
-				// if we are on the right hand side (sideEffectsAllowed is true) don't pass the rule
-				// condition to prevent registration of local variables into the rule
-				final VariableSymbol var =
-						SelectiveSFPVisitor.sendVisitor(new SFPSingleVariableVisitor(sideEffectsAllowed ? null : rc),
-								variableExpression.jjtGetChild(0), data).symbol;
-				final SymbolLeaf symbolLeaf = knownVariables.computeIfAbsent(var, SymbolLeaf::new);
-				// visit the rest
-				final Stream<FunctionWithArguments<SymbolLeaf>> values =
-						SelectiveSFPVisitor.stream(node, 1).map(
-								n -> SelectiveSFPVisitor.sendVisitor(new SFPExpressionVisitor(rc, this.mapper,
-										this.sideEffectsAllowed), n, data).expression);
-				@SuppressWarnings("unchecked")
-				final FunctionWithArguments<SymbolLeaf>[] arguments =
-						toArray(Stream.concat(Stream.of(symbolLeaf), values), FunctionWithArguments[]::new);
-				if (null == var.getType()) {
-					if (2 == arguments.length) {
-						var.getEqual().setType(arguments[1].getReturnType());
-					} else if (2 < arguments.length) {
-						var.getEqual().setType(SlotType.singleToArray(arguments[1].getReturnType()));
+				// visit the arguments of the bind call
+				final List<FunctionWithArguments<SymbolLeaf>> values =
+						SelectiveSFPVisitor
+								.stream(node, 1)
+								.map(n -> SelectiveSFPVisitor.sendVisitor(new SFPExpressionVisitor(rc, this.mapper,
+										this.sideEffectsAllowed), n, data).expression).collect(toList());
+				final SlotType type =
+						values.isEmpty() ? null : (1 == values.size() ? values.get(0).getReturnType() : SlotType
+								.singleToArray(values.get(0).getReturnType()));
+				for (final FunctionWithArguments<SymbolLeaf> value : values) {
+					if (type != value.getReturnType()) {
+						throw new TypeMismatchError(null);
 					}
 				}
+				// if we are on the right hand side (sideEffectsAllowed is true) don't pass the rule
+				// condition to prevent registration of local variables into the rule
+				final FunctionWithArguments<SymbolLeaf> symbolLeaf =
+						SelectiveSFPVisitor.sendVisitor(new VariableVisitor(type, sideEffectsAllowed ? null : rc),
+								variableExpression.jjtGetChild(0), data).variableLeaf;
+				@SuppressWarnings("unchecked")
+				final FunctionWithArguments<SymbolLeaf>[] arguments =
+						toArray(Stream.concat(Stream.of(symbolLeaf), values.stream()), FunctionWithArguments[]::new);
 				this.expression = new Bind<SymbolLeaf>(arguments);
 				return data;
 			}
@@ -1735,6 +1738,39 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 			this.symbol =
 					SFPVisitorImpl.this.parserToNetwork.getScope().getOrCreateTopLevelSymbol(
 							Objects.toString(node.jjtGetValue()));
+			return data;
+		}
+	}
+
+	@RequiredArgsConstructor
+	class VariableVisitor implements SelectiveSFPVisitor {
+		final SlotType type;
+		final RuleCondition rc;
+		FunctionWithArguments<SymbolLeaf> variableLeaf;
+
+		@Override
+		public Object visit(final SFPGlobalVariable node, final Object data) {
+			final Symbol var = SelectiveSFPVisitor.sendVisitor(new GlobalVariableVisitor(), node, data).symbol;
+			final GlobalVariable globalVariable = SFPVisitorImpl.this.parserToNetwork.getScope().getGlobalVariable(var);
+			if (null != type && globalVariable.getType() != type) {
+				throw new TypeMismatchError(var);
+			}
+			variableLeaf = new GlobalVariableLeaf<SymbolLeaf>(globalVariable);
+			return data;
+		}
+
+		@Override
+		public Object visit(final SFPSingleVariable node, final Object data) {
+			final VariableSymbol var =
+					SelectiveSFPVisitor.sendVisitor(new SFPSingleVariableVisitor(rc), node, data).symbol;
+			variableLeaf = knownVariables.computeIfAbsent(var, SymbolLeaf::new);
+			if (null != type) {
+				if (null == var.getType()) {
+					var.getEqual().setType(type);
+				} else if (var.getType() != type) {
+					throw new TypeMismatchError(var);
+				}
+			}
 			return data;
 		}
 	}
@@ -1920,7 +1956,10 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 							SelectiveSFPVisitor.sendVisitor(new SFPExpressionVisitor((RuleCondition) null, (s, n) -> {
 								throw new ClipsVariableNotDeclaredError(s, n);
 							}, true), node.jjtGetChild(1), data).expression;
-					SFPVisitorImpl.this.parserToNetwork.getScope().setOrCreateGlobalVariable(symbol, expression);
+					SFPVisitorImpl.this.parserToNetwork.getScope().setOrCreateGlobalVariable(
+							symbol,
+							FWASymbolToRHSVariableLeafTranslator.translate(Collections.emptyMap(),
+									interactiveModeContext, expression)[0].evaluate(), expression.getReturnType());
 					return data;
 				}
 			};
