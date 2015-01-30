@@ -66,10 +66,21 @@ public class Bind<L extends ExchangeableLeaf<L>> implements FunctionWithArgument
 		switch (args.length) {
 		case 1:
 			return leaf.reset();
-		case 2:
-			return leaf.set(args[1].evaluate());
+		case 2: {
+			final SlotType type = leaf.getReturnType();
+			final Object value = args[1].evaluate();
+			final Object correct;
+			if (type.isArrayType() && !args[1].getReturnType().isArrayType()) {
+				final Object[] array = SlotType.newArrayInstance(type, 1);
+				array[0] = value;
+				correct = array;
+			} else {
+				correct = value;
+			}
+			return leaf.set(correct);
+		}
 		default:
-			return leaf.set(IntStream.range(1, params.length).mapToObj(i -> args[i].evaluate()).toArray());
+			return leaf.set(IntStream.range(1, args.length).mapToObj(i -> args[i].evaluate()).toArray());
 		}
 	}
 

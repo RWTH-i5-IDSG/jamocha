@@ -76,23 +76,7 @@ public class GlobalVariableLeaf<L extends ExchangeableLeaf<L>> implements Functi
 
 	@Override
 	public Object set(final Object value) {
-		final SlotType type = getReturnType();
-		final Object correct;
-		if (type.isArrayType()) {
-			final Object[] array = SlotType.newArrayInstance(type, 1);
-			array[0] = value;
-			correct = array;
-		} else {
-			correct = value;
-		}
-		variable.setValue(new ConstantLeaf<L>(correct, type));
-		return variable.getValue();
-	}
-
-	@Override
-	public Object set(final Object[] values) {
-		assert getReturnType().isArrayType();
-		variable.setValue(new ConstantLeaf<L>(values, getReturnType()));
-		return variable.getValue();
+		variable.setValue(value);
+		return value;
 	}
 }

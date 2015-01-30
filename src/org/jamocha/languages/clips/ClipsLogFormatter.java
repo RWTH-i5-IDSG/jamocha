@@ -244,6 +244,12 @@ public class ClipsLogFormatter implements LogFormatter {
 
 	@Override
 	public String formatSlotValue(final SlotType type, final Object value, final boolean quoteString) {
+		if (type.isArrayType()) {
+			return "["
+					+ Arrays.stream((Object[]) value)
+							.map(v -> formatSlotValue(SlotType.arrayToSingle(type), v, quoteString))
+							.collect(joining(", ")) + "]";
+		}
 		switch (type) {
 		case STRING:
 			if (quoteString)

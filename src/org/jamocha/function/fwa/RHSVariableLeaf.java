@@ -77,21 +77,7 @@ public class RHSVariableLeaf implements ExchangeableLeaf<RHSVariableLeaf>, Varia
 
 	@Override
 	public Object set(final Object value) {
-		final Object correct;
-		if (type.isArrayType()) {
-			final Object[] array = SlotType.newArrayInstance(type, 1);
-			array[0] = value;
-			correct = array;
-		} else {
-			correct = value;
-		}
-		context.put(key, correct);
+		context.put(key, value);
 		return value;
-	};
-
-	@Override
-	public Object set(final Object[] values) {
-		context.put(key, values);
-		return values;
 	};
 }

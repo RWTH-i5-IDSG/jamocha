@@ -14,7 +14,9 @@
  */
 package org.jamocha.function.fwa;
 
+import org.jamocha.dn.memory.SlotType;
 import org.jamocha.languages.common.GlobalVariable;
+import org.jamocha.languages.common.ScopeStack.Symbol;
 
 /**
  *
@@ -26,22 +28,13 @@ import org.jamocha.languages.common.GlobalVariable;
 public interface VariableLeaf {
 
 	/**
-	 * Sets the value of the variable. Called for single variables.
+	 * Sets the value of the variable.
 	 * 
 	 * @param value
 	 *            new value of the variable
 	 * @return new value of the variable
 	 */
 	public Object set(final Object value);
-
-	/**
-	 * Sets the value of the variable. Called for multi variables.
-	 * 
-	 * @param values
-	 *            new value of the variable
-	 * @return new value of the variable
-	 */
-	public Object set(final Object[] values);
 
 	/**
 	 * Resets the value of the variable. This means unbinding the variable in case of local
@@ -53,4 +46,11 @@ public interface VariableLeaf {
 	 *         which the variable is set
 	 */
 	public Object reset();
+
+	/**
+	 * Returns the type of the value stored in the variable.
+	 * 
+	 * @return the type of the value stored in the variable
+	 */
+	public SlotType getReturnType();
 }
