@@ -21,6 +21,8 @@ import org.jamocha.visitor.Visitor;
  */
 public interface FunctionVisitor extends Visitor {
 	// functions
+	void visit(final org.jamocha.function.impls.functions.Create$ function);
+
 	void visit(final org.jamocha.function.impls.functions.DividedBy<?> function);
 
 	void visit(final org.jamocha.function.impls.functions.Minus<?> function);

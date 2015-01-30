@@ -23,6 +23,11 @@ public interface DefaultFunctionVisitor extends FunctionVisitor {
 
 	// functions
 	@Override
+	default void visit(final org.jamocha.function.impls.functions.Create$ function) {
+		defaultAction(function);
+	}
+
+	@Override
 	default void visit(final org.jamocha.function.impls.functions.DividedBy<?> function) {
 		defaultAction(function);
 	}
