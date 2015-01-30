@@ -75,7 +75,7 @@ public class Jamocha {
 				if (null == parserReturn)
 					System.exit(0);
 				final String expression = parserReturn.getRight();
-				if (!(null == expression || "null".equals(expression))) {
+				if (null != expression) {
 					log.info(expression);
 				}
 				final Queue<Warning> warnings = parserReturn.getLeft();
