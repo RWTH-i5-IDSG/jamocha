@@ -212,7 +212,7 @@ public class PathFilterConsolidator implements DefaultConditionalElementsVisitor
 				if (ec.getFactVariables().isEmpty() && ec.getEqualSlotVariables().isEmpty()) {
 					if (!ec.getUnequalEquivalenceClasses().isEmpty() || symbolsInLeafs.contains(vs))
 						// vs is not bound
-						throw new VariableNotDeclaredError(vs);
+						throw new VariableNotDeclaredError(vs.getImage());
 				}
 			}
 

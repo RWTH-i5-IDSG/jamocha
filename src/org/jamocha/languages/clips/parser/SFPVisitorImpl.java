@@ -1954,7 +1954,7 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 					// child 1 : expression
 					final FunctionWithArguments<SymbolLeaf> expression =
 							SelectiveSFPVisitor.sendVisitor(new SFPExpressionVisitor((RuleCondition) null, (s, n) -> {
-								throw new ClipsVariableNotDeclaredError(s, n);
+								throw new ClipsVariableNotDeclaredError(s.getImage(), n);
 							}, true), node.jjtGetChild(1), data).expression;
 					SFPVisitorImpl.this.parserToNetwork.getScope().setOrCreateGlobalVariable(
 							symbol,

@@ -16,8 +16,6 @@ package org.jamocha.languages.common.errors;
 
 import lombok.Getter;
 
-import org.jamocha.languages.common.ScopeStack.Symbol;
-
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
@@ -25,30 +23,30 @@ public class VariableNotDeclaredError extends Error {
 	private static final long serialVersionUID = -5557376783613225289L;
 
 	@Getter
-	final Symbol var;
+	final String var;
 
-	public VariableNotDeclaredError(final Symbol var) {
+	public VariableNotDeclaredError(final String var) {
 		super();
 		this.var = var;
 	}
 
-	protected VariableNotDeclaredError(final Symbol var, final String message, final Throwable cause,
+	protected VariableNotDeclaredError(final String var, final String message, final Throwable cause,
 			final boolean enableSuppression, final boolean writableStackTrace) {
 		super(message, cause, enableSuppression, writableStackTrace);
 		this.var = var;
 	}
 
-	public VariableNotDeclaredError(final Symbol var, final String message, final Throwable cause) {
+	public VariableNotDeclaredError(final String var, final String message, final Throwable cause) {
 		super(message, cause);
 		this.var = var;
 	}
 
-	public VariableNotDeclaredError(final Symbol var, final String message) {
+	public VariableNotDeclaredError(final String var, final String message) {
 		super(message);
 		this.var = var;
 	}
 
-	public VariableNotDeclaredError(final Symbol var, final Throwable cause) {
+	public VariableNotDeclaredError(final String var, final Throwable cause) {
 		super(cause);
 		this.var = var;
 	}

@@ -259,7 +259,7 @@ public abstract class GenericWithArgumentsComposite<R, F extends Function<? exte
 			if (null == type) {
 				final FunctionWithArguments<L> fwa = arguments[i];
 				assert fwa instanceof SymbolLeaf;
-				throw new VariableNotDeclaredError(((SymbolLeaf) fwa).getSymbol());
+				throw new VariableNotDeclaredError(((SymbolLeaf) fwa).getSymbol().getImage());
 			}
 		}
 		return argTypes;
