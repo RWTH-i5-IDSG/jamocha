@@ -19,6 +19,7 @@ import lombok.AllArgsConstructor;
 import org.jamocha.dn.memory.SlotType;
 import org.jamocha.function.Function;
 import org.jamocha.languages.common.ScopeStack.Symbol;
+import org.jamocha.languages.common.errors.VariableNotDeclaredError;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
@@ -31,7 +32,10 @@ public class RHSVariableLeaf implements ExchangeableLeaf<RHSVariableLeaf>, Varia
 
 	@Override
 	public Object evaluate(final Object... params) {
-		return context.get(key);
+		final Object value = context.get(key);
+		if (null == value)
+			throw new VariableNotDeclaredError(key.getImage());
+		return value;
 	}
 
 	@Override

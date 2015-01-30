@@ -144,6 +144,15 @@ public class ScopeStack {
 		}
 	}
 
+	public VariableSymbol getVariableSymbol(final String image) {
+		try {
+			return (VariableSymbol) getScope().getSymbol(image);
+		} catch (final ClassCastException e) {
+			log.error("expecting to create or fetch a VariableSymbol, but casting failed!");
+			throw new IllegalArgumentException();
+		}
+	}
+
 	public VariableSymbol createDummyFactVariable(final Template template, final RuleCondition rc,
 			final Consumer<? super SingleFactVariable> consumer) {
 		final VariableSymbol instance = getScope().createDummySymbol(SlotType.FACTADDRESS);

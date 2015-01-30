@@ -22,10 +22,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Queue;
@@ -171,6 +169,7 @@ import org.jamocha.languages.common.SingleFactVariable;
 import org.jamocha.languages.common.SlotBuilder;
 import org.jamocha.languages.common.Warning;
 import org.jamocha.languages.common.errors.TypeMismatchError;
+import org.jamocha.languages.common.errors.VariableNotDeclaredError;
 
 /**
  * This class is final to prevent accidental derived classes. All inner classes shall share the same
@@ -195,7 +194,6 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 	final SideEffectFunctionToNetwork sideEffectFunctionToNetwork;
 
 	final VariableValueContext interactiveModeContext = new VariableValueContext();
-	final Map<VariableSymbol, SymbolLeaf> knownVariables = new HashMap<>();
 
 	public SFPVisitorImpl(final ParserToNetwork parserToNetwork,
 			final SideEffectFunctionToNetwork sideEffectFunctionToNetwork) {
@@ -727,14 +725,23 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 	@RequiredArgsConstructor
 	class SFPSingleVariableVisitor implements SelectiveSFPVisitor {
 		final RuleCondition rc;
+		final boolean sideEffectsAllowed;
 		VariableSymbol symbol;
 
 		@Override
 		public Object visit(final SFPSingleVariable node, final Object data) {
 			assert node.jjtGetNumChildren() == 0;
-			this.symbol =
-					SFPVisitorImpl.this.parserToNetwork.getScope().getOrCreateVariableSymbol(
-							node.jjtGetValue().toString(), rc);
+			if (sideEffectsAllowed) {
+				this.symbol =
+						SFPVisitorImpl.this.parserToNetwork.getScope().getVariableSymbol(node.jjtGetValue().toString());
+				if (null == symbol) {
+					throw new VariableNotDeclaredError(node.jjtGetValue().toString());
+				}
+			} else {
+				this.symbol =
+						SFPVisitorImpl.this.parserToNetwork.getScope().getOrCreateVariableSymbol(
+								node.jjtGetValue().toString(), rc);
+			}
 			return data;
 		}
 	}
@@ -786,7 +793,8 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 			@Override
 			public Object visit(final SFPSingleVariable node, final Object data) {
 				final VariableSymbol symbol =
-						SelectiveSFPVisitor.sendVisitor(new SFPSingleVariableVisitor(parent.contextStack), node, data).symbol;
+						SelectiveSFPVisitor.sendVisitor(new SFPSingleVariableVisitor(parent.contextStack, false), node,
+								data).symbol;
 				if (negated) {
 					createConstraintVariable().getEqual().addNegatedEdge(symbol.getEqual());
 				} else {
@@ -937,7 +945,8 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 			@Override
 			public Object visit(final SFPSingleVariable node, final Object data) {
 				final VariableSymbol symbol =
-						SelectiveSFPVisitor.sendVisitor(new SFPSingleVariableVisitor(parent.contextStack), node, data).symbol;
+						SelectiveSFPVisitor.sendVisitor(new SFPSingleVariableVisitor(parent.contextStack, false), node,
+								data).symbol;
 				parent.factVariable.newSingleSlotVariable(slot, symbol);
 				this.constraintVariable = Optional.of(symbol);
 				return data;
@@ -1278,8 +1287,8 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 		public Object visit(final SFPAssignedPatternCE node, final Object data) {
 			assert node.jjtGetNumChildren() == 2;
 			final VariableSymbol symbol =
-					SelectiveSFPVisitor.sendVisitor(new SFPSingleVariableVisitor(contextStack), node.jjtGetChild(0),
-							data).symbol;
+					SelectiveSFPVisitor.sendVisitor(new SFPSingleVariableVisitor(contextStack, false),
+							node.jjtGetChild(0), data).symbol;
 			this.resultCE =
 					SelectiveSFPVisitor.sendVisitor(new SFPConditionalElementVisitor(contextStack, symbol),
 							node.jjtGetChild(1), data).resultCE;
@@ -1400,7 +1409,9 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 		public Object visit(final SFPSingleVariable node, final Object data) {
 			final VariableSymbol symbol;
 			try {
-				symbol = SelectiveSFPVisitor.sendVisitor(new SFPSingleVariableVisitor(rc), node, data).symbol;
+				symbol =
+						SelectiveSFPVisitor.sendVisitor(new SFPSingleVariableVisitor(rc, sideEffectsAllowed), node,
+								data).symbol;
 			} catch (final NullPointerException e) {
 				throw new ClipsVariableNotDeclaredError(null, node);
 			}
@@ -1487,7 +1498,7 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 		@Override
 		public Object visit(final SFPSingleVariable node, final Object data) {
 			final VariableSymbol symbol =
-					SelectiveSFPVisitor.sendVisitor(new SFPSingleVariableVisitor(rc), node, data).symbol;
+					SelectiveSFPVisitor.sendVisitor(new SFPSingleVariableVisitor(rc, sideEffectsAllowed), node, data).symbol;
 			this.value = this.mapper.apply(symbol, node);
 			return data;
 		}
@@ -1628,10 +1639,8 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 						throw new TypeMismatchError(null);
 					}
 				}
-				// if we are on the right hand side (sideEffectsAllowed is true) don't pass the rule
-				// condition to prevent registration of local variables into the rule
 				final FunctionWithArguments<SymbolLeaf> symbolLeaf =
-						SelectiveSFPVisitor.sendVisitor(new VariableVisitor(type, sideEffectsAllowed ? null : rc),
+						SelectiveSFPVisitor.sendVisitor(new VariableVisitor(type, rc, false),
 								variableExpression.jjtGetChild(0), data).variableLeaf;
 				@SuppressWarnings("unchecked")
 				final FunctionWithArguments<SymbolLeaf>[] arguments =
@@ -1746,6 +1755,7 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 	class VariableVisitor implements SelectiveSFPVisitor {
 		final SlotType type;
 		final RuleCondition rc;
+		final boolean sideEffectsAllowed;
 		FunctionWithArguments<SymbolLeaf> variableLeaf;
 
 		@Override
@@ -1761,9 +1771,12 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 
 		@Override
 		public Object visit(final SFPSingleVariable node, final Object data) {
+			// if we are on the right hand side (sideEffectsAllowed is true) don't pass the rule
+			// condition to prevent registration of local variables into the rule
 			final VariableSymbol var =
-					SelectiveSFPVisitor.sendVisitor(new SFPSingleVariableVisitor(rc), node, data).symbol;
-			variableLeaf = knownVariables.computeIfAbsent(var, SymbolLeaf::new);
+					SelectiveSFPVisitor.sendVisitor(new SFPSingleVariableVisitor(sideEffectsAllowed ? null : rc,
+							sideEffectsAllowed), node, data).symbol;
+			variableLeaf = new SymbolLeaf(var);
 			if (null != type) {
 				if (null == var.getType()) {
 					var.getEqual().setType(type);
@@ -1928,12 +1941,8 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 		public Object visit(final SFPExpression node, final Object data) {
 			// interactive mode
 			final FunctionWithArguments<SymbolLeaf> expression =
-					SelectiveSFPVisitor.sendVisitor(new SFPExpressionVisitor((RuleCondition) null, (s, n) -> {
-						final SymbolLeaf symbolLeaf = knownVariables.get(s);
-						if (null == symbolLeaf)
-							throw new ClipsVariableNotDeclaredError(s, n);
-						return symbolLeaf;
-					}, true), node, data).expression;
+					SelectiveSFPVisitor.sendVisitor(new SFPExpressionVisitor((RuleCondition) null,
+							SymbolToFunctionWithArguments.bySymbol(), true), node, data).expression;
 			final FunctionWithArguments<RHSVariableLeaf> translatedExpression =
 					FWASymbolToRHSVariableLeafTranslator.translate(Collections.emptyMap(), interactiveModeContext,
 							expression)[0];
