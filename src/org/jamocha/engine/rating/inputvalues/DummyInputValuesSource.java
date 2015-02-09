@@ -2,12 +2,15 @@ package org.jamocha.engine.rating.inputvalues;
 
 public class DummyInputValuesSource extends AbstractInputValuesImpl {
 
+	@Override
 	public void setSize(final NodeContainer node, double value) {
 	}
 
+	@Override
 	public void setFInsert(final NodeContainer node, double value) {
 	}
 
+	@Override
 	public void setFDelete(final NodeContainer node, double value) {
 	}
 

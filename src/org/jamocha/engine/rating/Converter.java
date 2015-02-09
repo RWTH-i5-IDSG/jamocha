@@ -130,6 +130,7 @@ public class Converter implements NodeVisitor {
 	 * </ul>
 	 * cost: beta-node Var2 (both cases)
 	 */
+	@Override
 	public void visit(final QuantorBetaFilterNode node) {
 		if (this.nodes.containsKey(node.getId()))
 			return;
@@ -173,6 +174,7 @@ public class Converter implements NodeVisitor {
 	 * filters facts having the same values in distinctSlots<br/>
 	 * cost: alpha-node
 	 */
+	@Override
 	public void visit(final AlphaQuantorDistinctionNode node) {
 		visitAlphaNode(node.getId());
 	}
@@ -181,10 +183,12 @@ public class Converter implements NodeVisitor {
 	 * alpha-node<br/>
 	 * cost: alpha-node
 	 */
+	@Override
 	public void visit(final AlphaSlotComparatorNode node) {
 		visitAlphaNode(node.getId());
 	}
 
+	@Override
 	public void visit(final DummyNode node) {
 		// no operation needed
 	}
@@ -192,6 +196,7 @@ public class Converter implements NodeVisitor {
 	/**
 	 * wraps alpha to beta, no cost
 	 */
+	@Override
 	public void visit(final LeftInputAdaptorNode node) {
 		if (this.nodes.containsKey(node.getId()))
 			return;
@@ -204,6 +209,7 @@ public class Converter implements NodeVisitor {
 	 * Gator-node<br/>
 	 * cost: simple beta-node
 	 */
+	@Override
 	public void visit(final MultiBetaJoinNode node) {
 		if (this.nodes.containsKey(node.getId()))
 			return;
@@ -275,6 +281,7 @@ public class Converter implements NodeVisitor {
 	 * object type filter<br/>
 	 * cost: alpha-node
 	 */
+	@Override
 	public void visit(final ObjectTypeNode node) {
 		visitAlphaNode(node.getId());
 	}
@@ -283,6 +290,7 @@ public class Converter implements NodeVisitor {
 	 * root node<br/>
 	 * cost: none
 	 */
+	@Override
 	public void visit(final RootNode node) {
 		// no operation needed
 	}
@@ -291,6 +299,7 @@ public class Converter implements NodeVisitor {
 	 * RETE-node<br/>
 	 * cost: simple beta-node
 	 */
+	@Override
 	public void visit(final SimpleBetaFilterNode node) {
 		if (this.nodes.containsKey(node.getId()))
 			return;
@@ -311,6 +320,7 @@ public class Converter implements NodeVisitor {
 	 * alpha-node<br/>
 	 * cost: alpha-node
 	 */
+	@Override
 	public void visit(final SlotFilterNode node) {
 		visitAlphaNode(node.getId());
 	}
@@ -319,6 +329,7 @@ public class Converter implements NodeVisitor {
 	 * terminal node<br/>
 	 * cost: terminal node
 	 */
+	@Override
 	public void visit(final TerminalNode node) {
 		if (this.nodes.containsKey(node.getId()))
 			return;

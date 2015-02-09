@@ -21,6 +21,7 @@ package org.jamocha.engine.nodes;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.jamocha.engine.Engine;
 import org.jamocha.engine.ReteNet;
 import org.jamocha.engine.nodes.joinfilter.GeneralizedJoinFilter;
 import org.jamocha.engine.nodes.joinfilter.JoinFilterException;
@@ -90,6 +91,11 @@ public class QuantorBetaFilterNode extends SimpleBetaFilterNode {
 
 	private final Counter<WorkingMemoryElement> counter;
 
+	public QuantorBetaFilterNode(final Engine engine, final boolean negated) {
+		this(engine.getNet().nextNodeId(), engine.getWorkingMemory(), engine
+				.getNet(), negated);
+	}
+
 	public QuantorBetaFilterNode(final int id, final WorkingMemory memory,
 			final ReteNet net, final boolean negated) {
 		this(id, memory, net, null, negated);
@@ -97,7 +103,8 @@ public class QuantorBetaFilterNode extends SimpleBetaFilterNode {
 
 	@Deprecated
 	public QuantorBetaFilterNode(final int id, final WorkingMemory memory,
-			final ReteNet net, final GeneralizedJoinFilter[] filter, final boolean negated) {
+			final ReteNet net, final GeneralizedJoinFilter[] filter,
+			final boolean negated) {
 		super(id, memory, net, filter);
 		this.negated = negated;
 		counter = new Counter<WorkingMemoryElement>();
@@ -177,5 +184,9 @@ public class QuantorBetaFilterNode extends SimpleBetaFilterNode {
 	@Override
 	public void accept(final NodeVisitor visitor) {
 		visitor.visit(this);
+	}
+
+	public boolean isNegated() {
+		return negated;
 	}
 }

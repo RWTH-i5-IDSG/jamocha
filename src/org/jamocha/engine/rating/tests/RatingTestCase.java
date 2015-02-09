@@ -113,7 +113,7 @@ public class RatingTestCase {
 		return result;
 	}
 
-	protected static abstract class DetailPublisher {
+	public static abstract class DetailPublisher {
 
 		/*
 		 * create new nodes and append them to ROOT, publish values to DICT

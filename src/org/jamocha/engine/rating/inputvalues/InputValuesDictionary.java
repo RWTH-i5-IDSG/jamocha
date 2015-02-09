@@ -25,14 +25,17 @@ public class InputValuesDictionary extends AbstractInputValuesImpl {
 		return inner;
 	}
 
+	@Override
 	public void setSize(final NodeContainer node, final double value) {
 		this.size.put(node, value);
 	}
 
+	@Override
 	public void setFInsert(final NodeContainer node, final double value) {
 		this.finsert.put(node, value);
 	}
 
+	@Override
 	public void setFDelete(final NodeContainer node, final double value) {
 		this.fdelete.put(node, value);
 	}

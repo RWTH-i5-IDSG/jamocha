@@ -7,24 +7,28 @@ public abstract class AbstractInputValuesImpl implements InputValuesSink,
 		InputValuesSource {
 	protected double tps = 10;
 
+	@Override
 	public double getSize(final RatingNodeWithFilterState node)
 			throws MissingDataException {
 		return getSize(new NodeContainer(node.getNode().getId(),
 				node.getFilterState()));
 	}
 
+	@Override
 	public double getFInsert(final RatingNodeWithFilterState node)
 			throws MissingDataException {
 		return getFInsert(new NodeContainer(node.getNode().getId(),
 				node.getFilterState()));
 	}
 
+	@Override
 	public double getFDelete(final RatingNodeWithFilterState node)
 			throws MissingDataException {
 		return getFDelete(new NodeContainer(node.getNode().getId(),
 				node.getFilterState()));
 	}
 
+	@Override
 	public double getJSF(final int conditionNode,
 			final RatingNodeWithFilterState node1,
 			final RatingNodeWithFilterState node2) throws MissingDataException {
@@ -33,6 +37,7 @@ public abstract class AbstractInputValuesImpl implements InputValuesSink,
 				.getId(), node2.getFilterState()));
 	}
 
+	@Override
 	public void addCalculatedSize(final NodeContainer node, final double value) {
 		final Double was = requestSize(node);
 		if (null == was) {
@@ -40,6 +45,7 @@ public abstract class AbstractInputValuesImpl implements InputValuesSink,
 		}
 	}
 
+	@Override
 	public void addCalculatedFInsert(final NodeContainer node,
 			final double value) {
 		final Double was = requestFInsert(node);
@@ -48,6 +54,7 @@ public abstract class AbstractInputValuesImpl implements InputValuesSink,
 		}
 	}
 
+	@Override
 	public void addCalculatedFDelete(final NodeContainer node,
 			final double value) {
 		final Double was = requestFDelete(node);
@@ -56,6 +63,7 @@ public abstract class AbstractInputValuesImpl implements InputValuesSink,
 		}
 	}
 
+	@Override
 	public void addCalculatedJSF(final int conditionNode,
 			final NodeContainer node1, final NodeContainer node2,
 			final double value) {
@@ -65,6 +73,7 @@ public abstract class AbstractInputValuesImpl implements InputValuesSink,
 		}
 	}
 
+	@Override
 	public void setJSF(final int conditionNode, final NodeContainer node1,
 			final NodeContainer node2, final double value) {
 		setJSF(conditionNode, new NodeContainerPair(node1, node2), value);
@@ -92,6 +101,7 @@ public abstract class AbstractInputValuesImpl implements InputValuesSink,
 	abstract protected Double requestJSF(final int conditionNode,
 			final NodeContainerPair nodePair);
 
+	@Override
 	public double getSize(final NodeContainer node) throws MissingDataException {
 		final Double size = requestSize(node);
 		if (null != size)
@@ -99,6 +109,7 @@ public abstract class AbstractInputValuesImpl implements InputValuesSink,
 		throw new MissingDataException("Size missing!", node);
 	}
 
+	@Override
 	public double getFDelete(final NodeContainer node)
 			throws MissingDataException {
 		final Double finsert = requestFInsert(node);
@@ -107,6 +118,7 @@ public abstract class AbstractInputValuesImpl implements InputValuesSink,
 		throw new MissingDataException("FInsert missing!", node);
 	}
 
+	@Override
 	public double getFInsert(final NodeContainer node)
 			throws MissingDataException {
 		final Double fdelete = requestFDelete(node);
@@ -115,6 +127,7 @@ public abstract class AbstractInputValuesImpl implements InputValuesSink,
 		throw new MissingDataException("FDelete missing!", node);
 	}
 
+	@Override
 	public double getJSF(final int conditionNode, final NodeContainer node1,
 			final NodeContainer node2) throws MissingDataException {
 		final Double jsf = requestJSF(conditionNode, node1, node2);
@@ -124,10 +137,12 @@ public abstract class AbstractInputValuesImpl implements InputValuesSink,
 				+ "!", node1, node2);
 	}
 
+	@Override
 	public void setTuplesPerPage(final double value) {
 		this.tps = value;
 	}
 
+	@Override
 	public double getTuplesPerPage() throws MissingDataException {
 		return this.tps;
 	}
