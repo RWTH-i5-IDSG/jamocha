@@ -14,10 +14,12 @@
  */
 package test.jamocha.languages.clips;
 
+import static org.hamcrest.Matchers.arrayWithSize;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.isEmptyString;
+import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
@@ -140,6 +142,49 @@ public class BindTest {
 			assertThat(values, hasSize(0));
 			assertThat(returnValues.getRight(), empty());
 			assertThat(out.toString(), isEmptyString());
+			out.reset();
+		}
+	}
+
+	@Test
+	public void testTranslateRHSBind() throws ParseException {
+		final Network network = new Network();
+		final ByteArrayOutputStream out = initializeAppender(network);
+		run(network, "(unwatch all)\n");
+		{
+			final Pair<Queue<Object>, Queue<Warning>> returnValues =
+					run(network, "(deftemplate f1 (slot s1 (type INTEGER)))\n"
+							+ "(defrule r1 (f1 (s1 ?x)) => (bind ?y (+ ?x 2)) (assert (f1 (s1 ?y))) ) \n");
+			assertThat(returnValues.getLeft(), empty());
+			assertThat(returnValues.getRight(), empty());
+			assertThat(out.toString(), isEmptyString());
+			out.reset();
+		}
+		{
+			final Pair<Queue<Object>, Queue<Warning>> returnValues = run(network, "(assert (f1 (s1 5)))");
+			final Queue<Object> left = returnValues.getLeft();
+			assertThat(left, hasSize(1));
+			assertThat(left.peek(), instanceOf(String.class));
+			assertThat(returnValues.getRight(), empty());
+			assertThat(out.toString(), isEmptyString());
+			out.reset();
+		}
+		{
+			final Pair<Queue<Object>, Queue<Warning>> returnValues = run(network, "(watch facts)");
+			assertThat(returnValues.getLeft(), empty());
+			assertThat(returnValues.getRight(), empty());
+			assertThat(out.toString(), isEmptyString());
+			out.reset();
+		}
+		{
+			final Pair<Queue<Object>, Queue<Warning>> returnValues = run(network, "(run 1)");
+			assertThat(returnValues.getLeft(), empty());
+			assertThat(returnValues.getRight(), empty());
+			final String output = out.toString();
+			assertThat(output, not(isEmptyString()));
+			final String[] lines = output.split(linesep);
+			assertThat(lines, arrayWithSize(1));
+			assertEquals("==> f-3\t(f1 (s1 7))", lines[0]);
 			out.reset();
 		}
 	}
