@@ -43,21 +43,21 @@ import org.jamocha.dn.memory.SlotType;
 public class FunctionDictionary {
 
 	/**
-	 * This class combines the CLIPS string representation (e.g. the name) of a {@link Function} and
-	 * their parameter {@link SlotType types}. It is used as the key in the lookup map to find
-	 * corresponding implementations.
+	 * Gives the array of SlotType a hashCode and equals method to be usable in HashMaps.
 	 * 
 	 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
 	 */
 	@Value
-	private static class CombinedClipsAndParams {
-		String inClips;
+	private static class Params {
 		SlotType[] params;
 	}
 
-	private static final HashMap<CombinedClipsAndParams, Function<?>> clipsFunctions = new HashMap<>();
-	private static final HashMap<CombinedClipsAndParams, VarargsFunctionGenerator> generators = new HashMap<>();
-	private static final HashMap<CombinedClipsAndParams, FunctionWithSideEffectsGenerator> fixedArgsGeneratorsWithSideEffects =
+	private static final HashMap<String, Map<Params, Function<?>>> clipsFunctions = new HashMap<>();
+
+	private static final HashMap<String, Map<Params, Function<?>>> varArgsFunctionCache = new HashMap<>();
+
+	private static final HashMap<String, Map<Params, VarargsFunctionGenerator>> generators = new HashMap<>();
+	private static final HashMap<String, Map<Params, FunctionWithSideEffectsGenerator>> fixedArgsGeneratorsWithSideEffects =
 			new HashMap<>();
 	private static final HashMap<String, FunctionWithSideEffectsGenerator> varArgsGeneratorsWithSideEffects =
 			new HashMap<>();
@@ -76,7 +76,7 @@ public class FunctionDictionary {
 
 	/**
 	 * Loads the class given to have the java vm execute its static initializer.
-	 * 
+	 *
 	 * @param clazz
 	 *            class to load
 	 */
@@ -90,7 +90,7 @@ public class FunctionDictionary {
 
 	/**
 	 * Adds a {@link Function} implementation to the lookup-map.
-	 * 
+	 *
 	 * @param impl
 	 *            implementation to add
 	 * @return implementation added
@@ -102,7 +102,8 @@ public class FunctionDictionary {
 	 */
 	public static <R, F extends Function<R>> F addImpl(final F impl) {
 		checkPredicate(impl);
-		if (null != clipsFunctions.put(new CombinedClipsAndParams(impl.inClips(), impl.getParamTypes()), impl)) {
+		if (null != clipsFunctions.computeIfAbsent(impl.inClips(), x -> new HashMap<>()).put(
+				new Params(impl.getParamTypes()), impl)) {
 			throw new IllegalArgumentException("Function " + impl.inClips() + " already defined!");
 		}
 		return impl;
@@ -110,7 +111,8 @@ public class FunctionDictionary {
 
 	private static <R, F extends Function<R>> void checkPredicate(final F impl) throws IllegalArgumentException {
 		if (impl.getReturnType() == SlotType.BOOLEAN && !(impl instanceof Predicate)) {
-			throw new IllegalArgumentException("Functions with return type boolean have to be derived from Predicate!");
+			throw new IllegalArgumentException("Functions with return type boolean have to be derived from "
+					+ "Predicate!");
 		}
 	}
 
@@ -118,7 +120,7 @@ public class FunctionDictionary {
 	 * Adds a generator for a {@link Function} implementation to the lookup-map. The generator will
 	 * be able to generate a function implementation for two or more parameters of the given
 	 * {@code parameterType}.
-	 * 
+	 *
 	 * @param inClips
 	 *            CLIPS representation of the function name
 	 * @param parameterType
@@ -131,8 +133,8 @@ public class FunctionDictionary {
 	 */
 	public static void addGenerator(final String inClips, final SlotType parameterType,
 			final VarargsFunctionGenerator varargsFunctionGenerator) {
-		if (null != generators.put(new CombinedClipsAndParams(inClips, new SlotType[] { parameterType }),
-				varargsFunctionGenerator)) {
+		if (null != generators.computeIfAbsent(inClips, x -> new HashMap<>()).put(
+				new Params(new SlotType[] { parameterType }), varargsFunctionGenerator)) {
 			throw new IllegalArgumentException("Function " + inClips + " already defined!");
 		}
 	}
@@ -141,7 +143,7 @@ public class FunctionDictionary {
 	 * Adds a generator for a {@link Function} implementation with side-effects to the lookup-map.
 	 * The generator will be able to generate a function implementation for parameters of the given
 	 * {@code parameterTypes}.
-	 * 
+	 *
 	 * @param inClips
 	 *            CLIPS representation of the function name
 	 * @param parameterTypes
@@ -154,8 +156,8 @@ public class FunctionDictionary {
 	 */
 	public static void addFixedArgsGeneratorWithSideEffects(final String inClips, final SlotType[] parameterTypes,
 			final FunctionWithSideEffectsGenerator varargsFunctionGenerator) {
-		if (null != fixedArgsGeneratorsWithSideEffects.put(new CombinedClipsAndParams(inClips, parameterTypes),
-				varargsFunctionGenerator)) {
+		if (null != fixedArgsGeneratorsWithSideEffects.computeIfAbsent(inClips, x -> new HashMap<>()).put(
+				new Params(parameterTypes), varargsFunctionGenerator)) {
 			throw new IllegalArgumentException("Function " + inClips + " already defined!");
 		}
 	}
@@ -165,7 +167,7 @@ public class FunctionDictionary {
 	 * The generator will either generate a function implementation for the parameter types passed
 	 * to {@link FunctionWithSideEffectsGenerator#generate(SideEffectFunctionToNetwork, SlotType[])}
 	 * or return null if the parameter types are incompatible.
-	 * 
+	 *
 	 * @param inClips
 	 *            CLIPS representation of the function name
 	 * @param varargsFunctionGenerator
@@ -184,7 +186,7 @@ public class FunctionDictionary {
 	/**
 	 * Looks up an implementation for the {@link Function} identified by its string representation
 	 * in CLIPS and its parameter types.
-	 * 
+	 *
 	 * @param T
 	 *            return type of the function to look up
 	 * @param inClips
@@ -198,9 +200,13 @@ public class FunctionDictionary {
 	 */
 	@SuppressWarnings("unchecked")
 	public static <T> Function<T> lookup(final String inClips, final SlotType... params) {
-		final Function<T> function = (Function<T>) clipsFunctions.get(new CombinedClipsAndParams(inClips, params));
-		if (function != null)
-			return function;
+		final Params paramTypes = new Params(params);
+		{
+			final Function<T> function =
+					(Function<T>) clipsFunctions.getOrDefault(inClips, Collections.emptyMap()).get(paramTypes);
+			if (function != null)
+				return function;
+		}
 		// look for function with arbitrarily many params
 		if (params.length < 2) {
 			throw new UnsupportedOperationException(unsupportedMsg(inClips, params));
@@ -210,12 +216,21 @@ public class FunctionDictionary {
 			if (param != params[0])
 				throw new UnsupportedOperationException(unsupportedMsg(inClips, params));
 		}
+		{
+			final Function<T> function =
+					(Function<T>) varArgsFunctionCache.getOrDefault(inClips, Collections.emptyMap()).get(paramTypes);
+			if (function != null)
+				return function;
+		}
+		final Params slotTypes = new Params(new SlotType[] { params[0] });
 		final VarargsFunctionGenerator varargsFunctionGenerator =
-				generators.get(new CombinedClipsAndParams(inClips, new SlotType[] { params[0] }));
+				generators.getOrDefault(inClips, Collections.emptyMap()).get(slotTypes);
 		if (null != varargsFunctionGenerator) {
 			final Function<T> generated = (Function<T>) varargsFunctionGenerator.generate(params);
 			if (null != generated) {
-				return addImpl(generated);
+				checkPredicate(generated);
+				varArgsFunctionCache.computeIfAbsent(inClips, x -> new HashMap<>()).put(paramTypes, generated);
+				return generated;
 			}
 		}
 		throw new UnsupportedOperationException(unsupportedMsg(inClips, params));
@@ -228,7 +243,7 @@ public class FunctionDictionary {
 	/**
 	 * Looks up an implementation for the {@link Predicate} identified by its string representation
 	 * in CLIPS and its parameter types.
-	 * 
+	 *
 	 * @param inClips
 	 *            string representation of the predicate in CLIPS
 	 * @param params
@@ -247,7 +262,7 @@ public class FunctionDictionary {
 	/**
 	 * Looks up an implementation for the {@link Predicate} identified by its string representation
 	 * in CLIPS and its parameter types.
-	 * 
+	 *
 	 * @param network
 	 *            network instance to be used to deliver the side-effects
 	 * @param inClips
@@ -269,7 +284,8 @@ public class FunctionDictionary {
 			// try fixed argument number with side effects
 			{
 				final FunctionWithSideEffectsGenerator fixedArgsFunctionGenerator =
-						fixedArgsGeneratorsWithSideEffects.get(new CombinedClipsAndParams(inClips, params));
+						fixedArgsGeneratorsWithSideEffects.computeIfAbsent(inClips, x -> new HashMap<>()).get(
+								new Params(params));
 				if (null != fixedArgsFunctionGenerator) {
 					final Function<T> generated = (Function<T>) fixedArgsFunctionGenerator.generate(network, params);
 					if (null != generated) {
