@@ -1,0 +1,2 @@
+bei Erstellen des Matchings Fact dekorieren (Fact in Fact[] durch dekorierte Version ersetzen), Dekorator ist dann zeilenweise und wird mitkopiert
+von SlotAddress ableiten, um Position im Matching zu bestimmen, FactAddress bleibt unverändert
