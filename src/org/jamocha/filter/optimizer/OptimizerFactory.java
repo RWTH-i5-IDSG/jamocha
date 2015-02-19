@@ -62,9 +62,30 @@ public class OptimizerFactory {
 		}
 
 		public Configuration() {
-			this(Arrays.asList(PathFilterOrderOptimizer.name,
-			// NodeShareOptimizer.name,
-					SurplusNodesCombiningOptimizer.name));
+			this(Arrays.asList(
+			/*
+			 * node sharing has to be considered first
+			 */
+			/*
+			 * TODO use NodeShareOptimizer.name,
+			 */
+			/*
+			 * filters using the same paths can be combined
+			 */
+			SamePathsFilterCombiningOptimizer.name,
+			/*
+			 * filter elements using the same paths can be combined
+			 */
+			SamePathsFEsCombiningOptimizer.name,
+			/*
+			 * now perform the actual optimization of the path filter order
+			 */
+			PathFilterOrderOptimizer.name,
+			/*
+			 * now that the order of the filters is fixed, we can combine filters using only a
+			 * subset of the paths of their predecessors
+			 */
+			SubsetPathsFilterCombiningOptimizer.name));
 		}
 
 		public Collection<Optimizer> getOptimizers() {
