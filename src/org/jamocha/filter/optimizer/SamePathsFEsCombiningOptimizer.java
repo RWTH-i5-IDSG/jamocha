@@ -34,7 +34,6 @@ import org.jamocha.filter.PathCollector;
 import org.jamocha.filter.PathFilter;
 import org.jamocha.filter.PathFilter.DummyPathFilterElement;
 import org.jamocha.filter.PathFilter.PathFilterElement;
-import org.jamocha.filter.PathFilterElementVisitor;
 import org.jamocha.filter.PathFilterList;
 import org.jamocha.filter.PathFilterList.PathFilterExistentialList;
 import org.jamocha.filter.PathFilterList.PathFilterSharedListWrapper.PathFilterSharedList;
@@ -53,20 +52,6 @@ public class SamePathsFEsCombiningOptimizer implements Optimizer {
 	static final SamePathsFEsCombiningOptimizer instance = new SamePathsFEsCombiningOptimizer();
 	static {
 		OptimizerFactory.addImpl(name, () -> instance);
-	}
-
-	static class FEIdentifier implements PathFilterElementVisitor {
-		@Override
-		public void visit(final PathFilterElement fe) {
-			// TODO Auto-generated method stub
-
-		}
-
-		@Override
-		public void visit(final DummyPathFilterElement fe) {
-			// TODO Auto-generated method stub
-
-		}
 	}
 
 	@RequiredArgsConstructor
