@@ -507,8 +507,8 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 					nodes.add(new BetaNode(this, filter));
 				}
 		}
-		final Node lowestNode = allPaths.iterator().next().getCurrentlyLowestNode();
 		assert allPaths.stream().map(Path::getCurrentlyLowestNode).distinct().count() == 1;
+		final Node lowestNode = allPaths.iterator().next().getCurrentlyLowestNode();
 		final TerminalNode terminalNode = new TerminalNode(this, lowestNode, translatedPath);
 		for (final Node node : nodes) {
 			node.activateTokenQueue();
