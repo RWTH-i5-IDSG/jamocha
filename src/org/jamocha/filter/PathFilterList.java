@@ -18,6 +18,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import lombok.AccessLevel;
 import lombok.Data;
@@ -32,6 +34,10 @@ import com.google.common.collect.Iterables;
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
 public interface PathFilterList extends Visitable<PathFilterListVisitor>, Iterable<PathFilter> {
+
+	default Stream<PathFilter> stream() {
+		return StreamSupport.stream(spliterator(), false);
+	}
 
 	@Data
 	@RequiredArgsConstructor
@@ -70,6 +76,13 @@ public interface PathFilterList extends Visitable<PathFilterListVisitor>, Iterab
 			final PathFilterSharedList newSharedElement = new PathFilterSharedList(new ArrayList<>());
 			this.sharedSiblings.add(newSharedElement);
 			return newSharedElement;
+		}
+
+		public PathFilterSharedList replace(final PathFilterSharedList filter, final List<PathFilterList> list) {
+			if (this.sharedSiblings.remove(filter)) {
+				return newSharedElement(list);
+			}
+			return null;
 		}
 
 		@Data
