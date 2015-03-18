@@ -16,7 +16,6 @@ package org.jamocha.function.fwa;
 
 import static org.jamocha.util.ToArray.toArray;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 
 import lombok.AccessLevel;
@@ -131,10 +130,7 @@ public class Assert<L extends ExchangeableLeaf<L>> implements FunctionWithArgume
 	}
 
 	static private <L extends ExchangeableLeaf<L>> SlotType[] calculateParamTypes(final FunctionWithArguments<L>[] args) {
-		final ArrayList<SlotType> types =
-				Arrays.stream(args).map(FunctionWithArguments::getParamTypes).map(Arrays::asList)
-						.collect(ArrayList::new, ArrayList::addAll, ArrayList::addAll);
-		return toArray(types, SlotType[]::new);
+		return toArray(Arrays.stream(args).flatMap(fwa -> Arrays.stream(fwa.getParamTypes())), SlotType[]::new);
 	}
 
 	private int initHashPII() {
