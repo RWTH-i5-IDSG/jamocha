@@ -979,17 +979,7 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 			// AmpersandConnectedConstraint(): ( Term() ( <AMPERSAND> Term() )* )
 			@Override
 			public Object visit(final SFPAmpersandConnectedConstraint node, final Object data) {
-				return handleConnectedConstraint(node, data,
-						new SFPConstraintVisitorSupplier<SFPVisitorImpl.SFPConditionalElementVisitor.SFPTermVisitor>() {
-							@Override
-							public SFPTermVisitor create(final SFPConditionalElementVisitor parent,
-									final Consumer<ConditionalElement> constraintAdder, final Template template,
-									final SlotAddressCreator slotCreator, final boolean bindingsAllowed,
-									final Optional<VariableSymbol> constraintVariable) {
-								return new SFPTermVisitor(parent, constraintAdder, template, slotCreator,
-										bindingsAllowed, constraintVariable);
-							}
-						}, AndFunctionConditionalElement::new);
+				return handleConnectedConstraint(node, data, SFPTermVisitor::new, AndFunctionConditionalElement::new);
 			}
 		}
 
@@ -1009,21 +999,8 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 
 			@Override
 			public Object visit(final SFPLineConnectedConstraint node, final Object data) {
-				return handleConnectedConstraint(
-						node,
-						data,
-						new SFPConstraintVisitorSupplier<SFPVisitorImpl.SFPConditionalElementVisitor.SFPAmpersandConnectedConstraintVisitor>() {
-							@Override
-							public SFPAmpersandConnectedConstraintVisitor create(
-									final SFPConditionalElementVisitor parent,
-									final Consumer<ConditionalElement> constraintAdder, final Template template,
-									final SlotAddressCreator slotCreator, final boolean bindingsAllowed,
-									final Optional<VariableSymbol> constraintVariable) {
-								return new SFPAmpersandConnectedConstraintVisitor(parent, constraintAdder, template,
-										slotCreator, bindingsAllowed && node.jjtGetNumChildren() == 1,
-										constraintVariable);
-							}
-						}, OrFunctionConditionalElement::new);
+				return handleConnectedConstraint(node, data, SFPAmpersandConnectedConstraintVisitor::new,
+						OrFunctionConditionalElement::new);
 			}
 
 			@Override
