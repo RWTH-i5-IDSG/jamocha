@@ -41,6 +41,7 @@ import org.jamocha.dn.ParserToNetwork;
 import org.jamocha.dn.SideEffectFunctionToNetwork;
 import org.jamocha.dn.memory.Fact;
 import org.jamocha.dn.memory.SlotAddress;
+import org.jamocha.dn.memory.SlotAddress.MatchingAddressFactory;
 import org.jamocha.dn.memory.SlotType;
 import org.jamocha.dn.memory.Template;
 import org.jamocha.dn.memory.Template.Slot;
@@ -116,6 +117,8 @@ import org.jamocha.languages.clips.parser.generated.SFPLHSSlot;
 import org.jamocha.languages.clips.parser.generated.SFPLineConnectedConstraint;
 import org.jamocha.languages.clips.parser.generated.SFPLoopForCountFunc;
 import org.jamocha.languages.clips.parser.generated.SFPModify;
+import org.jamocha.languages.clips.parser.generated.SFPMultiSlotDefinition;
+import org.jamocha.languages.clips.parser.generated.SFPMultiVariable;
 import org.jamocha.languages.clips.parser.generated.SFPNegation;
 import org.jamocha.languages.clips.parser.generated.SFPNil;
 import org.jamocha.languages.clips.parser.generated.SFPNoneAttribute;
@@ -162,6 +165,7 @@ import org.jamocha.languages.common.ConditionalElement.TemplatePatternConditiona
 import org.jamocha.languages.common.ConditionalElement.TestConditionalElement;
 import org.jamocha.languages.common.GlobalVariable;
 import org.jamocha.languages.common.RuleCondition;
+import org.jamocha.languages.common.RuleCondition.MatchingConfiguration;
 import org.jamocha.languages.common.ScopeCloser;
 import org.jamocha.languages.common.ScopeStack.Symbol;
 import org.jamocha.languages.common.ScopeStack.VariableSymbol;
@@ -514,7 +518,7 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 						&& SFPParserTreeConstants.JJTVARIABLETYPE == node.jjtGetChild(0).getId()) {
 					return data;
 				}
-				SFPTemplateAttributeVisitor.this.slotBuilder.setAllowedConstaintsConstraint(
+				SFPTemplateAttributeVisitor.this.slotBuilder.setAllowedConstantsConstraint(
 						type,
 						SelectiveSFPVisitor.stream(node, 0)
 								.map(n -> SelectiveSFPVisitor.sendVisitor(new SFPValueVisitor(type), n, data).value)
@@ -609,6 +613,9 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 		// CardinalitySpecification() : ( Integer() | VariableType() )
 		@Override
 		public Object visit(final SFPCardinalityAttribute node, final Object data) {
+			if (slotBuilder.isSingleSlot()) {
+				throw new IllegalArgumentException("Cardinality specification unsupported for single field slots!");
+			}
 			// TBD cardinality
 			return SelectiveSFPVisitor.super.visit(node, data);
 		}
@@ -679,7 +686,7 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 	}
 
 	@RequiredArgsConstructor
-	class SFPSingleSlotDefinitionVisitor implements SelectiveSFPVisitor {
+	class SFPSlotDefinitionVisitor implements SelectiveSFPVisitor {
 		final RuleCondition rc;
 		Slot slot;
 
@@ -689,7 +696,20 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 		public Object visit(final SFPSingleSlotDefinition node, final Object data) {
 			final Symbol name =
 					SelectiveSFPVisitor.sendVisitor(new SFPSymbolVisitor(), node.jjtGetChild(0), data).symbol;
-			final SlotBuilder slotBuilder = new SlotBuilder(name.getImage());
+			final SlotBuilder slotBuilder = new SlotBuilder(name.getImage(), true);
+			SelectiveSFPVisitor.stream(node, 1).forEach(
+					n -> SelectiveSFPVisitor.sendVisitor(new SFPTemplateAttributeVisitor(rc, slotBuilder), n, data));
+			this.slot = slotBuilder.build(SFPVisitorImpl.this.parserToNetwork.getDefaultValues());
+			return data;
+		}
+
+		// <multi-slot-definition> ::= ( multislot <slot-name> <template-attribute>*)
+		// <MULTISLOT> ( Symbol() ( TemplateAttribute() )* )
+		@Override
+		public Object visit(final SFPMultiSlotDefinition node, final Object data) {
+			final Symbol name =
+					SelectiveSFPVisitor.sendVisitor(new SFPSymbolVisitor(), node.jjtGetChild(0), data).symbol;
+			final SlotBuilder slotBuilder = new SlotBuilder(name.getImage(), false);
 			SelectiveSFPVisitor.stream(node, 1).forEach(
 					n -> SelectiveSFPVisitor.sendVisitor(new SFPTemplateAttributeVisitor(rc, slotBuilder), n, data));
 			this.slot = slotBuilder.build(SFPVisitorImpl.this.parserToNetwork.getDefaultValues());
@@ -716,7 +736,7 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 		public Object visit(final SFPSlotDefinition node, final Object data) {
 			assert node.jjtGetNumChildren() == 1;
 			// unsupported: multislot-definition
-			this.slotDefinitions.add(SelectiveSFPVisitor.sendVisitor(new SFPSingleSlotDefinitionVisitor(rc),
+			this.slotDefinitions.add(SelectiveSFPVisitor.sendVisitor(new SFPSlotDefinitionVisitor(rc),
 					node.jjtGetChild(0), data).slot);
 			return data;
 		}
@@ -746,6 +766,30 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 		}
 	}
 
+	@RequiredArgsConstructor
+	class SFPMultiVariableVisitor implements SelectiveSFPVisitor {
+		final RuleCondition rc;
+		final boolean sideEffectsAllowed;
+		VariableSymbol symbol;
+
+		@Override
+		public Object visit(final SFPMultiVariable node, final Object data) {
+			assert node.jjtGetNumChildren() == 0;
+			if (sideEffectsAllowed) {
+				this.symbol =
+						SFPVisitorImpl.this.parserToNetwork.getScope().getVariableSymbol(node.jjtGetValue().toString());
+				if (null == symbol) {
+					throw new VariableNotDeclaredError(node.jjtGetValue().toString());
+				}
+			} else {
+				this.symbol =
+						SFPVisitorImpl.this.parserToNetwork.getScope().getOrCreateVariableSymbol(
+								node.jjtGetValue().toString(), rc);
+			}
+			return data;
+		}
+	}
+
 	static final SelectiveSFPVisitor negationVisitor = new SelectiveSFPVisitor() {
 		@Override
 		public Object visit(final SFPNegation node, final Object data) {
@@ -757,12 +801,36 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 	@FunctionalInterface
 	static interface SFPConstraintVisitorSupplier<T extends SelectiveSFPVisitor> {
 		T create(final SFPConditionalElementVisitor parent, final Consumer<ConditionalElement> constraintAdder,
-				final Template template, final SlotAddress slot, final boolean bindingsAllowed,
+				final Template template, final SlotAddressCreator slotCreator, final boolean bindingsAllowed,
 				final Optional<VariableSymbol> constraintVariable);
 	}
 
 	static final Consumer<Object> nullConsumer = (x) -> {
 	};
+
+	static interface SlotAddressCreator {
+		public SlotAddress getSlotAddress(final boolean single);
+	}
+
+	@RequiredArgsConstructor
+	static class MatchingElementSlotAddressCreator implements SlotAddressCreator {
+		final SlotAddress.MatchingAddressFactory factory;
+		final Template template;
+		boolean initialized = false;
+		SlotAddress address = null;
+
+		@Override
+		public SlotAddress getSlotAddress(final boolean single) {
+			if (!initialized) {
+				this.address = factory.getNextMatchingElementAddress(single);
+				this.initialized = true;
+			} else if (single == this.address.getSlotType(template).isArrayType()) {
+				throw new IllegalArgumentException(
+						"Single and multifield constraints cannot be mixed in a field constraint!");
+			}
+			return this.address;
+		}
+	}
 
 	@RequiredArgsConstructor
 	class SFPConditionalElementVisitor implements SelectiveSFPVisitor {
@@ -772,7 +840,7 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 			final SFPConditionalElementVisitor parent;
 			final Consumer<ConditionalElement> constraintAdder;
 			final Template template;
-			final SlotAddress slot;
+			final SlotAddressCreator slotCreator;
 			final boolean negated;
 			final boolean bindingsAllowed;
 			Optional<VariableSymbol> constraintVariable;
@@ -780,7 +848,7 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 			// Term(): ( [ Negation() ] ( Constant() | SingleVariable() | MultiVariable() | Colon()
 			// | Equals() )
 
-			private VariableSymbol createConstraintVariable() {
+			private VariableSymbol createConstraintVariable(final SlotAddress slot) {
 				if (!constraintVariable.isPresent()) {
 					// create dummy variable
 					constraintVariable =
@@ -790,22 +858,35 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 				return constraintVariable.get();
 			}
 
+			private void handleVariable(final VariableSymbol symbol, final SlotAddress slot) {
+				if (negated) {
+					createConstraintVariable(slot).getEqual().addNegatedEdge(symbol.getEqual());
+				} else {
+					if (bindingsAllowed) {
+						parent.factVariable.newSingleSlotVariable(slot, symbol);
+					} else {
+						final VariableSymbol csv = createConstraintVariable(slot);
+						constraintAdder.accept(new TestConditionalElement(GenericWithArgumentsComposite
+								.newPredicateInstance(Equals.inClips, new SymbolLeaf(csv), new SymbolLeaf(symbol))));
+					}
+				}
+			}
+
 			@Override
 			public Object visit(final SFPSingleVariable node, final Object data) {
 				final VariableSymbol symbol =
 						SelectiveSFPVisitor.sendVisitor(new SFPSingleVariableVisitor(parent.contextStack, false), node,
 								data).symbol;
-				if (negated) {
-					createConstraintVariable().getEqual().addNegatedEdge(symbol.getEqual());
-				} else {
-					if (bindingsAllowed) {
-						parent.factVariable.newSingleSlotVariable(slot, symbol);
-					} else {
-						final VariableSymbol csv = createConstraintVariable();
-						constraintAdder.accept(new TestConditionalElement(GenericWithArgumentsComposite
-								.newPredicateInstance(Equals.inClips, new SymbolLeaf(csv), new SymbolLeaf(symbol))));
-					}
-				}
+				handleVariable(symbol, slotCreator.getSlotAddress(true));
+				return data;
+			}
+
+			@Override
+			public Object visit(final SFPMultiVariable node, final Object data) {
+				final VariableSymbol symbol =
+						SelectiveSFPVisitor.sendVisitor(new SFPMultiVariableVisitor(parent.contextStack, false), node,
+								data).symbol;
+				handleVariable(symbol, slotCreator.getSlotAddress(false));
 				return data;
 			}
 
@@ -818,7 +899,8 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 				assert 1 == node.jjtGetNumChildren();
 				final SFPValueVisitor constantVisitor =
 						SelectiveSFPVisitor.sendVisitor(new SFPValueVisitor(), node.jjtGetChild(0), data);
-				final VariableSymbol csv = createConstraintVariable();
+				final SlotAddress slot = slotCreator.getSlotAddress(true);
+				final VariableSymbol csv = createConstraintVariable(slot);
 				// create equals test
 				constraintAdder.accept(negate(new TestConditionalElement(GenericWithArgumentsComposite
 						.newPredicateInstance(Equals.inClips, new SymbolLeaf(csv), new ConstantLeaf<>(
@@ -843,11 +925,12 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 			public Object visit(final SFPEquals node, final Object data) {
 				// return-value constraint
 				assert 1 == node.jjtGetNumChildren();
-				final VariableSymbol csv = createConstraintVariable();
 				// get function call following the = sign
 				final FunctionWithArguments<SymbolLeaf> functionCall =
 						SelectiveSFPVisitor.sendVisitor(new SFPFunctionCallElementsVisitor(parent.contextStack,
 								SymbolToFunctionWithArguments.bySymbol(), false), node.jjtGetChild(0), data).expression;
+				final SlotAddress slot = slotCreator.getSlotAddress(!functionCall.getReturnType().isArrayType());
+				final VariableSymbol csv = createConstraintVariable(slot);
 				// create equals test
 				constraintAdder.accept(negate(new TestConditionalElement(GenericWithArgumentsComposite
 						.newPredicateInstance(Equals.inClips, new SymbolLeaf(csv), functionCall))));
@@ -858,9 +941,9 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 		class SFPTermVisitor extends SFPConstraintBase {
 			public SFPTermVisitor(final SFPConditionalElementVisitor parent,
 					final Consumer<ConditionalElement> constraintAdder, final Template template,
-					final SlotAddress slot, final boolean bindingsAllowed,
+					final SlotAddressCreator slotCreator, final boolean bindingsAllowed,
 					final Optional<VariableSymbol> constraintVariable) {
-				super(parent, constraintAdder, template, slot, bindingsAllowed, constraintVariable);
+				super(parent, constraintAdder, template, slotCreator, bindingsAllowed, constraintVariable);
 			}
 
 			// Term(): ( [ Negation() ] ( Constant() | SingleVariable() | MultiVariable() | Colon()
@@ -876,8 +959,8 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 				}
 				this.constraintVariable =
 						SelectiveSFPVisitor.sendVisitor(new SFPTermElementsVisitor(parent, constraintAdder, template,
-								slot, negated, bindingsAllowed, constraintVariable), node.jjtGetChild(negated ? 1 : 0),
-								data).constraintVariable;
+								slotCreator, negated, bindingsAllowed, constraintVariable), node
+								.jjtGetChild(negated ? 1 : 0), data).constraintVariable;
 				return data;
 			}
 		}
@@ -885,9 +968,9 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 		class SFPAmpersandConnectedConstraintVisitor extends SFPConstraintBase {
 			public SFPAmpersandConnectedConstraintVisitor(final SFPConditionalElementVisitor parent,
 					final Consumer<ConditionalElement> constraintAdder, final Template template,
-					final SlotAddress slot, final boolean bindingsAllowed,
+					final SlotAddressCreator slotCreator, final boolean bindingsAllowed,
 					final Optional<VariableSymbol> constraintVariable) {
-				super(parent, constraintAdder, template, slot, bindingsAllowed, constraintVariable);
+				super(parent, constraintAdder, template, slotCreator, bindingsAllowed, constraintVariable);
 			}
 
 			// LineConnectedConstraint(): ( AmpersandConnectedConstraint() ( <LINE>
@@ -901,10 +984,10 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 							@Override
 							public SFPTermVisitor create(final SFPConditionalElementVisitor parent,
 									final Consumer<ConditionalElement> constraintAdder, final Template template,
-									final SlotAddress slot, final boolean bindingsAllowed,
+									final SlotAddressCreator slotCreator, final boolean bindingsAllowed,
 									final Optional<VariableSymbol> constraintVariable) {
-								return new SFPTermVisitor(parent, constraintAdder, template, slot, bindingsAllowed,
-										constraintVariable);
+								return new SFPTermVisitor(parent, constraintAdder, template, slotCreator,
+										bindingsAllowed, constraintVariable);
 							}
 						}, AndFunctionConditionalElement::new);
 			}
@@ -913,9 +996,9 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 		class SFPConnectedConstraintElementsVisitor extends SFPConstraintBase {
 			public SFPConnectedConstraintElementsVisitor(final SFPConditionalElementVisitor parent,
 					final Consumer<ConditionalElement> constraintAdder, final Template template,
-					final SlotAddress slot, final boolean bindingsAllowed,
+					final SlotAddressCreator slotCreator, final boolean bindingsAllowed,
 					final Optional<VariableSymbol> constraintVariable) {
-				super(parent, constraintAdder, template, slot, bindingsAllowed, constraintVariable);
+				super(parent, constraintAdder, template, slotCreator, bindingsAllowed, constraintVariable);
 			}
 
 			// ConnectedConstraint(): ( ( SingleVariable() <AMPERSAND> LineConnectedConstraint() ) |
@@ -934,10 +1017,11 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 							public SFPAmpersandConnectedConstraintVisitor create(
 									final SFPConditionalElementVisitor parent,
 									final Consumer<ConditionalElement> constraintAdder, final Template template,
-									final SlotAddress slot, final boolean bindingsAllowed,
+									final SlotAddressCreator slotCreator, final boolean bindingsAllowed,
 									final Optional<VariableSymbol> constraintVariable) {
 								return new SFPAmpersandConnectedConstraintVisitor(parent, constraintAdder, template,
-										slot, bindingsAllowed && node.jjtGetNumChildren() == 1, constraintVariable);
+										slotCreator, bindingsAllowed && node.jjtGetNumChildren() == 1,
+										constraintVariable);
 							}
 						}, OrFunctionConditionalElement::new);
 			}
@@ -947,7 +1031,17 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 				final VariableSymbol symbol =
 						SelectiveSFPVisitor.sendVisitor(new SFPSingleVariableVisitor(parent.contextStack, false), node,
 								data).symbol;
-				parent.factVariable.newSingleSlotVariable(slot, symbol);
+				parent.factVariable.newSingleSlotVariable(slotCreator.getSlotAddress(true), symbol);
+				this.constraintVariable = Optional.of(symbol);
+				return data;
+			}
+
+			@Override
+			public Object visit(final SFPMultiVariable node, final Object data) {
+				final VariableSymbol symbol =
+						SelectiveSFPVisitor.sendVisitor(new SFPMultiVariableVisitor(parent.contextStack, false), node,
+								data).symbol;
+				parent.factVariable.newSingleSlotVariable(slotCreator.getSlotAddress(false), symbol);
 				this.constraintVariable = Optional.of(symbol);
 				return data;
 			}
@@ -956,22 +1050,25 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 		class SFPConnectedConstraintVisitor extends SFPConstraintBase {
 			public SFPConnectedConstraintVisitor(final SFPConditionalElementVisitor parent,
 					final Consumer<ConditionalElement> constraintAdder, final Template template,
-					final SlotAddress slot, final boolean bindingsAllowed) {
-				super(parent, constraintAdder, template, slot, bindingsAllowed, Optional.empty());
+					final SlotAddressCreator slotCreator, final boolean bindingsAllowed) {
+				super(parent, constraintAdder, template, slotCreator, bindingsAllowed, Optional.empty());
 			}
 
 			// ConnectedConstraint(): ( ( SingleVariable() <AMPERSAND> LineConnectedConstraint() ) |
 			// SingleVariable() | LineConnectedConstraint() )
+
+			// ConnectedConstraint():
+			// ( ( ( SingleVariable() | MultiVariable() ) <AMPERSAND> LineConnectedConstraint() )
+			// | SingleVariable() | MultiVariable() | LineConnectedConstraint() )
 			@Override
 			public Object visit(final SFPConnectedConstraint node, final Object data) {
 				final int numChildren = node.jjtGetNumChildren();
 				assert Arrays.asList(1, 2).contains(numChildren);
-				SelectiveSFPVisitor.stream(node, 0)
-						.forEach(
-								n -> this.constraintVariable =
-										SelectiveSFPVisitor.sendVisitor(new SFPConnectedConstraintElementsVisitor(
-												parent, constraintAdder, template, slot, bindingsAllowed,
-												constraintVariable), n, data).constraintVariable);
+				SelectiveSFPVisitor.stream(node, 0).forEach(
+						n -> this.constraintVariable =
+								SelectiveSFPVisitor.sendVisitor(new SFPConnectedConstraintElementsVisitor(parent,
+										constraintAdder, template, slotCreator, bindingsAllowed, constraintVariable),
+										n, data).constraintVariable);
 				return data;
 			}
 		}
@@ -981,7 +1078,7 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 			final SFPConditionalElementVisitor parent;
 			final Consumer<ConditionalElement> constraintAdder;
 			final Template template;
-			final SlotAddress slot;
+			final SlotAddressCreator slotCreator;
 			final boolean bindingsAllowed;
 			Optional<VariableSymbol> constraintVariable;
 
@@ -993,11 +1090,11 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 				if (terminal) {
 					this.constraintVariable =
 							SelectiveSFPVisitor.sendVisitor(visitorSupplier.create(parent, constraintAdder, template,
-									slot, bindingsAllowed, constraintVariable), node.jjtGetChild(0), data).constraintVariable;
+									slotCreator, bindingsAllowed, constraintVariable), node.jjtGetChild(0), data).constraintVariable;
 				} else {
 					final ArrayList<ConditionalElement> constraints = new ArrayList<>();
 					final SFPConstraintBase visitor =
-							visitorSupplier.create(parent, constraints::add, template, slot, bindingsAllowed,
+							visitorSupplier.create(parent, constraints::add, template, slotCreator, bindingsAllowed,
 									constraintVariable);
 					SelectiveSFPVisitor.stream(node, 0).forEach(n -> SelectiveSFPVisitor.sendVisitor(visitor, n, data));
 					constraintAdder.accept(connector.apply(constraints));
@@ -1015,15 +1112,32 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 
 			// currently:
 			// UnorderedLHSFactBody(): <LBRACE> LHSSlot() <RBRACE>
-			// LHSSlot(): ( Symbol() Constraint )
+			// LHSSlot(): ( Symbol() ( Constraint )* )
 			// void Constraint(): ConnectedConstraint()
 			@Override
 			public Object visit(final SFPLHSSlot node, final Object data) {
-				assert node.jjtGetNumChildren() == 2;
+				assert node.jjtGetNumChildren() >= 2;
 				final Symbol slotName =
 						SelectiveSFPVisitor.sendVisitor(new SFPSymbolVisitor(), node.jjtGetChild(0), data).symbol;
-				SelectiveSFPVisitor.sendVisitor(new SFPConnectedConstraintVisitor(parent, constraintAdder, template,
-						template.getSlotAddress(slotName.getImage()), true), node.jjtGetChild(1), data);
+				final SlotAddress slotAddress = template.getSlotAddress(slotName.getImage());
+				if (2 == node.jjtGetNumChildren()) {
+					// single-field-LHS-slot
+					SelectiveSFPVisitor.sendVisitor(new SFPConnectedConstraintVisitor(parent, constraintAdder,
+							template, (x) -> slotAddress, true), node.jjtGetChild(1), data);
+				} else {
+					// multi-field-LHS-slot
+					final MatchingAddressFactory matchingAddressFactory = slotAddress.newMatchingAddressFactory();
+					final MatchingConfiguration matchingConfiguration = new MatchingConfiguration(factVariable);
+					for (int i = 1; i < node.jjtGetNumChildren(); ++i) {
+						final MatchingElementSlotAddressCreator slotCreator =
+								new MatchingElementSlotAddressCreator(matchingAddressFactory, template);
+						SelectiveSFPVisitor.sendVisitor(new SFPConnectedConstraintVisitor(parent, constraintAdder,
+								template, slotCreator, true), node.jjtGetChild(i), data);
+						assert null != slotCreator.address;
+						matchingConfiguration.getMatchingAddresses().add(slotCreator.address);
+					}
+					contextStack.addMatchingConfiguration(matchingConfiguration);
+				}
 				return data;
 			}
 		}
@@ -1086,7 +1200,7 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 		// TemplatePatternCE(): ( Symbol() ( (UnorderedLHSFactBody())+ | OrderedLHSFactBody() ) )
 		// UnorderedLHSFactBody(): <LBRACE> LHSSlot() <RBRACE>
 		// OrderedLHSFactBody(): ( Constraint() )*
-		// LHSSlot(): ( Symbol() Constraint() )
+		// LHSSlot(): ( Symbol() (Constraint())* )
 		// void Constraint(): SingleFieldWildcard() | MultiFieldWildcard() | ConnectedConstraint()
 		// SingleFieldWildcard() : <SFWILDCARD>
 		// < SFWILDCARD: "?" >

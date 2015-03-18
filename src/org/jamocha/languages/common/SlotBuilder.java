@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Stream;
 
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 import org.jamocha.dn.memory.SlotType;
@@ -37,20 +38,24 @@ import org.jamocha.function.fwa.SymbolLeaf;
 @RequiredArgsConstructor
 public class SlotBuilder {
 	final String name;
+	@Getter
+	final boolean singleSlot;
 	SlotType slotType;
 	Default defaultValue;
 	SlotConstraint range;
 	SlotConstraint allowedConstants;
+	SlotConstraint cardinality;
 	SlotType inferedType;
 
 	public SlotBuilder setType(final SlotType type) {
 		if (null != slotType) {
 			throw new IllegalArgumentException("Type already set!");
 		}
-		if (null != inferedType && inferedType != type) {
+		if (null != inferedType && inferedType != type && SlotType.singleToArray(inferedType) != type) {
 			throw new IllegalArgumentException("Incompatible types in slot restrictions!");
 		}
-		this.slotType = this.inferedType = type;
+		this.inferedType = type.isArrayType() ? SlotType.arrayToSingle(type) : type;
+		this.slotType = type;
 		return this;
 	}
 
@@ -114,24 +119,35 @@ public class SlotBuilder {
 		}
 		this.inferedType = rangeType;
 		if (rangeType == SlotType.LONG) {
-			this.range = SlotConstraint.integerRange((Long) from.getValue(), (Long) to.getValue());
+			this.range = SlotConstraint.integerRange(singleSlot, (Long) from.getValue(), (Long) to.getValue());
 			return this;
 		}
 		if (rangeType == SlotType.DOUBLE) {
-			this.range = SlotConstraint.doubleRange((Double) from.getValue(), (Double) to.getValue());
+			this.range = SlotConstraint.doubleRange(singleSlot, (Double) from.getValue(), (Double) to.getValue());
 			return this;
 		}
 		throw new IllegalArgumentException();
 	}
 
-	public SlotBuilder setAllowedConstaintsConstraint(final SlotType type, final List<?> constants) {
+	public SlotBuilder setAllowedConstantsConstraint(final SlotType type, final List<?> constants) {
 		if (null != allowedConstants) {
 			throw new IllegalArgumentException("Allowed constants constraint already set!");
 		}
 		if (null != inferedType && inferedType != type) {
 			throw new IllegalArgumentException("Incompatible types in slot restrictions!");
 		}
-		this.allowedConstants = SlotConstraint.allowedConstants(type, constants);
+		this.allowedConstants = SlotConstraint.allowedConstants(singleSlot, type, constants);
+		return this;
+	}
+
+	public SlotBuilder setCardinalityConstraints(final Long min, final Long max) {
+		if (null != cardinality) {
+			throw new IllegalArgumentException("Cardinality constraint already set!");
+		}
+		if (singleSlot) {
+			throw new IllegalArgumentException("Cardinality constraint can not be set for single-slots!");
+		}
+		this.cardinality = SlotConstraint.cardinality(min, max);
 		return this;
 	}
 
@@ -143,22 +159,43 @@ public class SlotBuilder {
 				this.slotType = this.inferedType;
 			}
 		}
+		if (!singleSlot) {
+			this.slotType = SlotType.singleToArray(this.slotType);
+		}
 		final Default defaultValue;
 		if (null != this.defaultValue) {
 			defaultValue = this.defaultValue;
-		} else {
+		} else if (!singleSlot) {
 			final FunctionWithArguments<SymbolLeaf> value;
-			// derive the default value
-			if (null != allowedConstants) {
-				value = allowedConstants.derivedDefaultValue();
-			} else if (null != range) {
-				value = range.derivedDefaultValue();
+			// if minimum cardinality > 0 then create array with minimum cardinality length and fill
+			// the array with the derived default for single-slots
+			if (null != cardinality && !cardinality.matchesConstraint(new Object[0])) {
+				value =
+						cardinality.derivedDefaultValue(slotType,
+								deriveSingleSlotDefaultValue(SlotType.arrayToSingle(this.slotType), defaultValues));
 			} else {
 				value = new ConstantLeaf<>(defaultValues.get(this.slotType), this.slotType);
 			}
 			defaultValue = Default.staticDefault(value);
+		} else {
+			defaultValue = Default.staticDefault(deriveSingleSlotDefaultValue(this.slotType, defaultValues));
 		}
 		return new Slot(slotType, name, defaultValue, toArray(
 				Stream.of(range, allowedConstants).filter(Objects::nonNull), SlotConstraint[]::new));
+	}
+
+	private FunctionWithArguments<SymbolLeaf> deriveSingleSlotDefaultValue(final SlotType slotType,
+			final EnumMap<SlotType, Object> defaultValues) {
+		assert !slotType.isArrayType();
+		final FunctionWithArguments<SymbolLeaf> value;
+		// derive the default value
+		if (null != allowedConstants) {
+			value = allowedConstants.derivedDefaultValue(slotType, null);
+		} else if (null != range) {
+			value = range.derivedDefaultValue(slotType, null);
+		} else {
+			value = new ConstantLeaf<>(defaultValues.get(slotType), slotType);
+		}
+		return value;
 	}
 }

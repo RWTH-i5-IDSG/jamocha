@@ -14,6 +14,7 @@
  */
 package org.jamocha.dn.memory;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -128,12 +129,22 @@ public interface Template {
 
 		public abstract boolean matchesConstraint(final Object value);
 
-		public abstract FunctionWithArguments<SymbolLeaf> derivedDefaultValue();
+		public abstract FunctionWithArguments<SymbolLeaf> derivedDefaultValue(final SlotType type, final Object value);
 
-		public static SlotConstraint integerRange(final Long from, final Long to) {
+		public static SlotConstraint integerRange(final boolean singleSlot, final Long from, final Long to) {
+			final ConstantLeaf<SymbolLeaf> defaultValue = new ConstantLeaf<SymbolLeaf>(from, SlotType.LONG);
 			return new SlotConstraint(ConstraintType.RANGE) {
 				@Override
 				public boolean matchesConstraint(final Object value) {
+					if (singleSlot)
+						return check(value);
+					for (final Object v : (Object[]) value)
+						if (!check(v))
+							return false;
+					return true;
+				}
+
+				private boolean check(final Object value) {
 					try {
 						final Long typedValue = (Long) value;
 						if (null != from && from > typedValue)
@@ -147,16 +158,26 @@ public interface Template {
 				}
 
 				@Override
-				public FunctionWithArguments<SymbolLeaf> derivedDefaultValue() {
-					return new ConstantLeaf<SymbolLeaf>(from, SlotType.LONG);
+				public FunctionWithArguments<SymbolLeaf> derivedDefaultValue(final SlotType type, final Object value) {
+					return defaultValue;
 				}
 			};
 		}
 
-		public static SlotConstraint doubleRange(final Double from, final Double to) {
+		public static SlotConstraint doubleRange(final boolean singleSlot, final Double from, final Double to) {
+			final ConstantLeaf<SymbolLeaf> defaultValue = new ConstantLeaf<SymbolLeaf>(from, SlotType.DOUBLE);
 			return new SlotConstraint(ConstraintType.RANGE) {
 				@Override
 				public boolean matchesConstraint(final Object value) {
+					if (singleSlot)
+						return check(value);
+					for (final Object v : (Object[]) value)
+						if (!check(v))
+							return false;
+					return true;
+				}
+
+				private boolean check(final Object value) {
 					try {
 						final Double typedValue = (Double) value;
 						if (null != from && from > typedValue)
@@ -170,28 +191,56 @@ public interface Template {
 				}
 
 				@Override
-				public FunctionWithArguments<SymbolLeaf> derivedDefaultValue() {
-					return new ConstantLeaf<SymbolLeaf>(from, SlotType.DOUBLE);
-				}
-			};
-		}
-
-		public static SlotConstraint allowedConstants(final SlotType type, final List<?> values) {
-			final ConstantLeaf<SymbolLeaf> defaultValue = new ConstantLeaf<>(values.get(0), type);
-			return new SlotConstraint(ConstraintType.ALLOWED_CONSTANTS) {
-				@Override
-				public boolean matchesConstraint(final Object value) {
-					return values.contains(value);
-				}
-
-				@Override
-				public FunctionWithArguments<SymbolLeaf> derivedDefaultValue() {
+				public FunctionWithArguments<SymbolLeaf> derivedDefaultValue(final SlotType type, final Object value) {
 					return defaultValue;
 				}
 			};
 		}
 
-		// TBD cardinality
+		public static SlotConstraint allowedConstants(final boolean singleSlot, final SlotType type,
+				final List<?> values) {
+			final ConstantLeaf<SymbolLeaf> defaultValue = new ConstantLeaf<>(values.get(0), type);
+			return new SlotConstraint(ConstraintType.ALLOWED_CONSTANTS) {
+				@Override
+				public boolean matchesConstraint(final Object value) {
+					if (singleSlot)
+						return check(value);
+					for (final Object v : (Object[]) value)
+						if (!check(v))
+							return false;
+					return true;
+				}
+
+				private boolean check(final Object value) {
+					return values.contains(value);
+				}
+
+				@Override
+				public FunctionWithArguments<SymbolLeaf> derivedDefaultValue(final SlotType type, final Object value) {
+					return defaultValue;
+				}
+			};
+		}
+
+		public static SlotConstraint cardinality(final Long min, final Long max) {
+			return new SlotConstraint(ConstraintType.CARDINALITY) {
+				@Override
+				public boolean matchesConstraint(final Object value) {
+					final Object[] values = (Object[]) value;
+					return min <= values.length && values.length <= max;
+				}
+
+				@Override
+				public FunctionWithArguments<SymbolLeaf> derivedDefaultValue(final SlotType type, final Object value) {
+					if (0 == min) {
+						return new ConstantLeaf<>(new Object[0], type);
+					}
+					final Object[] array = new Object[min.intValue()];
+					Arrays.fill(array, value);
+					return new ConstantLeaf<>(array, type);
+				}
+			};
+		}
 	}
 
 	/**

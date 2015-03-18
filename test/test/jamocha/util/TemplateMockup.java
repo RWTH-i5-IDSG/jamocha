@@ -55,17 +55,27 @@ public class TemplateMockup implements Template {
 
 		@Override
 		public SlotType getSlotType(final Template template) {
-			return template.getSlotType(this);
+			return getSlot(template).getSlotType();
 		}
 
 		@Override
 		public String getSlotName(final Template template) {
-			return template.getSlotName(this);
+			return getSlot(template).getName();
 		}
 
 		@Override
-		public int compareTo(org.jamocha.dn.memory.SlotAddress o) {
+		public Slot getSlot(final Template template) {
+			return ((TemplateMockup) template).slots.get(index);
+		}
+
+		@Override
+		public int compareTo(final org.jamocha.dn.memory.SlotAddress o) {
 			return Integer.compare(index, ((SlotAddressMockup) o).index);
+		}
+
+		@Override
+		public MatchingAddressFactory newMatchingAddressFactory() {
+			return null;
 		}
 	}
 

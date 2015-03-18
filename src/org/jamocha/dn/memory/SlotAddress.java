@@ -14,6 +14,8 @@
  */
 package org.jamocha.dn.memory;
 
+import org.jamocha.dn.memory.Template.Slot;
+
 /**
  * Interface for addresses identifying a slot in a fact.
  * 
@@ -22,6 +24,13 @@ package org.jamocha.dn.memory;
  * @see SlotType
  */
 public interface SlotAddress extends Comparable<SlotAddress> {
+
+	static interface MatchingAddressFactory {
+		abstract public SlotAddress getNextMatchingElementAddress(final boolean single);
+	}
+
+	public MatchingAddressFactory newMatchingAddressFactory();
+
 	/**
 	 * Gets the {@link SlotType} of the slot this address identifies.
 	 * 
@@ -39,4 +48,13 @@ public interface SlotAddress extends Comparable<SlotAddress> {
 	 * @return the name of the slot this address identifies
 	 */
 	public String getSlotName(final Template template);
+
+	/**
+	 * Gets the slot identified by this address.
+	 * 
+	 * @param template
+	 *            the {@link Template} this {@link SlotAddress} is valid for
+	 * @return the slot identified by this address
+	 */
+	public Slot getSlot(final Template template);
 }

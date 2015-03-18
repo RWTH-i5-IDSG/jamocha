@@ -68,7 +68,7 @@ public class Template implements org.jamocha.dn.memory.Template {
 	public SlotType getSlotType(final org.jamocha.dn.memory.SlotAddress slotAddress) {
 		if (null == slotAddress)
 			return SlotType.FACTADDRESS;
-		return getSlotType(((SlotAddress) slotAddress).index);
+		return slotAddress.getSlotType(this);
 	}
 
 	public SlotType getSlotType(final int index) {
@@ -77,12 +77,7 @@ public class Template implements org.jamocha.dn.memory.Template {
 
 	@Override
 	public String getSlotName(final org.jamocha.dn.memory.SlotAddress slotAddress) {
-		for (final Entry<String, SlotAddress> entry : this.slotNames.entrySet()) {
-			if (entry.getValue().getIndex() == ((SlotAddress) slotAddress).getIndex()) {
-				return entry.getKey();
-			}
-		}
-		return null;
+		return slotAddress.getSlotName(this);
 	}
 
 	public String getSlotName(final int index) {
@@ -101,7 +96,11 @@ public class Template implements org.jamocha.dn.memory.Template {
 
 	@Override
 	public Slot getSlot(final org.jamocha.dn.memory.SlotAddress slotAddress) {
-		return this.slots.get(((SlotAddress) slotAddress).index);
+		return slotAddress.getSlot(this);
+	}
+
+	public Slot getSlot(final int index) {
+		return this.slots.get(index);
 	}
 
 	@Override

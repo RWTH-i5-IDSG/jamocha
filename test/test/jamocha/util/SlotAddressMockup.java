@@ -19,6 +19,7 @@ import lombok.Value;
 import org.jamocha.dn.memory.SlotAddress;
 import org.jamocha.dn.memory.SlotType;
 import org.jamocha.dn.memory.Template;
+import org.jamocha.dn.memory.Template.Slot;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
@@ -39,7 +40,17 @@ public class SlotAddressMockup implements SlotAddress {
 	}
 
 	@Override
+	public Slot getSlot(final Template template) {
+		return ((org.jamocha.dn.memory.javaimpl.Template) template).getSlot(getIndex());
+	}
+
+	@Override
 	public int compareTo(org.jamocha.dn.memory.SlotAddress o) {
 		return Integer.compare(index, ((SlotAddressMockup) o).index);
+	}
+
+	@Override
+	public MatchingAddressFactory newMatchingAddressFactory() {
+		return null;
 	}
 }

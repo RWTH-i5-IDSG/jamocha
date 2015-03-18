@@ -26,6 +26,7 @@ import java.util.Set;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
 import org.jamocha.dn.memory.SlotAddress;
@@ -46,11 +47,23 @@ import org.jamocha.languages.common.SingleFactVariable.SingleSlotVariable;
 @Getter
 public class RuleCondition {
 
+	@Getter
+	@RequiredArgsConstructor
+	public static class MatchingConfiguration {
+		final SingleFactVariable factVariable;
+		final List<SlotAddress> matchingAddresses = new ArrayList<>();
+	}
+
+	private final List<MatchingConfiguration> matchings = new ArrayList<>();
 	private final List<ConditionalElement> conditionalElements = new ArrayList<>();
 	private final Set<VariableSymbol> variableSymbols = new HashSet<>();
 
 	public void addSymbol(final VariableSymbol symbol) {
 		this.variableSymbols.add(symbol);
+	}
+
+	public void addMatchingConfiguration(final MatchingConfiguration matchingConfiguration) {
+		this.matchings.add(matchingConfiguration);
 	}
 
 	/**

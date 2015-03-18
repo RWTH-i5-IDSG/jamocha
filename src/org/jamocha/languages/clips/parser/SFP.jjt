@@ -1860,7 +1860,9 @@ SimpleNode LHSSlot():
 {
     (
     	Symbol() //slot Name
-		Constraint()
+		(
+			Constraint()
+		)*
     )
 
     { return jjtThis; }
@@ -1925,13 +1927,20 @@ SimpleNode ConnectedConstraint():
     (
 		LOOKAHEAD(3)
    		(
-	    	SingleVariable()
+	    	(
+	    		SingleVariable()
+				|
+				MultiVariable()
+			)
 			<AMPERSAND>
 			LineConnectedConstraint()
 		)
 		|
 		LOOKAHEAD( SingleVariable() <RBRACE> )
    		SingleVariable()
+   		|
+		LOOKAHEAD( MultiVariable() <RBRACE> )
+   		MultiVariable()
    		|
    		LineConnectedConstraint()
     )

@@ -19,8 +19,10 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
+import org.jamocha.dn.memory.Fact;
 import org.jamocha.dn.memory.SlotType;
 import org.jamocha.dn.memory.Template;
+import org.jamocha.dn.memory.Template.Slot;
 
 /**
  * Implementation of the {@link org.jamocha.dn.memory.SlotAddress} interface.
@@ -46,16 +48,35 @@ public class SlotAddress implements org.jamocha.dn.memory.SlotAddress {
 
 	@Override
 	public SlotType getSlotType(final Template template) {
-		return template.getSlotType(this);
+		return ((org.jamocha.dn.memory.javaimpl.Template) template).getSlotType(this.index);
 	}
 
 	@Override
 	public String getSlotName(final Template template) {
-		return template.getSlotName(this);
+		return ((org.jamocha.dn.memory.javaimpl.Template) template).getSlotName(this.index);
+	}
+
+	@Override
+	public Slot getSlot(final Template template) {
+		return ((org.jamocha.dn.memory.javaimpl.Template) template).getSlot(this.index);
 	}
 
 	@Override
 	public int compareTo(org.jamocha.dn.memory.SlotAddress o) {
 		return Integer.compare(index, ((SlotAddress) o).index);
+	}
+
+	class MatchingAddressFactoryImpl implements MatchingAddressFactory {
+		int offset = 0;
+
+		@Override
+		public org.jamocha.dn.memory.SlotAddress getNextMatchingElementAddress(final boolean single) {
+			return new MatchingElementAddress(SlotAddress.this, offset++, single);
+		}
+	}
+
+	@Override
+	public MatchingAddressFactory newMatchingAddressFactory() {
+		return new MatchingAddressFactoryImpl();
 	}
 }
