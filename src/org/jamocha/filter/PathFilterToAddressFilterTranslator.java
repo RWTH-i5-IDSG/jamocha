@@ -30,6 +30,7 @@ import org.jamocha.dn.memory.FactAddress;
 import org.jamocha.dn.memory.SlotAddress;
 import org.jamocha.dn.nodes.SlotInFactAddress;
 import org.jamocha.filter.AddressFilter.AddressFilterElement;
+import org.jamocha.filter.AddressFilter.AddressMatchingConfiguration;
 import org.jamocha.filter.AddressFilter.ExistentialAddressFilterElement;
 import org.jamocha.filter.PathFilter.DummyPathFilterElement;
 import org.jamocha.filter.PathFilter.PathFilterElement;
@@ -50,7 +51,8 @@ public class PathFilterToAddressFilterTranslator {
 			final CounterColumnMatcher filterElementToCounterColumn) {
 		return new AddressFilter(toFactAddressSet(pathFilter.getPositiveExistentialPaths()),
 				toFactAddressSet(pathFilter.getNegativeExistentialPaths()), translateFEs(pathFilter,
-						filterElementToCounterColumn), translateFEs(normalisedVersion, filterElementToCounterColumn));
+						filterElementToCounterColumn), translateFEs(normalisedVersion, filterElementToCounterColumn),
+				new ArrayList<AddressMatchingConfiguration>());
 	}
 
 	private static AddressFilterElement[] translateFEs(final PathFilter pathFilter,

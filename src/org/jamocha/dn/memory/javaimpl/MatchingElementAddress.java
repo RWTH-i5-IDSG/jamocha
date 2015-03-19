@@ -44,4 +44,16 @@ class MatchingElementAddress extends SlotAddress {
 		final SlotType slotType = origin.getSlotType(template);
 		return (single ? SlotType.arrayToSingle(slotType) : slotType);
 	}
+
+	@Override
+	public int compareTo(final org.jamocha.dn.memory.SlotAddress o) {
+		final int superCompare = super.compareTo(o);
+		if (0 != superCompare) {
+			return superCompare;
+		}
+		if (!(o instanceof MatchingElementAddress)) {
+			return 1;
+		}
+		return Integer.compare(matchingIndex, ((MatchingElementAddress) o).matchingIndex);
+	}
 }

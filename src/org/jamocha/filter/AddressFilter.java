@@ -14,13 +14,20 @@
  */
 package org.jamocha.filter;
 
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.Getter;
 
 import org.jamocha.dn.memory.CounterColumn;
 import org.jamocha.dn.memory.FactAddress;
+import org.jamocha.dn.memory.SlotAddress;
+import org.jamocha.dn.memory.Template;
 import org.jamocha.dn.nodes.SlotInFactAddress;
 import org.jamocha.function.fwa.ParameterLeaf;
 import org.jamocha.function.fwa.PredicateWithArguments;
@@ -28,16 +35,44 @@ import org.jamocha.function.fwa.PredicateWithArguments;
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
+@Getter
 public class AddressFilter extends Filter<ParameterLeaf, AddressFilter.AddressFilterElement> {
 
+	@Data
+	@AllArgsConstructor
+	public static class AddressMatchingConfigurationElement {
+		final SlotAddress address;
+		final Optional<?> constant;
+		final boolean single;
+
+		public AddressMatchingConfigurationElement(final SlotAddress address, final Optional<?> constant,
+				final Template template) {
+			this(address, constant, !address.getSlotType(template).isArrayType());
+		}
+	}
+
+	@Data
+	public static class AddressMatchingConfiguration {
+		final FactAddress factAddress;
+		final List<AddressMatchingConfigurationElement> matchingElements;
+
+		public AddressMatchingConfiguration(final FactAddress factAddress,
+				final List<AddressMatchingConfigurationElement> matchingElements) {
+			this.factAddress = factAddress;
+			this.matchingElements = matchingElements;
+			this.matchingElements.sort((a, b) -> a.address.compareTo(b.address));
+		}
+	}
+
 	public static AddressFilter empty = new NormalAddressFilter(new HashSet<FactAddress>(), new HashSet<FactAddress>(),
-			new AddressFilterElement[] {});
+			new AddressFilterElement[] {}, Collections.emptyList());
 
 	public static class NormalAddressFilter extends AddressFilter {
 		public NormalAddressFilter(final Set<FactAddress> positiveExistentialAddresses,
-				final Set<FactAddress> negativeExistentialAddresses, final AddressFilterElement[] filterElements) {
+				final Set<FactAddress> negativeExistentialAddresses, final AddressFilterElement[] filterElements,
+				final List<AddressMatchingConfiguration> matchingConfigurations) {
 			super(positiveExistentialAddresses, negativeExistentialAddresses, filterElements,
-					(NormalAddressFilter) null);
+					(NormalAddressFilter) null, matchingConfigurations);
 		}
 
 		@Override
@@ -46,10 +81,9 @@ public class AddressFilter extends Filter<ParameterLeaf, AddressFilter.AddressFi
 		}
 	}
 
-	@Getter
 	protected final Set<FactAddress> positiveExistentialAddresses, negativeExistentialAddresses;
-	@Getter
 	private final NormalAddressFilter normalisedVersion;
+	private final List<AddressMatchingConfiguration> matchingConfigurations;
 
 	/**
 	 * Checks whether the FactAddress is existential by calling the contains method on both sets
@@ -66,18 +100,21 @@ public class AddressFilter extends Filter<ParameterLeaf, AddressFilter.AddressFi
 
 	public AddressFilter(final Set<FactAddress> positiveExistentialAddresses,
 			final Set<FactAddress> negativeExistentialAddresses, final AddressFilterElement[] filterElements,
-			final NormalAddressFilter normalisedVersion) {
+			final NormalAddressFilter normalisedVersion, final List<AddressMatchingConfiguration> matchingConfigurations) {
 		super(filterElements);
 		this.positiveExistentialAddresses = positiveExistentialAddresses;
 		this.negativeExistentialAddresses = negativeExistentialAddresses;
 		this.normalisedVersion = normalisedVersion;
+		this.matchingConfigurations = matchingConfigurations;
 	}
 
 	public AddressFilter(final Set<FactAddress> positiveExistentialAddresses,
 			final Set<FactAddress> negativeExistentialAddresses, final AddressFilterElement[] filterElements,
-			final AddressFilterElement[] normalFilterElements) {
+			final AddressFilterElement[] normalFilterElements,
+			final List<AddressMatchingConfiguration> matchingConfigurations) {
 		this(positiveExistentialAddresses, negativeExistentialAddresses, filterElements, new NormalAddressFilter(
-				positiveExistentialAddresses, negativeExistentialAddresses, normalFilterElements));
+				positiveExistentialAddresses, negativeExistentialAddresses, normalFilterElements,
+				matchingConfigurations), matchingConfigurations);
 	}
 
 	@Getter

@@ -18,6 +18,8 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.RandomAccess;
 import java.util.function.IntFunction;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
@@ -124,7 +126,7 @@ public class JamochaArray<T> implements RandomAccess, Iterable<T> {
 		Arrays.fill(values, 0, size, null);
 		size = 0;
 	}
-	
+
 	@Override
 	public String toString() {
 		return Arrays.toString(toArray());
@@ -148,5 +150,9 @@ public class JamochaArray<T> implements RandomAccess, Iterable<T> {
 				return t;
 			}
 		};
+	}
+
+	public Stream<T> stream() {
+		return StreamSupport.stream(spliterator(), false);
 	}
 }

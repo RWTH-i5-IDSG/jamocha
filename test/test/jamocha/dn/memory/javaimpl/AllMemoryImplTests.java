@@ -28,7 +28,8 @@ import org.junit.runners.Suite.SuiteClasses;
  * 
  */
 @RunWith(Suite.class)
-@SuiteClasses({ test.jamocha.dn.memory.javaimpl.MemoryHandlerTempTest.class })
+@SuiteClasses({ test.jamocha.dn.memory.javaimpl.MatchingProcessorTest.class,
+		test.jamocha.dn.memory.javaimpl.MemoryHandlerTempTest.class })
 public class AllMemoryImplTests {
 
 }

@@ -46,6 +46,7 @@ import org.jamocha.dn.nodes.Node;
 import org.jamocha.dn.nodes.SlotInFactAddress;
 import org.jamocha.filter.AddressFilter;
 import org.jamocha.filter.AddressFilter.AddressFilterElement;
+import org.jamocha.filter.AddressFilter.AddressMatchingConfiguration;
 import org.jamocha.function.fwa.ParameterLeaf;
 import org.jamocha.function.fwa.PredicateWithArguments;
 
@@ -342,6 +343,20 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements org.jamo
 		int getOffset() {
 			return this.offset;
 		}
+
+		public void prepareMatching(final AddressMatchingConfiguration matchingConfiguration) {
+			assert 0 == this.rowIndex && 0 == this.memIndex;
+			memStack =
+					memStack.stream()
+							.map(memory -> memory
+									.stream()
+									.flatMap(
+											row -> MatchingProcessor.processMatching(row, matchingConfiguration)
+													.stream())
+									.<JamochaArray<Row>> collect(JamochaArray::new, JamochaArray::add,
+											JamochaArray::addAll))
+							.collect(JamochaArray::new, JamochaArray::add, JamochaArray::addAll);
+		}
 	}
 
 	@FunctionalInterface
@@ -454,10 +469,22 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements org.jamo
 		try (final MultipleReadLockWrapper mrlw = new MultipleReadLockWrapper(originEdge)) {
 			final LinkedHashMap<Edge, StackElement> edgeToStack = getStack(token.validRows, originEdge);
 
+			prepareMatchings(filter, edgeToStack, originEdge);
 			performJoin(filter, edgeToStack, originEdge);
 
 			final JamochaArray<Row> facts = edgeToStack.get(originEdge).getTable();
 			return facts;
+		}
+	}
+
+	private static void prepareMatchings(final AddressFilter filter,
+			final LinkedHashMap<Edge, StackElement> edgeToStack, final Edge originEdge) {
+		final Node targetNode = originEdge.getTargetNode();
+		for (final AddressMatchingConfiguration matchingConfiguration : filter.getMatchingConfigurations()) {
+			final org.jamocha.dn.memory.FactAddress factAddress = matchingConfiguration.getFactAddress();
+			final Edge edge = targetNode.delocalizeAddress(factAddress).getEdge();
+			final StackElement stackElement = edgeToStack.get(edge);
+			stackElement.prepareMatching(matchingConfiguration);
 		}
 	}
 
@@ -680,6 +707,8 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements org.jamo
 				// get stack
 				final LinkedHashMap<Edge, StackElement> edgeToStack =
 						MemoryHandlerPlusTemp.getStack(tokenRows, originEdge);
+
+				prepareMatchings(filter, edgeToStack, originEdge);
 
 				// perform the actual join to get the counter updates
 				counterUpdates = performExistentialJoin(filter, edgeToStack, originEdge, counterUpdater);

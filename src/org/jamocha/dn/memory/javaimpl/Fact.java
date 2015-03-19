@@ -89,4 +89,35 @@ class Fact implements MemoryFact {
 	public org.jamocha.dn.memory.Fact toMutableFact() {
 		return new org.jamocha.dn.memory.Fact(this.template, this.slotValues);
 	}
+
+	/**
+	 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
+	 */
+	public static class MultislotPatternMatching extends Fact {
+		final int[] separators;
+
+		public MultislotPatternMatching(final Template template, final Object[] slotValues,
+				final FactIdentifier factIdentifier, int[] separators) {
+			super(template, slotValues, factIdentifier);
+			this.separators = separators;
+		}
+
+		public MultislotPatternMatching(final Fact origin, final int[] separators) {
+			this(origin.template, origin.slotValues, origin.factIdentifier, separators);
+		}
+
+		@Override
+		public Object getValue(final org.jamocha.dn.memory.SlotAddress slotAddress) {
+			final MatchingElementAddress addr = (MatchingElementAddress) slotAddress;
+			final Object[] values = (Object[]) super.getValue(addr.origin);
+			final int index = addr.matchingIndex;
+			final int from = 0 == index ? 0 : separators[index - 1];
+			final int to = index < separators.length ? separators[index] : values.length;
+			if (addr.single) {
+				assert 1 == to - from;
+				return values[from];
+			}
+			return Arrays.copyOfRange(values, from, to);
+		}
+	}
 }

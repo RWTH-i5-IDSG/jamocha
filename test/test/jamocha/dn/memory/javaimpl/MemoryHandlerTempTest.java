@@ -20,6 +20,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static test.jamocha.util.CounterColumnMatcherMockup.counterColumnMatcherMockup;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Map;
@@ -43,6 +44,7 @@ import org.jamocha.dn.nodes.NodeVisitor;
 import org.jamocha.dn.nodes.SlotInFactAddress;
 import org.jamocha.filter.AddressFilter;
 import org.jamocha.filter.AddressFilter.AddressFilterElement;
+import org.jamocha.filter.AddressFilter.AddressMatchingConfiguration;
 import org.jamocha.filter.AddressFilter.NormalAddressFilter;
 import org.jamocha.filter.Path;
 import org.jamocha.filter.PathFilterToAddressFilterTranslator;
@@ -285,7 +287,8 @@ public class MemoryHandlerTempTest {
 						new SlotInFactAddress(new org.jamocha.dn.memory.javaimpl.FactAddress(1), new SlotAddress(0)) });
 		final AddressFilter filter =
 				new AddressFilter(new HashSet<FactAddress>(), new HashSet<FactAddress>(),
-						new AddressFilterElement[] { fe }, (NormalAddressFilter) null);
+						new AddressFilterElement[] { fe }, (NormalAddressFilter) null,
+						Collections.<AddressMatchingConfiguration> emptyList());
 		Pair<? extends org.jamocha.dn.memory.MemoryHandlerPlusTemp, MemoryFact[]> token =
 				nodeRight.getMemory().newPlusToken(nodeRight, Slots.STRING.newFact("Fakt1"),
 						Slots.STRING.newFact("Fakt3"));
