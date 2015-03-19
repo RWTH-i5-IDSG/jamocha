@@ -117,6 +117,7 @@ import org.jamocha.languages.clips.parser.generated.SFPLHSSlot;
 import org.jamocha.languages.clips.parser.generated.SFPLineConnectedConstraint;
 import org.jamocha.languages.clips.parser.generated.SFPLoopForCountFunc;
 import org.jamocha.languages.clips.parser.generated.SFPModify;
+import org.jamocha.languages.clips.parser.generated.SFPMultiFieldWildcard;
 import org.jamocha.languages.clips.parser.generated.SFPMultiSlotDefinition;
 import org.jamocha.languages.clips.parser.generated.SFPMultiVariable;
 import org.jamocha.languages.clips.parser.generated.SFPNegation;
@@ -132,6 +133,7 @@ import org.jamocha.languages.clips.parser.generated.SFPRangeAttribute;
 import org.jamocha.languages.clips.parser.generated.SFPRangeSpecification;
 import org.jamocha.languages.clips.parser.generated.SFPRetractFunc;
 import org.jamocha.languages.clips.parser.generated.SFPSalience;
+import org.jamocha.languages.clips.parser.generated.SFPSingleFieldWildcard;
 import org.jamocha.languages.clips.parser.generated.SFPSingleSlotDefinition;
 import org.jamocha.languages.clips.parser.generated.SFPSingleVariable;
 import org.jamocha.languages.clips.parser.generated.SFPSlotDefinition;
@@ -1024,11 +1026,32 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 			}
 		}
 
-		class SFPConnectedConstraintVisitor extends SFPConstraintBase {
-			public SFPConnectedConstraintVisitor(final SFPConditionalElementVisitor parent,
+		class SFPConstraintElementsVisitor extends SFPConstraintBase {
+			public SFPConstraintElementsVisitor(final SFPConditionalElementVisitor parent,
 					final Consumer<ConditionalElement> constraintAdder, final Template template,
 					final SlotAddressCreator slotCreator, final boolean bindingsAllowed) {
 				super(parent, constraintAdder, template, slotCreator, bindingsAllowed, Optional.empty());
+			}
+
+			// void Constraint(): ( SingleFieldWildcard() | MultiFieldWildcard() |
+			// ConnectedConstraint() )
+
+			@Override
+			public Object visit(final SFPSingleFieldWildcard node, final Object data) {
+				final VariableSymbol symbol =
+						SFPVisitorImpl.this.parserToNetwork.getScope().createDummySlotVariable(parent.factVariable,
+								slotCreator.getSlotAddress(true), parent.contextStack, nullConsumer);
+				this.constraintVariable = Optional.of(symbol);
+				return data;
+			}
+
+			@Override
+			public Object visit(final SFPMultiFieldWildcard node, final Object data) {
+				final VariableSymbol symbol =
+						SFPVisitorImpl.this.parserToNetwork.getScope().createDummySlotVariable(parent.factVariable,
+								slotCreator.getSlotAddress(false), parent.contextStack, nullConsumer);
+				this.constraintVariable = Optional.of(symbol);
+				return data;
 			}
 
 			// ConnectedConstraint(): ( ( SingleVariable() <AMPERSAND> LineConnectedConstraint() ) |
@@ -1099,8 +1122,8 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 				final SlotAddress slotAddress = template.getSlotAddress(slotName.getImage());
 				if (2 == node.jjtGetNumChildren()) {
 					// single-field-LHS-slot
-					SelectiveSFPVisitor.sendVisitor(new SFPConnectedConstraintVisitor(parent, constraintAdder,
-							template, (x) -> slotAddress, true), node.jjtGetChild(1), data);
+					SelectiveSFPVisitor.sendVisitor(new SFPConstraintElementsVisitor(parent, constraintAdder, template,
+							(x) -> slotAddress, true), node.jjtGetChild(1), data);
 				} else {
 					// multi-field-LHS-slot
 					final MatchingAddressFactory matchingAddressFactory = slotAddress.newMatchingAddressFactory();
@@ -1108,7 +1131,7 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 					for (int i = 1; i < node.jjtGetNumChildren(); ++i) {
 						final MatchingElementSlotAddressCreator slotCreator =
 								new MatchingElementSlotAddressCreator(matchingAddressFactory, template);
-						SelectiveSFPVisitor.sendVisitor(new SFPConnectedConstraintVisitor(parent, constraintAdder,
+						SelectiveSFPVisitor.sendVisitor(new SFPConstraintElementsVisitor(parent, constraintAdder,
 								template, slotCreator, true), node.jjtGetChild(i), data);
 						assert null != slotCreator.address;
 						matchingConfiguration.getMatchingAddresses().add(slotCreator.address);
