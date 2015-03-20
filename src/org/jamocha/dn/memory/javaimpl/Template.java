@@ -115,7 +115,6 @@ public class Template implements org.jamocha.dn.memory.Template {
 
 	private void checkTypeAndConstraints(final int i, final Object value) {
 		final Slot slot = this.slots.get(i);
-		assert slot.getSlotType().getJavaClass().isInstance(value);
 		for (final SlotConstraint slotConstraint : slot.getSlotConstraints()) {
 			if (!slotConstraint.matchesConstraint(value)) {
 				throw new IllegalArgumentException();
