@@ -60,6 +60,7 @@ import org.jamocha.function.fwa.Retract;
 import org.jamocha.function.fwa.SymbolLeaf;
 import org.jamocha.function.fwa.VariableValueContext;
 import org.jamocha.function.fwatransformer.FWASymbolToRHSVariableLeafTranslator;
+import org.jamocha.function.impls.functions.Create$;
 import org.jamocha.function.impls.predicates.Equals;
 import org.jamocha.languages.clips.parser.ExistentialStack.ScopedExistentialStack;
 import org.jamocha.languages.clips.parser.errors.ClipsNameClashError;
@@ -79,6 +80,7 @@ import org.jamocha.languages.clips.parser.generated.SFPAssignedPatternCE;
 import org.jamocha.languages.clips.parser.generated.SFPAttributes;
 import org.jamocha.languages.clips.parser.generated.SFPBooleanType;
 import org.jamocha.languages.clips.parser.generated.SFPCardinalityAttribute;
+import org.jamocha.languages.clips.parser.generated.SFPCardinalitySpecification;
 import org.jamocha.languages.clips.parser.generated.SFPColon;
 import org.jamocha.languages.clips.parser.generated.SFPConnectedConstraint;
 import org.jamocha.languages.clips.parser.generated.SFPConstant;
@@ -176,6 +178,7 @@ import org.jamocha.languages.common.SlotBuilder;
 import org.jamocha.languages.common.Warning;
 import org.jamocha.languages.common.errors.TypeMismatchError;
 import org.jamocha.languages.common.errors.VariableNotDeclaredError;
+import org.jamocha.util.ToArray;
 
 /**
  * This class is final to prevent accidental derived classes. All inner classes shall share the same
@@ -618,8 +621,47 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 			if (slotBuilder.isSingleSlot()) {
 				throw new IllegalArgumentException("Cardinality specification unsupported for single field slots!");
 			}
-			// TBD cardinality
-			return SelectiveSFPVisitor.super.visit(node, data);
+			assert 2 == node.jjtGetNumChildren();
+			final Long min =
+					SelectiveSFPVisitor.sendVisitor(new SFPCardinalitySpecificationVisitor(0L), node.jjtGetChild(0),
+							data).value;
+			final Long max =
+					SelectiveSFPVisitor.sendVisitor(new SFPCardinalitySpecificationVisitor(Long.MAX_VALUE),
+							node.jjtGetChild(1), data).value;
+			if (min != 0L || max != Long.MAX_VALUE) {
+				slotBuilder.setCardinalityConstraints(min, max);
+			}
+			return data;
+		}
+
+		@AllArgsConstructor
+		class SFPCardinalitySpecificationVisitor implements SelectiveSFPVisitor {
+			Long value;
+
+			@Override
+			public Object visit(final SFPCardinalitySpecification node, final Object data) {
+				assert 1 == node.jjtGetNumChildren();
+				value =
+						SelectiveSFPVisitor.sendVisitor(new SFPCardinalitySpecificationElementsVisitor(value),
+								node.jjtGetChild(0), data).value;
+				return data;
+			}
+		}
+
+		@AllArgsConstructor
+		class SFPCardinalitySpecificationElementsVisitor implements SelectiveSFPVisitor {
+			Long value;
+
+			@Override
+			public Object visit(final SFPVariableType node, final Object data) {
+				return data;
+			}
+
+			@Override
+			public Object visit(final SFPInteger node, final Object data) {
+				value = (Long) SelectiveSFPVisitor.sendVisitor(new SFPValueVisitor(SlotType.LONG), node, data).value;
+				return data;
+			}
 		}
 
 		@RequiredArgsConstructor
@@ -629,11 +671,17 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 			@Override
 			public Object visit(final SFPAttributes node, final Object data) {
 				if (1 != node.jjtGetNumChildren()) {
-					throw SelectiveSFPVisitor.dumpAndThrowMe(node, IllegalArgumentException::new,
-							"multi slots are not supported at the moment!");
+					defaultConsumer
+							.accept(GenericWithArgumentsComposite.newInstance(sideEffectFunctionToNetwork, false,
+									Create$.inClips, ToArray.<FunctionWithArguments<SymbolLeaf>> toArray(
+											SelectiveSFPVisitor.stream(node, 0)
+													.map(n -> SelectiveSFPVisitor.sendVisitor(new SFPExpressionVisitor(
+															rc, SymbolToFunctionWithArguments.bySymbol(), false), n,
+															data).expression), FunctionWithArguments[]::new)));
+				} else {
+					defaultConsumer.accept(SelectiveSFPVisitor.sendVisitor(new SFPExpressionVisitor(rc,
+							SymbolToFunctionWithArguments.bySymbol(), false), node.jjtGetChild(0), data).expression);
 				}
-				defaultConsumer.accept(SelectiveSFPVisitor.sendVisitor(new SFPExpressionVisitor(rc,
-						SymbolToFunctionWithArguments.bySymbol(), false), node.jjtGetChild(0), data).expression);
 				return data;
 			}
 		}
@@ -1653,16 +1701,22 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 		@Override
 		public Object visit(final SFPRHSSlot node, final Object data) {
 			assert node.jjtGetNumChildren() >= 2;
-			if (node.jjtGetNumChildren() > 2) {
-				throw new UnsupportedOperationException(
-						"You can only specify one value per slot in an assert/modify statement!");
-			}
 			final Symbol symbol =
 					SelectiveSFPVisitor.sendVisitor(new SFPSymbolVisitor(), node.jjtGetChild(0), data).symbol;
 			this.slotName = symbol.getImage();
-			this.value =
-					SelectiveSFPVisitor.sendVisitor(new SFPRHSSlotElementsVisitor(rc, this.mapper,
-							this.sideEffectsAllowed), node.jjtGetChild(1), data).value;
+			if (node.jjtGetNumChildren() > 2) {
+				this.value =
+						GenericWithArgumentsComposite.newInstance(sideEffectFunctionToNetwork, true, Create$.inClips,
+								ToArray.<FunctionWithArguments<SymbolLeaf>> toArray(
+										SelectiveSFPVisitor.stream(node, 1).map(
+												n -> SelectiveSFPVisitor.sendVisitor(new SFPRHSSlotElementsVisitor(rc,
+														this.mapper, this.sideEffectsAllowed), n, data).value),
+										FunctionWithArguments[]::new));
+			} else {
+				this.value =
+						SelectiveSFPVisitor.sendVisitor(new SFPRHSSlotElementsVisitor(rc, this.mapper,
+								this.sideEffectsAllowed), node.jjtGetChild(1), data).value;
+			}
 			return data;
 		}
 	}
