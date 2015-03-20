@@ -22,7 +22,7 @@ import java.util.Optional;
 import java.util.function.Consumer;
 
 import org.jamocha.filter.AddressFilter.AddressMatchingConfiguration;
-import org.jamocha.filter.AddressFilter.AddressMatchingConfigurationElement;
+import org.jamocha.filter.MatchingConfigurationElement;
 
 import com.google.common.base.Objects;
 
@@ -33,7 +33,7 @@ public class MatchingProcessor {
 	public static List<Row> processMatching(final Row row, final AddressMatchingConfiguration matchingConfiguration) {
 		final int index = ((FactAddress) matchingConfiguration.getFactAddress()).index;
 		final Fact fact = row.getFactTuple()[index];
-		final List<AddressMatchingConfigurationElement> matchingElements = matchingConfiguration.getMatchingElements();
+		final List<MatchingConfigurationElement> matchingElements = matchingConfiguration.getMatchingElements();
 		final Object[] values = (Object[]) fact.getValue(matchingElements.get(0).getAddress());
 		if (null == values) {
 			return Collections.emptyList();
@@ -49,14 +49,14 @@ public class MatchingProcessor {
 	}
 
 	public static void match(final Object[] values, final int valuePosition, final Consumer<? super int[]> consumer,
-			final int[] separators, final List<AddressMatchingConfigurationElement> matchingElements, final int matchingPosition) {
+			final int[] separators, final List<MatchingConfigurationElement> matchingElements, final int matchingPosition) {
 		if (valuePosition == values.length) {
 			if (matchingPosition != matchingElements.size()) {
 				// can still be valid if the current pattern entity and the rest of the pattern
 				// entities are multi patterns (by just finishing this one and matching the rest to
 				// be empty)
 				for (int pos = matchingPosition; pos < matchingElements.size(); ++pos) {
-					final AddressMatchingConfigurationElement matchingElement = matchingElements.get(pos);
+					final MatchingConfigurationElement matchingElement = matchingElements.get(pos);
 					if (matchingElement.isSingle()) {
 						return;
 					}
@@ -68,7 +68,7 @@ public class MatchingProcessor {
 			if (matchingPosition == matchingElements.size()) {
 				return;
 			}
-			final AddressMatchingConfigurationElement matchingElement = matchingElements.get(matchingPosition);
+			final MatchingConfigurationElement matchingElement = matchingElements.get(matchingPosition);
 			if (matchingElement.isSingle()) {
 				final Optional<?> constant = matchingElement.getConstant();
 				if (constant.isPresent() && !Objects.equal(values[valuePosition], constant.get())) {

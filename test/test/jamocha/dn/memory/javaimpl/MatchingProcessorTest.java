@@ -25,30 +25,30 @@ import java.util.List;
 import java.util.Optional;
 
 import org.jamocha.dn.memory.javaimpl.MatchingProcessor;
-import org.jamocha.filter.AddressFilter.AddressMatchingConfigurationElement;
+import org.jamocha.filter.MatchingConfigurationElement;
 import org.junit.Test;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
 public class MatchingProcessorTest {
-	static AddressMatchingConfigurationElement constant(final Object value) {
-		return new AddressMatchingConfigurationElement(null, Optional.of(value), true);
+	static MatchingConfigurationElement constant(final Object value) {
+		return new MatchingConfigurationElement(null, Optional.of(value), true);
 	}
 
-	static AddressMatchingConfigurationElement single() {
-		return new AddressMatchingConfigurationElement(null, Optional.empty(), true);
+	static MatchingConfigurationElement single() {
+		return new MatchingConfigurationElement(null, Optional.empty(), true);
 	}
 
-	static AddressMatchingConfigurationElement multi() {
-		return new AddressMatchingConfigurationElement(null, Optional.empty(), false);
+	static MatchingConfigurationElement multi() {
+		return new MatchingConfigurationElement(null, Optional.empty(), false);
 	}
 
 	@Test
 	public void testOneValueMatch() {
 		final List<int[]> matchings = new ArrayList<>();
 		final Object[] values = { 2L };
-		final List<AddressMatchingConfigurationElement> matchingElements = new ArrayList<>(Arrays.asList(constant(2L)));
+		final List<MatchingConfigurationElement> matchingElements = new ArrayList<>(Arrays.asList(constant(2L)));
 		MatchingProcessor.match(values, 0, matchings::add, new int[matchingElements.size()], matchingElements, 0);
 		assertThat(matchings, hasSize(1));
 		assertArrayEquals(new int[] {}, matchings.get(0));
@@ -58,7 +58,7 @@ public class MatchingProcessorTest {
 	public void testOneValueMissmatch() {
 		final List<int[]> matchings = new ArrayList<>();
 		final Object[] values = { 2L };
-		final List<AddressMatchingConfigurationElement> matchingElements = new ArrayList<>(Arrays.asList(constant(5L)));
+		final List<MatchingConfigurationElement> matchingElements = new ArrayList<>(Arrays.asList(constant(5L)));
 		MatchingProcessor.match(values, 0, matchings::add, new int[matchingElements.size()], matchingElements, 0);
 		assertThat(matchings, hasSize(0));
 	}
@@ -67,7 +67,7 @@ public class MatchingProcessorTest {
 	public void testNoValueMatch() {
 		final List<int[]> matchings = new ArrayList<>();
 		final Object[] values = {};
-		final List<AddressMatchingConfigurationElement> matchingElements = new ArrayList<>(Arrays.asList(multi()));
+		final List<MatchingConfigurationElement> matchingElements = new ArrayList<>(Arrays.asList(multi()));
 		MatchingProcessor.match(values, 0, matchings::add, new int[matchingElements.size()], matchingElements, 0);
 		assertThat(matchings, hasSize(1));
 		assertArrayEquals(new int[] {}, matchings.get(0));
@@ -77,7 +77,7 @@ public class MatchingProcessorTest {
 	public void testNoValueTwoMultiMatch() {
 		final List<int[]> matchings = new ArrayList<>();
 		final Object[] values = {};
-		final List<AddressMatchingConfigurationElement> matchingElements = new ArrayList<>(Arrays.asList(multi(), multi()));
+		final List<MatchingConfigurationElement> matchingElements = new ArrayList<>(Arrays.asList(multi(), multi()));
 		MatchingProcessor.match(values, 0, matchings::add, new int[matchingElements.size()], matchingElements, 0);
 		assertThat(matchings, hasSize(1));
 		assertArrayEquals(new int[] { 0 }, matchings.get(0));
@@ -87,7 +87,7 @@ public class MatchingProcessorTest {
 	public void testNoValueMissmatch() {
 		final List<int[]> matchings = new ArrayList<>();
 		final Object[] values = {};
-		final List<AddressMatchingConfigurationElement> matchingElements = new ArrayList<>(Arrays.asList(constant(5L)));
+		final List<MatchingConfigurationElement> matchingElements = new ArrayList<>(Arrays.asList(constant(5L)));
 		MatchingProcessor.match(values, 0, matchings::add, new int[matchingElements.size()], matchingElements, 0);
 		assertThat(matchings, hasSize(0));
 	}
@@ -96,7 +96,7 @@ public class MatchingProcessorTest {
 	public void testSimpleMatchingConstants() {
 		final List<int[]> matchings = new ArrayList<>();
 		final Object[] values = { 2L, 3L, 4L };
-		final List<AddressMatchingConfigurationElement> matchingElements =
+		final List<MatchingConfigurationElement> matchingElements =
 				new ArrayList<>(Arrays.asList(constant(2L), constant(3L), constant(4L)));
 		MatchingProcessor.match(values, 0, matchings::add, new int[matchingElements.size()], matchingElements, 0);
 		assertThat(matchings, hasSize(1));
@@ -107,7 +107,7 @@ public class MatchingProcessorTest {
 	public void testSimpleCrappyConstants() {
 		final List<int[]> matchings = new ArrayList<>();
 		final Object[] values = { 2L, 3L, 4L };
-		final List<AddressMatchingConfigurationElement> matchingElements =
+		final List<MatchingConfigurationElement> matchingElements =
 				new ArrayList<>(Arrays.asList(constant(3L), constant(5L), constant(4L)));
 		MatchingProcessor.match(values, 0, matchings::add, new int[matchingElements.size()], matchingElements, 0);
 		assertThat(matchings, hasSize(0));
@@ -117,7 +117,7 @@ public class MatchingProcessorTest {
 	public void testSingleMatchingMultiField() {
 		final List<int[]> matchings = new ArrayList<>();
 		final Object[] values = { 2L, 3L, 4L };
-		final List<AddressMatchingConfigurationElement> matchingElements = new ArrayList<>(Arrays.asList(multi()));
+		final List<MatchingConfigurationElement> matchingElements = new ArrayList<>(Arrays.asList(multi()));
 		MatchingProcessor.match(values, 0, matchings::add, new int[matchingElements.size()], matchingElements, 0);
 		assertThat(matchings, hasSize(1));
 		assertArrayEquals(new int[] {}, matchings.get(0));
@@ -127,7 +127,7 @@ public class MatchingProcessorTest {
 	public void testDoublePossibilityForMultiField() {
 		final List<int[]> matchings = new ArrayList<>();
 		final Object[] values = { 2L, 3L, 2L };
-		final List<AddressMatchingConfigurationElement> matchingElements =
+		final List<MatchingConfigurationElement> matchingElements =
 				new ArrayList<>(Arrays.asList(multi(), constant(2L), multi()));
 		MatchingProcessor.match(values, 0, matchings::add, new int[matchingElements.size()], matchingElements, 0);
 		assertThat(matchings, hasSize(2));
@@ -138,7 +138,7 @@ public class MatchingProcessorTest {
 	public void testNonMatchingMultiField() {
 		final List<int[]> matchings = new ArrayList<>();
 		final Object[] values = { 1L, 3L, 4L };
-		final List<AddressMatchingConfigurationElement> matchingElements = new ArrayList<>(Arrays.asList(multi(), constant(2L)));
+		final List<MatchingConfigurationElement> matchingElements = new ArrayList<>(Arrays.asList(multi(), constant(2L)));
 		MatchingProcessor.match(values, 0, matchings::add, new int[matchingElements.size()], matchingElements, 0);
 		assertThat(matchings, hasSize(0));
 	}
@@ -147,7 +147,7 @@ public class MatchingProcessorTest {
 	public void testTooManySingles() {
 		final List<int[]> matchings = new ArrayList<>();
 		final Object[] values = { 3L, 3L };
-		final List<AddressMatchingConfigurationElement> matchingElements =
+		final List<MatchingConfigurationElement> matchingElements =
 				new ArrayList<>(Arrays.asList(single(), single(), single()));
 		MatchingProcessor.match(values, 0, matchings::add, new int[matchingElements.size()], matchingElements, 0);
 		assertThat(matchings, hasSize(0));
@@ -157,7 +157,7 @@ public class MatchingProcessorTest {
 	public void testTooManySingles2() {
 		final List<int[]> matchings = new ArrayList<>();
 		final Object[] values = { 3L };
-		final List<AddressMatchingConfigurationElement> matchingElements =
+		final List<MatchingConfigurationElement> matchingElements =
 				new ArrayList<>(Arrays.asList(single(), single(), single()));
 		MatchingProcessor.match(values, 0, matchings::add, new int[matchingElements.size()], matchingElements, 0);
 		assertThat(matchings, hasSize(0));
@@ -167,7 +167,7 @@ public class MatchingProcessorTest {
 	public void testTooManySingles3() {
 		final List<int[]> matchings = new ArrayList<>();
 		final Object[] values = { 3L };
-		final List<AddressMatchingConfigurationElement> matchingElements = new ArrayList<>(Arrays.asList(single(), single()));
+		final List<MatchingConfigurationElement> matchingElements = new ArrayList<>(Arrays.asList(single(), single()));
 		MatchingProcessor.match(values, 0, matchings::add, new int[matchingElements.size()], matchingElements, 0);
 		assertThat(matchings, hasSize(0));
 	}
@@ -176,7 +176,7 @@ public class MatchingProcessorTest {
 	public void testTooManySingles4() {
 		final List<int[]> matchings = new ArrayList<>();
 		final Object[] values = { 3L };
-		final List<AddressMatchingConfigurationElement> matchingElements =
+		final List<MatchingConfigurationElement> matchingElements =
 				new ArrayList<>(Arrays.asList(single(), multi(), single()));
 		MatchingProcessor.match(values, 0, matchings::add, new int[matchingElements.size()], matchingElements, 0);
 		assertThat(matchings, hasSize(0));
@@ -186,7 +186,7 @@ public class MatchingProcessorTest {
 	public void testMultiSingleMultiMatch() {
 		final List<int[]> matchings = new ArrayList<>();
 		final Object[] values = { 3L };
-		final List<AddressMatchingConfigurationElement> matchingElements =
+		final List<MatchingConfigurationElement> matchingElements =
 				new ArrayList<>(Arrays.asList(multi(), single(), multi()));
 		MatchingProcessor.match(values, 0, matchings::add, new int[matchingElements.size()], matchingElements, 0);
 		assertThat(matchings, hasSize(1));
@@ -197,7 +197,7 @@ public class MatchingProcessorTest {
 	public void testMultiSingleMultiMultiMatch() {
 		final List<int[]> matchings = new ArrayList<>();
 		final Object[] values = { 3L };
-		final List<AddressMatchingConfigurationElement> matchingElements =
+		final List<MatchingConfigurationElement> matchingElements =
 				new ArrayList<>(Arrays.asList(multi(), single(), multi(), multi()));
 		MatchingProcessor.match(values, 0, matchings::add, new int[matchingElements.size()], matchingElements, 0);
 		assertThat(matchings, hasSize(1));
@@ -208,7 +208,7 @@ public class MatchingProcessorTest {
 	public void testMultiMultiOnSingleValue() {
 		final List<int[]> matchings = new ArrayList<>();
 		final Object[] values = { 3L };
-		final List<AddressMatchingConfigurationElement> matchingElements = new ArrayList<>(Arrays.asList(multi(), multi()));
+		final List<MatchingConfigurationElement> matchingElements = new ArrayList<>(Arrays.asList(multi(), multi()));
 		MatchingProcessor.match(values, 0, matchings::add, new int[matchingElements.size()], matchingElements, 0);
 		assertThat(matchings, hasSize(2));
 		assertThat(matchings, containsInAnyOrder(new int[] { 0 }, new int[] { 1 }));

@@ -15,19 +15,16 @@
 package org.jamocha.filter;
 
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Getter;
 
 import org.jamocha.dn.memory.CounterColumn;
 import org.jamocha.dn.memory.FactAddress;
-import org.jamocha.dn.memory.SlotAddress;
-import org.jamocha.dn.memory.Template;
 import org.jamocha.dn.nodes.SlotInFactAddress;
 import org.jamocha.function.fwa.ParameterLeaf;
 import org.jamocha.function.fwa.PredicateWithArguments;
@@ -39,28 +36,15 @@ import org.jamocha.function.fwa.PredicateWithArguments;
 public class AddressFilter extends Filter<ParameterLeaf, AddressFilter.AddressFilterElement> {
 
 	@Data
-	@AllArgsConstructor
-	public static class AddressMatchingConfigurationElement {
-		final SlotAddress address;
-		final Optional<?> constant;
-		final boolean single;
-
-		public AddressMatchingConfigurationElement(final SlotAddress address, final Optional<?> constant,
-				final Template template) {
-			this(address, constant, !address.getSlotType(template).isArrayType());
-		}
-	}
-
-	@Data
 	public static class AddressMatchingConfiguration {
 		final FactAddress factAddress;
-		final List<AddressMatchingConfigurationElement> matchingElements;
+		final List<MatchingConfigurationElement> matchingElements;
 
 		public AddressMatchingConfiguration(final FactAddress factAddress,
-				final List<AddressMatchingConfigurationElement> matchingElements) {
+				final List<MatchingConfigurationElement> matchingElements) {
 			this.factAddress = factAddress;
 			this.matchingElements = matchingElements;
-			this.matchingElements.sort((a, b) -> a.address.compareTo(b.address));
+			this.matchingElements.sort(Comparator.naturalOrder());
 		}
 	}
 
