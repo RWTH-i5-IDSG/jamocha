@@ -14,11 +14,11 @@
  */
 package org.jamocha.dn.memory;
 
-import java.lang.reflect.Array;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatterBuilder;
 import java.time.temporal.ChronoField;
 import java.util.Arrays;
+import java.util.function.IntFunction;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -37,37 +37,40 @@ public enum SlotType {
 	/**
 	 * Enum value for integer types.
 	 */
-	LONG(Long.class, false), LONGS(Long[].class, true),
+	LONG(Long.class, Long[]::new, false), LONGS(Long[].class, Long[]::new, true),
 	/**
 	 * Enum value for floating point types.
 	 */
-	DOUBLE(Double.class, false), DOUBLES(Double[].class, true),
+	DOUBLE(Double.class, Double[]::new, false), DOUBLES(Double[].class, Double[]::new, true),
 	/**
 	 * Enum value for string types.
 	 */
-	STRING(String.class, false), STRINGS(String[].class, true),
+	STRING(String.class, String[]::new, false), STRINGS(String[].class, String[]::new, true),
 	/**
 	 * Enum value for boolean types.
 	 */
-	BOOLEAN(Boolean.class, false), BOOLEANS(Boolean[].class, true),
+	BOOLEAN(Boolean.class, Boolean[]::new, false), BOOLEANS(Boolean[].class, Boolean[]::new, true),
 	/**
 	 * Enum value for fact address types.
 	 */
-	FACTADDRESS(FactIdentifier.class, false), FACTADDRESSES(FactIdentifier[].class, true),
+	FACTADDRESS(FactIdentifier.class, FactIdentifier[]::new, false), FACTADDRESSES(FactIdentifier[].class,
+			FactIdentifier[]::new, true),
 	/**
 	 * Enum value for date time types.
 	 */
-	DATETIME(ZonedDateTime.class, false), DATETIMES(ZonedDateTime[].class, true),
+	DATETIME(ZonedDateTime.class, ZonedDateTime[]::new, false), DATETIMES(ZonedDateTime[].class, ZonedDateTime[]::new,
+			true),
 	/**
 	 * Enum value for nil values of undetermined type.
 	 */
-	NIL(Object.class, false), NILS(Object[].class, true),
+	NIL(Object.class, Object[]::new, false), NILS(Object[].class, Object[]::new, true),
 	/**
 	 * Enum value for symbol types.
 	 */
-	SYMBOL(Symbol.class, false), SYMBOLS(Symbol[].class, true);
+	SYMBOL(Symbol.class, Symbol[]::new, false), SYMBOLS(Symbol[].class, Symbol[]::new, true);
 
 	final private Class<?> javaClass;
+	final private IntFunction<Object[]> arrayCtor;
 	final private boolean isArrayType;
 
 	/**
@@ -130,7 +133,7 @@ public enum SlotType {
 
 	final public static Object[] newArrayInstance(final SlotType arrayType, final int length) {
 		assert arrayType.isArrayType;
-		return (Object[]) Array.newInstance(arrayToSingle(arrayType).javaClass, length);
+		return arrayType.arrayCtor.apply(length);
 	}
 
 	public static ZonedDateTime convert(final String image) {

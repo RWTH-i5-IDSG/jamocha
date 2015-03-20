@@ -15,6 +15,8 @@
 
 package org.jamocha.function.impls.functions;
 
+import static org.jamocha.util.ToArray.toArray;
+
 import java.util.Arrays;
 
 import org.jamocha.dn.memory.SlotType;
@@ -58,7 +60,10 @@ public abstract class Create$ implements Function<Object> {
 
 				@Override
 				public Object evaluate(final Function<?>... params) {
-					return (Object) (new Object[] { params[0].evaluate(), params[1].evaluate() });
+					final Object[] array = slotType.getArrayCtor().apply(2);
+					array[0] = params[0].evaluate();
+					array[1] = params[1].evaluate();
+					return array;
 				}
 			});
 			FunctionDictionary.addGenerator(inClips, slotType, (final SlotType[] paramTypes) -> {
@@ -75,7 +80,7 @@ public abstract class Create$ implements Function<Object> {
 
 					@Override
 					public Object evaluate(final Function<?>... params) {
-						return (Object) (Arrays.stream(params).map(f -> f.evaluate()).toArray());
+						return (Object) (toArray(Arrays.stream(params).map(f -> f.evaluate()), slotType.getArrayCtor()));
 					}
 				};
 			});
