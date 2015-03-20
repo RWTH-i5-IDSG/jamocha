@@ -129,7 +129,7 @@ public class SlotBuilder {
 		throw new IllegalArgumentException();
 	}
 
-	public SlotBuilder setAllowedConstantsConstraint(final SlotType type, final List<?> constants) {
+	public SlotBuilder setAllowedConstantsConstraint(final SlotType type, final List<Object> constants) {
 		if (null != allowedConstants) {
 			throw new IllegalArgumentException("Allowed constants constraint already set!");
 		}
@@ -181,7 +181,7 @@ public class SlotBuilder {
 			defaultValue = Default.staticDefault(deriveSingleSlotDefaultValue(this.slotType, defaultValues));
 		}
 		return new Slot(slotType, name, defaultValue, toArray(
-				Stream.of(range, allowedConstants).filter(Objects::nonNull), SlotConstraint[]::new));
+				Stream.of(range, allowedConstants, cardinality).filter(Objects::nonNull), SlotConstraint[]::new));
 	}
 
 	private FunctionWithArguments<SymbolLeaf> deriveSingleSlotDefaultValue(final SlotType slotType,
