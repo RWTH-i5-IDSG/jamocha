@@ -131,6 +131,8 @@ public interface Template {
 
 		public abstract FunctionWithArguments<SymbolLeaf> derivedDefaultValue(final SlotType type, final Object value);
 
+		public abstract List<Object> getInterestingValues();
+
 		public static SlotConstraint integerRange(final boolean singleSlot, final Long from, final Long to) {
 			final ConstantLeaf<SymbolLeaf> defaultValue = new ConstantLeaf<SymbolLeaf>(from, SlotType.LONG);
 			return new SlotConstraint(ConstraintType.RANGE) {
@@ -160,6 +162,11 @@ public interface Template {
 				@Override
 				public FunctionWithArguments<SymbolLeaf> derivedDefaultValue(final SlotType type, final Object value) {
 					return defaultValue;
+				}
+
+				@Override
+				public List<Object> getInterestingValues() {
+					return Arrays.asList(from, to);
 				}
 			};
 		}
@@ -194,11 +201,16 @@ public interface Template {
 				public FunctionWithArguments<SymbolLeaf> derivedDefaultValue(final SlotType type, final Object value) {
 					return defaultValue;
 				}
+
+				@Override
+				public List<Object> getInterestingValues() {
+					return Arrays.asList(from, to);
+				}
 			};
 		}
 
 		public static SlotConstraint allowedConstants(final boolean singleSlot, final SlotType type,
-				final List<?> values) {
+				final List<Object> values) {
 			final ConstantLeaf<SymbolLeaf> defaultValue = new ConstantLeaf<>(values.get(0), type);
 			return new SlotConstraint(ConstraintType.ALLOWED_CONSTANTS) {
 				@Override
@@ -219,6 +231,11 @@ public interface Template {
 				public FunctionWithArguments<SymbolLeaf> derivedDefaultValue(final SlotType type, final Object value) {
 					return defaultValue;
 				}
+
+				@Override
+				public List<Object> getInterestingValues() {
+					return values;
+				}
 			};
 		}
 
@@ -238,6 +255,11 @@ public interface Template {
 					final Object[] array = new Object[min.intValue()];
 					Arrays.fill(array, value);
 					return new ConstantLeaf<>(array, type);
+				}
+
+				@Override
+				public List<Object> getInterestingValues() {
+					return Arrays.asList(min, max);
 				}
 			};
 		}

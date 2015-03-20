@@ -18,6 +18,7 @@ import static java.util.stream.Collectors.joining;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 import java.util.Objects;
 
 import org.apache.logging.log4j.Logger;
@@ -33,6 +34,7 @@ import org.jamocha.dn.memory.MemoryHandlerTerminal.Retract;
 import org.jamocha.dn.memory.SlotType;
 import org.jamocha.dn.memory.Template;
 import org.jamocha.dn.memory.Template.Slot;
+import org.jamocha.dn.memory.Template.SlotConstraint;
 import org.jamocha.languages.common.ScopeStack.Symbol;
 import org.jamocha.logging.LogFormatter;
 import org.jamocha.logging.MarkerType;
@@ -182,7 +184,46 @@ public class ClipsLogFormatter implements LogFormatter {
 		}
 		for (final Slot slot : template.getSlots()) {
 			sb.append("\n\t(slot ").append(slot.getName()).append(" (type ").append(slot.getSlotType().toString())
-					.append("))");
+					.append(')');
+			for (final SlotConstraint slotConstraint : slot.getSlotConstraints()) {
+				final List<Object> interestingValues = slotConstraint.getInterestingValues();
+				switch (slotConstraint.getConstraintType()) {
+				case ALLOWED_CONSTANTS:
+					sb.append(" (allowed-");
+					switch (slot.getSlotType()) {
+					case DOUBLE:
+					case DOUBLES:
+						sb.append("floats");
+						break;
+					case LONG:
+					case LONGS:
+						sb.append("integers");
+						break;
+					case STRING:
+					case STRINGS:
+						sb.append("strings");
+						break;
+					case SYMBOL:
+					case SYMBOLS:
+						sb.append("symbols");
+						break;
+					default:
+						break;
+					}
+					sb.append(' ').append(interestingValues.stream().map(Object::toString).collect(joining(" ")))
+							.append(')');
+					break;
+				case CARDINALITY:
+					sb.append(" (cardinality ").append(interestingValues.get(0)).append(' ')
+							.append(interestingValues.get(1)).append(')');
+					break;
+				case RANGE:
+					sb.append(" (range ").append(interestingValues.get(0)).append(' ').append(interestingValues.get(1))
+							.append(')');
+					break;
+				}
+			}
+			sb.append(')');
 		}
 		sb.append(")\n");
 		return sb.toString();
