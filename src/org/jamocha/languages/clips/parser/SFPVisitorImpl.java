@@ -515,7 +515,7 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 
 		class SFPAllowedConstantAttributeElementsVisitor implements SelectiveSFPVisitor {
 			private Object handle(final SimpleNode node, final Object data, final SlotType type) {
-				assert 0 > node.jjtGetNumChildren();
+				assert 0 < node.jjtGetNumChildren();
 				if (1 == node.jjtGetNumChildren()
 						&& SFPParserTreeConstants.JJTVARIABLETYPE == node.jjtGetChild(0).getId()) {
 					return data;
