@@ -14,44 +14,31 @@
  */
 package org.jamocha.filter;
 
+import java.util.Set;
+
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
-import org.jamocha.dn.nodes.Node;
-import org.jamocha.function.Predicate;
 import org.jamocha.function.fwa.ExchangeableLeaf;
-import org.jamocha.function.fwa.FunctionWithArguments;
 import org.jamocha.function.fwa.PredicateWithArguments;
 
 /**
- * A Filter contains {@link FilterElement filter elements} representing atomic {@link Predicate
- * predicates} specifying the tests to be performed on data according to the condition part of a
- * rule. The order of the {@link FilterElement filter elements} stored dictates the order in which
- * the affected {@link Node nodes} are joined.
- * 
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
- * @see FilterElement
- * @see FunctionWithArguments
- * @see Predicate
- * @see Node
  */
 @Getter
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 @ToString
-public abstract class Filter<L extends ExchangeableLeaf<L>, FE extends Filter.FilterElement<L>> {
-	/**
-	 * Contains Predicates in an ordered list, which is processed from front to back.
-	 */
+public abstract class NodeFilterSet<L extends ExchangeableLeaf<L>, F extends NodeFilterSet.Filter<L>> {
 	@NonNull
-	protected final FE filterElements[];
+	protected final Set<F> filters;
 
 	@Getter
 	@RequiredArgsConstructor
 	@ToString
-	public static abstract class FilterElement<L extends ExchangeableLeaf<L>> {
+	public static abstract class Filter<L extends ExchangeableLeaf<L>> {
 		protected final PredicateWithArguments<L> function;
 	}
 }

@@ -14,13 +14,16 @@
  */
 package org.jamocha.filter;
 
-import static java.util.Arrays.stream;
+import static java.util.stream.Collectors.toCollection;
 import static org.jamocha.util.ToArray.toArray;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import lombok.Data;
 
@@ -29,11 +32,11 @@ import org.jamocha.dn.memory.CounterColumnMatcher;
 import org.jamocha.dn.memory.FactAddress;
 import org.jamocha.dn.memory.SlotAddress;
 import org.jamocha.dn.nodes.SlotInFactAddress;
-import org.jamocha.filter.AddressFilter.AddressFilterElement;
-import org.jamocha.filter.AddressFilter.AddressMatchingConfiguration;
-import org.jamocha.filter.AddressFilter.ExistentialAddressFilterElement;
-import org.jamocha.filter.PathFilter.DummyPathFilterElement;
-import org.jamocha.filter.PathFilter.PathFilterElement;
+import org.jamocha.filter.AddressNodeFilterSet.AddressFilter;
+import org.jamocha.filter.AddressNodeFilterSet.AddressMatchingConfiguration;
+import org.jamocha.filter.AddressNodeFilterSet.ExistentialAddressFilter;
+import org.jamocha.filter.PathNodeFilterSet.DummyPathFilter;
+import org.jamocha.filter.PathNodeFilterSet.PathFilter;
 import org.jamocha.function.fwa.ParameterLeaf;
 import org.jamocha.function.fwa.PredicateWithArguments;
 import org.jamocha.function.fwatransformer.FWAPathToAddressTranslator;
@@ -41,26 +44,26 @@ import org.jamocha.function.fwatransformer.FWAPathToAddressTranslator;
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
-public class PathFilterToAddressFilterTranslator {
-	public static AddressFilter translate(final PathFilter pathFilter,
+public class PathNodeFilterSetToAddressNodeFilterSetTranslator {
+	public static AddressNodeFilterSet translate(final PathNodeFilterSet pathFilter,
 			final CounterColumnMatcher filterElementToCounterColumn) {
 		return translate(pathFilter, pathFilter.normalise(), filterElementToCounterColumn);
 	}
 
-	public static AddressFilter translate(final PathFilter pathFilter, final PathFilter normalisedVersion,
-			final CounterColumnMatcher filterElementToCounterColumn) {
-		return new AddressFilter(toFactAddressSet(pathFilter.getPositiveExistentialPaths()),
-				toFactAddressSet(pathFilter.getNegativeExistentialPaths()), translateFEs(pathFilter,
-						filterElementToCounterColumn), translateFEs(normalisedVersion, filterElementToCounterColumn),
+	public static AddressNodeFilterSet translate(final PathNodeFilterSet pathFilter,
+			final PathNodeFilterSet normalisedVersion, final CounterColumnMatcher counterColumnMatcher) {
+		return new AddressNodeFilterSet(toFactAddressSet(pathFilter.getPositiveExistentialPaths()),
+				toFactAddressSet(pathFilter.getNegativeExistentialPaths()), translateFilters(pathFilter,
+						counterColumnMatcher).collect(toCollection(HashSet::new)), translateFilters(normalisedVersion,
+						counterColumnMatcher).collect(
+						Collectors.<AddressFilter, LinkedHashSet<AddressFilter>> toCollection(LinkedHashSet::new)),
 				new ArrayList<AddressMatchingConfiguration>());
 	}
 
-	private static AddressFilterElement[] translateFEs(final PathFilter pathFilter,
+	private static Stream<AddressFilter> translateFilters(final PathNodeFilterSet pathFilter,
 			final CounterColumnMatcher filterElementToCounterColumn) {
-		return toArray(
-				stream(pathFilter.getFilterElements()).map(
-						fe -> fe.accept(new PathFilterElementTranslator(filterElementToCounterColumn)).result),
-				AddressFilterElement[]::new);
+		return pathFilter.getFilters().stream()
+				.map(f -> f.accept(new PathFilterTranslator(filterElementToCounterColumn)).result);
 	}
 
 	static Set<FactAddress> toFactAddressSet(final Set<Path> existentialPaths) {
@@ -68,12 +71,12 @@ public class PathFilterToAddressFilterTranslator {
 	}
 
 	@Data
-	static class PathFilterElementTranslator implements PathFilterElementVisitor {
+	static class PathFilterTranslator implements PathFilterVisitor {
 		final CounterColumnMatcher counterColumnMatcher;
-		AddressFilterElement result;
+		AddressFilter result;
 
 		@Override
-		public void visit(final PathFilterElement pathFilterElement) {
+		public void visit(final PathFilter pathFilterElement) {
 			final ArrayList<SlotInFactAddress> addresses = new ArrayList<>();
 			final PredicateWithArguments<ParameterLeaf> predicateWithArguments =
 					pathFilterElement.getFunction()
@@ -82,14 +85,14 @@ public class PathFilterToAddressFilterTranslator {
 			final SlotInFactAddress[] addressArray = toArray(addresses, SlotInFactAddress[]::new);
 			final CounterColumn counterColumn = counterColumnMatcher.getCounterColumn(pathFilterElement);
 			if (null == counterColumn) {
-				this.result = new AddressFilterElement(predicateWithArguments, addressArray);
+				this.result = new AddressFilter(predicateWithArguments, addressArray);
 			} else {
-				this.result = new ExistentialAddressFilterElement(predicateWithArguments, addressArray, counterColumn);
+				this.result = new ExistentialAddressFilter(predicateWithArguments, addressArray, counterColumn);
 			}
 		}
 
 		@Override
-		public void visit(final DummyPathFilterElement pathFilterElement) {
+		public void visit(final DummyPathFilter pathFilterElement) {
 			@SuppressWarnings("unchecked")
 			final PredicateWithArguments<ParameterLeaf> predicateWithArguments =
 					(PredicateWithArguments<ParameterLeaf>) (PredicateWithArguments<?>) pathFilterElement.getFunction();
@@ -99,9 +102,9 @@ public class PathFilterToAddressFilterTranslator {
 									(SlotAddress) null)), SlotInFactAddress[]::new);
 			final CounterColumn counterColumn = counterColumnMatcher.getCounterColumn(pathFilterElement);
 			if (null == counterColumn) {
-				this.result = new AddressFilterElement(predicateWithArguments, addressArray);
+				this.result = new AddressFilter(predicateWithArguments, addressArray);
 			} else {
-				this.result = new ExistentialAddressFilterElement(predicateWithArguments, addressArray, counterColumn);
+				this.result = new ExistentialAddressFilter(predicateWithArguments, addressArray, counterColumn);
 			}
 		}
 	}

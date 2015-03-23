@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 
-import org.jamocha.filter.AddressFilter.AddressMatchingConfiguration;
+import org.jamocha.filter.AddressNodeFilterSet.AddressMatchingConfiguration;
 import org.jamocha.filter.MatchingConfigurationElement;
 
 import com.google.common.base.Objects;

@@ -19,8 +19,8 @@ import org.jamocha.visitor.Visitor;
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
-public interface PathFilterElementVisitor extends Visitor {
-	public void visit(final PathFilter.PathFilterElement fe);
+public interface PathFilterVisitor extends Visitor {
+	public void visit(final PathNodeFilterSet.PathFilter f);
 
-	public void visit(final PathFilter.DummyPathFilterElement fe);
+	public void visit(final PathNodeFilterSet.DummyPathFilter f);
 }

@@ -27,9 +27,9 @@ import org.jamocha.dn.memory.FactAddress;
 import org.jamocha.dn.memory.MemoryHandlerMinusTemp;
 import org.jamocha.dn.memory.MemoryHandlerPlusTemp;
 import org.jamocha.dn.memory.MemoryHandlerTemp;
-import org.jamocha.filter.AddressFilter;
+import org.jamocha.filter.AddressNodeFilterSet;
 import org.jamocha.filter.Path;
-import org.jamocha.filter.PathFilter;
+import org.jamocha.filter.PathNodeFilterSet;
 
 /**
  * Beta {@link Node} implementation.
@@ -52,7 +52,7 @@ public class BetaNode extends Node {
 		private Map<? extends FactAddress, ? extends FactAddress> addressMap;
 		private final LinkedList<MemoryHandlerPlusTemp> tempMemories = new LinkedList<>();
 
-		public BetaEdgeImpl(final Node sourceNode, final Node targetNode, final AddressFilter filter) {
+		public BetaEdgeImpl(final Node sourceNode, final Node targetNode, final AddressNodeFilterSet filter) {
 			super(sourceNode, targetNode, filter);
 		}
 
@@ -115,7 +115,7 @@ public class BetaNode extends Node {
 		}
 	}
 
-	public BetaNode(final Network network, final PathFilter filter) {
+	public BetaNode(final Network network, final PathNodeFilterSet filter) {
 		super(network, filter);
 	}
 

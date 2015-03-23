@@ -14,6 +14,7 @@
  */
 package org.jamocha.filter;
 
+import static java.util.stream.Collectors.toCollection;
 import static java.util.stream.Collectors.toSet;
 
 import java.util.Arrays;
@@ -21,6 +22,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -39,43 +41,48 @@ import org.jamocha.visitor.Visitable;
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  * @author Christoph Terwelp <christoph.terwelp@rwth-aachen.de>
  */
-public class PathFilter extends Filter<PathLeaf, PathFilter.PathFilterElement> implements PathFilterList {
+public class PathNodeFilterSet extends NodeFilterSet<PathLeaf, PathNodeFilterSet.PathFilter> implements PathFilterList {
 
 	@Getter(lazy = true)
 	final private int hashCode = generateHashCode();
 
 	@Getter(lazy = true)
-	final private PathFilter normalizedPathFilter = normalise();
+	final private PathNodeFilterSet normalizedPathFilter = normalise();
 
-	public static PathFilter empty = new PathFilter(new HashSet<>(), new HashSet<>(), new PathFilterElement[] {});
+	public static PathNodeFilterSet empty = new PathNodeFilterSet(new HashSet<>(), new HashSet<>(), new HashSet<>());
 
 	@Getter
 	protected final Set<Path> positiveExistentialPaths, negativeExistentialPaths;
 
-	public static class PathFilterElement extends Filter.FilterElement<PathLeaf> implements
-			Visitable<PathFilterElementVisitor> {
-		public PathFilterElement(final PredicateWithArguments<PathLeaf> function) {
+	public static class PathFilter extends NodeFilterSet.Filter<PathLeaf> implements Visitable<PathFilterVisitor>,
+			Comparable<PathFilter> {
+		public PathFilter(final PredicateWithArguments<PathLeaf> function) {
 			super(function);
 		}
 
 		@Override
-		public <V extends PathFilterElementVisitor> V accept(final V visitor) {
+		public <V extends PathFilterVisitor> V accept(final V visitor) {
 			visitor.visit(this);
 			return visitor;
+		}
+
+		@Override
+		public int compareTo(final PathFilter o) {
+			return Integer.compare(this.function.hash(), o.function.hash());
 		}
 	}
 
 	@Getter
-	public static class DummyPathFilterElement extends PathFilterElement {
+	public static class DummyPathFilter extends PathFilter {
 		final Path[] paths;
 
-		public DummyPathFilterElement(final Path... paths) {
+		public DummyPathFilter(final Path... paths) {
 			super(new PredicateWithArgumentsComposite<PathLeaf>(DummyPredicate.instance));
 			this.paths = paths;
 		}
 
 		@Override
-		public <V extends PathFilterElementVisitor> V accept(final V visitor) {
+		public <V extends PathFilterVisitor> V accept(final V visitor) {
 			visitor.visit(this);
 			return visitor;
 		}
@@ -90,12 +97,12 @@ public class PathFilter extends Filter<PathLeaf, PathFilter.PathFilterElement> i
 	 * @param negativeExistentialPaths
 	 *            set of all negative existential paths that are part of the filter or have been
 	 *            joined to such paths
-	 * @param filterElements
+	 * @param filters
 	 *            filter elements to be used in the filter
 	 */
-	public PathFilter(final Set<Path> positiveExistentialPaths, final Set<Path> negativeExistentialPaths,
-			final PathFilterElement... filterElements) {
-		super(filterElements);
+	public PathNodeFilterSet(final Set<Path> positiveExistentialPaths, final Set<Path> negativeExistentialPaths,
+			final Set<PathFilter> filters) {
+		super(filters);
 		assert Collections.disjoint(positiveExistentialPaths, negativeExistentialPaths);
 		this.positiveExistentialPaths = positiveExistentialPaths;
 		this.negativeExistentialPaths = negativeExistentialPaths;
@@ -114,10 +121,8 @@ public class PathFilter extends Filter<PathLeaf, PathFilter.PathFilterElement> i
 	 * @param filterElements
 	 *            filter elements to be used in the filter
 	 */
-	public PathFilter(final boolean isPositive, final Set<Path> existentialPaths,
-			final PathFilterElement... filterElements) {
-		this(isPositive ? existentialPaths : new HashSet<>(), isPositive ? new HashSet<>() : existentialPaths,
-				filterElements);
+	public PathNodeFilterSet(final boolean isPositive, final Set<Path> existentialPaths, final Set<PathFilter> filters) {
+		this(isPositive ? existentialPaths : new HashSet<>(), isPositive ? new HashSet<>() : existentialPaths, filters);
 	}
 
 	/**
@@ -126,55 +131,73 @@ public class PathFilter extends Filter<PathLeaf, PathFilter.PathFilterElement> i
 	 * @param filterElements
 	 *            filter elements to be used in the filter
 	 */
-	public PathFilter(final PathFilterElement... filterElements) {
-		this(new HashSet<>(), new HashSet<>(), filterElements);
+	public PathNodeFilterSet(final Set<PathFilter> filters) {
+		this(new HashSet<>(), new HashSet<>(), filters);
+	}
+
+	/**
+	 * Constructs the filter using the given filter elements without any existential paths.
+	 *
+	 * @param filterElements
+	 *            filter elements to be used in the filter
+	 */
+	public PathNodeFilterSet(final PathFilter... filters) {
+		this(new HashSet<>(Arrays.asList(filters)));
+	}
+
+	/**
+	 * Constructs the filter using the given filter elements without any existential paths.
+	 *
+	 * @param filterElements
+	 *            filter elements to be used in the filter
+	 */
+	public PathNodeFilterSet(final Set<Path> positiveExistentialPaths, final Set<Path> negativeExistentialPaths,
+			final PathFilter... filters) {
+		this(positiveExistentialPaths, negativeExistentialPaths, new HashSet<>(Arrays.asList(filters)));
 	}
 
 	@RequiredArgsConstructor
-	static class PathFilterReCreator implements PathFilterElementVisitor {
+	static class PathFilterReCreator implements PathFilterVisitor {
 		final PredicateWithArguments<PathLeaf> normalFunction;
-		PathFilterElement result;
+		PathFilter result;
 
 		@Override
-		public void visit(final PathFilterElement fe) {
-			this.result = new PathFilterElement(normalFunction);
+		public void visit(final PathFilter f) {
+			this.result = new PathFilter(normalFunction);
 		}
 
 		@Override
-		public void visit(final DummyPathFilterElement fe) {
-			this.result = new DummyPathFilterElement(fe.getPaths());
+		public void visit(final DummyPathFilter f) {
+			this.result = new DummyPathFilter(f.getPaths());
 		}
 	}
 
-	public PathFilter normalise() {
-		final int numFEs = filterElements.length;
-		final PathFilterElement[] normalPFEs = new PathFilterElement[numFEs];
-		for (int i = 0; i < numFEs; i++) {
-			final PathFilterElement original = filterElements[i];
-			final PredicateWithArguments<PathLeaf> functionToNormalise = original.function;
-			// step one: transform to uniform function symbols
-			final PredicateWithArguments<PathLeaf> uniformFunction =
-					UniformFunctionTranslator.translate(functionToNormalise);
-			// step two: sort arguments
-			final PredicateWithArguments<PathLeaf> normalFunction = FunctionNormaliser.normalise(uniformFunction);
-			normalPFEs[i] = original.accept(new PathFilterReCreator(normalFunction)).result;
-		}
-		Arrays.sort(normalPFEs, (final PathFilterElement a, final PathFilterElement b) -> {
-			return Integer.compare(a.function.hash(), b.function.hash());
-		});
-		return new PathFilter(positiveExistentialPaths, negativeExistentialPaths, normalPFEs);
+	public PathNodeFilterSet normalise() {
+		return new PathNodeFilterSet(positiveExistentialPaths, negativeExistentialPaths, filters
+				.stream()
+				.map(filter -> {
+					final PredicateWithArguments<PathLeaf> functionToNormalise = filter.function;
+					// step one: transform to uniform function symbols
+					final PredicateWithArguments<PathLeaf> uniformFunction =
+							UniformFunctionTranslator.translate(functionToNormalise);
+					// step two: sort arguments
+					final PredicateWithArguments<PathLeaf> normalFunction =
+							FunctionNormaliser.normalise(uniformFunction);
+					return filter.accept(new PathFilterReCreator(normalFunction)).result;
+				}).sorted().collect(toCollection(LinkedHashSet::new)));
 	}
 
 	private int generateHashCode() {
-		return Arrays.hashCode(Arrays.stream(getNormalizedPathFilter().getFilterElements())
-				.mapToInt(fe -> fe.getFunction().hash()).toArray());
+		return Arrays.hashCode(getNormalizedPathFilter().getFilters().stream().mapToInt(f -> f.getFunction().hash())
+				.toArray());
 	}
 
-	public static boolean equals(final PathFilter filter1, final PathFilter filter2) {
+	public static boolean equals(final PathNodeFilterSet filter1, final PathNodeFilterSet filter2) {
 		return equals(filter1, filter2, new HashMap<>());
 	}
 
-	public static boolean equals(final PathFilter filter1, final PathFilter filter2, final Map<Path, Path> pathMap) {
+	public static boolean equals(final PathNodeFilterSet filter1, final PathNodeFilterSet filter2,
+			final Map<Path, Path> pathMap) {
 		// FIXME and other locations to handle all possible path mappings correctly
 		if (filter1.getHashCode() != filter2.getHashCode())
 			return false;
@@ -198,7 +221,7 @@ public class PathFilter extends Filter<PathLeaf, PathFilter.PathFilterElement> i
 	}
 
 	@Override
-	public Iterator<PathFilter> iterator() {
+	public Iterator<PathNodeFilterSet> iterator() {
 		return IteratorUtils.singletonIterator(this);
 	}
 }

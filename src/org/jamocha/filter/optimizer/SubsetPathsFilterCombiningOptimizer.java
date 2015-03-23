@@ -33,11 +33,11 @@ import lombok.RequiredArgsConstructor;
 import org.jamocha.dn.ConstructCache.Defrule.TranslatedPath;
 import org.jamocha.filter.Path;
 import org.jamocha.filter.PathCollector;
-import org.jamocha.filter.PathFilter;
 import org.jamocha.filter.PathFilterList;
-import org.jamocha.filter.PathFilterList.PathFilterExistentialList;
-import org.jamocha.filter.PathFilterList.PathFilterSharedListWrapper.PathFilterSharedList;
+import org.jamocha.filter.PathFilterList.PathExistentialList;
+import org.jamocha.filter.PathFilterList.PathSharedListWrapper.PathSharedList;
 import org.jamocha.filter.PathFilterListVisitor;
+import org.jamocha.filter.PathNodeFilterSet;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
@@ -64,10 +64,10 @@ public class SubsetPathsFilterCombiningOptimizer implements Optimizer {
 	static class Identifier implements PathFilterListVisitor {
 		final HashMap<Path, Set<Path>> path2JoinedWith;
 		final List<PathFilterList> result = new ArrayList<>();
-		final List<PathFilter> filtersOnThisLevel = new LinkedList<>();
-		final HashMap<PathFilter, Set<Path>> filter2Paths = new HashMap<>();
+		final List<PathNodeFilterSet> filtersOnThisLevel = new LinkedList<>();
+		final HashMap<PathNodeFilterSet, Set<Path>> filter2Paths = new HashMap<>();
 
-		private void save(final PathFilter filter, final HashSet<Path> paths) {
+		private void save(final PathNodeFilterSet filter, final HashSet<Path> paths) {
 			filtersOnThisLevel.add(filter);
 			result.add(filter);
 			paths.forEach(p -> path2JoinedWith.put(p, paths));
@@ -75,7 +75,7 @@ public class SubsetPathsFilterCombiningOptimizer implements Optimizer {
 		}
 
 		@Override
-		public void visit(final PathFilter filter) {
+		public void visit(final PathNodeFilterSet filter) {
 			final HashSet<Path> currentPaths = PathCollector.newHashSet().collectAll(filter).getPaths();
 			if (filtersOnThisLevel.isEmpty()) {
 				save(filter, currentPaths);
@@ -85,9 +85,9 @@ public class SubsetPathsFilterCombiningOptimizer implements Optimizer {
 					currentPaths.stream()
 							.flatMap(p -> path2JoinedWith.getOrDefault(p, Collections.singleton(p)).stream())
 							.collect(toCollection(HashSet::new));
-			for (final ListIterator<PathFilter> listIterator =
+			for (final ListIterator<PathNodeFilterSet> listIterator =
 					filtersOnThisLevel.listIterator(filtersOnThisLevel.size()); listIterator.hasPrevious();) {
-				final PathFilter samePathsFilter = listIterator.previous();
+				final PathNodeFilterSet samePathsFilter = listIterator.previous();
 				final Set<Path> set = filter2Paths.get(samePathsFilter);
 				if (set.containsAll(joined)) {
 					listIterator.remove();
@@ -100,14 +100,14 @@ public class SubsetPathsFilterCombiningOptimizer implements Optimizer {
 		}
 
 		@Override
-		public void visit(final PathFilterExistentialList filter) {
-			result.add(new PathFilterExistentialList(combine(filter.getNonExistentialPart().getFilterElements()),
-					filter.getExistentialClosure()));
+		public void visit(final PathExistentialList filter) {
+			result.add(new PathExistentialList(combine(filter.getPurelyExistentialPart().getFilters()), filter
+					.getExistentialClosure()));
 		}
 
 		@Override
-		public void visit(final PathFilterSharedList filter) {
-			result.add(filter.getWrapper().replace(filter, combine(filter.getFilterElements())));
+		public void visit(final PathSharedList filter) {
+			result.add(filter.getWrapper().replace(filter, combine(filter.getFilters())));
 		}
 
 		List<PathFilterList> combine(final List<PathFilterList> filters) {
@@ -117,8 +117,8 @@ public class SubsetPathsFilterCombiningOptimizer implements Optimizer {
 		}
 	}
 
-	static PathFilterSharedList optimize(final PathFilterSharedList condition) {
-		return (PathFilterSharedList) condition.accept(new Identifier(new HashMap<>())).result.get(0);
+	static PathSharedList optimize(final PathSharedList condition) {
+		return (PathSharedList) condition.accept(new Identifier(new HashMap<>())).result.get(0);
 	}
 
 	@Override

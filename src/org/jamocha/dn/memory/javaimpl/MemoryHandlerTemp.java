@@ -22,8 +22,8 @@ import org.jamocha.dn.memory.Template;
 import org.jamocha.dn.nodes.CouldNotAcquireLockException;
 import org.jamocha.dn.nodes.Edge;
 import org.jamocha.dn.nodes.SlotInFactAddress;
-import org.jamocha.filter.AddressFilter;
-import org.jamocha.filter.AddressFilter.AddressFilterElement;
+import org.jamocha.filter.AddressNodeFilterSet;
+import org.jamocha.filter.AddressNodeFilterSet.AddressFilter;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
@@ -67,7 +67,7 @@ public abstract class MemoryHandlerTemp extends MemoryHandlerBase implements org
 		return this.validRows;
 	}
 
-	protected static boolean applyFilterElement(final Fact fact, final AddressFilterElement element) {
+	protected static boolean applyFilterElement(final Fact fact, final AddressFilter element) {
 		// determine parameters
 		final SlotInFactAddress addresses[] = element.getAddressesInTarget();
 		final int paramLength = element.getFunction().getParamTypes().length;
@@ -81,14 +81,14 @@ public abstract class MemoryHandlerTemp extends MemoryHandlerBase implements org
 	}
 
 	abstract public org.jamocha.dn.memory.MemoryHandlerTemp newAlphaTemp(
-			final MemoryHandlerMain originatingMainHandler, final Edge originIncomingEdge, final AddressFilter filter)
+			final MemoryHandlerMain originatingMainHandler, final Edge originIncomingEdge, final AddressNodeFilterSet filter)
 			throws CouldNotAcquireLockException;
 
 	abstract public org.jamocha.dn.memory.MemoryHandlerTemp newBetaTemp(final MemoryHandlerMain originatingMainHandler,
-			final Edge originIncomingEdge, final AddressFilter filter) throws CouldNotAcquireLockException;
+			final Edge originIncomingEdge, final AddressNodeFilterSet filter) throws CouldNotAcquireLockException;
 
 	abstract public org.jamocha.dn.memory.MemoryHandlerTemp newBetaTemp(
 			final MemoryHandlerMainWithExistentials originatingMainHandler, final Edge originIncomingEdge,
-			final AddressFilter filter) throws CouldNotAcquireLockException;
+			final AddressNodeFilterSet filter) throws CouldNotAcquireLockException;
 
 }

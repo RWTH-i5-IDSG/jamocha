@@ -16,7 +16,7 @@ package test.jamocha.util;
 
 import static org.jamocha.util.ToArray.toArray;
 
-import org.jamocha.filter.PathFilter.PathFilterElement;
+import org.jamocha.filter.PathNodeFilterSet.PathFilter;
 import org.jamocha.function.Predicate;
 import org.jamocha.function.fwa.FunctionWithArguments;
 import org.jamocha.function.fwa.PathLeaf;
@@ -42,7 +42,7 @@ public class PredicateBuilder extends GenericBuilder<Boolean, Predicate, Predica
 				FunctionWithArguments[]::new));
 	}
 
-	public PathFilterElement buildPFE() {
-		return new PathFilterElement(build());
+	public PathFilter buildFilter() {
+		return new PathFilter(build());
 	}
 }

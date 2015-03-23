@@ -31,12 +31,12 @@ import lombok.RequiredArgsConstructor;
 import org.jamocha.dn.ConstructCache.Defrule.TranslatedPath;
 import org.jamocha.filter.Path;
 import org.jamocha.filter.PathCollector;
-import org.jamocha.filter.PathFilter;
-import org.jamocha.filter.PathFilter.PathFilterElement;
 import org.jamocha.filter.PathFilterList;
-import org.jamocha.filter.PathFilterList.PathFilterExistentialList;
-import org.jamocha.filter.PathFilterList.PathFilterSharedListWrapper.PathFilterSharedList;
+import org.jamocha.filter.PathFilterList.PathExistentialList;
+import org.jamocha.filter.PathFilterList.PathSharedListWrapper.PathSharedList;
 import org.jamocha.filter.PathFilterListVisitor;
+import org.jamocha.filter.PathNodeFilterSet;
+import org.jamocha.filter.PathNodeFilterSet.PathFilter;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
@@ -59,30 +59,28 @@ public class SamePathsFilterCombiningOptimizer implements Optimizer {
 	 * PathFilterList.PathFilterSharedListWrapper.PathFilterSharedList#filterElements.
 	 */
 
-	static PathFilter combineTwoFilters(final PathFilter samePathsFilter, final PathFilter filter) {
-		final PathFilterElement[] lastFEs = samePathsFilter.getFilterElements();
-		final PathFilterElement[] nextFEs = filter.getFilterElements();
-		final PathFilterElement[] pfes = new PathFilterElement[lastFEs.length + nextFEs.length];
-		System.arraycopy(lastFEs, 0, pfes, 0, lastFEs.length);
-		System.arraycopy(nextFEs, 0, pfes, lastFEs.length, nextFEs.length);
+	static PathNodeFilterSet combineTwoFilters(final PathNodeFilterSet samePathsFilterSet,
+			final PathNodeFilterSet filterSet) {
 		final HashSet<Path> pep = new HashSet<>();
-		pep.addAll(samePathsFilter.getPositiveExistentialPaths());
-		pep.addAll(filter.getPositiveExistentialPaths());
+		pep.addAll(samePathsFilterSet.getPositiveExistentialPaths());
+		pep.addAll(filterSet.getPositiveExistentialPaths());
 		final HashSet<Path> nep = new HashSet<>();
-		nep.addAll(samePathsFilter.getNegativeExistentialPaths());
-		nep.addAll(filter.getNegativeExistentialPaths());
-		final PathFilter combinedFilter = new PathFilter(pep, nep, pfes);
-		return combinedFilter;
+		nep.addAll(samePathsFilterSet.getNegativeExistentialPaths());
+		nep.addAll(filterSet.getNegativeExistentialPaths());
+		final HashSet<PathFilter> filters = new HashSet<>();
+		filters.addAll(samePathsFilterSet.getFilters());
+		filters.addAll(filterSet.getFilters());
+		return new PathNodeFilterSet(pep, nep, filters);
 	}
 
 	@RequiredArgsConstructor
 	static class Identifier implements PathFilterListVisitor {
 		final HashMap<Path, Set<Path>> path2JoinedWith;
 		final List<PathFilterList> result = new ArrayList<>();
-		final List<PathFilter> filtersOnThisLevel = new LinkedList<>();
-		final HashMap<Set<Path>, PathFilter> joinSet2Filter = new HashMap<>();
+		final List<PathNodeFilterSet> filtersOnThisLevel = new LinkedList<>();
+		final HashMap<Set<Path>, PathNodeFilterSet> joinSet2Filter = new HashMap<>();
 
-		private void save(final PathFilter filter, final HashSet<Path> paths) {
+		private void save(final PathNodeFilterSet filter, final HashSet<Path> paths) {
 			filtersOnThisLevel.add(filter);
 			result.add(filter);
 			paths.forEach(p -> path2JoinedWith.put(p, paths));
@@ -90,7 +88,7 @@ public class SamePathsFilterCombiningOptimizer implements Optimizer {
 		}
 
 		@Override
-		public void visit(final PathFilter filter) {
+		public void visit(final PathNodeFilterSet filter) {
 			final HashSet<Path> currentPaths = PathCollector.newHashSet().collectAll(filter).getPaths();
 			if (filtersOnThisLevel.isEmpty()) {
 				save(filter, currentPaths);
@@ -100,7 +98,7 @@ public class SamePathsFilterCombiningOptimizer implements Optimizer {
 					currentPaths.stream()
 							.flatMap(p -> path2JoinedWith.getOrDefault(p, Collections.singleton(p)).stream())
 							.collect(toCollection(HashSet::new));
-			final PathFilter samePathsFilter = joinSet2Filter.get(joined);
+			final PathNodeFilterSet samePathsFilter = joinSet2Filter.get(joined);
 			if (null == samePathsFilter) {
 				save(filter, joined);
 				return;
@@ -111,14 +109,14 @@ public class SamePathsFilterCombiningOptimizer implements Optimizer {
 		}
 
 		@Override
-		public void visit(final PathFilterExistentialList filter) {
-			result.add(new PathFilterExistentialList(combine(filter.getNonExistentialPart().getFilterElements()),
-					filter.getExistentialClosure()));
+		public void visit(final PathExistentialList filter) {
+			result.add(new PathExistentialList(combine(filter.getPurelyExistentialPart().getFilters()), filter
+					.getExistentialClosure()));
 		}
 
 		@Override
-		public void visit(final PathFilterSharedList filter) {
-			result.add(filter.getWrapper().replace(filter, combine(filter.getFilterElements())));
+		public void visit(final PathSharedList filter) {
+			result.add(filter.getWrapper().replace(filter, combine(filter.getFilters())));
 		}
 
 		List<PathFilterList> combine(final List<PathFilterList> filters) {
@@ -128,8 +126,8 @@ public class SamePathsFilterCombiningOptimizer implements Optimizer {
 		}
 	}
 
-	static PathFilterSharedList optimize(final PathFilterSharedList condition) {
-		return (PathFilterSharedList) condition.accept(new Identifier(new HashMap<>())).result.get(0);
+	static PathSharedList optimize(final PathSharedList condition) {
+		return (PathSharedList) condition.accept(new Identifier(new HashMap<>())).result.get(0);
 	}
 
 	@Override

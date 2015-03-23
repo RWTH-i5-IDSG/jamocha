@@ -22,7 +22,7 @@ import org.jamocha.dn.nodes.NodeVisitor;
 import org.jamocha.dn.nodes.ObjectTypeNode;
 import org.jamocha.dn.nodes.SlotInFactAddress;
 import org.jamocha.dn.nodes.TerminalNode;
-import org.jamocha.filter.AddressFilter.AddressFilterElement;
+import org.jamocha.filter.AddressNodeFilterSet.AddressFilter;
 import org.jamocha.function.fwa.Assert;
 import org.jamocha.function.fwa.Assert.TemplateContainer;
 import org.jamocha.function.fwa.Bind;
@@ -214,7 +214,7 @@ public class NetworkToDot {
 			addresses.replaceAll(edge::localizeAddress);
 
 			final StringBuilder targetNodeLabel = new StringBuilder();
-			for (AddressFilterElement addressFilterElement : node.getFilter().getFilterElements()) {
+			for (AddressFilter addressFilterElement : node.getFilter().getFilters()) {
 				final String[] fullNames = translateAddresses2Names(addressFilterElement.getAddressesInTarget());
 				String formatted =
 						addressFilterElement.getFunction().accept(new FWAFormatter(fullNames)).getSb().toString();
@@ -253,7 +253,7 @@ public class NetworkToDot {
 				pos += width;
 			}
 			final StringBuilder targetNodeLabel = new StringBuilder();
-			for (AddressFilterElement addressFilterElement : node.getFilter().getFilterElements()) {
+			for (AddressFilter addressFilterElement : node.getFilter().getFilters()) {
 				final String[] fullNames = translateAddresses2Names(addressFilterElement.getAddressesInTarget());
 				String formatted =
 						addressFilterElement.getFunction().accept(new FWAFormatter(fullNames)).getSb().toString();

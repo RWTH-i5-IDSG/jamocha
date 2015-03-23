@@ -18,7 +18,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.jamocha.dn.memory.CounterColumn;
-import org.jamocha.filter.PathFilter.PathFilterElement;
+import org.jamocha.filter.PathNodeFilterSet.PathFilter;
 
 /**
  * Implementation of {@link org.jamocha.dn.memory.CounterColumnMatcher}.
@@ -26,14 +26,14 @@ import org.jamocha.filter.PathFilter.PathFilterElement;
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
 public class PathFilterElementToCounterColumn implements org.jamocha.dn.memory.CounterColumnMatcher {
-	private final Map<PathFilterElement, CounterColumn> map = new HashMap<>();
+	private final Map<PathFilter, CounterColumn> map = new HashMap<>();
 
-	void putFilterElementToCounterColumn(final PathFilterElement pathFilterElement, final CounterColumn counterColumn) {
+	void putFilterElementToCounterColumn(final PathFilter pathFilterElement, final CounterColumn counterColumn) {
 		this.map.put(pathFilterElement, counterColumn);
 	}
 
 	@Override
-	public CounterColumn getCounterColumn(final PathFilterElement filterElement) {
+	public CounterColumn getCounterColumn(final PathFilter filterElement) {
 		return map.get(filterElement);
 	}
 

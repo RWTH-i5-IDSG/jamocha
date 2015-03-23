@@ -29,14 +29,14 @@ import lombok.RequiredArgsConstructor;
 import org.jamocha.dn.ConstructCache.Defrule.TranslatedPath;
 import org.jamocha.filter.Path;
 import org.jamocha.filter.PathCollector;
-import org.jamocha.filter.PathFilter;
 import org.jamocha.filter.PathFilterList;
-import org.jamocha.filter.PathFilterList.PathFilterExistentialList;
-import org.jamocha.filter.PathFilterList.PathFilterSharedListWrapper.PathFilterSharedList;
+import org.jamocha.filter.PathFilterList.PathExistentialList;
+import org.jamocha.filter.PathFilterList.PathSharedListWrapper.PathSharedList;
 import org.jamocha.filter.PathFilterListVisitor;
+import org.jamocha.filter.PathNodeFilterSet;
 
 /**
- * A class to optimize the order of a list of {@link PathFilter}s
+ * A class to optimize the order of a list of {@link PathNodeFilterSet}s
  *
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
@@ -231,22 +231,22 @@ public class PathFilterOrderOptimizer implements Optimizer {
 	 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
 	 */
 	static class Partitioner implements PathFilterListVisitor {
-		final ArrayList<PathFilter> pathFilters = new ArrayList<>();
-		final ArrayList<PathFilterSharedList> pathFilterSharedLists = new ArrayList<>();
-		final ArrayList<PathFilterExistentialList> pathFilterExistentialLists = new ArrayList<>();
+		final ArrayList<PathNodeFilterSet> pathFilters = new ArrayList<>();
+		final ArrayList<PathSharedList> pathFilterSharedLists = new ArrayList<>();
+		final ArrayList<PathExistentialList> pathFilterExistentialLists = new ArrayList<>();
 
 		@Override
-		public void visit(final PathFilter filter) {
+		public void visit(final PathNodeFilterSet filter) {
 			this.pathFilters.add(filter);
 		}
 
 		@Override
-		public void visit(final PathFilterExistentialList filter) {
+		public void visit(final PathExistentialList filter) {
 			this.pathFilterExistentialLists.add(filter);
 		}
 
 		@Override
-		public void visit(final PathFilterSharedList filter) {
+		public void visit(final PathSharedList filter) {
 			this.pathFilterSharedLists.add(filter);
 		}
 	}
@@ -327,15 +327,15 @@ public class PathFilterOrderOptimizer implements Optimizer {
 	 * @param list
 	 *            list of filters to order-optimize
 	 */
-	public void optimize(final PathFilterSharedList list) {
+	public void optimize(final PathSharedList list) {
 		// partition the children of the list
 		final Partitioner partitioner = new Partitioner();
-		final List<PathFilterList> elements = list.getFilterElements();
+		final List<PathFilterList> elements = list.getFilters();
 		elements.forEach(e -> e.accept(partitioner));
 		// recurse on the children of the shared list elements
 		partitioner.pathFilterSharedLists.forEach(this::optimize);
 		// recurse on the non existential parts of the existential list elements
-		partitioner.pathFilterExistentialLists.stream().map(PathFilterExistentialList::getNonExistentialPart)
+		partitioner.pathFilterExistentialLists.stream().map(PathExistentialList::getPurelyExistentialPart)
 				.forEach(this::optimize);
 		// clear the list to re-insert the elements in an optimal way
 		elements.clear();

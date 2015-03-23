@@ -22,7 +22,7 @@ import org.jamocha.dn.memory.Template.Slot;
 import org.jamocha.dn.nodes.Edge;
 import org.jamocha.dn.nodes.Node;
 import org.jamocha.filter.Path;
-import org.jamocha.filter.PathFilter;
+import org.jamocha.filter.PathNodeFilterSet;
 
 /**
  * Interface for the different implementations of the memory component. The network uses this
@@ -84,7 +84,7 @@ public interface MemoryFactory {
 	 * @see MemoryHandlerMain
 	 * @see Edge
 	 */
-	public MemoryHandlerMainAndCounterColumnMatcher newMemoryHandlerMain(final PathFilter filter,
+	public MemoryHandlerMainAndCounterColumnMatcher newMemoryHandlerMain(final PathNodeFilterSet filter,
 			final Map<Edge, Set<Path>> edgesAndPaths);
 
 	/**

@@ -42,12 +42,12 @@ import org.jamocha.dn.nodes.CouldNotAcquireLockException;
 import org.jamocha.dn.nodes.Edge;
 import org.jamocha.dn.nodes.Node;
 import org.jamocha.dn.nodes.SlotInFactAddress;
-import org.jamocha.filter.AddressFilter;
-import org.jamocha.filter.AddressFilter.AddressFilterElement;
+import org.jamocha.filter.AddressNodeFilterSet;
+import org.jamocha.filter.AddressNodeFilterSet.AddressFilter;
 import org.jamocha.filter.Path;
 import org.jamocha.filter.PathCollector;
-import org.jamocha.filter.PathFilter;
-import org.jamocha.filter.PathFilter.PathFilterElement;
+import org.jamocha.filter.PathNodeFilterSet;
+import org.jamocha.filter.PathNodeFilterSet.PathFilter;
 
 /**
  * Java-implementation of the {@link org.jamocha.dn.memory.MemoryHandlerMain} interface.
@@ -173,7 +173,7 @@ public class MemoryHandlerMain extends MemoryHandlerBase implements org.jamocha.
 	}
 
 	public static org.jamocha.dn.memory.MemoryHandlerMainAndCounterColumnMatcher newMemoryHandlerMain(
-			final PathFilter filter, final Map<Edge, Set<Path>> edgesAndPaths) {
+			final PathNodeFilterSet filter, final Map<Edge, Set<Path>> edgesAndPaths) {
 		final ArrayList<Template> template = new ArrayList<>();
 		final ArrayList<FactAddress> addresses = new ArrayList<>();
 		final HashMap<FactAddress, FactAddress> newAddressesCache = new HashMap<>();
@@ -211,7 +211,7 @@ public class MemoryHandlerMain extends MemoryHandlerBase implements org.jamocha.
 			existentialPaths.addAll(filter.getNegativeExistentialPaths());
 
 			int index = 0;
-			for (final PathFilterElement pathFilterElement : filter.getFilterElements()) {
+			for (final PathFilter pathFilterElement : filter.getFilters()) {
 				final HashSet<Path> paths = PathCollector.newHashSet().collect(pathFilterElement).getPaths();
 				paths.retainAll(existentialPaths);
 				if (0 == paths.size())
@@ -233,14 +233,14 @@ public class MemoryHandlerMain extends MemoryHandlerBase implements org.jamocha.
 	@Override
 	public org.jamocha.dn.memory.MemoryHandlerTemp processTokenInBeta(
 			final org.jamocha.dn.memory.MemoryHandlerTemp token, final Edge originIncomingEdge,
-			final AddressFilter filter) throws CouldNotAcquireLockException {
+			final AddressNodeFilterSet filter) throws CouldNotAcquireLockException {
 		return ((org.jamocha.dn.memory.javaimpl.MemoryHandlerTemp) token).newBetaTemp(this, originIncomingEdge, filter);
 	}
 
 	@Override
 	public org.jamocha.dn.memory.MemoryHandlerTemp processTokenInAlpha(
 			final org.jamocha.dn.memory.MemoryHandlerTemp token, final Edge originIncomingEdge,
-			final AddressFilter filter) throws CouldNotAcquireLockException {
+			final AddressNodeFilterSet filter) throws CouldNotAcquireLockException {
 		return ((org.jamocha.dn.memory.javaimpl.MemoryHandlerTemp) token)
 				.newAlphaTemp(this, originIncomingEdge, filter);
 	}
@@ -276,10 +276,10 @@ public class MemoryHandlerMain extends MemoryHandlerBase implements org.jamocha.
 		return new MemoryHandlerTerminal(this);
 	}
 
-	private static AddressFilterElement[] emptyAddressFilterElementArray = new AddressFilterElement[0];
+	private static AddressFilter[] emptyAddressFilterElementArray = new AddressFilter[0];
 
 	@Override
-	public AddressFilterElement[] getRelevantExistentialFilterParts(final AddressFilter filter, final Edge edge) {
+	public AddressFilter[] getRelevantExistentialFilterParts(final AddressNodeFilterSet filter, final Edge edge) {
 		assert this == edge.getSourceNode().getMemory();
 		final Set<org.jamocha.dn.memory.FactAddress> positiveExistentialAddresses =
 				filter.getPositiveExistentialAddresses();
@@ -296,9 +296,9 @@ public class MemoryHandlerMain extends MemoryHandlerBase implements org.jamocha.
 				existentialAddresses.add(localizedAddress);
 			}
 		}
-		final AddressFilterElement[] filterElements = filter.getFilterElements();
-		final ArrayList<AddressFilterElement> partList = new ArrayList<>(filterElements.length);
-		filterElementLoop: for (final AddressFilterElement filterElement : filterElements) {
+		final Set<AddressFilter> filterElements = filter.getFilters();
+		final ArrayList<AddressFilter> partList = new ArrayList<>(filterElements.size());
+		filterElementLoop: for (final AddressFilter filterElement : filterElements) {
 			final SlotInFactAddress[] addresses = filterElement.getAddressesInTarget();
 			for (final SlotInFactAddress slotInFactAddress : addresses) {
 				final org.jamocha.dn.memory.FactAddress factAddress = slotInFactAddress.getFactAddress();
@@ -308,7 +308,7 @@ public class MemoryHandlerMain extends MemoryHandlerBase implements org.jamocha.
 				}
 			}
 		}
-		return toArray(partList, AddressFilterElement[]::new);
+		return toArray(partList, AddressFilter[]::new);
 	}
 
 	/**

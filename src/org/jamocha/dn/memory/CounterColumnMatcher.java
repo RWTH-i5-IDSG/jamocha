@@ -14,16 +14,16 @@
  */
 package org.jamocha.dn.memory;
 
-import org.jamocha.filter.PathFilter.PathFilterElement;
+import org.jamocha.filter.PathNodeFilterSet.PathFilter;
 
 /**
- * {@link CounterColumnMatcher}s map {@link PathFilterElement}s to their corresponding
+ * {@link CounterColumnMatcher}s map {@link PathFilter}s to their corresponding
  * {@link CounterColumn}s.
  * 
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  * @see CounterColumn
- * @see PathFilterElement
+ * @see PathFilter
  */
 public interface CounterColumnMatcher {
-	public CounterColumn getCounterColumn(final PathFilterElement filterElement);
+	public CounterColumn getCounterColumn(final PathFilter filterElement);
 }

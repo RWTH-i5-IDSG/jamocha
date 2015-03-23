@@ -30,7 +30,7 @@ import org.jamocha.dn.ConstructCache.Defrule;
 import org.jamocha.dn.ConstructCache.Defrule.TranslatedPath;
 import org.jamocha.filter.Path;
 import org.jamocha.filter.PathCollector;
-import org.jamocha.filter.PathFilter;
+import org.jamocha.filter.PathNodeFilterSet;
 
 import com.google.common.collect.Sets;
 
@@ -45,13 +45,13 @@ public class NodeShareOptimizer implements Optimizer {
 		OptimizerFactory.addImpl(name, () -> new NodeShareOptimizer());
 	}
 
-	final Map<Path, Set<PathFilter>> path2Filters = new HashMap<>();
+	final Map<Path, Set<PathNodeFilterSet>> path2Filters = new HashMap<>();
 
-	final Map<PathFilter, Set<Set<PathFilter>>> filter2Blocks = new HashMap<>();
+	final Map<PathNodeFilterSet, Set<Set<PathNodeFilterSet>>> filter2Blocks = new HashMap<>();
 
-	final Map<PathFilter, Set<Path>> filter2Paths = new HashMap<>();
+	final Map<PathNodeFilterSet, Set<Path>> filter2Paths = new HashMap<>();
 
-	final Map<PathFilter, Defrule.TranslatedPath> filter2Rule = new HashMap<>();
+	final Map<PathNodeFilterSet, Defrule.TranslatedPath> filter2Rule = new HashMap<>();
 
 	final Set<Defrule.TranslatedPath> allRules = new HashSet<>();
 
@@ -61,7 +61,7 @@ public class NodeShareOptimizer implements Optimizer {
 	public Collection<TranslatedPath> optimize(Collection<TranslatedPath> rules) {
 		for (Defrule.TranslatedPath translatedPath : rules) {
 			allRules.add(translatedPath);
-			for (PathFilter pathFilter : translatedPath.getCondition()) {
+			for (PathNodeFilterSet pathFilter : translatedPath.getCondition()) {
 				pool.addFilter(pathFilter);
 				filter2Rule.put(pathFilter, translatedPath);
 				Set<Path> paths = PathCollector.newHashSet().collectAll(pathFilter).getPaths();
@@ -69,13 +69,13 @@ public class NodeShareOptimizer implements Optimizer {
 				paths.addAll(pathFilter.getPositiveExistentialPaths());
 				filter2Paths.put(pathFilter, paths);
 				for (Path path : paths) {
-					Set<PathFilter> set = path2Filters.computeIfAbsent(path, p -> new HashSet<>());
+					Set<PathNodeFilterSet> set = path2Filters.computeIfAbsent(path, p -> new HashSet<>());
 					set.add(pathFilter);
 				}
 			}
 		}
 		for (Defrule.TranslatedPath translatedPath : rules) {
-			for (PathFilter pathFilter : translatedPath.getCondition()) {
+			for (PathNodeFilterSet pathFilter : translatedPath.getCondition()) {
 				buildBlock(translatedPath, pathFilter);
 			}
 		}
@@ -83,25 +83,25 @@ public class NodeShareOptimizer implements Optimizer {
 		return rules;
 	}
 
-	private void buildBlock(final Defrule.TranslatedPath rule, final PathFilter pathFilter) {
-		final Set<PathFilter> preBlock = new HashSet<>();
+	private void buildBlock(final Defrule.TranslatedPath rule, final PathNodeFilterSet pathFilter) {
+		final Set<PathNodeFilterSet> preBlock = new HashSet<>();
 		final Map<Defrule.TranslatedPath, Map<Path, Path>> rule2PathMap = new HashMap<>();
 		preBlock.add(pathFilter);
 		// add all filters producing conflicts in the same rule
 		{
-			Set<PathFilter> newFilters = new HashSet<>();
+			Set<PathNodeFilterSet> newFilters = new HashSet<>();
 			newFilters.add(pathFilter);
 			while (!newFilters.isEmpty()) {
-				final Set<PathFilter> conflictFilters = new HashSet<>();
-				for (PathFilter newFilter : newFilters) {
+				final Set<PathNodeFilterSet> conflictFilters = new HashSet<>();
+				for (PathNodeFilterSet newFilter : newFilters) {
 					for (Path path : filter2Paths.get(newFilter)) {
 						conflictFilters.addAll(path2Filters.getOrDefault((path), Collections.emptySet()));
 					}
 				}
 				conflictFilters.removeAll(preBlock);
 				newFilters = new HashSet<>();
-				for (PathFilter conflictFilter : conflictFilters) {
-					final Set<PathFilter> conflictingInBlock =
+				for (PathNodeFilterSet conflictFilter : conflictFilters) {
+					final Set<PathNodeFilterSet> conflictingInBlock =
 							filter2Paths.get(conflictFilter).stream().flatMap(p -> path2Filters.get(p).stream())
 									.filter(f -> preBlock.contains(f)).collect(toSet());
 					if (!filter2Blocks.get(conflictFilter).stream().allMatch(b -> b.containsAll(conflictingInBlock))) {
@@ -113,16 +113,16 @@ public class NodeShareOptimizer implements Optimizer {
 		}
 		// Add all rules which do not produce conflicts
 		{
-			final Set<PathFilter> preBlockAdds = new HashSet<>();
+			final Set<PathNodeFilterSet> preBlockAdds = new HashSet<>();
 			final Set<Defrule.TranslatedPath> possibleRules = new HashSet<>();
 			possibleRules.addAll(allRules);
-			for (PathFilter filter : preBlock) {
+			for (PathNodeFilterSet filter : preBlock) {
 				possibleRules.retainAll(pool.getEqualFilters(filter).stream().map(f -> filter2Rule.get(f))
 						.collect(toSet()));
 			}
 			for (Defrule.TranslatedPath possibleRule : possibleRules) {
 				final Map<Path, Path> pathMap = new HashMap<>();
-				final Map<PathFilter, PathFilter> filterMap =
+				final Map<PathNodeFilterSet, PathNodeFilterSet> filterMap =
 						comparePathFilters(preBlock, Sets.newHashSet(possibleRule.getCondition()), pathMap);
 				if (null != filterMap && checkForConflicts(filterMap.values())) {
 					preBlockAdds.addAll(filterMap.values());
@@ -131,7 +131,7 @@ public class NodeShareOptimizer implements Optimizer {
 			}
 		}
 		{
-			for (PathFilter filter : rule.getCondition()) {
+			for (PathNodeFilterSet filter : rule.getCondition()) {
 				if (preBlock.contains(filter))
 					continue;
 				for (Defrule.TranslatedPath otherRule : rule2PathMap.keySet()) {
@@ -141,7 +141,7 @@ public class NodeShareOptimizer implements Optimizer {
 		}
 	}
 
-	private boolean checkForConflicts(final Collection<PathFilter> values) {
+	private boolean checkForConflicts(final Collection<PathNodeFilterSet> values) {
 		return values
 				.stream()
 				.flatMap(
@@ -157,24 +157,24 @@ public class NodeShareOptimizer implements Optimizer {
 						}).allMatch(noConflict -> noConflict);
 	}
 
-	private Map<PathFilter, PathFilter> comparePathFilters(final Set<PathFilter> filters1,
-			final Set<PathFilter> filters2) {
+	private Map<PathNodeFilterSet, PathNodeFilterSet> comparePathFilters(final Set<PathNodeFilterSet> filters1,
+			final Set<PathNodeFilterSet> filters2) {
 		return comparePathFilters(filters1, filters2, new HashMap<>());
 	}
 
-	private Map<PathFilter, PathFilter> comparePathFilters(final Set<PathFilter> filters1,
-			final Set<PathFilter> filters2, final Map<Path, Path> pathMap) {
+	private Map<PathNodeFilterSet, PathNodeFilterSet> comparePathFilters(final Set<PathNodeFilterSet> filters1,
+			final Set<PathNodeFilterSet> filters2, final Map<Path, Path> pathMap) {
 		if (filters1.size() == 0)
 			return new HashMap<>();
-		final Iterator<PathFilter> iterator = filters1.iterator();
-		final PathFilter filter1 = iterator.next();
+		final Iterator<PathNodeFilterSet> iterator = filters1.iterator();
+		final PathNodeFilterSet filter1 = iterator.next();
 		iterator.remove();
 		try {
-			for (PathFilter filter2 : IteratorUtils.asIterable(pool.getEqualFilters(filter1).stream()
+			for (PathNodeFilterSet filter2 : IteratorUtils.asIterable(pool.getEqualFilters(filter1).stream()
 					.filter(f -> filters2.contains(f)).iterator())) {
 				final Map<Path, Path> tmpPathMap = new HashMap<>(pathMap);
-				if (PathFilter.equals(filter1, filter2, tmpPathMap)) {
-					final Map<PathFilter, PathFilter> filterMap = comparePathFilters(filters1, filters2, tmpPathMap);
+				if (PathNodeFilterSet.equals(filter1, filter2, tmpPathMap)) {
+					final Map<PathNodeFilterSet, PathNodeFilterSet> filterMap = comparePathFilters(filters1, filters2, tmpPathMap);
 					if (null != filterMap) {
 						filterMap.put(filter1, filter2);
 						return filterMap;
@@ -189,36 +189,36 @@ public class NodeShareOptimizer implements Optimizer {
 
 	private class PathFilterPool {
 
-		Map<Integer, Set<Set<PathFilter>>> pool = new HashMap<>();
+		Map<Integer, Set<Set<PathNodeFilterSet>>> pool = new HashMap<>();
 
-		public Set<PathFilter> getEqualFilters(PathFilter filter) {
-			Set<Set<PathFilter>> sets = pool.get(filter.getHashCode());
-			for (Set<PathFilter> set : sets) {
+		public Set<PathNodeFilterSet> getEqualFilters(PathNodeFilterSet filter) {
+			Set<Set<PathNodeFilterSet>> sets = pool.get(filter.getHashCode());
+			for (Set<PathNodeFilterSet> set : sets) {
 				if (set.contains(filter))
 					return set;
-				if (PathFilter.equals(set.iterator().next(), filter))
+				if (PathNodeFilterSet.equals(set.iterator().next(), filter))
 					return set;
 			}
 			return null;
 		}
 
-		public void addFilter(PathFilter filter) {
-			final Set<Set<PathFilter>> setOfSets = pool.get(filter.getHashCode());
+		public void addFilter(PathNodeFilterSet filter) {
+			final Set<Set<PathNodeFilterSet>> setOfSets = pool.get(filter.getHashCode());
 			if (null == setOfSets) {
-				final Set<Set<PathFilter>> newSetOfSets = new HashSet<>();
-				final Set<PathFilter> newSet = new HashSet<>();
+				final Set<Set<PathNodeFilterSet>> newSetOfSets = new HashSet<>();
+				final Set<PathNodeFilterSet> newSet = new HashSet<>();
 				newSet.add(filter);
 				newSetOfSets.add(newSet);
 				pool.put(filter.getHashCode(), newSetOfSets);
 				return;
 			}
-			for (Set<PathFilter> set : setOfSets) {
-				if (PathFilter.equals(set.iterator().next(), filter)) {
+			for (Set<PathNodeFilterSet> set : setOfSets) {
+				if (PathNodeFilterSet.equals(set.iterator().next(), filter)) {
 					set.add(filter);
 					return;
 				}
 			}
-			final Set<PathFilter> newSet = new HashSet<>();
+			final Set<PathNodeFilterSet> newSet = new HashSet<>();
 			newSet.add(filter);
 			setOfSets.add(newSet);
 		}
@@ -226,10 +226,10 @@ public class NodeShareOptimizer implements Optimizer {
 	}
 
 	private class Block {
-		final Map<Defrule.TranslatedPath, Set<PathFilter>> rule2PathFilters = new HashMap<>();
+		final Map<Defrule.TranslatedPath, Set<PathNodeFilterSet>> rule2PathFilters = new HashMap<>();
 
-		void addFilter(Defrule.TranslatedPath rule, PathFilter filter) {
-			Set<PathFilter> filters = rule2PathFilters.get(rule);
+		void addFilter(Defrule.TranslatedPath rule, PathNodeFilterSet filter) {
+			Set<PathNodeFilterSet> filters = rule2PathFilters.get(rule);
 			if (null == filters) {
 				filters = new HashSet<>();
 				rule2PathFilters.put(rule, filters);

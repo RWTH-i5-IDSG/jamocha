@@ -23,7 +23,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -42,12 +41,12 @@ import org.jamocha.dn.memory.MemoryHandlerMainAndCounterColumnMatcher;
 import org.jamocha.dn.memory.MemoryHandlerPlusTemp;
 import org.jamocha.dn.memory.MemoryHandlerTemp;
 import org.jamocha.dn.memory.Template;
-import org.jamocha.filter.AddressFilter;
-import org.jamocha.filter.AddressFilter.AddressFilterElement;
+import org.jamocha.filter.AddressNodeFilterSet;
+import org.jamocha.filter.AddressNodeFilterSet.AddressFilter;
 import org.jamocha.filter.Path;
 import org.jamocha.filter.PathCollector;
-import org.jamocha.filter.PathFilter;
-import org.jamocha.filter.PathFilterToAddressFilterTranslator;
+import org.jamocha.filter.PathNodeFilterSet;
+import org.jamocha.filter.PathNodeFilterSetToAddressNodeFilterSetTranslator;
 import org.jamocha.visitor.Visitable;
 
 /**
@@ -69,10 +68,10 @@ public abstract class Node implements Visitable<NodeVisitor> {
 	abstract protected class EdgeImpl implements Edge {
 		protected final Node sourceNode;
 		protected final Node targetNode;
-		protected AddressFilter filter;
-		protected AddressFilterElement[] filterParts;
+		protected AddressNodeFilterSet filter;
+		protected AddressFilter[] filterParts;
 
-		protected EdgeImpl(final Node sourceNode, final Node targetNode, final AddressFilter filter) {
+		protected EdgeImpl(final Node sourceNode, final Node targetNode, final AddressNodeFilterSet filter) {
 			this.sourceNode = sourceNode;
 			this.targetNode = targetNode;
 			setFilter(filter);
@@ -94,7 +93,7 @@ public abstract class Node implements Visitable<NodeVisitor> {
 		}
 
 		@Override
-		public void setFilter(final AddressFilter filter) {
+		public void setFilter(final AddressNodeFilterSet filter) {
 			this.filter = filter;
 			if (null == filter) {
 				this.filterParts = null;
@@ -104,12 +103,12 @@ public abstract class Node implements Visitable<NodeVisitor> {
 		}
 
 		@Override
-		public AddressFilter getFilter() {
+		public AddressNodeFilterSet getFilter() {
 			return this.filter;
 		}
 
 		@Override
-		public AddressFilterElement[] getFilterPartsForCounterColumns() {
+		public AddressFilter[] getFilterPartsForCounterColumns() {
 			return this.filterParts;
 		}
 
@@ -175,7 +174,7 @@ public abstract class Node implements Visitable<NodeVisitor> {
 	 * @return the filter that has originally been set to all inputs
 	 */
 	@Getter
-	final protected AddressFilter filter;
+	final protected AddressNodeFilterSet filter;
 
 	public static class TokenQueue implements Runnable {
 		/**
@@ -356,9 +355,9 @@ public abstract class Node implements Visitable<NodeVisitor> {
 			this.incomingEdges[i] = edge;
 			edgesAndPaths.put(edge, null);
 		}
-		this.filter = AddressFilter.empty;
+		this.filter = AddressNodeFilterSet.empty;
 		final MemoryHandlerMainAndCounterColumnMatcher memoryHandlerMainAndCounterColumnMatcher =
-				network.getMemoryFactory().newMemoryHandlerMain(PathFilter.empty, edgesAndPaths);
+				network.getMemoryFactory().newMemoryHandlerMain(PathNodeFilterSet.empty, edgesAndPaths);
 		this.memory = memoryHandlerMainAndCounterColumnMatcher.getMemoryHandlerMain();
 	}
 
@@ -367,13 +366,13 @@ public abstract class Node implements Visitable<NodeVisitor> {
 		this.tokenQueue = new TokenQueue(network.getScheduler());
 		this.incomingEdges = new Edge[0];
 		this.memory = network.getMemoryFactory().newMemoryHandlerMain(template, paths);
-		this.filter = AddressFilter.empty;
+		this.filter = AddressNodeFilterSet.empty;
 	}
 
-	public Node(final Network network, final PathFilter filter) {
+	public Node(final Network network, final PathNodeFilterSet filter) {
 		this.network = network;
 		this.tokenQueue = new TokenQueue(network.getScheduler());
-		final LinkedHashSet<Path> paths = PathCollector.newLinkedHashSet().collectAll(filter).getPaths();
+		final HashSet<Path> paths = PathCollector.newHashSet().collectAll(filter).getPaths();
 		final Map<Edge, Set<Path>> edgesAndPaths = new HashMap<>();
 		final ArrayList<Edge> edges = new ArrayList<>();
 		final Set<Path> joinedPaths = new HashSet<>();
@@ -415,7 +414,7 @@ public abstract class Node implements Visitable<NodeVisitor> {
 			}
 		}
 		this.filter =
-				PathFilterToAddressFilterTranslator.translate(filter,
+				PathNodeFilterSetToAddressNodeFilterSetTranslator.translate(filter,
 						memoryHandlerMainAndCounterColumnMatcher.getFilterElementToCounterColumn());
 		for (final Edge edge : this.incomingEdges) {
 			edge.setFilter(this.filter);

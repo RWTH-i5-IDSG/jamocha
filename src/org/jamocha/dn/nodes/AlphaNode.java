@@ -24,9 +24,9 @@ import org.jamocha.dn.memory.MemoryHandlerMinusTemp;
 import org.jamocha.dn.memory.MemoryHandlerPlusTemp;
 import org.jamocha.dn.memory.MemoryHandlerTemp;
 import org.jamocha.dn.memory.Template;
-import org.jamocha.filter.AddressFilter;
+import org.jamocha.filter.AddressNodeFilterSet;
 import org.jamocha.filter.Path;
-import org.jamocha.filter.PathFilter;
+import org.jamocha.filter.PathNodeFilterSet;
 
 /**
  * Alpha {@link Node} implementation.
@@ -48,7 +48,7 @@ public class AlphaNode extends Node {
 	protected class AlphaEdgeImpl extends EdgeImpl {
 		FactAddress addressInTarget = null;
 
-		public AlphaEdgeImpl(final Node sourceNode, final Node targetNode, final AddressFilter filter) {
+		public AlphaEdgeImpl(final Node sourceNode, final Node targetNode, final AddressNodeFilterSet filter) {
 			super(sourceNode, targetNode, filter);
 		}
 
@@ -115,7 +115,7 @@ public class AlphaNode extends Node {
 		super(network, template, paths);
 	}
 
-	public AlphaNode(final Network network, final PathFilter filter) {
+	public AlphaNode(final Network network, final PathNodeFilterSet filter) {
 		super(network, filter);
 	}
 

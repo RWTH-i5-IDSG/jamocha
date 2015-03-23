@@ -24,7 +24,7 @@ import java.util.LinkedList;
 
 import org.jamocha.dn.memory.FactAddress;
 import org.jamocha.dn.nodes.SlotInFactAddress;
-import org.jamocha.filter.AddressFilter.AddressFilterElement;
+import org.jamocha.filter.AddressNodeFilterSet.AddressFilter;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
@@ -38,14 +38,14 @@ public class FactAddressCollector<T extends Collection<FactAddress>> {
 		this.addresses = addresses;
 	}
 
-	public FactAddressCollector<T> collect(final AddressFilter filter) {
-		for (final AddressFilterElement filterElement : filter.getFilterElements()) {
+	public FactAddressCollector<T> collect(final AddressNodeFilterSet filter) {
+		for (final AddressFilter filterElement : filter.getFilters()) {
 			collect(filterElement);
 		}
 		return this;
 	}
 
-	public FactAddressCollector<T> collect(final AddressFilterElement filterElement) {
+	public FactAddressCollector<T> collect(final AddressFilter filterElement) {
 		for (final SlotInFactAddress address : filterElement.getAddressesInTarget()) {
 			this.addresses.add(address.getFactAddress());
 		}

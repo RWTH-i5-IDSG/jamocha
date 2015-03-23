@@ -20,7 +20,7 @@ import java.util.List;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
-import org.jamocha.filter.PathFilterList.PathFilterSharedListWrapper;
+import org.jamocha.filter.PathFilterList.PathSharedListWrapper;
 import org.jamocha.function.fwa.PredicateWithArguments;
 import org.jamocha.function.fwa.SymbolLeaf;
 import org.jamocha.visitor.Visitable;
@@ -158,7 +158,7 @@ public abstract class ConditionalElement implements Visitable<ConditionalElement
 	public static class SharedConditionalElementWrapper extends ConditionalElement {
 
 		private ConditionalElement ce;
-		private final PathFilterSharedListWrapper wrapper = new PathFilterSharedListWrapper();
+		private final PathSharedListWrapper wrapper = new PathSharedListWrapper();
 
 		public SharedConditionalElementWrapper(final ConditionalElement ce) {
 			super(null);

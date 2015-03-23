@@ -5,20 +5,20 @@ import lombok.EqualsAndHashCode;
 import org.jamocha.dn.memory.SlotType;
 import org.jamocha.dn.nodes.Node;
 import org.jamocha.dn.nodes.SlotInFactAddress;
-import org.jamocha.filter.AddressFilter.AddressFilterElement;
-import org.jamocha.filter.Filter;
+import org.jamocha.filter.AddressNodeFilterSet.AddressFilter;
+import org.jamocha.filter.NodeFilterSet;
 import org.jamocha.function.Function;
 
 /**
  * This class stores the {@link SlotType} of the represented Slot only. All other relevant
- * information are stored in the containing {@link AddressFilterElement}. A {@link PathLeaf} is
+ * information are stored in the containing {@link AddressFilter}. A {@link PathLeaf} is
  * translated into a {@link ParameterLeaf} as soon as the {@link Node} representing the surrounding
- * {@link Filter} has been created. In doing so, the containing {@link AddressFilterElement} stores
+ * {@link NodeFilterSet} has been created. In doing so, the containing {@link AddressFilter} stores
  * the corresponding {@link SlotInFactAddress} in
- * {@link AddressFilterElement#getAddressesInTarget()}.
+ * {@link AddressFilter#getAddressesInTarget()}.
  * 
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
- * @see AddressFilterElement
+ * @see AddressFilter
  * @see SlotInFactAddress
  */
 @EqualsAndHashCode

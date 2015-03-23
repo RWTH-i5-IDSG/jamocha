@@ -31,13 +31,14 @@ import lombok.RequiredArgsConstructor;
 import org.jamocha.dn.ConstructCache.Defrule.TranslatedPath;
 import org.jamocha.filter.Path;
 import org.jamocha.filter.PathCollector;
-import org.jamocha.filter.PathFilter;
-import org.jamocha.filter.PathFilter.DummyPathFilterElement;
-import org.jamocha.filter.PathFilter.PathFilterElement;
 import org.jamocha.filter.PathFilterList;
-import org.jamocha.filter.PathFilterList.PathFilterExistentialList;
-import org.jamocha.filter.PathFilterList.PathFilterSharedListWrapper.PathFilterSharedList;
+import org.jamocha.filter.PathFilterList.PathExistentialList;
+import org.jamocha.filter.PathFilterList.PathSharedListWrapper.PathSharedList;
 import org.jamocha.filter.PathFilterListVisitor;
+import org.jamocha.filter.PathFilterVisitor;
+import org.jamocha.filter.PathNodeFilterSet;
+import org.jamocha.filter.PathNodeFilterSet.DummyPathFilter;
+import org.jamocha.filter.PathNodeFilterSet.PathFilter;
 import org.jamocha.function.fwa.GenericWithArgumentsComposite;
 import org.jamocha.function.fwa.PathLeaf;
 import org.jamocha.function.fwa.PredicateWithArguments;
@@ -54,70 +55,86 @@ public class SamePathsFEsCombiningOptimizer implements Optimizer {
 		OptimizerFactory.addImpl(name, () -> instance);
 	}
 
+	static class Partitioner implements PathFilterVisitor {
+		final Set<PathFilter> regular = new HashSet<>(), dummies = new HashSet<>();
+
+		@Override
+		public void visit(final PathFilter f) {
+			this.regular.add(f);
+		}
+
+		@Override
+		public void visit(final DummyPathFilter f) {
+			dummies.add(f);
+		}
+
+	}
+
 	@RequiredArgsConstructor
 	static class Identifier implements PathFilterListVisitor {
 		final HashMap<Path, Set<Path>> path2JoinedWith;
 		PathFilterList result;
 
 		@Override
-		public void visit(final PathFilter filter) {
-			final PathFilterElement[] filterElements = filter.getFilterElements();
-			final List<PathFilterElement> resultFEs = new ArrayList<PathFilterElement>();
-			final HashMap<Set<Path>, PathFilterElement> joinSet2FilterElement = new HashMap<>();
-			for (final PathFilterElement fe : filterElements) {
-				if (fe != filterElements[filterElements.length - 1] && fe instanceof DummyPathFilterElement) {
-					continue;
-				}
-				final HashSet<Path> currentPaths = PathCollector.newHashSet().collect(fe).getPaths();
-				if (resultFEs.isEmpty()) {
-					save(resultFEs, joinSet2FilterElement, fe, currentPaths);
+		public void visit(final PathNodeFilterSet filterSet) {
+			final Set<PathFilter> filters = filterSet.getFilters();
+			final List<PathFilter> resultFilters = new ArrayList<PathFilter>();
+			final HashMap<Set<Path>, PathFilter> joinSet2FilterElement = new HashMap<>();
+			final Partitioner partitioner = new Partitioner();
+			filters.forEach(f -> f.accept(partitioner));
+			for (final PathFilter filter : partitioner.regular) {
+				final HashSet<Path> currentPaths = PathCollector.newHashSet().collect(filter).getPaths();
+				if (resultFilters.isEmpty()) {
+					save(resultFilters, joinSet2FilterElement, filter, currentPaths);
 					continue;
 				}
 				final HashSet<Path> joined =
 						currentPaths.stream()
 								.flatMap(p -> path2JoinedWith.getOrDefault(p, Collections.singleton(p)).stream())
 								.collect(toCollection(HashSet::new));
-				final PathFilterElement samePathsFilterElement = joinSet2FilterElement.get(joined);
+				final PathFilter samePathsFilterElement = joinSet2FilterElement.get(joined);
 				if (null == samePathsFilterElement) {
-					save(resultFEs, joinSet2FilterElement, fe, joined);
+					save(resultFilters, joinSet2FilterElement, filter, joined);
 					continue;
 				}
-				// TODO handle dummy filter elements more robustly
-				resultFEs.remove(samePathsFilterElement);
-				save(resultFEs, joinSet2FilterElement, combineTwoFiltersElements(samePathsFilterElement, fe), joined);
+				resultFilters.remove(samePathsFilterElement);
+				save(resultFilters, joinSet2FilterElement, combineTwoFiltersElements(samePathsFilterElement, filter),
+						joined);
 			}
+			final PathCollector<HashSet<Path>> pathCollector = PathCollector.newHashSet();
+			partitioner.dummies.forEach(d -> d.accept(pathCollector));
+			save(resultFilters, joinSet2FilterElement, new DummyPathFilter(pathCollector.getPathsArray()),
+					pathCollector.getPaths());
 			result =
-					new PathFilter(filter.getPositiveExistentialPaths(), filter.getNegativeExistentialPaths(), toArray(
-							resultFEs, PathFilterElement[]::new));
+					new PathNodeFilterSet(filterSet.getPositiveExistentialPaths(),
+							filterSet.getNegativeExistentialPaths(), toArray(resultFilters, PathFilter[]::new));
 		}
 
-		PathFilterElement combineTwoFiltersElements(final PathFilterElement samePathsFilterElement,
-				final PathFilterElement fe) {
+		PathFilter combineTwoFiltersElements(final PathFilter samePathsFilterElement, final PathFilter fe) {
 			final PredicateWithArguments<PathLeaf> lastFunction = samePathsFilterElement.getFunction();
 			final PredicateWithArguments<PathLeaf> nextFunction = fe.getFunction();
 			final PredicateWithArguments<PathLeaf> newFunction =
 					GenericWithArgumentsComposite.newPredicateInstance(And.inClips, lastFunction, nextFunction);
-			return new PathFilterElement(newFunction);
+			return new PathFilter(newFunction);
 		}
 
-		private void save(final List<PathFilterElement> result,
-				final HashMap<Set<Path>, PathFilterElement> joinSet2FilterElement, final PathFilterElement fe,
-				final HashSet<Path> currentPaths) {
+		private void save(final List<PathFilter> result, final HashMap<Set<Path>, PathFilter> joinSet2FilterElement,
+				final PathFilter fe, final HashSet<Path> currentPaths) {
 			result.add(fe);
 			currentPaths.forEach(p -> path2JoinedWith.put(p, currentPaths));
 			joinSet2FilterElement.put(currentPaths, fe);
 		}
 
 		@Override
-		public void visit(final PathFilterExistentialList filter) {
+		public void visit(final PathExistentialList filter) {
 			result =
-					new PathFilterExistentialList(combine(filter.getNonExistentialPart().getFilterElements()),
+					new PathExistentialList(combine(filter.getPurelyExistentialPart().getFilters()),
 							filter.getExistentialClosure());
 		}
 
 		@Override
-		public void visit(final PathFilterSharedList filter) {
-			result = filter.getWrapper().replace(filter, combine(filter.getFilterElements()));
+		public void visit(final PathSharedList filter) {
+			result = filter.getWrapper().replace(filter, combine(filter.getFilters()));
 		}
 
 		List<PathFilterList> combine(final List<PathFilterList> filters) {
@@ -125,8 +142,8 @@ public class SamePathsFEsCombiningOptimizer implements Optimizer {
 		}
 	}
 
-	static PathFilterSharedList optimize(final PathFilterSharedList condition) {
-		return (PathFilterSharedList) condition.accept(new Identifier(new HashMap<>())).result;
+	static PathSharedList optimize(final PathSharedList condition) {
+		return (PathSharedList) condition.accept(new Identifier(new HashMap<>())).result;
 	}
 
 	@Override

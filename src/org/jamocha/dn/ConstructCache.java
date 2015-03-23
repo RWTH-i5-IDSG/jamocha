@@ -30,7 +30,7 @@ import lombok.Value;
 import org.apache.logging.log4j.Marker;
 import org.jamocha.dn.memory.MemoryHandlerTerminal.AssertOrRetract;
 import org.jamocha.dn.memory.Template;
-import org.jamocha.filter.PathFilterList.PathFilterSharedListWrapper;
+import org.jamocha.filter.PathFilterList.PathSharedListWrapper;
 import org.jamocha.function.Function;
 import org.jamocha.function.fwa.Assert;
 import org.jamocha.function.fwa.FunctionWithArguments;
@@ -86,12 +86,12 @@ public class ConstructCache {
 			this.activationMarker = MarkerType.ACTIVATIONS.createChild(name);
 		}
 
-		public TranslatedPath newTranslated(final PathFilterSharedListWrapper.PathFilterSharedList condition,
+		public TranslatedPath newTranslated(final PathSharedListWrapper.PathSharedList condition,
 				final Map<EquivalenceClass, PathLeaf> equivalenceClassToPathLeaf, final int specificity) {
 			return new TranslatedPath(condition, actionList, equivalenceClassToPathLeaf, specificity);
 		}
 
-		public TranslatedPath newTranslated(final PathFilterSharedListWrapper.PathFilterSharedList condition,
+		public TranslatedPath newTranslated(final PathSharedListWrapper.PathSharedList condition,
 				final Map<EquivalenceClass, PathLeaf> equivalenceClassToPathLeaf) {
 			return newTranslated(condition, equivalenceClassToPathLeaf,
 					(int) StreamSupport.stream(condition.spliterator(), false).count());
@@ -100,7 +100,7 @@ public class ConstructCache {
 		@Data
 		@RequiredArgsConstructor
 		public class TranslatedPath {
-			final PathFilterSharedListWrapper.PathFilterSharedList condition;
+			final PathSharedListWrapper.PathSharedList condition;
 			final FunctionWithArguments<SymbolLeaf>[] actionList;
 			final Map<EquivalenceClass, PathLeaf> equivalenceClassToPathLeaf;
 			final int specificity;
@@ -119,7 +119,7 @@ public class ConstructCache {
 
 		@Data
 		public class Translated {
-			final PathFilterSharedListWrapper.PathFilterSharedList condition;
+			final PathSharedListWrapper.PathSharedList condition;
 			final AddressesActionList actionList;
 			final int specificity;
 

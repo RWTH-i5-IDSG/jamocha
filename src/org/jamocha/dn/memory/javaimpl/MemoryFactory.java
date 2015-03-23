@@ -23,7 +23,7 @@ import org.jamocha.dn.memory.Template;
 import org.jamocha.dn.memory.Template.Slot;
 import org.jamocha.dn.nodes.Edge;
 import org.jamocha.filter.Path;
-import org.jamocha.filter.PathFilter;
+import org.jamocha.filter.PathNodeFilterSet;
 
 /**
  * Implementation of the {@link org.jamocha.dn.memory.MemoryFactory} interface. Supplies a singleton
@@ -62,7 +62,7 @@ public class MemoryFactory implements org.jamocha.dn.memory.MemoryFactory {
 	}
 
 	@Override
-	public MemoryHandlerMainAndCounterColumnMatcher newMemoryHandlerMain(final PathFilter filter,
+	public MemoryHandlerMainAndCounterColumnMatcher newMemoryHandlerMain(final PathNodeFilterSet filter,
 			final Map<Edge, Set<Path>> edgesAndPaths) {
 		return MemoryHandlerMain.newMemoryHandlerMain(filter, edgesAndPaths);
 	}

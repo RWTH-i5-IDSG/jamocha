@@ -21,7 +21,7 @@ import org.jamocha.dn.memory.Template;
 import org.jamocha.dn.nodes.CouldNotAcquireLockException;
 import org.jamocha.dn.nodes.Edge;
 import org.jamocha.dn.nodes.Node;
-import org.jamocha.filter.AddressFilter;
+import org.jamocha.filter.AddressNodeFilterSet;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
@@ -52,14 +52,14 @@ public class MemoryHandlerMainWithExistentials extends MemoryHandlerMain {
 	@Override
 	public org.jamocha.dn.memory.MemoryHandlerTemp processTokenInBeta(
 			final org.jamocha.dn.memory.MemoryHandlerTemp token, final Edge originIncomingEdge,
-			final AddressFilter filter) throws CouldNotAcquireLockException {
+			final AddressNodeFilterSet filter) throws CouldNotAcquireLockException {
 		return ((MemoryHandlerTemp) token).newBetaTemp(this, originIncomingEdge, filter);
 	}
 
 	@Override
 	public org.jamocha.dn.memory.MemoryHandlerTemp processTokenInAlpha(
 			final org.jamocha.dn.memory.MemoryHandlerTemp token, final Edge originIncomingEdge,
-			final AddressFilter filter) throws CouldNotAcquireLockException {
+			final AddressNodeFilterSet filter) throws CouldNotAcquireLockException {
 		return ((MemoryHandlerTemp) token).newAlphaTemp(this, originIncomingEdge, filter);
 	}
 

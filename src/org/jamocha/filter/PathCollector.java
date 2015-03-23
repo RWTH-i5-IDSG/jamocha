@@ -16,15 +16,12 @@ package org.jamocha.filter;
 
 import static org.jamocha.util.ToArray.toArray;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.LinkedList;
 
-import org.jamocha.filter.PathFilter.DummyPathFilterElement;
-import org.jamocha.filter.PathFilter.PathFilterElement;
+import org.jamocha.filter.PathNodeFilterSet.DummyPathFilter;
+import org.jamocha.filter.PathNodeFilterSet.PathFilter;
 import org.jamocha.function.fwa.Assert;
 import org.jamocha.function.fwa.Bind;
 import org.jamocha.function.fwa.ConstantLeaf;
@@ -45,43 +42,43 @@ import org.jamocha.function.fwa.Retract;
  *            collection type to use while collecting the paths
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
-public class PathCollector<T extends Collection<Path>> implements PathFilterElementVisitor {
+public class PathCollector<T extends Collection<Path>> implements PathFilterVisitor {
 	private final T paths;
 
 	public PathCollector(final T paths) {
 		this.paths = paths;
 	}
 
-	public PathCollector<T> collectAll(final PathFilter filter) {
-		this.paths.addAll(filter.getPositiveExistentialPaths());
-		this.paths.addAll(filter.getNegativeExistentialPaths());
-		return collectOnlyInFilterElements(filter);
+	public PathCollector<T> collectAll(final PathNodeFilterSet filterSet) {
+		this.paths.addAll(filterSet.getPositiveExistentialPaths());
+		this.paths.addAll(filterSet.getNegativeExistentialPaths());
+		return collectOnlyInFilters(filterSet);
 	}
 
-	public PathCollector<T> collectAll(final Iterable<PathFilter> filters) {
-		for (final PathFilter filter : filters) {
-			collectAll(filter);
+	public PathCollector<T> collectAll(final Iterable<PathNodeFilterSet> filterSets) {
+		for (final PathNodeFilterSet filterSet : filterSets) {
+			collectAll(filterSet);
 		}
 		return this;
 	}
 
-	public PathCollector<T> collectOnlyInFilterElements(final PathFilter filter) {
-		for (final PathFilterElement filterElement : filter.getFilterElements()) {
-			collect(filterElement);
+	public PathCollector<T> collectOnlyInFilters(final PathNodeFilterSet filterSet) {
+		for (final PathFilter filter : filterSet.getFilters()) {
+			collect(filter);
 		}
 		return this;
 	}
 
-	public PathCollector<T> collectOnlyInFilterElements(final Iterable<PathFilter> filters) {
-		for (final PathFilter filter : filters) {
-			collectOnlyInFilterElements(filter);
+	public PathCollector<T> collectOnlyInFilters(final Iterable<PathNodeFilterSet> filterSet) {
+		for (final PathNodeFilterSet filter : filterSet) {
+			collectOnlyInFilters(filter);
 		}
 		return this;
 	}
 
-	public PathCollector<T> collectOnlyNonExistential(final PathFilterList filters) {
-		for (final PathFilter filter : filters) {
-			collectOnlyInFilterElements(filter);
+	public PathCollector<T> collectOnlyNonExistential(final PathFilterList filterSet) {
+		for (final PathNodeFilterSet filter : filterSet) {
+			collectOnlyInFilters(filter);
 			this.paths.removeAll(filter.getPositiveExistentialPaths());
 			this.paths.removeAll(filter.getNegativeExistentialPaths());
 		}
@@ -89,17 +86,17 @@ public class PathCollector<T extends Collection<Path>> implements PathFilterElem
 	}
 
 	@Override
-	public void visit(final PathFilterElement fe) {
-		fe.getFunction().accept(new PathCollectorInFWA());
+	public void visit(final PathFilter f) {
+		f.getFunction().accept(new PathCollectorInFWA());
 	}
 
 	@Override
-	public void visit(final DummyPathFilterElement fe) {
-		paths.addAll(Arrays.asList(fe.getPaths()));
+	public void visit(final DummyPathFilter f) {
+		paths.addAll(Arrays.asList(f.getPaths()));
 	}
 
-	public PathCollector<T> collect(final PathFilterElement filterElement) {
-		filterElement.accept(this);
+	public PathCollector<T> collect(final PathFilter filter) {
+		filter.accept(this);
 		return this;
 	}
 
@@ -110,18 +107,6 @@ public class PathCollector<T extends Collection<Path>> implements PathFilterElem
 
 	public static PathCollector<HashSet<Path>> newHashSet() {
 		return new PathCollector<>(new HashSet<>());
-	}
-
-	public static PathCollector<LinkedHashSet<Path>> newLinkedHashSet() {
-		return new PathCollector<>(new LinkedHashSet<>());
-	}
-
-	public static PathCollector<ArrayList<Path>> newArrayList() {
-		return new PathCollector<>(new ArrayList<>());
-	}
-
-	public static PathCollector<LinkedList<Path>> newLinkedList() {
-		return new PathCollector<>(new LinkedList<>());
 	}
 
 	/**

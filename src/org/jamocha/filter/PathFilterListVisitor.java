@@ -22,10 +22,10 @@ import org.jamocha.visitor.Visitor;
  */
 public interface PathFilterListVisitor extends Visitor {
 
-	public void visit(final PathFilter filter);
+	public void visit(final PathNodeFilterSet filter);
 
-	public void visit(final PathFilterList.PathFilterExistentialList filter);
+	public void visit(final PathFilterList.PathExistentialList filter);
 
-	public void visit(final PathFilterList.PathFilterSharedListWrapper.PathFilterSharedList filter);
+	public void visit(final PathFilterList.PathSharedListWrapper.PathSharedList filter);
 
 }

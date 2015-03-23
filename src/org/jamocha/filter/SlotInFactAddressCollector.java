@@ -23,7 +23,7 @@ import java.util.LinkedHashSet;
 import java.util.LinkedList;
 
 import org.jamocha.dn.nodes.SlotInFactAddress;
-import org.jamocha.filter.AddressFilter.AddressFilterElement;
+import org.jamocha.filter.AddressNodeFilterSet.AddressFilter;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
@@ -39,15 +39,15 @@ public class SlotInFactAddressCollector<T extends Collection<SlotInFactAddress>>
 		this.addresses = addresses;
 	}
 
-	public SlotInFactAddressCollector<T> collect(final AddressFilter filter) {
-		for (final AddressFilterElement filterElement : filter.getFilterElements()) {
-			collect(filterElement);
+	public SlotInFactAddressCollector<T> collect(final AddressNodeFilterSet filterSet) {
+		for (final AddressFilter filter : filterSet.getFilters()) {
+			collect(filter);
 		}
 		return this;
 	}
 
-	public SlotInFactAddressCollector<T> collect(final AddressFilterElement filterElement) {
-		for (final SlotInFactAddress address : filterElement.getAddressesInTarget()) {
+	public SlotInFactAddressCollector<T> collect(final AddressFilter filter) {
+		for (final SlotInFactAddress address : filter.getAddressesInTarget()) {
 			this.getAddresses().add(address);
 		}
 		return this;

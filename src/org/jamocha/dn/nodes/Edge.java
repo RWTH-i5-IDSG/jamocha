@@ -25,10 +25,10 @@ import org.jamocha.dn.memory.MemoryHandlerPlusTemp;
 import org.jamocha.dn.memory.MemoryHandlerTemp;
 import org.jamocha.dn.memory.javaimpl.CounterUpdate;
 import org.jamocha.dn.nodes.Node.TokenQueue;
-import org.jamocha.filter.AddressFilter;
-import org.jamocha.filter.AddressFilter.AddressFilterElement;
-import org.jamocha.filter.Filter;
-import org.jamocha.filter.Filter.FilterElement;
+import org.jamocha.filter.AddressNodeFilterSet;
+import org.jamocha.filter.AddressNodeFilterSet.AddressFilter;
+import org.jamocha.filter.NodeFilterSet;
+import org.jamocha.filter.NodeFilterSet.Filter;
 
 /**
  * Interface for classes representing connections between {@link Node}s. Edges have a source and a
@@ -38,8 +38,8 @@ import org.jamocha.filter.Filter.FilterElement;
  * passed to edges via {@link #enqueueMemory(MemoryHandlerPlusTemp)} or
  * {@link #enqueueMemory(MemoryHandlerMinusTemp)} and thereby wrapped into tokens. When processed,
  * these tokens call the corresponding {@link #processPlusToken(MemoryHandlerTemp)} or
- * {@link #processMinusToken(MemoryHandlerTemp)}, respectively. Every edge holds a {@link Filter}
- * equivalent to the filter in its target node, but the order of the {@link FilterElement}s may
+ * {@link #processMinusToken(MemoryHandlerTemp)}, respectively. Every edge holds a {@link NodeFilterSet}
+ * equivalent to the filter in its target node, but the order of the {@link Filter}s may
  * differ. Additionally, edges may hold a subset of these filter elements relevant for existential
  * facts to identify the counter updates needed without having to perform the join. <br />
  * After a plus token has been processed in the target memory of an edge, its memory handler is kept
@@ -48,8 +48,8 @@ import org.jamocha.filter.Filter.FilterElement;
  * 
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  * @see Node
+ * @see NodeFilterSet
  * @see Filter
- * @see FilterElement
  * @see MemoryHandlerPlusTemp
  * @see MemoryHandlerMinusTemp
  */
@@ -130,22 +130,22 @@ public interface Edge {
 	 * @param filter
 	 *            the filter to be set for the edge
 	 */
-	public void setFilter(final AddressFilter filter);
+	public void setFilter(final AddressNodeFilterSet filter);
 
 	/**
-	 * Returns the filter previously set by {@link #setFilter(AddressFilter)} or the constructor.
+	 * Returns the filter previously set by {@link #setFilter(AddressNodeFilterSet)} or the constructor.
 	 * 
-	 * @return the filter previously set by {@link #setFilter(AddressFilter)} or the constructor
+	 * @return the filter previously set by {@link #setFilter(AddressNodeFilterSet)} or the constructor
 	 */
-	public AddressFilter getFilter();
+	public AddressNodeFilterSet getFilter();
 
 	/**
-	 * Returns the {@link FilterElement}s of the {@link Edge}'s {@link Filter} relevant for
+	 * Returns the {@link Filter}s of the {@link Edge}'s {@link NodeFilterSet} relevant for
 	 * {@link CounterUpdate}s if existential {@link Fact}s are passed over this {@link Edge}.
 	 * 
 	 * @return the aforementioned filter elements
 	 */
-	public AddressFilterElement[] getFilterPartsForCounterColumns();
+	public AddressFilter[] getFilterPartsForCounterColumns();
 
 	/**
 	 * Returns the {@link MemoryHandlerPlusTemp}s processed by the {@link MemoryHandlerMain} of the

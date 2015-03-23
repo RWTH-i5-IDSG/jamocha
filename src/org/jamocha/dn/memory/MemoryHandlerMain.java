@@ -20,9 +20,9 @@ import org.jamocha.dn.memory.MemoryHandlerTerminal.Retract;
 import org.jamocha.dn.nodes.CouldNotAcquireLockException;
 import org.jamocha.dn.nodes.Edge;
 import org.jamocha.dn.nodes.Node;
-import org.jamocha.filter.AddressFilter;
-import org.jamocha.filter.AddressFilter.AddressFilterElement;
-import org.jamocha.filter.Filter;
+import org.jamocha.filter.AddressNodeFilterSet;
+import org.jamocha.filter.AddressNodeFilterSet.AddressFilter;
+import org.jamocha.filter.NodeFilterSet;
 
 /**
  * Interface for main memory implementations. A main memory contains the facts for one {@link Node
@@ -42,20 +42,20 @@ import org.jamocha.filter.Filter;
 public interface MemoryHandlerMain extends MemoryHandler {
 	/**
 	 * Creates a new {@link MemoryHandlerPlusTemp} that joins the given {@code token} with all other
-	 * incoming edges of the target beta {@link Node node} applying the given {@link Filter filter}.
+	 * incoming edges of the target beta {@link Node node} applying the given {@link NodeFilterSet filter}.
 	 * 
 	 * @param token
 	 *            {@link MemoryHandlerPlusTemp token} to join with all other inputs
 	 * @param originIncomingEdge
 	 *            {@link Edge edge} the token arrived on
 	 * @param filter
-	 *            {@link Filter filter} to apply
+	 *            {@link NodeFilterSet filter} to apply
 	 * @return {@link MemoryHandlerPlusTemp token} containing the result of the join
 	 * @throws CouldNotAcquireLockException
 	 *             iff one of the locks could not be acquired
 	 */
 	public MemoryHandlerTemp processTokenInBeta(final MemoryHandlerTemp token, final Edge originIncomingEdge,
-			final AddressFilter filter) throws CouldNotAcquireLockException;
+			final AddressNodeFilterSet filter) throws CouldNotAcquireLockException;
 
 	/**
 	 * Creates a new {@link MemoryHandlerPlusTemp} that contains the part of the facts in the given
@@ -66,13 +66,13 @@ public interface MemoryHandlerMain extends MemoryHandler {
 	 * @param originIncomingEdge
 	 *            {@link Edge edge} the token arrived on
 	 * @param filter
-	 *            {@link Filter filter} to apply
+	 *            {@link NodeFilterSet filter} to apply
 	 * @return {@link MemoryHandlerPlusTemp token} containing the result of the filter operation
 	 * @throws CouldNotAcquireLockException
 	 *             iff one of the locks could not be acquired
 	 */
 	public MemoryHandlerTemp processTokenInAlpha(final MemoryHandlerTemp token, final Edge originIncomingEdge,
-			final AddressFilter filter) throws CouldNotAcquireLockException;
+			final AddressNodeFilterSet filter) throws CouldNotAcquireLockException;
 
 	/**
 	 * TODO comment
@@ -121,6 +121,6 @@ public interface MemoryHandlerMain extends MemoryHandler {
 	 *            this method.
 	 * @return filter elements containing existential addresses passed over the given edge
 	 */
-	public AddressFilterElement[] getRelevantExistentialFilterParts(final AddressFilter filter, final Edge edge);
+	public AddressFilter[] getRelevantExistentialFilterParts(final AddressNodeFilterSet filter, final Edge edge);
 
 }

@@ -33,21 +33,21 @@ import com.google.common.collect.Iterables;
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
-public interface PathFilterList extends Visitable<PathFilterListVisitor>, Iterable<PathFilter> {
+public interface PathFilterList extends Visitable<PathFilterListVisitor>, Iterable<PathNodeFilterSet> {
 
-	default Stream<PathFilter> stream() {
+	default Stream<PathNodeFilterSet> stream() {
 		return StreamSupport.stream(spliterator(), false);
 	}
 
 	@Data
 	@RequiredArgsConstructor
-	public class PathFilterExistentialList implements PathFilterList {
-		final PathFilterSharedListWrapper.PathFilterSharedList nonExistentialPart;
-		final PathFilter existentialClosure;
+	public class PathExistentialList implements PathFilterList {
+		final PathSharedListWrapper.PathSharedList purelyExistentialPart;
+		final PathNodeFilterSet existentialClosure;
 
-		public PathFilterExistentialList(final List<PathFilterList> nonExistentialPart,
-				final PathFilter existentialClosure) {
-			this(new PathFilterSharedListWrapper().newSharedElement(nonExistentialPart), existentialClosure);
+		public PathExistentialList(final List<PathFilterList> purelyExistentialPart,
+				final PathNodeFilterSet existentialClosure) {
+			this(new PathSharedListWrapper().newSharedElement(purelyExistentialPart), existentialClosure);
 		}
 
 		@Override
@@ -57,44 +57,44 @@ public interface PathFilterList extends Visitable<PathFilterListVisitor>, Iterab
 		}
 
 		@Override
-		public Iterator<PathFilter> iterator() {
-			return Iterables.concat(Iterables.concat(nonExistentialPart), existentialClosure).iterator();
+		public Iterator<PathNodeFilterSet> iterator() {
+			return Iterables.concat(Iterables.concat(purelyExistentialPart), existentialClosure).iterator();
 		}
 	}
 
-	public static class PathFilterSharedListWrapper {
-		final List<PathFilterSharedList> sharedSiblings = new ArrayList<>();
+	public static class PathSharedListWrapper {
+		final List<PathSharedList> sharedSiblings = new ArrayList<>();
 		Optional<Node> lowestNodeCreatedForSiblings = Optional.empty();
 
-		public PathFilterSharedList newSharedElement(final List<PathFilterList> filterElements) {
-			final PathFilterSharedList newSharedElement = new PathFilterSharedList(filterElements);
+		public PathSharedList newSharedElement(final List<PathFilterList> filterElements) {
+			final PathSharedList newSharedElement = new PathSharedList(filterElements);
 			this.sharedSiblings.add(newSharedElement);
 			return newSharedElement;
 		}
 
-		public PathFilterSharedList newSharedElement() {
-			final PathFilterSharedList newSharedElement = new PathFilterSharedList(new ArrayList<>());
+		public PathSharedList newSharedElement() {
+			final PathSharedList newSharedElement = new PathSharedList(new ArrayList<>());
 			this.sharedSiblings.add(newSharedElement);
 			return newSharedElement;
 		}
 
-		public PathFilterSharedList replace(final PathFilterSharedList filter, final List<PathFilterList> list) {
-			if (this.sharedSiblings.remove(filter)) {
-				return newSharedElement(list);
+		public PathSharedList replace(final PathSharedList filter, final List<PathFilterList> list) {
+			if (!this.sharedSiblings.remove(filter)) {
+				return null;
 			}
-			return null;
+			return newSharedElement(list);
 		}
 
 		@Data
 		@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-		public class PathFilterSharedList implements PathFilterList {
-			final List<PathFilterList> filterElements;
+		public class PathSharedList implements PathFilterList {
+			final List<PathFilterList> filters;
 
-			public PathFilterSharedListWrapper getWrapper() {
-				return PathFilterSharedListWrapper.this;
+			public PathSharedListWrapper getWrapper() {
+				return PathSharedListWrapper.this;
 			}
 
-			public List<PathFilterSharedList> getSiblings() {
+			public List<PathSharedList> getSiblings() {
 				return sharedSiblings;
 			}
 
@@ -105,8 +105,8 @@ public interface PathFilterList extends Visitable<PathFilterListVisitor>, Iterab
 			}
 
 			@Override
-			public Iterator<PathFilter> iterator() {
-				return Iterables.concat(filterElements).iterator();
+			public Iterator<PathNodeFilterSet> iterator() {
+				return Iterables.concat(filters).iterator();
 			}
 		}
 	}

@@ -24,17 +24,19 @@ import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertThat;
 
 import java.io.StringReader;
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Queue;
+import java.util.Set;
 
-import com.google.common.collect.Lists;
 import org.hamcrest.Matcher;
 import org.jamocha.dn.ConstructCache.Defrule;
 import org.jamocha.dn.ConstructCache.Defrule.TranslatedPath;
 import org.jamocha.dn.compiler.PathFilterConsolidator;
 import org.jamocha.filter.Path;
-import org.jamocha.filter.PathFilter;
-import org.jamocha.filter.PathFilter.DummyPathFilterElement;
-import org.jamocha.filter.PathFilter.PathFilterElement;
+import org.jamocha.filter.PathNodeFilterSet;
+import org.jamocha.filter.PathNodeFilterSet.DummyPathFilter;
+import org.jamocha.filter.PathNodeFilterSet.PathFilter;
 import org.jamocha.languages.clips.parser.SFPVisitorImpl;
 import org.jamocha.languages.clips.parser.generated.ParseException;
 import org.jamocha.languages.clips.parser.generated.SFPParser;
@@ -45,6 +47,8 @@ import org.jamocha.languages.common.Warning;
 import org.junit.Test;
 
 import test.jamocha.util.NetworkMockup;
+
+import com.google.common.collect.Lists;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
@@ -86,16 +90,16 @@ public class PathFilterConsolidatorTest {
 		final String input = "(templ1 (slot1 ?x))";
 		final List<TranslatedPath> filterPartitions = clipsToFilters(input);
 		assertThat(filterPartitions, hasSize(1));
-		final List<PathFilter> filters = Lists.newArrayList(filterPartitions.get(0).getCondition());
+		final List<PathNodeFilterSet> filterSets = Lists.newArrayList(filterPartitions.get(0).getCondition());
+		assertThat(filterSets, hasSize(1));
+		final PathNodeFilterSet filterSet = filterSets.get(0);
+		assertThat(filterSet.getPositiveExistentialPaths(), hasSize(0));
+		assertThat(filterSet.getNegativeExistentialPaths(), hasSize(0));
+		final Set<PathFilter> filters = filterSet.getFilters();
 		assertThat(filters, hasSize(1));
-		final PathFilter filter = filters.get(0);
-		assertThat(filter.getPositiveExistentialPaths(), hasSize(0));
-		assertThat(filter.getNegativeExistentialPaths(), hasSize(0));
-		final PathFilterElement[] filterElements = filter.getFilterElements();
-		assertEquals(1, filterElements.length);
-		final PathFilterElement filterElement = filterElements[0];
-		assertThat(filterElement, instanceOf(DummyPathFilterElement.class));
-		final Path[] paths = ((DummyPathFilterElement) filterElement).getPaths();
+		final PathFilter filter = filters.iterator().next();
+		assertThat(filter, instanceOf(DummyPathFilter.class));
+		final Path[] paths = ((DummyPathFilter) filter).getPaths();
 		assertEquals(1, paths.length);
 		final Path path = paths[0];
 		assertEquals("templ1", path.getTemplate().getName());
@@ -106,19 +110,19 @@ public class PathFilterConsolidatorTest {
 		final String input = "(and (initial-fact) (exists (templ1 (slot1 ?x))))";
 		final List<TranslatedPath> filterPartitions = clipsToFilters(input);
 		assertThat(filterPartitions, hasSize(1));
-		final List<PathFilter> filters = Lists.newArrayList(filterPartitions.get(0).getCondition());
-		assertThat(filters, hasSize(1));
-		final PathFilter filter = filters.get(0);
-		final Set<Path> positiveExistentialPaths = filter.getPositiveExistentialPaths();
+		final List<PathNodeFilterSet> filterSets = Lists.newArrayList(filterPartitions.get(0).getCondition());
+		assertThat(filterSets, hasSize(1));
+		final PathNodeFilterSet filterSet = filterSets.get(0);
+		final Set<Path> positiveExistentialPaths = filterSet.getPositiveExistentialPaths();
 		assertThat(positiveExistentialPaths, hasSize(1));
 		final Path exPath = positiveExistentialPaths.iterator().next();
 		assertEquals("templ1", exPath.getTemplate().getName());
-		assertThat(filter.getNegativeExistentialPaths(), hasSize(0));
-		final PathFilterElement[] filterElements = filter.getFilterElements();
-		assertEquals(1, filterElements.length);
-		final PathFilterElement filterElement = filterElements[0];
-		assertThat(filterElement, instanceOf(DummyPathFilterElement.class));
-		final Path[] paths = ((DummyPathFilterElement) filterElement).getPaths();
+		assertThat(filterSet.getNegativeExistentialPaths(), hasSize(0));
+		final Set<PathFilter> filters = filterSet.getFilters();
+		assertThat(filters, hasSize(1));
+		final PathFilter filter = filters.iterator().next();
+		assertThat(filter, instanceOf(DummyPathFilter.class));
+		final Path[] paths = ((DummyPathFilter) filter).getPaths();
 		assertEquals(2, paths.length);
 		assertThat(toArray(Arrays.stream(paths).map(path -> path.getTemplate().getName()), String[]::new),
 				arrayContainingInAnyOrder(Arrays.<Matcher<? super String>> asList(equalTo("initial-fact"),
@@ -132,32 +136,32 @@ public class PathFilterConsolidatorTest {
 		assertThat(filterPartitions, hasSize(2));
 		final Path compare;
 		{
-			final List<PathFilter> filters = Lists.newArrayList(filterPartitions.get(0).getCondition());
+			final List<PathNodeFilterSet> filterSets = Lists.newArrayList(filterPartitions.get(0).getCondition());
+			assertThat(filterSets, hasSize(1));
+			final PathNodeFilterSet filterSet = filterSets.get(0);
+			assertThat(filterSet.getPositiveExistentialPaths(), hasSize(0));
+			assertThat(filterSet.getNegativeExistentialPaths(), hasSize(0));
+			final Set<PathFilter> filters = filterSet.getFilters();
 			assertThat(filters, hasSize(1));
-			final PathFilter filter = filters.get(0);
-			assertThat(filter.getPositiveExistentialPaths(), hasSize(0));
-			assertThat(filter.getNegativeExistentialPaths(), hasSize(0));
-			final PathFilterElement[] filterElements = filter.getFilterElements();
-			assertEquals(1, filterElements.length);
-			final PathFilterElement filterElement = filterElements[0];
-			assertThat(filterElement, instanceOf(DummyPathFilterElement.class));
-			final Path[] paths = ((DummyPathFilterElement) filterElement).getPaths();
+			final PathFilter filter = filters.iterator().next();
+			assertThat(filter, instanceOf(DummyPathFilter.class));
+			final Path[] paths = ((DummyPathFilter) filter).getPaths();
 			assertEquals(1, paths.length);
 			final Path path = paths[0];
 			assertEquals("templ1", path.getTemplate().getName());
 			compare = path;
 		}
 		{
-			final List<PathFilter> filters = Lists.newArrayList(filterPartitions.get(1).getCondition());
+			final List<PathNodeFilterSet> filterSets = Lists.newArrayList(filterPartitions.get(1).getCondition());
+			assertThat(filterSets, hasSize(1));
+			final PathNodeFilterSet filterSet = filterSets.get(0);
+			assertThat(filterSet.getPositiveExistentialPaths(), hasSize(0));
+			assertThat(filterSet.getNegativeExistentialPaths(), hasSize(0));
+			final Set<PathFilter> filters = filterSet.getFilters();
 			assertThat(filters, hasSize(1));
-			final PathFilter filter = filters.get(0);
-			assertThat(filter.getPositiveExistentialPaths(), hasSize(0));
-			assertThat(filter.getNegativeExistentialPaths(), hasSize(0));
-			final PathFilterElement[] filterElements = filter.getFilterElements();
-			assertEquals(1, filterElements.length);
-			final PathFilterElement filterElement = filterElements[0];
-			assertThat(filterElement, instanceOf(DummyPathFilterElement.class));
-			final Path[] paths = ((DummyPathFilterElement) filterElement).getPaths();
+			final PathFilter filter = filters.iterator().next();
+			assertThat(filter, instanceOf(DummyPathFilter.class));
+			final Path[] paths = ((DummyPathFilter) filter).getPaths();
 			assertEquals(1, paths.length);
 			final Path path = paths[0];
 			assertEquals("templ1", path.getTemplate().getName());
@@ -172,7 +176,7 @@ public class PathFilterConsolidatorTest {
 		final List<TranslatedPath> filterPartitions = clipsToFilters(input);
 		assertThat(filterPartitions, hasSize(1));
 		{
-			final List<PathFilter> filters = Lists.newArrayList(filterPartitions.get(0).getCondition());
+			final List<PathNodeFilterSet> filters = Lists.newArrayList(filterPartitions.get(0).getCondition());
 			assertThat(filters, hasSize(2));
 			// {
 			// final PathFilter filter = filters.get(0);

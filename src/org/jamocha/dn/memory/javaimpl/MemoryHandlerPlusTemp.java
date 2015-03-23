@@ -44,9 +44,9 @@ import org.jamocha.dn.nodes.CouldNotAcquireLockException;
 import org.jamocha.dn.nodes.Edge;
 import org.jamocha.dn.nodes.Node;
 import org.jamocha.dn.nodes.SlotInFactAddress;
-import org.jamocha.filter.AddressFilter;
-import org.jamocha.filter.AddressFilter.AddressFilterElement;
-import org.jamocha.filter.AddressFilter.AddressMatchingConfiguration;
+import org.jamocha.filter.AddressNodeFilterSet;
+import org.jamocha.filter.AddressNodeFilterSet.AddressFilter;
+import org.jamocha.filter.AddressNodeFilterSet.AddressMatchingConfiguration;
 import org.jamocha.function.fwa.ParameterLeaf;
 import org.jamocha.function.fwa.PredicateWithArguments;
 
@@ -176,7 +176,7 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements org.jamo
 
 	@Override
 	public org.jamocha.dn.memory.MemoryHandlerTemp newBetaTemp(final MemoryHandlerMain originatingMainHandler,
-			final Edge originIncomingEdge, final AddressFilter filter) throws CouldNotAcquireLockException {
+			final Edge originIncomingEdge, final AddressNodeFilterSet filter) throws CouldNotAcquireLockException {
 		// create follow-up-temp
 		final org.jamocha.dn.memory.MemoryHandlerTemp token =
 				newRegularBetaTemp(originatingMainHandler, filter, this, originIncomingEdge);
@@ -189,7 +189,7 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements org.jamo
 	@Override
 	public org.jamocha.dn.memory.MemoryHandlerTemp newBetaTemp(
 			final MemoryHandlerMainWithExistentials originatingMainHandler, final Edge originIncomingEdge,
-			final AddressFilter filter) throws CouldNotAcquireLockException {
+			final AddressNodeFilterSet filter) throws CouldNotAcquireLockException {
 		// create follow-up-temp
 		final org.jamocha.dn.memory.MemoryHandlerTemp token =
 				newExistentialBetaTemp(originatingMainHandler, filter, this, originIncomingEdge);
@@ -200,12 +200,12 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements org.jamo
 	}
 
 	static MemoryHandlerPlusTemp newAlphaTemp(final MemoryHandlerMain originatingMainHandler,
-			final MemoryHandlerPlusTemp token, final Edge originIncomingEdge, final AddressFilter filter)
+			final MemoryHandlerPlusTemp token, final Edge originIncomingEdge, final AddressNodeFilterSet filter)
 			throws CouldNotAcquireLockException {
 		final JamochaArray<Row> factList = new JamochaArray<>(1);
 		factLoop: for (final Row row : token.validRows) {
 			assert row.getFactTuple().length == 1;
-			for (final AddressFilterElement filterElement : filter.getFilterElements()) {
+			for (final AddressFilter filterElement : filter.getFilters()) {
 				if (!applyFilterElement(row.getFactTuple()[0], filterElement)) {
 					continue factLoop;
 				}
@@ -221,7 +221,7 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements org.jamo
 
 	@Override
 	public MemoryHandlerPlusTemp newAlphaTemp(final MemoryHandlerMain originatingMainHandler,
-			final Edge originIncomingEdge, final AddressFilter filter) throws CouldNotAcquireLockException {
+			final Edge originIncomingEdge, final AddressNodeFilterSet filter) throws CouldNotAcquireLockException {
 		return newAlphaTemp(originatingMainHandler, this, originIncomingEdge, filter);
 	}
 
@@ -457,14 +457,14 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements org.jamo
 	}
 
 	private static MemoryHandlerTemp newRegularBetaTemp(final MemoryHandlerMain originatingMainHandler,
-			final AddressFilter filter, final MemoryHandlerPlusTemp token, final Edge originEdge)
+			final AddressNodeFilterSet filter, final MemoryHandlerPlusTemp token, final Edge originEdge)
 			throws CouldNotAcquireLockException {
 		final JamochaArray<Row> facts = regularLockJoinAndUnlock(filter, token, originEdge);
 		final int numChildren = originEdge.getTargetNode().getNumberOfOutgoingEdges();
 		return new MemoryHandlerPlusTemp(originatingMainHandler, facts, numChildren, canOmitSemaphore(originEdge));
 	}
 
-	private static JamochaArray<Row> regularLockJoinAndUnlock(final AddressFilter filter,
+	private static JamochaArray<Row> regularLockJoinAndUnlock(final AddressNodeFilterSet filter,
 			final MemoryHandlerPlusTemp token, final Edge originEdge) throws CouldNotAcquireLockException {
 		try (final MultipleReadLockWrapper mrlw = new MultipleReadLockWrapper(originEdge)) {
 			final LinkedHashMap<Edge, StackElement> edgeToStack = getStack(token.validRows, originEdge);
@@ -477,7 +477,7 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements org.jamo
 		}
 	}
 
-	private static void prepareMatchings(final AddressFilter filter,
+	private static void prepareMatchings(final AddressNodeFilterSet filter,
 			final LinkedHashMap<Edge, StackElement> edgeToStack, final Edge originEdge) {
 		final Node targetNode = originEdge.getTargetNode();
 		for (final AddressMatchingConfiguration matchingConfiguration : filter.getMatchingConfigurations()) {
@@ -500,7 +500,7 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements org.jamo
 	}
 
 	private static org.jamocha.dn.memory.MemoryHandlerTemp newExistentialBetaTemp(
-			final MemoryHandlerMainWithExistentials originatingMainHandler, final AddressFilter filter,
+			final MemoryHandlerMainWithExistentials originatingMainHandler, final AddressNodeFilterSet filter,
 			final MemoryHandlerPlusTemp token, final Edge originEdge) throws CouldNotAcquireLockException {
 		// existential join (counter updates) or regular join (new rows)?
 		final boolean existential = originEdge.getFilterPartsForCounterColumns().length != 0;
@@ -529,17 +529,17 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements org.jamo
 	 * Assumption: every existentially quantified path/address is only used in a single filter
 	 * element.
 	 */
-	private static void performJoin(final AddressFilter filter, final LinkedHashMap<Edge, StackElement> edgeToStack,
-			final Edge originEdge) {
+	private static void performJoin(final AddressNodeFilterSet filter,
+			final LinkedHashMap<Edge, StackElement> edgeToStack, final Edge originEdge) {
 		final Node targetNode = originEdge.getTargetNode();
 		final StackElement originElement = edgeToStack.get(originEdge);
 
 		final Counter counter = ((MemoryHandlerMain) originEdge.getTargetNode().getMemory()).counter;
 
 		// get filter steps
-		final AddressFilterElement filterSteps[] = filter.getFilterElements();
-		for (final AddressFilterElement filterElement : filterSteps) {
-			final Collection<StackElement> stack = new ArrayList<>(filterSteps.length);
+		final Set<AddressFilter> filterSteps = filter.getFilters();
+		for (final AddressFilter filterElement : filterSteps) {
+			final Collection<StackElement> stack = new ArrayList<>(filterSteps.size());
 			final PredicateWithArguments<ParameterLeaf> predicate = filterElement.getFunction();
 			final SlotInFactAddress addresses[] = filterElement.getAddressesInTarget();
 			final CounterColumn counterColumn = (CounterColumn) filterElement.getCounterColumn();
@@ -674,7 +674,7 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements org.jamo
 		Set<FactAddress> existential;
 	}
 
-	private static FactAddressPartition partitionFactAddresses(final AddressFilter filter, final Edge originEdge) {
+	private static FactAddressPartition partitionFactAddresses(final AddressNodeFilterSet filter, final Edge originEdge) {
 		final FactAddress[] originAddresses = ((MemoryHandlerMain) originEdge.getSourceNode().getMemory()).addresses;
 		final Set<org.jamocha.dn.memory.FactAddress> filterNegativeExistentialAddresses =
 				filter.getNegativeExistentialAddresses();
@@ -695,7 +695,7 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements org.jamo
 	}
 
 	static org.jamocha.dn.memory.MemoryHandlerTemp handleExistentialEdge(
-			final MemoryHandlerMainWithExistentials originatingMainHandler, final AddressFilter filter,
+			final MemoryHandlerMainWithExistentials originatingMainHandler, final AddressNodeFilterSet filter,
 			final JamochaArray<Row> tokenRows, final Edge originEdge, final CounterUpdater counterUpdater)
 			throws CouldNotAcquireLockException {
 
@@ -775,10 +775,10 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements org.jamo
 		};
 	}
 
-	static JamochaArray<CounterUpdate> performExistentialJoin(final AddressFilter filter,
+	static JamochaArray<CounterUpdate> performExistentialJoin(final AddressNodeFilterSet filter,
 			final LinkedHashMap<Edge, StackElement> edgeToStack, final Edge originEdge,
 			final CounterUpdater counterUpdater) {
-		final AddressFilterElement[] filterPartsForCounterColumns = originEdge.getFilterPartsForCounterColumns();
+		final AddressFilter[] filterPartsForCounterColumns = originEdge.getFilterPartsForCounterColumns();
 		// if there are existential facts in the token, perform a join with the main memory
 		final JamochaArray<CounterUpdate> counterUpdates = new JamochaArray<>();
 		final StackElement originElement = edgeToStack.get(originEdge);
@@ -803,7 +803,7 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements org.jamo
 					}
 				}
 				// check whether the existential part fulfill the filter conditions
-				for (final AddressFilterElement filterElement : filterPartsForCounterColumns) {
+				for (final AddressFilter filterElement : filterPartsForCounterColumns) {
 					final PredicateWithArguments<ParameterLeaf> predicate = filterElement.getFunction();
 					final SlotInFactAddress[] addresses = filterElement.getAddressesInTarget();
 					final CounterColumn counterColumn = (CounterColumn) filterElement.getCounterColumn();

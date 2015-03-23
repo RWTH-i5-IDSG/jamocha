@@ -22,6 +22,7 @@ import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.isEmptyString;
+import static org.hamcrest.Matchers.isOneOf;
 import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
@@ -578,7 +579,7 @@ public class SystemTest {
 			assertThat(returnValues.getRight(), empty());
 			final String[] lines = out.toString().split(linesep);
 			assertThat(lines, arrayWithSize(1));
-			assertEquals("FIRE r2 : f-1,f-2", lines[0]);
+			assertThat(lines[0], isOneOf("FIRE r2 : f-1,f-2", "FIRE r2 : f-2,f-1"));
 			out.reset();
 		}
 	}
@@ -635,7 +636,7 @@ public class SystemTest {
 			assertThat(returnValues.getRight(), empty());
 			final String[] lines = out.toString().split(linesep);
 			assertThat(lines, arrayWithSize(1));
-			assertEquals("FIRE r2 : *,f-1", lines[0]);
+			assertThat(lines[0], isOneOf("FIRE r2 : *,f-1", "FIRE r2 : f-1,*"));
 			out.reset();
 		}
 	}

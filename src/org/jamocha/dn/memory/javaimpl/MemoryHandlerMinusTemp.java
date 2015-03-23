@@ -26,7 +26,7 @@ import org.jamocha.dn.memory.javaimpl.MemoryHandlerMain.SafeWriteQueue;
 import org.jamocha.dn.memory.javaimpl.MemoryHandlerPlusTemp.CounterUpdater;
 import org.jamocha.dn.nodes.CouldNotAcquireLockException;
 import org.jamocha.dn.nodes.Edge;
-import org.jamocha.filter.AddressFilter;
+import org.jamocha.filter.AddressNodeFilterSet;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
@@ -148,14 +148,14 @@ public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements org.jam
 
 	@Override
 	public MemoryHandlerTemp newBetaTemp(final MemoryHandlerMain originatingMainHandler, final Edge originIncomingEdge,
-			final AddressFilter filter) throws CouldNotAcquireLockException {
+			final AddressNodeFilterSet filter) throws CouldNotAcquireLockException {
 		return newRegularBeta(originatingMainHandler, MemoryHandlerMinusTemp::filterTargetMain, originIncomingEdge);
 	}
 
 	@Override
 	public org.jamocha.dn.memory.MemoryHandlerTemp newBetaTemp(
 			final MemoryHandlerMainWithExistentials originatingMainHandler, final Edge originIncomingEdge,
-			final AddressFilter filter) throws CouldNotAcquireLockException {
+			final AddressNodeFilterSet filter) throws CouldNotAcquireLockException {
 		if (!originIncomingEdge.getSourceNode().getOutgoingExistentialEdges().contains(originIncomingEdge)) {
 			// if (originIncomingEdge.getFilterPartsForCounterColumns().length == 0) {
 			// regular edge
@@ -244,7 +244,7 @@ public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements org.jam
 			final BiFunction<Edge, FactAddress, FactAddress> addressLocalizer) {
 		final int length = old.length;
 		final FactAddress[] factAddresses = new FactAddress[length];
-		final AddressFilter filter = localizingEdge.getFilter();
+		final AddressNodeFilterSet filter = localizingEdge.getFilter();
 		for (int i = 0; i < length; ++i) {
 			final FactAddress oldAddress = old[i];
 			if (null == oldAddress)
@@ -257,7 +257,7 @@ public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements org.jam
 
 	@Override
 	public MemoryHandlerTemp newAlphaTemp(final MemoryHandlerMain originatingMainHandler,
-			final Edge originIncomingEdge, final AddressFilter filter) throws CouldNotAcquireLockException {
+			final Edge originIncomingEdge, final AddressNodeFilterSet filter) throws CouldNotAcquireLockException {
 		return newRegularMinusTemp(originatingMainHandler, MemoryHandlerMinusTemp::filterTargetMain,
 				originIncomingEdge, validRows, EqualityChecker.alpha, factAddresses, translateDownwards, template);
 	}

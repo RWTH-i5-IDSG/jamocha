@@ -27,10 +27,10 @@ import lombok.Value;
 
 import org.jamocha.dn.memory.SlotAddress;
 import org.jamocha.dn.memory.SlotType;
-import org.jamocha.filter.AddressFilter;
+import org.jamocha.filter.AddressNodeFilterSet;
 import org.jamocha.filter.Path;
-import org.jamocha.filter.PathFilter;
-import org.jamocha.filter.PathFilterToAddressFilterTranslator;
+import org.jamocha.filter.PathNodeFilterSet;
+import org.jamocha.filter.PathNodeFilterSetToAddressNodeFilterSetTranslator;
 import org.jamocha.function.Function;
 import org.jamocha.function.fwa.ParameterLeaf;
 import org.jamocha.function.impls.FunctionVisitor;
@@ -46,7 +46,7 @@ import test.jamocha.util.TestData.SomeStuff;
  * 
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
-public class FilterMockup extends PathFilter {
+public class FilterMockup extends PathNodeFilterSet {
 
 	public FilterMockup(final boolean returnValue, final PathAndSlotAddress... pathAndSlotAddresses) {
 		super(createDummyPathFilterElement(returnValue, pathAndSlotAddresses));
@@ -58,7 +58,7 @@ public class FilterMockup extends PathFilter {
 		SlotAddress slotAddress;
 	}
 
-	private static PathFilterElement createDummyPathFilterElement(final boolean returnValue,
+	private static PathFilter createDummyPathFilterElement(final boolean returnValue,
 			final PathAndSlotAddress... pathAndSlotAddresses) {
 		final ArrayList<SlotType> slotTypesC =
 				Arrays.stream(pathAndSlotAddresses).map((final PathAndSlotAddress pasa) -> {
@@ -89,7 +89,7 @@ public class FilterMockup extends PathFilter {
 		for (final PathAndSlotAddress pasa : pathAndSlotAddresses) {
 			predicateBuilder.addPath(pasa.path, pasa.slotAddress);
 		}
-		return predicateBuilder.buildPFE();
+		return predicateBuilder.buildFilter();
 	}
 
 	/**
@@ -127,10 +127,10 @@ public class FilterMockup extends PathFilter {
 		 */
 		@Theory
 		public void testAlwaysTrue(@SomeStuff final Object... obj) {
-			final AddressFilter alwaysTrue =
-					PathFilterToAddressFilterTranslator
-							.translate(FilterMockup.alwaysTrue(), counterColumnMatcherMockup);
-			for (final FilterElement<ParameterLeaf> filterElement : alwaysTrue.getFilterElements()) {
+			final AddressNodeFilterSet alwaysTrue =
+					PathNodeFilterSetToAddressNodeFilterSetTranslator.translate(FilterMockup.alwaysTrue(),
+							counterColumnMatcherMockup);
+			for (final Filter<ParameterLeaf> filterElement : alwaysTrue.getFilters()) {
 				assertTrue(filterElement.getFunction().evaluate(obj));
 			}
 		}
@@ -140,10 +140,10 @@ public class FilterMockup extends PathFilter {
 		 */
 		@Theory
 		public void testAlwaysFalse(@SomeStuff final Object... obj) {
-			final AddressFilter alwaysFalse =
-					PathFilterToAddressFilterTranslator.translate(FilterMockup.alwaysFalse(),
+			final AddressNodeFilterSet alwaysFalse =
+					PathNodeFilterSetToAddressNodeFilterSetTranslator.translate(FilterMockup.alwaysFalse(),
 							counterColumnMatcherMockup);
-			for (final FilterElement<ParameterLeaf> filterElement : alwaysFalse.getFilterElements()) {
+			for (final Filter<ParameterLeaf> filterElement : alwaysFalse.getFilters()) {
 				assertFalse(filterElement.getFunction().evaluate(obj));
 			}
 		}

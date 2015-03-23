@@ -22,11 +22,11 @@ import java.util.Set;
 import org.jamocha.dn.memory.CounterColumnMatcher;
 import org.jamocha.filter.Path;
 import org.jamocha.filter.PathCollector;
-import org.jamocha.filter.PathFilter;
-import org.jamocha.filter.PathFilter.PathFilterElement;
+import org.jamocha.filter.PathNodeFilterSet;
+import org.jamocha.filter.PathNodeFilterSet.PathFilter;
 
 /**
- * Visitor for {@link org.jamocha.filter.Filter.FilterElement FilterElements} to determine how many
+ * Visitor for {@link org.jamocha.filter.NodeFilterSet.Filter FilterElements} to determine how many
  * of them are existential filter elements and whether they are negated.
  * 
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
@@ -35,15 +35,15 @@ import org.jamocha.filter.PathFilter.PathFilterElement;
  * Assumption: every existentially quantified path/address is only used in a single filter element.
  */
 public class ExistentialPathCounter {
-	public static boolean[] getNegatedArrayFromFilter(final PathFilter filter,
+	public static boolean[] getNegatedArrayFromFilter(final PathNodeFilterSet filter,
 			final CounterColumnMatcher filterElementToCounterColumn) {
 		final Set<Path> negativeExistentialPaths = filter.getNegativeExistentialPaths();
 		final Set<Path> positiveExistentialPaths = filter.getPositiveExistentialPaths();
-		final PathFilterElement[] filterElements = filter.getFilterElements();
-		final int upperBound = filterElements.length;
+		final Set<PathFilter> filterElements = filter.getFilters();
+		final int upperBound = filterElements.size();
 		final boolean[] negated = new boolean[upperBound];
 		int size = 0;
-		for (final PathFilterElement filterElement : filterElements) {
+		for (final PathFilter filterElement : filterElements) {
 			final CounterColumn counterColumn =
 					(CounterColumn) filterElementToCounterColumn.getCounterColumn(filterElement);
 			if (null == counterColumn)

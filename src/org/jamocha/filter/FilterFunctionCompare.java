@@ -42,9 +42,9 @@ import org.jamocha.dn.memory.FactAddress;
 import org.jamocha.dn.nodes.Edge;
 import org.jamocha.dn.nodes.Node;
 import org.jamocha.dn.nodes.SlotInFactAddress;
-import org.jamocha.filter.AddressFilter.AddressFilterElement;
-import org.jamocha.filter.PathFilter.DummyPathFilterElement;
-import org.jamocha.filter.PathFilter.PathFilterElement;
+import org.jamocha.filter.AddressNodeFilterSet.AddressFilter;
+import org.jamocha.filter.PathNodeFilterSet.DummyPathFilter;
+import org.jamocha.filter.PathNodeFilterSet.PathFilter;
 import org.jamocha.function.CommutativeFunction;
 import org.jamocha.function.fwa.ConstantLeaf;
 import org.jamocha.function.fwa.DefaultFunctionWithArgumentsVisitor;
@@ -70,8 +70,8 @@ public abstract class FilterFunctionCompare<L extends ExchangeableLeaf<L>> {
 		final AddressContainer targetAddressContainer;
 		final AddressContainer compareAddressContainer;
 
-		private AddressFilterFunctionCompare(final AddressFilterElement targetFilterElement,
-				final AddressFilterElement compareFilterElement) {
+		private AddressFilterFunctionCompare(final AddressFilter targetFilterElement,
+				final AddressFilter compareFilterElement) {
 			super();
 			this.targetAddressContainer = new AddressContainer(targetFilterElement);
 			this.compareAddressContainer = new AddressContainer(compareFilterElement);
@@ -147,74 +147,76 @@ public abstract class FilterFunctionCompare<L extends ExchangeableLeaf<L>> {
 			return true;
 		}
 
-		public PathFilterCompare(final PathFilter targetFilter, final PathFilter compareFilter) {
+		public PathFilterCompare(final PathNodeFilterSet targetFilter, final PathNodeFilterSet compareFilter) {
 			this(targetFilter, compareFilter, new HashMap<>());
 		}
 
-		public PathFilterCompare(final PathFilter targetFilter, final PathFilter compareFilter,
+		public PathFilterCompare(final PathNodeFilterSet targetFilter, final PathNodeFilterSet compareFilter,
 				final Map<Path, Path> pathMap) {
 			super();
 			this.pathMap = pathMap;
-			final PathFilterElement[] targetFEs = targetFilter.normalise().getFilterElements();
-			final PathFilterElement[] compareFEs = compareFilter.normalise().getFilterElements();
-			if (targetFEs.length != compareFEs.length) {
+			final Set<PathFilter> targetFEs = targetFilter.normalise().getFilters();
+			final Set<PathFilter> compareFEs = compareFilter.normalise().getFilters();
+			if (targetFEs.size() != compareFEs.size()) {
 				equal = false;
 				return;
 			}
-			for (int i = 0; i < targetFEs.length; i++) {
-				;
-				if (!new PathFilterFirstTypeIdentificationVisitor().collect(targetFEs[i]).collect(compareFEs[i])) {
+			// TODO handle hash collisions
+			for (final Iterator<PathFilter> targetIterator = targetFEs.iterator(), compareIterator =
+					compareFEs.iterator(); targetIterator.hasNext() && compareIterator.hasNext();) {
+				if (!new PathFilterFirstTypeIdentificationVisitor().collect(targetIterator.next()).collect(
+						compareIterator.next())) {
 					equal = false;
 					return;
 				}
 			}
 		}
 
-		private class PathFilterFirstTypeIdentificationVisitor implements PathFilterElementVisitor {
+		private class PathFilterFirstTypeIdentificationVisitor implements PathFilterVisitor {
 
 			PathFilterSecondTypeIndentificationVisitor result;
 
-			public PathFilterSecondTypeIndentificationVisitor collect(final PathFilterElement fe) {
+			public PathFilterSecondTypeIndentificationVisitor collect(final PathFilter fe) {
 				return fe.accept(this).result;
 			}
 
 			@Override
-			public void visit(final PathFilterElement fe) {
+			public void visit(final PathFilter fe) {
 				result = new NoDummyPathFilterSecondTypeIdentificationVisitor(fe);
 			}
 
 			@Override
-			public void visit(final DummyPathFilterElement fe) {
+			public void visit(final DummyPathFilter fe) {
 				result = new DummyPathFilterSecondTypeIdentificationVisitor(fe);
 			}
 
-			private abstract class PathFilterSecondTypeIndentificationVisitor implements PathFilterElementVisitor {
+			private abstract class PathFilterSecondTypeIndentificationVisitor implements PathFilterVisitor {
 				boolean equal = true;
 
-				abstract public boolean collect(final PathFilterElement fe);
+				abstract public boolean collect(final PathFilter fe);
 			}
 
 			private class NoDummyPathFilterSecondTypeIdentificationVisitor extends
 					PathFilterSecondTypeIndentificationVisitor {
 
-				final PathFilterElement targetFilterElement;
+				final PathFilter targetFilterElement;
 
-				public NoDummyPathFilterSecondTypeIdentificationVisitor(final PathFilterElement fe) {
+				public NoDummyPathFilterSecondTypeIdentificationVisitor(final PathFilter fe) {
 					this.targetFilterElement = fe;
 				}
 
 				@Override
-				public boolean collect(final PathFilterElement fe) {
+				public boolean collect(final PathFilter fe) {
 					return fe.accept(this).equal;
 				}
 
 				@Override
-				public void visit(final PathFilterElement fe) {
+				public void visit(final PathFilter fe) {
 					equal = new PathFilterFunctionCompare(this.targetFilterElement, fe).equal;
 				}
 
 				@Override
-				public void visit(final DummyPathFilterElement fe) {
+				public void visit(final DummyPathFilter fe) {
 					equal = false;
 				}
 
@@ -223,24 +225,24 @@ public abstract class FilterFunctionCompare<L extends ExchangeableLeaf<L>> {
 			private class DummyPathFilterSecondTypeIdentificationVisitor extends
 					PathFilterSecondTypeIndentificationVisitor {
 
-				final DummyPathFilterElement targetFilterElement;
+				final DummyPathFilter targetFilterElement;
 
-				public DummyPathFilterSecondTypeIdentificationVisitor(final DummyPathFilterElement dfe) {
+				public DummyPathFilterSecondTypeIdentificationVisitor(final DummyPathFilter dfe) {
 					this.targetFilterElement = dfe;
 				}
 
 				@Override
-				public boolean collect(final PathFilterElement fe) {
+				public boolean collect(final PathFilter fe) {
 					return fe.accept(this).equal;
 				}
 
 				@Override
-				public void visit(final PathFilterElement compareFilterElement) {
+				public void visit(final PathFilter compareFilterElement) {
 					equal = false;
 				}
 
 				@Override
-				public void visit(final DummyPathFilterElement compareFilterElement) {
+				public void visit(final DummyPathFilter compareFilterElement) {
 					final Path[] targetPaths = targetFilterElement.getPaths();
 					final Path[] comparePaths = compareFilterElement.getPaths();
 					if (targetPaths.length != comparePaths.length) {
@@ -261,8 +263,8 @@ public abstract class FilterFunctionCompare<L extends ExchangeableLeaf<L>> {
 
 		private class PathFilterFunctionCompare extends FilterFunctionCompare<PathLeaf> {
 
-			private PathFilterFunctionCompare(final PathFilterElement targetFilterElement,
-					final PathFilterElement compareFilterElement) {
+			private PathFilterFunctionCompare(final PathFilter targetFilterElement,
+					final PathFilter compareFilterElement) {
 				super();
 				targetFilterElement.getFunction().accept(
 						newFunctionTypeIdentificationVisitor(this, compareFilterElement.getFunction()));
@@ -310,7 +312,7 @@ public abstract class FilterFunctionCompare<L extends ExchangeableLeaf<L>> {
 
 	@RequiredArgsConstructor
 	static class AddressContainer {
-		final AddressFilterElement addressFilterElement;
+		final AddressFilter addressFilterElement;
 		int indexInAddresses = 0;
 
 		final SlotInFactAddress getNextAddress() {
@@ -506,8 +508,7 @@ public abstract class FilterFunctionCompare<L extends ExchangeableLeaf<L>> {
 		}
 	};
 
-	public static boolean equals(final AddressFilterElement targetFilterElement,
-			final AddressFilterElement compareFilterElement) {
+	public static boolean equals(final AddressFilter targetFilterElement, final AddressFilter compareFilterElement) {
 		return new AddressFilterFunctionCompare(targetFilterElement, compareFilterElement).equal;
 	}
 
@@ -627,7 +628,7 @@ public abstract class FilterFunctionCompare<L extends ExchangeableLeaf<L>> {
 	}
 
 	/**
-	 * Checks if a {@link PathFilter} is compatible with an existing {@link Node}.
+	 * Checks if a {@link PathNodeFilterSet} is compatible with an existing {@link Node}.
 	 * 
 	 * @param targetNode
 	 *            Node candidate
@@ -636,7 +637,7 @@ public abstract class FilterFunctionCompare<L extends ExchangeableLeaf<L>> {
 	 * @return null if not compatible otherwise Map from Paths in pathFilter to FactAddresses in
 	 *         targetNode
 	 */
-	public static Map<Path, FactAddress> equals(final Node targetNode, final PathFilter pathFilter) {
+	public static Map<Path, FactAddress> equals(final Node targetNode, final PathNodeFilterSet pathFilter) {
 		if (targetNode.getFilter().getNegativeExistentialAddresses().size() != pathFilter.getNegativeExistentialPaths()
 				.size()
 				|| targetNode.getFilter().getPositiveExistentialAddresses().size() != pathFilter
@@ -700,8 +701,9 @@ public abstract class FilterFunctionCompare<L extends ExchangeableLeaf<L>> {
 				}
 			}
 			assert paths.isEmpty();
-			final AddressFilter translatedFilter = PathFilterToAddressFilterTranslator.translate(pathFilter, a -> null);
-			final AddressFilter targetFilter = targetNode.getFilter();
+			final AddressNodeFilterSet translatedFilter =
+					PathNodeFilterSetToAddressNodeFilterSetTranslator.translate(pathFilter, a -> null);
+			final AddressNodeFilterSet targetFilter = targetNode.getFilter();
 			final boolean equal = equals(translatedFilter, targetFilter);
 			for (final Path path : joinedPaths) {
 				path.restoreCache();
@@ -713,20 +715,22 @@ public abstract class FilterFunctionCompare<L extends ExchangeableLeaf<L>> {
 		return null;
 	}
 
-	public static boolean equals(final AddressFilter targetFilter, final AddressFilter translatedFilter) {
-		final AddressFilterElement[] targetFEs = targetFilter.getNormalisedVersion().getFilterElements();
-		final AddressFilterElement[] translatedFEs = translatedFilter.getNormalisedVersion().getFilterElements();
-		if (targetFEs.length != translatedFEs.length)
+	public static boolean equals(final AddressNodeFilterSet targetFilter, final AddressNodeFilterSet translatedFilter) {
+		final Set<AddressFilter> targetFEs = targetFilter.getNormalisedVersion().getFilters();
+		final Set<AddressFilter> translatedFEs = translatedFilter.getNormalisedVersion().getFilters();
+		if (targetFEs.size() != translatedFEs.size())
 			return false;
-		for (int i = 0; i < targetFEs.length; i++) {
-			if (!equals(targetFEs[i], translatedFEs[i])) {
+		// TODO handle hash collisions
+		for (final Iterator<AddressFilter> targetIterator = targetFEs.iterator(), compareIterator =
+				translatedFEs.iterator(); targetIterator.hasNext() && compareIterator.hasNext();) {
+			if (!equals(targetIterator.next(), compareIterator.next())) {
 				return false;
 			}
 		}
 		return true;
 	}
 
-	public static boolean equals(final PathFilter targetFilter, final PathFilter compareFilter) {
+	public static boolean equals(final PathNodeFilterSet targetFilter, final PathNodeFilterSet compareFilter) {
 		return new PathFilterCompare(targetFilter, compareFilter).equal;
 	}
 }

@@ -33,8 +33,8 @@ import org.jamocha.dn.memory.MemoryHandlerTemp;
 import org.jamocha.dn.memory.MemoryHandlerTerminal;
 import org.jamocha.dn.memory.MemoryHandlerTerminal.Assert;
 import org.jamocha.dn.memory.MemoryHandlerTerminal.Retract;
-import org.jamocha.filter.AddressFilter;
-import org.jamocha.filter.AddressFilter.AddressFilterElement;
+import org.jamocha.filter.AddressNodeFilterSet;
+import org.jamocha.filter.AddressNodeFilterSet.AddressFilter;
 
 /**
  * Terminal node implementation (not part of the {@link Node} type hierarchy).
@@ -52,8 +52,8 @@ public class TerminalNode {
 	protected class TerminalEdgeImpl implements Edge {
 		protected final Node sourceNode;
 		protected final TerminalNode targetNode;
-		protected AddressFilter filter;
-		protected AddressFilterElement[] filterParts;
+		protected AddressNodeFilterSet filter;
+		protected AddressFilter[] filterParts;
 
 		private Map<? extends FactAddress, ? extends FactAddress> addressMap;
 		private final LinkedList<MemoryHandlerPlusTemp> tempMemories = new LinkedList<>();
@@ -108,18 +108,18 @@ public class TerminalNode {
 		}
 
 		@Override
-		public void setFilter(final AddressFilter filter) {
+		public void setFilter(final AddressNodeFilterSet filter) {
 			this.filter = filter;
 			this.filterParts = this.sourceNode.memory.getRelevantExistentialFilterParts(filter, this);
 		}
 
 		@Override
-		public AddressFilter getFilter() {
+		public AddressNodeFilterSet getFilter() {
 			return this.filter;
 		}
 
 		@Override
-		public AddressFilterElement[] getFilterPartsForCounterColumns() {
+		public AddressFilter[] getFilterPartsForCounterColumns() {
 			return this.filterParts;
 		}
 

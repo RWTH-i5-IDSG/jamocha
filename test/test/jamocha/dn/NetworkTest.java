@@ -23,7 +23,7 @@ import static org.junit.Assert.assertTrue;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.LinkedHashSet;
+import java.util.HashSet;
 import java.util.Map;
 
 import org.jamocha.dn.ConstructCache.Defrule;
@@ -36,8 +36,8 @@ import org.jamocha.dn.memory.javaimpl.SlotAddress;
 import org.jamocha.dn.nodes.RootNode;
 import org.jamocha.filter.Path;
 import org.jamocha.filter.PathCollector;
-import org.jamocha.filter.PathFilter;
 import org.jamocha.filter.PathFilterList;
+import org.jamocha.filter.PathNodeFilterSet;
 import org.jamocha.function.Function;
 import org.jamocha.function.FunctionDictionary;
 import org.jamocha.function.Predicate;
@@ -80,8 +80,9 @@ public class NetworkTest {
 	public void init() {
 	}
 
-	private static boolean tryToShareNode(final Network network, final PathFilter filter) throws NoSuchMethodException,
-			SecurityException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+	private static boolean tryToShareNode(final Network network, final PathNodeFilterSet filter)
+			throws NoSuchMethodException, SecurityException, IllegalAccessException, IllegalArgumentException,
+			InvocationTargetException {
 		return network.tryToShareNode(filter);
 		// final Method tryToShareNode =
 		// Network.class.getDeclaredMethod("tryToShareNode", PathFilter.class);
@@ -104,34 +105,35 @@ public class NetworkTest {
 		final SlotAddress slotStringOne = new SlotAddress(0), slotStringTwo = new SlotAddress(3), slotLongOne =
 				new SlotAddress(1), slotLongTwo = new SlotAddress(2);
 
-		final PathFilterList.PathFilterSharedListWrapper.PathFilterSharedList filterOne =
-				new PathFilterList.PathFilterSharedListWrapper().newSharedElement(Arrays.asList(new PathFilter(
-						new PredicateBuilder(lessL).addConstant(3L, SlotType.LONG).addPath(pathOne, slotLongOne)
-								.buildPFE()), new PathFilter(new PredicateBuilder(lessL).addPath(pathOne, slotLongOne)
-						.addPath(pathOne, slotLongTwo).buildPFE())));
-		final PathFilter[] filterTwo =
-				new PathFilter[] {
-						new PathFilter(new PredicateBuilder(lessL).addConstant(3L, SlotType.LONG)
-								.addPath(pathTwo, slotLongOne).buildPFE()),
-						new PathFilter(new PredicateBuilder(lessL).addPath(pathTwo, slotLongOne)
-								.addPath(pathTwo, slotLongTwo).buildPFE()),
-						new PathFilter(new PredicateBuilder(eqS).addPath(pathTwo, slotStringOne)
-								.addPath(pathTwo, slotStringTwo).buildPFE()) }, filterThree =
-				new PathFilter[] {
-						new PathFilter(new PredicateBuilder(lessL).addConstant(3L, SlotType.LONG)
-								.addPath(pathThree, slotLongTwo).buildPFE()),
-						new PathFilter(new PredicateBuilder(lessL).addPath(pathThree, slotLongTwo)
-								.addPath(pathThree, slotLongOne).buildPFE()),
-						new PathFilter(new PredicateBuilder(eqS).addPath(pathThree, slotStringTwo)
-								.addPath(pathThree, slotStringOne).buildPFE()) };
+		final PathFilterList.PathSharedListWrapper.PathSharedList filterOne =
+				new PathFilterList.PathSharedListWrapper().newSharedElement(Arrays.asList(
+						new PathNodeFilterSet(new PredicateBuilder(lessL).addConstant(3L, SlotType.LONG)
+								.addPath(pathOne, slotLongOne).buildFilter()),
+						new PathNodeFilterSet(new PredicateBuilder(lessL).addPath(pathOne, slotLongOne)
+								.addPath(pathOne, slotLongTwo).buildFilter())));
+		final PathNodeFilterSet[] filterTwo =
+				new PathNodeFilterSet[] {
+						new PathNodeFilterSet(new PredicateBuilder(lessL).addConstant(3L, SlotType.LONG)
+								.addPath(pathTwo, slotLongOne).buildFilter()),
+						new PathNodeFilterSet(new PredicateBuilder(lessL).addPath(pathTwo, slotLongOne)
+								.addPath(pathTwo, slotLongTwo).buildFilter()),
+						new PathNodeFilterSet(new PredicateBuilder(eqS).addPath(pathTwo, slotStringOne)
+								.addPath(pathTwo, slotStringTwo).buildFilter()) }, filterThree =
+				new PathNodeFilterSet[] {
+						new PathNodeFilterSet(new PredicateBuilder(lessL).addConstant(3L, SlotType.LONG)
+								.addPath(pathThree, slotLongTwo).buildFilter()),
+						new PathNodeFilterSet(new PredicateBuilder(lessL).addPath(pathThree, slotLongTwo)
+								.addPath(pathThree, slotLongOne).buildFilter()),
+						new PathNodeFilterSet(new PredicateBuilder(eqS).addPath(pathThree, slotStringTwo)
+								.addPath(pathThree, slotStringOne).buildFilter()) };
 
 		network.buildRule(new Defrule("dummyrule", "", 0, (RuleCondition) null, new ArrayList<>()).newTranslated(
 				filterOne, (Map<EquivalenceClass, PathLeaf>) null));
 
 		{
-			final LinkedHashSet<Path> allPaths = new LinkedHashSet<>();
-			for (final PathFilter filter : filterTwo) {
-				final LinkedHashSet<Path> paths = PathCollector.newLinkedHashSet().collectAll(filter).getPaths();
+			final HashSet<Path> allPaths = new HashSet<>();
+			for (final PathNodeFilterSet filter : filterTwo) {
+				final HashSet<Path> paths = PathCollector.newHashSet().collectAll(filter).getPaths();
 				allPaths.addAll(paths);
 			}
 			final Path[] pathArray = toArray(allPaths, Path[]::new);
@@ -146,9 +148,9 @@ public class NetworkTest {
 		assertEquals(pathOne.getFactAddressInCurrentlyLowestNode(), pathTwo.getFactAddressInCurrentlyLowestNode());
 
 		{
-			final LinkedHashSet<Path> allPaths = new LinkedHashSet<>();
-			for (final PathFilter filter : filterThree) {
-				final LinkedHashSet<Path> paths = PathCollector.newLinkedHashSet().collectAll(filter).getPaths();
+			final HashSet<Path> allPaths = new HashSet<>();
+			for (final PathNodeFilterSet filter : filterThree) {
+				final HashSet<Path> paths = PathCollector.newHashSet().collectAll(filter).getPaths();
 				allPaths.addAll(paths);
 			}
 			final Path[] pathArray = toArray(allPaths, Path[]::new);
@@ -179,27 +181,28 @@ public class NetworkTest {
 		final SlotAddress slotStringOne = new SlotAddress(0), slotStringTwo = new SlotAddress(3), slotLongOne =
 				new SlotAddress(1), slotLongTwo = new SlotAddress(2);
 
-		final PathFilterList.PathFilterSharedListWrapper.PathFilterSharedList filterOne =
-				new PathFilterList.PathFilterSharedListWrapper().newSharedElement(Arrays.asList(new PathFilter(
-						new PredicateBuilder(lessL).addConstant(3L, SlotType.LONG).addPath(pathOneA, slotLongOne)
-								.buildPFE()), new PathFilter(new PredicateBuilder(lessL).addPath(pathOneA, slotLongOne)
-						.addPath(pathOneB, slotLongTwo).buildPFE())));
-		final PathFilter[] filterTwo =
-				new PathFilter[] {
-						new PathFilter(new PredicateBuilder(lessL).addConstant(3L, SlotType.LONG)
-								.addPath(pathTwoA, slotLongOne).buildPFE()),
-						new PathFilter(new PredicateBuilder(lessL).addPath(pathTwoA, slotLongOne)
-								.addPath(pathTwoB, slotLongTwo).buildPFE()),
-						new PathFilter(new PredicateBuilder(eqS).addPath(pathTwoA, slotStringOne)
-								.addPath(pathTwoB, slotStringTwo).buildPFE()) };
+		final PathFilterList.PathSharedListWrapper.PathSharedList filterOne =
+				new PathFilterList.PathSharedListWrapper().newSharedElement(Arrays.asList(
+						new PathNodeFilterSet(new PredicateBuilder(lessL).addConstant(3L, SlotType.LONG)
+								.addPath(pathOneA, slotLongOne).buildFilter()),
+						new PathNodeFilterSet(new PredicateBuilder(lessL).addPath(pathOneA, slotLongOne)
+								.addPath(pathOneB, slotLongTwo).buildFilter())));
+		final PathNodeFilterSet[] filterTwo =
+				new PathNodeFilterSet[] {
+						new PathNodeFilterSet(new PredicateBuilder(lessL).addConstant(3L, SlotType.LONG)
+								.addPath(pathTwoA, slotLongOne).buildFilter()),
+						new PathNodeFilterSet(new PredicateBuilder(lessL).addPath(pathTwoA, slotLongOne)
+								.addPath(pathTwoB, slotLongTwo).buildFilter()),
+						new PathNodeFilterSet(new PredicateBuilder(eqS).addPath(pathTwoA, slotStringOne)
+								.addPath(pathTwoB, slotStringTwo).buildFilter()) };
 
 		network.buildRule(new Defrule("dummyrule", "", 0, (RuleCondition) null, new ArrayList<>()).newTranslated(
 				filterOne, (Map<EquivalenceClass, PathLeaf>) null));
 
 		{
-			final LinkedHashSet<Path> allPaths = new LinkedHashSet<>();
-			for (final PathFilter filter : filterTwo) {
-				final LinkedHashSet<Path> paths = PathCollector.newLinkedHashSet().collectAll(filter).getPaths();
+			final HashSet<Path> allPaths = new HashSet<>();
+			for (final PathNodeFilterSet filter : filterTwo) {
+				final HashSet<Path> paths = PathCollector.newHashSet().collectAll(filter).getPaths();
 				allPaths.addAll(paths);
 			}
 			final Path[] pathArray = toArray(allPaths, Path[]::new);
@@ -233,27 +236,28 @@ public class NetworkTest {
 		final SlotAddress slotStringOne = new SlotAddress(0), slotStringTwo = new SlotAddress(3), slotLongOne =
 				new SlotAddress(1), slotLongTwo = new SlotAddress(2);
 
-		final PathFilterList.PathFilterSharedListWrapper.PathFilterSharedList filterOne =
-				new PathFilterList.PathFilterSharedListWrapper().newSharedElement(Arrays.asList(new PathFilter(
-						new PredicateBuilder(lessL).addConstant(3L, SlotType.LONG).addPath(pathOneA, slotLongOne)
-								.buildPFE()), new PathFilter(new PredicateBuilder(lessL).addPath(pathOneA, slotLongOne)
-						.addPath(pathOneB, slotLongTwo).buildPFE())));
-		final PathFilter[] filterTwo =
-				new PathFilter[] {
-						new PathFilter(new PredicateBuilder(lessL).addConstant(3L, SlotType.LONG)
-								.addPath(pathTwoA, slotLongOne).buildPFE()),
-						new PathFilter(new PredicateBuilder(lessL).addPath(pathTwoA, slotLongOne)
-								.addPath(pathTwoB, slotLongTwo).buildPFE()),
-						new PathFilter(new PredicateBuilder(eqS).addPath(pathTwoA, slotStringOne)
-								.addPath(pathTwoB, slotStringTwo).buildPFE()) };
+		final PathFilterList.PathSharedListWrapper.PathSharedList filterOne =
+				new PathFilterList.PathSharedListWrapper().newSharedElement(Arrays.asList(
+						new PathNodeFilterSet(new PredicateBuilder(lessL).addConstant(3L, SlotType.LONG)
+								.addPath(pathOneA, slotLongOne).buildFilter()),
+						new PathNodeFilterSet(new PredicateBuilder(lessL).addPath(pathOneA, slotLongOne)
+								.addPath(pathOneB, slotLongTwo).buildFilter())));
+		final PathNodeFilterSet[] filterTwo =
+				new PathNodeFilterSet[] {
+						new PathNodeFilterSet(new PredicateBuilder(lessL).addConstant(3L, SlotType.LONG)
+								.addPath(pathTwoA, slotLongOne).buildFilter()),
+						new PathNodeFilterSet(new PredicateBuilder(lessL).addPath(pathTwoA, slotLongOne)
+								.addPath(pathTwoB, slotLongTwo).buildFilter()),
+						new PathNodeFilterSet(new PredicateBuilder(eqS).addPath(pathTwoA, slotStringOne)
+								.addPath(pathTwoB, slotStringTwo).buildFilter()) };
 
 		network.buildRule(new Defrule("dummyrule", "", 0, (RuleCondition) null, new ArrayList<>()).newTranslated(
 				filterOne, (Map<EquivalenceClass, PathLeaf>) null));
 
 		{
-			final LinkedHashSet<Path> allPaths = new LinkedHashSet<>();
-			for (final PathFilter filter : filterTwo) {
-				final LinkedHashSet<Path> paths = PathCollector.newLinkedHashSet().collectAll(filter).getPaths();
+			final HashSet<Path> allPaths = new HashSet<>();
+			for (final PathNodeFilterSet filter : filterTwo) {
+				final HashSet<Path> paths = PathCollector.newHashSet().collectAll(filter).getPaths();
 				allPaths.addAll(paths);
 			}
 			final Path[] pathArray = toArray(allPaths, Path[]::new);
@@ -292,31 +296,31 @@ public class NetworkTest {
 		final Predicate lessLongLong = FunctionDictionary.lookupPredicate("<", SlotType.LONG, SlotType.LONG);
 		final Predicate eqStrStr = FunctionDictionary.lookupPredicate("=", SlotType.STRING, SlotType.STRING);
 
-		final PathFilterList.PathFilterSharedListWrapper.PathFilterSharedList filterOne =
-				new PathFilterList.PathFilterSharedListWrapper().newSharedElement(Arrays.asList(
-						new PathFilter(new PredicateBuilder(eqStrStr).addPath(oldStudent1, studentHobby)
-								.addConstant("Coding", SlotType.STRING).buildPFE()),
-						new PathFilter(new PredicateBuilder(lessLongLong).addPath(youngStudent1, studentSem)
-								.addPath(oldStudent1, studentSem).buildPFE(), new PredicateBuilder(eqStrStr)
-								.addPath(youngStudent1, studentSG).addPath(oldStudent1, studentSG).buildPFE()),
-						new PathFilter(new PredicateBuilder(eqStrStr).addPath(youngStudent1, studentSG)
-								.addPath(matchingProf1, profSG).buildPFE())));
-		final PathFilter[] filterTwo =
-				new PathFilter[] {
-						new PathFilter(new PredicateBuilder(eqStrStr).addPath(oldStudent2, studentHobby)
-								.addConstant("Coding", SlotType.STRING).buildPFE()),
-						new PathFilter(new PredicateBuilder(lessLongLong).addPath(youngStudent2, studentSem)
-								.addPath(oldStudent2, studentSem).buildPFE(), new PredicateBuilder(eqStrStr)
-								.addPath(youngStudent2, studentSG).addPath(oldStudent2, studentSG).buildPFE()),
-						new PathFilter(new PredicateBuilder(eqStrStr).addPath(youngStudent2, studentSG)
-								.addPath(matchingProf2, profSG).buildPFE()) };
+		final PathFilterList.PathSharedListWrapper.PathSharedList filterOne =
+				new PathFilterList.PathSharedListWrapper().newSharedElement(Arrays.asList(
+						new PathNodeFilterSet(new PredicateBuilder(eqStrStr).addPath(oldStudent1, studentHobby)
+								.addConstant("Coding", SlotType.STRING).buildFilter()),
+						new PathNodeFilterSet(new PredicateBuilder(lessLongLong).addPath(youngStudent1, studentSem)
+								.addPath(oldStudent1, studentSem).buildFilter(), new PredicateBuilder(eqStrStr)
+								.addPath(youngStudent1, studentSG).addPath(oldStudent1, studentSG).buildFilter()),
+						new PathNodeFilterSet(new PredicateBuilder(eqStrStr).addPath(youngStudent1, studentSG)
+								.addPath(matchingProf1, profSG).buildFilter())));
+		final PathNodeFilterSet[] filterTwo =
+				new PathNodeFilterSet[] {
+						new PathNodeFilterSet(new PredicateBuilder(eqStrStr).addPath(oldStudent2, studentHobby)
+								.addConstant("Coding", SlotType.STRING).buildFilter()),
+						new PathNodeFilterSet(new PredicateBuilder(lessLongLong).addPath(youngStudent2, studentSem)
+								.addPath(oldStudent2, studentSem).buildFilter(), new PredicateBuilder(eqStrStr)
+								.addPath(youngStudent2, studentSG).addPath(oldStudent2, studentSG).buildFilter()),
+						new PathNodeFilterSet(new PredicateBuilder(eqStrStr).addPath(youngStudent2, studentSG)
+								.addPath(matchingProf2, profSG).buildFilter()) };
 		network.buildRule(new Defrule("dummyrule", "", 0, (RuleCondition) null, new ArrayList<>()).newTranslated(
 				filterOne, (Map<EquivalenceClass, PathLeaf>) null));
 
 		{
-			final LinkedHashSet<Path> allPaths = new LinkedHashSet<>();
-			for (final PathFilter filter : filterTwo) {
-				final LinkedHashSet<Path> paths = PathCollector.newLinkedHashSet().collectAll(filter).getPaths();
+			final HashSet<Path> allPaths = new HashSet<>();
+			for (final PathNodeFilterSet filter : filterTwo) {
+				final HashSet<Path> paths = PathCollector.newHashSet().collectAll(filter).getPaths();
 				allPaths.addAll(paths);
 			}
 			final Path[] pathArray = toArray(allPaths, Path[]::new);
@@ -353,24 +357,26 @@ public class NetworkTest {
 		final SlotAddress slotStringOne = new SlotAddress(0), slotStringTwo = new SlotAddress(3), slotLongOne =
 				new SlotAddress(1), slotLongTwo = new SlotAddress(2);
 
-		final PathFilterList.PathFilterSharedListWrapper.PathFilterSharedList filterOne =
-				new PathFilterList.PathFilterSharedListWrapper().newSharedElement(Arrays.asList(new PathFilter(
-						new PredicateBuilder(lessL).addConstant(3L, SlotType.LONG).addPath(pathOne, slotLongOne)
-								.buildPFE()), new PathFilter(new PredicateBuilder(lessL).addPath(pathOne, slotLongOne)
-						.addPath(pathOne, slotLongTwo).buildPFE()))), filterTwo =
-				new PathFilterList.PathFilterSharedListWrapper().newSharedElement(Arrays.asList(
-						new PathFilter(new PredicateBuilder(lessL).addConstant(3L, SlotType.LONG)
-								.addPath(pathTwo, slotLongOne).buildPFE()),
-						new PathFilter(new PredicateBuilder(lessL).addPath(pathTwo, slotLongOne)
-								.addPath(pathTwo, slotLongTwo).buildPFE()),
-						new PathFilter(new PredicateBuilder(eqS).addPath(pathTwo, slotStringOne)
-								.addPath(pathTwo, slotStringTwo).buildPFE()))), filterThree =
-				new PathFilterList.PathFilterSharedListWrapper().newSharedElement(Arrays.asList(new PathFilter(
-						new PredicateBuilder(lessL).addConstant(3L, SlotType.LONG).addPath(pathThree, slotLongTwo)
-								.buildPFE()), new PathFilter(new PredicateBuilder(lessL)
-						.addPath(pathThree, slotLongTwo).addPath(pathThree, slotLongOne).buildPFE()), new PathFilter(
-						new PredicateBuilder(eqS).addPath(pathThree, slotStringTwo).addPath(pathThree, slotStringOne)
-								.buildPFE())));
+		final PathFilterList.PathSharedListWrapper.PathSharedList filterOne =
+				new PathFilterList.PathSharedListWrapper().newSharedElement(Arrays.asList(
+						new PathNodeFilterSet(new PredicateBuilder(lessL).addConstant(3L, SlotType.LONG)
+								.addPath(pathOne, slotLongOne).buildFilter()),
+						new PathNodeFilterSet(new PredicateBuilder(lessL).addPath(pathOne, slotLongOne)
+								.addPath(pathOne, slotLongTwo).buildFilter()))), filterTwo =
+				new PathFilterList.PathSharedListWrapper().newSharedElement(Arrays.asList(
+						new PathNodeFilterSet(new PredicateBuilder(lessL).addConstant(3L, SlotType.LONG)
+								.addPath(pathTwo, slotLongOne).buildFilter()),
+						new PathNodeFilterSet(new PredicateBuilder(lessL).addPath(pathTwo, slotLongOne)
+								.addPath(pathTwo, slotLongTwo).buildFilter()),
+						new PathNodeFilterSet(new PredicateBuilder(eqS).addPath(pathTwo, slotStringOne)
+								.addPath(pathTwo, slotStringTwo).buildFilter()))), filterThree =
+				new PathFilterList.PathSharedListWrapper().newSharedElement(Arrays.asList(
+						new PathNodeFilterSet(new PredicateBuilder(lessL).addConstant(3L, SlotType.LONG)
+								.addPath(pathThree, slotLongTwo).buildFilter()),
+						new PathNodeFilterSet(new PredicateBuilder(lessL).addPath(pathThree, slotLongTwo)
+								.addPath(pathThree, slotLongOne).buildFilter()),
+						new PathNodeFilterSet(new PredicateBuilder(eqS).addPath(pathThree, slotStringTwo)
+								.addPath(pathThree, slotStringOne).buildFilter())));
 
 		network.buildRule(new Defrule("rule1", "", 0, (RuleCondition) null, new ArrayList<>()).newTranslated(filterOne,
 				(Map<EquivalenceClass, PathLeaf>) null));
@@ -406,18 +412,19 @@ public class NetworkTest {
 		final SlotAddress slotStringOne = new SlotAddress(0), slotStringTwo = new SlotAddress(3), slotLongOne =
 				new SlotAddress(1), slotLongTwo = new SlotAddress(2);
 
-		final PathFilterList.PathFilterSharedListWrapper.PathFilterSharedList filterOne =
-				new PathFilterList.PathFilterSharedListWrapper().newSharedElement(Arrays.asList(new PathFilter(
-						new PredicateBuilder(lessL).addConstant(3L, SlotType.LONG).addPath(pathOneA, slotLongOne)
-								.buildPFE()), new PathFilter(new PredicateBuilder(lessL).addPath(pathOneA, slotLongOne)
-						.addPath(pathOneB, slotLongTwo).buildPFE()))), filterTwo =
-				new PathFilterList.PathFilterSharedListWrapper().newSharedElement(Arrays.asList(
-						new PathFilter(new PredicateBuilder(lessL).addConstant(3L, SlotType.LONG)
-								.addPath(pathTwoA, slotLongOne).buildPFE()),
-						new PathFilter(new PredicateBuilder(lessL).addPath(pathTwoA, slotLongOne)
-								.addPath(pathTwoB, slotLongTwo).buildPFE()),
-						new PathFilter(new PredicateBuilder(eqS).addPath(pathTwoA, slotStringOne)
-								.addPath(pathTwoB, slotStringTwo).buildPFE())));
+		final PathFilterList.PathSharedListWrapper.PathSharedList filterOne =
+				new PathFilterList.PathSharedListWrapper().newSharedElement(Arrays.asList(
+						new PathNodeFilterSet(new PredicateBuilder(lessL).addConstant(3L, SlotType.LONG)
+								.addPath(pathOneA, slotLongOne).buildFilter()),
+						new PathNodeFilterSet(new PredicateBuilder(lessL).addPath(pathOneA, slotLongOne)
+								.addPath(pathOneB, slotLongTwo).buildFilter()))), filterTwo =
+				new PathFilterList.PathSharedListWrapper().newSharedElement(Arrays.asList(
+						new PathNodeFilterSet(new PredicateBuilder(lessL).addConstant(3L, SlotType.LONG)
+								.addPath(pathTwoA, slotLongOne).buildFilter()),
+						new PathNodeFilterSet(new PredicateBuilder(lessL).addPath(pathTwoA, slotLongOne)
+								.addPath(pathTwoB, slotLongTwo).buildFilter()),
+						new PathNodeFilterSet(new PredicateBuilder(eqS).addPath(pathTwoA, slotStringOne)
+								.addPath(pathTwoB, slotStringTwo).buildFilter())));
 
 		network.buildRule(new Defrule("rule1", "", 0, (RuleCondition) null, new ArrayList<>()).newTranslated(filterOne,
 				(Map<EquivalenceClass, PathLeaf>) null));
@@ -449,18 +456,19 @@ public class NetworkTest {
 		final SlotAddress slotStringOne = new SlotAddress(0), slotStringTwo = new SlotAddress(3), slotLongOne =
 				new SlotAddress(1), slotLongTwo = new SlotAddress(2);
 
-		final PathFilterList.PathFilterSharedListWrapper.PathFilterSharedList filterOne =
-				new PathFilterList.PathFilterSharedListWrapper().newSharedElement(Arrays.asList(new PathFilter(
-						new PredicateBuilder(lessL).addConstant(3L, SlotType.LONG).addPath(pathOneA, slotLongOne)
-								.buildPFE()), new PathFilter(new PredicateBuilder(lessL).addPath(pathOneA, slotLongOne)
-						.addPath(pathOneB, slotLongTwo).buildPFE()))), filterTwo =
-				new PathFilterList.PathFilterSharedListWrapper().newSharedElement(Arrays.asList(
-						new PathFilter(new PredicateBuilder(lessL).addConstant(3L, SlotType.LONG)
-								.addPath(pathTwoA, slotLongOne).buildPFE()),
-						new PathFilter(new PredicateBuilder(lessL).addPath(pathTwoA, slotLongOne)
-								.addPath(pathTwoB, slotLongTwo).buildPFE()),
-						new PathFilter(new PredicateBuilder(eqS).addPath(pathTwoA, slotStringOne)
-								.addPath(pathTwoB, slotStringTwo).buildPFE())));
+		final PathFilterList.PathSharedListWrapper.PathSharedList filterOne =
+				new PathFilterList.PathSharedListWrapper().newSharedElement(Arrays.asList(
+						new PathNodeFilterSet(new PredicateBuilder(lessL).addConstant(3L, SlotType.LONG)
+								.addPath(pathOneA, slotLongOne).buildFilter()),
+						new PathNodeFilterSet(new PredicateBuilder(lessL).addPath(pathOneA, slotLongOne)
+								.addPath(pathOneB, slotLongTwo).buildFilter()))), filterTwo =
+				new PathFilterList.PathSharedListWrapper().newSharedElement(Arrays.asList(
+						new PathNodeFilterSet(new PredicateBuilder(lessL).addConstant(3L, SlotType.LONG)
+								.addPath(pathTwoA, slotLongOne).buildFilter()),
+						new PathNodeFilterSet(new PredicateBuilder(lessL).addPath(pathTwoA, slotLongOne)
+								.addPath(pathTwoB, slotLongTwo).buildFilter()),
+						new PathNodeFilterSet(new PredicateBuilder(eqS).addPath(pathTwoA, slotStringOne)
+								.addPath(pathTwoB, slotStringTwo).buildFilter())));
 
 		network.buildRule(new Defrule("rule1", "", 0, (RuleCondition) null, new ArrayList<>()).newTranslated(filterOne,
 				(Map<EquivalenceClass, PathLeaf>) null));
@@ -497,23 +505,23 @@ public class NetworkTest {
 		final Predicate lessLongLong = FunctionDictionary.lookupPredicate("<", SlotType.LONG, SlotType.LONG);
 		final Predicate eqStrStr = FunctionDictionary.lookupPredicate("=", SlotType.STRING, SlotType.STRING);
 
-		final PathFilterList.PathFilterSharedListWrapper.PathFilterSharedList filterOne =
-				new PathFilterList.PathFilterSharedListWrapper().newSharedElement(Arrays.asList(
-						new PathFilter(new PredicateBuilder(eqStrStr).addPath(oldStudent1, studentHobby)
-								.addConstant("Coding", SlotType.STRING).buildPFE()),
-						new PathFilter(new PredicateBuilder(lessLongLong).addPath(youngStudent1, studentSem)
-								.addPath(oldStudent1, studentSem).buildPFE(), new PredicateBuilder(eqStrStr)
-								.addPath(youngStudent1, studentSG).addPath(oldStudent1, studentSG).buildPFE()),
-						new PathFilter(new PredicateBuilder(eqStrStr).addPath(youngStudent1, studentSG)
-								.addPath(matchingProf1, profSG).buildPFE()))), filterTwo =
-				new PathFilterList.PathFilterSharedListWrapper().newSharedElement(Arrays.asList(
-						new PathFilter(new PredicateBuilder(eqStrStr).addPath(oldStudent2, studentHobby)
-								.addConstant("Coding", SlotType.STRING).buildPFE()),
-						new PathFilter(new PredicateBuilder(lessLongLong).addPath(youngStudent2, studentSem)
-								.addPath(oldStudent2, studentSem).buildPFE(), new PredicateBuilder(eqStrStr)
-								.addPath(youngStudent2, studentSG).addPath(oldStudent2, studentSG).buildPFE()),
-						new PathFilter(new PredicateBuilder(eqStrStr).addPath(youngStudent2, studentSG)
-								.addPath(matchingProf2, profSG).buildPFE())));
+		final PathFilterList.PathSharedListWrapper.PathSharedList filterOne =
+				new PathFilterList.PathSharedListWrapper().newSharedElement(Arrays.asList(
+						new PathNodeFilterSet(new PredicateBuilder(eqStrStr).addPath(oldStudent1, studentHobby)
+								.addConstant("Coding", SlotType.STRING).buildFilter()),
+						new PathNodeFilterSet(new PredicateBuilder(lessLongLong).addPath(youngStudent1, studentSem)
+								.addPath(oldStudent1, studentSem).buildFilter(), new PredicateBuilder(eqStrStr)
+								.addPath(youngStudent1, studentSG).addPath(oldStudent1, studentSG).buildFilter()),
+						new PathNodeFilterSet(new PredicateBuilder(eqStrStr).addPath(youngStudent1, studentSG)
+								.addPath(matchingProf1, profSG).buildFilter()))), filterTwo =
+				new PathFilterList.PathSharedListWrapper().newSharedElement(Arrays.asList(
+						new PathNodeFilterSet(new PredicateBuilder(eqStrStr).addPath(oldStudent2, studentHobby)
+								.addConstant("Coding", SlotType.STRING).buildFilter()),
+						new PathNodeFilterSet(new PredicateBuilder(lessLongLong).addPath(youngStudent2, studentSem)
+								.addPath(oldStudent2, studentSem).buildFilter(), new PredicateBuilder(eqStrStr)
+								.addPath(youngStudent2, studentSG).addPath(oldStudent2, studentSG).buildFilter()),
+						new PathNodeFilterSet(new PredicateBuilder(eqStrStr).addPath(youngStudent2, studentSG)
+								.addPath(matchingProf2, profSG).buildFilter())));
 		network.buildRule(new Defrule("rule1", "", 0, (RuleCondition) null, new ArrayList<>()).newTranslated(filterOne,
 				(Map<EquivalenceClass, PathLeaf>) null));
 		network.buildRule(new Defrule("rule2", "", 0, (RuleCondition) null, new ArrayList<>()).newTranslated(filterTwo,
@@ -548,14 +556,14 @@ public class NetworkTest {
 		final Predicate greaterLongLong =
 				FunctionDictionary.lookupPredicate(Greater.inClips, SlotType.LONG, SlotType.LONG);
 
-		final PathFilterList.PathFilterSharedListWrapper.PathFilterSharedList filterOne =
-				new PathFilterList.PathFilterSharedListWrapper().newSharedElement(Arrays.asList(new PathFilter(
+		final PathFilterList.PathSharedListWrapper.PathSharedList filterOne =
+				new PathFilterList.PathSharedListWrapper().newSharedElement(Arrays.asList(new PathNodeFilterSet(
 						new PredicateBuilder(greaterLongLong).addPath(youngStudent1, studentSem)
-								.addPath(oldStudent1, studentSem).buildPFE())));
-		final PathFilterList.PathFilterSharedListWrapper.PathFilterSharedList filterTwo =
-				new PathFilterList.PathFilterSharedListWrapper().newSharedElement(Arrays.asList(new PathFilter(
+								.addPath(oldStudent1, studentSem).buildFilter())));
+		final PathFilterList.PathSharedListWrapper.PathSharedList filterTwo =
+				new PathFilterList.PathSharedListWrapper().newSharedElement(Arrays.asList(new PathNodeFilterSet(
 						new PredicateBuilder(lessLongLong).addPath(youngStudent2, studentSem)
-								.addPath(oldStudent2, studentSem).buildPFE())));
+								.addPath(oldStudent2, studentSem).buildFilter())));
 		network.buildRule(new Defrule("rule1", "", 0, (RuleCondition) null, new ArrayList<>()).newTranslated(filterOne,
 				(Map<EquivalenceClass, PathLeaf>) null));
 		network.buildRule(new Defrule("rule2", "", 0, (RuleCondition) null, new ArrayList<>()).newTranslated(filterTwo,
@@ -585,26 +593,26 @@ public class NetworkTest {
 
 		final SlotAddress slotLongOne = new SlotAddress(1), slotLongTwo = new SlotAddress(2);
 
-		final PathFilterList.PathFilterSharedListWrapper.PathFilterSharedList filterOne =
-				new PathFilterList.PathFilterSharedListWrapper().newSharedElement(Arrays.asList(new PathFilter(
+		final PathFilterList.PathSharedListWrapper.PathSharedList filterOne =
+				new PathFilterList.PathSharedListWrapper().newSharedElement(Arrays.asList(new PathNodeFilterSet(
 						new PredicateBuilder(eqL)
 								.addPath(path1A, slotLongOne)
 								.addFunction(
 										new FunctionBuilder(plusL).addPath(path1B, slotLongOne)
-												.addPath(path1B, slotLongTwo).build()).buildPFE())));
-		final PathFilter[] filterTwo =
-				new PathFilter[] { new PathFilter(new PredicateBuilder(eqL)
+												.addPath(path1B, slotLongTwo).build()).buildFilter())));
+		final PathNodeFilterSet[] filterTwo =
+				new PathNodeFilterSet[] { new PathNodeFilterSet(new PredicateBuilder(eqL)
 						.addFunction(
 								new FunctionBuilder(plusL).addPath(path2B, slotLongTwo).addPath(path2B, slotLongOne)
-										.build()).addPath(path2A, slotLongOne).buildPFE()) };
+										.build()).addPath(path2A, slotLongOne).buildFilter()) };
 
 		network.buildRule(new Defrule("dummyrule", "", 0, (RuleCondition) null, new ArrayList<>()).newTranslated(
 				filterOne, (Map<EquivalenceClass, PathLeaf>) null));
 
 		{
-			final LinkedHashSet<Path> allPaths = new LinkedHashSet<>();
-			for (final PathFilter filter : filterTwo) {
-				final LinkedHashSet<Path> paths = PathCollector.newLinkedHashSet().collectAll(filter).getPaths();
+			final HashSet<Path> allPaths = new HashSet<>();
+			for (final PathNodeFilterSet filter : filterTwo) {
+				final HashSet<Path> paths = PathCollector.newHashSet().collectAll(filter).getPaths();
 				allPaths.addAll(paths);
 			}
 			final Path[] pathArray = toArray(allPaths, Path[]::new);
@@ -635,26 +643,26 @@ public class NetworkTest {
 
 		final SlotAddress slotLongOne = new SlotAddress(1), slotLongTwo = new SlotAddress(2);
 
-		final PathFilterList.PathFilterSharedListWrapper.PathFilterSharedList filterOne =
-				new PathFilterList.PathFilterSharedListWrapper().newSharedElement(Arrays.asList(new PathFilter(
+		final PathFilterList.PathSharedListWrapper.PathSharedList filterOne =
+				new PathFilterList.PathSharedListWrapper().newSharedElement(Arrays.asList(new PathNodeFilterSet(
 						new PredicateBuilder(eqL)
 								.addPath(path1A, slotLongOne)
 								.addFunction(
 										new FunctionBuilder(plusL).addPath(path1B, slotLongOne)
-												.addPath(path1B, slotLongTwo).build()).buildPFE())));
-		final PathFilter[] filterTwo =
-				new PathFilter[] { new PathFilter(new PredicateBuilder(eqL)
+												.addPath(path1B, slotLongTwo).build()).buildFilter())));
+		final PathNodeFilterSet[] filterTwo =
+				new PathNodeFilterSet[] { new PathNodeFilterSet(new PredicateBuilder(eqL)
 						.addFunction(
 								new FunctionBuilder(plusL).addPath(path2B, slotLongTwo).addPath(path2A, slotLongOne)
-										.build()).addPath(path2B, slotLongOne).buildPFE()) };
+										.build()).addPath(path2B, slotLongOne).buildFilter()) };
 
 		network.buildRule(new Defrule("dummyrule", "", 0, (RuleCondition) null, new ArrayList<>()).newTranslated(
 				filterOne, (Map<EquivalenceClass, PathLeaf>) null));
 
 		{
-			final LinkedHashSet<Path> allPaths = new LinkedHashSet<>();
-			for (final PathFilter filter : filterTwo) {
-				final LinkedHashSet<Path> paths = PathCollector.newLinkedHashSet().collectAll(filter).getPaths();
+			final HashSet<Path> allPaths = new HashSet<>();
+			for (final PathNodeFilterSet filter : filterTwo) {
+				final HashSet<Path> paths = PathCollector.newHashSet().collectAll(filter).getPaths();
 				allPaths.addAll(paths);
 			}
 			final Path[] pathArray = toArray(allPaths, Path[]::new);

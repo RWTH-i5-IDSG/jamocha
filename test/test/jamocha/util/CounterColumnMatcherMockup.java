@@ -16,10 +16,10 @@ package test.jamocha.util;
 
 import org.jamocha.dn.memory.CounterColumn;
 import org.jamocha.dn.memory.CounterColumnMatcher;
-import org.jamocha.filter.PathFilter.PathFilterElement;
+import org.jamocha.filter.PathNodeFilterSet.PathFilter;
 
 /**
- * Mockup implementation of {@link CounterColumnMatcher} matching every {@link PathFilterElement} to
+ * Mockup implementation of {@link CounterColumnMatcher} matching every {@link PathFilter} to
  * null.
  * 
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
@@ -28,7 +28,7 @@ public class CounterColumnMatcherMockup implements CounterColumnMatcher {
 	public static final CounterColumnMatcherMockup counterColumnMatcherMockup = new CounterColumnMatcherMockup();
 
 	@Override
-	public CounterColumn getCounterColumn(final PathFilterElement filterElement) {
+	public CounterColumn getCounterColumn(final PathFilter filterElement) {
 		return null;
 	}
 }

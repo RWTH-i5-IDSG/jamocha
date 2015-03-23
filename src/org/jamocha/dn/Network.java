@@ -75,8 +75,8 @@ import org.jamocha.dn.nodes.TerminalNode;
 import org.jamocha.filter.FilterFunctionCompare;
 import org.jamocha.filter.Path;
 import org.jamocha.filter.PathCollector;
-import org.jamocha.filter.PathFilter;
 import org.jamocha.filter.PathFilterList;
+import org.jamocha.filter.PathNodeFilterSet;
 import org.jamocha.filter.optimizer.Optimizer;
 import org.jamocha.filter.optimizer.OptimizerFactory;
 import org.jamocha.function.FunctionDictionary;
@@ -396,18 +396,18 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 	/**
 	 * Tries to find a node performing the same filtering as the given filter and calls
 	 * {@link Node#shareNode(java.util.Map, org.jamocha.filter.Path...)} or creates a new
-	 * {@link Node} for the given {@link PathFilter filter}. Returns true iff a {@link Node} to
-	 * share was found.
+	 * {@link Node} for the given {@link PathNodeFilterSet filter}. Returns true iff a {@link Node}
+	 * to share was found.
 	 *
 	 * @param filter
-	 *            {@link PathFilter} to find a corresponding {@link Node} for
+	 *            {@link PathNodeFilterSet} to find a corresponding {@link Node} for
 	 * @return true iff a {@link Node} to share was found
 	 * @throws IllegalArgumentException
-	 *             thrown if one of the {@link Path}s in the {@link PathFilter} was not mapped to a
-	 *             {@link Node}
+	 *             thrown if one of the {@link Path}s in the {@link PathNodeFilterSet} was not
+	 *             mapped to a {@link Node}
 	 */
-	public boolean tryToShareNode(final PathFilter filter) throws IllegalArgumentException {
-		final Path[] paths = PathCollector.newLinkedHashSet().collectAll(filter).getPathsArray();
+	public boolean tryToShareNode(final PathNodeFilterSet filter) throws IllegalArgumentException {
+		final Path[] paths = PathCollector.newHashSet().collectAll(filter).getPathsArray();
 
 		// collect the nodes of the paths
 		final LinkedHashSet<Node> filterPathNodes = new LinkedHashSet<>();
@@ -421,7 +421,7 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 		final LinkedHashSet<Node> candidates = identifyShareCandidates(filterPathNodes);
 
 		// get normal version of filter to share
-		final PathFilter normalisedFilter = filter.normalise();
+		final PathNodeFilterSet normalisedFilter = filter.normalise();
 
 		// check candidates for possible node sharing
 		for (final Node candidate : candidates) {
@@ -487,20 +487,20 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 	 * @return created TerminalNode for the constructed rule
 	 */
 	public TerminalNode buildRule(final Defrule.TranslatedPath translatedPath) {
-		final PathFilterList.PathFilterSharedListWrapper.PathFilterSharedList filters = translatedPath.getCondition();
-		final LinkedHashSet<Path> allPaths;
+		final PathFilterList.PathSharedListWrapper.PathSharedList filters = translatedPath.getCondition();
+		final HashSet<Path> allPaths;
 		{
-			final PathCollector<LinkedHashSet<Path>> collector = PathCollector.newLinkedHashSet();
-			for (final PathFilter filter : filters) {
+			final PathCollector<HashSet<Path>> collector = PathCollector.newHashSet();
+			for (final PathNodeFilterSet filter : filters) {
 				collector.collectAll(filter);
 			}
 			this.rootNode.addPaths(this, collector.getPathsArray());
 			allPaths = collector.getPaths();
 		}
 		final ArrayList<Node> nodes = new ArrayList<>();
-		for (final PathFilter filter : filters) {
+		for (final PathNodeFilterSet filter : filters) {
 			if (!tryToShareNode(filter))
-				if (PathCollector.newLinkedHashSet().collectAll(filter).getPaths().stream()
+				if (PathCollector.newHashSet().collectAll(filter).getPaths().stream()
 						.flatMap(p -> p.getJoinedWith().stream()).distinct().count() == 1) {
 					nodes.add(new AlphaNode(this, filter));
 				} else {

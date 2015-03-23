@@ -17,6 +17,7 @@ package org.jamocha.filter;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -33,7 +34,7 @@ import org.jamocha.function.fwa.PredicateWithArguments;
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
 @Getter
-public class AddressFilter extends Filter<ParameterLeaf, AddressFilter.AddressFilterElement> {
+public class AddressNodeFilterSet extends NodeFilterSet<ParameterLeaf, AddressNodeFilterSet.AddressFilter> {
 
 	@Data
 	public static class AddressMatchingConfiguration {
@@ -48,25 +49,25 @@ public class AddressFilter extends Filter<ParameterLeaf, AddressFilter.AddressFi
 		}
 	}
 
-	public static AddressFilter empty = new NormalAddressFilter(new HashSet<FactAddress>(), new HashSet<FactAddress>(),
-			new AddressFilterElement[] {}, Collections.emptyList());
+	public static AddressNodeFilterSet empty = new NormalAddressNodeFilterSet(new HashSet<FactAddress>(),
+			new HashSet<FactAddress>(), new LinkedHashSet<AddressFilter>(), Collections.emptyList());
 
-	public static class NormalAddressFilter extends AddressFilter {
-		public NormalAddressFilter(final Set<FactAddress> positiveExistentialAddresses,
-				final Set<FactAddress> negativeExistentialAddresses, final AddressFilterElement[] filterElements,
+	public static class NormalAddressNodeFilterSet extends AddressNodeFilterSet {
+		public NormalAddressNodeFilterSet(final Set<FactAddress> positiveExistentialAddresses,
+				final Set<FactAddress> negativeExistentialAddresses, final LinkedHashSet<AddressFilter> filterElements,
 				final List<AddressMatchingConfiguration> matchingConfigurations) {
 			super(positiveExistentialAddresses, negativeExistentialAddresses, filterElements,
-					(NormalAddressFilter) null, matchingConfigurations);
+					(NormalAddressNodeFilterSet) null, matchingConfigurations);
 		}
 
 		@Override
-		public NormalAddressFilter getNormalisedVersion() {
+		public NormalAddressNodeFilterSet getNormalisedVersion() {
 			return this;
 		}
 	}
 
 	protected final Set<FactAddress> positiveExistentialAddresses, negativeExistentialAddresses;
-	private final NormalAddressFilter normalisedVersion;
+	private final NormalAddressNodeFilterSet normalisedVersion;
 	private final List<AddressMatchingConfiguration> matchingConfigurations;
 
 	/**
@@ -82,9 +83,10 @@ public class AddressFilter extends Filter<ParameterLeaf, AddressFilter.AddressFi
 		return positiveExistentialAddresses.contains(factAddress) || negativeExistentialAddresses.contains(factAddress);
 	}
 
-	public AddressFilter(final Set<FactAddress> positiveExistentialAddresses,
-			final Set<FactAddress> negativeExistentialAddresses, final AddressFilterElement[] filterElements,
-			final NormalAddressFilter normalisedVersion, final List<AddressMatchingConfiguration> matchingConfigurations) {
+	public AddressNodeFilterSet(final Set<FactAddress> positiveExistentialAddresses,
+			final Set<FactAddress> negativeExistentialAddresses, final Set<AddressFilter> filterElements,
+			final NormalAddressNodeFilterSet normalisedVersion,
+			final List<AddressMatchingConfiguration> matchingConfigurations) {
 		super(filterElements);
 		this.positiveExistentialAddresses = positiveExistentialAddresses;
 		this.negativeExistentialAddresses = negativeExistentialAddresses;
@@ -92,20 +94,20 @@ public class AddressFilter extends Filter<ParameterLeaf, AddressFilter.AddressFi
 		this.matchingConfigurations = matchingConfigurations;
 	}
 
-	public AddressFilter(final Set<FactAddress> positiveExistentialAddresses,
-			final Set<FactAddress> negativeExistentialAddresses, final AddressFilterElement[] filterElements,
-			final AddressFilterElement[] normalFilterElements,
+	public AddressNodeFilterSet(final Set<FactAddress> positiveExistentialAddresses,
+			final Set<FactAddress> negativeExistentialAddresses, final Set<AddressFilter> filterElements,
+			final LinkedHashSet<AddressFilter> normalFilterElements,
 			final List<AddressMatchingConfiguration> matchingConfigurations) {
-		this(positiveExistentialAddresses, negativeExistentialAddresses, filterElements, new NormalAddressFilter(
-				positiveExistentialAddresses, negativeExistentialAddresses, normalFilterElements,
-				matchingConfigurations), matchingConfigurations);
+		this(positiveExistentialAddresses, negativeExistentialAddresses, filterElements,
+				new NormalAddressNodeFilterSet(positiveExistentialAddresses, negativeExistentialAddresses,
+						normalFilterElements, matchingConfigurations), matchingConfigurations);
 	}
 
 	@Getter
-	public static class AddressFilterElement extends Filter.FilterElement<ParameterLeaf> {
+	public static class AddressFilter extends NodeFilterSet.Filter<ParameterLeaf> {
 		final SlotInFactAddress addressesInTarget[];
 
-		public AddressFilterElement(final PredicateWithArguments<ParameterLeaf> function,
+		public AddressFilter(final PredicateWithArguments<ParameterLeaf> function,
 				final SlotInFactAddress[] addressesInTarget) {
 			super(function);
 			this.addressesInTarget = addressesInTarget;
@@ -116,11 +118,11 @@ public class AddressFilter extends Filter<ParameterLeaf, AddressFilter.AddressFi
 		}
 	}
 
-	public static class ExistentialAddressFilterElement extends AddressFilterElement {
+	public static class ExistentialAddressFilter extends AddressFilter {
 		@Getter(onMethod = @__({ @Override }))
 		protected final CounterColumn counterColumn;
 
-		public ExistentialAddressFilterElement(final PredicateWithArguments<ParameterLeaf> function,
+		public ExistentialAddressFilter(final PredicateWithArguments<ParameterLeaf> function,
 				final SlotInFactAddress[] addressesInTarget, final CounterColumn counterColumn) {
 			super(function, addressesInTarget);
 			this.counterColumn = counterColumn;
