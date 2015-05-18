@@ -14,6 +14,8 @@
  */
 package org.jamocha.languages.common;
 
+import org.jamocha.languages.common.ScopeStack.Scope;
+
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
@@ -23,6 +25,10 @@ public class ScopeCloser implements AutoCloseable {
 	public ScopeCloser(final ScopeStack scopeStack) {
 		this.scopeStack = scopeStack;
 		this.scopeStack.openScope();
+	}
+
+	public Scope getCurrentScope() {
+		return scopeStack.getCurrentScope();
 	}
 
 	@Override
