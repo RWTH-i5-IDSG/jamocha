@@ -16,7 +16,6 @@ package org.jamocha.languages.clips.parser;
 
 import java.util.Stack;
 
-import lombok.RequiredArgsConstructor;
 import lombok.Value;
 
 import org.jamocha.languages.clips.parser.SFPVisitorImpl.ExistentialState;
@@ -25,11 +24,11 @@ import org.jamocha.languages.clips.parser.SFPVisitorImpl.SFPStartVisitor;
 import org.jamocha.languages.clips.parser.generated.SFPDefruleConstruct;
 import org.jamocha.languages.common.ConditionalElement.InitialFactConditionalElement;
 import org.jamocha.languages.common.RuleCondition;
+import org.jamocha.languages.common.ScopeStack.Scope;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
-@RequiredArgsConstructor
 public class ExistentialStack extends RuleCondition {
 
 	@Value
@@ -40,6 +39,10 @@ public class ExistentialStack extends RuleCondition {
 
 	boolean templateCEContained = false;
 	final Stack<ExistentialMarkerElement> stack = new Stack<>();
+
+	public ExistentialStack(final Scope scope) {
+		super(scope);
+	}
 
 	/**
 	 * To be called when a template conditional element is detected. This information is important
