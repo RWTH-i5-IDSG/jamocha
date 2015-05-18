@@ -37,6 +37,7 @@ import org.jamocha.filter.Path;
 import org.jamocha.function.fwa.FunctionWithArguments;
 import org.jamocha.function.fwa.PathLeaf;
 import org.jamocha.function.fwa.SymbolLeaf;
+import org.jamocha.languages.common.ScopeStack.Scope;
 import org.jamocha.languages.common.ScopeStack.VariableSymbol;
 import org.jamocha.languages.common.SingleFactVariable.SingleSlotVariable;
 
@@ -45,6 +46,7 @@ import org.jamocha.languages.common.SingleFactVariable.SingleSlotVariable;
  * @author Christoph Terwelp <christoph.terwelp@rwth-aachen.de>
  */
 @Getter
+@RequiredArgsConstructor
 public class RuleCondition {
 
 	@Getter
@@ -54,6 +56,7 @@ public class RuleCondition {
 		final List<SlotAddress> matchingAddresses = new ArrayList<>();
 	}
 
+	private final Scope scope;
 	private final List<MatchingConfiguration> matchings = new ArrayList<>();
 	private final List<ConditionalElement> conditionalElements = new ArrayList<>();
 	private final Set<VariableSymbol> variableSymbols = new HashSet<>();
@@ -74,43 +77,49 @@ public class RuleCondition {
 	@Getter
 	@AllArgsConstructor(access = AccessLevel.PRIVATE)
 	public static class EquivalenceClass {
+		final Scope correspondingScope;
 		final LinkedList<SingleFactVariable> factVariables;
 		final LinkedList<SingleSlotVariable> equalSlotVariables;
 		final LinkedList<FunctionWithArguments<SymbolLeaf>> equalFWAs;
+		final Set<EquivalenceClass> equalParentEquivalenceClasses = new HashSet<>();
 		final Set<EquivalenceClass> unequalEquivalenceClasses = new HashSet<>();
 		final Set<SingleFactVariable> merged = new HashSet<>();
 		@Setter
 		SlotType type;
 
-		public EquivalenceClass() {
-			this(new LinkedList<>(), new LinkedList<>(), new LinkedList<>(), null);
+		public EquivalenceClass(final Scope correspondingScope) {
+			this(correspondingScope, new LinkedList<>(), new LinkedList<>(), new LinkedList<>(), null);
 		}
 
-		public EquivalenceClass(final SlotType type) {
-			this(new LinkedList<>(), new LinkedList<>(), new LinkedList<>(), type);
+		public EquivalenceClass(final Scope correspondingScope, final SlotType type) {
+			this(correspondingScope, new LinkedList<>(), new LinkedList<>(), new LinkedList<>(), type);
 		}
 
-		public EquivalenceClass(final FunctionWithArguments<SymbolLeaf> fwa) {
-			this(new LinkedList<>(), new LinkedList<>(), new LinkedList<>(Collections.singletonList(fwa)), fwa
-					.getReturnType());
+		public EquivalenceClass(final Scope correspondingScope, final FunctionWithArguments<SymbolLeaf> fwa) {
+			this(correspondingScope, new LinkedList<>(), new LinkedList<>(), new LinkedList<>(
+					Collections.singletonList(fwa)), fwa.getReturnType());
 		}
 
-		public EquivalenceClass(final SingleFactVariable fv) {
-			this(new LinkedList<>(Collections.singleton(fv)), new LinkedList<>(), new LinkedList<>(),
-					SlotType.FACTADDRESS);
+		public EquivalenceClass(final Scope correspondingScope, final SingleFactVariable fv) {
+			this(correspondingScope, new LinkedList<>(Collections.singleton(fv)), new LinkedList<>(),
+					new LinkedList<>(), SlotType.FACTADDRESS);
 		}
 
-		public EquivalenceClass(final SingleSlotVariable sv) {
-			this(new LinkedList<>(), new LinkedList<>(Collections.singletonList(sv)), new LinkedList<>(), sv.getType());
+		public EquivalenceClass(final Scope correspondingScope, final SingleSlotVariable sv) {
+			this(correspondingScope, new LinkedList<>(), new LinkedList<>(Collections.singletonList(sv)),
+					new LinkedList<>(), sv.getType());
 		}
 
 		public EquivalenceClass(final EquivalenceClass copy) {
-			this(new LinkedList<>(copy.factVariables), new LinkedList<>(copy.equalSlotVariables), new LinkedList<>(
-					copy.equalFWAs), copy.type);
+			this(copy.correspondingScope, new LinkedList<>(copy.factVariables), new LinkedList<>(
+					copy.equalSlotVariables), new LinkedList<>(copy.equalFWAs), copy.type);
 			this.unequalEquivalenceClasses.addAll(copy.unequalEquivalenceClasses);
 		}
 
 		public void merge(final EquivalenceClass other) {
+			if (this.correspondingScope != other.correspondingScope) {
+				throw new IllegalArgumentException("Only equivalence classes of the same scope can be merged!");
+			}
 			if (this == other)
 				return;
 			other.factVariables.forEach(this::add);
@@ -219,11 +228,54 @@ public class RuleCondition {
 			this.equalFWAs.add(fwa);
 		}
 
+		public static void addEqualParentEquivalenceClassRelation(final EquivalenceClass a, final EquivalenceClass b) {
+			if (a.correspondingScope.isParentOf(b.correspondingScope)) {
+				b.addEqualParentEquivalenceClass(a);
+			} else if (b.correspondingScope.isParentOf(a.correspondingScope)) {
+				a.addEqualParentEquivalenceClass(b);
+			} else {
+				throw new IllegalArgumentException(
+						"The given equivalence classes are not in any child-parent relationship!");
+			}
+		}
+
+		public void addEqualParentEquivalenceClass(final EquivalenceClass ec) {
+			if (!ec.correspondingScope.isParentOf(this.correspondingScope)) {
+				throw new IllegalArgumentException(
+						"Given equivalence class is not part of a parenting scope w.r.t. this equivalence class!");
+			}
+			this.equalParentEquivalenceClasses.add(ec);
+		}
+
+		public static void addUnequalParentEquivalenceClassRelation(final EquivalenceClass a, final EquivalenceClass b) {
+			if (a.correspondingScope.isParentOf(b.correspondingScope)) {
+				b.addNegatedArc(a);
+			} else if (b.correspondingScope.isParentOf(a.correspondingScope)) {
+				a.addNegatedArc(b);
+			} else {
+				throw new IllegalArgumentException(
+						"The given equivalence classes are not in any child-parent relationship!");
+			}
+		}
+
+		public void addNegatedArc(final EquivalenceClass ec) {
+			if (this == ec) {
+				throw new IllegalArgumentException("Tried to insert a negated arc as a loop!");
+			}
+			if (null == type)
+				type = ec.type;
+			if (null != ec.type && type != ec.type) {
+				throw new IllegalArgumentException(
+						"Tried to add a negated arc between EquivalenceClasses of different types (left=" + type
+								+ ", right=" + ec.type + ")!");
+			}
+			this.unequalEquivalenceClasses.add(ec);
+		}
+
 		public void addNegatedEdge(final EquivalenceClass ec) {
 			if (this == ec) {
 				throw new IllegalArgumentException("Tried to insert a negated edge as a loop!");
 			}
-			assert this != ec;
 			if (null == type)
 				type = ec.type;
 			if (null != ec.type && type != ec.type) {
@@ -236,7 +288,7 @@ public class RuleCondition {
 		}
 
 		public void removeNegatedEdge(final EquivalenceClass ec) {
-			assert this.unequalEquivalenceClasses.contains(ec);
+			assert this.unequalEquivalenceClasses.contains(ec) || ec.unequalEquivalenceClasses.contains(this);
 			ec.unequalEquivalenceClasses.remove(this);
 			this.unequalEquivalenceClasses.remove(ec);
 		}
@@ -259,6 +311,10 @@ public class RuleCondition {
 
 		public PathLeaf getPathLeaf(final Map<EquivalenceClass, Path> ec2Path) {
 			return getPathLeaf(ec2Path, (equalSlotVariables.isEmpty() ? null : equalSlotVariables.get(0)));
+		}
+
+		public boolean isNonTrivial() {
+			return (this.factVariables.isEmpty() ? 0 : 1) + this.equalSlotVariables.size() > 1;
 		}
 	}
 }
