@@ -17,8 +17,8 @@ package org.jamocha.languages.common;
 import java.util.HashMap;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
-import java.util.function.Function;
 
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -41,33 +41,58 @@ public class ScopeStack {
 	public static final String dummySymbolImage = "Dummy";
 	final HashMap<Symbol, GlobalVariable> globalVariables = new HashMap<>();
 
+	public interface Scope {
+		Scope getParent();
+
+		default boolean isParentOf(final Scope possibleChild) {
+			if (null == possibleChild)
+				return false;
+			Scope current = possibleChild;
+			do {
+				current = current.getParent();
+				if (this == current) {
+					return true;
+				}
+			} while (null != current);
+			return false;
+		}
+	}
+
 	/**
 	 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
 	 */
 	@RequiredArgsConstructor
-	private static class Scope {
-		final Scope parentScope;
+	private static class ScopeImpl implements Scope {
+		final ScopeImpl parentScope;
 		final HashMap<String, Symbol> symbolTable = new HashMap<>();
 
 		public Symbol getSymbol(final String image) {
 			return this.symbolTable.computeIfAbsent(image, s -> null == parentScope ? null : parentScope.getSymbol(s));
 		}
 
-		public Symbol getOrCreateSymbol(final String image, final Function<String, ? extends Symbol> ctor) {
+		public Symbol getOrCreateSymbol(final String image, final BiFunction<Scope, String, ? extends Symbol> ctor) {
 			// if no entry present, try parent
 			// if no scope contains matching symbol, create it at lowest scope
-			return this.symbolTable.computeIfAbsent(image,
-					s -> Optional.ofNullable(parentScope).map(c -> c.getSymbol(s)).orElseGet(() -> ctor.apply(s)));
+			return this.symbolTable
+					.computeIfAbsent(
+							image,
+							s -> Optional.ofNullable(parentScope).map(c -> c.getSymbol(s))
+									.orElseGet(() -> ctor.apply(this, s)));
 		}
 
 		public VariableSymbol createDummySymbol(final SlotType type) {
-			return new VariableSymbol(dummySymbolImage, type);
+			return new VariableSymbol(this, dummySymbolImage, type);
+		}
+
+		@Override
+		public Scope getParent() {
+			return parentScope;
 		}
 	}
 
 	/**
-	 * Wrapper class for a string without the corresponding {@link Object#equals(Object)} and
-	 * {@link Object#hashCode()} functions.
+	 * Wrapper class for a string providing distinguishable instances even though the contained
+	 * string may be identical.
 	 * 
 	 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
 	 */
@@ -77,16 +102,30 @@ public class ScopeStack {
 		@NonNull
 		final String image;
 
+		protected Symbol(@SuppressWarnings("unused") final Scope scope, final String image) {
+			this(image);
+		}
+
 		@Override
 		public String toString() {
 			if (image.equals(dummySymbolImage)) {
-				return dummySymbolImage + ':' + this.hashCode();
+				return dummySymbolImage + ':' + super.hashCode();
 			}
 			return image;
 		}
 
 		public boolean isDummy() {
 			return this.image.equals(dummySymbolImage);
+		}
+
+		@Override
+		final public boolean equals(final Object obj) {
+			return this == obj;
+		}
+
+		@Override
+		final public int hashCode() {
+			return image.hashCode();
 		}
 	}
 
@@ -95,14 +134,14 @@ public class ScopeStack {
 		@Setter
 		EquivalenceClass equal;
 
-		protected VariableSymbol(final String image, final SlotType type) {
+		protected VariableSymbol(final Scope scope, final String image, final SlotType type) {
 			super(image);
-			this.equal = new EquivalenceClass(type);
+			this.equal = new EquivalenceClass(scope, type);
 		}
 
-		protected VariableSymbol(final String image) {
+		protected VariableSymbol(final Scope scope, final String image) {
 			super(image);
-			this.equal = new EquivalenceClass();
+			this.equal = new EquivalenceClass(scope);
 		}
 
 		public SlotType getType() {
@@ -110,22 +149,26 @@ public class ScopeStack {
 		}
 	}
 
-	private Scope currentScope;
+	private ScopeImpl currentScope;
 
 	public ScopeStack() {
-		this.currentScope = new Scope((Scope) null);
+		this.currentScope = new ScopeImpl((ScopeImpl) null);
 	}
 
 	public void openScope() {
-		this.currentScope = new Scope(this.currentScope);
+		this.currentScope = new ScopeImpl(this.currentScope);
 	}
 
 	public void closeScope() {
 		this.currentScope = this.currentScope.parentScope;
 	}
 
-	private Scope getScope() {
+	private ScopeImpl getScope() {
 		return Objects.requireNonNull(this.currentScope, "No scope present!");
+	}
+
+	public Scope getCurrentScope() {
+		return getScope();
 	}
 
 	public Symbol getOrCreateSymbol(final String image) {
@@ -182,7 +225,7 @@ public class ScopeStack {
 	}
 
 	public Symbol getOrCreateTopLevelSymbol(final String image) {
-		Scope top = currentScope;
+		ScopeImpl top = currentScope;
 		while (top.parentScope != null)
 			top = top.parentScope;
 		return top.getOrCreateSymbol(image, Symbol::new);
