@@ -20,9 +20,10 @@ import java.util.List;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
-import org.jamocha.filter.PathFilterList.PathSharedListWrapper;
+import org.jamocha.filter.ECFilterList.ECSharedListWrapper;
 import org.jamocha.function.fwa.PredicateWithArguments;
 import org.jamocha.function.fwa.SymbolLeaf;
+import org.jamocha.languages.common.ScopeStack.Scope;
 import org.jamocha.visitor.Visitable;
 
 /**
@@ -35,8 +36,11 @@ public abstract class ConditionalElement implements Visitable<ConditionalElement
 	final List<ConditionalElement> children;
 
 	public static class ExistentialConditionalElement extends ConditionalElement {
-		public ExistentialConditionalElement(final List<ConditionalElement> children) {
+		final Scope scope;
+
+		public ExistentialConditionalElement(final Scope scope, final List<ConditionalElement> children) {
 			super(children);
+			this.scope = scope;
 		}
 
 		@Override
@@ -47,8 +51,11 @@ public abstract class ConditionalElement implements Visitable<ConditionalElement
 	}
 
 	public static class NegatedExistentialConditionalElement extends ConditionalElement {
-		public NegatedExistentialConditionalElement(final List<ConditionalElement> children) {
+		final Scope scope;
+
+		public NegatedExistentialConditionalElement(final Scope scope, final List<ConditionalElement> children) {
 			super(children);
+			this.scope = scope;
 		}
 
 		@Override
@@ -152,13 +159,14 @@ public abstract class ConditionalElement implements Visitable<ConditionalElement
 	}
 
 	/**
+	 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
 	 * @author Christoph Terwelp <christoph.terwelp@rwth-aachen.de>
 	 */
 	@Getter
 	public static class SharedConditionalElementWrapper extends ConditionalElement {
 
 		private ConditionalElement ce;
-		private final PathSharedListWrapper wrapper = new PathSharedListWrapper();
+		private final ECSharedListWrapper wrapper = new ECSharedListWrapper();
 
 		public SharedConditionalElementWrapper(final ConditionalElement ce) {
 			super(null);
