@@ -36,12 +36,20 @@ public abstract class ConditionalElement implements Visitable<ConditionalElement
 	@Getter
 	final List<ConditionalElement> children;
 
-	public static class ExistentialConditionalElement extends ConditionalElement {
+	public static abstract class PositiveOrNegativeExistentialConditionalElement extends ConditionalElement {
+		@Getter
 		final Scope scope;
 
-		public ExistentialConditionalElement(final Scope scope, final List<ConditionalElement> children) {
+		public PositiveOrNegativeExistentialConditionalElement(final Scope scope,
+				final List<ConditionalElement> children) {
 			super(children);
 			this.scope = scope;
+		}
+	}
+
+	public static class ExistentialConditionalElement extends PositiveOrNegativeExistentialConditionalElement {
+		public ExistentialConditionalElement(final Scope scope, final List<ConditionalElement> children) {
+			super(scope, children);
 		}
 
 		@Override
@@ -51,12 +59,9 @@ public abstract class ConditionalElement implements Visitable<ConditionalElement
 		}
 	}
 
-	public static class NegatedExistentialConditionalElement extends ConditionalElement {
-		final Scope scope;
-
+	public static class NegatedExistentialConditionalElement extends PositiveOrNegativeExistentialConditionalElement {
 		public NegatedExistentialConditionalElement(final Scope scope, final List<ConditionalElement> children) {
-			super(children);
-			this.scope = scope;
+			super(scope, children);
 		}
 
 		@Override
