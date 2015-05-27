@@ -15,6 +15,7 @@
 package org.jamocha.languages.common;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import lombok.Getter;
@@ -147,7 +148,7 @@ public abstract class ConditionalElement implements Visitable<ConditionalElement
 		final SingleFactVariable factVariable;
 
 		public TemplatePatternConditionalElement(final SingleFactVariable factVariable) {
-			super(new ArrayList<>(0));
+			super(Collections.emptyList());
 			this.factVariable = factVariable;
 		}
 
