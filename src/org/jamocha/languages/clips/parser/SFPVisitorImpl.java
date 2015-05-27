@@ -1366,8 +1366,10 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 								(VariableSymbol) null), node.jjtGetChild(0), data);
 				if (this.containsTemplateCE) {
 					this.resultCE =
-							Optional.of(new NegatedExistentialConditionalElement(Stream.of(visitor.resultCE)
-									.filter(Optional::isPresent).map(Optional::get).collect(Collectors.toList())));
+							Optional.of(new NegatedExistentialConditionalElement(scopeCloser.getCurrentScope(),
+									visitor.resultCE.map(
+											ce -> (List<ConditionalElement>) new ArrayList<ConditionalElement>(
+													Collections.singletonList(ce))).orElse(Collections.emptyList())));
 				} else {
 					this.resultCE =
 							Optional.of(new NotFunctionConditionalElement(Arrays.asList(visitor.resultCE.get())));
@@ -1403,7 +1405,7 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 										contextStack, null), n, data).resultCE).filter(Optional::isPresent)
 								.map(Optional::get).collect(Collectors.toList());
 				assert this.containsTemplateCE;
-				this.resultCE = Optional.of(new ExistentialConditionalElement(elements));
+				this.resultCE = Optional.of(new ExistentialConditionalElement(scopeCloser.getCurrentScope(), elements));
 			}
 			return data;
 		}
@@ -1980,7 +1982,7 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 							+ " already defined!");
 				}
 				try (final ScopeCloser scopeCloser = new ScopeCloser(SFPVisitorImpl.this.parserToNetwork.getScope())) {
-					final ExistentialStack existentialStack = new ExistentialStack();
+					final ExistentialStack existentialStack = new ExistentialStack(scopeCloser.getCurrentScope());
 					String comment = null;
 					int salience = 0;
 					final ArrayList<ConditionalElement> ces = new ArrayList<>();
