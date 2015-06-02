@@ -14,10 +14,10 @@
  */
 package org.jamocha.logging;
 
+import org.apache.commons.io.Charsets;
 import org.apache.logging.log4j.core.config.Configuration;
 import org.apache.logging.log4j.core.layout.PatternLayout;
 import org.apache.logging.log4j.core.pattern.RegexReplacement;
-import org.apache.logging.log4j.core.util.Charsets;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
