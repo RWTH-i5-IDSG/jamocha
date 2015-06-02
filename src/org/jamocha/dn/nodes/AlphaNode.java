@@ -138,7 +138,7 @@ public class AlphaNode extends Node {
 	}
 
 	@Override
-	public <V extends NodeVisitor> V accept(V visitor) {
+	public <V extends NodeVisitor> V accept(final V visitor) {
 		visitor.visit(this);
 		return visitor;
 	}

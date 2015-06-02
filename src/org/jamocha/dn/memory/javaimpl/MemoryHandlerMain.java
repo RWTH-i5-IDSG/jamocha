@@ -96,7 +96,7 @@ public class MemoryHandlerMain extends MemoryHandlerBase implements org.jamocha.
 		/**
 		 * @see java.util.Queue#add(java.lang.Object)
 		 */
-		public boolean add(MemoryHandlerPlusTemp e) {
+		public boolean add(final MemoryHandlerPlusTemp e) {
 			return queue.add(e);
 		}
 
