@@ -14,8 +14,6 @@
  */
 package org.jamocha.dn;
 
-import org.jamocha.dn.nodes.Node.TokenQueue;
-
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
@@ -26,6 +24,8 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+
+import org.jamocha.dn.nodes.Node.TokenQueue;
 
 /**
  * {@link Scheduler} to process {@link Runnable Runnables} using a thread pool of fixed size.
@@ -163,14 +163,16 @@ public class ThreadPoolScheduler implements Scheduler {
 	@Override
 	public void waitForNoUnfinishedJobs() {
 		this.lock.lock();
-		while (hasUnfinishedJobs(unfinishedJobs.longValue())) {
-			try {
-				this.empty.await();
-			} catch (final InterruptedException e) {
-				// ignore
-			} finally {
-				this.lock.unlock();
+		try {
+			while (hasUnfinishedJobs(unfinishedJobs.longValue())) {
+				try {
+					this.empty.await();
+				} catch (final InterruptedException e) {
+					// ignore
+				}
 			}
+		} finally {
+			this.lock.unlock();
 		}
 	}
 }
