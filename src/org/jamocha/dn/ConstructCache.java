@@ -1,12 +1,12 @@
 /*
  * Copyright 2002-2014 The Jamocha Team
- * 
- * 
+ *
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
- * 
+ *
  * http://www.jamocha.org/
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software distributed under the License
  * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
  * or implied. See the License for the specific language governing permissions and limitations under
@@ -21,6 +21,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.StreamSupport;
 
 import lombok.Data;
@@ -30,7 +31,11 @@ import lombok.Value;
 import org.apache.logging.log4j.Marker;
 import org.jamocha.dn.memory.MemoryHandlerTerminal.AssertOrRetract;
 import org.jamocha.dn.memory.Template;
+import org.jamocha.filter.ECFilterSet;
+import org.jamocha.filter.Path;
+import org.jamocha.filter.PathCollector;
 import org.jamocha.filter.PathFilterList.PathSharedListWrapper;
+import org.jamocha.filter.PathFilterSet;
 import org.jamocha.function.Function;
 import org.jamocha.function.fwa.Assert;
 import org.jamocha.function.fwa.FunctionWithArguments;
@@ -42,6 +47,7 @@ import org.jamocha.function.fwa.VariableValueContext;
 import org.jamocha.function.fwatransformer.FWASymbolToRHSVariableLeafTranslator;
 import org.jamocha.languages.common.RuleCondition;
 import org.jamocha.languages.common.RuleCondition.EquivalenceClass;
+import org.jamocha.languages.common.SingleFactVariable;
 import org.jamocha.logging.MarkerType;
 
 /**
@@ -86,21 +92,64 @@ public class ConstructCache {
 			this.activationMarker = MarkerType.ACTIVATIONS.createChild(name);
 		}
 
-		public TranslatedPath newTranslated(final PathSharedListWrapper.PathSharedList condition,
-				final Map<EquivalenceClass, PathLeaf> equivalenceClassToPathLeaf, final int specificity) {
-			return new TranslatedPath(condition, actionList, equivalenceClassToPathLeaf, specificity);
-		}
-
-		public TranslatedPath newTranslated(final PathSharedListWrapper.PathSharedList condition,
-				final Map<EquivalenceClass, PathLeaf> equivalenceClassToPathLeaf) {
-			return newTranslated(condition, equivalenceClassToPathLeaf,
-					(int) StreamSupport.stream(condition.spliterator(), false).count());
+		public ECFilterSetCondition newECFilterSetCondition(final Set<ECFilterSet> condition,
+				final Set<SingleFactVariable> factVariables, final Set<EquivalenceClass> equivalenceClasses,
+				final int specificity) {
+			return new ECFilterSetCondition(condition, factVariables, equivalenceClasses, actionList, specificity);
 		}
 
 		@Data
 		@RequiredArgsConstructor
-		public class TranslatedPath {
+		public class ECFilterSetCondition {
+			final Set<ECFilterSet> condition;
+			final Set<SingleFactVariable> factVariables;
+			final Set<EquivalenceClass> equivalenceClasses;
+			final FunctionWithArguments<SymbolLeaf>[] actionList;
+			final int specificity;
+
+			public Defrule getParent() {
+				return Defrule.this;
+			}
+
+			public PathRule bindVariables(final Map<EquivalenceClass, PathLeaf> equivalenceClassToPathLeaf) {
+				// FIXME implement binding
+				// new TranslatedPath(condition, actionList, equivalenceClassToPathLeaf,
+				// specificity)
+				return null;
+			}
+		}
+
+		public PathRule newTranslated(final PathSharedListWrapper.PathSharedList condition,
+				final Set<Path> resultPaths, final Map<EquivalenceClass, PathLeaf> equivalenceClassToPathLeaf,
+				final int specificity) {
+			return new PathRule(condition, resultPaths, actionList, equivalenceClassToPathLeaf, specificity);
+		}
+
+		public PathRule newTranslated(final PathSharedListWrapper.PathSharedList condition,
+				final Map<EquivalenceClass, PathLeaf> equivalenceClassToPathLeaf) {
+			return newTranslated(condition, PathCollector.newHashSet().collectOnlyNonExistential(condition).getPaths(),
+					equivalenceClassToPathLeaf, (int) StreamSupport.stream(condition.spliterator(), false).count());
+		}
+
+		@Data
+		@RequiredArgsConstructor
+		public class PathSetBasedRule {
+			final Set<PathFilterSet> condition;
+			final Set<Path> resultPaths;
+			final FunctionWithArguments<SymbolLeaf>[] actionList;
+			final Map<EquivalenceClass, PathLeaf> equivalenceClassToPathLeaf;
+			final int specificity;
+
+			public Defrule getParent() {
+				return Defrule.this;
+			}
+		}
+
+		@Data
+		@RequiredArgsConstructor
+		public class PathRule {
 			final PathSharedListWrapper.PathSharedList condition;
+			final Set<Path> resultPaths;
 			final FunctionWithArguments<SymbolLeaf>[] actionList;
 			final Map<EquivalenceClass, PathLeaf> equivalenceClassToPathLeaf;
 			final int specificity;

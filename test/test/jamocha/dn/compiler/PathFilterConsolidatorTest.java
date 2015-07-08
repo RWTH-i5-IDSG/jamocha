@@ -31,12 +31,12 @@ import java.util.Set;
 
 import org.hamcrest.Matcher;
 import org.jamocha.dn.ConstructCache.Defrule;
-import org.jamocha.dn.ConstructCache.Defrule.TranslatedPath;
-import org.jamocha.dn.compiler.PathFilterConsolidator;
+import org.jamocha.dn.ConstructCache.Defrule.PathRule;
+import org.jamocha.dn.compiler.simpleblocks.PathFilterConsolidator;
 import org.jamocha.filter.Path;
 import org.jamocha.filter.PathNodeFilterSet;
 import org.jamocha.filter.PathNodeFilterSet.DummyPathFilter;
-import org.jamocha.filter.PathNodeFilterSet.PathFilter;
+import org.jamocha.filter.PathFilter;
 import org.jamocha.languages.clips.parser.SFPVisitorImpl;
 import org.jamocha.languages.clips.parser.generated.ParseException;
 import org.jamocha.languages.clips.parser.generated.SFPParser;
@@ -70,7 +70,7 @@ public class PathFilterConsolidatorTest {
 		}
 	}
 
-	private static List<TranslatedPath> clipsToFilters(final String condition) throws ParseException {
+	private static List<PathRule> clipsToFilters(final String condition) throws ParseException {
 		final StringReader parserInput =
 				new StringReader(new StringBuilder().append(templateString).append(preRule).append(condition)
 						.append(postRule).toString());
@@ -88,7 +88,7 @@ public class PathFilterConsolidatorTest {
 	@Test
 	public void testSimpleVariableBinding() throws ParseException {
 		final String input = "(templ1 (slot1 ?x))";
-		final List<TranslatedPath> filterPartitions = clipsToFilters(input);
+		final List<PathRule> filterPartitions = clipsToFilters(input);
 		assertThat(filterPartitions, hasSize(1));
 		final List<PathNodeFilterSet> filterSets = Lists.newArrayList(filterPartitions.get(0).getCondition());
 		assertThat(filterSets, hasSize(1));
@@ -108,7 +108,7 @@ public class PathFilterConsolidatorTest {
 	@Test
 	public void testSimpleExistential() throws ParseException {
 		final String input = "(and (initial-fact) (exists (templ1 (slot1 ?x))))";
-		final List<TranslatedPath> filterPartitions = clipsToFilters(input);
+		final List<PathRule> filterPartitions = clipsToFilters(input);
 		assertThat(filterPartitions, hasSize(1));
 		final List<PathNodeFilterSet> filterSets = Lists.newArrayList(filterPartitions.get(0).getCondition());
 		assertThat(filterSets, hasSize(1));
@@ -132,7 +132,7 @@ public class PathFilterConsolidatorTest {
 	@Test
 	public void testSimpleOr() throws ParseException {
 		final String input = "(or (templ1 (slot1 ?x)) (templ1 (slot1 ?y)))";
-		final List<TranslatedPath> filterPartitions = clipsToFilters(input);
+		final List<PathRule> filterPartitions = clipsToFilters(input);
 		assertThat(filterPartitions, hasSize(2));
 		final Path compare;
 		{
@@ -173,7 +173,7 @@ public class PathFilterConsolidatorTest {
 	public void testNoUnnecessaryDummy() throws ParseException {
 		final String input =
 				"(and (templ1 (slot1 ?x)) (templ2 (slot1 ?y)) (templ3 (slot1 ?z)) (test (< ?x ?y)) (test (> ?y ?z)) )";
-		final List<TranslatedPath> filterPartitions = clipsToFilters(input);
+		final List<PathRule> filterPartitions = clipsToFilters(input);
 		assertThat(filterPartitions, hasSize(1));
 		{
 			final List<PathNodeFilterSet> filters = Lists.newArrayList(filterPartitions.get(0).getCondition());

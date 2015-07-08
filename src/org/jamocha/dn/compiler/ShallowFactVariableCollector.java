@@ -14,10 +14,14 @@
  */
 package org.jamocha.dn.compiler;
 
+import static java.util.stream.Collectors.partitioningBy;
+import static java.util.stream.Collectors.toSet;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -71,6 +75,15 @@ public class ShallowFactVariableCollector implements DefaultConditionalElementsV
 										})));
 	}
 
+	public static Pair<SingleFactVariable, Set<SingleFactVariable>> collectVariables(
+			final Template initialFactTemplate, final ConditionalElement ce) {
+		// Collect all FactVariables defined in the CEs TemplateCEs and InitialFactCEs
+		final Map<Boolean, Set<SingleFactVariable>> partition =
+				collect(ce).stream().collect(partitioningBy(fv -> fv.getTemplate() == initialFactTemplate, toSet()));
+		assert partition.get(Boolean.TRUE).size() == 1;
+		return Pair.of(partition.get(Boolean.TRUE).iterator().next(), partition.get(Boolean.FALSE));
+	}
+
 	public static List<SingleFactVariable> collect(final ConditionalElement ce) {
 		return ce.accept(new ShallowFactVariableCollector()).getFactVariables();
 	}
@@ -89,8 +102,7 @@ public class ShallowFactVariableCollector implements DefaultConditionalElementsV
 	@Override
 	public void visit(final AndFunctionConditionalElement ce) {
 		this.factVariables =
-				ce.getChildren().stream()
-						.flatMap(child -> child.accept(new ShallowFactVariableCollector()).getFactVariables().stream())
+				ce.getChildren().stream().flatMap(child -> collect(child).stream())
 						.collect(Collectors.toCollection(ArrayList::new));
 	}
 

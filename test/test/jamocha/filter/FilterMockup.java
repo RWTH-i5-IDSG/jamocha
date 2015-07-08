@@ -21,6 +21,8 @@ import static test.jamocha.util.CounterColumnMatcherMockup.counterColumnMatcherM
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import lombok.Value;
@@ -28,6 +30,7 @@ import lombok.Value;
 import org.jamocha.dn.memory.SlotAddress;
 import org.jamocha.dn.memory.SlotType;
 import org.jamocha.filter.AddressNodeFilterSet;
+import org.jamocha.filter.Filter;
 import org.jamocha.filter.Path;
 import org.jamocha.filter.PathNodeFilterSet;
 import org.jamocha.filter.PathNodeFilterSetToAddressNodeFilterSetTranslator;
@@ -41,6 +44,8 @@ import org.junit.runner.RunWith;
 import test.jamocha.util.PredicateBuilder;
 import test.jamocha.util.TestData.SomeStuff;
 
+import com.google.common.collect.Sets;
+
 /**
  * A mockup filter implementation for testing purposes.
  * 
@@ -48,8 +53,28 @@ import test.jamocha.util.TestData.SomeStuff;
  */
 public class FilterMockup extends PathNodeFilterSet {
 
+	@Override
+	protected PathNodeFilterSet duplicate(final Set<PathFilter> normalisedFilters) {
+		return this;
+	}
+
+	@Override
+	public Set<Path> getNegativeExistentialPaths() {
+		return Collections.emptySet();
+	}
+
+	@Override
+	public Set<Path> getPositiveExistentialPaths() {
+		return Collections.emptySet();
+	}
+
+	@Override
+	public boolean containsExistentials() {
+		return false;
+	}
+
 	public FilterMockup(final boolean returnValue, final PathAndSlotAddress... pathAndSlotAddresses) {
-		super(createDummyPathFilterElement(returnValue, pathAndSlotAddresses));
+		super(Sets.newHashSet(createDummyPathFilterElement(returnValue, pathAndSlotAddresses)));
 	}
 
 	@Value

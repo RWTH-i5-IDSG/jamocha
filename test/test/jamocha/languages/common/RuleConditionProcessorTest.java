@@ -437,6 +437,76 @@ public class RuleConditionProcessorTest {
 	}
 
 	@Test
+	public void pullUpChildrenOfNegExists() throws ParseException {
+		final String input = "(not (and (templ1) (templ1)))";
+		final RuleCondition ruleCondition = clipsToCondition(input);
+		final List<ConditionalElement> conditionalElements = ruleCondition.getConditionalElements();
+
+		RuleConditionProcessor.flatten(conditionalElements);
+
+		assertThat(conditionalElements, hasSize(1));
+		final ConditionalElement tlAndCE = conditionalElements.get(0);
+		assertThat(tlAndCE, instanceOf(AndFunctionConditionalElement.class));
+		final List<ConditionalElement> tlCEs = tlAndCE.getChildren();
+		assertThat(tlCEs, hasSize(2));
+		{
+			final ConditionalElement initial = tlCEs.get(0);
+			assertThat(initial, instanceOf(InitialFactConditionalElement.class));
+			final ConditionalElement notExistsCE = tlCEs.get(1);
+			assertThat(notExistsCE, instanceOf(NegatedExistentialConditionalElement.class));
+			final List<ConditionalElement> existentialChildren = notExistsCE.getChildren();
+			assertThat(existentialChildren, hasSize(2));
+			{
+				final ConditionalElement templCE = existentialChildren.get(0);
+				assertThat(templCE, instanceOf(TemplatePatternConditionalElement.class));
+				assertEquals("templ1", ((TemplatePatternConditionalElement) templCE).getFactVariable().getTemplate()
+						.getName());
+			}
+			{
+				final ConditionalElement templCE = existentialChildren.get(1);
+				assertThat(templCE, instanceOf(TemplatePatternConditionalElement.class));
+				assertEquals("templ1", ((TemplatePatternConditionalElement) templCE).getFactVariable().getTemplate()
+						.getName());
+			}
+		}
+	}
+
+	@Test
+	public void pullUpChildrenOfExists() throws ParseException {
+		final String input = "(exists (and (templ1) (templ1)))";
+		final RuleCondition ruleCondition = clipsToCondition(input);
+		final List<ConditionalElement> conditionalElements = ruleCondition.getConditionalElements();
+
+		RuleConditionProcessor.flatten(conditionalElements);
+
+		assertThat(conditionalElements, hasSize(1));
+		final ConditionalElement tlAndCE = conditionalElements.get(0);
+		assertThat(tlAndCE, instanceOf(AndFunctionConditionalElement.class));
+		final List<ConditionalElement> tlCEs = tlAndCE.getChildren();
+		assertThat(tlCEs, hasSize(2));
+		{
+			final ConditionalElement initial = tlCEs.get(0);
+			assertThat(initial, instanceOf(InitialFactConditionalElement.class));
+			final ConditionalElement existsCE = tlCEs.get(1);
+			assertThat(existsCE, instanceOf(ExistentialConditionalElement.class));
+			final List<ConditionalElement> existentialChildren = existsCE.getChildren();
+			assertThat(existentialChildren, hasSize(2));
+			{
+				final ConditionalElement templCE = existentialChildren.get(0);
+				assertThat(templCE, instanceOf(TemplatePatternConditionalElement.class));
+				assertEquals("templ1", ((TemplatePatternConditionalElement) templCE).getFactVariable().getTemplate()
+						.getName());
+			}
+			{
+				final ConditionalElement templCE = existentialChildren.get(1);
+				assertThat(templCE, instanceOf(TemplatePatternConditionalElement.class));
+				assertEquals("templ1", ((TemplatePatternConditionalElement) templCE).getFactVariable().getTemplate()
+						.getName());
+			}
+		}
+	}
+
+	@Test
 	public void simpleOrWithinExists() throws ParseException {
 		final String input = "(exists (or (templ1 (slot1 1)) (templ1 (slot1 2))))";
 		final RuleCondition ruleCondition = clipsToCondition(input);

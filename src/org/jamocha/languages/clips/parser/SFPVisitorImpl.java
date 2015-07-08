@@ -169,6 +169,7 @@ import org.jamocha.languages.common.ConditionalElement.TemplatePatternConditiona
 import org.jamocha.languages.common.ConditionalElement.TestConditionalElement;
 import org.jamocha.languages.common.GlobalVariable;
 import org.jamocha.languages.common.RuleCondition;
+import org.jamocha.languages.common.RuleCondition.EquivalenceClass;
 import org.jamocha.languages.common.RuleCondition.MatchingConfiguration;
 import org.jamocha.languages.common.ScopeCloser;
 import org.jamocha.languages.common.ScopeStack.Symbol;
@@ -910,7 +911,8 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 
 			private void handleVariable(final VariableSymbol symbol, final SlotAddress slot) {
 				if (negated) {
-					createConstraintVariable(slot).getEqual().addNegatedEdge(symbol.getEqual());
+					EquivalenceClass.addUnequalEquivalenceClassRelation(createConstraintVariable(slot).getEqual(),
+							symbol.getEqual());
 				} else {
 					if (bindingsAllowed) {
 						parent.factVariable.newSingleSlotVariable(slot, symbol);
@@ -2097,10 +2099,11 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 			// [ FunctionGroup() <RBRACE> <LBRACE> ] ( SingleVariable() )* ( MultiVariable() )*
 			// <RBRACE> ) ActionList() )
 			assert node.jjtGetNumChildren() > 1;
+			@SuppressWarnings("unused")
 			final Symbol symbol =
 					SelectiveSFPVisitor.sendVisitor(new SFPSymbolVisitor(), node.jjtGetChild(0), data).symbol;
 			// handle comment, function group, variable list, action list
-			symbol.getImage();
+			// final String image = symbol.getImage();
 			// SFPVisitorImpl.this.symbolTableFunctions.put(symbol, null);
 			// return data;
 			// for now: throw

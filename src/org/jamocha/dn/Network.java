@@ -52,8 +52,8 @@ import org.apache.logging.log4j.core.config.LoggerConfig;
 import org.jamocha.dn.ConflictSet.RuleAndToken;
 import org.jamocha.dn.ConstructCache.Deffacts;
 import org.jamocha.dn.ConstructCache.Defrule;
-import org.jamocha.dn.ConstructCache.Defrule.TranslatedPath;
-import org.jamocha.dn.compiler.PathFilterConsolidator;
+import org.jamocha.dn.ConstructCache.Defrule.PathRule;
+import org.jamocha.dn.compiler.simpleblocks.PathFilterConsolidator;
 import org.jamocha.dn.memory.Fact;
 import org.jamocha.dn.memory.FactAddress;
 import org.jamocha.dn.memory.FactIdentifier;
@@ -482,12 +482,12 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 	/**
 	 * Creates network nodes for one rule, consisting of the passed filters.
 	 *
-	 * @param translatedPath
+	 * @param pathRule
 	 *            translated version of the defrule we have to build the condition for
 	 * @return created TerminalNode for the constructed rule
 	 */
-	public TerminalNode buildRule(final Defrule.TranslatedPath translatedPath) {
-		final PathFilterList.PathSharedListWrapper.PathSharedList filters = translatedPath.getCondition();
+	public TerminalNode buildRule(final Defrule.PathRule pathRule) {
+		final PathFilterList.PathSharedListWrapper.PathSharedList filters = pathRule.getCondition();
 		final HashSet<Path> allPaths;
 		{
 			final PathCollector<HashSet<Path>> collector = PathCollector.newHashSet();
@@ -509,14 +509,14 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 		}
 		assert allPaths.stream().map(Path::getCurrentlyLowestNode).distinct().count() == 1;
 		final Node lowestNode = allPaths.iterator().next().getCurrentlyLowestNode();
-		final TerminalNode terminalNode = new TerminalNode(this, lowestNode, translatedPath);
+		final TerminalNode terminalNode = new TerminalNode(this, lowestNode, pathRule);
 		for (final Node node : nodes) {
 			node.activateTokenQueue();
 		}
 		return terminalNode;
 	}
 
-	private List<TranslatedPath> compileRule(final Defrule rule) {
+	private List<PathRule> compileRule(final Defrule rule) {
 		// Preprocess CEs
 		RuleConditionProcessor.flatten(rule.getCondition());
 		// Transform TestCEs to PathFilters
@@ -586,13 +586,13 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 
 	@Override
 	public void defRules(final Defrule... defrules) {
-		Collection<TranslatedPath> rules =
+		Collection<PathRule> rules =
 				Arrays.stream(defrules).peek(this.constructCache::addRule).flatMap(r -> this.compileRule(r).stream())
 						.collect(toList());
 		for (final Optimizer optimizer : optimizerConfiguration.getOptimizers()) {
 			rules = optimizer.optimize(rules);
 		}
-		for (final TranslatedPath rule : rules) {
+		for (final PathRule rule : rules) {
 			terminalNodes.add(buildRule(rule));
 		}
 	}

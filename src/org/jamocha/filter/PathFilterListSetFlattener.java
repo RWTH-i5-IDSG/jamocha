@@ -40,7 +40,7 @@ public class PathFilterListSetFlattener implements PathFilterListVisitor {
 
 	@Override
 	public void visit(final PathExistentialList filter) {
-		filter.getPurelyExistentialPart().accept(this);
+		filter.getPurePart().accept(this);
 		filter.getExistentialClosure().accept(this);
 	}
 

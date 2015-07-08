@@ -1,12 +1,12 @@
 /*
  * Copyright 2002-2014 The Jamocha Team
- * 
- * 
+ *
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
- * 
+ *
  * http://www.jamocha.org/
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software distributed under the License
  * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
  * or implied. See the License for the specific language governing permissions and limitations under
@@ -16,12 +16,11 @@ package org.jamocha.filter;
 
 import static org.jamocha.util.ToArray.toArray;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 
-import org.jamocha.filter.PathNodeFilterSet.DummyPathFilter;
-import org.jamocha.filter.PathNodeFilterSet.PathFilter;
+import org.jamocha.filter.PathFilterSet.PathExistentialSet;
 import org.jamocha.function.fwa.Assert;
 import org.jamocha.function.fwa.Bind;
 import org.jamocha.function.fwa.ConstantLeaf;
@@ -42,7 +41,7 @@ import org.jamocha.function.fwa.Retract;
  *            collection type to use while collecting the paths
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
-public class PathCollector<T extends Collection<Path>> implements PathFilterVisitor {
+public class PathCollector<T extends Collection<Path>> implements PathFilterSetVisitor {
 	private final T paths;
 
 	public PathCollector(final T paths) {
@@ -91,8 +90,8 @@ public class PathCollector<T extends Collection<Path>> implements PathFilterVisi
 	}
 
 	@Override
-	public void visit(final DummyPathFilter f) {
-		paths.addAll(Arrays.asList(f.getPaths()));
+	public void visit(final PathExistentialSet set) {
+
 	}
 
 	public PathCollector<T> collect(final PathFilter filter) {
@@ -107,6 +106,10 @@ public class PathCollector<T extends Collection<Path>> implements PathFilterVisi
 
 	public static PathCollector<HashSet<Path>> newHashSet() {
 		return new PathCollector<>(new HashSet<>());
+	}
+
+	public static PathCollector<LinkedHashSet<Path>> newLinkedHashSet() {
+		return new PathCollector<>(new LinkedHashSet<>());
 	}
 
 	/**

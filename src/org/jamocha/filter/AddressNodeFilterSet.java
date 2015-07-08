@@ -104,7 +104,7 @@ public class AddressNodeFilterSet extends NodeFilterSet<ParameterLeaf, AddressNo
 	}
 
 	@Getter
-	public static class AddressFilter extends NodeFilterSet.Filter<ParameterLeaf> {
+	public static class AddressFilter extends Filter<ParameterLeaf> {
 		final SlotInFactAddress addressesInTarget[];
 
 		public AddressFilter(final PredicateWithArguments<ParameterLeaf> function,

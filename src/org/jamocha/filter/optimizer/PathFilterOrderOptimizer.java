@@ -26,7 +26,7 @@ import java.util.Set;
 
 import lombok.RequiredArgsConstructor;
 
-import org.jamocha.dn.ConstructCache.Defrule.TranslatedPath;
+import org.jamocha.dn.ConstructCache.Defrule.PathRule;
 import org.jamocha.filter.Path;
 import org.jamocha.filter.PathCollector;
 import org.jamocha.filter.PathFilterList;
@@ -335,8 +335,7 @@ public class PathFilterOrderOptimizer implements Optimizer {
 		// recurse on the children of the shared list elements
 		partitioner.pathFilterSharedLists.forEach(this::optimize);
 		// recurse on the non existential parts of the existential list elements
-		partitioner.pathFilterExistentialLists.stream().map(PathExistentialList::getPurelyExistentialPart)
-				.forEach(this::optimize);
+		partitioner.pathFilterExistentialLists.stream().map(PathExistentialList::getPurePart).forEach(this::optimize);
 		// clear the list to re-insert the elements in an optimal way
 		elements.clear();
 		// first, insert the shared elements
@@ -354,8 +353,8 @@ public class PathFilterOrderOptimizer implements Optimizer {
 	}
 
 	@Override
-	public Collection<TranslatedPath> optimize(final Collection<TranslatedPath> rules) {
-		for (final TranslatedPath rule : rules) {
+	public Collection<PathRule> optimize(final Collection<PathRule> rules) {
+		for (final PathRule rule : rules) {
 			optimize(rule.getCondition());
 		}
 		return rules;

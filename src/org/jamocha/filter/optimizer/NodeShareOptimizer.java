@@ -27,7 +27,7 @@ import java.util.stream.Stream;
 
 import org.apache.commons.collections4.IteratorUtils;
 import org.jamocha.dn.ConstructCache.Defrule;
-import org.jamocha.dn.ConstructCache.Defrule.TranslatedPath;
+import org.jamocha.dn.ConstructCache.Defrule.PathRule;
 import org.jamocha.filter.Path;
 import org.jamocha.filter.PathCollector;
 import org.jamocha.filter.PathNodeFilterSet;
@@ -51,19 +51,19 @@ public class NodeShareOptimizer implements Optimizer {
 
 	final Map<PathNodeFilterSet, Set<Path>> filter2Paths = new HashMap<>();
 
-	final Map<PathNodeFilterSet, Defrule.TranslatedPath> filter2Rule = new HashMap<>();
+	final Map<PathNodeFilterSet, Defrule.PathRule> filter2Rule = new HashMap<>();
 
-	final Set<Defrule.TranslatedPath> allRules = new HashSet<>();
+	final Set<Defrule.PathRule> allRules = new HashSet<>();
 
 	final PathFilterPool pool = new PathFilterPool();
 
 	@Override
-	public Collection<TranslatedPath> optimize(Collection<TranslatedPath> rules) {
-		for (Defrule.TranslatedPath translatedPath : rules) {
-			allRules.add(translatedPath);
-			for (PathNodeFilterSet pathFilter : translatedPath.getCondition()) {
+	public Collection<PathRule> optimize(Collection<PathRule> rules) {
+		for (Defrule.PathRule pathRule : rules) {
+			allRules.add(pathRule);
+			for (PathNodeFilterSet pathFilter : pathRule.getCondition()) {
 				pool.addFilter(pathFilter);
-				filter2Rule.put(pathFilter, translatedPath);
+				filter2Rule.put(pathFilter, pathRule);
 				Set<Path> paths = PathCollector.newHashSet().collectAll(pathFilter).getPaths();
 				paths.addAll(pathFilter.getNegativeExistentialPaths());
 				paths.addAll(pathFilter.getPositiveExistentialPaths());
@@ -74,18 +74,18 @@ public class NodeShareOptimizer implements Optimizer {
 				}
 			}
 		}
-		for (Defrule.TranslatedPath translatedPath : rules) {
-			for (PathNodeFilterSet pathFilter : translatedPath.getCondition()) {
-				buildBlock(translatedPath, pathFilter);
+		for (Defrule.PathRule pathRule : rules) {
+			for (PathNodeFilterSet pathFilter : pathRule.getCondition()) {
+				buildBlock(pathRule, pathFilter);
 			}
 		}
 		// TODO perform actual optimisation
 		return rules;
 	}
 
-	private void buildBlock(final Defrule.TranslatedPath rule, final PathNodeFilterSet pathFilter) {
+	private void buildBlock(final Defrule.PathRule rule, final PathNodeFilterSet pathFilter) {
 		final Set<PathNodeFilterSet> preBlock = new HashSet<>();
-		final Map<Defrule.TranslatedPath, Map<Path, Path>> rule2PathMap = new HashMap<>();
+		final Map<Defrule.PathRule, Map<Path, Path>> rule2PathMap = new HashMap<>();
 		preBlock.add(pathFilter);
 		// add all filters producing conflicts in the same rule
 		{
@@ -114,13 +114,13 @@ public class NodeShareOptimizer implements Optimizer {
 		// Add all rules which do not produce conflicts
 		{
 			final Set<PathNodeFilterSet> preBlockAdds = new HashSet<>();
-			final Set<Defrule.TranslatedPath> possibleRules = new HashSet<>();
+			final Set<Defrule.PathRule> possibleRules = new HashSet<>();
 			possibleRules.addAll(allRules);
 			for (PathNodeFilterSet filter : preBlock) {
 				possibleRules.retainAll(pool.getEqualFilters(filter).stream().map(f -> filter2Rule.get(f))
 						.collect(toSet()));
 			}
-			for (Defrule.TranslatedPath possibleRule : possibleRules) {
+			for (Defrule.PathRule possibleRule : possibleRules) {
 				final Map<Path, Path> pathMap = new HashMap<>();
 				final Map<PathNodeFilterSet, PathNodeFilterSet> filterMap =
 						comparePathFilters(preBlock, Sets.newHashSet(possibleRule.getCondition()), pathMap);
@@ -134,7 +134,7 @@ public class NodeShareOptimizer implements Optimizer {
 			for (PathNodeFilterSet filter : rule.getCondition()) {
 				if (preBlock.contains(filter))
 					continue;
-				for (Defrule.TranslatedPath otherRule : rule2PathMap.keySet()) {
+				for (Defrule.PathRule otherRule : rule2PathMap.keySet()) {
 					// FIXME hier weiterarbeiten
 				}
 			}
@@ -226,9 +226,9 @@ public class NodeShareOptimizer implements Optimizer {
 	}
 
 	private class Block {
-		final Map<Defrule.TranslatedPath, Set<PathNodeFilterSet>> rule2PathFilters = new HashMap<>();
+		final Map<Defrule.PathRule, Set<PathNodeFilterSet>> rule2PathFilters = new HashMap<>();
 
-		void addFilter(Defrule.TranslatedPath rule, PathNodeFilterSet filter) {
+		void addFilter(Defrule.PathRule rule, PathNodeFilterSet filter) {
 			Set<PathNodeFilterSet> filters = rule2PathFilters.get(rule);
 			if (null == filters) {
 				filters = new HashSet<>();

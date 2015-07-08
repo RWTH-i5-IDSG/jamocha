@@ -1,12 +1,12 @@
 /*
  * Copyright 2002-2014 The Jamocha Team
- * 
- * 
+ *
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
- * 
+ *
  * http://www.jamocha.org/
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software distributed under the License
  * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
  * or implied. See the License for the specific language governing permissions and limitations under
@@ -35,8 +35,7 @@ import org.jamocha.dn.nodes.SlotInFactAddress;
 import org.jamocha.filter.AddressNodeFilterSet.AddressFilter;
 import org.jamocha.filter.AddressNodeFilterSet.AddressMatchingConfiguration;
 import org.jamocha.filter.AddressNodeFilterSet.ExistentialAddressFilter;
-import org.jamocha.filter.PathNodeFilterSet.DummyPathFilter;
-import org.jamocha.filter.PathNodeFilterSet.PathFilter;
+import org.jamocha.filter.PathFilterSet.PathExistentialSet;
 import org.jamocha.function.fwa.ParameterLeaf;
 import org.jamocha.function.fwa.PredicateWithArguments;
 import org.jamocha.function.fwatransformer.FWAPathToAddressTranslator;
@@ -55,9 +54,9 @@ public class PathNodeFilterSetToAddressNodeFilterSetTranslator {
 		return new AddressNodeFilterSet(toFactAddressSet(pathFilter.getPositiveExistentialPaths()),
 				toFactAddressSet(pathFilter.getNegativeExistentialPaths()), translateFilters(pathFilter,
 						counterColumnMatcher).collect(toCollection(HashSet::new)), translateFilters(normalisedVersion,
-						counterColumnMatcher).collect(
-						Collectors.<AddressFilter, LinkedHashSet<AddressFilter>> toCollection(LinkedHashSet::new)),
-				new ArrayList<AddressMatchingConfiguration>());
+								counterColumnMatcher).collect(
+										Collectors.<AddressFilter, LinkedHashSet<AddressFilter>> toCollection(LinkedHashSet::new)),
+										new ArrayList<AddressMatchingConfiguration>());
 	}
 
 	private static Stream<AddressFilter> translateFilters(final PathNodeFilterSet pathFilter,
@@ -71,7 +70,7 @@ public class PathNodeFilterSetToAddressNodeFilterSetTranslator {
 	}
 
 	@Data
-	static class PathFilterTranslator implements PathFilterVisitor {
+	static class PathFilterTranslator implements PathFilterSetVisitor {
 		final CounterColumnMatcher counterColumnMatcher;
 		AddressFilter result;
 
@@ -80,8 +79,8 @@ public class PathNodeFilterSetToAddressNodeFilterSetTranslator {
 			final ArrayList<SlotInFactAddress> addresses = new ArrayList<>();
 			final PredicateWithArguments<ParameterLeaf> predicateWithArguments =
 					pathFilterElement.getFunction()
-							.accept(new FWAPathToAddressTranslator.PWAPathToAddressTranslator(addresses))
-							.getFunctionWithArguments();
+					.accept(new FWAPathToAddressTranslator.PWAPathToAddressTranslator(addresses))
+					.getFunctionWithArguments();
 			final SlotInFactAddress[] addressArray = toArray(addresses, SlotInFactAddress[]::new);
 			final CounterColumn counterColumn = counterColumnMatcher.getCounterColumn(pathFilterElement);
 			if (null == counterColumn) {
@@ -95,7 +94,7 @@ public class PathNodeFilterSetToAddressNodeFilterSetTranslator {
 		public void visit(final DummyPathFilter pathFilterElement) {
 			@SuppressWarnings("unchecked")
 			final PredicateWithArguments<ParameterLeaf> predicateWithArguments =
-					(PredicateWithArguments<ParameterLeaf>) (PredicateWithArguments<?>) pathFilterElement.getFunction();
+			(PredicateWithArguments<ParameterLeaf>) (PredicateWithArguments<?>) pathFilterElement.getFunction();
 			final SlotInFactAddress[] addressArray =
 					toArray(Arrays.stream(pathFilterElement.getPaths()).map(
 							path -> new SlotInFactAddress(path.getFactAddressInCurrentlyLowestNode(),
@@ -106,6 +105,12 @@ public class PathNodeFilterSetToAddressNodeFilterSetTranslator {
 			} else {
 				this.result = new ExistentialAddressFilter(predicateWithArguments, addressArray, counterColumn);
 			}
+		}
+
+		@Override
+		public void visit(final PathExistentialSet set) {
+			// TODO Auto-generated method stub
+
 		}
 	}
 }

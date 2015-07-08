@@ -247,18 +247,17 @@ public class RuleCondition {
 			this.equalParentEquivalenceClasses.add(ec);
 		}
 
-		public static void addUnequalParentEquivalenceClassRelation(final EquivalenceClass a, final EquivalenceClass b) {
+		public static void addUnequalEquivalenceClassRelation(final EquivalenceClass a, final EquivalenceClass b) {
 			if (a.correspondingScope.isParentOf(b.correspondingScope)) {
 				b.addNegatedArc(a);
 			} else if (b.correspondingScope.isParentOf(a.correspondingScope)) {
 				a.addNegatedArc(b);
 			} else {
-				throw new IllegalArgumentException(
-						"The given equivalence classes are not in any child-parent relationship!");
+				a.addNegatedEdge(b);
 			}
 		}
 
-		public void addNegatedArc(final EquivalenceClass ec) {
+		private void addNegatedArc(final EquivalenceClass ec) {
 			if (this == ec) {
 				throw new IllegalArgumentException("Tried to insert a negated arc as a loop!");
 			}
@@ -272,7 +271,7 @@ public class RuleCondition {
 			this.unequalEquivalenceClasses.add(ec);
 		}
 
-		public void addNegatedEdge(final EquivalenceClass ec) {
+		private void addNegatedEdge(final EquivalenceClass ec) {
 			if (this == ec) {
 				throw new IllegalArgumentException("Tried to insert a negated edge as a loop!");
 			}
@@ -303,14 +302,14 @@ public class RuleCondition {
 
 		public PathLeaf getPathLeaf(final Map<EquivalenceClass, Path> ec2Path, final SingleSlotVariable sv) {
 			if (!factVariables.isEmpty()) {
-				final Path path = ec2Path.get(factVariables.iterator().next().getEqual());
-				return null == path ? null : new PathLeaf(path, (SlotAddress) null);
+				return Optional.ofNullable(ec2Path.get(factVariables.getFirst().getEqual()))
+						.map(path -> new PathLeaf(path, (SlotAddress) null)).get();
 			}
-			return null == sv ? null : sv.getPathLeaf(ec2Path);
+			return Optional.ofNullable(sv).map(var -> var.getPathLeaf(ec2Path)).get();
 		}
 
 		public PathLeaf getPathLeaf(final Map<EquivalenceClass, Path> ec2Path) {
-			return getPathLeaf(ec2Path, (equalSlotVariables.isEmpty() ? null : equalSlotVariables.get(0)));
+			return getPathLeaf(ec2Path, equalSlotVariables.peekFirst());
 		}
 
 		public boolean isNonTrivial() {

@@ -1,12 +1,12 @@
 /*
  * Copyright 2002-2014 The Jamocha Team
- * 
- * 
+ *
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
- * 
+ *
  * http://www.jamocha.org/
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software distributed under the License
  * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
  * or implied. See the License for the specific language governing permissions and limitations under
@@ -20,15 +20,16 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.jamocha.dn.memory.CounterColumnMatcher;
+import org.jamocha.filter.Filter;
 import org.jamocha.filter.Path;
 import org.jamocha.filter.PathCollector;
+import org.jamocha.filter.PathFilter;
 import org.jamocha.filter.PathNodeFilterSet;
-import org.jamocha.filter.PathNodeFilterSet.PathFilter;
 
 /**
- * Visitor for {@link org.jamocha.filter.NodeFilterSet.Filter FilterElements} to determine how many
+ * Visitor for {@link org.jamocha.filter.Filter FilterElements} to determine how many
  * of them are existential filter elements and whether they are negated.
- * 
+ *
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
 /*

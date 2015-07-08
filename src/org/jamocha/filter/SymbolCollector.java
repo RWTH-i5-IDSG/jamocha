@@ -28,7 +28,6 @@ import java.util.stream.StreamSupport;
 import lombok.Getter;
 
 import org.apache.commons.lang3.tuple.Pair;
-import org.jamocha.function.fwa.FunctionWithArguments;
 import org.jamocha.languages.common.RuleCondition;
 import org.jamocha.languages.common.ScopeStack.Symbol;
 import org.jamocha.languages.common.ScopeStack.VariableSymbol;
@@ -36,7 +35,7 @@ import org.jamocha.languages.common.SingleFactVariable;
 import org.jamocha.languages.common.SingleFactVariable.SingleSlotVariable;
 
 /**
- * Collects all symbols used within the {@link FunctionWithArguments}.
+ * Provides ease-of-use-methods for symbols used within the RuleCondition.
  * 
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  * 

@@ -36,13 +36,13 @@ import org.jamocha.dn.ConstructCache.Defrule;
 import org.jamocha.dn.ParserToNetwork;
 import org.jamocha.dn.SideEffectFunctionToNetwork;
 import org.jamocha.dn.compiler.ShallowFactVariableCollector;
-import org.jamocha.dn.compiler.SymbolToPathTranslator;
 import org.jamocha.filter.Path;
 import org.jamocha.filter.SymbolCollector;
 import org.jamocha.function.fwa.FunctionWithArguments;
 import org.jamocha.function.fwa.PathLeaf;
 import org.jamocha.function.fwa.PredicateWithArguments;
 import org.jamocha.function.fwa.PredicateWithArgumentsComposite;
+import org.jamocha.function.fwatransformer.FWASymbolToPathTranslator;
 import org.jamocha.languages.clips.parser.SFPVisitorImpl;
 import org.jamocha.languages.clips.parser.generated.ParseException;
 import org.jamocha.languages.clips.parser.generated.SFPParser;
@@ -127,7 +127,7 @@ public class SymbolToPathTranslatorTest {
 			final ConditionalElement testCe = andChildren.get(1);
 			assertThat(testCe, instanceOf(TestConditionalElement.class));
 			final PredicateWithArguments<PathLeaf> translated =
-					SymbolToPathTranslator.translate(((TestConditionalElement) testCe).getPredicateWithArguments(),
+					FWASymbolToPathTranslator.translate(((TestConditionalElement) testCe).getPredicateWithArguments(),
 							symbolToPathLeaf);
 			assertThat(translated, instanceOf(PredicateWithArgumentsComposite.class));
 			final FunctionWithArguments<PathLeaf>[] args =
@@ -171,7 +171,7 @@ public class SymbolToPathTranslatorTest {
 			final ConditionalElement testCe = andChildren.get(1);
 			assertThat(testCe, instanceOf(TestConditionalElement.class));
 			final PredicateWithArguments<PathLeaf> translated =
-					SymbolToPathTranslator.translate(((TestConditionalElement) testCe).getPredicateWithArguments(),
+					FWASymbolToPathTranslator.translate(((TestConditionalElement) testCe).getPredicateWithArguments(),
 							symbolToPathLeaf);
 			assertThat(translated, instanceOf(PredicateWithArgumentsComposite.class));
 			final FunctionWithArguments<PathLeaf>[] args =
@@ -187,7 +187,7 @@ public class SymbolToPathTranslatorTest {
 			final ConditionalElement testCe = andChildren.get(2);
 			assertThat(testCe, instanceOf(TestConditionalElement.class));
 			final PredicateWithArguments<PathLeaf> translated =
-					SymbolToPathTranslator.translate(((TestConditionalElement) testCe).getPredicateWithArguments(),
+					FWASymbolToPathTranslator.translate(((TestConditionalElement) testCe).getPredicateWithArguments(),
 							symbolToPathLeaf);
 			assertThat(translated, instanceOf(PredicateWithArgumentsComposite.class));
 			final FunctionWithArguments<PathLeaf>[] args =
@@ -239,7 +239,7 @@ public class SymbolToPathTranslatorTest {
 				final ConditionalElement testCe = andChildren.get(1);
 				assertThat(testCe, instanceOf(TestConditionalElement.class));
 				final PredicateWithArguments<PathLeaf> translated =
-						SymbolToPathTranslator.translate(((TestConditionalElement) testCe).getPredicateWithArguments(),
+						FWASymbolToPathTranslator.translate(((TestConditionalElement) testCe).getPredicateWithArguments(),
 								symbolToPathLeaf);
 				assertThat(translated, instanceOf(PredicateWithArgumentsComposite.class));
 				final FunctionWithArguments<PathLeaf>[] args =
@@ -280,7 +280,7 @@ public class SymbolToPathTranslatorTest {
 				final ConditionalElement testCe = andChildren.get(1);
 				assertThat(testCe, instanceOf(TestConditionalElement.class));
 				final PredicateWithArguments<PathLeaf> translated =
-						SymbolToPathTranslator.translate(((TestConditionalElement) testCe).getPredicateWithArguments(),
+						FWASymbolToPathTranslator.translate(((TestConditionalElement) testCe).getPredicateWithArguments(),
 								symbolToPathLeaf);
 				assertThat(translated, instanceOf(PredicateWithArgumentsComposite.class));
 				final FunctionWithArguments<PathLeaf>[] args =

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2014 The Jamocha Team
+ * Copyright 2002-2015 The Jamocha Team
  * 
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
@@ -12,15 +12,7 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package org.jamocha.filter;
-
-import org.jamocha.visitor.Visitor;
-
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
-public interface PathFilterVisitor extends Visitor {
-	public void visit(final PathNodeFilterSet.PathFilter f);
-
-	public void visit(final PathNodeFilterSet.DummyPathFilter f);
-}
+package org.jamocha.dn.compiler.simpleblocks;

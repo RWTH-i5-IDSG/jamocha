@@ -27,8 +27,8 @@ import org.jamocha.dn.memory.javaimpl.CounterUpdate;
 import org.jamocha.dn.nodes.Node.TokenQueue;
 import org.jamocha.filter.AddressNodeFilterSet;
 import org.jamocha.filter.AddressNodeFilterSet.AddressFilter;
+import org.jamocha.filter.Filter;
 import org.jamocha.filter.NodeFilterSet;
-import org.jamocha.filter.NodeFilterSet.Filter;
 
 /**
  * Interface for classes representing connections between {@link Node}s. Edges have a source and a

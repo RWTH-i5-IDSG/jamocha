@@ -16,7 +16,7 @@ package org.jamocha.filter.optimizer;
 
 import java.util.Collection;
 
-import org.jamocha.dn.ConstructCache.Defrule.TranslatedPath;
+import org.jamocha.dn.ConstructCache.Defrule.PathRule;
 
 /**
  * Common optimizer interface transforming a set of rules.
@@ -26,6 +26,6 @@ import org.jamocha.dn.ConstructCache.Defrule.TranslatedPath;
  */
 public interface Optimizer {
 
-	Collection<TranslatedPath> optimize(final Collection<TranslatedPath> rules);
+	Collection<PathRule> optimize(final Collection<PathRule> rules);
 
 }

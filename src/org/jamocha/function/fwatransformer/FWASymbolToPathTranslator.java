@@ -12,7 +12,7 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package org.jamocha.dn.compiler;
+package org.jamocha.function.fwatransformer;
 
 import java.util.Map;
 
@@ -40,7 +40,7 @@ import org.jamocha.languages.common.RuleCondition.EquivalenceClass;
  * @author Christoph Terwelp <christoph.terwelp@rwth-aachen.de>
  */
 @RequiredArgsConstructor
-public class SymbolToPathTranslator implements FunctionWithArgumentsVisitor<SymbolLeaf> {
+public class FWASymbolToPathTranslator implements FunctionWithArgumentsVisitor<SymbolLeaf> {
 
 	@Getter
 	private FunctionWithArguments<PathLeaf> result;
@@ -48,19 +48,19 @@ public class SymbolToPathTranslator implements FunctionWithArgumentsVisitor<Symb
 
 	public static FunctionWithArguments<PathLeaf> translate(final FunctionWithArguments<SymbolLeaf> toTranslate,
 			final Map<EquivalenceClass, PathLeaf> equivalenceClassToPathLeaf) {
-		return toTranslate.accept(new SymbolToPathTranslator(equivalenceClassToPathLeaf)).result;
+		return toTranslate.accept(new FWASymbolToPathTranslator(equivalenceClassToPathLeaf)).result;
 	}
 
 	public static PredicateWithArgumentsComposite<PathLeaf> translate(
 			final PredicateWithArgumentsComposite<SymbolLeaf> toTranslate,
 			final Map<EquivalenceClass, PathLeaf> equivalenceClassToPathLeaf) {
-		return (PredicateWithArgumentsComposite<PathLeaf>) toTranslate.accept(new SymbolToPathTranslator(
+		return (PredicateWithArgumentsComposite<PathLeaf>) toTranslate.accept(new FWASymbolToPathTranslator(
 				equivalenceClassToPathLeaf)).result;
 	}
 
 	public static PredicateWithArguments<PathLeaf> translate(final PredicateWithArguments<SymbolLeaf> toTranslate,
 			final Map<EquivalenceClass, PathLeaf> equivalenceClassToPathLeaf) {
-		return (PredicateWithArguments<PathLeaf>) toTranslate.accept(new SymbolToPathTranslator(
+		return (PredicateWithArguments<PathLeaf>) toTranslate.accept(new FWASymbolToPathTranslator(
 				equivalenceClassToPathLeaf)).result;
 	}
 

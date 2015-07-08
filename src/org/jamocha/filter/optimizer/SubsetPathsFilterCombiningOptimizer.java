@@ -30,7 +30,7 @@ import java.util.Set;
 
 import lombok.RequiredArgsConstructor;
 
-import org.jamocha.dn.ConstructCache.Defrule.TranslatedPath;
+import org.jamocha.dn.ConstructCache.Defrule.PathRule;
 import org.jamocha.filter.Path;
 import org.jamocha.filter.PathCollector;
 import org.jamocha.filter.PathFilterList;
@@ -101,7 +101,7 @@ public class SubsetPathsFilterCombiningOptimizer implements Optimizer {
 
 		@Override
 		public void visit(final PathExistentialList filter) {
-			result.add(new PathExistentialList(combine(filter.getPurelyExistentialPart().getFilters()), filter
+			result.add(new PathExistentialList(combine(filter.getPurePart().getFilters()), filter
 					.getExistentialClosure()));
 		}
 
@@ -122,11 +122,11 @@ public class SubsetPathsFilterCombiningOptimizer implements Optimizer {
 	}
 
 	@Override
-	public Collection<TranslatedPath> optimize(final Collection<TranslatedPath> rules) {
+	public Collection<PathRule> optimize(final Collection<PathRule> rules) {
 		return rules
 				.stream()
 				.map(rule -> {
-					return rule.getParent().new TranslatedPath(optimize(rule.getCondition()), rule.getActionList(),
+					return rule.getParent().new PathRule(optimize(rule.getCondition()), rule.getActionList(),
 							rule.getEquivalenceClassToPathLeaf(), rule.getSpecificity());
 				}).collect(toList());
 	}

@@ -28,7 +28,7 @@ import java.util.Set;
 
 import lombok.RequiredArgsConstructor;
 
-import org.jamocha.dn.ConstructCache.Defrule.TranslatedPath;
+import org.jamocha.dn.ConstructCache.Defrule.PathRule;
 import org.jamocha.filter.Path;
 import org.jamocha.filter.PathCollector;
 import org.jamocha.filter.PathFilterList;
@@ -106,7 +106,7 @@ public class SamePathsFEsCombiningOptimizer implements Optimizer {
 			save(resultFilters, joinSet2FilterElement, new DummyPathFilter(pathCollector.getPathsArray()),
 					pathCollector.getPaths());
 			result =
-					new PathNodeFilterSet(filterSet.getPositiveExistentialPaths(),
+					PathNodeFilterSet.newExistentialPathNodeFilterSet(filterSet.getPositiveExistentialPaths(),
 							filterSet.getNegativeExistentialPaths(), toArray(resultFilters, PathFilter[]::new));
 		}
 
@@ -128,13 +128,17 @@ public class SamePathsFEsCombiningOptimizer implements Optimizer {
 		@Override
 		public void visit(final PathExistentialList filter) {
 			result =
-					new PathExistentialList(combine(filter.getPurelyExistentialPart().getFilters()),
-							filter.getExistentialClosure());
+					new PathExistentialList(filter.getInitialPath(), filter.getEquivalenceClasses(),
+							processShared(filter.getPurePart()), filter.getExistentialClosure());
 		}
 
 		@Override
 		public void visit(final PathSharedList filter) {
-			result = filter.getWrapper().replace(filter, combine(filter.getFilters()));
+			result = processShared(filter);
+		}
+
+		private PathSharedList processShared(final PathSharedList filter) {
+			return filter.getWrapper().replace(filter, combine(filter.getFilters()));
 		}
 
 		List<PathFilterList> combine(final List<PathFilterList> filters) {
@@ -147,11 +151,11 @@ public class SamePathsFEsCombiningOptimizer implements Optimizer {
 	}
 
 	@Override
-	public Collection<TranslatedPath> optimize(final Collection<TranslatedPath> rules) {
+	public Collection<PathRule> optimize(final Collection<PathRule> rules) {
 		return rules
 				.stream()
 				.map(rule -> {
-					return rule.getParent().new TranslatedPath(optimize(rule.getCondition()), rule.getActionList(),
+					return rule.getParent().new PathRule(optimize(rule.getCondition()), rule.getActionList(),
 							rule.getEquivalenceClassToPathLeaf(), rule.getSpecificity());
 				}).collect(toList());
 	}

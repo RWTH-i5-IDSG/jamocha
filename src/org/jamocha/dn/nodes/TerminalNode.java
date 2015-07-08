@@ -169,11 +169,11 @@ public class TerminalNode {
 	@Getter
 	final protected Defrule.Translated rule;
 
-	public TerminalNode(final Network network, final Node parent, final Defrule.TranslatedPath translatedPath) {
+	public TerminalNode(final Network network, final Node parent, final Defrule.PathRule pathRule) {
 		this.network = network;
 		final MemoryHandlerMain parentMemory = parent.getMemory();
 		this.memory = parentMemory.newMemoryHandlerTerminal();
-		this.rule = translatedPath.translatePathToAddress();
+		this.rule = pathRule.translatePathToAddress();
 		this.edge = new TerminalEdgeImpl(parent, this);
 		parent.deactivateTokenQueue();
 		parent.acceptRegularEdgeToChild(edge);
