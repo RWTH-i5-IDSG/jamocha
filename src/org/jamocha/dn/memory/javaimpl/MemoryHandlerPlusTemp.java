@@ -544,11 +544,6 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements org.jamo
 			final SlotInFactAddress addresses[] = filterElement.getAddressesInTarget();
 			final CounterColumn counterColumn = (CounterColumn) filterElement.getCounterColumn();
 			final boolean existential = (counterColumn != null);
-			/*
-			 * requirement: if filter element is existential, all edges on the stack except
-			 * originEdge are existential as well (meaning all regular parts have been joined
-			 * already)
-			 */
 
 			// determine new edges
 			final Set<Edge> newEdges = new HashSet<>();
@@ -557,10 +552,14 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements org.jamo
 				final Edge edge = targetNode.delocalizeAddress(address.getFactAddress()).getEdge();
 				final StackElement element = edgeToStack.get(edge);
 				if (element != originElement) {
-					// (!a || b) <=> (a->b)
-					assert !existential || edge.getSourceNode().getOutgoingExistentialEdges().contains(edge);
-					if (newEdges.add(edge)) {
-						stack.add(element);
+					// (!a || b) <=> (a -> b)
+					if (!existential || edge.getSourceNode().getOutgoingExistentialEdges().contains(edge)) {
+						if (newEdges.add(edge)) {
+							stack.add(element);
+						}
+					} else {
+						// full join regular edges if FilterElement is existential
+						fullJoin(edgeToStack, originElement, edge, element);
 					}
 				}
 			}
@@ -587,8 +586,7 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements org.jamo
 						// increment counter if facts match predicate
 						if (predicate.evaluate(params)) {
 							final Row row = originElement.getRow();
-							// use counter to set counterColumn to 1 if counterColumn is not
-							// null
+							// use counter to set counterColumn to 1 if counterColumn is not null
 							counter.increment(row, counterColumn, 1);
 							// insert information from new inputs
 							for (final Edge edge : newEdges) {
@@ -598,7 +596,7 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements org.jamo
 							}
 						}
 					}
-				}, stack, originElement, existential);
+				}, stack, originElement, true);
 			} else {
 				TR = loop(new FunctionPointer() {
 					@Override
@@ -628,12 +626,11 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements org.jamo
 							TR.add(row);
 						}
 					}
-				}, stack, originElement, existential);
+				}, stack, originElement, false);
 			}
 			// replace TR in originElement with new temporary result
 			originElement.memStack.set(0, TR);
-			// point all inputs that were joint during this turn to the TR
-			// StackElement
+			// point all inputs that were joint during this turn to the TR StackElement
 			for (final Edge incomingEdge : newEdges) {
 				edgeToStack.put(incomingEdge, originElement);
 			}
@@ -644,28 +641,30 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements org.jamo
 
 		// full join with all inputs not pointing to TR now
 		for (final Map.Entry<Edge, StackElement> entry : edgeToStack.entrySet()) {
-			if (entry.getValue() == originElement)
+			final StackElement se = entry.getValue();
+			if (se == originElement)
 				continue;
 			final Edge nodeInput = entry.getKey();
-			final StackElement se = entry.getValue();
-			final Collection<StackElement> stack = Arrays.asList(originElement, se);
-			final JamochaArray<Row> TR = loop(new FunctionPointer() {
-				@Override
-				public void apply(final JamochaArray<Row> TR, final StackElement originElement) {
-					// copy result to new TR
-					// copy current row from old TR
-					// insert information from new input
-					// source is some temp, destination new TR
-					// copy the result to new TR
-					TR.add(originElement.getRow().copy().copy(se.getOffset(), se.getRow()));
-				}
-			}, stack, originElement, false);
-			// replace TR in originElement with new temporary result
-			originElement.memStack.set(0, TR);
-			// point all inputs that were joint during this turn to the TR
-			// StackElement
-			edgeToStack.put(nodeInput, originElement);
+			fullJoin(edgeToStack, originElement, nodeInput, se);
 		}
+	}
+
+	private static void fullJoin(final LinkedHashMap<Edge, StackElement> edgeToStack, final StackElement originElement,
+			final Edge nodeInput, final StackElement se) {
+		// replace TR in originElement with new temporary result
+		originElement.memStack.set(0, loop(new FunctionPointer() {
+			@Override
+			public void apply(final JamochaArray<Row> TR, final StackElement originElement) {
+				// copy result to new TR
+				// copy current row from old TR
+				// insert information from new input
+				// source is some temp, destination new TR
+				// copy the result to new TR
+				TR.add(originElement.getRow().copy().copy(se.getOffset(), se.getRow()));
+			}
+		}, Arrays.asList(originElement, se), originElement, false));
+		// point all inputs that were joint during this turn to the TR StackElement
+		edgeToStack.put(nodeInput, originElement);
 	}
 
 	@Value
