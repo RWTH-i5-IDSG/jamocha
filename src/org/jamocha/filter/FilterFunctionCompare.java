@@ -1,19 +1,18 @@
 /*
  * Copyright 2002-2014 The Jamocha Team
- *
- *
+ * 
+ * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
- *
+ * 
  * http://www.jamocha.org/
- *
+ * 
  * Unless required by applicable law or agreed to in writing, software distributed under the License
  * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
 package org.jamocha.filter;
-
 
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toSet;
@@ -44,7 +43,6 @@ import org.jamocha.dn.nodes.Edge;
 import org.jamocha.dn.nodes.Node;
 import org.jamocha.dn.nodes.SlotInFactAddress;
 import org.jamocha.filter.AddressNodeFilterSet.AddressFilter;
-import org.jamocha.filter.PathNodeFilterSet.DummyPathFilter;
 import org.jamocha.function.CommutativeFunction;
 import org.jamocha.function.fwa.ConstantLeaf;
 import org.jamocha.function.fwa.DefaultFunctionWithArgumentsVisitor;
@@ -197,7 +195,7 @@ public abstract class FilterFunctionCompare<L extends ExchangeableLeaf<L>> {
 			}
 
 			private class NoDummyPathFilterSecondTypeIdentificationVisitor extends
-			PathFilterSecondTypeIndentificationVisitor {
+					PathFilterSecondTypeIndentificationVisitor {
 
 				final PathFilter targetFilterElement;
 
@@ -223,7 +221,7 @@ public abstract class FilterFunctionCompare<L extends ExchangeableLeaf<L>> {
 			}
 
 			private class DummyPathFilterSecondTypeIdentificationVisitor extends
-			PathFilterSecondTypeIndentificationVisitor {
+					PathFilterSecondTypeIndentificationVisitor {
 
 				final DummyPathFilter targetFilterElement;
 
@@ -332,7 +330,7 @@ public abstract class FilterFunctionCompare<L extends ExchangeableLeaf<L>> {
 
 	@RequiredArgsConstructor
 	private static abstract class InvalidatingFWAVisitor<A extends ExchangeableLeaf<A>> implements
-	DefaultFunctionWithArgumentsVisitor<A> {
+			DefaultFunctionWithArgumentsVisitor<A> {
 		final FilterFunctionCompare<A> context;
 
 		@Override
@@ -342,7 +340,7 @@ public abstract class FilterFunctionCompare<L extends ExchangeableLeaf<L>> {
 	}
 
 	private static abstract class FunctionTypeIdentificationVisitor<A extends ExchangeableLeaf<A>> extends
-	InvalidatingFWAVisitor<A> {
+			InvalidatingFWAVisitor<A> {
 		final FunctionWithArguments<A> fwa;
 
 		protected FunctionTypeIdentificationVisitor(final FilterFunctionCompare<A> context,
@@ -386,7 +384,8 @@ public abstract class FilterFunctionCompare<L extends ExchangeableLeaf<L>> {
 	private static class CompositeVisitor<A extends ExchangeableLeaf<A>> extends InvalidatingFWAVisitor<A> {
 		final GenericWithArgumentsComposite<?, ?, A> composite;
 
-		protected CompositeVisitor(final FilterFunctionCompare<A> context, final GenericWithArgumentsComposite<?, ?, A> composite) {
+		protected CompositeVisitor(final FilterFunctionCompare<A> context,
+				final GenericWithArgumentsComposite<?, ?, A> composite) {
 			super(context);
 			this.composite = composite;
 		}
@@ -431,35 +430,35 @@ public abstract class FilterFunctionCompare<L extends ExchangeableLeaf<L>> {
 							},
 							(final HashMap<FunctionWithArguments<A>, Integer> m,
 									final HashMap<FunctionWithArguments<A>, Integer> n) -> {
-										m.putAll(n);
-									});
+								m.putAll(n);
+							});
 			final Bool bool = new Bool(false);
 			for (int i = 0; i < lcm; ++i) {
 				final int permutation = i;
 				duplicates
-				.values()
-				.stream()
-				.filter(v -> v.size() > 1)
-				.forEach(
-						(final List<FunctionWithArguments<A>> v) -> {
-							final int size = v.size();
-							for (int j = 0; j < size; ++j) {
-								pathArgs[indices.get(v.get(j))] =
-										pathArgs[indices.get(v.get((j + permutation) % size))];
-								if (!bool.equal) {
-									// equality not yet found to be true
-									compareArguments(addressArgs, pathArgs);
-								}
-								// else just permute back to original order
-								if (context.isValid()) {
-									// is actually equal
-									bool.equal = true;
-								} else {
-									// lets try again
-									context.equal = true;
-								}
-							}
-						});
+						.values()
+						.stream()
+						.filter(v -> v.size() > 1)
+						.forEach(
+								(final List<FunctionWithArguments<A>> v) -> {
+									final int size = v.size();
+									for (int j = 0; j < size; ++j) {
+										pathArgs[indices.get(v.get(j))] =
+												pathArgs[indices.get(v.get((j + permutation) % size))];
+										if (!bool.equal) {
+											// equality not yet found to be true
+											compareArguments(addressArgs, pathArgs);
+										}
+										// else just permute back to original order
+										if (context.isValid()) {
+											// is actually equal
+											bool.equal = true;
+										} else {
+											// lets try again
+											context.equal = true;
+										}
+									}
+								});
 			}
 			if (!bool.equal) {
 				context.invalidate();
@@ -641,7 +640,7 @@ public abstract class FilterFunctionCompare<L extends ExchangeableLeaf<L>> {
 		if (targetNode.getFilter().getNegativeExistentialAddresses().size() != pathFilter.getNegativeExistentialPaths()
 				.size()
 				|| targetNode.getFilter().getPositiveExistentialAddresses().size() != pathFilter
-				.getPositiveExistentialPaths().size()) {
+						.getPositiveExistentialPaths().size()) {
 			return null;
 		}
 		final List<Path> pathsPermutation = new LinkedList<>();
@@ -651,8 +650,8 @@ public abstract class FilterFunctionCompare<L extends ExchangeableLeaf<L>> {
 			// get representatives for the joined-with-sets (i.e. the edges) and group by nodes
 			final Map<Node, Set<Path>> pathSetByNode =
 					PathCollector.newHashSet().collectAll(pathFilter).getPaths().stream()
-					.map(p -> p.getJoinedWith().iterator().next()).distinct()
-					.collect(groupingBy(s -> s.getCurrentlyLowestNode(), toSet()));
+							.map(p -> p.getJoinedWith().iterator().next()).distinct()
+							.collect(groupingBy(s -> s.getCurrentlyLowestNode(), toSet()));
 			// now we have a set of components consisting of sets of representatives
 			final Collection<Set<Path>> components = pathSetByNode.values();
 			final List<Range> ranges = new ArrayList<>(components.size());

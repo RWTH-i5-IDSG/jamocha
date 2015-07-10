@@ -32,6 +32,7 @@ import org.jamocha.dn.memory.SlotType;
 import org.jamocha.filter.AddressNodeFilterSet;
 import org.jamocha.filter.Filter;
 import org.jamocha.filter.Path;
+import org.jamocha.filter.PathFilter;
 import org.jamocha.filter.PathNodeFilterSet;
 import org.jamocha.filter.PathNodeFilterSetToAddressNodeFilterSetTranslator;
 import org.jamocha.function.Function;

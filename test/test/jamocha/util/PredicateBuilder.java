@@ -16,7 +16,7 @@ package test.jamocha.util;
 
 import static org.jamocha.util.ToArray.toArray;
 
-import org.jamocha.filter.PathNodeFilterSet.PathFilter;
+import org.jamocha.filter.PathFilter;
 import org.jamocha.function.Predicate;
 import org.jamocha.function.fwa.FunctionWithArguments;
 import org.jamocha.function.fwa.PathLeaf;

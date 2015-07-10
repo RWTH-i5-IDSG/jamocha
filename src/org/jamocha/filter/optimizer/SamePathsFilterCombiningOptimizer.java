@@ -31,12 +31,12 @@ import lombok.RequiredArgsConstructor;
 import org.jamocha.dn.ConstructCache.Defrule.PathRule;
 import org.jamocha.filter.Path;
 import org.jamocha.filter.PathCollector;
+import org.jamocha.filter.PathFilter;
 import org.jamocha.filter.PathFilterList;
 import org.jamocha.filter.PathFilterList.PathExistentialList;
 import org.jamocha.filter.PathFilterList.PathSharedListWrapper.PathSharedList;
 import org.jamocha.filter.PathFilterListVisitor;
 import org.jamocha.filter.PathNodeFilterSet;
-import org.jamocha.filter.PathNodeFilterSet.PathFilter;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
@@ -135,8 +135,8 @@ public class SamePathsFilterCombiningOptimizer implements Optimizer {
 		return rules
 				.stream()
 				.map(rule -> {
-					return rule.getParent().new PathRule(optimize(rule.getCondition()), rule.getActionList(),
-							rule.getEquivalenceClassToPathLeaf(), rule.getSpecificity());
+					return rule.getParent().new PathRule(optimize(rule.getCondition()), rule.getActionList(), rule
+							.getEquivalenceClassToPathLeaf(), rule.getSpecificity());
 				}).collect(toList());
 	}
 }

@@ -20,9 +20,9 @@ import java.util.Set;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.jamocha.filter.Path;
+import org.jamocha.filter.PathFilter;
 import org.jamocha.filter.PathFilterList;
 import org.jamocha.filter.PathNodeFilterSet;
-import org.jamocha.filter.PathNodeFilterSet.PathFilter;
 
 /**
  * Interface for rating providers.
