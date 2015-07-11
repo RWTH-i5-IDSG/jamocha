@@ -16,7 +16,6 @@ package org.jamocha.filter;
 
 import org.jamocha.filter.ECFilterList.ECExistentialList;
 import org.jamocha.filter.ECFilterList.ECNodeFilterSet;
-import org.jamocha.filter.ECFilterList.ECSharedListWrapper;
 import org.jamocha.visitor.Visitor;
 
 /**
@@ -24,8 +23,6 @@ import org.jamocha.visitor.Visitor;
  */
 public interface ECFilterListVisitor extends Visitor {
 	public void visit(final ECNodeFilterSet list);
-
-	public void visit(final ECSharedListWrapper.ECSharedList list);
 
 	public void visit(final ECExistentialList list);
 }
