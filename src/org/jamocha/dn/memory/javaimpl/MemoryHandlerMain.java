@@ -1,12 +1,12 @@
 /*
  * Copyright 2002-2013 The Jamocha Team
- *
- *
+ * 
+ * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
- *
+ * 
  * http://www.jamocha.org/
- *
+ * 
  * Unless required by applicable law or agreed to in writing, software distributed under the License
  * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
  * or implied. See the License for the specific language governing permissions and limitations under
@@ -173,7 +173,7 @@ public class MemoryHandlerMain extends MemoryHandlerBase implements org.jamocha.
 	}
 
 	public static org.jamocha.dn.memory.MemoryHandlerMainAndCounterColumnMatcher newMemoryHandlerMain(
-			final PathNodeFilterSet filter, final Map<Edge, Set<Path>> edgesAndPaths) {
+			final PathNodeFilterSet filterSet, final Map<Edge, Set<Path>> edgesAndPaths) {
 		final ArrayList<Template> template = new ArrayList<>();
 		final ArrayList<FactAddress> addresses = new ArrayList<>();
 		final HashMap<FactAddress, FactAddress> newAddressesCache = new HashMap<>();
@@ -198,36 +198,32 @@ public class MemoryHandlerMain extends MemoryHandlerBase implements org.jamocha.
 		final Template[] templArray = toArray(template, Template[]::new);
 		final FactAddress[] addrArray = toArray(addresses, FactAddress[]::new);
 
-		final PathFilterElementToCounterColumn pathFilterElementToCounterColumn =
-				new PathFilterElementToCounterColumn();
+		final PathFilterToCounterColumn pathFilterToCounterColumn = new PathFilterToCounterColumn();
 
-		final boolean containsExistentials =
-				!filter.getPositiveExistentialPaths().isEmpty() || !filter.getNegativeExistentialPaths().isEmpty();
-		if (containsExistentials) {
-			final boolean[] existential = new boolean[templArray.length];
-			// gather existential paths
-			final HashSet<Path> existentialPaths = new HashSet<>();
-			existentialPaths.addAll(filter.getPositiveExistentialPaths());
-			existentialPaths.addAll(filter.getNegativeExistentialPaths());
-
-			int index = 0;
-			for (final PathFilter pathFilterElement : filter.getFilters()) {
-				final HashSet<Path> paths = PathCollector.newHashSet().collect(pathFilterElement).getPaths();
-				paths.retainAll(existentialPaths);
-				if (0 == paths.size())
-					continue;
-				for (final Path path : paths) {
-					existential[newAddressesCache.get(path.getFactAddressInCurrentlyLowestNode()).index] = true;
-				}
-				pathFilterElementToCounterColumn.putFilterElementToCounterColumn(pathFilterElement, new CounterColumn(
-						index++));
-			}
-			return new MemoryHandlerMainAndCounterColumnMatcher(new MemoryHandlerMainWithExistentials(templArray,
-					Counter.newCounter(filter, pathFilterElementToCounterColumn), addrArray, existential),
-					pathFilterElementToCounterColumn);
+		if (filterSet.getPositiveExistentialPaths().isEmpty() && filterSet.getNegativeExistentialPaths().isEmpty()) {
+			return new MemoryHandlerMainAndCounterColumnMatcher(new MemoryHandlerMain(templArray, Counter.newCounter(
+					filterSet, pathFilterToCounterColumn), addrArray), pathFilterToCounterColumn);
 		}
-		return new MemoryHandlerMainAndCounterColumnMatcher(new MemoryHandlerMain(templArray, Counter.newCounter(
-				filter, pathFilterElementToCounterColumn), addrArray), pathFilterElementToCounterColumn);
+		final boolean[] existential = new boolean[templArray.length];
+		// gather existential paths
+		final HashSet<Path> existentialPaths = new HashSet<>();
+		existentialPaths.addAll(filterSet.getPositiveExistentialPaths());
+		existentialPaths.addAll(filterSet.getNegativeExistentialPaths());
+
+		int index = 0;
+		for (final PathFilter pathFilter : filterSet.getFilters()) {
+			final HashSet<Path> paths = PathCollector.newHashSet().collect(pathFilter).getPaths();
+			paths.retainAll(existentialPaths);
+			if (0 == paths.size())
+				continue;
+			for (final Path path : paths) {
+				existential[newAddressesCache.get(path.getFactAddressInCurrentlyLowestNode()).index] = true;
+			}
+			pathFilterToCounterColumn.putFilterElementToCounterColumn(pathFilter, new CounterColumn(index++));
+		}
+		return new MemoryHandlerMainAndCounterColumnMatcher(new MemoryHandlerMainWithExistentials(templArray,
+				Counter.newCounter(filterSet, pathFilterToCounterColumn), addrArray, existential),
+				pathFilterToCounterColumn);
 	}
 
 	@Override
