@@ -17,6 +17,10 @@ package org.jamocha.function.impls.predicates;
 import org.jamocha.dn.memory.SlotType;
 import org.jamocha.function.Function;
 import org.jamocha.function.Predicate;
+import org.jamocha.function.fwa.DefaultFunctionWithArgumentsVisitor;
+import org.jamocha.function.fwa.ExchangeableLeaf;
+import org.jamocha.function.fwa.FunctionWithArguments;
+import org.jamocha.function.fwa.PredicateWithArgumentsComposite;
 import org.jamocha.function.impls.FunctionVisitor;
 
 /**
@@ -27,6 +31,23 @@ public class DummyPredicate extends Predicate {
 
 	public static final String inClips = "TRUE";
 	public static final DummyPredicate instance = new DummyPredicate();
+
+	public static class IsDummy<L extends ExchangeableLeaf<L>> implements DefaultFunctionWithArgumentsVisitor<L> {
+		boolean dummy = false;
+
+		@Override
+		public void defaultAction(final FunctionWithArguments<L> function) {
+		}
+
+		@Override
+		public void visit(final PredicateWithArgumentsComposite<L> predicateWithArgumentsComposite) {
+			this.dummy = predicateWithArgumentsComposite.getFunction() == instance;
+		}
+	}
+
+	public static <L extends ExchangeableLeaf<L>> boolean isDummy(final FunctionWithArguments<L> fwa) {
+		return fwa.accept(new IsDummy<>()).dummy;
+	}
 
 	private DummyPredicate() {
 	}
