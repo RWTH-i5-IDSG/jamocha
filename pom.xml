@@ -89,6 +89,43 @@
 					</execution>
 				</executions>
 			</plugin>
+			<!-- START STATIC ANALYSIS PLUGINS SECTION -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-pmd-plugin</artifactId>
+				<version>3.4</version>
+			</plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>findbugs-maven-plugin</artifactId>
+				<version>3.0.1</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>check</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-checkstyle-plugin</artifactId>
+				<version>2.15</version>
+				<configuration>
+					<configLocation>src/main/resources/checkstyle.xml</configLocation>
+					<encoding>UTF-8</encoding>
+					<consoleOutput>false</consoleOutput>
+					<failsOnError>false</failsOnError>
+				</configuration>
+				<executions>
+					<execution>
+						<goals>
+							<goal>check</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<!-- END STATIC ANALYSIS PLUGINS SECTION -->
 		</plugins>
 		<pluginManagement>
 			<plugins>
