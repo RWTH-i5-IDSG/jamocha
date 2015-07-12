@@ -21,7 +21,6 @@ import org.jamocha.filter.ECFilter;
 import org.jamocha.filter.ECFilterList;
 import org.jamocha.filter.ECFilterList.ECExistentialList;
 import org.jamocha.filter.ECFilterList.ECNodeFilterSet;
-import org.jamocha.filter.ECFilterList.ECSharedListWrapper.ECSharedList;
 import org.jamocha.filter.ECFilterListVisitor;
 import org.jamocha.filter.ECFilterSet;
 import org.jamocha.filter.ECFilterSet.ECExistentialSet;
@@ -71,18 +70,13 @@ public class ECCollector implements DefaultFunctionWithArgumentsLeafVisitor<ECLe
 
 	@Override
 	public void visit(final ECExistentialList list) {
-		list.getPurePart().accept(this);
+		list.getPurePart().forEach(fl -> fl.accept(this));
 		list.getExistentialClosure().accept(this);
 	}
 
 	@Override
 	public void visit(final ECNodeFilterSet list) {
 		list.getFilters().forEach(f -> f.getFunction().accept(this));
-	}
-
-	@Override
-	public void visit(final ECSharedList list) {
-		list.getFilterLists().forEach(fl -> fl.accept(this));
 	}
 
 	@Override
