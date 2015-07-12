@@ -21,7 +21,6 @@ import java.util.List;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
-import org.jamocha.filter.ECFilterList.ECSharedListWrapper;
 import org.jamocha.function.fwa.PredicateWithArguments;
 import org.jamocha.function.fwa.SymbolLeaf;
 import org.jamocha.languages.common.ScopeStack.Scope;
@@ -172,7 +171,6 @@ public abstract class ConditionalElement implements Visitable<ConditionalElement
 	public static class SharedConditionalElementWrapper extends ConditionalElement {
 
 		private ConditionalElement ce;
-		private final ECSharedListWrapper wrapper = new ECSharedListWrapper();
 
 		public SharedConditionalElementWrapper(final ConditionalElement ce) {
 			super(null);

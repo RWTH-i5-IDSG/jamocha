@@ -16,7 +16,7 @@ package test.jamocha.util;
 
 import org.jamocha.dn.memory.CounterColumn;
 import org.jamocha.dn.memory.CounterColumnMatcher;
-import org.jamocha.filter.PathNodeFilterSet.PathFilter;
+import org.jamocha.filter.PathFilter;
 
 /**
  * Mockup implementation of {@link CounterColumnMatcher} matching every {@link PathFilter} to

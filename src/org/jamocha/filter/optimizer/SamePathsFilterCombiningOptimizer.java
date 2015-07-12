@@ -34,6 +34,7 @@ import org.jamocha.filter.PathCollector;
 import org.jamocha.filter.PathFilter;
 import org.jamocha.filter.PathFilterList;
 import org.jamocha.filter.PathFilterList.PathExistentialList;
+import org.jamocha.filter.PathFilterList.PathSharedListWrapper;
 import org.jamocha.filter.PathFilterList.PathSharedListWrapper.PathSharedList;
 import org.jamocha.filter.PathFilterListVisitor;
 import org.jamocha.filter.PathNodeFilterSet;
@@ -110,8 +111,8 @@ public class SamePathsFilterCombiningOptimizer implements Optimizer {
 
 		@Override
 		public void visit(final PathExistentialList filter) {
-			result.add(new PathExistentialList(combine(filter.getPurePart().getFilters()), filter
-					.getExistentialClosure()));
+			result.add(new PathExistentialList(filter.getInitialPath(), new PathSharedListWrapper()
+					.newSharedElement(combine(filter.getPurePart().getFilters())), filter.getExistentialClosure()));
 		}
 
 		@Override
@@ -135,8 +136,8 @@ public class SamePathsFilterCombiningOptimizer implements Optimizer {
 		return rules
 				.stream()
 				.map(rule -> {
-					return rule.getParent().new PathRule(optimize(rule.getCondition()), rule.getActionList(), rule
-							.getEquivalenceClassToPathLeaf(), rule.getSpecificity());
+					return rule.getParent().new PathRule(optimize(rule.getCondition()), rule.getResultPaths(), rule
+							.getActionList(), rule.getEquivalenceClassToPathLeaf(), rule.getSpecificity());
 				}).collect(toList());
 	}
 }

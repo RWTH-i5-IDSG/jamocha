@@ -53,21 +53,6 @@ public class SamePathsFEsCombiningOptimizer implements Optimizer {
 		OptimizerFactory.addImpl(name, () -> instance);
 	}
 
-	static class Partitioner implements PathFilterVisitor {
-		final Set<PathFilter> regular = new HashSet<>(), dummies = new HashSet<>();
-
-		@Override
-		public void visit(final PathFilter f) {
-			this.regular.add(f);
-		}
-
-		@Override
-		public void visit(final DummyPathFilter f) {
-			dummies.add(f);
-		}
-
-	}
-
 	@RequiredArgsConstructor
 	static class Identifier implements PathFilterListVisitor {
 		final HashMap<Path, Set<Path>> path2JoinedWith;
@@ -78,9 +63,7 @@ public class SamePathsFEsCombiningOptimizer implements Optimizer {
 			final Set<PathFilter> filters = filterSet.getFilters();
 			final List<PathFilter> resultFilters = new ArrayList<PathFilter>();
 			final HashMap<Set<Path>, PathFilter> joinSet2FilterElement = new HashMap<>();
-			final Partitioner partitioner = new Partitioner();
-			filters.forEach(f -> f.accept(partitioner));
-			for (final PathFilter filter : partitioner.regular) {
+			for (final PathFilter filter : filters) {
 				final HashSet<Path> currentPaths = PathCollector.newHashSet().collect(filter).getPaths();
 				if (resultFilters.isEmpty()) {
 					save(resultFilters, joinSet2FilterElement, filter, currentPaths);
@@ -99,10 +82,6 @@ public class SamePathsFEsCombiningOptimizer implements Optimizer {
 				save(resultFilters, joinSet2FilterElement, combineTwoFiltersElements(samePathsFilterElement, filter),
 						joined);
 			}
-			final PathCollector<HashSet<Path>> pathCollector = PathCollector.newHashSet();
-			partitioner.dummies.forEach(d -> d.accept(pathCollector));
-			save(resultFilters, joinSet2FilterElement, new DummyPathFilter(pathCollector.getPathsArray()),
-					pathCollector.getPaths());
 			result =
 					PathNodeFilterSet.newExistentialPathNodeFilterSet(filterSet.getPositiveExistentialPaths(),
 							filterSet.getNegativeExistentialPaths(), toArray(resultFilters, PathFilter[]::new));
@@ -126,8 +105,8 @@ public class SamePathsFEsCombiningOptimizer implements Optimizer {
 		@Override
 		public void visit(final PathExistentialList filter) {
 			result =
-					new PathExistentialList(filter.getInitialPath(), filter.getEquivalenceClasses(),
-							processShared(filter.getPurePart()), filter.getExistentialClosure());
+					new PathExistentialList(filter.getInitialPath(), processShared(filter.getPurePart()),
+							filter.getExistentialClosure());
 		}
 
 		@Override
@@ -153,8 +132,8 @@ public class SamePathsFEsCombiningOptimizer implements Optimizer {
 		return rules
 				.stream()
 				.map(rule -> {
-					return rule.getParent().new PathRule(optimize(rule.getCondition()), rule.getActionList(),
-							rule.getEquivalenceClassToPathLeaf(), rule.getSpecificity());
+					return rule.getParent().new PathRule(optimize(rule.getCondition()), rule.getResultPaths(), rule
+							.getActionList(), rule.getEquivalenceClassToPathLeaf(), rule.getSpecificity());
 				}).collect(toList());
 	}
 }
