@@ -68,13 +68,11 @@ public abstract class FilterFunctionCompare<L extends ExchangeableLeaf<L>> {
 		final AddressContainer targetAddressContainer;
 		final AddressContainer compareAddressContainer;
 
-		private AddressFilterFunctionCompare(final AddressFilter targetFilterElement,
-				final AddressFilter compareFilterElement) {
+		private AddressFilterFunctionCompare(final AddressFilter targetFilter, final AddressFilter compareFilter) {
 			super();
-			this.targetAddressContainer = new AddressContainer(targetFilterElement);
-			this.compareAddressContainer = new AddressContainer(compareFilterElement);
-			targetFilterElement.getFunction().accept(
-					newFunctionTypeIdentificationVisitor(this, compareFilterElement.getFunction()));
+			this.targetAddressContainer = new AddressContainer(targetFilter);
+			this.compareAddressContainer = new AddressContainer(compareFilter);
+			targetFilter.getFunction().accept(newFunctionTypeIdentificationVisitor(this, compareFilter.getFunction()));
 		}
 
 		@Override
@@ -145,118 +143,44 @@ public abstract class FilterFunctionCompare<L extends ExchangeableLeaf<L>> {
 			return true;
 		}
 
-		public PathFilterCompare(final PathNodeFilterSet targetFilter, final PathNodeFilterSet compareFilter) {
-			this(targetFilter, compareFilter, new HashMap<>());
+		public PathFilterCompare(final PathNodeFilterSet targetNodeFilterSet,
+				final PathNodeFilterSet compareNodeFilterSet) {
+			this(targetNodeFilterSet, compareNodeFilterSet, new HashMap<>());
 		}
 
-		public PathFilterCompare(final PathNodeFilterSet targetFilter, final PathNodeFilterSet compareFilter,
-				final Map<Path, Path> pathMap) {
+		public PathFilterCompare(final PathNodeFilterSet targetNodeFilterSet,
+				final PathNodeFilterSet compareNodeFilterSet, final Map<Path, Path> pathMap) {
 			super();
 			this.pathMap = pathMap;
-			final Set<PathFilter> targetFEs = targetFilter.normalise().getFilters();
-			final Set<PathFilter> compareFEs = compareFilter.normalise().getFilters();
-			if (targetFEs.size() != compareFEs.size()) {
+			final Set<PathFilter> targetFilters = targetNodeFilterSet.normalise().getFilters();
+			final Set<PathFilter> compareFilters = compareNodeFilterSet.normalise().getFilters();
+			if (targetFilters.size() != compareFilters.size()) {
+				equal = false;
+				return;
+			}
+			final Set<Path> comparePEP = compareNodeFilterSet.getPositiveExistentialPaths();
+			final Set<Path> targetPEP = targetNodeFilterSet.getPositiveExistentialPaths();
+			final Set<Path> compareNEP = compareNodeFilterSet.getNegativeExistentialPaths();
+			final Set<Path> targetNEP = targetNodeFilterSet.getNegativeExistentialPaths();
+			if (comparePEP.size() != targetPEP.size() || compareNEP.size() != targetNEP.size()) {
+				equal = false;
+				return;
+			}
+			if (!comparePEP.stream().map(pathMap::get).collect(toSet()).containsAll(targetPEP)
+					|| !compareNEP.stream().map(pathMap::get).collect(toSet()).containsAll(targetNEP)) {
 				equal = false;
 				return;
 			}
 			// TODO handle hash collisions
-			for (final Iterator<PathFilter> targetIterator = targetFEs.iterator(), compareIterator =
-					compareFEs.iterator(); targetIterator.hasNext() && compareIterator.hasNext();) {
-				if (!new PathFilterFirstTypeIdentificationVisitor().collect(targetIterator.next()).collect(
-						compareIterator.next())) {
-					equal = false;
+			for (final Iterator<PathFilter> targetIterator = targetFilters.iterator(), compareIterator =
+					compareFilters.iterator(); targetIterator.hasNext() && compareIterator.hasNext();) {
+				final PathFilter target = targetIterator.next();
+				final PathFilter compare = compareIterator.next();
+				if (!new PathFilterFunctionCompare(target, compare).equal) {
+					this.equal = false;
 					return;
 				}
 			}
-		}
-
-		private class PathFilterFirstTypeIdentificationVisitor implements PathFilterSetVisitor {
-
-			PathFilterSecondTypeIndentificationVisitor result;
-
-			public PathFilterSecondTypeIndentificationVisitor collect(final PathFilter fe) {
-				return fe.accept(this).result;
-			}
-
-			@Override
-			public void visit(final PathFilter fe) {
-				result = new NoDummyPathFilterSecondTypeIdentificationVisitor(fe);
-			}
-
-			@Override
-			public void visit(final DummyPathFilter fe) {
-				result = new DummyPathFilterSecondTypeIdentificationVisitor(fe);
-			}
-
-			private abstract class PathFilterSecondTypeIndentificationVisitor implements PathFilterSetVisitor {
-				boolean equal = true;
-
-				abstract public boolean collect(final PathFilter fe);
-			}
-
-			private class NoDummyPathFilterSecondTypeIdentificationVisitor extends
-					PathFilterSecondTypeIndentificationVisitor {
-
-				final PathFilter targetFilterElement;
-
-				public NoDummyPathFilterSecondTypeIdentificationVisitor(final PathFilter fe) {
-					this.targetFilterElement = fe;
-				}
-
-				@Override
-				public boolean collect(final PathFilter fe) {
-					return fe.accept(this).equal;
-				}
-
-				@Override
-				public void visit(final PathFilter fe) {
-					equal = new PathFilterFunctionCompare(this.targetFilterElement, fe).equal;
-				}
-
-				@Override
-				public void visit(final DummyPathFilter fe) {
-					equal = false;
-				}
-
-			}
-
-			private class DummyPathFilterSecondTypeIdentificationVisitor extends
-					PathFilterSecondTypeIndentificationVisitor {
-
-				final DummyPathFilter targetFilterElement;
-
-				public DummyPathFilterSecondTypeIdentificationVisitor(final DummyPathFilter dfe) {
-					this.targetFilterElement = dfe;
-				}
-
-				@Override
-				public boolean collect(final PathFilter fe) {
-					return fe.accept(this).equal;
-				}
-
-				@Override
-				public void visit(final PathFilter compareFilterElement) {
-					equal = false;
-				}
-
-				@Override
-				public void visit(final DummyPathFilter compareFilterElement) {
-					final Path[] targetPaths = targetFilterElement.getPaths();
-					final Path[] comparePaths = compareFilterElement.getPaths();
-					if (targetPaths.length != comparePaths.length) {
-						equal = false;
-						return;
-					}
-					for (int i = 0; i < targetPaths.length; i++) {
-						if (!comparePaths(comparePaths[i], targetPaths[i])) {
-							equal = false;
-							return;
-						}
-					}
-				}
-
-			}
-
 		}
 
 		private class PathFilterFunctionCompare extends FilterFunctionCompare<PathLeaf> {
@@ -507,8 +431,8 @@ public abstract class FilterFunctionCompare<L extends ExchangeableLeaf<L>> {
 		}
 	};
 
-	public static boolean equals(final AddressFilter targetFilterElement, final AddressFilter compareFilterElement) {
-		return new AddressFilterFunctionCompare(targetFilterElement, compareFilterElement).equal;
+	public static boolean equals(final AddressFilter targetFilter, final AddressFilter compareFilter) {
+		return new AddressFilterFunctionCompare(targetFilter, compareFilter).equal;
 	}
 
 	static void swap(final int[] list, final int i, final int j) {
@@ -714,14 +638,15 @@ public abstract class FilterFunctionCompare<L extends ExchangeableLeaf<L>> {
 		return null;
 	}
 
-	public static boolean equals(final AddressNodeFilterSet targetFilter, final AddressNodeFilterSet translatedFilter) {
-		final Set<AddressFilter> targetFEs = targetFilter.getNormalisedVersion().getFilters();
-		final Set<AddressFilter> translatedFEs = translatedFilter.getNormalisedVersion().getFilters();
-		if (targetFEs.size() != translatedFEs.size())
+	public static boolean equals(final AddressNodeFilterSet targetNodeFilterSet,
+			final AddressNodeFilterSet translatedNodeFilterSet) {
+		final Set<AddressFilter> targetFilters = targetNodeFilterSet.getNormalisedVersion().getFilters();
+		final Set<AddressFilter> translatedFilters = translatedNodeFilterSet.getNormalisedVersion().getFilters();
+		if (targetFilters.size() != translatedFilters.size())
 			return false;
 		// TODO handle hash collisions
-		for (final Iterator<AddressFilter> targetIterator = targetFEs.iterator(), compareIterator =
-				translatedFEs.iterator(); targetIterator.hasNext() && compareIterator.hasNext();) {
+		for (final Iterator<AddressFilter> targetIterator = targetFilters.iterator(), compareIterator =
+				translatedFilters.iterator(); targetIterator.hasNext() && compareIterator.hasNext();) {
 			if (!equals(targetIterator.next(), compareIterator.next())) {
 				return false;
 			}
