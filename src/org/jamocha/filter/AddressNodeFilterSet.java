@@ -54,9 +54,9 @@ public class AddressNodeFilterSet extends NodeFilterSet<ParameterLeaf, AddressNo
 
 	public static class NormalAddressNodeFilterSet extends AddressNodeFilterSet {
 		public NormalAddressNodeFilterSet(final Set<FactAddress> positiveExistentialAddresses,
-				final Set<FactAddress> negativeExistentialAddresses, final LinkedHashSet<AddressFilter> filterElements,
+				final Set<FactAddress> negativeExistentialAddresses, final LinkedHashSet<AddressFilter> filters,
 				final List<AddressMatchingConfiguration> matchingConfigurations) {
-			super(positiveExistentialAddresses, negativeExistentialAddresses, filterElements,
+			super(positiveExistentialAddresses, negativeExistentialAddresses, filters,
 					(NormalAddressNodeFilterSet) null, matchingConfigurations);
 		}
 
@@ -96,11 +96,11 @@ public class AddressNodeFilterSet extends NodeFilterSet<ParameterLeaf, AddressNo
 
 	public AddressNodeFilterSet(final Set<FactAddress> positiveExistentialAddresses,
 			final Set<FactAddress> negativeExistentialAddresses, final Set<AddressFilter> filterElements,
-			final LinkedHashSet<AddressFilter> normalFilterElements,
+			final LinkedHashSet<AddressFilter> normalFilters,
 			final List<AddressMatchingConfiguration> matchingConfigurations) {
 		this(positiveExistentialAddresses, negativeExistentialAddresses, filterElements,
 				new NormalAddressNodeFilterSet(positiveExistentialAddresses, negativeExistentialAddresses,
-						normalFilterElements, matchingConfigurations), matchingConfigurations);
+						normalFilters, matchingConfigurations), matchingConfigurations);
 	}
 
 	@Getter
