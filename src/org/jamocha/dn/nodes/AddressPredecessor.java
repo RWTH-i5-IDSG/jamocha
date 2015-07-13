@@ -15,10 +15,10 @@
 
 package org.jamocha.dn.nodes;
 
+import org.jamocha.dn.memory.FactAddress;
+
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-
-import org.jamocha.dn.memory.FactAddress;
 
 /**
  * Combines a {@link FactAddress fact address} with an {@link Edge edge}. Identifies a

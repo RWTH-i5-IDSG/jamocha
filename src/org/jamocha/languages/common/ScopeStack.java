@@ -20,18 +20,18 @@ import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 
+import org.jamocha.dn.memory.SlotAddress;
+import org.jamocha.dn.memory.SlotType;
+import org.jamocha.dn.memory.Template;
+import org.jamocha.languages.common.RuleCondition.EquivalenceClass;
+import org.jamocha.languages.common.SingleFactVariable.SingleSlotVariable;
+
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.extern.log4j.Log4j2;
-
-import org.jamocha.dn.memory.SlotAddress;
-import org.jamocha.dn.memory.SlotType;
-import org.jamocha.dn.memory.Template;
-import org.jamocha.languages.common.RuleCondition.EquivalenceClass;
-import org.jamocha.languages.common.SingleFactVariable.SingleSlotVariable;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
@@ -73,11 +73,8 @@ public class ScopeStack {
 		public Symbol getOrCreateSymbol(final String image, final BiFunction<Scope, String, ? extends Symbol> ctor) {
 			// if no entry present, try parent
 			// if no scope contains matching symbol, create it at lowest scope
-			return this.symbolTable
-					.computeIfAbsent(
-							image,
-							s -> Optional.ofNullable(parentScope).map(c -> c.getSymbol(s))
-									.orElseGet(() -> ctor.apply(this, s)));
+			return this.symbolTable.computeIfAbsent(image, s -> Optional.ofNullable(parentScope)
+					.map(c -> c.getSymbol(s)).orElseGet(() -> ctor.apply(this, s)));
 		}
 
 		public VariableSymbol createDummySymbol(final SlotType type) {

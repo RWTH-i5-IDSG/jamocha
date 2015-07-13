@@ -33,12 +33,11 @@ public class TrivialPathSetToPathListConverter implements PathFilterSetVisitor {
 
 	@Override
 	public void visit(final PathExistentialSet set) {
-		this.result =
-				new PathExistentialList(set.getInitialPath(),
-						new PathFilterList.PathSharedListWrapper().newSharedElement(set.getPurePart().stream()
-								.map(TrivialPathSetToPathListConverter::convert).collect(toList())),
-						PathNodeFilterSet.newExistentialPathNodeFilterSet(set.isPositive(), set.getExistentialPaths(),
-								set.getExistentialClosure()));
+		this.result = new PathExistentialList(set.getInitialPath(),
+				new PathFilterList.PathSharedListWrapper().newSharedElement(
+						set.getPurePart().stream().map(TrivialPathSetToPathListConverter::convert).collect(toList())),
+				PathNodeFilterSet.newExistentialPathNodeFilterSet(set.isPositive(), set.getExistentialPaths(),
+						set.getExistentialClosure()));
 	}
 
 	@Override

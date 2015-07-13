@@ -86,9 +86,8 @@ public class RuleConditionProcessorTest {
 	}
 
 	private static RuleCondition clipsToCondition(final String condition) throws ParseException {
-		final StringReader parserInput =
-				new StringReader(new StringBuilder().append(templateString).append(preRule).append(condition)
-						.append(postRule).toString());
+		final StringReader parserInput = new StringReader(new StringBuilder().append(templateString).append(preRule)
+				.append(condition).append(postRule).toString());
 		final SFPParser parser = new SFPParser(parserInput);
 		final NetworkMockup ptn = new NetworkMockup();
 		final SFPVisitorImpl visitor = new SFPVisitorImpl(ptn, ptn);
@@ -317,7 +316,8 @@ public class RuleConditionProcessorTest {
 		assertThat(orCE, instanceOf(OrFunctionConditionalElement.class));
 		final List<ConditionalElement> orChildren = orCE.getChildren();
 		assertThat(orChildren, hasSize(4));
-		final SharedConditionalElementWrapper sharedAnd, sharedTest1, sharedTest2, sharedTest3, sharedTest4, sharedTest5, sharedTest6, sharedTest7, sharedTest8;
+		final SharedConditionalElementWrapper sharedAnd, sharedTest1, sharedTest2, sharedTest3, sharedTest4,
+				sharedTest5, sharedTest6, sharedTest7, sharedTest8;
 		{
 			// 1 3
 			final ConditionalElement andCE = orChildren.get(0);
@@ -411,9 +411,8 @@ public class RuleConditionProcessorTest {
 				sharedTest8 = (SharedConditionalElementWrapper) shared;
 			}
 		}
-		final List<SharedConditionalElementWrapper> sharedTests =
-				Stream.of(sharedTest1, sharedTest2, sharedTest3, sharedTest4, sharedTest5, sharedTest6, sharedTest7,
-						sharedTest8).collect(toCollection(LinkedList::new));
+		final List<SharedConditionalElementWrapper> sharedTests = Stream.of(sharedTest1, sharedTest2, sharedTest3,
+				sharedTest4, sharedTest5, sharedTest6, sharedTest7, sharedTest8).collect(toCollection(LinkedList::new));
 		final List<ConditionalElement> tests =
 				Stream.of(test1, test2, test3, test4).collect(toCollection(LinkedList::new));
 		assertThat(sharedTests, hasSize(8));
@@ -458,14 +457,14 @@ public class RuleConditionProcessorTest {
 			{
 				final ConditionalElement templCE = existentialChildren.get(0);
 				assertThat(templCE, instanceOf(TemplatePatternConditionalElement.class));
-				assertEquals("templ1", ((TemplatePatternConditionalElement) templCE).getFactVariable().getTemplate()
-						.getName());
+				assertEquals("templ1",
+						((TemplatePatternConditionalElement) templCE).getFactVariable().getTemplate().getName());
 			}
 			{
 				final ConditionalElement templCE = existentialChildren.get(1);
 				assertThat(templCE, instanceOf(TemplatePatternConditionalElement.class));
-				assertEquals("templ1", ((TemplatePatternConditionalElement) templCE).getFactVariable().getTemplate()
-						.getName());
+				assertEquals("templ1",
+						((TemplatePatternConditionalElement) templCE).getFactVariable().getTemplate().getName());
 			}
 		}
 	}
@@ -493,14 +492,14 @@ public class RuleConditionProcessorTest {
 			{
 				final ConditionalElement templCE = existentialChildren.get(0);
 				assertThat(templCE, instanceOf(TemplatePatternConditionalElement.class));
-				assertEquals("templ1", ((TemplatePatternConditionalElement) templCE).getFactVariable().getTemplate()
-						.getName());
+				assertEquals("templ1",
+						((TemplatePatternConditionalElement) templCE).getFactVariable().getTemplate().getName());
 			}
 			{
 				final ConditionalElement templCE = existentialChildren.get(1);
 				assertThat(templCE, instanceOf(TemplatePatternConditionalElement.class));
-				assertEquals("templ1", ((TemplatePatternConditionalElement) templCE).getFactVariable().getTemplate()
-						.getName());
+				assertEquals("templ1",
+						((TemplatePatternConditionalElement) templCE).getFactVariable().getTemplate().getName());
 			}
 		}
 	}

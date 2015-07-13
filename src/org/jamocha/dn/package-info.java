@@ -17,4 +17,3 @@
  * </p>
  */
 package org.jamocha.dn;
-

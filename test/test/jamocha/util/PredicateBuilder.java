@@ -38,8 +38,8 @@ public class PredicateBuilder extends GenericBuilder<Boolean, Predicate, Predica
 		if (this.function.getParamTypes().length != this.args.size()) {
 			throw new IllegalArgumentException("Wrong number of arguments!");
 		}
-		return new PredicateWithArgumentsComposite<PathLeaf>(this.function, toArray(this.args,
-				FunctionWithArguments[]::new));
+		return new PredicateWithArgumentsComposite<PathLeaf>(this.function,
+				toArray(this.args, FunctionWithArguments[]::new));
 	}
 
 	public PathFilter buildFilter() {

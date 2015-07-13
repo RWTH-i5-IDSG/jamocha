@@ -17,13 +17,13 @@ package org.jamocha.logging;
 import java.io.OutputStream;
 import java.io.Serializable;
 
-import lombok.Value;
-
 import org.apache.logging.log4j.core.Filter;
 import org.apache.logging.log4j.core.Layout;
 import org.apache.logging.log4j.core.appender.AbstractOutputStreamAppender;
 import org.apache.logging.log4j.core.appender.ManagerFactory;
 import org.apache.logging.log4j.core.appender.OutputStreamManager;
+
+import lombok.Value;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
@@ -45,7 +45,8 @@ public class OutstreamAppender extends AbstractOutputStreamAppender<OutputStream
 	public static OutstreamAppender newInstance(final OutputStream outputStream,
 			final Layout<? extends Serializable> layout, final Filter filter, final boolean follow) {
 		final String name = "OutstreamAppender" + ++instanceCount;
-		final OutstreamAppender outstreamAppender = new OutstreamAppender(name, layout, filter, getManager(follow, name, outputStream, layout), true);
+		final OutstreamAppender outstreamAppender =
+				new OutstreamAppender(name, layout, filter, getManager(follow, name, outputStream, layout), true);
 		outstreamAppender.start();
 		return outstreamAppender;
 	}
@@ -68,7 +69,7 @@ public class OutstreamAppender extends AbstractOutputStreamAppender<OutputStream
 
 	private static OutputStreamManager getManager(final boolean follow, final String name,
 			final OutputStream outputStream, final Layout<? extends Serializable> layout) {
-		return OutputStreamManager
-				.getManager(name + '.' + follow, new FactoryData(outputStream, name, layout), factory);
+		return OutputStreamManager.getManager(name + '.' + follow, new FactoryData(outputStream, name, layout),
+				factory);
 	}
 }

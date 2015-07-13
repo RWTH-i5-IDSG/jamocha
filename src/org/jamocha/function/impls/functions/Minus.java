@@ -15,9 +15,9 @@
 package org.jamocha.function.impls.functions;
 
 import org.jamocha.dn.memory.SlotType;
-import org.jamocha.function.impls.FunctionVisitor;
 import org.jamocha.function.Function;
 import org.jamocha.function.FunctionDictionary;
+import org.jamocha.function.impls.FunctionVisitor;
 
 /**
  * Implements the functionality of the binary minus ({@code -}) operator.

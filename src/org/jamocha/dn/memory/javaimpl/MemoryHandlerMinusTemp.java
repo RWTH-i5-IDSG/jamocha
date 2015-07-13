@@ -17,8 +17,6 @@ package org.jamocha.dn.memory.javaimpl;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 
-import lombok.ToString;
-
 import org.jamocha.dn.memory.MemoryFact;
 import org.jamocha.dn.memory.Template;
 import org.jamocha.dn.memory.javaimpl.LockWrapper.WriteLockWrapper;
@@ -27,6 +25,8 @@ import org.jamocha.dn.memory.javaimpl.MemoryHandlerPlusTemp.CounterUpdater;
 import org.jamocha.dn.nodes.CouldNotAcquireLockException;
 import org.jamocha.dn.nodes.Edge;
 import org.jamocha.filter.AddressNodeFilterSet;
+
+import lombok.ToString;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
@@ -99,11 +99,10 @@ public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements org.jam
 	static MemoryHandlerMinusTemp newExistentialBetaFromRowsToDelete(
 			final MemoryHandlerMainWithExistentials originatingMainHandler, final JamochaArray<Row> rowsToDelete,
 			final Edge originIncomingEdge) {
-		return newRegularMinusTemp(originatingMainHandler, MemoryHandlerMinusTemp::filterTargetMain,
-				originIncomingEdge, rowsToDelete, EqualityChecker.equalRow, originatingMainHandler.addresses, (edge,
-						address) -> {
+		return newRegularMinusTemp(originatingMainHandler, MemoryHandlerMinusTemp::filterTargetMain, originIncomingEdge,
+				rowsToDelete, EqualityChecker.equalRow, originatingMainHandler.addresses, (edge, address) -> {
 					return address;
-				}, originatingMainHandler.template);
+				} , originatingMainHandler.template);
 	}
 
 	private static <T extends MemoryHandlerMain> MemoryHandlerMinusTemp newRegularMinusTemp(
@@ -127,9 +126,8 @@ public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements org.jam
 		}
 		final FactAddress[] localizedAddressMap =
 				localizeAddressMap(factAddresses, originIncomingEdge, addressLocalizer);
-		final JamochaArray<Row> relevantMinusFacts =
-				getRelevantFactTuples(originatingMainHandler, mainMemoryFilter, rowsToDelete, localizedAddressMap,
-						equalityChecker, completeDeletedRowsAdder);
+		final JamochaArray<Row> relevantMinusFacts = getRelevantFactTuples(originatingMainHandler, mainMemoryFilter,
+				rowsToDelete, localizedAddressMap, equalityChecker, completeDeletedRowsAdder);
 		if (0 == relevantMinusFacts.size()) {
 			return MemoryHandlerMinusTemp.empty;
 		}
@@ -184,9 +182,8 @@ public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements org.jam
 			final Consumer<Row> deletedRowConsumer) {
 		final JamochaArray<Row> originalFacts = targetMain.validRows;
 		final int originalFactsSize = originalFacts.size();
-		final JamochaArray<Row> remainingFacts =
-				getRemainingFactTuples(originalFacts, deletedRowConsumer, minusFacts, factAddresses, marked,
-						equalityChecker);
+		final JamochaArray<Row> remainingFacts = getRemainingFactTuples(originalFacts, deletedRowConsumer, minusFacts,
+				factAddresses, marked, equalityChecker);
 		if (remainingFacts.size() != originalFactsSize) {
 			try (final WriteLockWrapper wlw = new WriteLockWrapper(targetMain.lock)) {
 				targetMain.validRows = remainingFacts;
@@ -201,12 +198,11 @@ public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements org.jam
 		targetMain.allRows = getRemainingFactTuples(targetMain.allRows, (final Row deletedRow) -> {
 			if (targetMain.counter.isValid(deletedRow))
 				validDeletedRows.add(deletedRow);
-		}, minusFacts, factAddresses, marked, equalityChecker);
+		} , minusFacts, factAddresses, marked, equalityChecker);
 		final JamochaArray<Row> originalFacts = targetMain.validRows;
 		final int originalFactsSize = originalFacts.size();
-		final JamochaArray<Row> remainingFacts =
-				getRemainingFactTuples(originalFacts, deletedRowConsumer, validDeletedRows, factAddresses,
-						new boolean[validDeletedRows.size()], EqualityChecker.equalRow);
+		final JamochaArray<Row> remainingFacts = getRemainingFactTuples(originalFacts, deletedRowConsumer,
+				validDeletedRows, factAddresses, new boolean[validDeletedRows.size()], EqualityChecker.equalRow);
 		if (remainingFacts.size() != originalFactsSize) {
 			try (final WriteLockWrapper wlw = new WriteLockWrapper(targetMain.lock)) {
 				targetMain.validRows = remainingFacts;
@@ -235,10 +231,10 @@ public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements org.jam
 
 	}
 
-	static BiFunction<Edge, FactAddress, FactAddress> translateDownwards = (final Edge localizingEdge,
-			final FactAddress factAddress) -> {
-		return (FactAddress) localizingEdge.localizeAddress(factAddress);
-	};
+	static BiFunction<Edge, FactAddress, FactAddress> translateDownwards =
+			(final Edge localizingEdge, final FactAddress factAddress) -> {
+				return (FactAddress) localizingEdge.localizeAddress(factAddress);
+			};
 
 	private static FactAddress[] localizeAddressMap(final FactAddress[] old, final Edge localizingEdge,
 			final BiFunction<Edge, FactAddress, FactAddress> addressLocalizer) {
@@ -256,10 +252,10 @@ public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements org.jam
 	}
 
 	@Override
-	public MemoryHandlerTemp newAlphaTemp(final MemoryHandlerMain originatingMainHandler,
-			final Edge originIncomingEdge, final AddressNodeFilterSet filter) throws CouldNotAcquireLockException {
-		return newRegularMinusTemp(originatingMainHandler, MemoryHandlerMinusTemp::filterTargetMain,
-				originIncomingEdge, validRows, EqualityChecker.alpha, factAddresses, translateDownwards, template);
+	public MemoryHandlerTemp newAlphaTemp(final MemoryHandlerMain originatingMainHandler, final Edge originIncomingEdge,
+			final AddressNodeFilterSet filter) throws CouldNotAcquireLockException {
+		return newRegularMinusTemp(originatingMainHandler, MemoryHandlerMinusTemp::filterTargetMain, originIncomingEdge,
+				validRows, EqualityChecker.alpha, factAddresses, translateDownwards, template);
 	}
 
 	@FunctionalInterface
@@ -304,9 +300,9 @@ public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements org.jam
 	static class MemoryHandlerMinusTempComplete extends MemoryHandlerMinusTemp {
 		final JamochaArray<Row> completeRows;
 
-		public MemoryHandlerMinusTempComplete(final Template[] template,
-				final MemoryHandlerMain originatingMainHandler, final JamochaArray<Row> partialRows,
-				final JamochaArray<Row> completeRows, final FactAddress[] factAddresses) {
+		public MemoryHandlerMinusTempComplete(final Template[] template, final MemoryHandlerMain originatingMainHandler,
+				final JamochaArray<Row> partialRows, final JamochaArray<Row> completeRows,
+				final FactAddress[] factAddresses) {
 			super(template, originatingMainHandler, partialRows, factAddresses);
 			this.completeRows = completeRows;
 		}

@@ -43,36 +43,36 @@ public abstract class Run implements Function<Object> {
 	}
 
 	static {
-		FunctionDictionary.addFixedArgsGeneratorWithSideEffects(inClips, SlotType.empty, (
-				final SideEffectFunctionToNetwork network, final SlotType[] paramTypes) -> {
-			return new Run() {
-				@Override
-				public SlotType[] getParamTypes() {
-					return SlotType.empty;
-				}
+		FunctionDictionary.addFixedArgsGeneratorWithSideEffects(inClips, SlotType.empty,
+				(final SideEffectFunctionToNetwork network, final SlotType[] paramTypes) -> {
+					return new Run() {
+						@Override
+						public SlotType[] getParamTypes() {
+							return SlotType.empty;
+						}
 
-				@Override
-				public Object evaluate(final Function<?>... params) {
-					network.run(0);
-					return null;
-				}
-			};
-		});
+						@Override
+						public Object evaluate(final Function<?>... params) {
+							network.run(0);
+							return null;
+						}
+					};
+				});
 		final SlotType[] oneInt = new SlotType[] { SlotType.LONG };
-		FunctionDictionary.addFixedArgsGeneratorWithSideEffects(inClips, oneInt, (
-				final SideEffectFunctionToNetwork network, final SlotType[] paramTypes) -> {
-			return new Run() {
-				@Override
-				public SlotType[] getParamTypes() {
-					return oneInt;
-				}
+		FunctionDictionary.addFixedArgsGeneratorWithSideEffects(inClips, oneInt,
+				(final SideEffectFunctionToNetwork network, final SlotType[] paramTypes) -> {
+					return new Run() {
+						@Override
+						public SlotType[] getParamTypes() {
+							return oneInt;
+						}
 
-				@Override
-				public Object evaluate(final Function<?>... params) {
-					network.run((Long) params[0].evaluate());
-					return null;
-				}
-			};
-		});
+						@Override
+						public Object evaluate(final Function<?>... params) {
+							network.run((Long) params[0].evaluate());
+							return null;
+						}
+					};
+				});
 	}
 }

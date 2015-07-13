@@ -138,7 +138,8 @@ public class MatchingProcessorTest {
 	public void testNonMatchingMultiField() {
 		final List<int[]> matchings = new ArrayList<>();
 		final Object[] values = { 1L, 3L, 4L };
-		final List<MatchingConfigurationElement> matchingElements = new ArrayList<>(Arrays.asList(multi(), constant(2L)));
+		final List<MatchingConfigurationElement> matchingElements =
+				new ArrayList<>(Arrays.asList(multi(), constant(2L)));
 		MatchingProcessor.match(values, 0, matchings::add, new int[matchingElements.size()], matchingElements, 0);
 		assertThat(matchings, hasSize(0));
 	}

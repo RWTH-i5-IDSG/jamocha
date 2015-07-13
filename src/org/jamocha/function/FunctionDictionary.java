@@ -15,19 +15,16 @@
 package org.jamocha.function;
 
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
-
-import lombok.Value;
-import lombok.extern.log4j.Log4j2;
 
 import org.jamocha.classloading.Loader;
 import org.jamocha.dn.SideEffectFunctionToNetwork;
 import org.jamocha.dn.memory.SlotType;
+
+import lombok.Value;
+import lombok.extern.log4j.Log4j2;
 
 /**
  * This class gathers the implemented {@link Function Functions} and provides a
@@ -102,8 +99,8 @@ public class FunctionDictionary {
 	 */
 	public static <R, F extends Function<R>> F addImpl(final F impl) {
 		checkPredicate(impl);
-		if (null != clipsFunctions.computeIfAbsent(impl.inClips(), x -> new HashMap<>()).put(
-				new Params(impl.getParamTypes()), impl)) {
+		if (null != clipsFunctions.computeIfAbsent(impl.inClips(), x -> new HashMap<>())
+				.put(new Params(impl.getParamTypes()), impl)) {
 			throw new IllegalArgumentException("Function " + impl.inClips() + " already defined!");
 		}
 		return impl;
@@ -111,8 +108,8 @@ public class FunctionDictionary {
 
 	private static <R, F extends Function<R>> void checkPredicate(final F impl) throws IllegalArgumentException {
 		if (impl.getReturnType() == SlotType.BOOLEAN && !(impl instanceof Predicate)) {
-			throw new IllegalArgumentException("Functions with return type boolean have to be derived from "
-					+ "Predicate!");
+			throw new IllegalArgumentException(
+					"Functions with return type boolean have to be derived from " + "Predicate!");
 		}
 	}
 
@@ -133,8 +130,8 @@ public class FunctionDictionary {
 	 */
 	public static void addGenerator(final String inClips, final SlotType parameterType,
 			final VarargsFunctionGenerator varargsFunctionGenerator) {
-		if (null != generators.computeIfAbsent(inClips, x -> new HashMap<>()).put(
-				new Params(new SlotType[] { parameterType }), varargsFunctionGenerator)) {
+		if (null != generators.computeIfAbsent(inClips, x -> new HashMap<>())
+				.put(new Params(new SlotType[] { parameterType }), varargsFunctionGenerator)) {
 			throw new IllegalArgumentException("Function " + inClips + " already defined!");
 		}
 	}
@@ -156,8 +153,8 @@ public class FunctionDictionary {
 	 */
 	public static void addFixedArgsGeneratorWithSideEffects(final String inClips, final SlotType[] parameterTypes,
 			final FunctionWithSideEffectsGenerator varargsFunctionGenerator) {
-		if (null != fixedArgsGeneratorsWithSideEffects.computeIfAbsent(inClips, x -> new HashMap<>()).put(
-				new Params(parameterTypes), varargsFunctionGenerator)) {
+		if (null != fixedArgsGeneratorsWithSideEffects.computeIfAbsent(inClips, x -> new HashMap<>())
+				.put(new Params(parameterTypes), varargsFunctionGenerator)) {
 			throw new IllegalArgumentException("Function " + inClips + " already defined!");
 		}
 	}
@@ -275,17 +272,16 @@ public class FunctionDictionary {
 	 *             representation and parameter types
 	 */
 	@SuppressWarnings("unchecked")
-	public static <T> Function<T> lookupWithSideEffects(final SideEffectFunctionToNetwork network,
-			final String inClips, final SlotType... params) {
+	public static <T> Function<T> lookupWithSideEffects(final SideEffectFunctionToNetwork network, final String inClips,
+			final SlotType... params) {
 		try {
 			// try without side effects
 			return lookup(inClips, params);
 		} catch (final UnsupportedOperationException e) {
 			// try fixed argument number with side effects
 			{
-				final FunctionWithSideEffectsGenerator fixedArgsFunctionGenerator =
-						fixedArgsGeneratorsWithSideEffects.computeIfAbsent(inClips, x -> new HashMap<>()).get(
-								new Params(params));
+				final FunctionWithSideEffectsGenerator fixedArgsFunctionGenerator = fixedArgsGeneratorsWithSideEffects
+						.computeIfAbsent(inClips, x -> new HashMap<>()).get(new Params(params));
 				if (null != fixedArgsFunctionGenerator) {
 					final Function<T> generated = (Function<T>) fixedArgsFunctionGenerator.generate(network, params);
 					if (null != generated) {

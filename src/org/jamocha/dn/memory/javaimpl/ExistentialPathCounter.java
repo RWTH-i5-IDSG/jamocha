@@ -20,15 +20,14 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.jamocha.dn.memory.CounterColumnMatcher;
-import org.jamocha.filter.Filter;
 import org.jamocha.filter.Path;
 import org.jamocha.filter.PathCollector;
 import org.jamocha.filter.PathFilter;
 import org.jamocha.filter.PathNodeFilterSet;
 
 /**
- * Visitor for {@link org.jamocha.filter.Filter FilterElements} to determine how many
- * of them are existential filter elements and whether they are negated.
+ * Visitor for {@link org.jamocha.filter.Filter FilterElements} to determine how many of them are
+ * existential filter elements and whether they are negated.
  *
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
@@ -53,7 +52,7 @@ public class ExistentialPathCounter {
 			if (!Collections.disjoint(negativeExistentialPaths, paths)) {
 				negated[counterColumn.index] = true;
 			} else {
-				assert !Collections.disjoint(positiveExistentialPaths, paths);
+				assert!Collections.disjoint(positiveExistentialPaths, paths);
 				negated[counterColumn.index] = false;
 			}
 			size++;

@@ -30,7 +30,8 @@ public class RuleConditionFormatter implements Formatter<RuleCondition> {
 		}
 	}
 
-	static private void processStatement(final StringCharacterIterator iter, final StringBuffer output, final int level) {
+	static private void processStatement(final StringCharacterIterator iter, final StringBuffer output,
+			final int level) {
 		if (iter.current() != '(')
 			throw new Error("Expected '(' but found '" + iter.current() + "'");
 		output.append('(');

@@ -17,9 +17,6 @@ package org.jamocha.function.fwatransformer;
 import java.util.Collection;
 import java.util.function.IntFunction;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-
 import org.jamocha.dn.memory.FactAddress;
 import org.jamocha.dn.nodes.SlotInFactAddress;
 import org.jamocha.function.fwa.Assert;
@@ -36,6 +33,9 @@ import org.jamocha.function.fwa.PathLeaf;
 import org.jamocha.function.fwa.PredicateWithArguments;
 import org.jamocha.function.fwa.PredicateWithArgumentsComposite;
 import org.jamocha.function.fwa.Retract;
+
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
@@ -64,16 +64,15 @@ public class FWAPathToAddressTranslator implements FunctionWithArgumentsVisitor<
 
 	@Override
 	public void visit(final FunctionWithArgumentsComposite<PathLeaf> functionWithArgumentsComposite) {
-		this.functionWithArguments =
-				new FunctionWithArgumentsComposite<>(functionWithArgumentsComposite.getFunction(), translateArgs(
-						functionWithArgumentsComposite.getArgs(), this.addresses));
+		this.functionWithArguments = new FunctionWithArgumentsComposite<>(functionWithArgumentsComposite.getFunction(),
+				translateArgs(functionWithArgumentsComposite.getArgs(), this.addresses));
 	}
 
 	@Override
 	public void visit(final PredicateWithArgumentsComposite<PathLeaf> predicateWithArgumentsComposite) {
 		this.functionWithArguments =
-				new PredicateWithArgumentsComposite<>(predicateWithArgumentsComposite.getFunction(), translateArgs(
-						predicateWithArgumentsComposite.getArgs(), this.addresses));
+				new PredicateWithArgumentsComposite<>(predicateWithArgumentsComposite.getFunction(),
+						translateArgs(predicateWithArgumentsComposite.getArgs(), this.addresses));
 	}
 
 	@SuppressWarnings("unchecked")
@@ -111,10 +110,9 @@ public class FWAPathToAddressTranslator implements FunctionWithArgumentsVisitor<
 	@SuppressWarnings("unchecked")
 	@Override
 	public void visit(final Modify<PathLeaf> fwa) {
-		this.functionWithArguments =
-				new Modify<>(fwa.getNetwork(), translateArg(fwa.getTargetFact(), this.addresses),
-						(Modify.SlotAndValue<ParameterLeaf>[]) translateArgs(fwa.getArgs(), this.addresses,
-								Modify.SlotAndValue[]::new));
+		this.functionWithArguments = new Modify<>(fwa.getNetwork(), translateArg(fwa.getTargetFact(), this.addresses),
+				(Modify.SlotAndValue<ParameterLeaf>[]) translateArgs(fwa.getArgs(), this.addresses,
+						Modify.SlotAndValue[]::new));
 	}
 
 	@Override
@@ -170,8 +168,8 @@ public class FWAPathToAddressTranslator implements FunctionWithArgumentsVisitor<
 		@Override
 		public void visit(final PredicateWithArgumentsComposite<PathLeaf> predicateWithArgumentsComposite) {
 			this.functionWithArguments =
-					new PredicateWithArgumentsComposite<>(predicateWithArgumentsComposite.getFunction(), translateArgs(
-							predicateWithArgumentsComposite.getArgs(), this.addresses));
+					new PredicateWithArgumentsComposite<>(predicateWithArgumentsComposite.getFunction(),
+							translateArgs(predicateWithArgumentsComposite.getArgs(), this.addresses));
 		}
 
 		@Override

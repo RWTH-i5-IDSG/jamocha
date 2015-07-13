@@ -52,21 +52,21 @@ public abstract class Ppdeftemplate implements Function<Object> {
 	}
 
 	static {
-		FunctionDictionary.addFixedArgsGeneratorWithSideEffects(inClips, paramTypes, (
-				final SideEffectFunctionToNetwork network, final SlotType[] paramTypes) -> {
-			return new Ppdeftemplate() {
-				@Override
-				public Object evaluate(final Function<?>... params) {
-					final Symbol type = (Symbol) params[0].evaluate();
-					final Template template = network.getTemplate(type.getImage());
-					if (null == template) {
-						network.getLogFormatter().messageUnknownSymbol(network, Type.TEMPLATE, type.getImage());
-					} else {
-						network.getLogFormatter().messageTemplateDetails(network, template);
-					}
-					return null;
-				}
-			};
-		});
+		FunctionDictionary.addFixedArgsGeneratorWithSideEffects(inClips, paramTypes,
+				(final SideEffectFunctionToNetwork network, final SlotType[] paramTypes) -> {
+					return new Ppdeftemplate() {
+						@Override
+						public Object evaluate(final Function<?>... params) {
+							final Symbol type = (Symbol) params[0].evaluate();
+							final Template template = network.getTemplate(type.getImage());
+							if (null == template) {
+								network.getLogFormatter().messageUnknownSymbol(network, Type.TEMPLATE, type.getImage());
+							} else {
+								network.getLogFormatter().messageTemplateDetails(network, template);
+							}
+							return null;
+						}
+					};
+				});
 	}
 }

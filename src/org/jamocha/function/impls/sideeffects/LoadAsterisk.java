@@ -46,14 +46,14 @@ public abstract class LoadAsterisk extends Predicate {
 	}
 
 	static {
-		FunctionDictionary.addFixedArgsGeneratorWithSideEffects(inClips, paramTypes, (
-				final SideEffectFunctionToNetwork network, final SlotType[] paramTypes) -> {
-			return new LoadAsterisk() {
-				@Override
-				public Boolean evaluate(final Function<?>... params) {
-					return network.loadFromFile(((Symbol) params[0].evaluate()).getImage(), false);
-				}
-			};
-		});
+		FunctionDictionary.addFixedArgsGeneratorWithSideEffects(inClips, paramTypes,
+				(final SideEffectFunctionToNetwork network, final SlotType[] paramTypes) -> {
+					return new LoadAsterisk() {
+						@Override
+						public Boolean evaluate(final Function<?>... params) {
+							return network.loadFromFile(((Symbol) params[0].evaluate()).getImage(), false);
+						}
+					};
+				});
 	}
 }

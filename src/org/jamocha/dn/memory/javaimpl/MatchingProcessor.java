@@ -44,12 +44,13 @@ public class MatchingProcessor {
 			final Fact[] factTuple = copy.getFactTuple();
 			factTuple[index] = new Fact.MultislotPatternMatching(factTuple[index], sep);
 			result.add(copy);
-		}, new int[matchingElements.size()], matchingElements, 0);
+		} , new int[matchingElements.size()], matchingElements, 0);
 		return result;
 	}
 
 	public static void match(final Object[] values, final int valuePosition, final Consumer<? super int[]> consumer,
-			final int[] separators, final List<MatchingConfigurationElement> matchingElements, final int matchingPosition) {
+			final int[] separators, final List<MatchingConfigurationElement> matchingElements,
+			final int matchingPosition) {
 		if (valuePosition == values.length) {
 			if (matchingPosition != matchingElements.size()) {
 				// can still be valid if the current pattern entity and the rest of the pattern

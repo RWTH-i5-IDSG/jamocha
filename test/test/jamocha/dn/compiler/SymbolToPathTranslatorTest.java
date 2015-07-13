@@ -67,9 +67,9 @@ import test.jamocha.util.NetworkMockup;
  */
 public class SymbolToPathTranslatorTest {
 
-	private static final String templateString = "(deftemplate templ1 (slot slot1 (type INTEGER)))\n"
-			+ "(deftemplate templ2 (slot slot1 (type INTEGER)))\n"
-			+ "(deftemplate templ3 (slot slot1 (type INTEGER)))\n";
+	private static final String templateString =
+			"(deftemplate templ1 (slot slot1 (type INTEGER)))\n" + "(deftemplate templ2 (slot slot1 (type INTEGER)))\n"
+					+ "(deftemplate templ3 (slot slot1 (type INTEGER)))\n";
 	private static final String preRule = "(defrule rule1 ";
 	private static final String postRule = " => )\n";
 
@@ -82,11 +82,10 @@ public class SymbolToPathTranslatorTest {
 		}
 	}
 
-	private static <T extends SideEffectFunctionToNetwork & ParserToNetwork> RuleCondition clipsToCondition(
-			final T ptn, final String condition) throws ParseException {
-		final StringReader parserInput =
-				new StringReader(new StringBuilder().append(templateString).append(preRule).append(condition)
-						.append(postRule).toString());
+	private static <T extends SideEffectFunctionToNetwork & ParserToNetwork> RuleCondition clipsToCondition(final T ptn,
+			final String condition) throws ParseException {
+		final StringReader parserInput = new StringReader(new StringBuilder().append(templateString).append(preRule)
+				.append(condition).append(postRule).toString());
 		final SFPParser parser = new SFPParser(parserInput);
 		final SFPVisitorImpl visitor = new SFPVisitorImpl(ptn, ptn);
 		run(parser, visitor);
@@ -125,9 +124,8 @@ public class SymbolToPathTranslatorTest {
 		{
 			final ConditionalElement testCe = andChildren.get(1);
 			assertThat(testCe, instanceOf(TestConditionalElement.class));
-			final PredicateWithArguments<PathLeaf> translated =
-					FWASymbolToPathTranslator.translate(((TestConditionalElement) testCe).getPredicateWithArguments(),
-							symbolToPathLeaf);
+			final PredicateWithArguments<PathLeaf> translated = FWASymbolToPathTranslator
+					.translate(((TestConditionalElement) testCe).getPredicateWithArguments(), symbolToPathLeaf);
 			assertThat(translated, instanceOf(PredicateWithArgumentsComposite.class));
 			final FunctionWithArguments<PathLeaf>[] args =
 					((PredicateWithArgumentsComposite<PathLeaf>) translated).getArgs();
@@ -169,9 +167,8 @@ public class SymbolToPathTranslatorTest {
 		{
 			final ConditionalElement testCe = andChildren.get(1);
 			assertThat(testCe, instanceOf(TestConditionalElement.class));
-			final PredicateWithArguments<PathLeaf> translated =
-					FWASymbolToPathTranslator.translate(((TestConditionalElement) testCe).getPredicateWithArguments(),
-							symbolToPathLeaf);
+			final PredicateWithArguments<PathLeaf> translated = FWASymbolToPathTranslator
+					.translate(((TestConditionalElement) testCe).getPredicateWithArguments(), symbolToPathLeaf);
 			assertThat(translated, instanceOf(PredicateWithArgumentsComposite.class));
 			final FunctionWithArguments<PathLeaf>[] args =
 					((PredicateWithArgumentsComposite<PathLeaf>) translated).getArgs();
@@ -185,9 +182,8 @@ public class SymbolToPathTranslatorTest {
 		{
 			final ConditionalElement testCe = andChildren.get(2);
 			assertThat(testCe, instanceOf(TestConditionalElement.class));
-			final PredicateWithArguments<PathLeaf> translated =
-					FWASymbolToPathTranslator.translate(((TestConditionalElement) testCe).getPredicateWithArguments(),
-							symbolToPathLeaf);
+			final PredicateWithArguments<PathLeaf> translated = FWASymbolToPathTranslator
+					.translate(((TestConditionalElement) testCe).getPredicateWithArguments(), symbolToPathLeaf);
 			assertThat(translated, instanceOf(PredicateWithArgumentsComposite.class));
 			final FunctionWithArguments<PathLeaf>[] args =
 					((PredicateWithArgumentsComposite<PathLeaf>) translated).getArgs();
@@ -235,9 +231,8 @@ public class SymbolToPathTranslatorTest {
 			{
 				final ConditionalElement testCe = andChildren.get(1);
 				assertThat(testCe, instanceOf(TestConditionalElement.class));
-				final PredicateWithArguments<PathLeaf> translated =
-						FWASymbolToPathTranslator.translate(
-								((TestConditionalElement) testCe).getPredicateWithArguments(), symbolToPathLeaf);
+				final PredicateWithArguments<PathLeaf> translated = FWASymbolToPathTranslator
+						.translate(((TestConditionalElement) testCe).getPredicateWithArguments(), symbolToPathLeaf);
 				assertThat(translated, instanceOf(PredicateWithArgumentsComposite.class));
 				final FunctionWithArguments<PathLeaf>[] args =
 						((PredicateWithArgumentsComposite<PathLeaf>) translated).getArgs();
@@ -274,9 +269,8 @@ public class SymbolToPathTranslatorTest {
 			{
 				final ConditionalElement testCe = andChildren.get(1);
 				assertThat(testCe, instanceOf(TestConditionalElement.class));
-				final PredicateWithArguments<PathLeaf> translated =
-						FWASymbolToPathTranslator.translate(
-								((TestConditionalElement) testCe).getPredicateWithArguments(), symbolToPathLeaf);
+				final PredicateWithArguments<PathLeaf> translated = FWASymbolToPathTranslator
+						.translate(((TestConditionalElement) testCe).getPredicateWithArguments(), symbolToPathLeaf);
 				assertThat(translated, instanceOf(PredicateWithArgumentsComposite.class));
 				final FunctionWithArguments<PathLeaf>[] args =
 						((PredicateWithArgumentsComposite<PathLeaf>) translated).getArgs();

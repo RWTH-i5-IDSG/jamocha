@@ -17,9 +17,6 @@ package test.jamocha.util;
 import java.util.List;
 import java.util.Map;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-
 import org.apache.logging.log4j.Marker;
 import org.jamocha.dn.memory.Fact;
 import org.jamocha.dn.memory.MemoryFact;
@@ -28,6 +25,9 @@ import org.jamocha.dn.memory.SlotType;
 import org.jamocha.dn.memory.Template;
 import org.jamocha.function.fwa.ExchangeableLeaf;
 import org.jamocha.function.fwa.FunctionWithArguments;
+
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 /**
  * @author Christoph Terwelp <christoph.terwelp@rwth-aachen.de>

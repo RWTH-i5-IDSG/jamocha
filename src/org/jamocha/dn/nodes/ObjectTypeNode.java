@@ -18,8 +18,6 @@ package org.jamocha.dn.nodes;
 import java.util.Arrays;
 import java.util.Map;
 
-import lombok.Getter;
-
 import org.apache.commons.lang3.tuple.Pair;
 import org.jamocha.dn.Network;
 import org.jamocha.dn.memory.Fact;
@@ -30,6 +28,8 @@ import org.jamocha.dn.memory.MemoryHandlerPlusTemp;
 import org.jamocha.dn.memory.Template;
 import org.jamocha.filter.Path;
 
+import lombok.Getter;
+
 /**
  * Object-type {@link Node} implementation.
  * 
@@ -39,7 +39,7 @@ import org.jamocha.filter.Path;
 public class ObjectTypeNode extends AlphaNode {
 
 	protected final Template template;
-	
+
 	@Getter
 	protected final FactAddress factAddress;
 
@@ -72,7 +72,7 @@ public class ObjectTypeNode extends AlphaNode {
 	 *            {@link Fact}s to be asserted
 	 */
 	public MemoryFact[] assertFact(final Fact... facts) {
-		assert !Arrays.stream(facts).filter(fact -> fact.getTemplate() != this.template).findAny().isPresent();
+		assert!Arrays.stream(facts).filter(fact -> fact.getTemplate() != this.template).findAny().isPresent();
 		final Pair<? extends MemoryHandlerPlusTemp, MemoryFact[]> pair = this.memory.newPlusToken(this, facts);
 		for (final Edge edge : this.outgoingEdges) {
 			edge.enqueueMemory(pair.getLeft());
@@ -87,7 +87,7 @@ public class ObjectTypeNode extends AlphaNode {
 	 *            {@link Fact}s to be retracted
 	 */
 	public void retractFact(final MemoryFact... facts) {
-		assert !Arrays.stream(facts).filter(fact -> fact.getTemplate() != this.template).findAny().isPresent();
+		assert!Arrays.stream(facts).filter(fact -> fact.getTemplate() != this.template).findAny().isPresent();
 		final MemoryHandlerMinusTemp mem = this.memory.newMinusToken(facts);
 		for (final Edge edge : this.outgoingEdges) {
 			edge.enqueueMemory(mem);
@@ -111,7 +111,7 @@ public class ObjectTypeNode extends AlphaNode {
 			path.setFactAddressInCurrentlyLowestNode(this.factAddress);
 		}
 	}
-	
+
 	@Override
 	public <V extends NodeVisitor> V accept(V visitor) {
 		visitor.visit(this);

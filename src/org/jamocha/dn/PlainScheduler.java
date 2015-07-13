@@ -14,10 +14,10 @@
  */
 package org.jamocha.dn;
 
-import org.jamocha.dn.nodes.Node.TokenQueue;
-
 import java.util.LinkedList;
 import java.util.List;
+
+import org.jamocha.dn.nodes.Node.TokenQueue;
 
 /**
  * {@link Scheduler} to process {@linkplain Runnable runnables} in order of arrival in only one

@@ -25,8 +25,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import lombok.Getter;
-
 import org.apache.logging.log4j.Logger;
 import org.jamocha.dn.ConflictResolutionStrategy;
 import org.jamocha.dn.ConstructCache.Deffacts;
@@ -47,6 +45,8 @@ import org.jamocha.languages.common.ScopeStack.Symbol;
 import org.jamocha.logging.LogFormatter;
 import org.jamocha.logging.TypedFilter;
 
+import lombok.Getter;
+
 /**
  * @author Christoph Terwelp <christoph.terwelp@rwth-aachen.de>
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
@@ -58,7 +58,7 @@ public class NetworkMockup implements ParserToNetwork, SideEffectFunctionToNetwo
 	final ScopeStack scope = new ScopeStack();
 	final Template initialFactTemplate;
 
-	@Getter(onMethod = @__(@Override))
+	@Getter(onMethod = @__(@Override) )
 	final EnumMap<SlotType, Object> defaultValues = new EnumMap<>(SlotType.class);
 
 	public NetworkMockup() {
@@ -68,9 +68,8 @@ public class NetworkMockup implements ParserToNetwork, SideEffectFunctionToNetwo
 		{
 			final Template dummyFact = this.defTemplate("dummy-fact", "used as default value for FACT-ADDRESS");
 			@SuppressWarnings("unchecked")
-			final FactIdentifier dummyFactIdentifier =
-					new org.jamocha.function.fwa.Assert<>(this, new TemplateContainer[] { new TemplateContainer<>(
-							dummyFact) }).evaluate();
+			final FactIdentifier dummyFactIdentifier = new org.jamocha.function.fwa.Assert<>(this,
+					new TemplateContainer[] { new TemplateContainer<>(dummyFact) }).evaluate();
 			for (final SlotType type : EnumSet.allOf(SlotType.class)) {
 				switch (type) {
 				case BOOLEAN:

@@ -48,15 +48,15 @@ public abstract class Halt implements Function<Object> {
 	}
 
 	static {
-		FunctionDictionary.addFixedArgsGeneratorWithSideEffects(inClips, SlotType.empty, (
-				final SideEffectFunctionToNetwork network, final SlotType[] paramTypes) -> {
-			return new Halt() {
-				@Override
-				public Object evaluate(final Function<?>... params) {
-					network.halt();
-					return null;
-				}
-			};
-		});
+		FunctionDictionary.addFixedArgsGeneratorWithSideEffects(inClips, SlotType.empty,
+				(final SideEffectFunctionToNetwork network, final SlotType[] paramTypes) -> {
+					return new Halt() {
+						@Override
+						public Object evaluate(final Function<?>... params) {
+							network.halt();
+							return null;
+						}
+					};
+				});
 	}
 }

@@ -18,15 +18,15 @@ import static org.jamocha.util.ToArray.toArray;
 
 import java.util.Arrays;
 
-import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-
 import org.jamocha.dn.memory.FactAddress;
 import org.jamocha.dn.memory.FactIdentifier;
 import org.jamocha.dn.memory.MemoryHandler;
 import org.jamocha.dn.memory.SlotAddress;
 import org.jamocha.dn.memory.Template;
+
+import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 
 /**
  * Base class for java implementations of most handlers. Contains the template of the facts and a

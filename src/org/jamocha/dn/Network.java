@@ -36,9 +36,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import lombok.AccessLevel;
-import lombok.Getter;
-
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -95,6 +92,9 @@ import org.jamocha.logging.LayoutAdapter;
 import org.jamocha.logging.LogFormatter;
 import org.jamocha.logging.OutstreamAppender;
 import org.jamocha.logging.TypedFilter;
+
+import lombok.AccessLevel;
+import lombok.Getter;
 
 /**
  * The Network class encapsulates the central objects for {@link MemoryFactory} and
@@ -175,23 +175,23 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 
 	@Getter(AccessLevel.PRIVATE)
 	private static int loggerDiscriminator = 0;
-	@Getter(onMethod = @__(@Override))
-	private final Logger interactiveEventsLogger = LogManager.getLogger(this.getClass().getCanonicalName()
-			+ Integer.valueOf(loggerDiscriminator++).toString());
+	@Getter(onMethod = @__(@Override) )
+	private final Logger interactiveEventsLogger = LogManager
+			.getLogger(this.getClass().getCanonicalName() + Integer.valueOf(loggerDiscriminator++).toString());
 
-	@Getter(onMethod = @__(@Override))
+	@Getter(onMethod = @__(@Override) )
 	private final TypedFilter typedFilter = new TypedFilter(true);
 
-	@Getter(onMethod = @__(@Override))
+	@Getter(onMethod = @__(@Override) )
 	private final LogFormatter logFormatter;
 
-	@Getter(onMethod = @__(@Override))
+	@Getter(onMethod = @__(@Override) )
 	private final ScopeStack scope = new ScopeStack();
 
-	@Getter(onMethod = @__(@Override))
+	@Getter(onMethod = @__(@Override) )
 	private Template initialFactTemplate;
 
-	@Getter(onMethod = @__(@Override))
+	@Getter(onMethod = @__(@Override) )
 	final EnumMap<SlotType, Object> defaultValues = new EnumMap<>(SlotType.class);
 
 	boolean haltWasCalled = false;
@@ -275,9 +275,8 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 			final Configuration config = ctx.getConfiguration();
 			final LoggerConfig loggerConfig = config.getLoggerConfig(this.getInteractiveEventsLogger().getName());
 			// the normal constructor is private, thus we have to use the plugin-level access
-			final Appender appender =
-					ConsoleAppender.createAppender(LayoutAdapter.createLayout(config), (Filter) null,
-							Target.SYSTEM_OUT.name(), "consoleAppender", "true", "true");
+			final Appender appender = ConsoleAppender.createAppender(LayoutAdapter.createLayout(config), (Filter) null,
+					Target.SYSTEM_OUT.name(), "consoleAppender", "true", "true");
 			appender.start();
 			// loggerConfig.getAppenders().forEach((n, a) -> loggerConfig.removeAppender(n));
 			// loggerConfig.setAdditive(false);
@@ -355,8 +354,8 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 	 */
 	public Network(final OptimizerFactory.Configuration optimizerConfiguration, final int tokenQueueCapacity,
 			final Scheduler scheduler) {
-		this(org.jamocha.dn.memory.javaimpl.MemoryFactory.getMemoryFactory(), optimizerConfiguration, ClipsLogFormatter
-				.getMessageFormatter(), tokenQueueCapacity, scheduler);
+		this(org.jamocha.dn.memory.javaimpl.MemoryFactory.getMemoryFactory(), optimizerConfiguration,
+				ClipsLogFormatter.getMessageFormatter(), tokenQueueCapacity, scheduler);
 	}
 
 	/**
@@ -586,9 +585,8 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 
 	@Override
 	public void defRules(final Defrule... defrules) {
-		Collection<PathRule> rules =
-				Arrays.stream(defrules).peek(this.constructCache::addRule).flatMap(r -> this.compileRule(r).stream())
-						.collect(toList());
+		Collection<PathRule> rules = Arrays.stream(defrules).peek(this.constructCache::addRule)
+				.flatMap(r -> this.compileRule(r).stream()).collect(toList());
 		for (final Optimizer optimizer : optimizerConfiguration.getOptimizers()) {
 			rules = optimizer.optimize(rules);
 		}
@@ -763,6 +761,6 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 	 * networks.
 	 */
 	public final static Network DEFAULTNETWORK = new Network(new OptimizerFactory.Configuration(), Integer.MAX_VALUE,
-	// new ThreadPoolScheduler(10)
+			// new ThreadPoolScheduler(10)
 			new PlainScheduler());
 }

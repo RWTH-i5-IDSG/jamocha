@@ -60,12 +60,12 @@ public class FactVariableCollectorTest {
 	private static String template3Name = "templ3";
 	private static String slot1Name = "slot1";
 
-	private static String templateString = "(deftemplate " + templateName + " (slot " + slot1Name
-			+ " (type INTEGER)))\n";
-	private static String template2String = "(deftemplate " + template2Name + " (slot " + slot1Name
-			+ " (type INTEGER)))\n";
-	private static String template3String = "(deftemplate " + template3Name + " (slot " + slot1Name
-			+ " (type INTEGER)))\n";
+	private static String templateString =
+			"(deftemplate " + templateName + " (slot " + slot1Name + " (type INTEGER)))\n";
+	private static String template2String =
+			"(deftemplate " + template2Name + " (slot " + slot1Name + " (type INTEGER)))\n";
+	private static String template3String =
+			"(deftemplate " + template3Name + " (slot " + slot1Name + " (type INTEGER)))\n";
 	private static String preRule = "(defrule " + ruleName;
 	private static String postRule = "=> )\n";
 
@@ -88,9 +88,8 @@ public class FactVariableCollectorTest {
 
 	private static RuleCondition clipsToCondition(final NetworkMockup ptn, final String condition)
 			throws ParseException {
-		final StringReader parserInput =
-				new StringReader(new StringJoiner(" ").add(templateString).add(template2String).add(template3String)
-						.add(preRule).add(condition).add(postRule).toString());
+		final StringReader parserInput = new StringReader(new StringJoiner(" ").add(templateString).add(template2String)
+				.add(template3String).add(preRule).add(condition).add(postRule).toString());
 		final SFPParser parser = new SFPParser(parserInput);
 		final SFPVisitorImpl visitor = new SFPVisitorImpl(ptn, ptn);
 		run(parser, visitor);
@@ -105,9 +104,8 @@ public class FactVariableCollectorTest {
 		final RuleCondition ruleCondition = clipsToCondition(ptn, input);
 		final List<ConditionalElement> conditionalElements = ruleCondition.getConditionalElements();
 		assertEquals(1, conditionalElements.size());
-		final Map<EquivalenceClass, Path> ec2Path =
-				ShallowFactVariableCollector.generatePaths(ptn.getInitialFactTemplate(), conditionalElements.get(0))
-						.getRight();
+		final Map<EquivalenceClass, Path> ec2Path = ShallowFactVariableCollector
+				.generatePaths(ptn.getInitialFactTemplate(), conditionalElements.get(0)).getRight();
 		assertEquals(1, ec2Path.size());
 		final Entry<EquivalenceClass, Path> ecAndPath = ec2Path.entrySet().iterator().next();
 		final EquivalenceClass ec = ecAndPath.getKey();
@@ -134,13 +132,13 @@ public class FactVariableCollectorTest {
 				conditionalElements.get(0).accept(new ShallowFactVariableCollector()).getFactVariables();
 		assertEquals(3, variables.size());
 		final Set<VariableSymbol> dummySymbols = new SymbolCollector(ruleCondition).getDummySymbols();
-		assertThat(dummySymbols.stream().map(VariableSymbol::getEqual).collect(toList()), hasItem(variables.get(0)
-				.getEqual()));
+		assertThat(dummySymbols.stream().map(VariableSymbol::getEqual).collect(toList()),
+				hasItem(variables.get(0).getEqual()));
 		assertEquals(templateName, variables.get(0).getTemplate().getName());
 		assertSame(getSymbol(ruleCondition, "?y").getEqual(), variables.get(1).getEqual());
 		assertEquals(template2Name, variables.get(1).getTemplate().getName());
-		assertThat(dummySymbols.stream().map(VariableSymbol::getEqual).collect(toList()), hasItem(variables.get(2)
-				.getEqual()));
+		assertThat(dummySymbols.stream().map(VariableSymbol::getEqual).collect(toList()),
+				hasItem(variables.get(2).getEqual()));
 		assertEquals(template3Name, variables.get(2).getTemplate().getName());
 	}
 

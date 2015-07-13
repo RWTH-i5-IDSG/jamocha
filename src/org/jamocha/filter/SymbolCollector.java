@@ -25,14 +25,14 @@ import java.util.Set;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-import lombok.Getter;
-
 import org.apache.commons.lang3.tuple.Pair;
 import org.jamocha.languages.common.RuleCondition;
 import org.jamocha.languages.common.ScopeStack.Symbol;
 import org.jamocha.languages.common.ScopeStack.VariableSymbol;
 import org.jamocha.languages.common.SingleFactVariable;
 import org.jamocha.languages.common.SingleFactVariable.SingleSlotVariable;
+
+import lombok.Getter;
 
 /**
  * Provides ease-of-use-methods for symbols used within the RuleCondition.
@@ -59,9 +59,8 @@ public class SymbolCollector {
 	}
 
 	private Stream<Pair<VariableSymbol, SingleSlotVariable>> getSlotVariableStream() {
-		return this.symbols.stream().flatMap(
-				symbol -> StreamSupport.stream(symbol.getEqual().getEqualSlotVariables().spliterator(), true).map(
-						sv -> Pair.of(symbol, sv)));
+		return this.symbols.stream().flatMap(symbol -> StreamSupport
+				.stream(symbol.getEqual().getEqualSlotVariables().spliterator(), true).map(sv -> Pair.of(symbol, sv)));
 	}
 
 	public Map<SingleFactVariable, Pair<VariableSymbol, List<Pair<VariableSymbol, SingleSlotVariable>>>> toSlotVariablesByFactVariable() {

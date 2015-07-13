@@ -25,8 +25,6 @@ import java.util.Collections;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import lombok.Value;
-
 import org.jamocha.dn.memory.SlotAddress;
 import org.jamocha.dn.memory.SlotType;
 import org.jamocha.filter.AddressNodeFilterSet;
@@ -42,10 +40,11 @@ import org.junit.experimental.theories.Theories;
 import org.junit.experimental.theories.Theory;
 import org.junit.runner.RunWith;
 
+import com.google.common.collect.Sets;
+
+import lombok.Value;
 import test.jamocha.util.PredicateBuilder;
 import test.jamocha.util.TestData.SomeStuff;
-
-import com.google.common.collect.Sets;
 
 /**
  * A mockup filter implementation for testing purposes.
@@ -153,9 +152,8 @@ public class FilterMockup extends PathNodeFilterSet {
 		 */
 		@Theory
 		public void testAlwaysTrue(@SomeStuff final Object... obj) {
-			final AddressNodeFilterSet alwaysTrue =
-					PathNodeFilterSetToAddressNodeFilterSetTranslator.translate(FilterMockup.alwaysTrue(),
-							counterColumnMatcherMockup);
+			final AddressNodeFilterSet alwaysTrue = PathNodeFilterSetToAddressNodeFilterSetTranslator
+					.translate(FilterMockup.alwaysTrue(), counterColumnMatcherMockup);
 			for (final Filter<ParameterLeaf> filterElement : alwaysTrue.getFilters()) {
 				assertTrue(filterElement.getFunction().evaluate(obj));
 			}
@@ -166,9 +164,8 @@ public class FilterMockup extends PathNodeFilterSet {
 		 */
 		@Theory
 		public void testAlwaysFalse(@SomeStuff final Object... obj) {
-			final AddressNodeFilterSet alwaysFalse =
-					PathNodeFilterSetToAddressNodeFilterSetTranslator.translate(FilterMockup.alwaysFalse(),
-							counterColumnMatcherMockup);
+			final AddressNodeFilterSet alwaysFalse = PathNodeFilterSetToAddressNodeFilterSetTranslator
+					.translate(FilterMockup.alwaysFalse(), counterColumnMatcherMockup);
 			for (final Filter<ParameterLeaf> filterElement : alwaysFalse.getFilters()) {
 				assertFalse(filterElement.getFunction().evaluate(obj));
 			}

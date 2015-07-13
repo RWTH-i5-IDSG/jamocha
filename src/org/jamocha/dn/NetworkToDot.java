@@ -8,9 +8,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-
 import org.apache.commons.lang3.StringUtils;
 import org.jamocha.dn.memory.FactAddress;
 import org.jamocha.dn.memory.Template;
@@ -37,6 +34,9 @@ import org.jamocha.function.fwa.Modify.SlotAndValue;
 import org.jamocha.function.fwa.ParameterLeaf;
 import org.jamocha.function.fwa.PredicateWithArgumentsComposite;
 import org.jamocha.function.fwa.Retract;
+
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 public class NetworkToDot {
 
@@ -182,10 +182,8 @@ public class NetworkToDot {
 					final FactAddress address = addresses.get(j);
 					if (address != factAddress)
 						continue;
-					fullNames[i] =
-							names.get(j)
-									+ (slotInFactAddress.getSlotAddress() == null ? "" : "."
-											+ templates.get(j).getSlotName(slotInFactAddress.getSlotAddress()));
+					fullNames[i] = names.get(j) + (slotInFactAddress.getSlotAddress() == null ? ""
+							: "." + templates.get(j).getSlotName(slotInFactAddress.getSlotAddress()));
 					break;
 				}
 			}

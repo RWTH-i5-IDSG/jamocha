@@ -21,9 +21,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Stream;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-
 import org.jamocha.dn.memory.SlotType;
 import org.jamocha.dn.memory.Template.Default;
 import org.jamocha.dn.memory.Template.Slot;
@@ -31,6 +28,9 @@ import org.jamocha.dn.memory.Template.SlotConstraint;
 import org.jamocha.function.fwa.ConstantLeaf;
 import org.jamocha.function.fwa.FunctionWithArguments;
 import org.jamocha.function.fwa.SymbolLeaf;
+
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
@@ -170,9 +170,8 @@ public class SlotBuilder {
 			// if minimum cardinality > 0 then create array with minimum cardinality length and fill
 			// the array with the derived default for single-slots
 			if (null != cardinality && !cardinality.matchesConstraint(new Object[0])) {
-				value =
-						cardinality.derivedDefaultValue(slotType,
-								deriveSingleSlotDefaultValue(SlotType.arrayToSingle(this.slotType), defaultValues));
+				value = cardinality.derivedDefaultValue(slotType,
+						deriveSingleSlotDefaultValue(SlotType.arrayToSingle(this.slotType), defaultValues));
 			} else {
 				value = new ConstantLeaf<>(defaultValues.get(this.slotType), this.slotType);
 			}
@@ -186,7 +185,7 @@ public class SlotBuilder {
 
 	private FunctionWithArguments<SymbolLeaf> deriveSingleSlotDefaultValue(final SlotType slotType,
 			final EnumMap<SlotType, Object> defaultValues) {
-		assert !slotType.isArrayType();
+		assert!slotType.isArrayType();
 		final FunctionWithArguments<SymbolLeaf> value;
 		// derive the default value
 		if (null != allowedConstants) {

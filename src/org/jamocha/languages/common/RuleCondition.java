@@ -23,12 +23,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
-
 import org.jamocha.dn.memory.SlotAddress;
 import org.jamocha.dn.memory.SlotType;
 import org.jamocha.dn.memory.Template;
@@ -40,6 +34,12 @@ import org.jamocha.function.fwa.SymbolLeaf;
 import org.jamocha.languages.common.ScopeStack.Scope;
 import org.jamocha.languages.common.ScopeStack.VariableSymbol;
 import org.jamocha.languages.common.SingleFactVariable.SingleSlotVariable;
+
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
@@ -96,8 +96,8 @@ public class RuleCondition {
 		}
 
 		public EquivalenceClass(final Scope correspondingScope, final FunctionWithArguments<SymbolLeaf> fwa) {
-			this(correspondingScope, new LinkedList<>(), new LinkedList<>(), new LinkedList<>(
-					Collections.singletonList(fwa)), fwa.getReturnType());
+			this(correspondingScope, new LinkedList<>(), new LinkedList<>(),
+					new LinkedList<>(Collections.singletonList(fwa)), fwa.getReturnType());
 		}
 
 		public EquivalenceClass(final Scope correspondingScope, final SingleFactVariable fv) {
@@ -111,8 +111,8 @@ public class RuleCondition {
 		}
 
 		public EquivalenceClass(final EquivalenceClass copy) {
-			this(copy.correspondingScope, new LinkedList<>(copy.factVariables), new LinkedList<>(
-					copy.equalSlotVariables), new LinkedList<>(copy.equalFWAs), copy.type);
+			this(copy.correspondingScope, new LinkedList<>(copy.factVariables),
+					new LinkedList<>(copy.equalSlotVariables), new LinkedList<>(copy.equalFWAs), copy.type);
 			this.unequalEquivalenceClasses.addAll(copy.unequalEquivalenceClasses);
 		}
 
@@ -157,11 +157,8 @@ public class RuleCondition {
 				if (!optFactVariable.isPresent())
 					break;
 				final SingleFactVariable thisFV = optFactVariable.get();
-				final SingleFactVariable mergeFV =
-						merged.stream()
-								.findAny()
-								.orElseGet(
-										() -> factVariables.stream().filter(fv -> thisFV != fv).findAny().orElse(null));
+				final SingleFactVariable mergeFV = merged.stream().findAny()
+						.orElseGet(() -> factVariables.stream().filter(fv -> thisFV != fv).findAny().orElse(null));
 				if (null == mergeFV)
 					break;
 				merged.add(thisFV);
@@ -193,7 +190,8 @@ public class RuleCondition {
 			if (SlotType.FACTADDRESS != type)
 				throw new IllegalArgumentException("Tried to add a SingleFactVariable to an EquivalenceClass of type "
 						+ type + " instead of FACTADDRESS!");
-			if (!this.factVariables.isEmpty() && fv.getTemplate() != this.factVariables.iterator().next().getTemplate()) {
+			if (!this.factVariables.isEmpty()
+					&& fv.getTemplate() != this.factVariables.iterator().next().getTemplate()) {
 				throw new IllegalArgumentException(
 						"All fact variables of an equivalence class need to have the same template!");
 			}
@@ -218,8 +216,8 @@ public class RuleCondition {
 			if (null == type)
 				type = fwa.getReturnType();
 			if (fwa.getReturnType() != type) {
-				throw new IllegalArgumentException("Tried to add a FunctionWithArguments of type "
-						+ fwa.getReturnType() + " to an EquivalenceClass of type " + type + "!");
+				throw new IllegalArgumentException("Tried to add a FunctionWithArguments of type " + fwa.getReturnType()
+						+ " to an EquivalenceClass of type " + type + "!");
 			}
 			if (this.equalFWAs.contains(fwa)) {
 				throw new IllegalArgumentException(

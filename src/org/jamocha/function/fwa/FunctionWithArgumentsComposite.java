@@ -21,8 +21,8 @@ import org.jamocha.function.Function;
  * 
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
-public class FunctionWithArgumentsComposite<L extends ExchangeableLeaf<L>> extends
-		GenericWithArgumentsComposite<Object, Function<?>, L> {
+public class FunctionWithArgumentsComposite<L extends ExchangeableLeaf<L>>
+		extends GenericWithArgumentsComposite<Object, Function<?>, L> {
 	@SafeVarargs
 	public FunctionWithArgumentsComposite(final Function<?> function, final FunctionWithArguments<L>... args) {
 		super(function, args);

@@ -42,16 +42,12 @@ public class FilterEqualsInFunctionTest {
 		final Predicate equals = FunctionDictionary.lookupPredicate("=", SlotType.DOUBLE, SlotType.DOUBLE);
 		PathFilter f, g;
 
-		f =
-				new PredicateBuilder(equals)
-						.addFunction(new FunctionBuilder(plus).addPath(p1, a1).addPath(p2, a2).build())
-						.addFunction(new FunctionBuilder(minus).addDouble(1337.).addPath(p3, a3).build()).buildFilter();
-		g =
-				new PredicateBuilder(equals)
-						.addFunction(new FunctionBuilder(plus).addPath(p1, a1).addPath(p2, a2).build())
-						.addFunction(new FunctionBuilder(minus).addDouble(1337.).addPath(p3, a3).build()).buildFilter();
-		final PathNodeFilterSet pf = PathNodeFilterSet.newRegularPathNodeFilterSet(f), pg =
-				PathNodeFilterSet.newRegularPathNodeFilterSet(g);
+		f = new PredicateBuilder(equals).addFunction(new FunctionBuilder(plus).addPath(p1, a1).addPath(p2, a2).build())
+				.addFunction(new FunctionBuilder(minus).addDouble(1337.).addPath(p3, a3).build()).buildFilter();
+		g = new PredicateBuilder(equals).addFunction(new FunctionBuilder(plus).addPath(p1, a1).addPath(p2, a2).build())
+				.addFunction(new FunctionBuilder(minus).addDouble(1337.).addPath(p3, a3).build()).buildFilter();
+		final PathNodeFilterSet pf = PathNodeFilterSet.newRegularPathNodeFilterSet(f),
+				pg = PathNodeFilterSet.newRegularPathNodeFilterSet(g);
 
 		assertTrue(FilterFunctionCompare.equals(
 				PathNodeFilterSetToAddressNodeFilterSetTranslator.translate(pf, counterColumnMatcherMockup),
@@ -66,9 +62,8 @@ public class FilterEqualsInFunctionTest {
 
 	@Test
 	public void testEqualsInFunctionFalseDifferentSlotAddress() {
-		final Path p1 =
-				new Path(MemoryFactory.getMemoryFactory().newTemplate("", "", Slots.newDouble("s1"),
-						Slots.newDouble("s2")));
+		final Path p1 = new Path(
+				MemoryFactory.getMemoryFactory().newTemplate("", "", Slots.newDouble("s1"), Slots.newDouble("s2")));
 		final Path p2 = new Path(Slots.DOUBLE);
 		final Path p3 = new Path(Slots.DOUBLE);
 		final SlotAddress a1 = new SlotAddress(0);
@@ -80,16 +75,12 @@ public class FilterEqualsInFunctionTest {
 		final Predicate equals = FunctionDictionary.lookupPredicate("=", SlotType.DOUBLE, SlotType.DOUBLE);
 		PathFilter f, g;
 
-		f =
-				new PredicateBuilder(equals)
-						.addFunction(new FunctionBuilder(plus).addPath(p1, a1).addPath(p2, a2).build())
-						.addFunction(new FunctionBuilder(minus).addDouble(1337.).addPath(p3, a3).build()).buildFilter();
-		g =
-				new PredicateBuilder(equals)
-						.addFunction(new FunctionBuilder(plus).addPath(p1, a4).addPath(p2, a2).build())
-						.addFunction(new FunctionBuilder(minus).addDouble(1337.).addPath(p3, a3).build()).buildFilter();
-		final PathNodeFilterSet pf = PathNodeFilterSet.newRegularPathNodeFilterSet(f), pg =
-				PathNodeFilterSet.newRegularPathNodeFilterSet(g);
+		f = new PredicateBuilder(equals).addFunction(new FunctionBuilder(plus).addPath(p1, a1).addPath(p2, a2).build())
+				.addFunction(new FunctionBuilder(minus).addDouble(1337.).addPath(p3, a3).build()).buildFilter();
+		g = new PredicateBuilder(equals).addFunction(new FunctionBuilder(plus).addPath(p1, a4).addPath(p2, a2).build())
+				.addFunction(new FunctionBuilder(minus).addDouble(1337.).addPath(p3, a3).build()).buildFilter();
+		final PathNodeFilterSet pf = PathNodeFilterSet.newRegularPathNodeFilterSet(f),
+				pg = PathNodeFilterSet.newRegularPathNodeFilterSet(g);
 
 		assertTrue(FilterFunctionCompare.equals(
 				PathNodeFilterSetToAddressNodeFilterSetTranslator.translate(pf, counterColumnMatcherMockup),
@@ -119,35 +110,31 @@ public class FilterEqualsInFunctionTest {
 		PathFilter f, g;
 		PathNodeFilterSet pf, pg;
 
-		f =
-				new PredicateBuilder(equals)
-						.addFunction(new FunctionBuilder(plus).addPath(p1, a1).addPath(p2, a2).build())
-						.addFunction(new FunctionBuilder(minus).addDouble(1337.).addPath(p3, a3).build()).buildFilter();
-		g =
-				new PredicateBuilder(equals)
-						.addFunction(new FunctionBuilder(minus).addDouble(1337.).addPath(p3, a3).build())
-						.addFunction(new FunctionBuilder(plus).addPath(p1, a1).addPath(p2, a2).build()).buildFilter();
+		f = new PredicateBuilder(equals).addFunction(new FunctionBuilder(plus).addPath(p1, a1).addPath(p2, a2).build())
+				.addFunction(new FunctionBuilder(minus).addDouble(1337.).addPath(p3, a3).build()).buildFilter();
+		g = new PredicateBuilder(equals)
+				.addFunction(new FunctionBuilder(minus).addDouble(1337.).addPath(p3, a3).build())
+				.addFunction(new FunctionBuilder(plus).addPath(p1, a1).addPath(p2, a2).build()).buildFilter();
 		pf = PathNodeFilterSet.newRegularPathNodeFilterSet(f);
 		pg = PathNodeFilterSet.newRegularPathNodeFilterSet(g);
-		assertTrue(FilterFunctionCompare.equals(PathNodeFilterSetToAddressNodeFilterSetTranslator.translate(pf,
-				counterColumnMatcherMockup),
+		assertTrue(FilterFunctionCompare.equals(
+				PathNodeFilterSetToAddressNodeFilterSetTranslator.translate(pf, counterColumnMatcherMockup),
 				PathNodeFilterSetToAddressNodeFilterSetTranslator.translate(pg, counterColumnMatcherMockup)
 						.getNormalisedVersion()));
-		assertTrue(FilterFunctionCompare.equals(PathNodeFilterSetToAddressNodeFilterSetTranslator.translate(pg,
-				counterColumnMatcherMockup),
+		assertTrue(FilterFunctionCompare.equals(
+				PathNodeFilterSetToAddressNodeFilterSetTranslator.translate(pg, counterColumnMatcherMockup),
 				PathNodeFilterSetToAddressNodeFilterSetTranslator.translate(pf, counterColumnMatcherMockup)
 						.getNormalisedVersion()));
-		g =
-				new PredicateBuilder(equals)
-						.addFunction(new FunctionBuilder(minus).addDouble(1337.).addPath(p3, a3).build())
-						.addFunction(new FunctionBuilder(plus).addPath(p2, a2).addPath(p1, a1).build()).buildFilter();
+		g = new PredicateBuilder(equals)
+				.addFunction(new FunctionBuilder(minus).addDouble(1337.).addPath(p3, a3).build())
+				.addFunction(new FunctionBuilder(plus).addPath(p2, a2).addPath(p1, a1).build()).buildFilter();
 		pg = PathNodeFilterSet.newRegularPathNodeFilterSet(g);
-		assertTrue(FilterFunctionCompare.equals(PathNodeFilterSetToAddressNodeFilterSetTranslator.translate(pf,
-				counterColumnMatcherMockup),
+		assertTrue(FilterFunctionCompare.equals(
+				PathNodeFilterSetToAddressNodeFilterSetTranslator.translate(pf, counterColumnMatcherMockup),
 				PathNodeFilterSetToAddressNodeFilterSetTranslator.translate(pg, counterColumnMatcherMockup)
 						.getNormalisedVersion()));
-		assertTrue(FilterFunctionCompare.equals(PathNodeFilterSetToAddressNodeFilterSetTranslator.translate(pg,
-				counterColumnMatcherMockup),
+		assertTrue(FilterFunctionCompare.equals(
+				PathNodeFilterSetToAddressNodeFilterSetTranslator.translate(pg, counterColumnMatcherMockup),
 				PathNodeFilterSetToAddressNodeFilterSetTranslator.translate(pf, counterColumnMatcherMockup)
 						.getNormalisedVersion()));
 	}
@@ -167,14 +154,10 @@ public class FilterEqualsInFunctionTest {
 		PathFilter f, g;
 		PathNodeFilterSet pf, pg;
 
-		f =
-				new PredicateBuilder(equals)
-						.addFunction(new FunctionBuilder(plus).addPath(p1, a1).addPath(p2, a2).build())
-						.addFunction(new FunctionBuilder(minus).addDouble(1337.).addPath(p3, a3).build()).buildFilter();
-		g =
-				new PredicateBuilder(equals)
-						.addFunction(new FunctionBuilder(plus).addPath(p4, a1).addPath(p2, a2).build())
-						.addFunction(new FunctionBuilder(minus).addDouble(1337.).addPath(p3, a3).build()).buildFilter();
+		f = new PredicateBuilder(equals).addFunction(new FunctionBuilder(plus).addPath(p1, a1).addPath(p2, a2).build())
+				.addFunction(new FunctionBuilder(minus).addDouble(1337.).addPath(p3, a3).build()).buildFilter();
+		g = new PredicateBuilder(equals).addFunction(new FunctionBuilder(plus).addPath(p4, a1).addPath(p2, a2).build())
+				.addFunction(new FunctionBuilder(minus).addDouble(1337.).addPath(p3, a3).build()).buildFilter();
 		pf = PathNodeFilterSet.newRegularPathNodeFilterSet(f);
 		pg = PathNodeFilterSet.newRegularPathNodeFilterSet(g);
 		assertTrue(FilterFunctionCompare.equals(
@@ -187,9 +170,8 @@ public class FilterEqualsInFunctionTest {
 
 	@Test
 	public void testFilterEqualsInFunction() {
-		final Path p1 =
-				new Path(MemoryFactory.getMemoryFactory().newTemplate("", "", Slots.newString("s1"),
-						Slots.newLong("s2")));
+		final Path p1 = new Path(
+				MemoryFactory.getMemoryFactory().newTemplate("", "", Slots.newString("s1"), Slots.newLong("s2")));
 		final Path p2 = new Path(Slots.LONG);
 		final Path p3 = new Path(Slots.LONG);
 		final SlotAddress a1 = new SlotAddress(0);
@@ -202,14 +184,12 @@ public class FilterEqualsInFunctionTest {
 		final Predicate eqS = FunctionDictionary.lookupPredicate("=", SlotType.STRING, SlotType.STRING);
 		f = new PredicateBuilder(eqS).addString("Max Mustermann").addPath(p1, a1).buildFilter();
 		g = new PredicateBuilder(lessL).addLong(18L).addPath(p1, a5).buildFilter();
-		h =
-				new PredicateBuilder(lessL).addLong(50000)
-						.addFunction(new FunctionBuilder(plusL).addPath(p2, a3).addPath(p3, a4).build()).buildFilter();
+		h = new PredicateBuilder(lessL).addLong(50000)
+				.addFunction(new FunctionBuilder(plusL).addPath(p2, a3).addPath(p3, a4).build()).buildFilter();
 		i = new PredicateBuilder(eqS).addString("Max Mustermann").addPath(p1, a1).buildFilter();
 		j = new PredicateBuilder(lessL).addLong(18L).addPath(p1, a5).buildFilter();
-		k =
-				new PredicateBuilder(lessL).addLong(50000)
-						.addFunction(new FunctionBuilder(plusL).addPath(p2, a3).addPath(p3, a4).build()).buildFilter();
+		k = new PredicateBuilder(lessL).addLong(50000)
+				.addFunction(new FunctionBuilder(plusL).addPath(p2, a3).addPath(p3, a4).build()).buildFilter();
 		PathNodeFilterSet a, b;
 		a = PathNodeFilterSet.newRegularPathNodeFilterSet(f, g, h);
 		b = PathNodeFilterSet.newRegularPathNodeFilterSet(f, g, h);

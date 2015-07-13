@@ -14,18 +14,18 @@
  */
 package org.jamocha.logging;
 
-import lombok.RequiredArgsConstructor;
-
 import org.apache.logging.log4j.Marker;
 import org.apache.logging.log4j.MarkerManager;
+
+import lombok.RequiredArgsConstructor;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
 @RequiredArgsConstructor
 public enum MarkerType {
-	FACTS(MarkerManager.getMarker("FACTS")), RULES(MarkerManager.getMarker("RULES")), ACTIVATIONS(MarkerManager
-			.getMarker("ACTIVATIONS"));
+	FACTS(MarkerManager.getMarker("FACTS")), RULES(MarkerManager.getMarker("RULES")),
+	ACTIVATIONS(MarkerManager.getMarker("ACTIVATIONS"));
 	final Marker commonMarker;
 
 	public Marker createChild(final String name) {

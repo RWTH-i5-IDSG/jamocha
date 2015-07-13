@@ -48,15 +48,15 @@ public abstract class Facts implements Function<Object> {
 	}
 
 	static {
-		FunctionDictionary.addFixedArgsGeneratorWithSideEffects(inClips, SlotType.empty, (
-				final SideEffectFunctionToNetwork network, final SlotType[] paramTypes) -> {
-			return new Facts() {
-				@Override
-				public Object evaluate(final Function<?>... params) {
-					network.getLogFormatter().messageFactList(network);
-					return null;
-				}
-			};
-		});
+		FunctionDictionary.addFixedArgsGeneratorWithSideEffects(inClips, SlotType.empty,
+				(final SideEffectFunctionToNetwork network, final SlotType[] paramTypes) -> {
+					return new Facts() {
+						@Override
+						public Object evaluate(final Function<?>... params) {
+							network.getLogFormatter().messageFactList(network);
+							return null;
+						}
+					};
+				});
 	}
 }

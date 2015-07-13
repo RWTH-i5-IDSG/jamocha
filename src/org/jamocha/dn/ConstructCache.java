@@ -25,10 +25,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.StreamSupport;
 
-import lombok.Data;
-import lombok.RequiredArgsConstructor;
-import lombok.Value;
-
 import org.apache.logging.log4j.Marker;
 import org.jamocha.dn.memory.MemoryHandlerTerminal.AssertOrRetract;
 import org.jamocha.dn.memory.Template;
@@ -51,6 +47,10 @@ import org.jamocha.languages.common.RuleCondition;
 import org.jamocha.languages.common.RuleCondition.EquivalenceClass;
 import org.jamocha.languages.common.SingleFactVariable;
 import org.jamocha.logging.MarkerType;
+
+import lombok.Data;
+import lombok.RequiredArgsConstructor;
+import lombok.Value;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
@@ -121,9 +121,8 @@ public class ConstructCache {
 			}
 		}
 
-		public PathRule newTranslated(final PathSharedListWrapper.PathSharedList condition,
-				final Set<Path> resultPaths, final Map<EquivalenceClass, PathLeaf> equivalenceClassToPathLeaf,
-				final int specificity) {
+		public PathRule newTranslated(final PathSharedListWrapper.PathSharedList condition, final Set<Path> resultPaths,
+				final Map<EquivalenceClass, PathLeaf> equivalenceClassToPathLeaf, final int specificity) {
 			return new PathRule(condition, resultPaths, actionList, equivalenceClassToPathLeaf, specificity);
 		}
 
@@ -147,9 +146,10 @@ public class ConstructCache {
 			}
 
 			public PathRule trivialToPathRule() {
-				return new PathRule(new PathSharedListWrapper().newSharedElement(condition.stream()
-						.map(TrivialPathSetToPathListConverter::convert).collect(toList())), resultPaths, actionList,
-						equivalenceClassToPathLeaf, specificity);
+				return new PathRule(
+						new PathSharedListWrapper().newSharedElement(
+								condition.stream().map(TrivialPathSetToPathListConverter::convert).collect(toList())),
+						resultPaths, actionList, equivalenceClassToPathLeaf, specificity);
 			}
 		}
 
@@ -168,9 +168,8 @@ public class ConstructCache {
 
 			public Translated translatePathToAddress() {
 				final VariableValueContext context = new VariableValueContext();
-				return new Translated(condition,
-						new AddressesActionList(context, FWASymbolToRHSVariableLeafTranslator.translate(
-								equivalenceClassToPathLeaf, context, actionList)), specificity);
+				return new Translated(condition, new AddressesActionList(context, FWASymbolToRHSVariableLeafTranslator
+						.translate(equivalenceClassToPathLeaf, context, actionList)), specificity);
 			}
 		}
 

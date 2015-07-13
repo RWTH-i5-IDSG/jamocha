@@ -16,13 +16,13 @@ package org.jamocha.filter;
 
 import java.util.Set;
 
+import org.jamocha.function.fwa.ExchangeableLeaf;
+
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
-
-import org.jamocha.function.fwa.ExchangeableLeaf;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>

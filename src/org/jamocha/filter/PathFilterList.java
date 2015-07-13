@@ -21,14 +21,14 @@ import java.util.Optional;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-import lombok.AccessLevel;
-import lombok.Data;
-import lombok.RequiredArgsConstructor;
-
 import org.jamocha.dn.nodes.Node;
 import org.jamocha.visitor.Visitable;
 
 import com.google.common.collect.Iterables;
+
+import lombok.AccessLevel;
+import lombok.Data;
+import lombok.RequiredArgsConstructor;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>

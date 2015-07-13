@@ -44,23 +44,24 @@ public abstract class Exit implements Function<Object> {
 	}
 
 	static {
-		FunctionDictionary.addVarArgsGeneratorWithSideEffects(inClips, (final SideEffectFunctionToNetwork network,
-				final SlotType[] paramTypes) -> {
-			if (!(paramTypes.length == 0 || (paramTypes.length == 1 && paramTypes[0] == SlotType.LONG)))
-				return null;
-			return new Exit() {
-				@Override
-				public Object evaluate(final Function<?>... params) {
-					final int exitStatus = paramTypes.length == 0 ? 0 : ((Long) params[0].evaluate()).intValue();
-					System.exit(exitStatus);
-					return null;
-				}
+		FunctionDictionary.addVarArgsGeneratorWithSideEffects(inClips,
+				(final SideEffectFunctionToNetwork network, final SlotType[] paramTypes) -> {
+					if (!(paramTypes.length == 0 || (paramTypes.length == 1 && paramTypes[0] == SlotType.LONG)))
+						return null;
+					return new Exit() {
+						@Override
+						public Object evaluate(final Function<?>... params) {
+							final int exitStatus =
+									paramTypes.length == 0 ? 0 : ((Long) params[0].evaluate()).intValue();
+							System.exit(exitStatus);
+							return null;
+						}
 
-				@Override
-				public SlotType[] getParamTypes() {
-					return paramTypes;
-				}
-			};
-		});
+						@Override
+						public SlotType[] getParamTypes() {
+							return paramTypes;
+						}
+					};
+				});
 	}
 }

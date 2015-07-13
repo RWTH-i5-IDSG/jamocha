@@ -37,16 +37,6 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
-import lombok.Value;
-
 import org.apache.commons.collections4.IteratorUtils;
 import org.apache.commons.collections4.iterators.PermutationIterator;
 import org.jamocha.dn.ConstructCache.Defrule.PathSetBasedRule;
@@ -75,6 +65,16 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import com.google.common.collect.Sets.SetView;
 
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
+import lombok.Value;
+
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
@@ -91,7 +91,8 @@ public class Matrix {
 		final List<Pair<Template, SlotAddress>> arguments;
 		final Map<Either<Rule, ExistentialProxy>, Set<FilterInstance>> ruleToInstances = new HashMap<>();
 
-		public FilterInstance addInstance(final Either<Rule, ExistentialProxy> ruleOrProxy, final PathFilter pathFilter) {
+		public FilterInstance addInstance(final Either<Rule, ExistentialProxy> ruleOrProxy,
+				final PathFilter pathFilter) {
 			final ArrayList<PathLeaf> parameterLeafs = PathLeafCollector.collect(pathFilter.getFunction());
 			final List<Path> parameterPaths = parameterLeafs.stream().map(PathLeaf::getPath).collect(toList());
 			final FilterInstance instance = new FilterInstance(pathFilter, parameterPaths, ruleOrProxy);
@@ -170,9 +171,8 @@ public class Matrix {
 					this.samePathsIndices = new HashSet<>();
 					final List<Path> sourceParameters = FilterInstance.this.parameters;
 					final List<Path> targetParameters = target.parameters;
-					final Map<Path, List<Integer>> targetPathIndices =
-							IntStream.range(0, targetParameters.size()).boxed()
-									.collect(groupingBy(targetParameters::get));
+					final Map<Path, List<Integer>> targetPathIndices = IntStream.range(0, targetParameters.size())
+							.boxed().collect(groupingBy(targetParameters::get));
 					final int size = sourceParameters.size();
 					for (int i = 0; i < size; ++i) {
 						final Integer oi = Integer.valueOf(i);
@@ -243,10 +243,8 @@ public class Matrix {
 					aFilters.stream().map(f -> f.getInstances(Either.right(a))).collect(toList());
 			final List<Set<FilterInstance>> bs =
 					bFilters.stream().map(f -> f.getInstances(Either.right(b))).collect(toList());
-			final Set<List<List<FilterInstance>>> cartesianProduct =
-					Sets.cartesianProduct(bs.stream()
-							.map(set -> Sets.newHashSet(new PermutationIterator<FilterInstance>(set)))
-							.collect(toList()));
+			final Set<List<List<FilterInstance>>> cartesianProduct = Sets.cartesianProduct(bs.stream()
+					.map(set -> Sets.newHashSet(new PermutationIterator<FilterInstance>(set))).collect(toList()));
 
 			final HashMap<FilterInstance, Pair<Integer, Integer>> aFI2IndexPair = new HashMap<>();
 			{
@@ -524,9 +522,8 @@ public class Matrix {
 			final Iterable<Either<Rule, ExistentialProxy>> ruleOrProxies) {
 		final UndirectedGraph<FilterInstance, ConflictEdge> graph = new SimpleGraph<>(ConflictEdge::new);
 		for (final Either<Rule, ExistentialProxy> ruleOrProxy : ruleOrProxies) {
-			final List<FilterInstance> instances =
-					getFilters(ruleOrProxy).stream().flatMap(f -> f.getInstances(ruleOrProxy).stream())
-							.collect(toList());
+			final List<FilterInstance> instances = getFilters(ruleOrProxy).stream()
+					.flatMap(f -> f.getInstances(ruleOrProxy).stream()).collect(toList());
 			instances.forEach(graph::addVertex);
 			final int numInstances = instances.size();
 			for (int i = 0; i < numInstances; i++) {
@@ -551,10 +548,9 @@ public class Matrix {
 		public void visit(final PathFilter pathFilter) {
 			final PredicateWithArguments<PathLeaf> predicate = pathFilter.getFunction();
 			assert predicate instanceof PredicateWithArgumentsComposite;
-			final Filter filter =
-					new Filter(((PredicateWithArgumentsComposite<PathLeaf>) predicate).getFunction(), PathLeafCollector
-							.collect(predicate).stream().map(pl -> Pair.pair(pl.getPath().getTemplate(), pl.getSlot()))
-							.collect(toList()));
+			final Filter filter = new Filter(((PredicateWithArgumentsComposite<PathLeaf>) predicate).getFunction(),
+					PathLeafCollector.collect(predicate).stream()
+							.map(pl -> Pair.pair(pl.getPath().getTemplate(), pl.getSlot())).collect(toList()));
 			getFilters(ruleOrProxy).add(filter);
 			filter.addInstance(ruleOrProxy, pathFilter);
 		}
@@ -585,8 +581,8 @@ public class Matrix {
 		// eliminate all blocks fully contained within other blocks
 		for (final Iterator<Block> iterator = resultBlocks.iterator(); iterator.hasNext();) {
 			final Block block = iterator.next();
-			if (resultBlocks.stream().anyMatch(
-					b -> b != block && b.getFilterInstances().containsAll(block.getFilterInstances()))) {
+			if (resultBlocks.stream()
+					.anyMatch(b -> b != block && b.getFilterInstances().containsAll(block.getFilterInstances()))) {
 				iterator.remove();
 			}
 		}
@@ -615,12 +611,9 @@ public class Matrix {
 	public void stackSideBySides() {
 		for (final Block block : blocks) {
 			final Map<Either<Rule, ExistentialProxy>, Map<Filter, FilterInstancesSideBySide>> ruleToFilterToInstances =
-					block.filterInstances
-							.stream()
-							.filter(sbs -> 1 != sbs.getStacks().size())
-							.collect(
-									groupingBy(FilterInstancesSideBySide::getRuleOrProxy,
-											toMap(FilterInstancesSideBySide::getFilter, Function.identity())));
+					block.filterInstances.stream().filter(sbs -> 1 != sbs.getStacks().size())
+							.collect(groupingBy(FilterInstancesSideBySide::getRuleOrProxy,
+									toMap(FilterInstancesSideBySide::getFilter, Function.identity())));
 			// take any rule of the block
 			final Either<Rule, ExistentialProxy> firstRule = ruleToFilterToInstances.keySet().iterator().next();
 			for (final Entry<Filter, FilterInstancesSideBySide> firstRuleFilterAndInstances : ruleToFilterToInstances
@@ -659,9 +652,8 @@ public class Matrix {
 			final Set<List<FilterInstance>> cartesianProduct = Sets.cartesianProduct(new ArrayList<>(powerSetElement));
 			for (final List<FilterInstance> filterInstances : cartesianProduct) {
 				final Block newBlock = new Block(graph);
-				newBlock.addFilterInstances(filterInstances.stream().collect(
-						toMap(FilterInstance::getRuleOrProxy, fi -> Collections
-								.singleton(new FilterInstancesSideBySide(new FilterInstancesStack(fi))))));
+				newBlock.addFilterInstances(filterInstances.stream().collect(toMap(FilterInstance::getRuleOrProxy,
+						fi -> Collections.singleton(new FilterInstancesSideBySide(new FilterInstancesStack(fi))))));
 				horizontal(newBlock, resultBlocks);
 			}
 		}
@@ -677,9 +669,8 @@ public class Matrix {
 		// filter it is the case that: every rule contains at least one instance not already
 		// excluded by the exclusion stack
 		// thus: get the non-excluded filter instances
-		final Set<FilterInstance> neighbours =
-				block.getBorderConflicts().keySet().stream()
-						.filter(fi -> !exclusionStack.stream().anyMatch(as -> as.contains(fi))).collect(toSet());
+		final Set<FilterInstance> neighbours = block.getBorderConflicts().keySet().stream()
+				.filter(fi -> !exclusionStack.stream().anyMatch(as -> as.contains(fi))).collect(toSet());
 		// group them by their filter
 		final Map<Filter, List<FilterInstance>> filterToInstances =
 				neighbours.stream().collect(groupingBy(FilterInstance::getFilter));
@@ -687,16 +678,11 @@ public class Matrix {
 		final Set<Either<Rule, ExistentialProxy>> rulesInBlock = block.getRuleToRow().keySet();
 		// get a map from filter to all rules containing instances of that filter
 		final Map<Filter, Set<Either<Rule, ExistentialProxy>>> filterToRulesContainingIt =
-				filterToInstances
-						.entrySet()
-						.stream()
-						.collect(
-								toMap(Entry::getKey, e -> e.getValue().stream().map(FilterInstance::getRuleOrProxy)
-										.collect(toSet())));
+				filterToInstances.entrySet().stream().collect(toMap(Entry::getKey,
+						e -> e.getValue().stream().map(FilterInstance::getRuleOrProxy).collect(toSet())));
 		// get the filters that are contained in every rule
-		final Set<Filter> relevantFilters =
-				filterToInstances.keySet().stream()
-						.filter(f -> filterToRulesContainingIt.get(f).containsAll(rulesInBlock)).collect(toSet());
+		final Set<Filter> relevantFilters = filterToInstances.keySet().stream()
+				.filter(f -> filterToRulesContainingIt.get(f).containsAll(rulesInBlock)).collect(toSet());
 		// if no filters are left to add, the block is horizontally maximized, add it
 		if (relevantFilters.isEmpty()) {
 			resultBlocks.add(block);
@@ -705,9 +691,8 @@ public class Matrix {
 		// divide into filters without multiple instances and filters with multiple instances
 		final List<Filter> singleCellFilters, multiCellFilters;
 		{
-			final Map<Boolean, List<Filter>> partition =
-					relevantFilters.stream().collect(
-							partitioningBy(f -> filterToInstances.get(f).size() > rulesInBlock.size()));
+			final Map<Boolean, List<Filter>> partition = relevantFilters.stream()
+					.collect(partitioningBy(f -> filterToInstances.get(f).size() > rulesInBlock.size()));
 			singleCellFilters = partition.get(Boolean.FALSE);
 			multiCellFilters = partition.get(Boolean.TRUE);
 		}
@@ -719,11 +704,8 @@ public class Matrix {
 		// there is a 1 to 1 mapping from filter instances (side-by-side) to rules
 		// for every filter instance, the conflicts have to be the same in all rules
 		final Map<Filter, Map<Either<Rule, ExistentialProxy>, FilterInstancesSideBySide>> filterToRuleToBlockInstances =
-				block.getFilterInstances()
-						.stream()
-						.collect(
-								groupingBy(FilterInstancesSideBySide::getFilter,
-										toMap(FilterInstancesSideBySide::getRuleOrProxy, Function.identity())));
+				block.getFilterInstances().stream().collect(groupingBy(FilterInstancesSideBySide::getFilter,
+						toMap(FilterInstancesSideBySide::getRuleOrProxy, Function.identity())));
 		// iterate over every single-/multi-cell filter and check that its instances have the same
 		// conflicts in every rule
 		for (final Filter filter : singleCellFilters.isEmpty() ? multiCellFilters : singleCellFilters) {
@@ -735,17 +717,16 @@ public class Matrix {
 			boolean matchingConstellationFound = false;
 
 			// iterate over the possible mappings: (filter,rule) -> filter instance
-			final List<Set<FilterInstance>> listForCartesianProduct =
-					filter.getRuleToInstances().entrySet().stream().filter(e -> rulesInBlock.contains(e.getKey()))
-							.map(Entry::getValue).collect(toList());
+			final List<Set<FilterInstance>> listForCartesianProduct = filter.getRuleToInstances().entrySet().stream()
+					.filter(e -> rulesInBlock.contains(e.getKey())).map(Entry::getValue).collect(toList());
 			// create the cartesian product
 			final Set<List<FilterInstance>> cartesianProduct = Sets.cartesianProduct(listForCartesianProduct);
 			// iterate over the possible filter instance combinations
 			cartesianProductLoop: for (final List<FilterInstance> currentOutsideFilterInstances : cartesianProduct) {
 				// create a map for faster lookup: rule -> filter instance (outside)
 				final Map<Either<Rule, ExistentialProxy>, FilterInstance> ruleToCurrentOutsideFilterInstance =
-						currentOutsideFilterInstances.stream().collect(
-								toMap(FilterInstance::getRuleOrProxy, Function.identity()));
+						currentOutsideFilterInstances.stream()
+								.collect(toMap(FilterInstance::getRuleOrProxy, Function.identity()));
 				// iterate over the Rule-BlockFilterInstance-mappings
 				for (final Entry<Either<Rule, ExistentialProxy>, FilterInstancesSideBySide> entry : ruleToBlockInstances
 						.entrySet()) {
@@ -776,8 +757,8 @@ public class Matrix {
 					}
 				}
 				// conflict identical for all rules
-				matchingFilters.add(rulesInBlock.stream().collect(
-						toMap(Function.identity(), rule -> Collections.singleton(new FilterInstancesSideBySide(
+				matchingFilters.add(rulesInBlock.stream()
+						.collect(toMap(Function.identity(), rule -> Collections.singleton(new FilterInstancesSideBySide(
 								new FilterInstancesStack(ruleToCurrentOutsideFilterInstance.get(rule)))))));
 				matchingConstellationFound = true;
 			}

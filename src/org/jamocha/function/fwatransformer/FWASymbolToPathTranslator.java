@@ -16,9 +16,6 @@ package org.jamocha.function.fwatransformer;
 
 import java.util.Map;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-
 import org.jamocha.function.fwa.Assert;
 import org.jamocha.function.fwa.Bind;
 import org.jamocha.function.fwa.ConstantLeaf;
@@ -34,6 +31,9 @@ import org.jamocha.function.fwa.PredicateWithArgumentsComposite;
 import org.jamocha.function.fwa.Retract;
 import org.jamocha.function.fwa.SymbolLeaf;
 import org.jamocha.languages.common.RuleCondition.EquivalenceClass;
+
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
@@ -54,14 +54,14 @@ public class FWASymbolToPathTranslator implements FunctionWithArgumentsVisitor<S
 	public static PredicateWithArgumentsComposite<PathLeaf> translate(
 			final PredicateWithArgumentsComposite<SymbolLeaf> toTranslate,
 			final Map<EquivalenceClass, PathLeaf> equivalenceClassToPathLeaf) {
-		return (PredicateWithArgumentsComposite<PathLeaf>) toTranslate.accept(new FWASymbolToPathTranslator(
-				equivalenceClassToPathLeaf)).result;
+		return (PredicateWithArgumentsComposite<PathLeaf>) toTranslate
+				.accept(new FWASymbolToPathTranslator(equivalenceClassToPathLeaf)).result;
 	}
 
 	public static PredicateWithArguments<PathLeaf> translate(final PredicateWithArguments<SymbolLeaf> toTranslate,
 			final Map<EquivalenceClass, PathLeaf> equivalenceClassToPathLeaf) {
-		return (PredicateWithArguments<PathLeaf>) toTranslate.accept(new FWASymbolToPathTranslator(
-				equivalenceClassToPathLeaf)).result;
+		return (PredicateWithArguments<PathLeaf>) toTranslate
+				.accept(new FWASymbolToPathTranslator(equivalenceClassToPathLeaf)).result;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -121,16 +121,14 @@ public class FWASymbolToPathTranslator implements FunctionWithArgumentsVisitor<S
 		for (int i = 0; i < args.length; ++i) {
 			args[i] = translate((Modify.SlotAndValue<SymbolLeaf>) args[i], equivalenceClassToPathLeaf);
 		}
-		this.result =
-				new Modify<PathLeaf>(fwa.getNetwork(), translate(fwa.getTargetFact(), equivalenceClassToPathLeaf),
-						(SlotAndValue<PathLeaf>[]) args);
+		this.result = new Modify<PathLeaf>(fwa.getNetwork(), translate(fwa.getTargetFact(), equivalenceClassToPathLeaf),
+				(SlotAndValue<PathLeaf>[]) args);
 	}
 
 	@Override
 	public void visit(final Modify.SlotAndValue<SymbolLeaf> fwa) {
-		this.result =
-				new Modify.SlotAndValue<PathLeaf>(fwa.getSlotName(), translate(fwa.getValue(),
-						equivalenceClassToPathLeaf));
+		this.result = new Modify.SlotAndValue<PathLeaf>(fwa.getSlotName(),
+				translate(fwa.getValue(), equivalenceClassToPathLeaf));
 	}
 
 	@Override

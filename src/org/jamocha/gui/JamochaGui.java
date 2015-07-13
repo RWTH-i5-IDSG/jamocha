@@ -25,6 +25,12 @@ import java.util.Arrays;
 import java.util.Queue;
 import java.util.prefs.Preferences;
 
+import org.apache.commons.lang3.tuple.Pair;
+import org.jamocha.Jamocha;
+import org.jamocha.gui.network.NetworkVisualisation;
+import org.jamocha.languages.clips.parser.generated.ParseException;
+import org.jamocha.languages.common.Warning;
+
 import javafx.application.Application;
 import javafx.geometry.Side;
 import javafx.scene.Scene;
@@ -36,12 +42,6 @@ import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Stage;
 import lombok.AllArgsConstructor;
-
-import org.apache.commons.lang3.tuple.Pair;
-import org.jamocha.Jamocha;
-import org.jamocha.gui.network.NetworkVisualisation;
-import org.jamocha.languages.clips.parser.generated.ParseException;
-import org.jamocha.languages.common.Warning;
 
 /**
  * @author Christoph Terwelp <christoph.terwelp@rwth-aachen.de>
@@ -70,13 +70,13 @@ public class JamochaGui extends Application {
 		networkTab.setClosable(false);
 		ScrollPane scrollPane = new ScrollPane();
 		networkTab.setContent(scrollPane);
-			
+
 		networkVisualisation = new NetworkVisualisation(jamocha.getNetwork());
 		networkVisualisation.setTranslateX(10);
 		networkVisualisation.setTranslateY(10);
 		networkVisualisation.update();
 		scrollPane.setContent(networkVisualisation);
-		
+
 		tabPane.getTabs().addAll(logTab, networkTab);
 
 		Scene scene = new Scene(tabPane);
@@ -93,7 +93,7 @@ public class JamochaGui extends Application {
 		@Override
 		public void write(int b) throws IOException {
 			textArea.appendText(String.valueOf((char) b));
-		}	
+		}
 	}
 
 	private void loadState(Stage primaryStage) {
@@ -113,7 +113,7 @@ public class JamochaGui extends Application {
 		userPrefs.putDouble("stage.width", primaryStage.getWidth());
 		userPrefs.putDouble("stage.height", primaryStage.getHeight());
 	}
-	
+
 	private void loadFile(File file) {
 		try (final WatchingInputStream wis = new WatchingInputStream(new FileInputStream(file))) {
 			jamocha.loadParser(wis);
@@ -121,7 +121,8 @@ public class JamochaGui extends Application {
 				wis.mark(1000);
 				Pair<Queue<Warning>, String> parserResult = jamocha.parse();
 				networkVisualisation.update();
-				if (null == parserResult) return;
+				if (null == parserResult)
+					return;
 				System.out.println(wis.getStringSinceLastMark());
 			}
 		} catch (IOException | ParseException e) {
@@ -129,17 +130,17 @@ public class JamochaGui extends Application {
 			e.printStackTrace(this.err);
 		}
 	}
-	
+
 	private static class WatchingInputStream extends BufferedInputStream {
 
 		public WatchingInputStream(InputStream in) {
 			super(in);
 		}
-		
+
 		public String getStringSinceLastMark() {
 			return new String(Arrays.copyOfRange(this.buf, markpos, pos));
 		}
-		
+
 	}
 
 	@Override

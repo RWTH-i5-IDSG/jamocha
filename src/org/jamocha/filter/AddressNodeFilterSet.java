@@ -21,14 +21,14 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-import lombok.Data;
-import lombok.Getter;
-
 import org.jamocha.dn.memory.CounterColumn;
 import org.jamocha.dn.memory.FactAddress;
 import org.jamocha.dn.nodes.SlotInFactAddress;
 import org.jamocha.function.fwa.ParameterLeaf;
 import org.jamocha.function.fwa.PredicateWithArguments;
+
+import lombok.Data;
+import lombok.Getter;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
@@ -100,7 +100,8 @@ public class AddressNodeFilterSet extends NodeFilterSet<ParameterLeaf, AddressNo
 			final List<AddressMatchingConfiguration> matchingConfigurations) {
 		this(positiveExistentialAddresses, negativeExistentialAddresses, filterElements,
 				new NormalAddressNodeFilterSet(positiveExistentialAddresses, negativeExistentialAddresses,
-						normalFilters, matchingConfigurations), matchingConfigurations);
+						normalFilters, matchingConfigurations),
+				matchingConfigurations);
 	}
 
 	@Getter
@@ -119,7 +120,7 @@ public class AddressNodeFilterSet extends NodeFilterSet<ParameterLeaf, AddressNo
 	}
 
 	public static class ExistentialAddressFilter extends AddressFilter {
-		@Getter(onMethod = @__({ @Override }))
+		@Getter(onMethod = @__({ @Override }) )
 		protected final CounterColumn counterColumn;
 
 		public ExistentialAddressFilter(final PredicateWithArguments<ParameterLeaf> function,

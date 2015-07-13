@@ -137,8 +137,8 @@ public class ThreadPoolScheduler implements Scheduler {
 			}
 
 		}
-		// enqueue all jobs from old queue
-		.enqueueAll(oldQueue);
+				// enqueue all jobs from old queue
+				.enqueueAll(oldQueue);
 		// lower unfinishedJobs counter by jobs from old queue
 		unfinishedJobs.addAndGet(-1 * oldQueue.size());
 		// only return if scheduler is idle

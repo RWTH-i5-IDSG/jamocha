@@ -20,6 +20,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.jamocha.dn.ConstructCache.Defrule;
+import org.jamocha.dn.Network;
+import org.jamocha.dn.nodes.AlphaNode;
+import org.jamocha.dn.nodes.BetaNode;
+import org.jamocha.dn.nodes.Edge;
+import org.jamocha.dn.nodes.Node;
+import org.jamocha.dn.nodes.NodeVisitor;
+import org.jamocha.dn.nodes.ObjectTypeNode;
+import org.jamocha.dn.nodes.TerminalNode;
+
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.NumberBinding;
 import javafx.beans.property.DoubleProperty;
@@ -36,16 +46,6 @@ import javafx.scene.text.Text;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
-import org.jamocha.dn.ConstructCache.Defrule;
-import org.jamocha.dn.Network;
-import org.jamocha.dn.nodes.AlphaNode;
-import org.jamocha.dn.nodes.BetaNode;
-import org.jamocha.dn.nodes.Edge;
-import org.jamocha.dn.nodes.Node;
-import org.jamocha.dn.nodes.NodeVisitor;
-import org.jamocha.dn.nodes.ObjectTypeNode;
-import org.jamocha.dn.nodes.TerminalNode;
-
 /**
  * @author Christoph Terwelp <christoph.terwelp@rwth-aachen.de>
  *
@@ -57,7 +57,7 @@ public class NetworkVisualisation extends Region {
 	private static final int NODE_WIDTH = 160;
 	private static final int NODE_HEIGHT = 80;
 	private static final double STROKE_WIDTH = 3;
-	
+
 	private boolean unifyShared = false;
 
 	int cnt = 0;
@@ -115,10 +115,10 @@ public class NetworkVisualisation extends Region {
 
 		@Getter
 		final ConnectionPoint output = new ConnectionPoint();
-		
+
 		@Getter
 		final Node node;
-		
+
 		@Getter
 		final boolean shared;
 
@@ -151,8 +151,8 @@ public class NetworkVisualisation extends Region {
 		}
 
 		private static class Terminal extends GraphicalNode {
-			final Polyline polyline = new Polyline(0, NODE_HEIGHT, NODE_WIDTH, NODE_HEIGHT, NODE_WIDTH / 2, 0, 0,
-					NODE_HEIGHT);
+			final Polyline polyline =
+					new Polyline(0, NODE_HEIGHT, NODE_WIDTH, NODE_HEIGHT, NODE_WIDTH / 2, 0, 0, NODE_HEIGHT);
 
 			Terminal() {
 				super(false, null);
@@ -203,8 +203,8 @@ public class NetworkVisualisation extends Region {
 	}
 
 	private static class Link extends Parent {
-		
-		final Line line1 = new Line(); 
+
+		final Line line1 = new Line();
 		final Line line2 = new Line();
 
 		public Link(ConnectionPoint from, ConnectionPoint to) {
@@ -216,46 +216,50 @@ public class NetworkVisualisation extends Region {
 			line1.startYProperty().bind(from.yProperty());
 			line1.endXProperty().bind(to.xProperty());
 			line1.endYProperty().bind(to.yProperty());
-//			line1.endYProperty().bind(from.yProperty().add(Y_SPACER / 3 * 2));
-//			line2.setStroke(Color.BLACK);
-//			line2.setStrokeWidth(STROKE_WIDTH);
-//			line2.startXProperty().bind(line1.endXProperty());
-//			line2.startYProperty().bind(line1.endYProperty());
-//			line2.endXProperty().bind(to.xProperty());
-//			line2.endYProperty().bind(to.yProperty());
+			// line1.endYProperty().bind(from.yProperty().add(Y_SPACER / 3 * 2));
+			// line2.setStroke(Color.BLACK);
+			// line2.setStrokeWidth(STROKE_WIDTH);
+			// line2.startXProperty().bind(line1.endXProperty());
+			// line2.startYProperty().bind(line1.endYProperty());
+			// line2.endXProperty().bind(to.xProperty());
+			// line2.endYProperty().bind(to.yProperty());
 			final ObservableList<javafx.scene.Node> children = this.getChildren();
 			children.add(line1);
-//			children.add(line2);
+			// children.add(line2);
 		}
 
 	}
 
 	private static interface GroupInterface {
 		public DoubleProperty heightProperty();
+
 		public DoubleProperty widthProperty();
+
 		public DoubleProperty xProperty();
+
 		public DoubleProperty yProperty();
+
 		public ConnectionPoint getOutput();
 	}
 
 	@RequiredArgsConstructor
 	private static class SharedGroup implements GroupInterface {
 		final Group group;
-		
+
 		final DoubleProperty xProperty = new SimpleDoubleProperty();
 		final DoubleProperty yProperty = new SimpleDoubleProperty();
-		final DoubleProperty widthProperty = new SimpleDoubleProperty(NODE_WIDTH); 
+		final DoubleProperty widthProperty = new SimpleDoubleProperty(NODE_WIDTH);
 
 		@Override
 		public ConnectionPoint getOutput() {
 			return group.getOutput();
 		}
-		
+
 		@Override
 		public DoubleProperty heightProperty() {
 			return group.heightProperty();
 		}
-		
+
 		@Override
 		public DoubleProperty widthProperty() {
 			return widthProperty;
@@ -276,7 +280,7 @@ public class NetworkVisualisation extends Region {
 		private final NetworkVisualisation nv;
 
 		private final List<GroupInterface> groups = new ArrayList<>();
-		
+
 		private final DoubleProperty xProperty = new SimpleDoubleProperty(0);
 		private final DoubleProperty yProperty = new SimpleDoubleProperty(0);
 		private final DoubleProperty internalXProperty = new SimpleDoubleProperty();
@@ -285,7 +289,7 @@ public class NetworkVisualisation extends Region {
 		private final DoubleProperty widthProperty = new SimpleDoubleProperty(NODE_WIDTH);
 		private final DoubleProperty internalHeightProperty = new SimpleDoubleProperty(-1 * Y_SPACER);
 		private final DoubleProperty heightProperty = new SimpleDoubleProperty(0);
-		
+
 		private GraphicalNode node = null;
 
 		public Group(NetworkVisualisation nv) {
@@ -299,7 +303,7 @@ public class NetworkVisualisation extends Region {
 		public ConnectionPoint getOutput() {
 			return node.getOutput();
 		}
-		
+
 		private void bindHeight() {
 			if (groups.size() == 0) {
 				internalHeightProperty.set(-1 * Y_SPACER);
@@ -307,15 +311,14 @@ public class NetworkVisualisation extends Region {
 			}
 			NumberBinding lastHeight = null;
 			for (GroupInterface aGroup : groups) {
-				lastHeight =
-						(null == lastHeight) ? Bindings.add(0, aGroup.heightProperty()) : Bindings.max(lastHeight,
-								aGroup.heightProperty());
+				lastHeight = (null == lastHeight) ? Bindings.add(0, aGroup.heightProperty())
+						: Bindings.max(lastHeight, aGroup.heightProperty());
 			}
 			if (null != node && node.isShared())
 				lastHeight = lastHeight.add(20);
 			internalHeightProperty.bind(lastHeight);
 		}
-		
+
 		private void bindWidth() {
 			if (groups.size() == 0) {
 				widthProperty.set(NODE_WIDTH);
@@ -323,9 +326,8 @@ public class NetworkVisualisation extends Region {
 			}
 			NumberBinding lastWidth = null;
 			for (GroupInterface aGroup : groups) {
-				lastWidth =
-						(null == lastWidth) ? Bindings.add(0, aGroup.widthProperty()) : Bindings.add(lastWidth,
-								aGroup.widthProperty()).add(X_SPACER);
+				lastWidth = (null == lastWidth) ? Bindings.add(0, aGroup.widthProperty())
+						: Bindings.add(lastWidth, aGroup.widthProperty()).add(X_SPACER);
 			}
 			if (null != node && node.isShared())
 				lastWidth = lastWidth.add(20);
@@ -378,12 +380,12 @@ public class NetworkVisualisation extends Region {
 				nv.add(text);
 			}
 		}
-		
+
 		@Override
 		public DoubleProperty heightProperty() {
 			return heightProperty;
 		}
-		
+
 		@Override
 		public DoubleProperty widthProperty() {
 			return widthProperty;
@@ -399,13 +401,13 @@ public class NetworkVisualisation extends Region {
 			return yProperty;
 		}
 	}
-	
+
 	private final Map<Node, Group> node2Group = new HashMap<>();
-	
+
 	private final Map<Node, String> shared2Names = new HashMap<>();
-	
+
 	private int sharedCounter = 1;
-	
+
 	public GroupInterface visualizeNode(Node node, NetworkVisualisation nv) {
 		if (unifyShared) {
 			final Group nodeGroup = node2Group.get(node);
@@ -418,7 +420,7 @@ public class NetworkVisualisation extends Region {
 			return nodeGroup;
 		}
 	}
-	
+
 	public void clear() {
 		this.getChildren().clear();
 		node2Group.clear();

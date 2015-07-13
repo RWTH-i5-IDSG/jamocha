@@ -14,9 +14,9 @@
  */
 package org.jamocha.languages.common.errors;
 
-import lombok.Getter;
-
 import org.jamocha.languages.common.ScopeStack.Symbol;
+
+import lombok.Getter;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>

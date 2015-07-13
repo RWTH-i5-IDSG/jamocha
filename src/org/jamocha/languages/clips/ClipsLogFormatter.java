@@ -71,12 +71,8 @@ public class ClipsLogFormatter implements LogFormatter {
 
 	@Override
 	public void messageFactList(final SideEffectFunctionToNetwork network) {
-		network.getMemoryFacts()
-				.entrySet()
-				.stream()
-				.sorted((a, b) -> a.getKey().compareTo(b.getKey()))
-				.forEachOrdered(
-						e -> network.getLogFormatter().messageFactDetails(network, e.getKey().getId(), e.getValue()));
+		network.getMemoryFacts().entrySet().stream().sorted((a, b) -> a.getKey().compareTo(b.getKey())).forEachOrdered(
+				e -> network.getLogFormatter().messageFactDetails(network, e.getKey().getId(), e.getValue()));
 	}
 
 	@Override
@@ -110,7 +106,8 @@ public class ClipsLogFormatter implements LogFormatter {
 	}
 
 	@Override
-	public void messageFactRetractions(final SideEffectFunctionToNetwork network, final FactIdentifier[] factsToRetract) {
+	public void messageFactRetractions(final SideEffectFunctionToNetwork network,
+			final FactIdentifier[] factsToRetract) {
 		final Logger interactiveEventsLogger = network.getInteractiveEventsLogger();
 		for (final FactIdentifier fi : factsToRetract) {
 			final MemoryFact memoryFact = network.getMemoryFact(fi);
@@ -234,15 +231,10 @@ public class ClipsLogFormatter implements LogFormatter {
 		final Template template = fact.getTemplate();
 		final StringBuilder builder = new StringBuilder();
 		builder.append('(').append(template.getName());
-		template.getSlots()
-				.stream()
-				.forEach(
-						s -> builder
-								.append(" (")
-								.append(s.getName())
-								.append(' ')
-								.append(formatSlotValue(s.getSlotType(),
-										template.getValue(fact, template.getSlotAddress(s.getName())))).append(')'));
+		template.getSlots().stream()
+				.forEach(s -> builder.append(" (").append(s.getName()).append(' ').append(
+						formatSlotValue(s.getSlotType(), template.getValue(fact, template.getSlotAddress(s.getName()))))
+				.append(')'));
 		return builder.append(')').toString();
 	}
 
@@ -286,10 +278,9 @@ public class ClipsLogFormatter implements LogFormatter {
 	@Override
 	public String formatSlotValue(final SlotType type, final Object value, final boolean quoteString) {
 		if (type.isArrayType()) {
-			return "["
-					+ Arrays.stream((Object[]) value)
-							.map(v -> formatSlotValue(SlotType.arrayToSingle(type), v, quoteString))
-							.collect(joining(", ")) + "]";
+			return "[" + Arrays.stream((Object[]) value)
+					.map(v -> formatSlotValue(SlotType.arrayToSingle(type), v, quoteString)).collect(joining(", "))
+					+ "]";
 		}
 		switch (type) {
 		case STRING:

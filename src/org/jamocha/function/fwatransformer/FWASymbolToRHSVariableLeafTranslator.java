@@ -20,9 +20,6 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.function.IntFunction;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-
 import org.jamocha.dn.nodes.SlotInFactAddress;
 import org.jamocha.function.fwa.Assert;
 import org.jamocha.function.fwa.Bind;
@@ -40,6 +37,9 @@ import org.jamocha.function.fwa.SymbolLeaf;
 import org.jamocha.function.fwa.VariableValueContext;
 import org.jamocha.languages.common.RuleCondition.EquivalenceClass;
 import org.jamocha.languages.common.ScopeStack.VariableSymbol;
+
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
@@ -63,16 +63,15 @@ public class FWASymbolToRHSVariableLeafTranslator implements FunctionWithArgumen
 
 	@Override
 	public void visit(final FunctionWithArgumentsComposite<SymbolLeaf> functionWithArgumentsComposite) {
-		this.functionWithArguments =
-				new FunctionWithArgumentsComposite<>(functionWithArgumentsComposite.getFunction(), translateArgs(
-						functionWithArgumentsComposite.getArgs(), this.ec2PathLeaf, this.context));
+		this.functionWithArguments = new FunctionWithArgumentsComposite<>(functionWithArgumentsComposite.getFunction(),
+				translateArgs(functionWithArgumentsComposite.getArgs(), this.ec2PathLeaf, this.context));
 	}
 
 	@Override
 	public void visit(final PredicateWithArgumentsComposite<SymbolLeaf> predicateWithArgumentsComposite) {
 		this.functionWithArguments =
-				new PredicateWithArgumentsComposite<>(predicateWithArgumentsComposite.getFunction(), translateArgs(
-						predicateWithArgumentsComposite.getArgs(), this.ec2PathLeaf, this.context));
+				new PredicateWithArgumentsComposite<>(predicateWithArgumentsComposite.getFunction(),
+						translateArgs(predicateWithArgumentsComposite.getArgs(), this.ec2PathLeaf, this.context));
 	}
 
 	@SuppressWarnings("unchecked")
@@ -108,9 +107,9 @@ public class FWASymbolToRHSVariableLeafTranslator implements FunctionWithArgumen
 	@SuppressWarnings("unchecked")
 	@Override
 	public void visit(final Assert<SymbolLeaf> fwa) {
-		this.functionWithArguments =
-				new Assert<>(fwa.getNetwork(), (Assert.TemplateContainer<RHSVariableLeaf>[]) translateArgs(
-						fwa.getArgs(), this.ec2PathLeaf, this.context, Assert.TemplateContainer[]::new));
+		this.functionWithArguments = new Assert<>(fwa.getNetwork(),
+				(Assert.TemplateContainer<RHSVariableLeaf>[]) translateArgs(fwa.getArgs(), this.ec2PathLeaf,
+						this.context, Assert.TemplateContainer[]::new));
 	}
 
 	@SuppressWarnings("unchecked")
@@ -130,16 +129,14 @@ public class FWASymbolToRHSVariableLeafTranslator implements FunctionWithArgumen
 
 	@Override
 	public void visit(final Assert.TemplateContainer<SymbolLeaf> fwa) {
-		this.functionWithArguments =
-				new Assert.TemplateContainer<>(fwa.getTemplate(), translateArgs(fwa.getArgs(), this.ec2PathLeaf,
-						this.context));
+		this.functionWithArguments = new Assert.TemplateContainer<>(fwa.getTemplate(),
+				translateArgs(fwa.getArgs(), this.ec2PathLeaf, this.context));
 	}
 
 	@Override
 	public void visit(final Modify.SlotAndValue<SymbolLeaf> fwa) {
-		this.functionWithArguments =
-				new Modify.SlotAndValue<>(fwa.getSlotName(), translateArg(fwa.getValue(), this.ec2PathLeaf,
-						this.context));
+		this.functionWithArguments = new Modify.SlotAndValue<>(fwa.getSlotName(),
+				translateArg(fwa.getValue(), this.ec2PathLeaf, this.context));
 	}
 
 	@SuppressWarnings("unchecked")

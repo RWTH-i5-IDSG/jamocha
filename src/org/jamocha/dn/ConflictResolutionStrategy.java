@@ -16,11 +16,11 @@ package org.jamocha.dn;
 
 import java.util.Comparator;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-
 import org.apache.commons.lang3.builder.CompareToBuilder;
 import org.jamocha.dn.ConflictSet.RuleAndToken;
+
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>

@@ -45,8 +45,8 @@ public class StatisticsProvider implements org.jamocha.rating.StatisticsProvider
 
 	@Override
 	public Data getData(final Set<PathFilterList> filters) {
-		return componentToData.get(componentToFlatComponent.computeIfAbsent(filters,
-				PathFilterListSetFlattener::flatten));
+		return componentToData
+				.get(componentToFlatComponent.computeIfAbsent(filters, PathFilterListSetFlattener::flatten));
 	}
 
 	@Override

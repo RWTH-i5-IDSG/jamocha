@@ -17,8 +17,6 @@ package org.jamocha.languages.common;
 import java.util.HashMap;
 import java.util.Map;
 
-import lombok.Value;
-
 import org.jamocha.dn.memory.SlotAddress;
 import org.jamocha.dn.memory.Template;
 import org.jamocha.function.fwa.Assert;
@@ -26,6 +24,8 @@ import org.jamocha.function.fwa.FunctionWithArguments;
 import org.jamocha.function.fwa.SymbolLeaf;
 import org.jamocha.languages.common.errors.NoSlotForThatNameError;
 import org.jamocha.languages.common.errors.TypeMismatchError;
+
+import lombok.Value;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
@@ -44,7 +44,8 @@ public class AssertTemplateContainerBuilder {
 		return this;
 	}
 
-	public AssertTemplateContainerBuilder addValue(final String slotName, final FunctionWithArguments<SymbolLeaf> value) {
+	public AssertTemplateContainerBuilder addValue(final String slotName,
+			final FunctionWithArguments<SymbolLeaf> value) {
 		final SlotAddress slotAddress = template.getSlotAddress(slotName);
 		if (null == slotAddress) {
 			throw new NoSlotForThatNameError("No Slot with name " + slotName + "!");

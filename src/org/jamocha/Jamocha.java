@@ -18,9 +18,6 @@ import java.io.InputStream;
 import java.util.Objects;
 import java.util.Queue;
 
-import lombok.Getter;
-import lombok.extern.log4j.Log4j2;
-
 import org.apache.commons.lang3.tuple.Pair;
 import org.jamocha.dn.Network;
 import org.jamocha.filter.optimizer.OptimizerFactory;
@@ -29,6 +26,9 @@ import org.jamocha.languages.clips.parser.generated.ParseException;
 import org.jamocha.languages.clips.parser.generated.SFPParser;
 import org.jamocha.languages.clips.parser.generated.SFPStart;
 import org.jamocha.languages.common.Warning;
+
+import lombok.Getter;
+import lombok.extern.log4j.Log4j2;
 
 /**
  * @author Christoph Terwelp <christoph.terwelp@rwth-aachen.de>

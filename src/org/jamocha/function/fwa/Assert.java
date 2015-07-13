@@ -18,18 +18,18 @@ import static org.jamocha.util.ToArray.toArray;
 
 import java.util.Arrays;
 
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.ToString;
-import lombok.Value;
-
 import org.jamocha.dn.SideEffectFunctionToNetwork;
 import org.jamocha.dn.memory.Fact;
 import org.jamocha.dn.memory.FactIdentifier;
 import org.jamocha.dn.memory.SlotType;
 import org.jamocha.dn.memory.Template;
 import org.jamocha.function.Function;
+
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.ToString;
+import lombok.Value;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
@@ -42,7 +42,7 @@ public class Assert<L extends ExchangeableLeaf<L>> implements FunctionWithArgume
 	public static class TemplateContainer<L extends ExchangeableLeaf<L>> implements FunctionWithArguments<L> {
 		final Template template;
 		final FunctionWithArguments<L>[] args;
-		@Getter(lazy = true, onMethod = @__(@Override))
+		@Getter(lazy = true, onMethod = @__(@Override) )
 		private final SlotType[] paramTypes = calculateParamTypes();
 		@Getter(lazy = true, value = AccessLevel.PRIVATE)
 		private final int hashPIR = initHashPIR(), hashPII = initHashPII();
@@ -102,8 +102,9 @@ public class Assert<L extends ExchangeableLeaf<L>> implements FunctionWithArgume
 		@Override
 		public Function<?> lazyEvaluate(final Function<?>... params) {
 			return GenericWithArgumentsComposite.staticLazyEvaluate(
-					(final Function<?>[] functions) -> template.newFact(Arrays.stream(functions)
-							.<Object> map(f -> f.evaluate()).toArray()), "assert::templateContainer", args, params);
+					(final Function<?>[] functions) -> template
+							.newFact(Arrays.stream(functions).<Object> map(f -> f.evaluate()).toArray()),
+					"assert::templateContainer", args, params);
 		}
 
 		@Override
@@ -120,7 +121,7 @@ public class Assert<L extends ExchangeableLeaf<L>> implements FunctionWithArgume
 	final SideEffectFunctionToNetwork network;
 	@Getter
 	final TemplateContainer<L>[] args;
-	@Getter(lazy = true, onMethod = @__(@Override))
+	@Getter(lazy = true, onMethod = @__(@Override) )
 	private final SlotType[] paramTypes = calculateParamTypes();
 	@Getter(lazy = true, value = AccessLevel.PRIVATE)
 	private final int hashPIR = initHashPIR(), hashPII = initHashPII();
@@ -129,7 +130,8 @@ public class Assert<L extends ExchangeableLeaf<L>> implements FunctionWithArgume
 		return calculateParamTypes(args);
 	}
 
-	static private <L extends ExchangeableLeaf<L>> SlotType[] calculateParamTypes(final FunctionWithArguments<L>[] args) {
+	static private <L extends ExchangeableLeaf<L>> SlotType[] calculateParamTypes(
+			final FunctionWithArguments<L>[] args) {
 		return toArray(Arrays.stream(args).flatMap(fwa -> Arrays.stream(fwa.getParamTypes())), SlotType[]::new);
 	}
 
@@ -164,12 +166,11 @@ public class Assert<L extends ExchangeableLeaf<L>> implements FunctionWithArgume
 
 	@Override
 	public Function<FactIdentifier> lazyEvaluate(final Function<?>... params) {
-		return GenericWithArgumentsComposite.staticLazyEvaluate(
-				fs -> {
-					final FactIdentifier[] assertFacts =
-							network.assertFacts(toArray(Arrays.stream(fs).map(f -> (Fact) f.evaluate()), Fact[]::new));
-					return assertFacts[assertFacts.length - 1];
-				}, "assert", args, params);
+		return GenericWithArgumentsComposite.staticLazyEvaluate(fs -> {
+			final FactIdentifier[] assertFacts =
+					network.assertFacts(toArray(Arrays.stream(fs).map(f -> (Fact) f.evaluate()), Fact[]::new));
+			return assertFacts[assertFacts.length - 1];
+		} , "assert", args, params);
 	}
 
 	@Override

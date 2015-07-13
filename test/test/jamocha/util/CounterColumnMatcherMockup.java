@@ -19,8 +19,7 @@ import org.jamocha.dn.memory.CounterColumnMatcher;
 import org.jamocha.filter.PathFilter;
 
 /**
- * Mockup implementation of {@link CounterColumnMatcher} matching every {@link PathFilter} to
- * null.
+ * Mockup implementation of {@link CounterColumnMatcher} matching every {@link PathFilter} to null.
  * 
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */

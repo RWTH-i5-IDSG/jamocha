@@ -16,14 +16,14 @@ package org.jamocha.dn.memory.javaimpl;
 
 import java.util.List;
 
-import lombok.RequiredArgsConstructor;
-
 import org.jamocha.dn.memory.FactAddress;
 import org.jamocha.dn.memory.FactIdentifier;
 import org.jamocha.dn.memory.MemoryHandler;
 import org.jamocha.dn.memory.SlotAddress;
 import org.jamocha.dn.memory.Template;
 import org.jamocha.dn.nodes.Edge;
+
+import lombok.RequiredArgsConstructor;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>

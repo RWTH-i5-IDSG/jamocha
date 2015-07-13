@@ -25,8 +25,6 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
-import lombok.Getter;
-
 import org.apache.commons.collections4.IteratorUtils;
 import org.jamocha.function.FunctionNormaliser;
 import org.jamocha.function.fwa.PathLeaf;
@@ -34,11 +32,13 @@ import org.jamocha.function.fwa.PredicateWithArguments;
 
 import com.google.common.collect.Sets;
 
+import lombok.Getter;
+
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  * @author Christoph Terwelp <christoph.terwelp@rwth-aachen.de>
  */
-public abstract class PathNodeFilterSet extends NodeFilterSet<PathLeaf, PathFilter> implements PathFilterList {
+public abstract class PathNodeFilterSet extends NodeFilterSet<PathLeaf, PathFilter>implements PathFilterList {
 
 	@Getter(lazy = true)
 	final private int hashCode = generateHashCode();
@@ -122,13 +122,13 @@ public abstract class PathNodeFilterSet extends NodeFilterSet<PathLeaf, PathFilt
 	}
 
 	private static class ExistentialPathNodeFilterSet extends PathNodeFilterSet {
-		@Getter(onMethod = @__(@Override))
+		@Getter(onMethod = @__(@Override) )
 		private final Set<Path> positiveExistentialPaths, negativeExistentialPaths;
 
 		protected ExistentialPathNodeFilterSet(final Set<PathFilter> filters, final Set<Path> positiveExistentialPaths,
 				final Set<Path> negativeExistentialPaths) {
 			super(filters);
-			assert !positiveExistentialPaths.isEmpty() || !negativeExistentialPaths.isEmpty();
+			assert!positiveExistentialPaths.isEmpty() || !negativeExistentialPaths.isEmpty();
 			this.positiveExistentialPaths = positiveExistentialPaths;
 			this.negativeExistentialPaths = negativeExistentialPaths;
 		}
@@ -156,23 +156,20 @@ public abstract class PathNodeFilterSet extends NodeFilterSet<PathLeaf, PathFilt
 	}
 
 	public PathNodeFilterSet normalise() {
-		return duplicate(filters
-				.stream()
-				.map(filter -> {
-					final PredicateWithArguments<PathLeaf> functionToNormalise = filter.function;
-					// step one: transform to uniform function symbols
-					final PredicateWithArguments<PathLeaf> uniformFunction =
-							UniformFunctionTranslator.translate(functionToNormalise);
-					// step two: sort arguments
-					final PredicateWithArguments<PathLeaf> normalFunction =
-							FunctionNormaliser.normalise(uniformFunction);
-					return new PathFilter(normalFunction);
-				}).sorted().collect(toCollection(LinkedHashSet::new)));
+		return duplicate(filters.stream().map(filter -> {
+			final PredicateWithArguments<PathLeaf> functionToNormalise = filter.function;
+			// step one: transform to uniform function symbols
+			final PredicateWithArguments<PathLeaf> uniformFunction =
+					UniformFunctionTranslator.translate(functionToNormalise);
+			// step two: sort arguments
+			final PredicateWithArguments<PathLeaf> normalFunction = FunctionNormaliser.normalise(uniformFunction);
+			return new PathFilter(normalFunction);
+		}).sorted().collect(toCollection(LinkedHashSet::new)));
 	}
 
 	private int generateHashCode() {
-		return Arrays.hashCode(getNormalizedPathFilter().getFilters().stream().mapToInt(f -> f.getFunction().hash())
-				.toArray());
+		return Arrays.hashCode(
+				getNormalizedPathFilter().getFilters().stream().mapToInt(f -> f.getFunction().hash()).toArray());
 	}
 
 	public static boolean equals(final PathNodeFilterSet filter1, final PathNodeFilterSet filter2) {

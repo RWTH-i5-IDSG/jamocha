@@ -64,8 +64,7 @@ public abstract class Unwatch implements Function<Object> {
 	}
 
 	static {
-		FunctionDictionary.addVarArgsGeneratorWithSideEffects(
-				inClips,
+		FunctionDictionary.addVarArgsGeneratorWithSideEffects(inClips,
 				(final SideEffectFunctionToNetwork network, final SlotType[] paramTypes) -> {
 					if (paramTypes.length < 1
 							|| !Arrays.equals(paramTypes, SlotType.nCopies(SlotType.SYMBOL, paramTypes.length))) {

@@ -46,14 +46,14 @@ public abstract class Save extends Predicate {
 	}
 
 	static {
-		FunctionDictionary.addFixedArgsGeneratorWithSideEffects(inClips, paramTypes, (
-				final SideEffectFunctionToNetwork network, final SlotType[] paramTypes) -> {
-			return new Save() {
-				@Override
-				public Boolean evaluate(final Function<?>... params) {
-					return network.saveToFile(((Symbol) params[0].evaluate()).getImage());
-				}
-			};
-		});
+		FunctionDictionary.addFixedArgsGeneratorWithSideEffects(inClips, paramTypes,
+				(final SideEffectFunctionToNetwork network, final SlotType[] paramTypes) -> {
+					return new Save() {
+						@Override
+						public Boolean evaluate(final Function<?>... params) {
+							return network.saveToFile(((Symbol) params[0].evaluate()).getImage());
+						}
+					};
+				});
 	}
 }

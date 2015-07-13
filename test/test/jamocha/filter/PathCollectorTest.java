@@ -44,8 +44,8 @@ public class PathCollectorTest {
 
 	final Predicate equals = FunctionDictionary.lookupPredicate("=", DOUBLE, DOUBLE);
 	final Predicate boolEq = FunctionDictionary.lookupPredicate("=", BOOLEAN, BOOLEAN);
-	final Template template = MemoryFactory.getMemoryFactory().newTemplate("", "", Slots.newDouble("s1"),
-			Slots.newDouble("s2"));
+	final Template template =
+			MemoryFactory.getMemoryFactory().newTemplate("", "", Slots.newDouble("s1"), Slots.newDouble("s2"));
 	final SlotAddressMockup s1 = new SlotAddressMockup(0), s2 = new SlotAddressMockup(1);
 	final Path p1 = new Path(template), p2 = new Path(template), p3 = new Path(template), p4 = new Path(template);
 	PathNodeFilterSet a, b, c, d, e, f, g;
@@ -70,47 +70,40 @@ public class PathCollectorTest {
 	@Before
 	public void setUp() throws Exception {
 		// 11 12
-		a =
-				PathNodeFilterSet.newRegularPathNodeFilterSet(new PredicateBuilder(equals).addPath(p1, s1)
-						.addPath(p1, s2).buildFilter());
+		a = PathNodeFilterSet.newRegularPathNodeFilterSet(
+				new PredicateBuilder(equals).addPath(p1, s1).addPath(p1, s2).buildFilter());
 		// 21 22 11 22
-		b =
-				PathNodeFilterSet.newRegularPathNodeFilterSet(
-						new PredicateBuilder(equals).addPath(p2, s1).addPath(p2, s2).buildFilter(),
-						new PredicateBuilder(equals).addPath(p1, s1).addPath(p2, s2).buildFilter());
+		b = PathNodeFilterSet.newRegularPathNodeFilterSet(
+				new PredicateBuilder(equals).addPath(p2, s1).addPath(p2, s2).buildFilter(),
+				new PredicateBuilder(equals).addPath(p1, s1).addPath(p2, s2).buildFilter());
 		// 11 22 21 32
-		c =
-				PathNodeFilterSet.newRegularPathNodeFilterSet(
-						new PredicateBuilder(equals).addPath(p1, s1).addPath(p2, s2).buildFilter(),
-						new PredicateBuilder(equals).addPath(p2, s1).addPath(p3, s2).buildFilter());
+		c = PathNodeFilterSet.newRegularPathNodeFilterSet(
+				new PredicateBuilder(equals).addPath(p1, s1).addPath(p2, s2).buildFilter(),
+				new PredicateBuilder(equals).addPath(p2, s1).addPath(p3, s2).buildFilter());
 		// 11 32 31 12
-		d =
-				PathNodeFilterSet.newRegularPathNodeFilterSet(
-						new PredicateBuilder(equals).addPath(p1, s1).addPath(p3, s2).buildFilter(),
-						new PredicateBuilder(equals).addPath(p3, s1).addPath(p1, s2).buildFilter());
+		d = PathNodeFilterSet.newRegularPathNodeFilterSet(
+				new PredicateBuilder(equals).addPath(p1, s1).addPath(p3, s2).buildFilter(),
+				new PredicateBuilder(equals).addPath(p3, s1).addPath(p1, s2).buildFilter());
 		// 11 12 21 22 31 32 41 42
-		e =
-				PathNodeFilterSet.newRegularPathNodeFilterSet(
-						new PredicateBuilder(equals).addPath(p1, s1).addPath(p1, s2).buildFilter(),
-						new PredicateBuilder(equals).addPath(p2, s1).addPath(p2, s2).buildFilter(),
-						new PredicateBuilder(equals).addPath(p3, s1).addPath(p3, s2).buildFilter(),
-						new PredicateBuilder(equals).addPath(p4, s1).addPath(p4, s2).buildFilter());
+		e = PathNodeFilterSet.newRegularPathNodeFilterSet(
+				new PredicateBuilder(equals).addPath(p1, s1).addPath(p1, s2).buildFilter(),
+				new PredicateBuilder(equals).addPath(p2, s1).addPath(p2, s2).buildFilter(),
+				new PredicateBuilder(equals).addPath(p3, s1).addPath(p3, s2).buildFilter(),
+				new PredicateBuilder(equals).addPath(p4, s1).addPath(p4, s2).buildFilter());
 		// 11 32 31 22 41 22 21 12
-		f =
-				PathNodeFilterSet.newRegularPathNodeFilterSet(
-						new PredicateBuilder(equals).addPath(p1, s1).addPath(p3, s2).buildFilter(),
-						new PredicateBuilder(equals).addPath(p3, s1).addPath(p2, s2).buildFilter(),
-						new PredicateBuilder(equals).addPath(p4, s1).addPath(p2, s2).buildFilter(),
-						new PredicateBuilder(equals).addPath(p2, s1).addPath(p1, s2).buildFilter());
+		f = PathNodeFilterSet.newRegularPathNodeFilterSet(
+				new PredicateBuilder(equals).addPath(p1, s1).addPath(p3, s2).buildFilter(),
+				new PredicateBuilder(equals).addPath(p3, s1).addPath(p2, s2).buildFilter(),
+				new PredicateBuilder(equals).addPath(p4, s1).addPath(p2, s2).buildFilter(),
+				new PredicateBuilder(equals).addPath(p2, s1).addPath(p1, s2).buildFilter());
 		// 11 32 32 41 41 22 21 12
-		g =
-				PathNodeFilterSet.newRegularPathNodeFilterSet(
-						new PredicateBuilder(equals).addPath(p1, s1).addPath(p3, s2).buildFilter(),
-						new PredicateBuilder(boolEq)
-								.addFunction(new PredicateBuilder(equals).addPath(p3, s2).addPath(p4, s1).build())
-								.addFunction(new PredicateBuilder(equals).addPath(p4, s1).addPath(p2, s2).build())
-								.buildFilter(), new PredicateBuilder(equals).addPath(p2, s1).addPath(p1, s2)
-								.buildFilter());
+		g = PathNodeFilterSet.newRegularPathNodeFilterSet(
+				new PredicateBuilder(equals).addPath(p1, s1).addPath(p3, s2).buildFilter(),
+				new PredicateBuilder(boolEq)
+						.addFunction(new PredicateBuilder(equals).addPath(p3, s2).addPath(p4, s1).build())
+						.addFunction(new PredicateBuilder(equals).addPath(p4, s1).addPath(p2, s2).build())
+						.buildFilter(),
+				new PredicateBuilder(equals).addPath(p2, s1).addPath(p1, s2).buildFilter());
 	}
 
 	/**

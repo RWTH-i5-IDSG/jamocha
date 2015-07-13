@@ -31,9 +31,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-
 import org.jamocha.function.fwa.ConstantLeaf;
 import org.jamocha.function.fwa.DefaultFunctionWithArgumentsLeafVisitor;
 import org.jamocha.function.fwa.GlobalVariableLeaf;
@@ -47,6 +44,9 @@ import org.jamocha.languages.common.ConditionalElement.OrFunctionConditionalElem
 import org.jamocha.languages.common.ConditionalElement.TemplatePatternConditionalElement;
 import org.jamocha.languages.common.ConditionalElement.TestConditionalElement;
 import org.jamocha.languages.common.ScopeStack.VariableSymbol;
+
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
@@ -131,9 +131,8 @@ public class RuleConditionProcessor {
 		private void expand(final ConditionalElement ce) {
 			// recurse on children, partition to find the children that had an (or ) on top level
 			// (will have more than one element)
-			final Map<Boolean, List<List<ConditionalElement>>> partition =
-					ce.getChildren().stream().map(el -> el.accept(new ExpandOrs()).getCes())
-							.collect(partitioningBy(el -> el.size() == 1));
+			final Map<Boolean, List<List<ConditionalElement>>> partition = ce.getChildren().stream()
+					.map(el -> el.accept(new ExpandOrs()).getCes()).collect(partitioningBy(el -> el.size() == 1));
 			final List<ConditionalElement> singletonLists =
 					partition.get(Boolean.TRUE).stream().map(l -> l.get(0)).collect(toList());
 			final List<List<ConditionalElement>> orLists = partition.get(Boolean.FALSE);
@@ -154,11 +153,9 @@ public class RuleConditionProcessor {
 				final ConditionalElement andPart = combineViaAnd(singletonLists);
 				// only one (or ), no need to share the elements of the (or )
 				// combine shared part with each of the (or )-elements
-				this.ces =
-						orLists.get(0)
-								.stream()
-								.map(orPart -> new AndFunctionConditionalElement(new ArrayList<>(Arrays.asList(andPart,
-										orPart)))).collect(toList());
+				this.ces = orLists.get(0).stream().map(
+						orPart -> new AndFunctionConditionalElement(new ArrayList<>(Arrays.asList(andPart, orPart))))
+						.collect(toList());
 				return;
 			}
 			// gradually blow up the CEs
@@ -194,20 +191,21 @@ public class RuleConditionProcessor {
 		@Override
 		public void visit(final ExistentialConditionalElement ce) {
 			expand(ce);
-			this.ces =
-					this.ces.stream()
-							.map(c -> new ExistentialConditionalElement(ce.scope, new ArrayList<>(Collections
-									.singletonList(c)))).collect(toList());
+			this.ces = this.ces.stream().map(
+					c -> new ExistentialConditionalElement(ce.scope, new ArrayList<>(Collections.singletonList(c))))
+					.collect(toList());
 		}
 
 		@Override
 		public void visit(final NegatedExistentialConditionalElement ce) {
 			expand(ce);
 			this.ces =
-					new ArrayList<>(Collections.singletonList(new AndFunctionConditionalElement(this.ces
-							.stream()
-							.map(c -> new NegatedExistentialConditionalElement(ce.scope, new ArrayList<>(Collections
-									.singletonList(c)))).collect(toList()))));
+					new ArrayList<>(
+							Collections
+									.singletonList(new AndFunctionConditionalElement(this.ces.stream()
+											.map(c -> new NegatedExistentialConditionalElement(ce.scope,
+													new ArrayList<>(Collections.singletonList(c))))
+									.collect(toList()))));
 		}
 
 		@Override
@@ -217,9 +215,8 @@ public class RuleConditionProcessor {
 
 		@Override
 		public void visit(final OrFunctionConditionalElement ce) {
-			this.ces =
-					ce.getChildren().stream().flatMap(el -> el.accept(new ExpandOrs()).getCes().stream())
-							.collect(toList());
+			this.ces = ce.getChildren().stream().flatMap(el -> el.accept(new ExpandOrs()).getCes().stream())
+					.collect(toList());
 		}
 	}
 
@@ -372,8 +369,8 @@ public class RuleConditionProcessor {
 	private static class ExistentialSplitter implements DefaultConditionalElementsVisitor {
 		private ConditionalElement ce;
 
-		private static class ShallowSymbolCollector implements DefaultConditionalElementsVisitor,
-				DefaultFunctionWithArgumentsLeafVisitor<SymbolLeaf> {
+		private static class ShallowSymbolCollector
+				implements DefaultConditionalElementsVisitor, DefaultFunctionWithArgumentsLeafVisitor<SymbolLeaf> {
 			final Set<VariableSymbol> symbols = new HashSet<>();
 
 			@Override
@@ -402,16 +399,14 @@ public class RuleConditionProcessor {
 
 		@Override
 		public void visit(final NegatedExistentialConditionalElement ce) {
-			this.ce =
-					combineViaOr(determinePartitions(ce).stream()
-							.map(group -> new NegatedExistentialConditionalElement(ce.scope, group)).collect(toList()));
+			this.ce = combineViaOr(determinePartitions(ce).stream()
+					.map(group -> new NegatedExistentialConditionalElement(ce.scope, group)).collect(toList()));
 		}
 
 		@Override
 		public void visit(final ExistentialConditionalElement ce) {
-			this.ce =
-					combineViaAnd(determinePartitions(ce).stream()
-							.map(group -> new ExistentialConditionalElement(ce.scope, group)).collect(toList()));
+			this.ce = combineViaAnd(determinePartitions(ce).stream()
+					.map(group -> new ExistentialConditionalElement(ce.scope, group)).collect(toList()));
 		}
 
 		private Collection<List<ConditionalElement>> determinePartitions(final ConditionalElement ce) {
@@ -420,14 +415,12 @@ public class RuleConditionProcessor {
 			for (final ConditionalElement child : ce.getChildren()) {
 				final Set<VariableSymbol> childSymbols = child.accept(new ShallowSymbolCollector()).symbols;
 				for (final VariableSymbol childSymbol : childSymbols) {
-					final Set<SingleFactVariable> factVariables =
-							childSymbol.equal.equalSlotVariables.stream().map(ssv -> ssv.getFactVariable())
-									.collect(toSet());
+					final Set<SingleFactVariable> factVariables = childSymbol.equal.equalSlotVariables.stream()
+							.map(ssv -> ssv.getFactVariable()).collect(toSet());
 					factVariables.addAll(childSymbol.equal.factVariables);
-					final Set<SingleFactVariable> combinedFVs =
-							factVariables.stream()
-									.flatMap(fv -> occurringWith.getOrDefault(fv, Collections.emptySet()).stream())
-									.collect(toSet());
+					final Set<SingleFactVariable> combinedFVs = factVariables.stream()
+							.flatMap(fv -> occurringWith.getOrDefault(fv, Collections.emptySet()).stream())
+							.collect(toSet());
 					combinedFVs.forEach(fv -> occurringWith.put(fv, combinedFVs));
 					if (!factVariables.isEmpty()) {
 						childToRepresentative.put(child, factVariables.iterator().next());
@@ -435,11 +428,8 @@ public class RuleConditionProcessor {
 				}
 			}
 			final Map<Set<SingleFactVariable>, List<ConditionalElement>> partition =
-					ce.getChildren()
-							.stream()
-							.collect(
-									groupingBy(c -> Optional.ofNullable(childToRepresentative.get(c))
-											.map(occurringWith::get).orElse(Collections.emptySet())));
+					ce.getChildren().stream().collect(groupingBy(c -> Optional.ofNullable(childToRepresentative.get(c))
+							.map(occurringWith::get).orElse(Collections.emptySet())));
 			final List<ConditionalElement> empty = partition.get(Collections.emptySet());
 			if (empty.isEmpty())
 				return partition.values();

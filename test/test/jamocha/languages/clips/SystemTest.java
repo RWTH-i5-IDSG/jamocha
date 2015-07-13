@@ -125,9 +125,11 @@ public class SystemTest {
 		final Network network = new Network();
 		initializeAppender(network);
 		{
-			run(network, "(deftemplate templ1 (slot slot1 (type INTEGER)))\n" + "(defrule rule1 \n"
-					+ "(templ1 (slot1 ?x)) (templ1 (slot1 ?y)) (templ1 (slot1 ?z))\n" + "	(or\n"
-					+ "		(test (> ?x ?y))\n" + "		(test (> ?x ?z))\n" + "	)\n" + "	(test (< ?x ?y))\n" + "=> )\n");
+			run(network,
+					"(deftemplate templ1 (slot slot1 (type INTEGER)))\n" + "(defrule rule1 \n"
+							+ "(templ1 (slot1 ?x)) (templ1 (slot1 ?y)) (templ1 (slot1 ?z))\n" + "	(or\n"
+							+ "		(test (> ?x ?y))\n" + "		(test (> ?x ?z))\n" + "	)\n" + "	(test (< ?x ?y))\n"
+							+ "=> )\n");
 		}
 	}
 
@@ -136,9 +138,10 @@ public class SystemTest {
 		final Network network = new Network();
 		initializeAppender(network);
 		{
-			run(network, "(deftemplate templ1 (slot slot1 (type INTEGER)))\n" + "(defrule rule1 \n"
-					+ "(templ1 (slot1 ?x)) (templ1 (slot1 ?y)) (templ1 (slot1 ?z))\n" + "	(or\n"
-					+ "		(test (< ?x ?y))\n" + "		(test (< ?x ?z))\n" + "	)\n" + "=> )\n");
+			run(network,
+					"(deftemplate templ1 (slot slot1 (type INTEGER)))\n" + "(defrule rule1 \n"
+							+ "(templ1 (slot1 ?x)) (templ1 (slot1 ?y)) (templ1 (slot1 ?z))\n" + "	(or\n"
+							+ "		(test (< ?x ?y))\n" + "		(test (< ?x ?z))\n" + "	)\n" + "=> )\n");
 		}
 	}
 
@@ -147,9 +150,10 @@ public class SystemTest {
 		final Network network = new Network();
 		initializeAppender(network);
 		{
-			run(network, "(deftemplate templ1 (slot slot1 (type INTEGER)))\n" + "(defrule rule1 \n"
-					+ "(templ1 (slot1 ?x)) (templ1 (slot1 ?y)) (templ1 (slot1 ?z))\n" + "	(test (> ?x ?y))\n"
-					+ "=> )\n");
+			run(network,
+					"(deftemplate templ1 (slot slot1 (type INTEGER)))\n" + "(defrule rule1 \n"
+							+ "(templ1 (slot1 ?x)) (templ1 (slot1 ?y)) (templ1 (slot1 ?z))\n" + "	(test (> ?x ?y))\n"
+							+ "=> )\n");
 		}
 	}
 
@@ -158,9 +162,10 @@ public class SystemTest {
 		final Network network = new Network();
 		initializeAppender(network);
 		{
-			run(network, "(deftemplate templ1 (slot slot1 (type INTEGER)))\n" + "(defrule rule1 \n"
-					+ "(templ1 (slot1 ?x)) (templ1 (slot1 ?y)) (templ1 (slot1 ?z))\n" + "	(or\n"
-					+ "		(test (> ?x ?z))\n" + "	)\n" + "	(test (> ?x ?y))\n" + "=> )\n");
+			run(network,
+					"(deftemplate templ1 (slot slot1 (type INTEGER)))\n" + "(defrule rule1 \n"
+							+ "(templ1 (slot1 ?x)) (templ1 (slot1 ?y)) (templ1 (slot1 ?z))\n" + "	(or\n"
+							+ "		(test (> ?x ?z))\n" + "	)\n" + "	(test (> ?x ?y))\n" + "=> )\n");
 		}
 	}
 
@@ -309,10 +314,9 @@ public class SystemTest {
 			assertThat(returnValues.getLeft(), empty());
 			assertThat(returnValues.getRight(), empty());
 			final String[] lines = out.toString().split(linesep);
-			assertThat(
-					lines,
-					either(arrayContaining(equalTo("==> f-3\t(t1 (s1 888))"), equalTo("==> f-4\t(t1 (s1 999))"))).or(
-							arrayContaining(equalTo("==> f-3\t(t1 (s1 999))"), equalTo("==> f-4\t(t1 (s1 888))"))));
+			assertThat(lines,
+					either(arrayContaining(equalTo("==> f-3\t(t1 (s1 888))"), equalTo("==> f-4\t(t1 (s1 999))")))
+							.or(arrayContaining(equalTo("==> f-3\t(t1 (s1 999))"), equalTo("==> f-4\t(t1 (s1 888))"))));
 			assertThat(lines, arrayWithSize(2));
 			out.reset();
 		}

@@ -14,14 +14,14 @@
  */
 package org.jamocha.dn.memory;
 
-import lombok.Getter;
-import lombok.ToString;
-
 import org.jamocha.dn.ConflictSet;
 import org.jamocha.dn.memory.MemoryHandlerTerminal.Assert;
 import org.jamocha.dn.nodes.TerminalNode;
 import org.jamocha.visitor.Visitable;
 import org.jamocha.visitor.Visitor;
+
+import lombok.Getter;
+import lombok.ToString;
 
 /**
  * {@link MemoryHandlerTerminal}s are used for {@link TerminalNode}s instead of a

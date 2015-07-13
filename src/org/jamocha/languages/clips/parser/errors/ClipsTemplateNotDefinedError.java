@@ -14,11 +14,11 @@
  */
 package org.jamocha.languages.clips.parser.errors;
 
-import lombok.Getter;
-
 import org.jamocha.languages.clips.parser.generated.SimpleNode;
 import org.jamocha.languages.common.ScopeStack.Symbol;
 import org.jamocha.languages.common.errors.TemplateNotDefinedError;
+
+import lombok.Getter;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>

@@ -1,14 +1,14 @@
 /**
  * Contains {@link org.jamocha.filter.NodeFilterSet filters} and their components.
  * 
- * A Filter contains so-called {@link org.jamocha.filter.Filter filter elements}
- * representing atomic {@link org.jamocha.function.Predicate predicates} specifying the tests to be
- * performed on data according to the condition part of a rule. Predicates are and may contain
+ * A Filter contains so-called {@link org.jamocha.filter.Filter filter elements} representing atomic
+ * {@link org.jamocha.function.Predicate predicates} specifying the tests to be performed on data
+ * according to the condition part of a rule. Predicates are and may contain
  * {@link org.jamocha.function.Function functions}. Implementations of
  * {@link org.jamocha.function.Function functions} are found in the package
  * {@link org.jamocha.filter.impls}.<br />
- * In a {@link org.jamocha.filter.Filter filter element}, these predicates are stored
- * as {@link org.jamocha.function.fwa.FunctionWithArguments functions with arguments}.
+ * In a {@link org.jamocha.filter.Filter filter element}, these predicates are stored as
+ * {@link org.jamocha.function.fwa.FunctionWithArguments functions with arguments}.
  * {@link org.jamocha.function.fwa.FunctionWithArguments FunctionWithArguments} is an interface for
  * a {@link org.jamocha.function.Function} bundled with its Arguments. A Filter is constructed using
  * the following classes implementing this interface:
@@ -34,4 +34,3 @@
  * @see org.jamocha.filter.impls
  */
 package org.jamocha.filter;
-

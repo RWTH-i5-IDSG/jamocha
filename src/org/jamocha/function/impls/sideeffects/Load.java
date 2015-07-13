@@ -42,35 +42,36 @@ public abstract class Load extends Predicate {
 	}
 
 	static {
-		FunctionDictionary.addFixedArgsGeneratorWithSideEffects(inClips, symbol, (
-				final SideEffectFunctionToNetwork network, final SlotType[] paramTypes) -> {
-			return new Load() {
-				@Override
-				public Boolean evaluate(final Function<?>... params) {
-					return network.loadFromFile(((Symbol) params[0].evaluate()).getImage(), true);
-				}
+		FunctionDictionary.addFixedArgsGeneratorWithSideEffects(inClips, symbol,
+				(final SideEffectFunctionToNetwork network, final SlotType[] paramTypes) -> {
+					return new Load() {
+						@Override
+						public Boolean evaluate(final Function<?>... params) {
+							return network.loadFromFile(((Symbol) params[0].evaluate()).getImage(), true);
+						}
 
-				@Override
-				public SlotType[] getParamTypes() {
-					return symbol;
-				}
-			};
-		});
+						@Override
+						public SlotType[] getParamTypes() {
+							return symbol;
+						}
+					};
+				});
 	}
-	static {
-		FunctionDictionary.addFixedArgsGeneratorWithSideEffects(inClips, string, (
-				final SideEffectFunctionToNetwork network, final SlotType[] paramTypes) -> {
-			return new Load() {
-				@Override
-				public Boolean evaluate(final Function<?>... params) {
-					return network.loadFromFile(((String) params[0].evaluate()), true);
-				}
 
-				@Override
-				public SlotType[] getParamTypes() {
-					return string;
-				}
-			};
-		});
+	static {
+		FunctionDictionary.addFixedArgsGeneratorWithSideEffects(inClips, string,
+				(final SideEffectFunctionToNetwork network, final SlotType[] paramTypes) -> {
+					return new Load() {
+						@Override
+						public Boolean evaluate(final Function<?>... params) {
+							return network.loadFromFile(((String) params[0].evaluate()), true);
+						}
+
+						@Override
+						public SlotType[] getParamTypes() {
+							return string;
+						}
+					};
+				});
 	}
 }

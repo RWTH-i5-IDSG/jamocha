@@ -14,12 +14,12 @@
  */
 package org.jamocha.function.fwa;
 
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-
 import org.jamocha.dn.memory.SlotType;
 import org.jamocha.function.Function;
 import org.jamocha.function.fwa.GenericWithArgumentsComposite.LazyObject;
+
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 
 /**
  * A parameter of a {@link Function} may be a constant value specified in the parsed representation

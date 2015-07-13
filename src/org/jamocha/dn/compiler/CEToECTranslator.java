@@ -29,10 +29,6 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j2;
-
 import org.apache.commons.lang3.tuple.Pair;
 import org.jamocha.dn.ConstructCache.Defrule;
 import org.jamocha.dn.ConstructCache.Defrule.ECFilterSetCondition;
@@ -70,6 +66,10 @@ import org.jamocha.languages.common.errors.VariableNotDeclaredError;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
+
 /**
  * Collect all ECFilters inside all children of an OrFunctionConditionalElement, returning a List of
  * Lists. Each inner List contains the ECFilters of one child.
@@ -95,23 +95,20 @@ public class CEToECTranslator implements DefaultConditionalElementsVisitor {
 	public void defaultAction(final ConditionalElement ce) {
 		// If there is no OrFunctionConditionalElement just proceed with the CE as it were
 		// the only child of an OrFunctionConditionalElement.
-		final Map<VariableSymbol, EquivalenceClass> symbolToEC =
-				new SymbolCollector(rule.getCondition()).getSymbols().stream()
-						.collect(toMap(Function.identity(), VariableSymbol::getEqual));
+		final Map<VariableSymbol, EquivalenceClass> symbolToEC = new SymbolCollector(rule.getCondition()).getSymbols()
+				.stream().collect(toMap(Function.identity(), VariableSymbol::getEqual));
 		translateds = Collections.singletonList(NoORsTranslator.consolidate(initialFactTemplate, rule, ce, symbolToEC));
 	}
 
 	@Override
 	public void visit(final OrFunctionConditionalElement ce) {
-		final Map<VariableSymbol, EquivalenceClass> symbolToEC =
-				new SymbolCollector(rule.getCondition()).getSymbols().stream()
-						.collect(toMap(Function.identity(), VariableSymbol::getEqual));
+		final Map<VariableSymbol, EquivalenceClass> symbolToEC = new SymbolCollector(rule.getCondition()).getSymbols()
+				.stream().collect(toMap(Function.identity(), VariableSymbol::getEqual));
 		// For each child of the OrCE ...
-		this.translateds =
-				ce.getChildren().stream().map(child ->
-				// ... collect all PathFilters in the child
-						NoORsTranslator.consolidate(initialFactTemplate, rule, child, symbolToEC))
-						.collect(Collectors.toCollection(ArrayList::new));
+		this.translateds = ce.getChildren().stream().map(child ->
+		// ... collect all PathFilters in the child
+		NoORsTranslator.consolidate(initialFactTemplate, rule, child, symbolToEC))
+				.collect(Collectors.toCollection(ArrayList::new));
 	}
 
 	/**
@@ -132,9 +129,8 @@ public class CEToECTranslator implements DefaultConditionalElementsVisitor {
 			this.initialFactTemplate = initialFactTemplate;
 			this.initialFactVariable = initialFactVariable;
 			this.variableSymbols = variableSymbols;
-			this.filters =
-					shallowTests.stream().map(pwa -> new ECFilter(FWASymbolToECTranslator.translate(pwa)))
-							.collect(toSet());
+			this.filters = shallowTests.stream().map(pwa -> new ECFilter(FWASymbolToECTranslator.translate(pwa)))
+					.collect(toSet());
 		}
 
 		public static ECFilterSetCondition consolidate(final Template initialFactTemplate, final Defrule rule,
@@ -143,26 +139,24 @@ public class CEToECTranslator implements DefaultConditionalElementsVisitor {
 			final Set<VariableSymbol> symbols = symbolToECbackup.keySet();
 			// copy the equivalence classes
 			final BiMap<EquivalenceClass, EquivalenceClass> oldToNew =
-					HashBiMap
-							.create(symbolToECbackup
-									.values()
-									.stream()
-									.collect(
-											toMap(Function.identity(),
-													(final EquivalenceClass ec) -> new EquivalenceClass(ec))));
+					HashBiMap.create(symbolToECbackup.values().stream().collect(
+							toMap(Function.identity(), (final EquivalenceClass ec) -> new EquivalenceClass(ec))));
 			replaceEC(symbols, oldToNew);
 
 			final HashSet<FunctionWithArguments<SymbolLeaf>> occurringFWAs =
 					FWACollector.newHashSet().collect(ce).getFwas();
 			final HashSet<SingleFactVariable> occurringFactVariables =
 					new HashSet<>(DeepFactVariableCollector.collect(ce));
-			/* inspect the equivalence class hierarchy for sections not contained in this rule part */
+			/*
+			 * inspect the equivalence class hierarchy for sections not contained in this rule part
+			 */
 			// for every symbol in the CE
 			for (final VariableSymbol vs : symbols) {
 				// and thus for every equivalence class
 				final EquivalenceClass ec = vs.getEqual();
 				// check whether the fact variables are bound via a TPCE
-				for (final Iterator<SingleFactVariable> iterator = ec.getFactVariables().iterator(); iterator.hasNext();) {
+				for (final Iterator<SingleFactVariable> iterator = ec.getFactVariables().iterator(); iterator
+						.hasNext();) {
 					final SingleFactVariable fv = iterator.next();
 					if (!occurringFactVariables.contains(fv)) {
 						// the fact variable is not contained in the CE, remove it
@@ -224,16 +218,15 @@ public class CEToECTranslator implements DefaultConditionalElementsVisitor {
 					new HashSet<>(equivalenceClassBuilder.equivalenceClasses.values());
 			final Set<PredicateWithArguments<SymbolLeaf>> shallowTests = equivalenceClassBuilder.shallowTests;
 
-			final ECFilterSetCondition result =
-					consolidateOnCopiedEquivalenceClasses(initialFactTemplate, rule, ce, shallowTests,
-							equivalenceClasses, Specificity.calculate(ce));
+			final ECFilterSetCondition result = consolidateOnCopiedEquivalenceClasses(initialFactTemplate, rule, ce,
+					shallowTests, equivalenceClasses, Specificity.calculate(ce));
 
 			// reset the symbol - equivalence class mapping
 			symbolToECbackup.forEach((vs, ec) -> vs.setEqual(ec));
 			replaceEC(symbols, oldToNew.inverse());
 			// restore the SlotVariable - equivalence class mapping
-			symbolToECbackup.forEach((vs, ec) -> vs.getEqual().getEqualSlotVariables()
-					.forEach(sv -> sv.getEqualSet().add(ec)));
+			symbolToECbackup
+					.forEach((vs, ec) -> vs.getEqual().getEqualSlotVariables().forEach(sv -> sv.getEqualSet().add(ec)));
 			return result;
 		}
 
@@ -364,7 +357,8 @@ public class CEToECTranslator implements DefaultConditionalElementsVisitor {
 					// PredicateWithArguments interface other than PredicateWithArgumentsComposite,
 					// we would lose those tests if not preserved here
 					if (function instanceof PredicateWithArguments) {
-						log.warn("A class implementing PredicateWithArguments other than PredicateWithArgumentsComposite seems to have been added. Consider modifying the FWAEquivalenceClassBuilder to exploit equivalence classes within those new classes. Tests are simply preserved for now.");
+						log.warn(
+								"A class implementing PredicateWithArguments other than PredicateWithArgumentsComposite seems to have been added. Consider modifying the FWAEquivalenceClassBuilder to exploit equivalence classes within those new classes. Tests are simply preserved for now.");
 						shallowTests.add((PredicateWithArguments<SymbolLeaf>) function);
 					}
 				}
@@ -407,9 +401,9 @@ public class CEToECTranslator implements DefaultConditionalElementsVisitor {
 			final Set<SingleFactVariable> factVariables = initialFactAndVariables.getRight();
 
 			return rule.newECFilterSetCondition(
-					new NoORsTranslator(initialFactTemplate, initialFactAndVariables.getLeft(), rule.getCondition()
-							.getVariableSymbols(), shallowTests).collect(ce).getFilters(), factVariables,
-					equivalenceClasses, specificity);
+					new NoORsTranslator(initialFactTemplate, initialFactAndVariables.getLeft(),
+							rule.getCondition().getVariableSymbols(), shallowTests).collect(ce).getFilters(),
+					factVariables, equivalenceClasses, specificity);
 		}
 
 		private NoORsTranslator collect(final ConditionalElement ce) {
@@ -438,9 +432,8 @@ public class CEToECTranslator implements DefaultConditionalElementsVisitor {
 			final Set<PredicateWithArguments<SymbolLeaf>> shallowTests = equivalenceClassBuilder.shallowTests;
 
 			// Generate ECFilters from CE (recurse)
-			final Set<ECFilterSet> filters =
-					new NoORsTranslator(initialFactTemplate, initialFactAndOtherFVs.getLeft(), variableSymbols,
-							shallowTests).collect(ce).getFilters();
+			final Set<ECFilterSet> filters = new NoORsTranslator(initialFactTemplate, initialFactAndOtherFVs.getLeft(),
+					variableSymbols, shallowTests).collect(ce).getFilters();
 
 			// Collect all used Equivalence Classes for every Filter
 			final Map<ECFilterSet, Set<EquivalenceClass>> filter2ECs =
@@ -458,13 +451,11 @@ public class CEToECTranslator implements DefaultConditionalElementsVisitor {
 			final Set<ECFilterSet> pureFilters, mixedFilters;
 			{
 				final Map<Boolean, Set<ECFilterSet>> tmp =
-						filters.stream().collect(
-								Collectors.partitioningBy(
-										filter -> {
-											final Set<EquivalenceClass> ec = filter2ECs.get(filter);
-											return shallowExistentialECs.containsAll(ec)
-													|| Collections.disjoint(shallowExistentialECs, ec);
-										}, toSet()));
+						filters.stream().collect(Collectors.partitioningBy(filter -> {
+							final Set<EquivalenceClass> ec = filter2ECs.get(filter);
+							return shallowExistentialECs.containsAll(ec)
+									|| Collections.disjoint(shallowExistentialECs, ec);
+						} , toSet()));
 				pureFilters = tmp.get(Boolean.TRUE);
 				mixedFilters = tmp.get(Boolean.FALSE);
 			}
@@ -486,15 +477,15 @@ public class CEToECTranslator implements DefaultConditionalElementsVisitor {
 		@Override
 		public void visit(final ExistentialConditionalElement ce) {
 			assert ce.getChildren().size() == 1;
-			this.filters.add(processExistentialCondition(initialFactTemplate, initialFactVariable, variableSymbols, ce
-					.getChildren().get(0), ce.getScope(), true));
+			this.filters.add(processExistentialCondition(initialFactTemplate, initialFactVariable, variableSymbols,
+					ce.getChildren().get(0), ce.getScope(), true));
 		}
 
 		@Override
 		public void visit(final NegatedExistentialConditionalElement ce) {
 			assert ce.getChildren().size() == 1;
-			this.filters.add(processExistentialCondition(initialFactTemplate, initialFactVariable, variableSymbols, ce
-					.getChildren().get(0), ce.getScope(), false));
+			this.filters.add(processExistentialCondition(initialFactTemplate, initialFactVariable, variableSymbols,
+					ce.getChildren().get(0), ce.getScope(), false));
 		}
 	}
 }

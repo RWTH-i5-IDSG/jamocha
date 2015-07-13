@@ -14,9 +14,9 @@
  */
 package org.jamocha.dn;
 
-import org.jamocha.dn.nodes.Node.TokenQueue;
-
 import java.util.List;
+
+import org.jamocha.dn.nodes.Node.TokenQueue;
 
 /**
  * This interface declares a scheduler usable by any {@link Network network}. It should take

@@ -14,11 +14,11 @@
  */
 package org.jamocha.dn.memory.javaimpl;
 
+import org.jamocha.dn.memory.MemoryHandler;
+
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
-
-import org.jamocha.dn.memory.MemoryHandler;
 
 /**
  * Implementation of the {@link org.jamocha.dn.memory.FactAddress} interface.

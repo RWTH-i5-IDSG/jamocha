@@ -24,9 +24,6 @@ import java.util.Map.Entry;
 import java.util.OptionalInt;
 import java.util.stream.Stream;
 
-import lombok.Getter;
-import lombok.ToString;
-
 import org.apache.logging.log4j.Marker;
 import org.jamocha.dn.memory.Fact;
 import org.jamocha.dn.memory.MemoryFact;
@@ -35,6 +32,9 @@ import org.jamocha.function.fwa.ExchangeableLeaf;
 import org.jamocha.function.fwa.FunctionWithArguments;
 import org.jamocha.logging.MarkerType;
 
+import lombok.Getter;
+import lombok.ToString;
+
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  *
@@ -42,15 +42,15 @@ import org.jamocha.logging.MarkerType;
 @ToString(of = { "name" })
 public class Template implements org.jamocha.dn.memory.Template {
 
-	@Getter(onMethod = @__(@Override))
+	@Getter(onMethod = @__(@Override) )
 	final String name;
-	@Getter(onMethod = @__(@Override))
+	@Getter(onMethod = @__(@Override) )
 	final String description;
-	@Getter(onMethod = @__(@Override))
+	@Getter(onMethod = @__(@Override) )
 	final List<Slot> slots;
 	final HashMap<String, SlotAddress> slotNames = new HashMap<>();
 	final SlotType[] slotTypes;
-	@Getter(onMethod = @__(@Override))
+	@Getter(onMethod = @__(@Override) )
 	final Marker instanceMarker;
 
 	Template(final String name, final String description, final Slot... slots) {
@@ -142,7 +142,7 @@ public class Template implements org.jamocha.dn.memory.Template {
 	public Fact newFact(final Map<org.jamocha.dn.memory.SlotAddress, Object> values) {
 		values.forEach((s, o) -> checkTypeAndConstraints(((SlotAddress) s).index, o));
 		final Stream<Entry<org.jamocha.dn.memory.SlotAddress, Object>> stream = values.entrySet().stream();
-		assert !stream
+		assert!stream
 				.filter(e -> !this.slotTypes[((SlotAddress) e.getKey()).index].getJavaClass().isInstance(e.getValue()))
 				.findAny().isPresent();
 		final OptionalInt max = stream.mapToInt(e -> ((SlotAddress) e.getKey()).index).max();
@@ -157,23 +157,18 @@ public class Template implements org.jamocha.dn.memory.Template {
 	public <L extends ExchangeableLeaf<L>> FunctionWithArguments<L>[] applyDefaultsAndOrder(
 			final Map<org.jamocha.dn.memory.SlotAddress, FunctionWithArguments<L>> values) {
 		assert this.slotNames.values().containsAll(values.keySet());
-		return (FunctionWithArguments<L>[]) toArray(
-				this.slotNames
-						.values()
-						.stream()
-						.sorted()
-						.map(slotAddress -> {
-							if (values.containsKey(slotAddress)) {
-								return values.get(slotAddress);
-							}
-							final org.jamocha.dn.memory.Template.Default defaultValue =
-									this.slots.get(slotAddress.index).getDefaultValue();
-							if (DefaultType.NONE == defaultValue.getDefaultType()) {
-								throw new IllegalArgumentException("No value given for slot "
-										+ this.slots.get(slotAddress.index).getName() + " in template " + getName()
-										+ ", but the slot has no default value!");
-							}
-							return defaultValue.getValue();
-						}), FunctionWithArguments[]::new);
+		return (FunctionWithArguments<L>[]) toArray(this.slotNames.values().stream().sorted().map(slotAddress -> {
+			if (values.containsKey(slotAddress)) {
+				return values.get(slotAddress);
+			}
+			final org.jamocha.dn.memory.Template.Default defaultValue =
+					this.slots.get(slotAddress.index).getDefaultValue();
+			if (DefaultType.NONE == defaultValue.getDefaultType()) {
+				throw new IllegalArgumentException(
+						"No value given for slot " + this.slots.get(slotAddress.index).getName() + " in template "
+								+ getName() + ", but the slot has no default value!");
+			}
+			return defaultValue.getValue();
+		}), FunctionWithArguments[]::new);
 	}
 }

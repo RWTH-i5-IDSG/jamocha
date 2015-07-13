@@ -20,7 +20,7 @@ import org.jamocha.function.fwa.PredicateWithArguments;
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
-public class PathFilter extends Filter<PathLeaf> implements PathFilterSet, Comparable<PathFilter> {
+public class PathFilter extends Filter<PathLeaf>implements PathFilterSet, Comparable<PathFilter> {
 	public PathFilter(final PredicateWithArguments<PathLeaf> function) {
 		super(function);
 	}

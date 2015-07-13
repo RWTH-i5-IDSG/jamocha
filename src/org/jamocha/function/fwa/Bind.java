@@ -17,11 +17,11 @@ package org.jamocha.function.fwa;
 import java.util.Arrays;
 import java.util.stream.IntStream;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-
 import org.jamocha.dn.memory.SlotType;
 import org.jamocha.function.Function;
+
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 
 /**
  * Class representing a bind operation.
@@ -34,7 +34,7 @@ public class Bind<L extends ExchangeableLeaf<L>> implements FunctionWithArgument
 
 	@Getter
 	private final FunctionWithArguments<L> args[];
-	@Getter(lazy = true, onMethod = @__(@Override))
+	@Getter(lazy = true, onMethod = @__(@Override) )
 	private final SlotType[] paramTypes = calculateParamTypes();
 
 	private SlotType[] calculateParamTypes() {
@@ -55,8 +55,8 @@ public class Bind<L extends ExchangeableLeaf<L>> implements FunctionWithArgument
 	@Override
 	public Function<?> lazyEvaluate(final Function<?>... params) {
 		return GenericWithArgumentsComposite.staticLazyEvaluate(
-				((final Function<?>[] args) -> evaluate(Arrays.stream(args).map(f -> f.evaluate()).toArray())),
-				inClips, args, params);
+				((final Function<?>[] args) -> evaluate(Arrays.stream(args).map(f -> f.evaluate()).toArray())), inClips,
+				args, params);
 	}
 
 	@Override

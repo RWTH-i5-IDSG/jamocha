@@ -38,10 +38,11 @@ import org.jamocha.filter.NodeFilterSet;
  * passed to edges via {@link #enqueueMemory(MemoryHandlerPlusTemp)} or
  * {@link #enqueueMemory(MemoryHandlerMinusTemp)} and thereby wrapped into tokens. When processed,
  * these tokens call the corresponding {@link #processPlusToken(MemoryHandlerTemp)} or
- * {@link #processMinusToken(MemoryHandlerTemp)}, respectively. Every edge holds a {@link NodeFilterSet}
- * equivalent to the filter in its target node, but the order of the {@link Filter}s may
- * differ. Additionally, edges may hold a subset of these filter elements relevant for existential
- * facts to identify the counter updates needed without having to perform the join. <br />
+ * {@link #processMinusToken(MemoryHandlerTemp)}, respectively. Every edge holds a
+ * {@link NodeFilterSet} equivalent to the filter in its target node, but the order of the
+ * {@link Filter}s may differ. Additionally, edges may hold a subset of these filter elements
+ * relevant for existential facts to identify the counter updates needed without having to perform
+ * the join. <br />
  * After a plus token has been processed in the target memory of an edge, its memory handler is kept
  * in the edge as long as its still valid, i.e. until it has been committed into the main memory of
  * the source node of the edge.

@@ -34,8 +34,8 @@ import org.jamocha.function.fwa.SymbolLeaf;
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  * @author Christoph Terwelp <christoph.terwelp@rwth-aachen.de>
  */
-public class FunctionWithArgumentsFormatter<L extends ExchangeableLeaf<L>> implements
-		Formatter<FunctionWithArguments<L>> {
+public class FunctionWithArgumentsFormatter<L extends ExchangeableLeaf<L>>
+		implements Formatter<FunctionWithArguments<L>> {
 
 	private static final FunctionWithArgumentsFormatter<SymbolLeaf> singleton = new FunctionWithArgumentsFormatter<>();
 

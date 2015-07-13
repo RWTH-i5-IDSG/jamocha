@@ -24,8 +24,6 @@ import java.util.Set;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-import lombok.Data;
-
 import org.jamocha.dn.memory.CounterColumn;
 import org.jamocha.dn.memory.CounterColumnMatcher;
 import org.jamocha.dn.memory.FactAddress;
@@ -37,6 +35,8 @@ import org.jamocha.filter.PathFilterSet.PathExistentialSet;
 import org.jamocha.function.fwa.ParameterLeaf;
 import org.jamocha.function.fwa.PredicateWithArguments;
 import org.jamocha.function.fwatransformer.FWAPathToAddressTranslator;
+
+import lombok.Data;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
@@ -76,10 +76,9 @@ public class PathNodeFilterSetToAddressNodeFilterSetTranslator {
 		@Override
 		public void visit(final PathFilter pathFilter) {
 			final ArrayList<SlotInFactAddress> addresses = new ArrayList<>();
-			final PredicateWithArguments<ParameterLeaf> predicateWithArguments =
-					pathFilter.getFunction()
-							.accept(new FWAPathToAddressTranslator.PWAPathToAddressTranslator(addresses))
-							.getFunctionWithArguments();
+			final PredicateWithArguments<ParameterLeaf> predicateWithArguments = pathFilter.getFunction()
+					.accept(new FWAPathToAddressTranslator.PWAPathToAddressTranslator(addresses))
+					.getFunctionWithArguments();
 			final SlotInFactAddress[] addressArray = toArray(addresses, SlotInFactAddress[]::new);
 			final CounterColumn counterColumn = counterColumnMatcher.getCounterColumn(pathFilter);
 			if (null == counterColumn) {
@@ -93,10 +92,9 @@ public class PathNodeFilterSetToAddressNodeFilterSetTranslator {
 		public void visit(final PathExistentialSet existential) {
 			final PathFilter pathFilter = existential.getExistentialClosure();
 			final ArrayList<SlotInFactAddress> addresses = new ArrayList<>();
-			final PredicateWithArguments<ParameterLeaf> predicateWithArguments =
-					pathFilter.getFunction()
-							.accept(new FWAPathToAddressTranslator.PWAPathToAddressTranslator(addresses))
-							.getFunctionWithArguments();
+			final PredicateWithArguments<ParameterLeaf> predicateWithArguments = pathFilter.getFunction()
+					.accept(new FWAPathToAddressTranslator.PWAPathToAddressTranslator(addresses))
+					.getFunctionWithArguments();
 
 			final SlotInFactAddress[] addressArray = toArray(addresses, SlotInFactAddress[]::new);
 			final CounterColumn counterColumn = counterColumnMatcher.getCounterColumn(pathFilter);

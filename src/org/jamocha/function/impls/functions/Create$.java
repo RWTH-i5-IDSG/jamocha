@@ -80,7 +80,8 @@ public abstract class Create$ implements Function<Object> {
 
 					@Override
 					public Object evaluate(final Function<?>... params) {
-						return (Object) (toArray(Arrays.stream(params).map(f -> f.evaluate()), slotType.getArrayCtor()));
+						return (Object) (toArray(Arrays.stream(params).map(f -> f.evaluate()),
+								slotType.getArrayCtor()));
 					}
 				};
 			});

@@ -19,14 +19,14 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-import lombok.Data;
-import lombok.Value;
-
 import org.apache.logging.log4j.Marker;
 import org.jamocha.function.fwa.ConstantLeaf;
 import org.jamocha.function.fwa.ExchangeableLeaf;
 import org.jamocha.function.fwa.FunctionWithArguments;
 import org.jamocha.function.fwa.SymbolLeaf;
+
+import lombok.Data;
+import lombok.Value;
 
 /**
  * A Template consists of slots which in turn have a {@link SlotType slot type} and a name. Facts

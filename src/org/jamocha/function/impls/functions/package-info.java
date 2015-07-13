@@ -5,4 +5,3 @@
  * @see org.jamocha.function.Function
  */
 package org.jamocha.function.impls.functions;
-

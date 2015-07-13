@@ -45,18 +45,18 @@ import org.jamocha.languages.common.RuleConditionProcessor;
 import org.jamocha.languages.common.Warning;
 import org.junit.Test;
 
-import test.jamocha.util.NetworkMockup;
-
 import com.google.common.collect.Lists;
+
+import test.jamocha.util.NetworkMockup;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  * @author Christoph Terwelp <christoph.terwelp@rwth-aachen.de>
  */
 public class PathFilterConsolidatorTest {
-	private static final String templateString = "(deftemplate templ1 (slot slot1 (type INTEGER)))\n"
-			+ "(deftemplate templ2 (slot slot1 (type INTEGER)))\n"
-			+ "(deftemplate templ3 (slot slot1 (type INTEGER)))\n";
+	private static final String templateString =
+			"(deftemplate templ1 (slot slot1 (type INTEGER)))\n" + "(deftemplate templ2 (slot slot1 (type INTEGER)))\n"
+					+ "(deftemplate templ3 (slot slot1 (type INTEGER)))\n";
 	private static final String preRule = "(defrule rule1 ";
 	private static final String postRule = " => )\n";
 
@@ -70,9 +70,8 @@ public class PathFilterConsolidatorTest {
 	}
 
 	private static List<PathRule> clipsToFilters(final String condition) throws ParseException {
-		final StringReader parserInput =
-				new StringReader(new StringBuilder().append(templateString).append(preRule).append(condition)
-						.append(postRule).toString());
+		final StringReader parserInput = new StringReader(new StringBuilder().append(templateString).append(preRule)
+				.append(condition).append(postRule).toString());
 		final SFPParser parser = new SFPParser(parserInput);
 		final NetworkMockup ptn = new NetworkMockup();
 		final SFPVisitorImpl visitor = new SFPVisitorImpl(ptn, ptn);
@@ -124,8 +123,8 @@ public class PathFilterConsolidatorTest {
 		final Path[] paths = ((DummyPathFilter) filter).getPaths();
 		assertEquals(2, paths.length);
 		assertThat(toArray(Arrays.stream(paths).map(path -> path.getTemplate().getName()), String[]::new),
-				arrayContainingInAnyOrder(Arrays.<Matcher<? super String>> asList(equalTo("initial-fact"),
-						equalTo("templ1"))));
+				arrayContainingInAnyOrder(
+						Arrays.<Matcher<? super String>> asList(equalTo("initial-fact"), equalTo("templ1"))));
 	}
 
 	@Test

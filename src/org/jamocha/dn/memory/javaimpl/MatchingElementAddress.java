@@ -14,12 +14,12 @@
  */
 package org.jamocha.dn.memory.javaimpl;
 
+import org.jamocha.dn.memory.SlotType;
+import org.jamocha.dn.memory.Template;
+
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
-
-import org.jamocha.dn.memory.SlotType;
-import org.jamocha.dn.memory.Template;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>

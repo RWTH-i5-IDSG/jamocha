@@ -20,11 +20,11 @@ import java.time.temporal.ChronoField;
 import java.util.Arrays;
 import java.util.function.IntFunction;
 
+import org.jamocha.languages.common.ScopeStack.Symbol;
+
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-
-import org.jamocha.languages.common.ScopeStack.Symbol;
 
 /**
  * Enum holding all types this system supports.
@@ -53,13 +53,13 @@ public enum SlotType {
 	/**
 	 * Enum value for fact address types.
 	 */
-	FACTADDRESS(FactIdentifier.class, FactIdentifier[]::new, false), FACTADDRESSES(FactIdentifier[].class,
-			FactIdentifier[]::new, true),
+	FACTADDRESS(FactIdentifier.class, FactIdentifier[]::new, false),
+	FACTADDRESSES(FactIdentifier[].class, FactIdentifier[]::new, true),
 	/**
 	 * Enum value for date time types.
 	 */
-	DATETIME(ZonedDateTime.class, ZonedDateTime[]::new, false), DATETIMES(ZonedDateTime[].class, ZonedDateTime[]::new,
-			true),
+	DATETIME(ZonedDateTime.class, ZonedDateTime[]::new, false),
+	DATETIMES(ZonedDateTime[].class, ZonedDateTime[]::new, true),
 	/**
 	 * Enum value for nil values of undetermined type.
 	 */
@@ -148,13 +148,11 @@ public enum SlotType {
 		} else {
 			parse = image;
 		}
-		return ZonedDateTime.parse(
-				parse,
+		return ZonedDateTime.parse(parse,
 				new DateTimeFormatterBuilder()
 						// date
 						.appendValue(ChronoField.YEAR, 4).appendLiteral('-').appendValue(ChronoField.MONTH_OF_YEAR, 2)
-						.appendLiteral('-')
-						.appendValue(ChronoField.DAY_OF_MONTH, 2)
+						.appendLiteral('-').appendValue(ChronoField.DAY_OF_MONTH, 2)
 						// optional time
 						.optionalStart().appendLiteral(' ').appendValue(ChronoField.HOUR_OF_DAY, 2).appendLiteral(':')
 						.appendValue(ChronoField.MINUTE_OF_HOUR, 2).optionalStart().appendLiteral(':')
