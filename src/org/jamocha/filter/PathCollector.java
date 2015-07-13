@@ -48,39 +48,51 @@ public class PathCollector<T extends Collection<Path>> implements PathFilterSetV
 		this.paths = paths;
 	}
 
-	public PathCollector<T> collectAll(final PathNodeFilterSet filterSet) {
+	public PathCollector<T> collectAllInLists(final PathNodeFilterSet filterSet) {
 		this.paths.addAll(filterSet.getPositiveExistentialPaths());
 		this.paths.addAll(filterSet.getNegativeExistentialPaths());
-		return collectOnlyInFilters(filterSet);
+		return collectOnlyInFilterLists(filterSet);
 	}
 
-	public PathCollector<T> collectAll(final Iterable<PathNodeFilterSet> filterSets) {
+	public PathCollector<T> collectAllInLists(final Iterable<PathNodeFilterSet> filterSets) {
 		for (final PathNodeFilterSet filterSet : filterSets) {
-			collectAll(filterSet);
+			collectAllInLists(filterSet);
 		}
 		return this;
 	}
 
-	public PathCollector<T> collectOnlyInFilters(final PathNodeFilterSet filterSet) {
+	public PathCollector<T> collectOnlyInFilterLists(final PathNodeFilterSet filterSet) {
 		for (final PathFilter filter : filterSet.getFilters()) {
 			collect(filter);
 		}
 		return this;
 	}
 
-	public PathCollector<T> collectOnlyInFilters(final Iterable<PathNodeFilterSet> filterSet) {
+	public PathCollector<T> collectOnlyInFilterLists(final Iterable<PathNodeFilterSet> filterSet) {
 		for (final PathNodeFilterSet filter : filterSet) {
-			collectOnlyInFilters(filter);
+			collectOnlyInFilterLists(filter);
 		}
 		return this;
 	}
 
-	public PathCollector<T> collectOnlyNonExistential(final PathFilterList filterSet) {
+	public PathCollector<T> collectOnlyNonExistentialInLists(final PathFilterList filterSet) {
 		for (final PathNodeFilterSet filter : filterSet) {
-			collectOnlyInFilters(filter);
+			collectOnlyInFilterLists(filter);
 			this.paths.removeAll(filter.getPositiveExistentialPaths());
 			this.paths.removeAll(filter.getNegativeExistentialPaths());
 		}
+		return this;
+	}
+
+	public PathCollector<T> collectAllInSets(final Iterable<PathFilterSet> filterSets) {
+		for (final PathFilterSet filterSet : filterSets) {
+			collectAllInSets(filterSet);
+		}
+		return this;
+	}
+
+	public PathCollector<T> collectAllInSets(final PathFilterSet filterSet) {
+		filterSet.accept(this);
 		return this;
 	}
 
@@ -91,7 +103,9 @@ public class PathCollector<T extends Collection<Path>> implements PathFilterSetV
 
 	@Override
 	public void visit(final PathExistentialSet set) {
-
+		this.paths.addAll(set.getExistentialPaths());
+		set.getPurePart().forEach(fs -> fs.accept(this));
+		set.getExistentialClosure().accept(this);
 	}
 
 	public PathCollector<T> collect(final PathFilter filter) {

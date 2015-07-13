@@ -566,7 +566,7 @@ public abstract class FilterFunctionCompare<L extends ExchangeableLeaf<L>> {
 		// create list of Paths with permutable parts where self-joins occur
 		{
 			// get representatives for the joined-with-sets (i.e. the edges) and group by nodes
-			final Map<Node, Set<Path>> pathSetByNode = PathCollector.newHashSet().collectAll(pathFilter).getPaths()
+			final Map<Node, Set<Path>> pathSetByNode = PathCollector.newHashSet().collectAllInLists(pathFilter).getPaths()
 					.stream().map(p -> p.getJoinedWith().iterator().next()).distinct()
 					.collect(groupingBy(s -> s.getCurrentlyLowestNode(), toSet()));
 			// now we have a set of components consisting of sets of representatives

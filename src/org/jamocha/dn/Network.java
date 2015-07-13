@@ -50,6 +50,7 @@ import org.jamocha.dn.ConflictSet.RuleAndToken;
 import org.jamocha.dn.ConstructCache.Deffacts;
 import org.jamocha.dn.ConstructCache.Defrule;
 import org.jamocha.dn.ConstructCache.Defrule.PathRule;
+import org.jamocha.dn.ConstructCache.Defrule.PathSetBasedRule;
 import org.jamocha.dn.compiler.simpleblocks.PathFilterConsolidator;
 import org.jamocha.dn.memory.Fact;
 import org.jamocha.dn.memory.FactAddress;
@@ -406,7 +407,7 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 	 *             mapped to a {@link Node}
 	 */
 	public boolean tryToShareNode(final PathNodeFilterSet filter) throws IllegalArgumentException {
-		final Path[] paths = PathCollector.newHashSet().collectAll(filter).getPathsArray();
+		final Path[] paths = PathCollector.newHashSet().collectAllInLists(filter).getPathsArray();
 
 		// collect the nodes of the paths
 		final LinkedHashSet<Node> filterPathNodes = new LinkedHashSet<>();
@@ -491,7 +492,7 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 		{
 			final PathCollector<HashSet<Path>> collector = PathCollector.newHashSet();
 			for (final PathNodeFilterSet filter : filters) {
-				collector.collectAll(filter);
+				collector.collectAllInLists(filter);
 			}
 			this.rootNode.addPaths(this, collector.getPathsArray());
 			allPaths = collector.getPaths();
@@ -499,7 +500,7 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 		final ArrayList<Node> nodes = new ArrayList<>();
 		for (final PathNodeFilterSet filter : filters) {
 			if (!tryToShareNode(filter))
-				if (PathCollector.newHashSet().collectAll(filter).getPaths().stream()
+				if (PathCollector.newHashSet().collectAllInLists(filter).getPaths().stream()
 						.flatMap(p -> p.getJoinedWith().stream()).distinct().count() == 1) {
 					nodes.add(new AlphaNode(this, filter));
 				} else {
@@ -519,7 +520,8 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 		// Preprocess CEs
 		RuleConditionProcessor.flatten(rule.getCondition());
 		// Transform TestCEs to PathFilters
-		return new PathFilterConsolidator(this.initialFactTemplate, rule).consolidate();
+		return new PathFilterConsolidator(this.initialFactTemplate, rule).consolidate().stream()
+				.map(PathSetBasedRule::trivialToPathRule).collect(toList());
 	}
 
 	@Override

@@ -131,7 +131,7 @@ public class NetworkTest {
 		{
 			final HashSet<Path> allPaths = new HashSet<>();
 			for (final PathNodeFilterSet filter : filterTwo) {
-				final HashSet<Path> paths = PathCollector.newHashSet().collectAll(filter).getPaths();
+				final HashSet<Path> paths = PathCollector.newHashSet().collectAllInLists(filter).getPaths();
 				allPaths.addAll(paths);
 			}
 			final Path[] pathArray = toArray(allPaths, Path[]::new);
@@ -148,7 +148,7 @@ public class NetworkTest {
 		{
 			final HashSet<Path> allPaths = new HashSet<>();
 			for (final PathNodeFilterSet filter : filterThree) {
-				final HashSet<Path> paths = PathCollector.newHashSet().collectAll(filter).getPaths();
+				final HashSet<Path> paths = PathCollector.newHashSet().collectAllInLists(filter).getPaths();
 				allPaths.addAll(paths);
 			}
 			final Path[] pathArray = toArray(allPaths, Path[]::new);
@@ -198,7 +198,7 @@ public class NetworkTest {
 		{
 			final HashSet<Path> allPaths = new HashSet<>();
 			for (final PathNodeFilterSet filter : filterTwo) {
-				final HashSet<Path> paths = PathCollector.newHashSet().collectAll(filter).getPaths();
+				final HashSet<Path> paths = PathCollector.newHashSet().collectAllInLists(filter).getPaths();
 				allPaths.addAll(paths);
 			}
 			final Path[] pathArray = toArray(allPaths, Path[]::new);
@@ -251,7 +251,7 @@ public class NetworkTest {
 		{
 			final HashSet<Path> allPaths = new HashSet<>();
 			for (final PathNodeFilterSet filter : filterTwo) {
-				final HashSet<Path> paths = PathCollector.newHashSet().collectAll(filter).getPaths();
+				final HashSet<Path> paths = PathCollector.newHashSet().collectAllInLists(filter).getPaths();
 				allPaths.addAll(paths);
 			}
 			final Path[] pathArray = toArray(allPaths, Path[]::new);
@@ -317,7 +317,7 @@ public class NetworkTest {
 		{
 			final HashSet<Path> allPaths = new HashSet<>();
 			for (final PathNodeFilterSet filter : filterTwo) {
-				final HashSet<Path> paths = PathCollector.newHashSet().collectAll(filter).getPaths();
+				final HashSet<Path> paths = PathCollector.newHashSet().collectAllInLists(filter).getPaths();
 				allPaths.addAll(paths);
 			}
 			final Path[] pathArray = toArray(allPaths, Path[]::new);
@@ -615,7 +615,7 @@ public class NetworkTest {
 		{
 			final HashSet<Path> allPaths = new HashSet<>();
 			for (final PathNodeFilterSet filter : filterTwo) {
-				final HashSet<Path> paths = PathCollector.newHashSet().collectAll(filter).getPaths();
+				final HashSet<Path> paths = PathCollector.newHashSet().collectAllInLists(filter).getPaths();
 				allPaths.addAll(paths);
 			}
 			final Path[] pathArray = toArray(allPaths, Path[]::new);
@@ -664,7 +664,7 @@ public class NetworkTest {
 		{
 			final HashSet<Path> allPaths = new HashSet<>();
 			for (final PathNodeFilterSet filter : filterTwo) {
-				final HashSet<Path> paths = PathCollector.newHashSet().collectAll(filter).getPaths();
+				final HashSet<Path> paths = PathCollector.newHashSet().collectAllInLists(filter).getPaths();
 				allPaths.addAll(paths);
 			}
 			final Path[] pathArray = toArray(allPaths, Path[]::new);

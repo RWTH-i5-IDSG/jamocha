@@ -271,7 +271,7 @@ public class PathFilterOrderOptimizer implements Optimizer {
 		for (final PathFilterList pathFilter : list) {
 			// collect the paths used in the filter
 			final HashSet<Path> onlyNonExistentialPaths =
-					PathCollector.newHashSet().collectOnlyNonExistential(pathFilter).getPaths();
+					PathCollector.newHashSet().collectOnlyNonExistentialInLists(pathFilter).getPaths();
 			// create a component for the filter using the collected paths
 			graph.createInitialComponent(pathFilter, onlyNonExistentialPaths);
 			// put the filter into the path to filters map using every collected path as a key

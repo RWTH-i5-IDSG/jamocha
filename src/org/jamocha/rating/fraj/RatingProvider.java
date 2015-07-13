@@ -284,7 +284,7 @@ public class RatingProvider implements org.jamocha.rating.RatingProvider {
 		final Set<Set<PathFilterList>> preNetworkComponents = new HashSet<>(pathToPreNetworkComponents.values());
 		for (final Set<PathFilterList> preNetworkComponent : preNetworkComponents) {
 			final PathCollector<HashSet<Path>> pathCollector = PathCollector.newHashSet();
-			preNetworkComponent.forEach(pathCollector::collectAll);
+			preNetworkComponent.forEach(pathCollector::collectAllInLists);
 			final HashSet<Path> paths = pathCollector.getPaths();
 			if (!Collections.disjoint(paths, positiveExistentialPaths)) {
 				positiveExistentialComponents.add(preNetworkComponent);

@@ -65,7 +65,7 @@ public class NodeShareOptimizer implements Optimizer {
 			for (PathNodeFilterSet pathFilter : pathRule.getCondition()) {
 				pool.addFilter(pathFilter);
 				filter2Rule.put(pathFilter, pathRule);
-				Set<Path> paths = PathCollector.newHashSet().collectAll(pathFilter).getPaths();
+				Set<Path> paths = PathCollector.newHashSet().collectAllInLists(pathFilter).getPaths();
 				paths.addAll(pathFilter.getNegativeExistentialPaths());
 				paths.addAll(pathFilter.getPositiveExistentialPaths());
 				filter2Paths.put(pathFilter, paths);

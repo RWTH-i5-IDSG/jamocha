@@ -78,7 +78,7 @@ public class SubsetPathsFilterCombiningOptimizer implements Optimizer {
 
 		@Override
 		public void visit(final PathNodeFilterSet filter) {
-			final HashSet<Path> currentPaths = PathCollector.newHashSet().collectAll(filter).getPaths();
+			final HashSet<Path> currentPaths = PathCollector.newHashSet().collectAllInLists(filter).getPaths();
 			if (filtersOnThisLevel.isEmpty()) {
 				save(filter, currentPaths);
 				return;

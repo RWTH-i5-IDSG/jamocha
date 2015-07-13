@@ -118,12 +118,12 @@ public class PathCollectorTest {
 	 */
 	@Test
 	public void testNewHashSet() {
-		assertThat(PathCollector.newHashSet().collectAll(a).getPaths(), hasItems(p1));
-		assertThat(PathCollector.newHashSet().collectAll(b).getPaths(), hasItems(p1, p2));
-		assertThat(PathCollector.newHashSet().collectAll(c).getPaths(), hasItems(p1, p2, p3));
-		assertThat(PathCollector.newHashSet().collectAll(d).getPaths(), hasItems(p1, p3));
-		assertThat(PathCollector.newHashSet().collectAll(e).getPaths(), hasItems(p1, p2, p3, p4));
-		assertThat(PathCollector.newHashSet().collectAll(f).getPaths(), hasItems(p1, p2, p3, p4));
-		assertThat(PathCollector.newHashSet().collectAll(g).getPaths(), hasItems(p1, p2, p3, p4));
+		assertThat(PathCollector.newHashSet().collectAllInLists(a).getPaths(), hasItems(p1));
+		assertThat(PathCollector.newHashSet().collectAllInLists(b).getPaths(), hasItems(p1, p2));
+		assertThat(PathCollector.newHashSet().collectAllInLists(c).getPaths(), hasItems(p1, p2, p3));
+		assertThat(PathCollector.newHashSet().collectAllInLists(d).getPaths(), hasItems(p1, p3));
+		assertThat(PathCollector.newHashSet().collectAllInLists(e).getPaths(), hasItems(p1, p2, p3, p4));
+		assertThat(PathCollector.newHashSet().collectAllInLists(f).getPaths(), hasItems(p1, p2, p3, p4));
+		assertThat(PathCollector.newHashSet().collectAllInLists(g).getPaths(), hasItems(p1, p2, p3, p4));
 	}
 }

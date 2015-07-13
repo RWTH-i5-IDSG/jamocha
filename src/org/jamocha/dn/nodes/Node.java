@@ -372,7 +372,7 @@ public abstract class Node implements Visitable<NodeVisitor> {
 	public Node(final Network network, final PathNodeFilterSet filter) {
 		this.network = network;
 		this.tokenQueue = new TokenQueue(network.getScheduler());
-		final HashSet<Path> paths = PathCollector.newHashSet().collectAll(filter).getPaths();
+		final HashSet<Path> paths = PathCollector.newHashSet().collectAllInLists(filter).getPaths();
 		final Map<Edge, Set<Path>> edgesAndPaths = new HashMap<>();
 		final ArrayList<Edge> edges = new ArrayList<>();
 		final Set<Path> joinedPaths = new HashSet<>();
