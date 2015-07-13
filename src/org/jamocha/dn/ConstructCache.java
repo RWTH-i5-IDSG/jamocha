@@ -1,12 +1,12 @@
 /*
  * Copyright 2002-2014 The Jamocha Team
- *
- *
+ * 
+ * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
- *
+ * 
  * http://www.jamocha.org/
- *
+ * 
  * Unless required by applicable law or agreed to in writing, software distributed under the License
  * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
  * or implied. See the License for the specific language governing permissions and limitations under
@@ -14,6 +14,7 @@
  */
 package org.jamocha.dn;
 
+import static java.util.stream.Collectors.toList;
 import static org.jamocha.util.ToArray.toArray;
 
 import java.util.ArrayList;
@@ -36,6 +37,7 @@ import org.jamocha.filter.Path;
 import org.jamocha.filter.PathCollector;
 import org.jamocha.filter.PathFilterList.PathSharedListWrapper;
 import org.jamocha.filter.PathFilterSet;
+import org.jamocha.filter.TrivialPathSetToPathListConverter;
 import org.jamocha.function.Function;
 import org.jamocha.function.fwa.Assert;
 import org.jamocha.function.fwa.FunctionWithArguments;
@@ -142,6 +144,12 @@ public class ConstructCache {
 
 			public Defrule getParent() {
 				return Defrule.this;
+			}
+
+			public PathRule trivialToPathRule() {
+				return new PathRule(new PathSharedListWrapper().newSharedElement(condition.stream()
+						.map(TrivialPathSetToPathListConverter::convert).collect(toList())), resultPaths, actionList,
+						equivalenceClassToPathLeaf, specificity);
 			}
 		}
 
