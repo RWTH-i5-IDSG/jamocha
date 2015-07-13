@@ -6,9 +6,10 @@
 			<attribute name="maven.pomderived" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry including="**/*.java" kind="src" path="target/generated-sources">
+	<classpathentry including="**/*.java" kind="src" output="target/classes" path="target/generated-sources">
 		<attributes>
 			<attribute name="ignore_optional_problems" value="true"/>
+			<attribute name="maven.pomderived" value="true"/>
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="src" output="target/test-classes" path="test">
