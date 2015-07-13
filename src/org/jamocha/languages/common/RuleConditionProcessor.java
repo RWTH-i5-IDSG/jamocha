@@ -44,7 +44,6 @@ import org.jamocha.languages.common.ConditionalElement.InitialFactConditionalEle
 import org.jamocha.languages.common.ConditionalElement.NegatedExistentialConditionalElement;
 import org.jamocha.languages.common.ConditionalElement.NotFunctionConditionalElement;
 import org.jamocha.languages.common.ConditionalElement.OrFunctionConditionalElement;
-import org.jamocha.languages.common.ConditionalElement.SharedConditionalElementWrapper;
 import org.jamocha.languages.common.ConditionalElement.TemplatePatternConditionalElement;
 import org.jamocha.languages.common.ConditionalElement.TestConditionalElement;
 import org.jamocha.languages.common.ScopeStack.VariableSymbol;
@@ -151,15 +150,14 @@ public class RuleConditionProcessor {
 					this.ces = orLists.get(0);
 					return;
 				}
-				// wrap the part without the (or )s into shared element wrapper
-				final SharedConditionalElementWrapper shared =
-						new SharedConditionalElementWrapper(combineViaAnd(singletonLists));
+				// combine the part without the (or )s with (and )s
+				final ConditionalElement andPart = combineViaAnd(singletonLists);
 				// only one (or ), no need to share the elements of the (or )
 				// combine shared part with each of the (or )-elements
 				this.ces =
 						orLists.get(0)
 								.stream()
-								.map(orPart -> new AndFunctionConditionalElement(new ArrayList<>(Arrays.asList(shared,
+								.map(orPart -> new AndFunctionConditionalElement(new ArrayList<>(Arrays.asList(andPart,
 										orPart)))).collect(toList());
 				return;
 			}
@@ -168,28 +166,19 @@ public class RuleConditionProcessor {
 			// while the construction of CEs is incomplete, thus we start by adding the shared part
 			if (singletonLists.isEmpty()) {
 				// no (or )-free part available, wrap the first or-parts into shared wrappers
-				this.ces =
-						orLists.remove(0).stream().map(orPart -> new SharedConditionalElementWrapper(orPart))
-								.collect(toList());
+				this.ces = orLists.remove(0);
 			} else {
-				// wrap the part without the (or )s into shared element wrapper
-				final SharedConditionalElementWrapper shared =
-						new SharedConditionalElementWrapper(combineViaAnd(singletonLists));
-				this.ces =
-						new ArrayList<>(Collections.singletonList(new AndFunctionConditionalElement(Collections
-								.singletonList(shared))));
+				this.ces = singletonLists;
 			}
 			// for every (or ) occurrence we need to duplicate the list of CEs and combine them with
 			// the (or ) elements
 			orLists.forEach(orList -> {
 				final List<ConditionalElement> newCEs = new ArrayList<>(orList.size() * this.ces.size());
 				orList.forEach(orPart -> {
-					// wrap the next or part into a shared element wrapper
-					final SharedConditionalElementWrapper sharedOrPart = new SharedConditionalElementWrapper(orPart);
 					// copy the old part and add the shared part, add combination of them to newCEs
 					this.ces.forEach(oldPart -> {
 						final ArrayList<ConditionalElement> children = new ArrayList<>(oldPart.getChildren());
-						children.add(sharedOrPart);
+						children.add(orPart);
 						newCEs.add(new AndFunctionConditionalElement(children));
 					});
 				});

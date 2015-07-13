@@ -32,7 +32,6 @@ import org.jamocha.languages.common.ConditionalElement.ExistentialConditionalEle
 import org.jamocha.languages.common.ConditionalElement.InitialFactConditionalElement;
 import org.jamocha.languages.common.ConditionalElement.NegatedExistentialConditionalElement;
 import org.jamocha.languages.common.ConditionalElement.OrFunctionConditionalElement;
-import org.jamocha.languages.common.ConditionalElement.SharedConditionalElementWrapper;
 import org.jamocha.languages.common.ConditionalElement.TemplatePatternConditionalElement;
 import org.jamocha.languages.common.DefaultConditionalElementsVisitor;
 import org.jamocha.languages.common.SingleFactVariable;
@@ -102,11 +101,6 @@ public class DeepFactVariableCollector implements DefaultConditionalElementsVisi
 	@Override
 	public void visit(final AndFunctionConditionalElement ce) {
 		handleChildren(ce);
-	}
-
-	@Override
-	public void visit(final SharedConditionalElementWrapper ce) {
-		ce.getCe().accept(this);
 	}
 
 	@Override

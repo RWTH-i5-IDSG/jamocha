@@ -34,7 +34,6 @@ import org.jamocha.languages.common.ConditionalElement;
 import org.jamocha.languages.common.ConditionalElement.AndFunctionConditionalElement;
 import org.jamocha.languages.common.ConditionalElement.InitialFactConditionalElement;
 import org.jamocha.languages.common.ConditionalElement.OrFunctionConditionalElement;
-import org.jamocha.languages.common.ConditionalElement.SharedConditionalElementWrapper;
 import org.jamocha.languages.common.ConditionalElement.TemplatePatternConditionalElement;
 import org.jamocha.languages.common.DefaultConditionalElementsVisitor;
 import org.jamocha.languages.common.RuleCondition.EquivalenceClass;
@@ -104,11 +103,6 @@ public class ShallowFactVariableCollector implements DefaultConditionalElementsV
 		this.factVariables =
 				ce.getChildren().stream().flatMap(child -> collect(child).stream())
 						.collect(Collectors.toCollection(ArrayList::new));
-	}
-
-	@Override
-	public void visit(final SharedConditionalElementWrapper ce) {
-		ce.getCe().accept(this);
 	}
 
 	@Override

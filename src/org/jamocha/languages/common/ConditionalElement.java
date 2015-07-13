@@ -162,34 +162,4 @@ public abstract class ConditionalElement implements Visitable<ConditionalElement
 			return visitor;
 		}
 	}
-
-	/**
-	 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
-	 * @author Christoph Terwelp <christoph.terwelp@rwth-aachen.de>
-	 */
-	@Getter
-	public static class SharedConditionalElementWrapper extends ConditionalElement {
-
-		private ConditionalElement ce;
-
-		public SharedConditionalElementWrapper(final ConditionalElement ce) {
-			super(null);
-			this.ce = ce;
-		}
-
-		public void replaceConditionalElement(final ConditionalElement ce) {
-			this.ce = ce;
-		}
-
-		@Override
-		public List<ConditionalElement> getChildren() {
-			return this.ce.getChildren();
-		}
-
-		@Override
-		public <V extends ConditionalElementsVisitor> V accept(final V visitor) {
-			visitor.visit(this);
-			return visitor;
-		}
-	}
 }

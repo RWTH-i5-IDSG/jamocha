@@ -36,8 +36,4 @@ public interface ConditionalElementsVisitor extends Visitor {
 	public void visit(final ConditionalElement.TestConditionalElement ce);
 
 	public void visit(final ConditionalElement.TemplatePatternConditionalElement ce);
-
-	default public void visit(final ConditionalElement.SharedConditionalElementWrapper ce) {
-		ce.getCe().accept(this);
-	}
 }

@@ -27,7 +27,6 @@ import org.jamocha.languages.common.ConditionalElement.InitialFactConditionalEle
 import org.jamocha.languages.common.ConditionalElement.NegatedExistentialConditionalElement;
 import org.jamocha.languages.common.ConditionalElement.NotFunctionConditionalElement;
 import org.jamocha.languages.common.ConditionalElement.OrFunctionConditionalElement;
-import org.jamocha.languages.common.ConditionalElement.SharedConditionalElementWrapper;
 import org.jamocha.languages.common.ConditionalElement.TemplatePatternConditionalElement;
 import org.jamocha.languages.common.ConditionalElement.TestConditionalElement;
 import org.jamocha.languages.common.ConditionalElementsVisitor;
@@ -101,13 +100,6 @@ public class ConditionalElementFormatter implements Formatter<ConditionalElement
 		public void visit(final TestConditionalElement ce) {
 			sb.append("(test ");
 			sb.append(FunctionWithArgumentsFormatter.formatFwa(ce.getPredicateWithArguments()));
-			sb.append(")");
-		}
-
-		@Override
-		public void visit(final SharedConditionalElementWrapper ce) {
-			sb.append("(shared ");
-			ce.getCe().accept(this);
 			sb.append(")");
 		}
 

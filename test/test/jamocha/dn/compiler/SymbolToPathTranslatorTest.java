@@ -48,7 +48,6 @@ import org.jamocha.languages.clips.parser.generated.ParseException;
 import org.jamocha.languages.clips.parser.generated.SFPParser;
 import org.jamocha.languages.clips.parser.generated.SFPStart;
 import org.jamocha.languages.common.ConditionalElement;
-import org.jamocha.languages.common.ConditionalElement.SharedConditionalElementWrapper;
 import org.jamocha.languages.common.ConditionalElement.TemplatePatternConditionalElement;
 import org.jamocha.languages.common.ConditionalElement.TestConditionalElement;
 import org.jamocha.languages.common.RuleCondition;
@@ -228,9 +227,7 @@ public class SymbolToPathTranslatorTest {
 			assertThat(andChildren, hasSize(2));
 			final SingleFactVariable xFactVar;
 			{
-				final ConditionalElement shared = andChildren.get(0);
-				assertThat(shared, instanceOf(SharedConditionalElementWrapper.class));
-				final ConditionalElement templCe = ((SharedConditionalElementWrapper) shared).getCe();
+				final ConditionalElement templCe = andChildren.get(0);
 				assertThat(templCe, instanceOf(TemplatePatternConditionalElement.class));
 				xFactVar = ((TemplatePatternConditionalElement) templCe).getFactVariable();
 				assertThat(ec2Path, hasKey(xFactVar.getEqual()));
@@ -239,8 +236,8 @@ public class SymbolToPathTranslatorTest {
 				final ConditionalElement testCe = andChildren.get(1);
 				assertThat(testCe, instanceOf(TestConditionalElement.class));
 				final PredicateWithArguments<PathLeaf> translated =
-						FWASymbolToPathTranslator.translate(((TestConditionalElement) testCe).getPredicateWithArguments(),
-								symbolToPathLeaf);
+						FWASymbolToPathTranslator.translate(
+								((TestConditionalElement) testCe).getPredicateWithArguments(), symbolToPathLeaf);
 				assertThat(translated, instanceOf(PredicateWithArgumentsComposite.class));
 				final FunctionWithArguments<PathLeaf>[] args =
 						((PredicateWithArgumentsComposite<PathLeaf>) translated).getArgs();
@@ -269,9 +266,7 @@ public class SymbolToPathTranslatorTest {
 			assertThat(andChildren, hasSize(2));
 			final SingleFactVariable xFactVar;
 			{
-				final ConditionalElement shared = andChildren.get(0);
-				assertThat(shared, instanceOf(SharedConditionalElementWrapper.class));
-				final ConditionalElement templCe = ((SharedConditionalElementWrapper) shared).getCe();
+				final ConditionalElement templCe = andChildren.get(0);
 				assertThat(templCe, instanceOf(TemplatePatternConditionalElement.class));
 				xFactVar = ((TemplatePatternConditionalElement) templCe).getFactVariable();
 				assertThat(ec2Path, hasKey(xFactVar.getEqual()));
@@ -280,8 +275,8 @@ public class SymbolToPathTranslatorTest {
 				final ConditionalElement testCe = andChildren.get(1);
 				assertThat(testCe, instanceOf(TestConditionalElement.class));
 				final PredicateWithArguments<PathLeaf> translated =
-						FWASymbolToPathTranslator.translate(((TestConditionalElement) testCe).getPredicateWithArguments(),
-								symbolToPathLeaf);
+						FWASymbolToPathTranslator.translate(
+								((TestConditionalElement) testCe).getPredicateWithArguments(), symbolToPathLeaf);
 				assertThat(translated, instanceOf(PredicateWithArgumentsComposite.class));
 				final FunctionWithArguments<PathLeaf>[] args =
 						((PredicateWithArgumentsComposite<PathLeaf>) translated).getArgs();
