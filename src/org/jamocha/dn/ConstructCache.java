@@ -128,7 +128,8 @@ public class ConstructCache {
 
 		public PathRule newTranslated(final PathSharedListWrapper.PathSharedList condition,
 				final Map<EquivalenceClass, PathLeaf> equivalenceClassToPathLeaf) {
-			return newTranslated(condition, PathCollector.newHashSet().collectOnlyNonExistentialInLists(condition).getPaths(),
+			return newTranslated(condition,
+					PathCollector.newHashSet().collectOnlyNonExistentialInLists(condition).getPaths(),
 					equivalenceClassToPathLeaf, (int) StreamSupport.stream(condition.spliterator(), false).count());
 		}
 
