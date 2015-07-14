@@ -528,20 +528,18 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements org.jamo
 	 * Assumption: every existentially quantified path/address is only used in a single filter
 	 * element.
 	 */
-	private static void performJoin(final AddressNodeFilterSet filter,
+	private static void performJoin(final AddressNodeFilterSet nodeFilterSet,
 			final LinkedHashMap<Edge, StackElement> edgeToStack, final Edge originEdge) {
 		final Node targetNode = originEdge.getTargetNode();
 		final StackElement originElement = edgeToStack.get(originEdge);
 
 		final Counter counter = ((MemoryHandlerMain) originEdge.getTargetNode().getMemory()).counter;
 
-		// get filter steps
-		final Set<AddressFilter> filterSteps = filter.getFilters();
-		for (final AddressFilter filterElement : filterSteps) {
-			final Collection<StackElement> stack = new ArrayList<>(filterSteps.size());
-			final PredicateWithArguments<ParameterLeaf> predicate = filterElement.getFunction();
-			final SlotInFactAddress addresses[] = filterElement.getAddressesInTarget();
-			final CounterColumn counterColumn = (CounterColumn) filterElement.getCounterColumn();
+		for (final AddressFilter filter : nodeFilterSet.getFilters()) {
+			final SlotInFactAddress addresses[] = filter.getAddressesInTarget();
+			final Collection<StackElement> stack = new ArrayList<>(addresses.length);
+			final PredicateWithArguments<ParameterLeaf> predicate = filter.getFunction();
+			final CounterColumn counterColumn = (CounterColumn) filter.getCounterColumn();
 			final boolean existential = (counterColumn != null);
 
 			// determine new edges
