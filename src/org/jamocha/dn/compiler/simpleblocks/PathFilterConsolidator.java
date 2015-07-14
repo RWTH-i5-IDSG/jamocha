@@ -370,28 +370,6 @@ public class PathFilterConsolidator implements DefaultConditionalElementsVisitor
 					specificity);
 		}
 
-		private static void mergeMissingPathsViaDummy(final Set<Path> allPaths, final Set<PathFilterSet> filters,
-				final Map<Path, Set<Path>> pathToJoinedWith, final Path initialFactPath) {
-			final Set<Path> collectedPaths =
-					(filters.isEmpty() ? Collections.<Path> emptySet()
-							: PathCollector.newHashSet().collectOnlyInFilterLists(filters.get(filters.size() - 1))
-									.getPaths().stream().flatMap((p) -> pathToJoinedWith.get(p).stream())
-									.collect(toSet()));
-			{
-				final PathCollector<HashSet<Path>> pc = PathCollector.newHashSet();
-				filters.forEach(pc::collectAll);
-				if (pc.getPaths().contains(initialFactPath)) {
-					allPaths.add(initialFactPath);
-				}
-			}
-			if (collectedPaths.containsAll(allPaths)) {
-				return;
-			}
-			allPaths.addAll(collectedPaths);
-			filters.add(new PathNodeFilterSet.DummyPathFilter(toArray(allPaths, Path[]::new)));
-			return;
-		}
-
 		private static final Predicate not = FunctionDictionary.lookupPredicate(Not.inClips, SlotType.BOOLEAN);
 
 		private static void createEquivalenceClassTests(final EquivalenceClass equiv,
@@ -424,8 +402,7 @@ public class PathFilterConsolidator implements DefaultConditionalElementsVisitor
 		}
 
 		private static void createEqualSlotsAndFactsTests(final EquivalenceClass equiv,
-				final Set<PathFilterSet> filters, final Map<Path, Set<Path>> pathToJoinedWith,
-				final Map<EquivalenceClass, Path> ec2Path,
+				final Set<PathFilterSet> filters, final Map<EquivalenceClass, Path> ec2Path,
 				final java.util.function.Predicate<? super SingleFactVariable> pred,
 				final Function<? super Set<FunctionWithArguments<PathLeaf>>, ? extends FunctionWithArguments<PathLeaf>> elementChooser) {
 			final Set<FunctionWithArguments<PathLeaf>> equalPathLeafs = equiv.getEqualSlotVariables().stream()
@@ -470,8 +447,7 @@ public class PathFilterConsolidator implements DefaultConditionalElementsVisitor
 
 		// merge the fact variables given and apply all tests between them
 		private static void mergeFVs(final Set<SingleFactVariable> shallowExistentialFVs,
-				final Map<Path, Set<Path>> pathToJoinedWith, final Map<EquivalenceClass, Path> ec2Path,
-				final Set<PathFilterSet> filters) {
+				final Map<EquivalenceClass, Path> ec2Path, final Set<PathFilterSet> filters) {
 			if (shallowExistentialFVs.size() == 1)
 				return;
 			final Set<EquivalenceClass> done = new HashSet<>();
@@ -480,8 +456,8 @@ public class PathFilterConsolidator implements DefaultConditionalElementsVisitor
 					final EquivalenceClass equiv = slotVariable.getEqual();
 					if (!done.add(equiv))
 						continue;
-					createEqualSlotsAndFactsTests(equiv, filters, pathToJoinedWith, ec2Path,
-							shallowExistentialFVs::contains, set -> set.iterator().next());
+					createEqualSlotsAndFactsTests(equiv, filters, ec2Path, shallowExistentialFVs::contains,
+							set -> set.iterator().next());
 				}
 			}
 		}
@@ -683,8 +659,9 @@ public class PathFilterConsolidator implements DefaultConditionalElementsVisitor
 					deepExistentialFactVariables.stream().map(fv -> ec2Path.get(fv.getEqual())).collect(toSet());
 
 			// Collect all used Paths for every PathFilter
-			final Map<PathFilterSet, HashSet<Path>> filter2Paths = filters.stream().collect(Collectors
-					.toMap(Function.identity(), filter -> PathCollector.newHashSet().collectAllInSets(filter).getPaths()));
+			final Map<PathFilterSet, HashSet<Path>> filter2Paths =
+					filters.stream().collect(Collectors.toMap(Function.identity(),
+							filter -> PathCollector.newHashSet().collectAllInSets(filter).getPaths()));
 
 			// Split PathFilters into those only using existential Paths and those also using non
 			// existential Paths
@@ -713,8 +690,8 @@ public class PathFilterConsolidator implements DefaultConditionalElementsVisitor
 					.forEach(path -> path2Filters.computeIfAbsent(path, x -> new HashSet<>()).add(pathFilter)));
 
 			// Find connected components of the existential Paths
-			final Map<Path, Set<Path>> joinedExistentialPaths = deepExistentialPaths.stream()
-					.collect(toMap(Function.identity(), Sets::newHashSet));
+			final Map<Path, Set<Path>> joinedExistentialPaths =
+					deepExistentialPaths.stream().collect(toMap(Function.identity(), Sets::newHashSet));
 			final Map<Set<Path>, Set<PathFilterSet>> joinedExistentialFilters = new HashMap<>();
 			// While there are unjoined Filters continue
 			while (!pureExistentialFilters.isEmpty()) {
@@ -844,8 +821,8 @@ public class PathFilterConsolidator implements DefaultConditionalElementsVisitor
 		}
 
 		private static void addEqualityTestTo(final Set<PathFilterSet> filters,
-				final Map<Path, Set<Path>> pathToJoinedWith, final FunctionWithArguments<PathLeaf> element,
-				final FunctionWithArguments<PathLeaf> other, final boolean isPositive) {
+				final FunctionWithArguments<PathLeaf> element, final FunctionWithArguments<PathLeaf> other,
+				final boolean isPositive) {
 			filters.add(new PathFilter(
 					GenericWithArgumentsComposite.newPredicateInstance(isPositive, Equals.inClips, element, other)));
 		}
