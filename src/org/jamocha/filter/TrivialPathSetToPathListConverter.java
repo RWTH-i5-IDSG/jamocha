@@ -16,8 +16,16 @@ package org.jamocha.filter;
 
 import static java.util.stream.Collectors.toList;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.jamocha.filter.PathFilterList.PathExistentialList;
 import org.jamocha.filter.PathFilterSet.PathExistentialSet;
+import org.jamocha.function.fwa.GenericWithArgumentsComposite;
+import org.jamocha.function.fwa.PathLeaf;
+import org.jamocha.function.fwa.PredicateWithArgumentsComposite;
+import org.jamocha.function.impls.predicates.And;
+import org.jamocha.function.impls.predicates.DummyPredicate;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
@@ -33,11 +41,22 @@ public class TrivialPathSetToPathListConverter implements PathFilterSetVisitor {
 
 	@Override
 	public void visit(final PathExistentialSet set) {
-		this.result = new PathExistentialList(set.getInitialPath(),
-				new PathFilterList.PathSharedListWrapper().newSharedElement(
-						set.getPurePart().stream().map(TrivialPathSetToPathListConverter::convert).collect(toList())),
-				PathNodeFilterSet.newExistentialPathNodeFilterSet(set.isPositive(), set.getExistentialPaths(),
-						set.getExistentialClosure()));
+		PathFilter existentialClosure = set.getExistentialClosure();
+		final HashSet<Path> mixedPaths = PathCollector.newHashSet().collectAllInSets(existentialClosure).getPaths();
+		final Set<Path> existentialPaths = set.getExistentialPaths();
+		mixedPaths.removeAll(existentialPaths);
+		if (mixedPaths.isEmpty()) {
+			existentialClosure =
+					new PathFilter(GenericWithArgumentsComposite.newPredicateInstance(And.inClips,
+							set.existentialClosure.getFunction(), new PredicateWithArgumentsComposite<PathLeaf>(
+									DummyPredicate.instance, new PathLeaf(set.getInitialPath(), null))));
+		}
+		this.result =
+				new PathExistentialList(set.getInitialPath(),
+						new PathFilterList.PathSharedListWrapper().newSharedElement(set.getPurePart().stream()
+								.map(TrivialPathSetToPathListConverter::convert).collect(toList())),
+						PathNodeFilterSet.newExistentialPathNodeFilterSet(set.isPositive(), existentialPaths,
+								existentialClosure));
 	}
 
 	@Override
