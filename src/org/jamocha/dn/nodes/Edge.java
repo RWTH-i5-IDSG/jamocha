@@ -134,9 +134,11 @@ public interface Edge {
 	public void setFilter(final AddressNodeFilterSet filter);
 
 	/**
-	 * Returns the filter previously set by {@link #setFilter(AddressNodeFilterSet)} or the constructor.
+	 * Returns the filter previously set by {@link #setFilter(AddressNodeFilterSet)} or the
+	 * constructor.
 	 * 
-	 * @return the filter previously set by {@link #setFilter(AddressNodeFilterSet)} or the constructor
+	 * @return the filter previously set by {@link #setFilter(AddressNodeFilterSet)} or the
+	 *         constructor
 	 */
 	public AddressNodeFilterSet getFilter();
 

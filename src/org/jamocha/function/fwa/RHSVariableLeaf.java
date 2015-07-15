@@ -14,12 +14,12 @@
  */
 package org.jamocha.function.fwa;
 
+import lombok.AllArgsConstructor;
+
 import org.jamocha.dn.memory.SlotType;
 import org.jamocha.function.Function;
 import org.jamocha.languages.common.ScopeStack.Symbol;
 import org.jamocha.languages.common.errors.VariableNotDeclaredError;
-
-import lombok.AllArgsConstructor;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>

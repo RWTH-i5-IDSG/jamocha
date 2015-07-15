@@ -101,20 +101,22 @@ public class TokenProcessingTest {
 	@Test
 	public void testTokenProcessingBetaExistential() throws InterruptedException {
 		final PlainScheduler scheduler = new PlainScheduler();
-		final Network network = new Network(org.jamocha.dn.memory.javaimpl.MemoryFactory.getMemoryFactory(),
-				Integer.MAX_VALUE, scheduler);
+		final Network network =
+				new Network(org.jamocha.dn.memory.javaimpl.MemoryFactory.getMemoryFactory(), Integer.MAX_VALUE,
+						scheduler);
 		final Template student =
 				MemoryFactory.getMemoryFactory().newTemplate("Student", "Student", Slots.newString("Name"),
 						Slots.newLong("Semester"), Slots.newString("Studiengang"), Slots.newString("Hobby"));
-		final Template prof = MemoryFactory.getMemoryFactory().newTemplate("Prof", "Prof", Slots.newString("Name"),
-				Slots.newString("Studiengang"));
+		final Template prof =
+				MemoryFactory.getMemoryFactory().newTemplate("Prof", "Prof", Slots.newString("Name"),
+						Slots.newString("Studiengang"));
 		final Set<Path> existentialYoungStudent = new HashSet<>();
 		final Set<Path> negatedExistentialMatchingProf = new HashSet<>();
 		final Path oldStudent = new Path(student), youngStudent = new Path(student), matchingProf = new Path(prof);
 		existentialYoungStudent.add(youngStudent);
 		negatedExistentialMatchingProf.add(matchingProf);
-		final SlotAddress studentSem = new SlotAddress(1), studentSG = new SlotAddress(2),
-				studentHobby = new SlotAddress(3), profSG = new SlotAddress(1);
+		final SlotAddress studentSem = new SlotAddress(1), studentSG = new SlotAddress(2), studentHobby =
+				new SlotAddress(3), profSG = new SlotAddress(1);
 
 		final Predicate lessLongLong = FunctionDictionary.lookupPredicate("<", SlotType.LONG, SlotType.LONG);
 		final Predicate eqStrStr = FunctionDictionary.lookupPredicate("=", SlotType.STRING, SlotType.STRING);
@@ -123,19 +125,22 @@ public class TokenProcessingTest {
 		// get the (old) students with hobby "Coding", for which there are younger (semester-wise)
 		// students in the same course of study, but who lack a professor for their course of study
 		final PathFilterList.PathSharedListWrapper.PathSharedList filter =
-				new PathFilterList.PathSharedListWrapper().newSharedElement(Arrays.asList(
-						PathNodeFilterSet.newRegularPathNodeFilterSet(
-								new PredicateBuilder(eqStrStr).addPath(oldStudent, studentHobby)
-										.addConstant("Coding", SlotType.STRING).buildFilter()),
-						PathNodeFilterSet.newExistentialPathNodeFilterSet(false, existentialYoungStudent,
+				new PathFilterList.PathSharedListWrapper().newSharedElement(Arrays.asList(PathNodeFilterSet
+						.newRegularPathNodeFilterSet(new PredicateBuilder(eqStrStr).addPath(oldStudent, studentHobby)
+								.addConstant("Coding", SlotType.STRING).buildFilter()), PathNodeFilterSet
+						.newExistentialPathNodeFilterSet(
+								false,
+								existentialYoungStudent,
 								new PredicateBuilder(and)
 										.addFunction(
 												new PredicateBuilder(lessLongLong).addPath(youngStudent, studentSem)
 														.addPath(oldStudent, studentSem).build())
-										.addFunction(new PredicateBuilder(eqStrStr).addPath(youngStudent, studentSG)
-												.addPath(oldStudent, studentSG).build())
-										.buildFilter()),
-						PathNodeFilterSet.newExistentialPathNodeFilterSet(true, negatedExistentialMatchingProf,
+										.addFunction(
+												new PredicateBuilder(eqStrStr).addPath(youngStudent, studentSG)
+														.addPath(oldStudent, studentSG).build()).buildFilter()),
+						PathNodeFilterSet.newExistentialPathNodeFilterSet(
+								true,
+								negatedExistentialMatchingProf,
 								new PredicateBuilder(eqStrStr).addPath(oldStudent, studentSG)
 										.addPath(matchingProf, profSG).buildFilter())));
 
@@ -213,12 +218,12 @@ public class TokenProcessingTest {
 	@Test
 	public void testTokenProcessingSimpleExistential() throws InterruptedException {
 		final PlainScheduler scheduler = new PlainScheduler();
-		final Network network = new Network(org.jamocha.dn.memory.javaimpl.MemoryFactory.getMemoryFactory(),
-				Integer.MAX_VALUE, scheduler);
+		final Network network =
+				new Network(org.jamocha.dn.memory.javaimpl.MemoryFactory.getMemoryFactory(), Integer.MAX_VALUE,
+						scheduler);
 		final Template t1 =
-				MemoryFactory.getMemoryFactory().newTemplate("", "", Slots.newString("s1"), Slots.newLong("s1")),
-				t2 = MemoryFactory.getMemoryFactory().newTemplate("", "", Slots.newString("s1"),
-						Slots.newBoolean("s2"));
+				MemoryFactory.getMemoryFactory().newTemplate("", "", Slots.newString("s1"), Slots.newLong("s1")), t2 =
+				MemoryFactory.getMemoryFactory().newTemplate("", "", Slots.newString("s1"), Slots.newBoolean("s2"));
 		final Path p1 = new Path(t1), p2 = new Path(t2);
 		final SlotAddress s1 = new SlotAddress(0), s2 = new SlotAddress(1);
 
@@ -227,15 +232,16 @@ public class TokenProcessingTest {
 		final Predicate and = FunctionDictionary.lookupPredicate(And.inClips, SlotType.BOOLEAN, SlotType.BOOLEAN);
 
 		final PathFilterList.PathSharedListWrapper.PathSharedList filter =
-				new PathFilterList.PathSharedListWrapper()
-						.newSharedElement(
-								Arrays.asList(PathNodeFilterSet.newExistentialPathNodeFilterSet(
-										new HashSet<Path>(Arrays.asList(p2)), new HashSet<Path>(),
-										new PredicateBuilder(and)
-												.addFunction(new PredicateBuilder(eqStrStr).addPath(p1, s1)
-														.addPath(p2, s1).build())
-								.addFunction(new PredicateBuilder(eqBoolBool).addBoolean(false).addPath(p2, s2).build())
-								.buildFilter())));
+				new PathFilterList.PathSharedListWrapper().newSharedElement(Arrays.asList(PathNodeFilterSet
+						.newExistentialPathNodeFilterSet(
+								new HashSet<Path>(Arrays.asList(p2)),
+								new HashSet<Path>(),
+								new PredicateBuilder(and)
+										.addFunction(
+												new PredicateBuilder(eqStrStr).addPath(p1, s1).addPath(p2, s1).build())
+										.addFunction(
+												new PredicateBuilder(eqBoolBool).addBoolean(false).addPath(p2, s2)
+														.build()).buildFilter())));
 
 		final TerminalNode terminal =
 				network.buildRule(new Defrule("dummyrule", "", 0, (RuleCondition) null, new ArrayList<>())
@@ -287,12 +293,12 @@ public class TokenProcessingTest {
 	@Test
 	public void testTokenProcessingSimpleNegatedExistential() throws InterruptedException {
 		final PlainScheduler scheduler = new PlainScheduler();
-		final Network network = new Network(org.jamocha.dn.memory.javaimpl.MemoryFactory.getMemoryFactory(),
-				Integer.MAX_VALUE, scheduler);
+		final Network network =
+				new Network(org.jamocha.dn.memory.javaimpl.MemoryFactory.getMemoryFactory(), Integer.MAX_VALUE,
+						scheduler);
 		final Template t1 =
-				MemoryFactory.getMemoryFactory().newTemplate("", "", Slots.newString("s1"), Slots.newLong("s1")),
-				t2 = MemoryFactory.getMemoryFactory().newTemplate("", "", Slots.newString("s1"),
-						Slots.newBoolean("s2"));
+				MemoryFactory.getMemoryFactory().newTemplate("", "", Slots.newString("s1"), Slots.newLong("s1")), t2 =
+				MemoryFactory.getMemoryFactory().newTemplate("", "", Slots.newString("s1"), Slots.newBoolean("s2"));
 		final Path p1 = new Path(t1), p2 = new Path(t2);
 		final SlotAddress s1 = new SlotAddress(0), s2 = new SlotAddress(1);
 
@@ -301,15 +307,16 @@ public class TokenProcessingTest {
 		final Predicate and = FunctionDictionary.lookupPredicate(And.inClips, SlotType.BOOLEAN, SlotType.BOOLEAN);
 
 		final PathFilterList.PathSharedListWrapper.PathSharedList filter =
-				new PathFilterList.PathSharedListWrapper()
-						.newSharedElement(
-								Arrays.asList(PathNodeFilterSet.newExistentialPathNodeFilterSet(new HashSet<Path>(),
-										new HashSet<Path>(Arrays.asList(p2)),
-										new PredicateBuilder(and)
-												.addFunction(new PredicateBuilder(eqStrStr).addPath(p1, s1)
-														.addPath(p2, s1).build())
-								.addFunction(new PredicateBuilder(eqBoolBool).addBoolean(false).addPath(p2, s2).build())
-								.buildFilter())));
+				new PathFilterList.PathSharedListWrapper().newSharedElement(Arrays.asList(PathNodeFilterSet
+						.newExistentialPathNodeFilterSet(
+								new HashSet<Path>(),
+								new HashSet<Path>(Arrays.asList(p2)),
+								new PredicateBuilder(and)
+										.addFunction(
+												new PredicateBuilder(eqStrStr).addPath(p1, s1).addPath(p2, s1).build())
+										.addFunction(
+												new PredicateBuilder(eqBoolBool).addBoolean(false).addPath(p2, s2)
+														.build()).buildFilter())));
 
 		final TerminalNode terminal =
 				network.buildRule(new Defrule("dummyrule", "", 0, (RuleCondition) null, new ArrayList<>())
@@ -367,8 +374,9 @@ public class TokenProcessingTest {
 	@Test
 	public void testTokenProcessingSimpleSelfJoin() throws InterruptedException {
 		final PlainScheduler scheduler = new PlainScheduler();
-		final Network network = new Network(org.jamocha.dn.memory.javaimpl.MemoryFactory.getMemoryFactory(),
-				Integer.MAX_VALUE, scheduler);
+		final Network network =
+				new Network(org.jamocha.dn.memory.javaimpl.MemoryFactory.getMemoryFactory(), Integer.MAX_VALUE,
+						scheduler);
 		final Template student =
 				MemoryFactory.getMemoryFactory().newTemplate("Student", "Student", Slots.newString("Name"),
 						Slots.newLong("Semester"), Slots.newString("Studiengang"), Slots.newString("Hobby"));
@@ -378,15 +386,15 @@ public class TokenProcessingTest {
 		final Predicate lessLongLong = FunctionDictionary.lookupPredicate("<", SlotType.LONG, SlotType.LONG);
 		final Predicate eqStrStr = FunctionDictionary.lookupPredicate("=", SlotType.STRING, SlotType.STRING);
 
-		final PathFilterList.PathSharedListWrapper.PathSharedList filter = new PathFilterList.PathSharedListWrapper()
-				.newSharedElement(Arrays.asList(PathNodeFilterSet.newRegularPathNodeFilterSet(
-						new PredicateBuilder(lessLongLong).addPath(youngStudent, studentSem)
-								.addPath(oldStudent, studentSem).buildFilter(),
-						new PredicateBuilder(eqStrStr).addPath(youngStudent, studentSG).addPath(oldStudent, studentSG)
-								.buildFilter())));
+		final PathFilterList.PathSharedListWrapper.PathSharedList filter =
+				new PathFilterList.PathSharedListWrapper()
+						.newSharedElement(Arrays.asList(PathNodeFilterSet.newRegularPathNodeFilterSet(
+								new PredicateBuilder(lessLongLong).addPath(youngStudent, studentSem)
+										.addPath(oldStudent, studentSem).buildFilter(), new PredicateBuilder(eqStrStr)
+										.addPath(youngStudent, studentSG).addPath(oldStudent, studentSG).buildFilter())));
 
-		network.buildRule(new Defrule("dummyrule", "", 0, (RuleCondition) null, new ArrayList<>()).newTranslated(filter,
-				(Map<EquivalenceClass, PathLeaf>) null));
+		network.buildRule(new Defrule("dummyrule", "", 0, (RuleCondition) null, new ArrayList<>()).newTranslated(
+				filter, (Map<EquivalenceClass, PathLeaf>) null));
 		final RootNode rootNode = network.getRootNode();
 		final ConflictSet conflictSet = network.getConflictSet();
 
@@ -425,39 +433,37 @@ public class TokenProcessingTest {
 	@Test
 	public void testTokenProcessingBeta() throws InterruptedException {
 		final PlainScheduler scheduler = new PlainScheduler();
-		final Network network = new Network(org.jamocha.dn.memory.javaimpl.MemoryFactory.getMemoryFactory(),
-				Integer.MAX_VALUE, scheduler);
+		final Network network =
+				new Network(org.jamocha.dn.memory.javaimpl.MemoryFactory.getMemoryFactory(), Integer.MAX_VALUE,
+						scheduler);
 		final Template student =
 				MemoryFactory.getMemoryFactory().newTemplate("Student", "Student", Slots.newString("Name"),
 						Slots.newLong("Semester"), Slots.newString("Studiengang"), Slots.newString("Hobby"));
-		final Template prof = MemoryFactory.getMemoryFactory().newTemplate("Prof", "Prof", Slots.newString("Name"),
-				Slots.newString("Studiengang"));
+		final Template prof =
+				MemoryFactory.getMemoryFactory().newTemplate("Prof", "Prof", Slots.newString("Name"),
+						Slots.newString("Studiengang"));
 		final Path oldStudent = new Path(student), youngStudent = new Path(student), matchingProf = new Path(prof);
-		final SlotAddress studentSem = new SlotAddress(1), studentSG = new SlotAddress(2),
-				studentHobby = new SlotAddress(3), profSG = new SlotAddress(1);
+		final SlotAddress studentSem = new SlotAddress(1), studentSG = new SlotAddress(2), studentHobby =
+				new SlotAddress(3), profSG = new SlotAddress(1);
 
 		final Predicate lessLongLong = FunctionDictionary.lookupPredicate("<", SlotType.LONG, SlotType.LONG);
 		final Predicate eqStrStr = FunctionDictionary.lookupPredicate("=", SlotType.STRING, SlotType.STRING);
 
 		final PathFilterList.PathSharedListWrapper.PathSharedList filter =
 				new PathFilterList.PathSharedListWrapper()
-						.newSharedElement(
-								Arrays.asList(
-										PathNodeFilterSet.newRegularPathNodeFilterSet(
-												new PredicateBuilder(eqStrStr).addPath(oldStudent, studentHobby)
-														.addConstant("Coding",
-																SlotType.STRING)
-														.buildFilter()),
-						PathNodeFilterSet.newRegularPathNodeFilterSet(
-								new PredicateBuilder(lessLongLong).addPath(youngStudent, studentSem)
-										.addPath(oldStudent, studentSem).buildFilter(),
-								new PredicateBuilder(eqStrStr).addPath(youngStudent, studentSG)
+						.newSharedElement(Arrays.asList(
+								PathNodeFilterSet.newRegularPathNodeFilterSet(new PredicateBuilder(eqStrStr)
+										.addPath(oldStudent, studentHobby).addConstant("Coding", SlotType.STRING)
+										.buildFilter()),
+								PathNodeFilterSet.newRegularPathNodeFilterSet(new PredicateBuilder(lessLongLong)
+										.addPath(youngStudent, studentSem).addPath(oldStudent, studentSem)
+										.buildFilter(), new PredicateBuilder(eqStrStr).addPath(youngStudent, studentSG)
 										.addPath(oldStudent, studentSG).buildFilter()),
-						PathNodeFilterSet.newRegularPathNodeFilterSet(new PredicateBuilder(eqStrStr)
-								.addPath(youngStudent, studentSG).addPath(matchingProf, profSG).buildFilter())));
+								PathNodeFilterSet.newRegularPathNodeFilterSet(new PredicateBuilder(eqStrStr)
+										.addPath(youngStudent, studentSG).addPath(matchingProf, profSG).buildFilter())));
 
-		network.buildRule(new Defrule("dummyrule", "", 0, (RuleCondition) null, new ArrayList<>()).newTranslated(filter,
-				(Map<EquivalenceClass, PathLeaf>) null));
+		network.buildRule(new Defrule("dummyrule", "", 0, (RuleCondition) null, new ArrayList<>()).newTranslated(
+				filter, (Map<EquivalenceClass, PathLeaf>) null));
 		final RootNode rootNode = network.getRootNode();
 		final ConflictSet conflictSet = network.getConflictSet();
 
@@ -505,39 +511,37 @@ public class TokenProcessingTest {
 	@Test
 	public void testTokenProcessingBetaOneRun() throws InterruptedException {
 		final PlainScheduler scheduler = new PlainScheduler();
-		final Network network = new Network(org.jamocha.dn.memory.javaimpl.MemoryFactory.getMemoryFactory(),
-				Integer.MAX_VALUE, scheduler);
+		final Network network =
+				new Network(org.jamocha.dn.memory.javaimpl.MemoryFactory.getMemoryFactory(), Integer.MAX_VALUE,
+						scheduler);
 		final Template student =
 				MemoryFactory.getMemoryFactory().newTemplate("Student", "Student", Slots.newString("Name"),
 						Slots.newLong("Semester"), Slots.newString("Studiengang"), Slots.newString("Hobby"));
-		final Template prof = MemoryFactory.getMemoryFactory().newTemplate("Prof", "Prof", Slots.newString("Name"),
-				Slots.newString("Studiengang"));
+		final Template prof =
+				MemoryFactory.getMemoryFactory().newTemplate("Prof", "Prof", Slots.newString("Name"),
+						Slots.newString("Studiengang"));
 		final Path oldStudent = new Path(student), youngStudent = new Path(student), matchingProf = new Path(prof);
-		final SlotAddress studentSem = new SlotAddress(1), studentSG = new SlotAddress(2),
-				studentHobby = new SlotAddress(3), profSG = new SlotAddress(1);
+		final SlotAddress studentSem = new SlotAddress(1), studentSG = new SlotAddress(2), studentHobby =
+				new SlotAddress(3), profSG = new SlotAddress(1);
 
 		final Predicate lessLongLong = FunctionDictionary.lookupPredicate("<", SlotType.LONG, SlotType.LONG);
 		final Predicate eqStrStr = FunctionDictionary.lookupPredicate("=", SlotType.STRING, SlotType.STRING);
 
 		final PathFilterList.PathSharedListWrapper.PathSharedList filter =
 				new PathFilterList.PathSharedListWrapper()
-						.newSharedElement(
-								Arrays.asList(
-										PathNodeFilterSet.newRegularPathNodeFilterSet(
-												new PredicateBuilder(eqStrStr).addPath(oldStudent, studentHobby)
-														.addConstant("Coding",
-																SlotType.STRING)
-														.buildFilter()),
-						PathNodeFilterSet.newRegularPathNodeFilterSet(
-								new PredicateBuilder(lessLongLong).addPath(youngStudent, studentSem)
-										.addPath(oldStudent, studentSem).buildFilter(),
-								new PredicateBuilder(eqStrStr).addPath(youngStudent, studentSG)
+						.newSharedElement(Arrays.asList(
+								PathNodeFilterSet.newRegularPathNodeFilterSet(new PredicateBuilder(eqStrStr)
+										.addPath(oldStudent, studentHobby).addConstant("Coding", SlotType.STRING)
+										.buildFilter()),
+								PathNodeFilterSet.newRegularPathNodeFilterSet(new PredicateBuilder(lessLongLong)
+										.addPath(youngStudent, studentSem).addPath(oldStudent, studentSem)
+										.buildFilter(), new PredicateBuilder(eqStrStr).addPath(youngStudent, studentSG)
 										.addPath(oldStudent, studentSG).buildFilter()),
-						PathNodeFilterSet.newRegularPathNodeFilterSet(new PredicateBuilder(eqStrStr)
-								.addPath(youngStudent, studentSG).addPath(matchingProf, profSG).buildFilter())));
+								PathNodeFilterSet.newRegularPathNodeFilterSet(new PredicateBuilder(eqStrStr)
+										.addPath(youngStudent, studentSG).addPath(matchingProf, profSG).buildFilter())));
 
-		network.buildRule(new Defrule("dummyrule", "", 0, (RuleCondition) null, new ArrayList<>()).newTranslated(filter,
-				(Map<EquivalenceClass, PathLeaf>) null));
+		network.buildRule(new Defrule("dummyrule", "", 0, (RuleCondition) null, new ArrayList<>()).newTranslated(
+				filter, (Map<EquivalenceClass, PathLeaf>) null));
 		final RootNode rootNode = network.getRootNode();
 		final ConflictSet conflictSet = network.getConflictSet();
 
@@ -575,8 +579,9 @@ public class TokenProcessingTest {
 	@Test
 	public void testTokenProcessingSimpleBeta() throws InterruptedException {
 		final PlainScheduler scheduler = new PlainScheduler();
-		final Network network = new Network(org.jamocha.dn.memory.javaimpl.MemoryFactory.getMemoryFactory(),
-				Integer.MAX_VALUE, scheduler);
+		final Network network =
+				new Network(org.jamocha.dn.memory.javaimpl.MemoryFactory.getMemoryFactory(), Integer.MAX_VALUE,
+						scheduler);
 		final Template t1 =
 				MemoryFactory.getMemoryFactory().newTemplate("", "", Slots.newLong("s1"), Slots.newString("s2"));
 		final Template t2 =
@@ -587,11 +592,12 @@ public class TokenProcessingTest {
 
 		final Predicate eqStrStr = FunctionDictionary.lookupPredicate("=", SlotType.STRING, SlotType.STRING);
 
-		final PathFilterList.PathSharedListWrapper.PathSharedList filter = new PathFilterList.PathSharedListWrapper()
-				.newSharedElement(Arrays.asList(PathNodeFilterSet.newRegularPathNodeFilterSet(
-						new PredicateBuilder(eqStrStr).addPath(p1, slotStr).addPath(p2, slotStr).buildFilter())));
-		network.buildRule(new Defrule("dummyrule", "", 0, (RuleCondition) null, new ArrayList<>()).newTranslated(filter,
-				(Map<EquivalenceClass, PathLeaf>) null));
+		final PathFilterList.PathSharedListWrapper.PathSharedList filter =
+				new PathFilterList.PathSharedListWrapper().newSharedElement(Arrays.asList(PathNodeFilterSet
+						.newRegularPathNodeFilterSet(new PredicateBuilder(eqStrStr).addPath(p1, slotStr)
+								.addPath(p2, slotStr).buildFilter())));
+		network.buildRule(new Defrule("dummyrule", "", 0, (RuleCondition) null, new ArrayList<>()).newTranslated(
+				filter, (Map<EquivalenceClass, PathLeaf>) null));
 		final RootNode rootNode = network.getRootNode();
 
 		rootNode.assertFacts(t1.newFact(12L, "Micky"));
@@ -621,10 +627,12 @@ public class TokenProcessingTest {
 	@Test
 	public void testTokenProcessing() throws InterruptedException {
 		final PlainScheduler scheduler = new PlainScheduler();
-		final Network network = new Network(org.jamocha.dn.memory.javaimpl.MemoryFactory.getMemoryFactory(),
-				Integer.MAX_VALUE, scheduler);
-		final Template t1 = MemoryFactory.getMemoryFactory().newTemplate("", "", Slots.newLong("s1"),
-				Slots.newString("s2"), Slots.newBoolean("s3"));
+		final Network network =
+				new Network(org.jamocha.dn.memory.javaimpl.MemoryFactory.getMemoryFactory(), Integer.MAX_VALUE,
+						scheduler);
+		final Template t1 =
+				MemoryFactory.getMemoryFactory().newTemplate("", "", Slots.newLong("s1"), Slots.newString("s2"),
+						Slots.newBoolean("s3"));
 		final Path p1 = new Path(t1);
 		final SlotAddress slotLong = new SlotAddress(0), slotBool = new SlotAddress(2);
 
@@ -632,15 +640,15 @@ public class TokenProcessingTest {
 		final Predicate eqBoolBool = FunctionDictionary.lookupPredicate("=", SlotType.BOOLEAN, SlotType.BOOLEAN);
 
 		final PathFilterList.PathSharedListWrapper.PathSharedList filter =
-				new PathFilterList.PathSharedListWrapper()
-						.newSharedElement(Arrays
-								.asList(PathNodeFilterSet.newRegularPathNodeFilterSet(new PredicateBuilder(eqBoolBool)
-										.addPath(p1, slotBool).addFunction(new FunctionBuilder(lessLongLong)
-												.addPath(p1, slotLong).addConstant(3L, SlotType.LONG).build())
-								.buildFilter())));
+				new PathFilterList.PathSharedListWrapper().newSharedElement(Arrays.asList(PathNodeFilterSet
+						.newRegularPathNodeFilterSet(new PredicateBuilder(eqBoolBool)
+								.addPath(p1, slotBool)
+								.addFunction(
+										new FunctionBuilder(lessLongLong).addPath(p1, slotLong)
+												.addConstant(3L, SlotType.LONG).build()).buildFilter())));
 
-		network.buildRule(new Defrule("dummyrule", "", 0, (RuleCondition) null, new ArrayList<>()).newTranslated(filter,
-				(Map<EquivalenceClass, PathLeaf>) null));
+		network.buildRule(new Defrule("dummyrule", "", 0, (RuleCondition) null, new ArrayList<>()).newTranslated(
+				filter, (Map<EquivalenceClass, PathLeaf>) null));
 
 		// false == 5 < 3
 		network.getRootNode().assertFacts(t1.newFact(5L, "5L&FALSE", false));
@@ -668,10 +676,12 @@ public class TokenProcessingTest {
 	@Test
 	public void testTokenProcessingDummyFilter() throws InterruptedException {
 		final PlainScheduler scheduler = new PlainScheduler();
-		final Network network = new Network(org.jamocha.dn.memory.javaimpl.MemoryFactory.getMemoryFactory(),
-				Integer.MAX_VALUE, scheduler);
-		final Template t1 = MemoryFactory.getMemoryFactory().newTemplate("", "", Slots.newLong("s1"),
-				Slots.newString("s2"), Slots.newBoolean("s3"));
+		final Network network =
+				new Network(org.jamocha.dn.memory.javaimpl.MemoryFactory.getMemoryFactory(), Integer.MAX_VALUE,
+						scheduler);
+		final Template t1 =
+				MemoryFactory.getMemoryFactory().newTemplate("", "", Slots.newLong("s1"), Slots.newString("s2"),
+						Slots.newBoolean("s3"));
 		final Path p1 = new Path(t1);
 
 		final FilterMockup filter = FilterMockup.alwaysTrue(new PathAndSlotAddress(p1, new SlotAddress(2)));
@@ -741,10 +751,12 @@ public class TokenProcessingTest {
 	@Test
 	public void testTokenProcessingDummyFilterOneRun() throws InterruptedException {
 		final PlainScheduler scheduler = new PlainScheduler();
-		final Network network = new Network(org.jamocha.dn.memory.javaimpl.MemoryFactory.getMemoryFactory(),
-				Integer.MAX_VALUE, scheduler);
-		final Template t1 = MemoryFactory.getMemoryFactory().newTemplate("", "", Slots.newLong("s1"),
-				Slots.newString("s2"), Slots.newBoolean("s3"));
+		final Network network =
+				new Network(org.jamocha.dn.memory.javaimpl.MemoryFactory.getMemoryFactory(), Integer.MAX_VALUE,
+						scheduler);
+		final Template t1 =
+				MemoryFactory.getMemoryFactory().newTemplate("", "", Slots.newLong("s1"), Slots.newString("s2"),
+						Slots.newBoolean("s3"));
 		final Path p1 = new Path(t1);
 
 		final FilterMockup filter = FilterMockup.alwaysTrue(new PathAndSlotAddress(p1, new SlotAddress(2)));
@@ -788,10 +800,12 @@ public class TokenProcessingTest {
 	@Test
 	public void testTokenProcessingOneRun() throws InterruptedException {
 		final PlainScheduler scheduler = new PlainScheduler();
-		final Network network = new Network(org.jamocha.dn.memory.javaimpl.MemoryFactory.getMemoryFactory(),
-				Integer.MAX_VALUE, scheduler);
-		final Template t1 = MemoryFactory.getMemoryFactory().newTemplate("", "", Slots.newLong("s1"),
-				Slots.newString("s2"), Slots.newBoolean("s3"));
+		final Network network =
+				new Network(org.jamocha.dn.memory.javaimpl.MemoryFactory.getMemoryFactory(), Integer.MAX_VALUE,
+						scheduler);
+		final Template t1 =
+				MemoryFactory.getMemoryFactory().newTemplate("", "", Slots.newLong("s1"), Slots.newString("s2"),
+						Slots.newBoolean("s3"));
 		final Path p1 = new Path(t1);
 		final SlotAddress slotLong = new SlotAddress(0), slotBool = new SlotAddress(2);
 
@@ -799,12 +813,11 @@ public class TokenProcessingTest {
 		final Predicate eqBoolBool = FunctionDictionary.lookupPredicate("=", SlotType.BOOLEAN, SlotType.BOOLEAN);
 
 		final PathNodeFilterSet filter =
-				PathNodeFilterSet
-						.newRegularPathNodeFilterSet(
-								new PredicateBuilder(eqBoolBool)
-										.addPath(p1, slotBool).addFunction(new FunctionBuilder(lessLongLong)
-												.addPath(p1, slotLong).addConstant(3L, SlotType.LONG).build())
-				.buildFilter());
+				PathNodeFilterSet.newRegularPathNodeFilterSet(new PredicateBuilder(eqBoolBool)
+						.addPath(p1, slotBool)
+						.addFunction(
+								new FunctionBuilder(lessLongLong).addPath(p1, slotLong).addConstant(3L, SlotType.LONG)
+										.build()).buildFilter());
 
 		network.buildRule(new Defrule("dummyrule", "", 0, (RuleCondition) null, new ArrayList<>()).newTranslated(
 				new PathFilterList.PathSharedListWrapper().newSharedElement(Arrays.asList(filter)),

@@ -16,6 +16,8 @@ package org.jamocha.languages.clips.parser;
 
 import java.util.Stack;
 
+import lombok.Value;
+
 import org.jamocha.languages.clips.parser.SFPVisitorImpl.ExistentialState;
 import org.jamocha.languages.clips.parser.SFPVisitorImpl.SFPConditionalElementVisitor;
 import org.jamocha.languages.clips.parser.SFPVisitorImpl.SFPStartVisitor;
@@ -23,8 +25,6 @@ import org.jamocha.languages.clips.parser.generated.SFPDefruleConstruct;
 import org.jamocha.languages.common.ConditionalElement.InitialFactConditionalElement;
 import org.jamocha.languages.common.RuleCondition;
 import org.jamocha.languages.common.ScopeStack.Scope;
-
-import lombok.Value;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>

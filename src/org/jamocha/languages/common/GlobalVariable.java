@@ -14,11 +14,11 @@
  */
 package org.jamocha.languages.common;
 
-import org.jamocha.dn.memory.SlotType;
-import org.jamocha.languages.common.ScopeStack.Symbol;
-
 import lombok.Getter;
 import lombok.Setter;
+
+import org.jamocha.dn.memory.SlotType;
+import org.jamocha.languages.common.ScopeStack.Symbol;
 
 /**
  * Class representing a global variable.

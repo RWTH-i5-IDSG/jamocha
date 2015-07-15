@@ -25,12 +25,6 @@ import java.util.Arrays;
 import java.util.Queue;
 import java.util.prefs.Preferences;
 
-import org.apache.commons.lang3.tuple.Pair;
-import org.jamocha.Jamocha;
-import org.jamocha.gui.network.NetworkVisualisation;
-import org.jamocha.languages.clips.parser.generated.ParseException;
-import org.jamocha.languages.common.Warning;
-
 import javafx.application.Application;
 import javafx.geometry.Side;
 import javafx.scene.Scene;
@@ -42,6 +36,12 @@ import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Stage;
 import lombok.AllArgsConstructor;
+
+import org.apache.commons.lang3.tuple.Pair;
+import org.jamocha.Jamocha;
+import org.jamocha.gui.network.NetworkVisualisation;
+import org.jamocha.languages.clips.parser.generated.ParseException;
+import org.jamocha.languages.common.Warning;
 
 /**
  * @author Christoph Terwelp <christoph.terwelp@rwth-aachen.de>

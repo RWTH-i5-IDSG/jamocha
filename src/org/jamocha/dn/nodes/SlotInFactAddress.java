@@ -14,12 +14,12 @@
  */
 package org.jamocha.dn.nodes;
 
-import org.jamocha.dn.memory.FactAddress;
-import org.jamocha.dn.memory.SlotAddress;
-
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+
+import org.jamocha.dn.memory.FactAddress;
+import org.jamocha.dn.memory.SlotAddress;
 
 /**
  * Combines a {@link FactAddress fact address} with a {@link SlotAddress slot address}.

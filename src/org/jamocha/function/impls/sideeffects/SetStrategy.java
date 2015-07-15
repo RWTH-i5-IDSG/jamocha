@@ -52,23 +52,22 @@ public abstract class SetStrategy implements Function<Object> {
 	}
 
 	static {
-		FunctionDictionary.addFixedArgsGeneratorWithSideEffects(inClips, paramTypes,
-				(final SideEffectFunctionToNetwork network, final SlotType[] paramTypes) -> {
-					return new SetStrategy() {
-						@Override
-						public Object evaluate(final Function<?>... params) {
-							final String name = ((Symbol) params[0].evaluate()).getImage();
-							final ConflictResolutionStrategy oldStrategy = network.getConflictResolutionStrategy();
-							try {
-								network.setConflictResolutionStrategy(
-										ConflictResolutionStrategy.valueOf(name.toUpperCase()));
-							} catch (final IllegalArgumentException e) {
-								network.getLogFormatter().messageArgumentTypeMismatch(network, inClips, 0,
-										Type.CONFLICT_RESOLUTION_STRATEGY);
-							}
-							return network.createTopLevelSymbol(oldStrategy.name().toLowerCase());
-						}
-					};
-				});
+		FunctionDictionary.addFixedArgsGeneratorWithSideEffects(inClips, paramTypes, (
+				final SideEffectFunctionToNetwork network, final SlotType[] paramTypes) -> {
+			return new SetStrategy() {
+				@Override
+				public Object evaluate(final Function<?>... params) {
+					final String name = ((Symbol) params[0].evaluate()).getImage();
+					final ConflictResolutionStrategy oldStrategy = network.getConflictResolutionStrategy();
+					try {
+						network.setConflictResolutionStrategy(ConflictResolutionStrategy.valueOf(name.toUpperCase()));
+					} catch (final IllegalArgumentException e) {
+						network.getLogFormatter().messageArgumentTypeMismatch(network, inClips, 0,
+								Type.CONFLICT_RESOLUTION_STRATEGY);
+					}
+					return network.createTopLevelSymbol(oldStrategy.name().toLowerCase());
+				}
+			};
+		});
 	}
 }

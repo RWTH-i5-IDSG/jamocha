@@ -236,14 +236,19 @@ public class MemoryHandlerTempTest {
 	 */
 	@Test
 	public void testNewBetaTempFullJoin() throws CouldNotAcquireLockException {
-		Pair<? extends org.jamocha.dn.memory.MemoryHandlerPlusTemp, MemoryFact[]> token = nodeRight.getMemory()
-				.newPlusToken(nodeRight, Slots.STRING.newFact("Fakt3"), Slots.STRING.newFact("Fakt4"));
+		Pair<? extends org.jamocha.dn.memory.MemoryHandlerPlusTemp, MemoryFact[]> token =
+				nodeRight.getMemory().newPlusToken(nodeRight, Slots.STRING.newFact("Fakt3"),
+						Slots.STRING.newFact("Fakt4"));
 		token.getLeft().releaseLock();
-		token = nodeLeft.getMemory().newPlusToken(nodeLeft, Slots.STRING.newFact("Fakt1"),
-				Slots.STRING.newFact("Fakt2"));
-		final MemoryHandlerPlusTemp token1 = (MemoryHandlerPlusTemp) node.getMemory()
-				.processTokenInBeta(token.getLeft(), originInput, PathNodeFilterSetToAddressNodeFilterSetTranslator
-						.translate(FilterMockup.alwaysTrue(), counterColumnMatcherMockup));
+		token =
+				nodeLeft.getMemory().newPlusToken(nodeLeft, Slots.STRING.newFact("Fakt1"),
+						Slots.STRING.newFact("Fakt2"));
+		final MemoryHandlerPlusTemp token1 =
+				(MemoryHandlerPlusTemp) node.getMemory().processTokenInBeta(
+						token.getLeft(),
+						originInput,
+						PathNodeFilterSetToAddressNodeFilterSetTranslator.translate(FilterMockup.alwaysTrue(),
+								counterColumnMatcherMockup));
 		assertEquals(4, token1.size());
 		assertEquals(2, token1.getTemplate().length);
 		String s = (String) token1.getValue(fa[0], slotAddress, 0);
@@ -279,18 +284,20 @@ public class MemoryHandlerTempTest {
 		final Predicate eq = FunctionDictionary.lookupPredicate("=", SlotType.STRING, SlotType.STRING);
 		final PredicateWithArguments<ParameterLeaf> faw = new PredicateWithArgumentsComposite<>(eq, pl1, pl2);
 		final AddressFilter filter =
-				new AddressFilter(faw,
-						new SlotInFactAddress[] { new SlotInFactAddress(
-								new org.jamocha.dn.memory.javaimpl.FactAddress(0), new SlotAddress(0)),
+				new AddressFilter(faw, new SlotInFactAddress[] {
+						new SlotInFactAddress(new org.jamocha.dn.memory.javaimpl.FactAddress(0), new SlotAddress(0)),
 						new SlotInFactAddress(new org.jamocha.dn.memory.javaimpl.FactAddress(1), new SlotAddress(0)) });
-		final AddressNodeFilterSet filterSet = new AddressNodeFilterSet(new HashSet<FactAddress>(),
-				new HashSet<FactAddress>(), new HashSet<AddressFilter>(Arrays.asList(filter)),
-				(NormalAddressNodeFilterSet) null, Collections.<AddressMatchingConfiguration> emptyList());
-		Pair<? extends org.jamocha.dn.memory.MemoryHandlerPlusTemp, MemoryFact[]> token = nodeRight.getMemory()
-				.newPlusToken(nodeRight, Slots.STRING.newFact("Fakt1"), Slots.STRING.newFact("Fakt3"));
+		final AddressNodeFilterSet filterSet =
+				new AddressNodeFilterSet(new HashSet<FactAddress>(), new HashSet<FactAddress>(),
+						new HashSet<AddressFilter>(Arrays.asList(filter)), (NormalAddressNodeFilterSet) null,
+						Collections.<AddressMatchingConfiguration> emptyList());
+		Pair<? extends org.jamocha.dn.memory.MemoryHandlerPlusTemp, MemoryFact[]> token =
+				nodeRight.getMemory().newPlusToken(nodeRight, Slots.STRING.newFact("Fakt1"),
+						Slots.STRING.newFact("Fakt3"));
 		token.getLeft().releaseLock();
-		token = nodeLeft.getMemory().newPlusToken(nodeLeft, Slots.STRING.newFact("Fakt1"),
-				Slots.STRING.newFact("Fakt2"));
+		token =
+				nodeLeft.getMemory().newPlusToken(nodeLeft, Slots.STRING.newFact("Fakt1"),
+						Slots.STRING.newFact("Fakt2"));
 		final MemoryHandlerPlusTemp token1 =
 				(MemoryHandlerPlusTemp) node.getMemory().processTokenInBeta(token.getLeft(), originInput, filterSet);
 		assertEquals(1, token1.size());
@@ -312,12 +319,13 @@ public class MemoryHandlerTempTest {
 				memoryHandlerMain.newPlusToken(node, Slots.STRING.newFact("Test"));
 		MemoryHandlerPlusTemp memoryTempHandler =
 				(MemoryHandlerPlusTemp) memoryHandlerMain.processTokenInAlpha(token.getLeft(),
-						node.getIncomingEdges()[0], PathNodeFilterSetToAddressNodeFilterSetTranslator
-								.translate(FilterMockup.alwaysTrue(), counterColumnMatcherMockup));
+						node.getIncomingEdges()[0], PathNodeFilterSetToAddressNodeFilterSetTranslator.translate(
+								FilterMockup.alwaysTrue(), counterColumnMatcherMockup));
 		assertEquals(1, memoryTempHandler.size());
-		memoryTempHandler = (MemoryHandlerPlusTemp) memoryHandlerMain.processTokenInAlpha(token.getLeft(),
-				node.getIncomingEdges()[0], PathNodeFilterSetToAddressNodeFilterSetTranslator
-						.translate(FilterMockup.alwaysFalse(), counterColumnMatcherMockup));
+		memoryTempHandler =
+				(MemoryHandlerPlusTemp) memoryHandlerMain.processTokenInAlpha(token.getLeft(),
+						node.getIncomingEdges()[0], PathNodeFilterSetToAddressNodeFilterSetTranslator.translate(
+								FilterMockup.alwaysFalse(), counterColumnMatcherMockup));
 		assertEquals(0, memoryTempHandler.size());
 	}
 

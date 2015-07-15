@@ -16,6 +16,9 @@ package org.jamocha.function.fwatransformer;
 
 import java.util.function.IntFunction;
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+
 import org.jamocha.function.fwa.Assert;
 import org.jamocha.function.fwa.Bind;
 import org.jamocha.function.fwa.ConstantLeaf;
@@ -29,9 +32,6 @@ import org.jamocha.function.fwa.PredicateWithArguments;
 import org.jamocha.function.fwa.PredicateWithArgumentsComposite;
 import org.jamocha.function.fwa.Retract;
 import org.jamocha.function.fwa.SymbolLeaf;
-
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
@@ -51,8 +51,9 @@ public class FWASymbolToECTranslator implements FunctionWithArgumentsVisitor<Sym
 
 	@Override
 	public void visit(final FunctionWithArgumentsComposite<SymbolLeaf> functionWithArgumentsComposite) {
-		this.functionWithArguments = new FunctionWithArgumentsComposite<>(functionWithArgumentsComposite.getFunction(),
-				translateArgs(functionWithArgumentsComposite.getArgs()));
+		this.functionWithArguments =
+				new FunctionWithArgumentsComposite<>(functionWithArgumentsComposite.getFunction(),
+						translateArgs(functionWithArgumentsComposite.getArgs()));
 	}
 
 	@Override
@@ -87,15 +88,17 @@ public class FWASymbolToECTranslator implements FunctionWithArgumentsVisitor<Sym
 	@SuppressWarnings("unchecked")
 	@Override
 	public void visit(final Assert<SymbolLeaf> fwa) {
-		this.functionWithArguments = new Assert<>(fwa.getNetwork(),
-				(Assert.TemplateContainer<ECLeaf>[]) translateArgs(fwa.getArgs(), Assert.TemplateContainer[]::new));
+		this.functionWithArguments =
+				new Assert<>(fwa.getNetwork(), (Assert.TemplateContainer<ECLeaf>[]) translateArgs(fwa.getArgs(),
+						Assert.TemplateContainer[]::new));
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public void visit(final Modify<SymbolLeaf> fwa) {
-		this.functionWithArguments = new Modify<>(fwa.getNetwork(), translateArg(fwa.getTargetFact()),
-				(Modify.SlotAndValue<ECLeaf>[]) translateArgs(fwa.getArgs(), Modify.SlotAndValue[]::new));
+		this.functionWithArguments =
+				new Modify<>(fwa.getNetwork(), translateArg(fwa.getTargetFact()),
+						(Modify.SlotAndValue<ECLeaf>[]) translateArgs(fwa.getArgs(), Modify.SlotAndValue[]::new));
 	}
 
 	@Override
@@ -114,8 +117,7 @@ public class FWASymbolToECTranslator implements FunctionWithArgumentsVisitor<Sym
 	}
 
 	@SuppressWarnings("unchecked")
-	private static FunctionWithArguments<ECLeaf>[] translateArgs(
-			final FunctionWithArguments<SymbolLeaf>[] originalArgs) {
+	private static FunctionWithArguments<ECLeaf>[] translateArgs(final FunctionWithArguments<SymbolLeaf>[] originalArgs) {
 		return (FunctionWithArguments<ECLeaf>[]) translateArgs(originalArgs, FunctionWithArguments[]::new);
 	}
 

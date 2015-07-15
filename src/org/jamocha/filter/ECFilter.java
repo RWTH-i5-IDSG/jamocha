@@ -20,7 +20,7 @@ import org.jamocha.function.fwa.PredicateWithArguments;
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
-public class ECFilter extends Filter<ECLeaf>implements ECFilterSet {
+public class ECFilter extends Filter<ECLeaf> implements ECFilterSet {
 	public ECFilter(final PredicateWithArguments<ECLeaf> function) {
 		super(function);
 	}

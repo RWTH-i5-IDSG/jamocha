@@ -19,19 +19,19 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+import lombok.Data;
+import lombok.RequiredArgsConstructor;
+
 import org.jamocha.function.fwa.ECLeaf;
 import org.jamocha.languages.common.SingleFactVariable;
 import org.jamocha.visitor.Visitable;
-
-import lombok.Data;
-import lombok.RequiredArgsConstructor;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
 public interface ECFilterList extends Visitable<ECFilterListVisitor> {
 
-	public class ECNodeFilterSet extends NodeFilterSet<ECLeaf, ECFilter>implements ECFilterList {
+	public class ECNodeFilterSet extends NodeFilterSet<ECLeaf, ECFilter> implements ECFilterList {
 		public ECNodeFilterSet(final Set<ECFilter> filters) {
 			super(filters);
 		}

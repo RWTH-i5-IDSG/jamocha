@@ -16,12 +16,12 @@ package org.jamocha.function.fwa;
 
 import java.util.Arrays;
 
+import lombok.Data;
+import lombok.Getter;
+
 import org.jamocha.dn.memory.SlotType;
 import org.jamocha.function.Function;
 import org.jamocha.languages.common.RuleCondition.EquivalenceClass;
-
-import lombok.Data;
-import lombok.Getter;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
@@ -34,9 +34,8 @@ public class ECLeaf implements ExchangeableLeaf<ECLeaf> {
 	private final int hashCode = initHashCode();
 
 	private int initHashCode() {
-		return FunctionWithArguments.hash(
-				Arrays.asList(this.ec).stream().mapToInt(java.util.Objects::hashCode).toArray(),
-				FunctionWithArguments.positionIsIrrelevant);
+		return FunctionWithArguments.hash(Arrays.asList(this.ec).stream().mapToInt(java.util.Objects::hashCode)
+				.toArray(), FunctionWithArguments.positionIsIrrelevant);
 	}
 
 	@Override

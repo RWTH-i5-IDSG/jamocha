@@ -19,6 +19,12 @@ import static org.jamocha.util.ToArray.toArray;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+import lombok.Value;
+
 import org.jamocha.dn.SideEffectFunctionToNetwork;
 import org.jamocha.dn.memory.Fact;
 import org.jamocha.dn.memory.FactIdentifier;
@@ -27,12 +33,6 @@ import org.jamocha.dn.memory.SlotType;
 import org.jamocha.dn.memory.Template;
 import org.jamocha.function.Function;
 import org.jamocha.languages.common.errors.NoSlotForThatNameError;
-
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-import lombok.Value;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
@@ -105,7 +105,7 @@ public class Modify<L extends ExchangeableLeaf<L>> implements FunctionWithArgume
 	final FunctionWithArguments<L> targetFact;
 	@Getter
 	final SlotAndValue<L>[] args;
-	@Getter(lazy = true, onMethod = @__(@Override) )
+	@Getter(lazy = true, onMethod = @__(@Override))
 	private final SlotType[] paramTypes = calculateParamTypes();
 	@Getter(lazy = true, value = AccessLevel.PRIVATE)
 	private final int hashPIR = initHashPIR(), hashPII = initHashPII();
@@ -115,8 +115,9 @@ public class Modify<L extends ExchangeableLeaf<L>> implements FunctionWithArgume
 	}
 
 	static private <L extends ExchangeableLeaf<L>> SlotType[] calculateParamTypes(final SlotAndValue<L>[] args) {
-		final ArrayList<SlotType> types = Arrays.stream(args).map(FunctionWithArguments::getReturnType)
-				.map(Arrays::asList).collect(ArrayList::new, ArrayList::addAll, ArrayList::addAll);
+		final ArrayList<SlotType> types =
+				Arrays.stream(args).map(FunctionWithArguments::getReturnType).map(Arrays::asList)
+						.collect(ArrayList::new, ArrayList::addAll, ArrayList::addAll);
 		return toArray(types, SlotType[]::new);
 	}
 
@@ -171,7 +172,7 @@ public class Modify<L extends ExchangeableLeaf<L>> implements FunctionWithArgume
 				template.setValue(fact, slotAddress, fs[i + 1].evaluate());
 			}
 			return network.assertFacts(fact)[0];
-		} , "assert", array, params).evaluate());
+		}, "assert", array, params).evaluate());
 	}
 
 	@Override

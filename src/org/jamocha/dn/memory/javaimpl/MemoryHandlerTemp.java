@@ -81,8 +81,8 @@ public abstract class MemoryHandlerTemp extends MemoryHandlerBase implements org
 	}
 
 	abstract public org.jamocha.dn.memory.MemoryHandlerTemp newAlphaTemp(
-			final MemoryHandlerMain originatingMainHandler, final Edge originIncomingEdge, final AddressNodeFilterSet filter)
-			throws CouldNotAcquireLockException;
+			final MemoryHandlerMain originatingMainHandler, final Edge originIncomingEdge,
+			final AddressNodeFilterSet filter) throws CouldNotAcquireLockException;
 
 	abstract public org.jamocha.dn.memory.MemoryHandlerTemp newBetaTemp(final MemoryHandlerMain originatingMainHandler,
 			final Edge originIncomingEdge, final AddressNodeFilterSet filter) throws CouldNotAcquireLockException;

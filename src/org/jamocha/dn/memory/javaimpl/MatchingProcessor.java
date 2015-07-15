@@ -44,7 +44,7 @@ public class MatchingProcessor {
 			final Fact[] factTuple = copy.getFactTuple();
 			factTuple[index] = new Fact.MultislotPatternMatching(factTuple[index], sep);
 			result.add(copy);
-		} , new int[matchingElements.size()], matchingElements, 0);
+		}, new int[matchingElements.size()], matchingElements, 0);
 		return result;
 	}
 

@@ -42,7 +42,8 @@ import org.jamocha.filter.NodeFilterSet;
 public interface MemoryHandlerMain extends MemoryHandler {
 	/**
 	 * Creates a new {@link MemoryHandlerPlusTemp} that joins the given {@code token} with all other
-	 * incoming edges of the target beta {@link Node node} applying the given {@link NodeFilterSet filter}.
+	 * incoming edges of the target beta {@link Node node} applying the given {@link NodeFilterSet
+	 * filter}.
 	 * 
 	 * @param token
 	 *            {@link MemoryHandlerPlusTemp token} to join with all other inputs

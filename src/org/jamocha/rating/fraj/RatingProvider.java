@@ -28,6 +28,8 @@ import java.util.stream.DoubleStream;
 import java.util.stream.DoubleStream.Builder;
 import java.util.stream.Stream;
 
+import lombok.AllArgsConstructor;
+
 import org.apache.commons.lang3.tuple.Pair;
 import org.jamocha.filter.Path;
 import org.jamocha.filter.PathCollector;
@@ -36,8 +38,6 @@ import org.jamocha.filter.PathFilterList;
 import org.jamocha.filter.PathNodeFilterSet;
 import org.jamocha.rating.StatisticsProvider;
 import org.jamocha.rating.StatisticsProvider.Data;
-
-import lombok.AllArgsConstructor;
 
 /**
  * Actual implementation of the Rating algorithm.
@@ -61,8 +61,7 @@ public class RatingProvider implements org.jamocha.rating.RatingProvider {
 	}
 
 	private double calculateAlphaInformation(final StatisticsProvider statisticsProvider,
-			final PathNodeFilterSet toRate, final Set<PathFilterList> preNetwork, final int memMulti,
-			final int cpuMulti) {
+			final PathNodeFilterSet toRate, final Set<PathFilterList> preNetwork, final int memMulti, final int cpuMulti) {
 		final Data data = statisticsProvider.getData(preNetwork);
 		final double selectivity = statisticsProvider.getSelectivity(toRate, preNetwork);
 		final double newRows = selectivity * data.getRowCount();
@@ -72,12 +71,14 @@ public class RatingProvider implements org.jamocha.rating.RatingProvider {
 		final HashSet<PathFilterList> newPreNetwork = new HashSet<>(preNetwork);
 		newPreNetwork.add(toRate);
 		statisticsProvider.setData(newPreNetwork, newData);
-		return cpuAndMemCostCombiner.applyAsDouble(memMulti * newData.getRowCount(),
-				cpuMulti * (newData.getFinsert() + newData.getFdelete()));
+		return cpuAndMemCostCombiner.applyAsDouble(memMulti * newData.getRowCount(), cpuMulti
+				* (newData.getFinsert() + newData.getFdelete()));
 	}
 
 	@Override
-	public double rateBeta(final StatisticsProvider statisticsProvider, final PathNodeFilterSet toRate,
+	public double rateBeta(
+			final StatisticsProvider statisticsProvider,
+			final PathNodeFilterSet toRate,
 			final Map<Set<PathFilterList>, List<Pair<List<Set<PathFilterList>>, List<PathFilter>>>> componentToJoinOrder,
 			final Map<Path, Set<PathFilterList>> pathToPreNetworkComponents) {
 		if (toRate.getNegativeExistentialPaths().isEmpty() && toRate.getPositiveExistentialPaths().isEmpty()) {
@@ -105,15 +106,18 @@ public class RatingProvider implements org.jamocha.rating.RatingProvider {
 		return Math.ceil(rowCount / tuplesPerPage);
 	}
 
-	private double calcBetaUnfilteredSize(final StatisticsProvider statisticsProvider,
+	private double calcBetaUnfilteredSize(
+			final StatisticsProvider statisticsProvider,
 			final Map<Set<PathFilterList>, List<Pair<List<Set<PathFilterList>>, List<PathFilter>>>> componentToJoinOrder,
 			final Map<Path, Set<PathFilterList>> pathToPreNetworkComponents,
 			final Set<Set<PathFilterList>> regularComponents) {
 		double size = 0;
 		for (final Set<PathFilterList> component : regularComponents) {
 			final Data data = statisticsProvider.getData(component);
-			size += data.getRowCount() * joinSize(statisticsProvider, component, componentToJoinOrder.get(component),
-					regularComponents, pathToPreNetworkComponents);
+			size +=
+					data.getRowCount()
+							* joinSize(statisticsProvider, component, componentToJoinOrder.get(component),
+									regularComponents, pathToPreNetworkComponents);
 		}
 		return size / regularComponents.size();
 	}
@@ -162,8 +166,8 @@ public class RatingProvider implements org.jamocha.rating.RatingProvider {
 			final Iterator<Set<PathFilterList>> iterator = components.iterator();
 			final Set<PathFilterList> component = iterator.next();
 			if (positiveExistentialComponents.contains(component)) {
-				sizes.accept(
-						Math.pow(xOverUX, statisticsProvider.getData(component).getRowCount() * (1 - jsfs[i]) / sum));
+				sizes.accept(Math.pow(xOverUX, statisticsProvider.getData(component).getRowCount() * (1 - jsfs[i])
+						/ sum));
 			} else if (negativeExistentialComponents.contains(component)) {
 				sizes.accept(Math.pow(xOverUX, statisticsProvider.getData(component).getRowCount() * jsfs[i] / sum));
 			} else {
@@ -192,8 +196,9 @@ public class RatingProvider implements org.jamocha.rating.RatingProvider {
 			final List<Pair<List<Set<PathFilterList>>, List<PathFilter>>> joinOrder,
 			final Set<Set<PathFilterList>> regularComponents,
 			final Map<Path, Set<PathFilterList>> pathToPreNetworkComponents) {
-		final double[] jsfs = statisticsProvider.getRegularJSFs(inputComponent, joinOrder, regularComponents,
-				pathToPreNetworkComponents);
+		final double[] jsfs =
+				statisticsProvider.getRegularJSFs(inputComponent, joinOrder, regularComponents,
+						pathToPreNetworkComponents);
 		double size = 1;
 		for (int i = 0; i < jsfs.length; ++i) {
 			size *= jsfs[i];
@@ -207,12 +212,14 @@ public class RatingProvider implements org.jamocha.rating.RatingProvider {
 		return size;
 	}
 
-	private double costPosInsVarI(final StatisticsProvider statisticsProvider, final Set<PathFilterList> inputComponent,
+	private double costPosInsVarI(final StatisticsProvider statisticsProvider,
+			final Set<PathFilterList> inputComponent,
 			final List<Pair<List<Set<PathFilterList>>, List<PathFilter>>> joinOrder,
 			final Set<Set<PathFilterList>> regularComponents,
 			final Map<Path, Set<PathFilterList>> pathToPreNetworkComponents) {
-		final double[] jsfs = statisticsProvider.getRegularJSFs(inputComponent, joinOrder, regularComponents,
-				pathToPreNetworkComponents);
+		final double[] jsfs =
+				statisticsProvider.getRegularJSFs(inputComponent, joinOrder, regularComponents,
+						pathToPreNetworkComponents);
 		double costs = 0;
 		double size = 1;
 		for (int i = 0; i < joinOrder.size(); i++) {
@@ -233,7 +240,8 @@ public class RatingProvider implements org.jamocha.rating.RatingProvider {
 		return costs;
 	}
 
-	private double rateBetaWithoutExistentials(final StatisticsProvider statisticsProvider,
+	private double rateBetaWithoutExistentials(
+			final StatisticsProvider statisticsProvider,
 			final PathNodeFilterSet toRate,
 			final Map<Set<PathFilterList>, List<Pair<List<Set<PathFilterList>>, List<PathFilter>>>> componentToJoinOrder,
 			final Map<Path, Set<PathFilterList>> pathToPreNetworkComponents) {
@@ -241,18 +249,26 @@ public class RatingProvider implements org.jamocha.rating.RatingProvider {
 				componentToJoinOrder.keySet().stream().collect(toMap(Function.identity(), statisticsProvider::getData));
 		final double tupleSize = preNetworkComponentToData.values().stream().mapToDouble(Data::getTupleSize).sum();
 		final double tuplesPerPage = statisticsProvider.getPageSize() / tupleSize;
-		final double rowCount = calcBetaUnfilteredSize(statisticsProvider, componentToJoinOrder,
-				pathToPreNetworkComponents, componentToJoinOrder.keySet());
+		final double rowCount =
+				calcBetaUnfilteredSize(statisticsProvider, componentToJoinOrder, pathToPreNetworkComponents,
+						componentToJoinOrder.keySet());
 		// joinsize is needed twice per component, thus pre-calculate it
 		final Map<Set<PathFilterList>, Double> preNetworkComponentToJoinSize =
-				preNetworkComponentToData.keySet().stream()
-						.collect(toMap(Function.identity(),
-								component -> joinSize(statisticsProvider, component,
-										componentToJoinOrder.get(component), componentToJoinOrder.keySet(),
-										pathToPreNetworkComponents)));
-		final double finsert = preNetworkComponentToData.entrySet().stream()
-				.mapToDouble(entry -> entry.getValue().getFinsert() * preNetworkComponentToJoinSize.get(entry.getKey()))
-				.sum();
+				preNetworkComponentToData
+						.keySet()
+						.stream()
+						.collect(
+								toMap(Function.identity(),
+										component -> joinSize(statisticsProvider, component,
+												componentToJoinOrder.get(component), componentToJoinOrder.keySet(),
+												pathToPreNetworkComponents)));
+		final double finsert =
+				preNetworkComponentToData
+						.entrySet()
+						.stream()
+						.mapToDouble(
+								entry -> entry.getValue().getFinsert()
+										* preNetworkComponentToJoinSize.get(entry.getKey())).sum();
 		final double fdelete = preNetworkComponentToData.values().stream().mapToDouble(Data::getFdelete).sum();
 		// publish information to statistics provider
 		{
@@ -262,25 +278,33 @@ public class RatingProvider implements org.jamocha.rating.RatingProvider {
 			statisticsProvider.setData(filters, new Data(finsert, fdelete, rowCount, tupleSize));
 		}
 		final double mxβ = m(rowCount, tuplesPerPage);
-		final double runtimeCost = preNetworkComponentToData.entrySet().stream().mapToDouble(entry -> {
-			final Set<PathFilterList> component = entry.getKey();
-			final Data data = entry.getValue();
-			return data.getFinsert()
-					* costPosInsVarI(statisticsProvider, component, componentToJoinOrder.get(component),
-							componentToJoinOrder.keySet(), pathToPreNetworkComponents)
-					+ data.getFdelete() * (mxβ + cardenas(mxβ, preNetworkComponentToJoinSize.get(component)));
-		}).sum();
+		final double runtimeCost =
+				preNetworkComponentToData
+						.entrySet()
+						.stream()
+						.mapToDouble(
+								entry -> {
+									final Set<PathFilterList> component = entry.getKey();
+									final Data data = entry.getValue();
+									return data.getFinsert()
+											* costPosInsVarI(statisticsProvider, component,
+													componentToJoinOrder.get(component), componentToJoinOrder.keySet(),
+													pathToPreNetworkComponents) + data.getFdelete()
+											* (mxβ + cardenas(mxβ, preNetworkComponentToJoinSize.get(component)));
+								}).sum();
 		final double memoryCost = rowCount * tupleSize;
 		return cpuAndMemCostCombiner.applyAsDouble(runtimeCost, memoryCost);
 	}
 
-	private double rateBetaWithExistentials(final StatisticsProvider statisticsProvider, final PathNodeFilterSet toRate,
+	private double rateBetaWithExistentials(
+			final StatisticsProvider statisticsProvider,
+			final PathNodeFilterSet toRate,
 			final Map<Set<PathFilterList>, List<Pair<List<Set<PathFilterList>>, List<PathFilter>>>> componentToJoinOrder,
 			final Map<Path, Set<PathFilterList>> pathToPreNetworkComponents) {
 		final Set<Path> positiveExistentialPaths = toRate.getPositiveExistentialPaths();
 		final Set<Path> negativeExistentialPaths = toRate.getNegativeExistentialPaths();
-		final Set<Set<PathFilterList>> positiveExistentialComponents = new HashSet<>(),
-				negativeExistentialComponents = new HashSet<>(), regularComponents = new HashSet<>();
+		final Set<Set<PathFilterList>> positiveExistentialComponents = new HashSet<>(), negativeExistentialComponents =
+				new HashSet<>(), regularComponents = new HashSet<>();
 		final Set<Set<PathFilterList>> preNetworkComponents = new HashSet<>(pathToPreNetworkComponents.values());
 		for (final Set<PathFilterList> preNetworkComponent : preNetworkComponents) {
 			final PathCollector<HashSet<Path>> pathCollector = PathCollector.newHashSet();
@@ -296,62 +320,82 @@ public class RatingProvider implements org.jamocha.rating.RatingProvider {
 		}
 		final Map<Set<PathFilterList>, Data> preNetworkComponentToData =
 				preNetworkComponents.stream().collect(toMap(Function.identity(), statisticsProvider::getData));
-		final Map<Set<PathFilterList>, PathFilter> existentialComponentToFilter = componentToJoinOrder.values()
-				.iterator().next().stream().filter(p -> !regularComponents.contains(p.getLeft().iterator().next()))
-				.collect(toMap(p -> p.getLeft().iterator().next(), p -> p.getRight().iterator().next()));
+		final Map<Set<PathFilterList>, PathFilter> existentialComponentToFilter =
+				componentToJoinOrder.values().iterator().next().stream()
+						.filter(p -> !regularComponents.contains(p.getLeft().iterator().next()))
+						.collect(toMap(p -> p.getLeft().iterator().next(), p -> p.getRight().iterator().next()));
 
 		final double tupleSize =
 				regularComponents.stream().mapToDouble(c -> preNetworkComponentToData.get(c).getTupleSize()).sum();
 		final double tuplesPerPage = statisticsProvider.getPageSize() / tupleSize;
-		final double unfilteredRowCount = calcBetaUnfilteredSize(statisticsProvider, componentToJoinOrder,
-				pathToPreNetworkComponents, regularComponents);
-		final double rowCount = unfilteredRowCount * DoubleStream
-				.concat(positiveExistentialComponents.stream()
-						.mapToDouble(component -> 1 - Math.pow(
-								(1 - statisticsProvider.getJSF(regularComponents, component,
-										existentialComponentToFilter.get(component), pathToPreNetworkComponents)),
-						preNetworkComponentToData.get(component).getRowCount())),
-				negativeExistentialComponents.stream()
-						.mapToDouble(component -> Math.pow(
-								(1 - statisticsProvider.getJSF(regularComponents, component,
-										existentialComponentToFilter.get(component), pathToPreNetworkComponents)),
-								preNetworkComponentToData.get(component).getRowCount())))
-				.reduce(1.0, (a, b) -> a * b);
+		final double unfilteredRowCount =
+				calcBetaUnfilteredSize(statisticsProvider, componentToJoinOrder, pathToPreNetworkComponents,
+						regularComponents);
+		final double rowCount =
+				unfilteredRowCount
+						* DoubleStream.concat(
+								positiveExistentialComponents.stream().mapToDouble(
+										component -> 1 - Math.pow((1 - statisticsProvider.getJSF(regularComponents,
+												component, existentialComponentToFilter.get(component),
+												pathToPreNetworkComponents)), preNetworkComponentToData.get(component)
+												.getRowCount())),
+								negativeExistentialComponents.stream().mapToDouble(
+										component -> Math.pow((1 - statisticsProvider.getJSF(regularComponents,
+												component, existentialComponentToFilter.get(component),
+												pathToPreNetworkComponents)), preNetworkComponentToData.get(component)
+												.getRowCount()))).reduce(1.0, (a, b) -> a * b);
 		final double xOverUX = rowCount / unfilteredRowCount;
 		// joinsize is needed twice per component, thus pre-calculate it
-		final Map<Set<PathFilterList>, Double> regularComponentToJoinSize = regularComponents.stream()
-				.collect(toMap(Function.identity(),
-						component -> joinSize(statisticsProvider, component, componentToJoinOrder.get(component),
-								positiveExistentialComponents, negativeExistentialComponents,
-								pathToPreNetworkComponents, xOverUX)));
+		final Map<Set<PathFilterList>, Double> regularComponentToJoinSize =
+				regularComponents.stream().collect(
+						toMap(Function.identity(),
+								component -> joinSize(statisticsProvider, component,
+										componentToJoinOrder.get(component), positiveExistentialComponents,
+										negativeExistentialComponents, pathToPreNetworkComponents, xOverUX)));
 		// dnrating (30a)
-		final double finsert = xOverUX
-				* regularComponents.stream()
-						.mapToDouble(component -> preNetworkComponentToData.get(component).getFinsert()
-								* regularComponentToJoinSize.get(component))
-						.sum()
-				+ DoubleStream.concat(negativeExistentialComponents.stream().mapToDouble(component -> {
-					final double jsf = statisticsProvider.getJSF(regularComponents, component,
-							existentialComponentToFilter.get(component), pathToPreNetworkComponents);
-					return preNetworkComponentToData.get(component).getFdelete() * rowCount * (jsf / (1 - jsf));
-				}), positiveExistentialComponents.stream()
-						.mapToDouble(component -> preNetworkComponentToData.get(component).getFinsert() * rowCount
-								* statisticsProvider.getJSF(regularComponents, component,
-										existentialComponentToFilter.get(component), pathToPreNetworkComponents)))
-						.sum();
+		final double finsert =
+				xOverUX
+						* regularComponents
+								.stream()
+								.mapToDouble(
+										component -> preNetworkComponentToData.get(component).getFinsert()
+												* regularComponentToJoinSize.get(component)).sum()
+						+ DoubleStream.concat(
+								negativeExistentialComponents.stream().mapToDouble(
+										component -> {
+											final double jsf =
+													statisticsProvider.getJSF(regularComponents, component,
+															existentialComponentToFilter.get(component),
+															pathToPreNetworkComponents);
+											return preNetworkComponentToData.get(component).getFdelete() * rowCount
+													* (jsf / (1 - jsf));
+										}),
+								positiveExistentialComponents.stream().mapToDouble(
+										component -> preNetworkComponentToData.get(component).getFinsert()
+												* rowCount
+												* statisticsProvider.getJSF(regularComponents, component,
+														existentialComponentToFilter.get(component),
+														pathToPreNetworkComponents))).sum();
 		// dnrating (30b)
-		final double fdelete = DoubleStream.concat(
-				regularComponents.stream().mapToDouble(c -> preNetworkComponentToData.get(c).getFdelete()),
-				DoubleStream.concat(negativeExistentialComponents.stream()
-						.mapToDouble(component -> preNetworkComponentToData.get(component).getFdelete() * rowCount
-								* statisticsProvider.getJSF(regularComponents, component,
-										existentialComponentToFilter.get(component), pathToPreNetworkComponents)),
-						positiveExistentialComponents.stream().mapToDouble(component -> {
-							final double jsf = statisticsProvider.getJSF(regularComponents, component,
-									existentialComponentToFilter.get(component), pathToPreNetworkComponents);
-							return preNetworkComponentToData.get(component).getFinsert() * rowCount * (jsf / (1 - jsf));
-						})))
-				.sum();
+		final double fdelete =
+				DoubleStream.concat(
+						regularComponents.stream().mapToDouble(c -> preNetworkComponentToData.get(c).getFdelete()),
+						DoubleStream.concat(
+								negativeExistentialComponents.stream().mapToDouble(
+										component -> preNetworkComponentToData.get(component).getFdelete()
+												* rowCount
+												* statisticsProvider.getJSF(regularComponents, component,
+														existentialComponentToFilter.get(component),
+														pathToPreNetworkComponents)),
+								positiveExistentialComponents.stream().mapToDouble(
+										component -> {
+											final double jsf =
+													statisticsProvider.getJSF(regularComponents, component,
+															existentialComponentToFilter.get(component),
+															pathToPreNetworkComponents);
+											return preNetworkComponentToData.get(component).getFinsert() * rowCount
+													* (jsf / (1 - jsf));
+										}))).sum();
 		// publish information to statistics provider
 		{
 			final Set<PathFilterList> filters = new HashSet<>();
@@ -361,24 +405,36 @@ public class RatingProvider implements org.jamocha.rating.RatingProvider {
 		}
 		final double mUxβ = m(unfilteredRowCount, tuplesPerPage);
 		// dnrating (40)
-		final double runtimeCost = DoubleStream.concat(regularComponents.stream().mapToDouble(component -> {
-			final Data data = preNetworkComponentToData.get(component);
-			return data.getFinsert()
-					* costPosInsVarII(statisticsProvider, component, componentToJoinOrder.get(component),
-							regularComponents, pathToPreNetworkComponents)
-					+ data.getFdelete() * (mUxβ + cardenas(mUxβ, regularComponentToJoinSize.get(component)));
-		}), Stream.concat(positiveExistentialComponents.stream(), negativeExistentialComponents.stream())
-				.mapToDouble(component -> {
-					final Data data = preNetworkComponentToData.get(component);
-					return data.getFinsert() * 2 * jc(statisticsProvider,
-							statisticsProvider.getJSF(regularComponents, component,
-									existentialComponentToFilter.get(component), pathToPreNetworkComponents),
-							data, 1)
-							+ data.getFdelete() * costNegDelVarII(statisticsProvider, component,
-									componentToJoinOrder.get(component), pathToPreNetworkComponents);
-				})).sum();
-		final double memoryCost = unfilteredRowCount
-				* (tupleSize + 0.15 * (positiveExistentialComponents.size() + negativeExistentialComponents.size()));
+		final double runtimeCost =
+				DoubleStream.concat(
+						regularComponents.stream().mapToDouble(
+								component -> {
+									final Data data = preNetworkComponentToData.get(component);
+									return data.getFinsert()
+											* costPosInsVarII(statisticsProvider, component,
+													componentToJoinOrder.get(component), regularComponents,
+													pathToPreNetworkComponents) + data.getFdelete()
+											* (mUxβ + cardenas(mUxβ, regularComponentToJoinSize.get(component)));
+								}),
+						Stream.concat(positiveExistentialComponents.stream(), negativeExistentialComponents.stream())
+								.mapToDouble(
+										component -> {
+											final Data data = preNetworkComponentToData.get(component);
+											return data.getFinsert()
+													* 2
+													* jc(statisticsProvider, statisticsProvider.getJSF(
+															regularComponents, component,
+															existentialComponentToFilter.get(component),
+															pathToPreNetworkComponents), data, 1)
+													+ data.getFdelete()
+													* costNegDelVarII(statisticsProvider, component,
+															componentToJoinOrder.get(component),
+															pathToPreNetworkComponents);
+										})).sum();
+		final double memoryCost =
+				unfilteredRowCount
+						* (tupleSize + 0.15 * (positiveExistentialComponents.size() + negativeExistentialComponents
+								.size()));
 		return cpuAndMemCostCombiner.applyAsDouble(runtimeCost, memoryCost);
 	}
 
@@ -408,10 +464,8 @@ public class RatingProvider implements org.jamocha.rating.RatingProvider {
 				}
 				size *= statisticsProvider.getData(component).getRowCount() * jsfs[i];
 			} else {
-				costs.accept(jc(
-						statisticsProvider, statisticsProvider.getJSF(regularComponents, component,
-								pair.getRight().get(0), pathToPreNetworkComponents),
-						statisticsProvider.getData(component), size));
+				costs.accept(jc(statisticsProvider, statisticsProvider.getJSF(regularComponents, component, pair
+						.getRight().get(0), pathToPreNetworkComponents), statisticsProvider.getData(component), size));
 			}
 			++i;
 		}
@@ -435,8 +489,8 @@ public class RatingProvider implements org.jamocha.rating.RatingProvider {
 				for (int ci = 0; ci < lastIndex; ++ci) {
 					costs.accept(jc(statisticsProvider, 1.0, statisticsProvider.getData(components.get(ci)), size));
 				}
-				costs.accept(
-						jc(statisticsProvider, jsfs[i], statisticsProvider.getData(components.get(lastIndex)), size));
+				costs.accept(jc(statisticsProvider, jsfs[i], statisticsProvider.getData(components.get(lastIndex)),
+						size));
 			} else {
 				costs.accept(jc(statisticsProvider, jsfs[i], statisticsProvider.getData(component), size));
 			}

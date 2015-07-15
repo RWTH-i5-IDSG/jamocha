@@ -14,10 +14,10 @@
  */
 package org.jamocha.dn.memory.javaimpl;
 
+import lombok.Value;
+
 import org.jamocha.dn.memory.CounterColumnMatcher;
 import org.jamocha.dn.memory.MemoryHandlerMain;
-
-import lombok.Value;
 
 /**
  * Implementation of the {@link org.jamocha.dn.memory.MemoryHandlerMainAndCounterColumnMatcher}
@@ -26,8 +26,8 @@ import lombok.Value;
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
 @Value
-public class MemoryHandlerMainAndCounterColumnMatcher
-		implements org.jamocha.dn.memory.MemoryHandlerMainAndCounterColumnMatcher {
+public class MemoryHandlerMainAndCounterColumnMatcher implements
+		org.jamocha.dn.memory.MemoryHandlerMainAndCounterColumnMatcher {
 	MemoryHandlerMain memoryHandlerMain;
 	CounterColumnMatcher filterElementToCounterColumn;
 }

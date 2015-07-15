@@ -19,14 +19,14 @@ import static org.jamocha.util.ToArray.toArray;
 import java.util.Arrays;
 import java.util.function.IntFunction;
 
+import lombok.Getter;
+
 import org.jamocha.function.fwa.Assert;
 import org.jamocha.function.fwa.ExchangeableLeaf;
 import org.jamocha.function.fwa.FunctionWithArguments;
 import org.jamocha.function.fwa.FunctionWithArgumentsVisitor;
 import org.jamocha.function.fwa.GlobalVariableLeaf;
 import org.jamocha.function.fwa.Modify;
-
-import lombok.Getter;
 
 public class FWADeepCopy<L extends ExchangeableLeaf<L>> implements FunctionWithArgumentsVisitor<L> {
 
@@ -51,16 +51,19 @@ public class FWADeepCopy<L extends ExchangeableLeaf<L>> implements FunctionWithA
 	}
 
 	@Override
-	public void visit(
-			final org.jamocha.function.fwa.PredicateWithArgumentsComposite<L> predicateWithArgumentsComposite) {
-		this.result = new org.jamocha.function.fwa.PredicateWithArgumentsComposite<>(
-				predicateWithArgumentsComposite.getFunction(), copyArgs(predicateWithArgumentsComposite.getArgs()));
+	public void visit(final org.jamocha.function.fwa.PredicateWithArgumentsComposite<L> predicateWithArgumentsComposite) {
+		this.result =
+				new org.jamocha.function.fwa.PredicateWithArgumentsComposite<>(
+						predicateWithArgumentsComposite.getFunction(),
+						copyArgs(predicateWithArgumentsComposite.getArgs()));
 	}
 
 	@Override
 	public void visit(final org.jamocha.function.fwa.FunctionWithArgumentsComposite<L> functionWithArgumentsComposite) {
-		this.result = new org.jamocha.function.fwa.FunctionWithArgumentsComposite<>(
-				functionWithArgumentsComposite.getFunction(), copyArgs(functionWithArgumentsComposite.getArgs()));
+		this.result =
+				new org.jamocha.function.fwa.FunctionWithArgumentsComposite<>(
+						functionWithArgumentsComposite.getFunction(),
+						copyArgs(functionWithArgumentsComposite.getArgs()));
 	}
 
 	@Override
@@ -95,8 +98,9 @@ public class FWADeepCopy<L extends ExchangeableLeaf<L>> implements FunctionWithA
 	@SuppressWarnings("unchecked")
 	@Override
 	public void visit(final org.jamocha.function.fwa.Assert<L> fwa) {
-		this.result = new org.jamocha.function.fwa.Assert<L>(fwa.getNetwork(),
-				copyArgs(fwa.getArgs(), Assert.TemplateContainer[]::new));
+		this.result =
+				new org.jamocha.function.fwa.Assert<L>(fwa.getNetwork(), copyArgs(fwa.getArgs(),
+						Assert.TemplateContainer[]::new));
 	}
 
 	@Override
@@ -108,9 +112,9 @@ public class FWADeepCopy<L extends ExchangeableLeaf<L>> implements FunctionWithA
 	@SuppressWarnings("unchecked")
 	@Override
 	public void visit(final org.jamocha.function.fwa.Modify<L> fwa) {
-		this.result = new org.jamocha.function.fwa.Modify<L>(fwa.getNetwork(),
-				fwa.getTargetFact().accept(new FWADeepCopy<>()).result,
-				copyArgs(fwa.getArgs(), Modify.SlotAndValue[]::new));
+		this.result =
+				new org.jamocha.function.fwa.Modify<L>(fwa.getNetwork(), fwa.getTargetFact()
+						.accept(new FWADeepCopy<>()).result, copyArgs(fwa.getArgs(), Modify.SlotAndValue[]::new));
 	}
 
 	@Override
@@ -125,7 +129,8 @@ public class FWADeepCopy<L extends ExchangeableLeaf<L>> implements FunctionWithA
 
 	@Override
 	public void visit(final org.jamocha.function.fwa.Modify.SlotAndValue<L> fwa) {
-		this.result = new org.jamocha.function.fwa.Modify.SlotAndValue<>(fwa.getSlotName(),
-				fwa.getValue().accept(new FWADeepCopy<>()).result);
+		this.result =
+				new org.jamocha.function.fwa.Modify.SlotAndValue<>(fwa.getSlotName(), fwa.getValue().accept(
+						new FWADeepCopy<>()).result);
 	}
 }

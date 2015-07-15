@@ -57,46 +57,45 @@ public abstract class ExportGv implements Function<Object> {
 	}
 
 	static {
-		FunctionDictionary.addFixedArgsGeneratorWithSideEffects(inClips, paramTypes,
-				(final SideEffectFunctionToNetwork network, final SlotType[] paramTypes) -> {
-					return new ExportGv() {
-						@Override
-						public Object evaluate(final Function<?>... params) {
-							final String fileName = (String) params[0].evaluate();
-							try (final FileWriter fileWriter = new FileWriter(fileName)) {
-								fileWriter.write(new NetworkToDot(network).toString());
-							} catch (final IOException e) {
-								e.printStackTrace();
-							}
-							return null;
-						}
-					};
-				});
-		FunctionDictionary.addVarArgsGeneratorWithSideEffects(inClips,
-				(final SideEffectFunctionToNetwork network, final SlotType[] paramTypes) -> {
-					if (paramTypes.length < 2 || paramTypes[0] != SlotType.STRING) {
-						return null;
+		FunctionDictionary.addFixedArgsGeneratorWithSideEffects(inClips, paramTypes, (
+				final SideEffectFunctionToNetwork network, final SlotType[] paramTypes) -> {
+			return new ExportGv() {
+				@Override
+				public Object evaluate(final Function<?>... params) {
+					final String fileName = (String) params[0].evaluate();
+					try (final FileWriter fileWriter = new FileWriter(fileName)) {
+						fileWriter.write(new NetworkToDot(network).toString());
+					} catch (final IOException e) {
+						e.printStackTrace();
 					}
-					for (int i = 1; i < paramTypes.length; ++i) {
-						if (paramTypes[i] != SlotType.SYMBOL) {
-							return null;
-						}
+					return null;
+				}
+			};
+		});
+		FunctionDictionary.addVarArgsGeneratorWithSideEffects(inClips, (final SideEffectFunctionToNetwork network,
+				final SlotType[] paramTypes) -> {
+			if (paramTypes.length < 2 || paramTypes[0] != SlotType.STRING) {
+				return null;
+			}
+			for (int i = 1; i < paramTypes.length; ++i) {
+				if (paramTypes[i] != SlotType.SYMBOL) {
+					return null;
+				}
+			}
+			return new ExportGv() {
+				@Override
+				public Object evaluate(final Function<?>... params) {
+					final String fileName = (String) params[0].evaluate();
+					try (final FileWriter fileWriter = new FileWriter(fileName)) {
+						fileWriter.write(new NetworkToDot(network, toArray(
+								Arrays.stream(params, 1, params.length).map(f -> ((Symbol) f.evaluate()).getImage()),
+								String[]::new)).toString());
+					} catch (final IOException e) {
+						e.printStackTrace();
 					}
-					return new ExportGv() {
-						@Override
-						public Object evaluate(final Function<?>... params) {
-							final String fileName = (String) params[0].evaluate();
-							try (final FileWriter fileWriter = new FileWriter(fileName)) {
-								fileWriter.write(new NetworkToDot(network,
-										toArray(Arrays.stream(params, 1, params.length)
-												.map(f -> ((Symbol) f.evaluate()).getImage()), String[]::new))
-														.toString());
-							} catch (final IOException e) {
-								e.printStackTrace();
-							}
-							return null;
-						}
-					};
-				});
+					return null;
+				}
+			};
+		});
 	}
 }

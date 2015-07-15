@@ -14,15 +14,15 @@
  */
 package org.jamocha.dn.memory.javaimpl;
 
-import org.jamocha.dn.memory.Fact;
-import org.jamocha.dn.memory.SlotType;
-import org.jamocha.dn.memory.Template;
-import org.jamocha.dn.memory.Template.Slot;
-
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
+
+import org.jamocha.dn.memory.Fact;
+import org.jamocha.dn.memory.SlotType;
+import org.jamocha.dn.memory.Template;
+import org.jamocha.dn.memory.Template.Slot;
 
 /**
  * Implementation of the {@link org.jamocha.dn.memory.SlotAddress} interface.

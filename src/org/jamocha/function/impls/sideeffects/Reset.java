@@ -48,15 +48,15 @@ public abstract class Reset implements Function<Object> {
 	}
 
 	static {
-		FunctionDictionary.addFixedArgsGeneratorWithSideEffects(inClips, SlotType.empty,
-				(final SideEffectFunctionToNetwork network, final SlotType[] paramTypes) -> {
-					return new Reset() {
-						@Override
-						public Object evaluate(final Function<?>... params) {
-							network.reset();
-							return null;
-						}
-					};
-				});
+		FunctionDictionary.addFixedArgsGeneratorWithSideEffects(inClips, SlotType.empty, (
+				final SideEffectFunctionToNetwork network, final SlotType[] paramTypes) -> {
+			return new Reset() {
+				@Override
+				public Object evaluate(final Function<?>... params) {
+					network.reset();
+					return null;
+				}
+			};
+		});
 	}
 }

@@ -21,6 +21,8 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import lombok.Getter;
+
 import org.apache.commons.lang3.tuple.Pair;
 import org.jamocha.dn.memory.Template;
 import org.jamocha.filter.Path;
@@ -33,8 +35,6 @@ import org.jamocha.languages.common.ConditionalElement.OrFunctionConditionalElem
 import org.jamocha.languages.common.ConditionalElement.TemplatePatternConditionalElement;
 import org.jamocha.languages.common.DefaultConditionalElementsVisitor;
 import org.jamocha.languages.common.SingleFactVariable;
-
-import lombok.Getter;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
@@ -52,16 +52,17 @@ public class DeepFactVariableCollector implements DefaultConditionalElementsVisi
 		final List<SingleFactVariable> factVariables = ce.accept(instance).getFactVariables();
 		// if there is an initial fact, the path to be used may not be null
 		final Path initialFactPath = new Path(initialFactTemplate);
-		assert!factVariables.stream().anyMatch(sfv -> sfv.getTemplate() == initialFactTemplate)
+		assert !factVariables.stream().anyMatch(sfv -> sfv.getTemplate() == initialFactTemplate)
 				|| null != initialFactPath;
 		return Pair
 				.of(initialFactPath,
 						factVariables.stream()
 								// Create Paths with the corresponding Templates for all collected
 								// FactVariables
-								.collect(Collectors.toMap(Function.identity(),
-										(final SingleFactVariable variable) -> (variable
-												.getTemplate() == initialFactTemplate ? initialFactPath
+								.collect(
+										Collectors.toMap(
+												Function.identity(),
+												(final SingleFactVariable variable) -> (variable.getTemplate() == initialFactTemplate ? initialFactPath
 														: new Path(variable.getTemplate())))));
 	}
 
@@ -76,9 +77,10 @@ public class DeepFactVariableCollector implements DefaultConditionalElementsVisi
 	}
 
 	private void handleChildren(final ConditionalElement ce) {
-		this.factVariables = ce.getChildren().stream()
-				.flatMap(child -> child.accept(new DeepFactVariableCollector()).getFactVariables().stream())
-				.collect(Collectors.toCollection(ArrayList::new));
+		this.factVariables =
+				ce.getChildren().stream()
+						.flatMap(child -> child.accept(new DeepFactVariableCollector()).getFactVariables().stream())
+						.collect(Collectors.toCollection(ArrayList::new));
 	}
 
 	@Override

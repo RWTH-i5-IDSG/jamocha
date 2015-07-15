@@ -48,15 +48,14 @@ public abstract class GetStrategy implements Function<Object> {
 	}
 
 	static {
-		FunctionDictionary.addFixedArgsGeneratorWithSideEffects(inClips, SlotType.empty,
-				(final SideEffectFunctionToNetwork network, final SlotType[] paramTypes) -> {
-					return new GetStrategy() {
-						@Override
-						public Object evaluate(final Function<?>... params) {
-							return network
-									.createTopLevelSymbol(network.getConflictResolutionStrategy().name().toLowerCase());
-						}
-					};
-				});
+		FunctionDictionary.addFixedArgsGeneratorWithSideEffects(inClips, SlotType.empty, (
+				final SideEffectFunctionToNetwork network, final SlotType[] paramTypes) -> {
+			return new GetStrategy() {
+				@Override
+				public Object evaluate(final Function<?>... params) {
+					return network.createTopLevelSymbol(network.getConflictResolutionStrategy().name().toLowerCase());
+				}
+			};
+		});
 	}
 }

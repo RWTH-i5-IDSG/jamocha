@@ -17,6 +17,8 @@ package org.jamocha.filter;
 import java.util.HashSet;
 import java.util.Set;
 
+import lombok.Getter;
+
 import org.jamocha.function.fwa.ConstantLeaf;
 import org.jamocha.function.fwa.DefaultFunctionWithArgumentsLeafVisitor;
 import org.jamocha.function.fwa.FunctionWithArguments;
@@ -26,15 +28,13 @@ import org.jamocha.languages.common.ConditionalElement;
 import org.jamocha.languages.common.DefaultConditionalElementsVisitor;
 import org.jamocha.languages.common.ScopeStack.VariableSymbol;
 
-import lombok.Getter;
-
 /**
  * Collects all symbols used within the {@link FunctionWithArguments}.
  * 
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
-public class SymbolInSymbolLeafsCollector
-		implements DefaultConditionalElementsVisitor, DefaultFunctionWithArgumentsLeafVisitor<SymbolLeaf> {
+public class SymbolInSymbolLeafsCollector implements DefaultConditionalElementsVisitor,
+		DefaultFunctionWithArgumentsLeafVisitor<SymbolLeaf> {
 	@Getter
 	private Set<VariableSymbol> symbols = new HashSet<>();
 

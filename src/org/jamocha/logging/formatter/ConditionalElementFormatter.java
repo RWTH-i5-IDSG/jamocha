@@ -17,6 +17,8 @@ package org.jamocha.logging.formatter;
 import java.util.List;
 import java.util.Map;
 
+import lombok.AllArgsConstructor;
+
 import org.apache.commons.lang3.tuple.Pair;
 import org.jamocha.languages.common.ConditionalElement;
 import org.jamocha.languages.common.ConditionalElement.AndFunctionConditionalElement;
@@ -32,8 +34,6 @@ import org.jamocha.languages.common.ScopeStack;
 import org.jamocha.languages.common.ScopeStack.VariableSymbol;
 import org.jamocha.languages.common.SingleFactVariable;
 import org.jamocha.languages.common.SingleFactVariable.SingleSlotVariable;
-
-import lombok.AllArgsConstructor;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>

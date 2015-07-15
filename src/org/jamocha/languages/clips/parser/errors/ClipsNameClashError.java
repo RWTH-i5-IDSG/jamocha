@@ -14,10 +14,10 @@
  */
 package org.jamocha.languages.clips.parser.errors;
 
+import lombok.Getter;
+
 import org.jamocha.languages.clips.parser.generated.SimpleNode;
 import org.jamocha.languages.common.errors.NameClashError;
-
-import lombok.Getter;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
@@ -33,14 +33,13 @@ public class ClipsNameClashError extends NameClashError {
 		this.context = context;
 	}
 
-	public ClipsNameClashError(final String name, final SimpleNode context, final String message, final Throwable cause,
-			final boolean enableSuppression, final boolean writableStackTrace) {
+	public ClipsNameClashError(final String name, final SimpleNode context, final String message,
+			final Throwable cause, final boolean enableSuppression, final boolean writableStackTrace) {
 		super(name, message, cause, enableSuppression, writableStackTrace);
 		this.context = context;
 	}
 
-	public ClipsNameClashError(final String name, final SimpleNode context, final String message,
-			final Throwable cause) {
+	public ClipsNameClashError(final String name, final SimpleNode context, final String message, final Throwable cause) {
 		super(name, message, cause);
 		this.context = context;
 	}

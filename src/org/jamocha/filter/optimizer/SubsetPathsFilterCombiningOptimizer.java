@@ -28,6 +28,8 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Set;
 
+import lombok.RequiredArgsConstructor;
+
 import org.jamocha.dn.ConstructCache.Defrule.PathRule;
 import org.jamocha.filter.Path;
 import org.jamocha.filter.PathCollector;
@@ -37,8 +39,6 @@ import org.jamocha.filter.PathFilterList.PathSharedListWrapper;
 import org.jamocha.filter.PathFilterList.PathSharedListWrapper.PathSharedList;
 import org.jamocha.filter.PathFilterListVisitor;
 import org.jamocha.filter.PathNodeFilterSet;
-
-import lombok.RequiredArgsConstructor;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
@@ -83,9 +83,10 @@ public class SubsetPathsFilterCombiningOptimizer implements Optimizer {
 				save(filter, currentPaths);
 				return;
 			}
-			final HashSet<Path> joined = currentPaths.stream()
-					.flatMap(p -> path2JoinedWith.getOrDefault(p, Collections.singleton(p)).stream())
-					.collect(toCollection(HashSet::new));
+			final HashSet<Path> joined =
+					currentPaths.stream()
+							.flatMap(p -> path2JoinedWith.getOrDefault(p, Collections.singleton(p)).stream())
+							.collect(toCollection(HashSet::new));
 			for (final ListIterator<PathNodeFilterSet> listIterator =
 					filtersOnThisLevel.listIterator(filtersOnThisLevel.size()); listIterator.hasPrevious();) {
 				final PathNodeFilterSet samePathsFilter = listIterator.previous();
@@ -102,9 +103,8 @@ public class SubsetPathsFilterCombiningOptimizer implements Optimizer {
 
 		@Override
 		public void visit(final PathExistentialList filter) {
-			result.add(new PathExistentialList(filter.getInitialPath(),
-					new PathSharedListWrapper().newSharedElement(combine(filter.getPurePart().getFilters())),
-					filter.getExistentialClosure()));
+			result.add(new PathExistentialList(filter.getInitialPath(), new PathSharedListWrapper()
+					.newSharedElement(combine(filter.getPurePart().getFilters())), filter.getExistentialClosure()));
 		}
 
 		@Override
@@ -125,9 +125,11 @@ public class SubsetPathsFilterCombiningOptimizer implements Optimizer {
 
 	@Override
 	public Collection<PathRule> optimize(final Collection<PathRule> rules) {
-		return rules.stream().map(rule -> {
-			return rule.getParent().new PathRule(optimize(rule.getCondition()), rule.getResultPaths(),
-					rule.getActionList(), rule.getEquivalenceClassToPathLeaf(), rule.getSpecificity());
-		}).collect(toList());
+		return rules
+				.stream()
+				.map(rule -> {
+					return rule.getParent().new PathRule(optimize(rule.getCondition()), rule.getResultPaths(), rule
+							.getActionList(), rule.getEquivalenceClassToPathLeaf(), rule.getSpecificity());
+				}).collect(toList());
 	}
 }

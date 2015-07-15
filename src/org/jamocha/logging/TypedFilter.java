@@ -21,6 +21,9 @@ import java.util.EnumMap;
 import java.util.EnumSet;
 import java.util.Map.Entry;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.Marker;
@@ -29,9 +32,6 @@ import org.apache.logging.log4j.core.Logger;
 import org.apache.logging.log4j.core.filter.AbstractFilter;
 import org.apache.logging.log4j.message.Message;
 
-import lombok.Getter;
-import lombok.Setter;
-
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
@@ -39,8 +39,8 @@ public class TypedFilter extends AbstractFilter {
 	private static final long serialVersionUID = -5595124971046769329L;
 	// boolean in pair: true if watched => collection is exclusion list
 	// false if not watched => collection is inclusion list
-	final EnumMap<MarkerType, Pair<Boolean, Collection<Marker>>> markerToInExClusionList =
-			new EnumMap<>(MarkerType.class);
+	final EnumMap<MarkerType, Pair<Boolean, Collection<Marker>>> markerToInExClusionList = new EnumMap<>(
+			MarkerType.class);
 	@Getter
 	@Setter
 	boolean keepItemsWithoutMarkers;
@@ -51,8 +51,8 @@ public class TypedFilter extends AbstractFilter {
 	}
 
 	public void watchAll() {
-		EnumSet.allOf(MarkerType.class)
-				.forEach(mt -> this.markerToInExClusionList.put(mt, Pair.of(Boolean.TRUE, new ArrayList<>())));
+		EnumSet.allOf(MarkerType.class).forEach(
+				mt -> this.markerToInExClusionList.put(mt, Pair.of(Boolean.TRUE, new ArrayList<>())));
 	}
 
 	public void watch(final MarkerType markerType, final Marker... markers) {
@@ -80,8 +80,8 @@ public class TypedFilter extends AbstractFilter {
 	}
 
 	public void unwatchAll() {
-		EnumSet.allOf(MarkerType.class)
-				.forEach(mt -> this.markerToInExClusionList.put(mt, Pair.of(Boolean.FALSE, new ArrayList<>())));
+		EnumSet.allOf(MarkerType.class).forEach(
+				mt -> this.markerToInExClusionList.put(mt, Pair.of(Boolean.FALSE, new ArrayList<>())));
 	}
 
 	private boolean check(final Marker marker) {

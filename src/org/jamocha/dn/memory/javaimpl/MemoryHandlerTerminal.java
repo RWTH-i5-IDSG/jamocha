@@ -18,11 +18,11 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Queue;
 
+import lombok.RequiredArgsConstructor;
+
 import org.jamocha.dn.memory.MemoryHandler;
 import org.jamocha.dn.memory.javaimpl.MemoryHandlerMinusTemp.MemoryHandlerMinusTempComplete;
 import org.jamocha.dn.nodes.TerminalNode;
-
-import lombok.RequiredArgsConstructor;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
@@ -44,8 +44,7 @@ public class MemoryHandlerTerminal implements org.jamocha.dn.memory.MemoryHandle
 	}
 
 	@Override
-	public void addMinusMemory(final TerminalNode terminalNode,
-			final org.jamocha.dn.memory.MemoryHandlerMinusTemp mem) {
+	public void addMinusMemory(final TerminalNode terminalNode, final org.jamocha.dn.memory.MemoryHandlerMinusTemp mem) {
 		if (!(mem instanceof MemoryHandlerMinusTempComplete)) {
 			// handle partial minus token
 			final MemoryHandlerMinusTemp minusTemp = (MemoryHandlerMinusTemp) mem;

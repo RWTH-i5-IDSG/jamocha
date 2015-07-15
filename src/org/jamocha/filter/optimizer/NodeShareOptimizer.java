@@ -118,8 +118,8 @@ public class NodeShareOptimizer implements Optimizer {
 			final Set<Defrule.PathRule> possibleRules = new HashSet<>();
 			possibleRules.addAll(allRules);
 			for (PathNodeFilterSet filter : preBlock) {
-				possibleRules
-						.retainAll(pool.getEqualFilters(filter).stream().map(f -> filter2Rule.get(f)).collect(toSet()));
+				possibleRules.retainAll(pool.getEqualFilters(filter).stream().map(f -> filter2Rule.get(f))
+						.collect(toSet()));
 			}
 			for (Defrule.PathRule possibleRule : possibleRules) {
 				final Map<Path, Path> pathMap = new HashMap<>();
@@ -143,12 +143,19 @@ public class NodeShareOptimizer implements Optimizer {
 	}
 
 	private boolean checkForConflicts(final Collection<PathNodeFilterSet> values) {
-		return values.stream().flatMap(filter -> {
-			return (Stream<Boolean>) (filter2Paths.get(filter).stream()
-					.map(path -> path2Filters.get(path).stream().allMatch(conflictingFilter -> {
-				return filter2Blocks.get(conflictingFilter).stream().allMatch(block -> block.contains(filter));
-			})));
-		}).allMatch(noConflict -> noConflict);
+		return values
+				.stream()
+				.flatMap(
+						filter -> {
+							return (Stream<Boolean>) (filter2Paths.get(filter).stream().map(path -> path2Filters
+									.get(path)
+									.stream()
+									.allMatch(
+											conflictingFilter -> {
+												return filter2Blocks.get(conflictingFilter).stream()
+														.allMatch(block -> block.contains(filter));
+											})));
+						}).allMatch(noConflict -> noConflict);
 	}
 
 	private Map<PathNodeFilterSet, PathNodeFilterSet> comparePathFilters(final Set<PathNodeFilterSet> filters1,
@@ -164,8 +171,8 @@ public class NodeShareOptimizer implements Optimizer {
 		final PathNodeFilterSet filter1 = iterator.next();
 		iterator.remove();
 		try {
-			for (PathNodeFilterSet filter2 : IteratorUtils
-					.asIterable(pool.getEqualFilters(filter1).stream().filter(f -> filters2.contains(f)).iterator())) {
+			for (PathNodeFilterSet filter2 : IteratorUtils.asIterable(pool.getEqualFilters(filter1).stream()
+					.filter(f -> filters2.contains(f)).iterator())) {
 				final Map<Path, Path> tmpPathMap = new HashMap<>(pathMap);
 				if (PathNodeFilterSet.equals(filter1, filter2, tmpPathMap)) {
 					final Map<PathNodeFilterSet, PathNodeFilterSet> filterMap =

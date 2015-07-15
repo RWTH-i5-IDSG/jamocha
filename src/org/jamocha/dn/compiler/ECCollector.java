@@ -35,8 +35,8 @@ import org.jamocha.languages.common.RuleCondition.EquivalenceClass;
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
-public class ECCollector
-		implements DefaultFunctionWithArgumentsLeafVisitor<ECLeaf>, ECFilterListVisitor, ECFilterSetVisitor {
+public class ECCollector implements DefaultFunctionWithArgumentsLeafVisitor<ECLeaf>, ECFilterListVisitor,
+		ECFilterSetVisitor {
 	final Set<EquivalenceClass> equivalenceClasses = new HashSet<>();
 
 	static Set<EquivalenceClass> collect(final ECFilterList filter) {

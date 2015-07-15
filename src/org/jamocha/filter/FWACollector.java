@@ -21,6 +21,8 @@ import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 
+import lombok.Getter;
+
 import org.jamocha.function.fwa.DefaultFunctionWithArgumentsVisitor;
 import org.jamocha.function.fwa.FunctionWithArguments;
 import org.jamocha.function.fwa.PredicateWithArgumentsComposite;
@@ -31,8 +33,6 @@ import org.jamocha.languages.common.ConditionalElement.TestConditionalElement;
 import org.jamocha.languages.common.DefaultConditionalElementsVisitor;
 import org.jamocha.languages.common.RuleCondition;
 
-import lombok.Getter;
-
 /**
  * Collects all {@link FunctionWithArguments} in the CE splitting up equal fwas into its arguments.
  * 
@@ -41,8 +41,8 @@ import lombok.Getter;
  * @param <T>
  *            collection type to use while collecting the {@link FunctionWithArguments}
  */
-public class FWACollector<T extends Collection<FunctionWithArguments<SymbolLeaf>>>
-		implements DefaultConditionalElementsVisitor, DefaultFunctionWithArgumentsVisitor<SymbolLeaf> {
+public class FWACollector<T extends Collection<FunctionWithArguments<SymbolLeaf>>> implements
+		DefaultConditionalElementsVisitor, DefaultFunctionWithArgumentsVisitor<SymbolLeaf> {
 	@Getter
 	private final T fwas;
 

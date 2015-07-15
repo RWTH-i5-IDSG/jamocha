@@ -14,9 +14,9 @@
  */
 package test.jamocha.util;
 
-import org.jamocha.dn.memory.FactAddress;
-
 import lombok.Value;
+
+import org.jamocha.dn.memory.FactAddress;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>

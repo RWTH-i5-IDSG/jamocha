@@ -14,10 +14,10 @@
  */
 package org.jamocha.dn.memory.javaimpl;
 
+import lombok.Getter;
+
 import org.jamocha.dn.memory.CounterColumnMatcher;
 import org.jamocha.filter.PathNodeFilterSet;
-
-import lombok.Getter;
 
 /**
  * Class holding the counter columns for existential filter elements providing the typical methods

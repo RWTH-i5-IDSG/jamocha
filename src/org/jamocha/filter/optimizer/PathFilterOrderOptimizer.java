@@ -24,6 +24,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import lombok.RequiredArgsConstructor;
+
 import org.jamocha.dn.ConstructCache.Defrule.PathRule;
 import org.jamocha.filter.Path;
 import org.jamocha.filter.PathCollector;
@@ -32,8 +34,6 @@ import org.jamocha.filter.PathFilterList.PathExistentialList;
 import org.jamocha.filter.PathFilterList.PathSharedListWrapper.PathSharedList;
 import org.jamocha.filter.PathFilterListVisitor;
 import org.jamocha.filter.PathNodeFilterSet;
-
-import lombok.RequiredArgsConstructor;
 
 /**
  * A class to optimize the order of a list of {@link PathNodeFilterSet}s
@@ -295,17 +295,19 @@ public class PathFilterOrderOptimizer implements Optimizer {
 		final LinkedList<PathFilterList> workspace = new LinkedList<>(list);
 		list.clear();
 		// using this comparator, we determine the minimal cost filter
-		final Comparator<PathFilterList> compareByOurCriteria = (final PathFilterList a, final PathFilterList b) -> {
-			final Graph.GraphComponent componentA = graph.getComponent(a);
-			final Graph.GraphComponent componentB = graph.getComponent(b);
-			final int numEdgesAsFirstCriterion =
-					Integer.compare(graph.getNeighbours(componentA).size(), graph.getNeighbours(componentB).size());
-			if (0 != numEdgesAsFirstCriterion)
-				return numEdgesAsFirstCriterion;
-			final int numPathsAsSecondCriterion =
-					Integer.compare(componentA.getPaths().size(), componentB.getPaths().size());
-			return numPathsAsSecondCriterion;
-		};
+		final Comparator<PathFilterList> compareByOurCriteria =
+				(final PathFilterList a, final PathFilterList b) -> {
+					final Graph.GraphComponent componentA = graph.getComponent(a);
+					final Graph.GraphComponent componentB = graph.getComponent(b);
+					final int numEdgesAsFirstCriterion =
+							Integer.compare(graph.getNeighbours(componentA).size(), graph.getNeighbours(componentB)
+									.size());
+					if (0 != numEdgesAsFirstCriterion)
+						return numEdgesAsFirstCriterion;
+					final int numPathsAsSecondCriterion =
+							Integer.compare(componentA.getPaths().size(), componentB.getPaths().size());
+					return numPathsAsSecondCriterion;
+				};
 		// until the workspace is empty
 		while (!workspace.isEmpty()) {
 			// determine the minimal filter

@@ -1,13 +1,13 @@
 package org.jamocha.function.fwa;
 
+import lombok.EqualsAndHashCode;
+
 import org.jamocha.dn.memory.SlotType;
 import org.jamocha.dn.nodes.Node;
 import org.jamocha.dn.nodes.SlotInFactAddress;
 import org.jamocha.filter.AddressNodeFilterSet.AddressFilter;
 import org.jamocha.filter.NodeFilterSet;
 import org.jamocha.function.Function;
-
-import lombok.EqualsAndHashCode;
 
 /**
  * This class stores the {@link SlotType} of the represented Slot only. All other relevant

@@ -17,6 +17,10 @@ package org.jamocha.dn.compiler;
 
 import java.util.Arrays;
 
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+
 import org.jamocha.function.fwa.ConstantLeaf;
 import org.jamocha.function.fwa.DefaultFunctionWithArgumentsLeafVisitor;
 import org.jamocha.function.fwa.FunctionWithArguments;
@@ -33,27 +37,28 @@ import org.jamocha.languages.common.ConditionalElement.TemplatePatternConditiona
 import org.jamocha.languages.common.ConditionalElement.TestConditionalElement;
 import org.jamocha.languages.common.DefaultConditionalElementsVisitor;
 
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 @Getter
-public class Specificity
-		implements DefaultFunctionWithArgumentsLeafVisitor<SymbolLeaf>, DefaultConditionalElementsVisitor {
+public class Specificity implements DefaultFunctionWithArgumentsLeafVisitor<SymbolLeaf>,
+		DefaultConditionalElementsVisitor {
 	int specificity = 0;
 
 	public static int calculate(final ConditionalElement ce) {
 		final Specificity instance = new Specificity();
 		ce.accept(instance);
 		instance.specificity +=
-				DeepFactVariableCollector.collect(ce).stream().flatMap(fv -> fv.getSlotVariables().stream())
-						.map(sv -> sv.getEqual()).distinct().mapToInt(ec -> ec.getEqualFWAs().size()
-								+ ec.getEqualSlotVariables().size() + (ec.getFactVariables().isEmpty() ? 0 : 1) - 1)
-				.filter(i -> i > 0).sum();
+				DeepFactVariableCollector
+						.collect(ce)
+						.stream()
+						.flatMap(fv -> fv.getSlotVariables().stream())
+						.map(sv -> sv.getEqual())
+						.distinct()
+						.mapToInt(
+								ec -> ec.getEqualFWAs().size() + ec.getEqualSlotVariables().size()
+										+ (ec.getFactVariables().isEmpty() ? 0 : 1) - 1).filter(i -> i > 0).sum();
 		return instance.specificity;
 	}
 

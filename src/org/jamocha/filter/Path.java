@@ -18,15 +18,15 @@ import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 
+import lombok.Getter;
+import lombok.Setter;
+import lombok.Value;
+
 import org.jamocha.dn.memory.FactAddress;
 import org.jamocha.dn.memory.SlotAddress;
 import org.jamocha.dn.memory.SlotType;
 import org.jamocha.dn.memory.Template;
 import org.jamocha.dn.nodes.Node;
-
-import lombok.Getter;
-import lombok.Setter;
-import lombok.Value;
 
 /**
  * A Path describes an element of a condition part of a rule. It "traces" its position in the
@@ -158,7 +158,7 @@ public class Path {
 
 	public void cachedOverride(final Node currentlyLowestNode, final FactAddress factAddressInCurrentlyLowestNode,
 			final Set<Path> joinedWith) {
-		assert!this.backup.isPresent();
+		assert !this.backup.isPresent();
 		this.backup = Optional.of(new Backup());
 		this.currentlyLowestNode = currentlyLowestNode;
 		this.factAddressInCurrentlyLowestNode = factAddressInCurrentlyLowestNode;

@@ -20,16 +20,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import org.jamocha.dn.ConstructCache.Defrule;
-import org.jamocha.dn.Network;
-import org.jamocha.dn.nodes.AlphaNode;
-import org.jamocha.dn.nodes.BetaNode;
-import org.jamocha.dn.nodes.Edge;
-import org.jamocha.dn.nodes.Node;
-import org.jamocha.dn.nodes.NodeVisitor;
-import org.jamocha.dn.nodes.ObjectTypeNode;
-import org.jamocha.dn.nodes.TerminalNode;
-
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.NumberBinding;
 import javafx.beans.property.DoubleProperty;
@@ -45,6 +35,16 @@ import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+
+import org.jamocha.dn.ConstructCache.Defrule;
+import org.jamocha.dn.Network;
+import org.jamocha.dn.nodes.AlphaNode;
+import org.jamocha.dn.nodes.BetaNode;
+import org.jamocha.dn.nodes.Edge;
+import org.jamocha.dn.nodes.Node;
+import org.jamocha.dn.nodes.NodeVisitor;
+import org.jamocha.dn.nodes.ObjectTypeNode;
+import org.jamocha.dn.nodes.TerminalNode;
 
 /**
  * @author Christoph Terwelp <christoph.terwelp@rwth-aachen.de>
@@ -151,8 +151,8 @@ public class NetworkVisualisation extends Region {
 		}
 
 		private static class Terminal extends GraphicalNode {
-			final Polyline polyline =
-					new Polyline(0, NODE_HEIGHT, NODE_WIDTH, NODE_HEIGHT, NODE_WIDTH / 2, 0, 0, NODE_HEIGHT);
+			final Polyline polyline = new Polyline(0, NODE_HEIGHT, NODE_WIDTH, NODE_HEIGHT, NODE_WIDTH / 2, 0, 0,
+					NODE_HEIGHT);
 
 			Terminal() {
 				super(false, null);
@@ -311,8 +311,9 @@ public class NetworkVisualisation extends Region {
 			}
 			NumberBinding lastHeight = null;
 			for (GroupInterface aGroup : groups) {
-				lastHeight = (null == lastHeight) ? Bindings.add(0, aGroup.heightProperty())
-						: Bindings.max(lastHeight, aGroup.heightProperty());
+				lastHeight =
+						(null == lastHeight) ? Bindings.add(0, aGroup.heightProperty()) : Bindings.max(lastHeight,
+								aGroup.heightProperty());
 			}
 			if (null != node && node.isShared())
 				lastHeight = lastHeight.add(20);
@@ -326,8 +327,9 @@ public class NetworkVisualisation extends Region {
 			}
 			NumberBinding lastWidth = null;
 			for (GroupInterface aGroup : groups) {
-				lastWidth = (null == lastWidth) ? Bindings.add(0, aGroup.widthProperty())
-						: Bindings.add(lastWidth, aGroup.widthProperty()).add(X_SPACER);
+				lastWidth =
+						(null == lastWidth) ? Bindings.add(0, aGroup.widthProperty()) : Bindings.add(lastWidth,
+								aGroup.widthProperty()).add(X_SPACER);
 			}
 			if (null != node && node.isShared())
 				lastWidth = lastWidth.add(20);

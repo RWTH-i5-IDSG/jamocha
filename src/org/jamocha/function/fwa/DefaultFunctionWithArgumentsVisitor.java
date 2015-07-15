@@ -17,8 +17,8 @@ package org.jamocha.function.fwa;
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
-public interface DefaultFunctionWithArgumentsVisitor<L extends ExchangeableLeaf<L>>
-		extends FunctionWithArgumentsVisitor<L> {
+public interface DefaultFunctionWithArgumentsVisitor<L extends ExchangeableLeaf<L>> extends
+		FunctionWithArgumentsVisitor<L> {
 
 	void defaultAction(final FunctionWithArguments<L> function);
 

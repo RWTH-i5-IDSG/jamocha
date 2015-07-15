@@ -26,6 +26,9 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.IntStream;
 
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+
 import org.jamocha.dn.Network;
 import org.jamocha.dn.memory.Fact;
 import org.jamocha.dn.memory.FactIdentifier;
@@ -33,9 +36,6 @@ import org.jamocha.dn.memory.MemoryFact;
 import org.jamocha.dn.memory.MemoryFactory;
 import org.jamocha.dn.memory.Template;
 import org.jamocha.filter.Path;
-
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
 
 /**
  * Root node implementation (not part of the {@link Node} type hierarchy).
@@ -160,8 +160,8 @@ public class RootNode {
 	 */
 	public void addPaths(final Network network, final Path... paths) {
 		for (final Path path : paths) {
-			this.templateToOTN.computeIfAbsent(path.getTemplate(), t -> new ObjectTypeNode(network, t))
-					.shareNode(Collections.emptyMap(), path);
+			this.templateToOTN.computeIfAbsent(path.getTemplate(), t -> new ObjectTypeNode(network, t)).shareNode(
+					Collections.emptyMap(), path);
 		}
 	}
 }

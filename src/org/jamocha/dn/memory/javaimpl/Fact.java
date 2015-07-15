@@ -16,12 +16,12 @@ package org.jamocha.dn.memory.javaimpl;
 
 import java.util.Arrays;
 
-import org.jamocha.dn.memory.FactIdentifier;
-import org.jamocha.dn.memory.MemoryFact;
-
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+
+import org.jamocha.dn.memory.FactIdentifier;
+import org.jamocha.dn.memory.MemoryFact;
 
 /**
  * Implementation of a Fact. Stores values as Objects.
@@ -32,7 +32,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @EqualsAndHashCode
 class Fact implements MemoryFact {
-	@Getter(onMethod = @__({ @Override }) )
+	@Getter(onMethod = @__({ @Override }))
 	private final Template template;
 
 	private final Object slotValues[];

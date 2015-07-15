@@ -130,8 +130,9 @@ public class ParserTest {
 
 	@Test(expected = NameClashError.class)
 	public void testDeftemplateUniqueNames() throws ParseException {
-		final Reader parserInput = new StringReader(
-				"(deftemplate f1 (slot s1 (type INTEGER)))\n" + "(deftemplate f1 (slot s1 (type FLOAT)))\n");
+		final Reader parserInput =
+				new StringReader("(deftemplate f1 (slot s1 (type INTEGER)))\n"
+						+ "(deftemplate f1 (slot s1 (type FLOAT)))\n");
 		final SFPParser parser = new SFPParser(parserInput);
 		final NetworkMockup network = new NetworkMockup();
 		final SFPVisitorImpl visitor = new SFPVisitorImpl(network, network);
@@ -140,8 +141,9 @@ public class ParserTest {
 
 	@Test(expected = NameClashError.class)
 	public void testDefruleUniqueNames() throws ParseException {
-		final Reader parserInput = new StringReader("(deftemplate f1 (slot s1 (type INTEGER)))\n"
-				+ "(defrule r1 (f1 (s1 ?x))=>)\n" + "(defrule r1 (f1 (s1 ?x))=>)\n");
+		final Reader parserInput =
+				new StringReader("(deftemplate f1 (slot s1 (type INTEGER)))\n" + "(defrule r1 (f1 (s1 ?x))=>)\n"
+						+ "(defrule r1 (f1 (s1 ?x))=>)\n");
 		final SFPParser parser = new SFPParser(parserInput);
 		final NetworkMockup network = new NetworkMockup();
 		final SFPVisitorImpl visitor = new SFPVisitorImpl(network, network);
@@ -150,8 +152,9 @@ public class ParserTest {
 
 	@Test
 	public void testDefruleAssignedPatternCENameReuse() throws ParseException {
-		final Reader parserInput = new StringReader(
-				"(deftemplate f1 (slot s1 (type INTEGER)))\n" + "(defrule r1 ?x <- (f1) ?x <- (f1) =>)\n");
+		final Reader parserInput =
+				new StringReader("(deftemplate f1 (slot s1 (type INTEGER)))\n"
+						+ "(defrule r1 ?x <- (f1) ?x <- (f1) =>)\n");
 		final SFPParser parser = new SFPParser(parserInput);
 		final NetworkMockup network = new NetworkMockup();
 		final SFPVisitorImpl visitor = new SFPVisitorImpl(network, network);
@@ -170,8 +173,9 @@ public class ParserTest {
 
 	@Test(expected = VariableNotDeclaredError.class)
 	public void testDefruleVariableInExScope() throws ParseException {
-		final Reader parserInput = new StringReader("(deftemplate f1 (slot s1 (type INTEGER)))\n"
-				+ "(defrule r1 (exists (f1 (s1 ?x))) (test (> 2 ?x))=>)\n");
+		final Reader parserInput =
+				new StringReader("(deftemplate f1 (slot s1 (type INTEGER)))\n"
+						+ "(defrule r1 (exists (f1 (s1 ?x))) (test (> 2 ?x))=>)\n");
 		final SFPParser parser = new SFPParser(parserInput);
 		final NetworkMockup network = new NetworkMockup();
 		final SFPVisitorImpl visitor = new SFPVisitorImpl(network, network);
@@ -180,8 +184,9 @@ public class ParserTest {
 
 	@Test(expected = VariableNotDeclaredError.class)
 	public void testDefruleVariableInNegExScope() throws ParseException {
-		final Reader parserInput = new StringReader(
-				"(deftemplate f1 (slot s1 (type INTEGER)))\n" + "(defrule r1 (not (f1 (s1 ?x))) (test (> 2 ?x))=>)\n");
+		final Reader parserInput =
+				new StringReader("(deftemplate f1 (slot s1 (type INTEGER)))\n"
+						+ "(defrule r1 (not (f1 (s1 ?x))) (test (> 2 ?x))=>)\n");
 		final SFPParser parser = new SFPParser(parserInput);
 		final NetworkMockup network = new NetworkMockup();
 		final SFPVisitorImpl visitor = new SFPVisitorImpl(network, network);
@@ -190,8 +195,9 @@ public class ParserTest {
 
 	@Test
 	public void testDefruleVariableInNegExScopePseudoReuse() throws ParseException {
-		final Reader parserInput = new StringReader("(deftemplate f1 (slot s1 (type INTEGER)))\n"
-				+ "(defrule r1 (not (f1 (s1 ?x))) (f1 (s1 ?x)) (test (> 2 ?x))=>)\n");
+		final Reader parserInput =
+				new StringReader("(deftemplate f1 (slot s1 (type INTEGER)))\n"
+						+ "(defrule r1 (not (f1 (s1 ?x))) (f1 (s1 ?x)) (test (> 2 ?x))=>)\n");
 		final SFPParser parser = new SFPParser(parserInput);
 		final NetworkMockup network = new NetworkMockup();
 		final SFPVisitorImpl visitor = new SFPVisitorImpl(network, network);
@@ -201,8 +207,9 @@ public class ParserTest {
 
 	@Test(expected = VariableNotDeclaredError.class)
 	public void testDefruleVariableInForallScope1() throws ParseException {
-		final Reader parserInput = new StringReader("(deftemplate f1 (slot s1 (type INTEGER)))\n"
-				+ "(defrule r1 (forall (f1 (s1 ?x))(f1 (s1 2))) (test (> 2 ?x))=>)\n");
+		final Reader parserInput =
+				new StringReader("(deftemplate f1 (slot s1 (type INTEGER)))\n"
+						+ "(defrule r1 (forall (f1 (s1 ?x))(f1 (s1 2))) (test (> 2 ?x))=>)\n");
 		final SFPParser parser = new SFPParser(parserInput);
 		final NetworkMockup network = new NetworkMockup();
 		final SFPVisitorImpl visitor = new SFPVisitorImpl(network, network);
@@ -211,8 +218,9 @@ public class ParserTest {
 
 	@Test(expected = VariableNotDeclaredError.class)
 	public void testDefruleVariableInForallScope2() throws ParseException {
-		final Reader parserInput = new StringReader("(deftemplate f1 (slot s1 (type INTEGER)))\n"
-				+ "(defrule r1 (forall (f1 (s1 2))(f1 (s1 ?x))) (test (> 2 ?x))=>)\n");
+		final Reader parserInput =
+				new StringReader("(deftemplate f1 (slot s1 (type INTEGER)))\n"
+						+ "(defrule r1 (forall (f1 (s1 2))(f1 (s1 ?x))) (test (> 2 ?x))=>)\n");
 		final SFPParser parser = new SFPParser(parserInput);
 		final NetworkMockup network = new NetworkMockup();
 		final SFPVisitorImpl visitor = new SFPVisitorImpl(network, network);
@@ -231,9 +239,10 @@ public class ParserTest {
 
 	@Test
 	public void testSimpleRule() throws ParseException {
-		final Reader parserInput = new StringReader("(deftemplate f1 (slot s1 (type INTEGER))(slot s2 (type FLOAT)))\n"
-				+ "(deftemplate f2 (slot s1 (type INTEGER))(slot s2 (type FLOAT)))\n"
-				+ "(defrule r1 (f1 (s1 ?x)) ?z <- (f2 (s2 ?y))" + "(test (> ?x 2)) (test (< ?y 0.0)) =>)\n");
+		final Reader parserInput =
+				new StringReader("(deftemplate f1 (slot s1 (type INTEGER))(slot s2 (type FLOAT)))\n"
+						+ "(deftemplate f2 (slot s1 (type INTEGER))(slot s2 (type FLOAT)))\n"
+						+ "(defrule r1 (f1 (s1 ?x)) ?z <- (f2 (s2 ?y))" + "(test (> ?x 2)) (test (< ?y 0.0)) =>)\n");
 		final SFPParser parser = new SFPParser(parserInput);
 		final NetworkMockup network = new NetworkMockup();
 		final SFPVisitorImpl visitor = new SFPVisitorImpl(network, network);
@@ -338,9 +347,10 @@ public class ParserTest {
 
 	@Test
 	public void testConnectedConstraints() throws ParseException {
-		final Reader parserInput = new StringReader("(deftemplate f1 (slot s1 (type INTEGER))(slot s2 (type FLOAT)))\n"
-				+ "(deftemplate f2 (slot s1 (type INTEGER))(slot s2 (type FLOAT)))\n"
-				+ "(defrule r1 (f1 (s1 ?x&2|3&4|5)) =>)\n");
+		final Reader parserInput =
+				new StringReader("(deftemplate f1 (slot s1 (type INTEGER))(slot s2 (type FLOAT)))\n"
+						+ "(deftemplate f2 (slot s1 (type INTEGER))(slot s2 (type FLOAT)))\n"
+						+ "(defrule r1 (f1 (s1 ?x&2|3&4|5)) =>)\n");
 		// => ?x & (2 | (3 & 4) | 5)
 		final SFPParser parser = new SFPParser(parserInput);
 		final NetworkMockup network = new NetworkMockup();
@@ -383,8 +393,8 @@ public class ParserTest {
 				assertThat(andChildren, hasSize(2));
 				final ConditionalElement tpce = andChildren.get(0);
 				assertThat(tpce, instanceOf(TemplatePatternConditionalElement.class));
-				assertSame(network.getTemplate("f1"),
-						((TemplatePatternConditionalElement) tpce).getFactVariable().getTemplate());
+				assertSame(network.getTemplate("f1"), ((TemplatePatternConditionalElement) tpce).getFactVariable()
+						.getTemplate());
 				conditionalElement = andChildren.get(1);
 			}
 			assertThat(conditionalElement, instanceOf(OrFunctionConditionalElement.class));
@@ -489,9 +499,10 @@ public class ParserTest {
 
 	@Test
 	public void testComplexRule() throws ParseException {
-		final Reader parserInput = new StringReader("(deftemplate f1 (slot s1 (type INTEGER))(slot s2 (type FLOAT)))\n"
-				+ "(deftemplate f2 (slot s1 (type INTEGER))(slot s2 (type FLOAT)))\n"
-				+ "(defrule r1 (not (and (f1 (s1 ?x) (s2 ?y)) (not (f2 (s1 ?x))) (test (>= ?y 0.5)) )) =>)\n");
+		final Reader parserInput =
+				new StringReader("(deftemplate f1 (slot s1 (type INTEGER))(slot s2 (type FLOAT)))\n"
+						+ "(deftemplate f2 (slot s1 (type INTEGER))(slot s2 (type FLOAT)))\n"
+						+ "(defrule r1 (not (and (f1 (s1 ?x) (s2 ?y)) (not (f2 (s1 ?x))) (test (>= ?y 0.5)) )) =>)\n");
 		final SFPParser parser = new SFPParser(parserInput);
 		final NetworkMockup network = new NetworkMockup();
 		final SFPVisitorImpl visitor = new SFPVisitorImpl(network, network);

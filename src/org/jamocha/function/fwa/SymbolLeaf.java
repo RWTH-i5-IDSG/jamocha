@@ -14,14 +14,14 @@
  */
 package org.jamocha.function.fwa;
 
-import org.jamocha.dn.memory.SlotType;
-import org.jamocha.function.Function;
-import org.jamocha.languages.common.ScopeStack.VariableSymbol;
-
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
+
+import org.jamocha.dn.memory.SlotType;
+import org.jamocha.function.Function;
+import org.jamocha.languages.common.ScopeStack.VariableSymbol;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>

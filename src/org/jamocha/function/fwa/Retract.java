@@ -19,14 +19,14 @@ import static org.jamocha.util.ToArray.toArray;
 import java.util.Arrays;
 import java.util.Objects;
 
+import lombok.Getter;
+import lombok.NonNull;
+
 import org.jamocha.dn.SideEffectFunctionToNetwork;
 import org.jamocha.dn.memory.FactIdentifier;
 import org.jamocha.dn.memory.SlotType;
 import org.jamocha.function.Function;
 import org.jamocha.function.impls.FunctionVisitor;
-
-import lombok.Getter;
-import lombok.NonNull;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
@@ -39,7 +39,7 @@ public class Retract<L extends ExchangeableLeaf<L>> extends GenericWithArguments
 	@SafeVarargs
 	public Retract(final SideEffectFunctionToNetwork network, final FunctionWithArguments<L>... args) {
 		super(new Function<Object>() {
-			@Getter(lazy = true, onMethod = @__(@Override) )
+			@Getter(lazy = true, onMethod = @__(@Override))
 			private final SlotType[] paramTypes = calculateParamTypes();
 
 			private SlotType[] calculateParamTypes() {
@@ -63,8 +63,8 @@ public class Retract<L extends ExchangeableLeaf<L>> extends GenericWithArguments
 
 			@Override
 			public Object evaluate(final Function<?>... params) {
-				network.retractFacts(
-						toArray(Arrays.stream(params).map(Retract::toFactIdentifier), FactIdentifier[]::new));
+				network.retractFacts(toArray(Arrays.stream(params).map(Retract::toFactIdentifier),
+						FactIdentifier[]::new));
 				return null;
 			}
 

@@ -6,3 +6,4 @@
  * @see org.jamocha.function.Predicate
  */
 package org.jamocha.function.impls.predicates;
+

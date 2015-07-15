@@ -30,6 +30,8 @@ import java.util.Optional;
 import java.util.Queue;
 import java.util.Set;
 
+import lombok.Getter;
+
 import org.jamocha.dn.Network;
 import org.jamocha.dn.Scheduler;
 import org.jamocha.dn.Token;
@@ -46,8 +48,6 @@ import org.jamocha.filter.PathCollector;
 import org.jamocha.filter.PathNodeFilterSet;
 import org.jamocha.filter.PathNodeFilterSetToAddressNodeFilterSetTranslator;
 import org.jamocha.visitor.Visitable;
-
-import lombok.Getter;
 
 /**
  * Base class for all node types
@@ -262,7 +262,7 @@ public abstract class Node implements Visitable<NodeVisitor> {
 
 				@Override
 				public void enqueue(final TokenQueue context, final Token token) {
-					assert!context.tokenQueue.isEmpty();
+					assert !context.tokenQueue.isEmpty();
 					context.tokenQueue.add(token);
 				}
 
@@ -413,16 +413,19 @@ public abstract class Node implements Visitable<NodeVisitor> {
 				path.setJoinedWith(joinedPaths);
 			}
 		}
-		this.filter = PathNodeFilterSetToAddressNodeFilterSetTranslator.translate(filter,
-				memoryHandlerMainAndCounterColumnMatcher.getFilterElementToCounterColumn());
+		this.filter =
+				PathNodeFilterSetToAddressNodeFilterSetTranslator.translate(filter,
+						memoryHandlerMainAndCounterColumnMatcher.getFilterElementToCounterColumn());
 		for (final Edge edge : this.incomingEdges) {
 			edge.setFilter(this.filter);
 		}
 
 		// Create new PlusToken if no preceding Node has not empty memory
-		final Optional<Edge> optMinEdge = Arrays.stream(this.incomingEdges)
-				.filter(e -> !e.getSourceNode().outgoingExistentialEdges.contains(e)).min((a, b) -> Integer
-						.compare(a.getSourceNode().getMemory().size(), b.getSourceNode().getMemory().size()));
+		final Optional<Edge> optMinEdge =
+				Arrays.stream(this.incomingEdges)
+						.filter(e -> !e.getSourceNode().outgoingExistentialEdges.contains(e))
+						.min((a, b) -> Integer.compare(a.getSourceNode().getMemory().size(), b.getSourceNode()
+								.getMemory().size()));
 		assert optMinEdge.isPresent();
 		final Edge minEdge = optMinEdge.get();
 		final Node sourceNode = minEdge.getSourceNode();

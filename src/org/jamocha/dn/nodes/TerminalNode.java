@@ -20,6 +20,8 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import lombok.Getter;
+
 import org.jamocha.dn.ConflictSet;
 import org.jamocha.dn.ConstructCache.Defrule;
 import org.jamocha.dn.Network;
@@ -33,8 +35,6 @@ import org.jamocha.dn.memory.MemoryHandlerTerminal.Assert;
 import org.jamocha.dn.memory.MemoryHandlerTerminal.Retract;
 import org.jamocha.filter.AddressNodeFilterSet;
 import org.jamocha.filter.AddressNodeFilterSet.AddressFilter;
-
-import lombok.Getter;
 
 /**
  * Terminal node implementation (not part of the {@link Node} type hierarchy).

@@ -23,6 +23,10 @@ import java.util.Random;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
+import lombok.Getter;
+import lombok.Setter;
+import lombok.Value;
+
 import org.apache.commons.lang3.ArrayUtils;
 import org.jamocha.dn.ConstructCache.Defrule;
 import org.jamocha.dn.ConstructCache.Defrule.Translated;
@@ -30,10 +34,6 @@ import org.jamocha.dn.memory.MemoryHandlerTerminal.Assert;
 import org.jamocha.dn.memory.MemoryHandlerTerminal.AssertOrRetract;
 import org.jamocha.dn.memory.MemoryHandlerTerminal.Retract;
 import org.jamocha.dn.nodes.TerminalNode;
-
-import lombok.Getter;
-import lombok.Setter;
-import lombok.Value;
 
 /**
  * Simple conflict set implementation.
@@ -74,8 +74,9 @@ public class ConflictSet {
 			this.token = token;
 			this.activationCounter = activationCounter;
 			this.random = random;
-			this.recencyArray = Arrays.stream(token.getFactIdentifiers()).mapToInt(fi -> null == fi ? -1 : fi.getId())
-					.sorted().toArray();
+			this.recencyArray =
+					Arrays.stream(token.getFactIdentifiers()).mapToInt(fi -> null == fi ? -1 : fi.getId()).sorted()
+							.toArray();
 			ArrayUtils.reverse(recencyArray);
 		}
 	}
@@ -83,8 +84,9 @@ public class ConflictSet {
 	private final TreeMap<Integer, TreeSet<RuleAndToken>> rulesAndTokensBySalience = new TreeMap<>();
 
 	private TreeSet<RuleAndToken> getRATSet(final Integer salience) {
-		final TreeSet<RuleAndToken> ratSet = this.rulesAndTokensBySalience.computeIfAbsent(salience,
-				x -> new TreeSet<>(this.conflictResolutionStrategy));
+		final TreeSet<RuleAndToken> ratSet =
+				this.rulesAndTokensBySalience.computeIfAbsent(salience, x -> new TreeSet<>(
+						this.conflictResolutionStrategy));
 		return correctStrategy(salience, ratSet);
 	}
 
@@ -111,8 +113,8 @@ public class ConflictSet {
 			return;
 		final Translated rule = terminal.getRule();
 		network.getLogFormatter().messageRuleActivation(network, rule, plus);
-		getRATSet(rule.getParent().getSalience())
-				.add(new RuleAndToken(rule, plus, ++activationCounter, random.nextInt()));
+		getRATSet(rule.getParent().getSalience()).add(
+				new RuleAndToken(rule, plus, ++activationCounter, random.nextInt()));
 	}
 
 	/**
@@ -128,8 +130,8 @@ public class ConflictSet {
 			return;
 		final Translated rule = terminal.getRule();
 		network.getLogFormatter().messageRuleDeactivation(network, rule, minus);
-		getRATSet(rule.getParent().getSalience())
-				.add(new RuleAndToken(rule, minus, ++activationCounter, random.nextInt()));
+		getRATSet(rule.getParent().getSalience()).add(
+				new RuleAndToken(rule, minus, ++activationCounter, random.nextInt()));
 	}
 
 	/**

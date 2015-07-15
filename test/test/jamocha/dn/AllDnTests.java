@@ -30,7 +30,7 @@ import org.junit.runners.Suite.SuiteClasses;
 @RunWith(Suite.class)
 @SuiteClasses({ test.jamocha.dn.memory.javaimpl.AllMemoryImplTests.class, test.jamocha.dn.nodes.AllNodeTests.class,
 		test.jamocha.dn.NetworkTest.class, test.jamocha.dn.compiler.AllCompilerTests.class
-		// , test.jamocha.dn.memory.javaimpl.CounterTest.class
+// , test.jamocha.dn.memory.javaimpl.CounterTest.class
 })
 public class AllDnTests {
 

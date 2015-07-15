@@ -22,9 +22,9 @@ import java.nio.file.Path;
 import java.util.jar.JarFile;
 import java.util.stream.Stream;
 
-import org.apache.commons.lang3.StringUtils;
-
 import lombok.extern.log4j.Log4j2;
+
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Utility class to load all class files in a directory or jar.
@@ -102,8 +102,9 @@ public class Loader {
 		try (final JarFile jarFile = new JarFile(pathToJar)) {
 			final URL[] urls = { new URL("jar:file:" + pathToJar + "!/" + packageString) };
 			try (final URLClassLoader loader = URLClassLoader.newInstance(urls)) {
-				jarFile.stream().filter(entry -> !entry.isDirectory() && entry.getName().endsWith(".class")
-						&& entry.getName().startsWith(packageString)).forEach(entry -> {
+				jarFile.stream()
+						.filter(entry -> !entry.isDirectory() && entry.getName().endsWith(".class")
+								&& entry.getName().startsWith(packageString)).forEach(entry -> {
 							final String className = filePathToClassName(entry.getName());
 							log.debug("Loading class {}", className);
 							try {

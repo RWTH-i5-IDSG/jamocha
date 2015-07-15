@@ -29,6 +29,10 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.stream.Stream;
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.ToString;
+
 import org.apache.commons.lang3.tuple.Pair;
 import org.jamocha.dn.memory.MemoryFact;
 import org.jamocha.dn.memory.Template;
@@ -44,10 +48,6 @@ import org.jamocha.filter.Path;
 import org.jamocha.filter.PathCollector;
 import org.jamocha.filter.PathFilter;
 import org.jamocha.filter.PathNodeFilterSet;
-
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.ToString;
 
 /**
  * Java-implementation of the {@link org.jamocha.dn.memory.MemoryHandlerMain} interface.
@@ -164,8 +164,7 @@ public class MemoryHandlerMain extends MemoryHandlerBase implements org.jamocha.
 	}
 
 	public SafeReadQueue getReadableValidOutgoingPlusTokens() throws CouldNotAcquireLockException {
-		return new SafeReadQueue(validOutgoingPlusTokens,
-				ReadLockWrapper.withTimeout(validOutgoingPlusTokensQueueLock));
+		return new SafeReadQueue(validOutgoingPlusTokens, ReadLockWrapper.withTimeout(validOutgoingPlusTokensQueueLock));
 	}
 
 	public SafeReadQueue getWithoutTimeoutReadableValidOutgoingPlusTokens() {
@@ -202,8 +201,8 @@ public class MemoryHandlerMain extends MemoryHandlerBase implements org.jamocha.
 		final PathFilterToCounterColumn pathFilterToCounterColumn = new PathFilterToCounterColumn();
 
 		if (filterSet.getPositiveExistentialPaths().isEmpty() && filterSet.getNegativeExistentialPaths().isEmpty()) {
-			return new MemoryHandlerMainAndCounterColumnMatcher(new MemoryHandlerMain(templArray,
-					Counter.newCounter(filterSet, pathFilterToCounterColumn), addrArray), pathFilterToCounterColumn);
+			return new MemoryHandlerMainAndCounterColumnMatcher(new MemoryHandlerMain(templArray, Counter.newCounter(
+					filterSet, pathFilterToCounterColumn), addrArray), pathFilterToCounterColumn);
 		}
 		final boolean[] existential = new boolean[templArray.length];
 		// gather existential paths
@@ -222,9 +221,8 @@ public class MemoryHandlerMain extends MemoryHandlerBase implements org.jamocha.
 			}
 			pathFilterToCounterColumn.putFilterElementToCounterColumn(pathFilter, new CounterColumn(index++));
 		}
-		return new MemoryHandlerMainAndCounterColumnMatcher(
-				new MemoryHandlerMainWithExistentials(templArray,
-						Counter.newCounter(filterSet, pathFilterToCounterColumn), addrArray, existential),
+		return new MemoryHandlerMainAndCounterColumnMatcher(new MemoryHandlerMainWithExistentials(templArray,
+				Counter.newCounter(filterSet, pathFilterToCounterColumn), addrArray, existential),
 				pathFilterToCounterColumn);
 	}
 
@@ -239,8 +237,8 @@ public class MemoryHandlerMain extends MemoryHandlerBase implements org.jamocha.
 	public org.jamocha.dn.memory.MemoryHandlerTemp processTokenInAlpha(
 			final org.jamocha.dn.memory.MemoryHandlerTemp token, final Edge originIncomingEdge,
 			final AddressNodeFilterSet filter) throws CouldNotAcquireLockException {
-		return ((org.jamocha.dn.memory.javaimpl.MemoryHandlerTemp) token).newAlphaTemp(this, originIncomingEdge,
-				filter);
+		return ((org.jamocha.dn.memory.javaimpl.MemoryHandlerTemp) token)
+				.newAlphaTemp(this, originIncomingEdge, filter);
 	}
 
 	@Override

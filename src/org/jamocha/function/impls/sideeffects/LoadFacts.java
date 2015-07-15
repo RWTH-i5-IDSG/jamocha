@@ -46,14 +46,14 @@ public abstract class LoadFacts extends Predicate {
 	}
 
 	static {
-		FunctionDictionary.addFixedArgsGeneratorWithSideEffects(inClips, paramTypes,
-				(final SideEffectFunctionToNetwork network, final SlotType[] paramTypes) -> {
-					return new LoadFacts() {
-						@Override
-						public Boolean evaluate(final Function<?>... params) {
-							return network.loadFactsFromFile(((Symbol) params[0].evaluate()).getImage());
-						}
-					};
-				});
+		FunctionDictionary.addFixedArgsGeneratorWithSideEffects(inClips, paramTypes, (
+				final SideEffectFunctionToNetwork network, final SlotType[] paramTypes) -> {
+			return new LoadFacts() {
+				@Override
+				public Boolean evaluate(final Function<?>... params) {
+					return network.loadFactsFromFile(((Symbol) params[0].evaluate()).getImage());
+				}
+			};
+		});
 	}
 }

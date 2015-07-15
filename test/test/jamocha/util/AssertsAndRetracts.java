@@ -17,13 +17,13 @@ package test.jamocha.util;
 import java.util.ArrayList;
 import java.util.List;
 
+import lombok.Value;
+
 import org.jamocha.dn.ConflictSet;
 import org.jamocha.dn.ConflictSet.RuleAndToken;
 import org.jamocha.dn.memory.MemoryHandlerTerminal.Assert;
 import org.jamocha.dn.memory.MemoryHandlerTerminal.AssertOrRetractVisitor;
 import org.jamocha.dn.memory.MemoryHandlerTerminal.Retract;
-
-import lombok.Value;
 
 @Value
 public class AssertsAndRetracts {

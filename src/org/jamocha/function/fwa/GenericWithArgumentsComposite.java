@@ -20,6 +20,12 @@ import static org.jamocha.util.ToArray.toArray;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import lombok.AccessLevel;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.ToString;
+
 import org.jamocha.dn.SideEffectFunctionToNetwork;
 import org.jamocha.dn.memory.SlotType;
 import org.jamocha.function.Function;
@@ -28,12 +34,6 @@ import org.jamocha.function.Predicate;
 import org.jamocha.function.impls.FunctionVisitor;
 import org.jamocha.function.impls.predicates.Not;
 import org.jamocha.languages.common.errors.VariableNotDeclaredError;
-
-import lombok.AccessLevel;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.ToString;
 
 /**
  * This class is the composite of the {@link FunctionWithArguments} hierarchy. It stores a
@@ -54,7 +54,7 @@ public abstract class GenericWithArgumentsComposite<R, F extends Function<? exte
 
 	final F function;
 	final FunctionWithArguments<L> args[];
-	@Getter(lazy = true, onMethod = @__(@Override) )
+	@Getter(lazy = true, onMethod = @__(@Override))
 	private final SlotType[] paramTypes = calculateParamTypes();
 	@Getter(lazy = true, value = AccessLevel.PRIVATE)
 	private final int hashPIR = initHashPIR(), hashPII = initHashPII();
@@ -226,12 +226,11 @@ public abstract class GenericWithArgumentsComposite<R, F extends Function<? exte
 			final SideEffectFunctionToNetwork sideEffectFunctionToNetwork, final boolean sideEffectsAllowed,
 			final String inClips, final FunctionWithArguments<L>... arguments) {
 		final SlotType[] argTypes = getArgumentTypes(arguments);
-		final Function<?> function = sideEffectsAllowed
-				? FunctionDictionary.lookupWithSideEffects(sideEffectFunctionToNetwork, inClips, argTypes)
-				: FunctionDictionary.lookup(inClips, argTypes);
-		return SlotType.BOOLEAN == function.getReturnType()
-				? new PredicateWithArgumentsComposite<L>((Predicate) function, arguments)
-				: new FunctionWithArgumentsComposite<L>(function, arguments);
+		final Function<?> function =
+				sideEffectsAllowed ? FunctionDictionary.lookupWithSideEffects(sideEffectFunctionToNetwork, inClips,
+						argTypes) : FunctionDictionary.lookup(inClips, argTypes);
+		return SlotType.BOOLEAN == function.getReturnType() ? new PredicateWithArgumentsComposite<L>(
+				(Predicate) function, arguments) : new FunctionWithArgumentsComposite<L>(function, arguments);
 	}
 
 	@SafeVarargs
@@ -246,9 +245,8 @@ public abstract class GenericWithArgumentsComposite<R, F extends Function<? exte
 		final SlotType[] argTypes = getArgumentTypes(arguments);
 		final Predicate predicate = FunctionDictionary.lookupPredicate(inClips, argTypes);
 		final PredicateWithArgumentsComposite<L> pwac = new PredicateWithArgumentsComposite<L>(predicate, arguments);
-		return isPositive ? pwac
-				: new PredicateWithArgumentsComposite<L>(
-						FunctionDictionary.lookupPredicate(Not.inClips, SlotType.BOOLEAN), pwac);
+		return isPositive ? pwac : new PredicateWithArgumentsComposite<L>(FunctionDictionary.lookupPredicate(
+				Not.inClips, SlotType.BOOLEAN), pwac);
 	}
 
 	@SafeVarargs

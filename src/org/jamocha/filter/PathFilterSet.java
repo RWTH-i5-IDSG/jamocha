@@ -16,10 +16,10 @@ package org.jamocha.filter;
 
 import java.util.Set;
 
-import org.jamocha.visitor.Visitable;
-
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+
+import org.jamocha.visitor.Visitable;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>

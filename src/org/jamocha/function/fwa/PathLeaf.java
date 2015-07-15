@@ -16,6 +16,9 @@ package org.jamocha.function.fwa;
 
 import java.util.Arrays;
 
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+
 import org.jamocha.dn.memory.Fact;
 import org.jamocha.dn.memory.SlotAddress;
 import org.jamocha.dn.memory.SlotType;
@@ -24,9 +27,6 @@ import org.jamocha.filter.NodeFilterSet;
 import org.jamocha.filter.Path;
 import org.jamocha.filter.PathNodeFilterSetToAddressNodeFilterSetTranslator;
 import org.jamocha.function.Function;
-
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
 
 /**
  * A parameter of a {@link Function} may be a slot of a {@link Fact}. The corresponding
@@ -55,8 +55,9 @@ public class PathLeaf implements ExchangeableLeaf<PathLeaf> {
 	}
 
 	private int initHashCode() {
-		return FunctionWithArguments.hash(Arrays.asList(this.path.getTemplate(), this.slot).stream()
-				.mapToInt(java.util.Objects::hashCode).toArray(), FunctionWithArguments.positionIsIrrelevant);
+		return FunctionWithArguments.hash(
+				Arrays.asList(this.path.getTemplate(), this.slot).stream().mapToInt(java.util.Objects::hashCode)
+						.toArray(), FunctionWithArguments.positionIsIrrelevant);
 	}
 
 	@Override

@@ -41,18 +41,18 @@ import org.jamocha.languages.common.RuleConditionProcessor;
 import org.jamocha.languages.common.Warning;
 import org.junit.Test;
 
-import com.google.common.collect.Lists;
-
 import test.jamocha.util.NetworkMockup;
+
+import com.google.common.collect.Lists;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  * @author Christoph Terwelp <christoph.terwelp@rwth-aachen.de>
  */
 public class PathFilterConsolidatorTest {
-	private static final String templateString =
-			"(deftemplate templ1 (slot slot1 (type INTEGER)))\n" + "(deftemplate templ2 (slot slot1 (type INTEGER)))\n"
-					+ "(deftemplate templ3 (slot slot1 (type INTEGER)))\n";
+	private static final String templateString = "(deftemplate templ1 (slot slot1 (type INTEGER)))\n"
+			+ "(deftemplate templ2 (slot slot1 (type INTEGER)))\n"
+			+ "(deftemplate templ3 (slot slot1 (type INTEGER)))\n";
 	private static final String preRule = "(defrule rule1 ";
 	private static final String postRule = " => )\n";
 
@@ -66,8 +66,9 @@ public class PathFilterConsolidatorTest {
 	}
 
 	private static List<PathSetBasedRule> clipsToFilters(final String condition) throws ParseException {
-		final StringReader parserInput = new StringReader(new StringBuilder().append(templateString).append(preRule)
-				.append(condition).append(postRule).toString());
+		final StringReader parserInput =
+				new StringReader(new StringBuilder().append(templateString).append(preRule).append(condition)
+						.append(postRule).toString());
 		final SFPParser parser = new SFPParser(parserInput);
 		final NetworkMockup ptn = new NetworkMockup();
 		final SFPVisitorImpl visitor = new SFPVisitorImpl(ptn, ptn);
@@ -103,9 +104,9 @@ public class PathFilterConsolidatorTest {
 		assertThat(filterSets, hasSize(1));
 		final PathFilterSet filterSet = filterSets.iterator().next();
 		assertThat(filterSet, instanceOf(PathExistentialSet.class));
-		final PathExistentialSet existentialSet = ((PathExistentialSet)filterSet);
-			assertTrue(existentialSet.isPositive());
-			final Set<Path> existentialPaths = existentialSet.getExistentialPaths();
+		final PathExistentialSet existentialSet = ((PathExistentialSet) filterSet);
+		assertTrue(existentialSet.isPositive());
+		final Set<Path> existentialPaths = existentialSet.getExistentialPaths();
 		assertThat(existentialPaths, hasSize(1));
 		final Path exPath = existentialPaths.iterator().next();
 		assertEquals("templ1", exPath.getTemplate().getName());

@@ -62,7 +62,7 @@ public class LazyListCopy<T> {
 	 */
 	@AllArgsConstructor
 	public class SameList implements LazyListCopyState<T> {
-		@Getter(onMethod = @__(@Override) )
+		@Getter(onMethod = @__(@Override))
 		final JamochaArray<T> list;
 
 		@Override

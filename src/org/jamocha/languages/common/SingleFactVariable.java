@@ -20,14 +20,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.jamocha.dn.memory.SlotAddress;
-import org.jamocha.dn.memory.SlotType;
-import org.jamocha.dn.memory.Template;
-import org.jamocha.filter.Path;
-import org.jamocha.function.fwa.PathLeaf;
-import org.jamocha.languages.common.RuleCondition.EquivalenceClass;
-import org.jamocha.languages.common.ScopeStack.VariableSymbol;
-
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
@@ -35,6 +27,14 @@ import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
 import lombok.ToString;
+
+import org.jamocha.dn.memory.SlotAddress;
+import org.jamocha.dn.memory.SlotType;
+import org.jamocha.dn.memory.Template;
+import org.jamocha.filter.Path;
+import org.jamocha.function.fwa.PathLeaf;
+import org.jamocha.languages.common.RuleCondition.EquivalenceClass;
+import org.jamocha.languages.common.ScopeStack.VariableSymbol;
 
 /**
  * Gathers relevant information about a variable.
