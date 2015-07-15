@@ -309,3 +309,4 @@ public class FunctionDictionary {
 			throw new UnsupportedOperationException(unsupportedMsg(inClips, params));
 		}
 	}
+}
