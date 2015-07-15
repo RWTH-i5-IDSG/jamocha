@@ -122,6 +122,6 @@ public class Loader {
 	}
 
 	private static String filePathToClassName(final String filePath) {
-		return StringUtils.substring(filePath.replace('/', '.'), 0, -".class".length());
+		return StringUtils.substring(filePath.replace('/', '.').replace('\\','.'), 0, -".class".length());
 	}
 }
