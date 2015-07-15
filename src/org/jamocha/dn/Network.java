@@ -14,6 +14,7 @@
  */
 package org.jamocha.dn;
 
+import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toList;
 import static org.jamocha.util.ToArray.toArray;
 
@@ -35,6 +36,9 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import lombok.AccessLevel;
+import lombok.Getter;
 
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
@@ -73,6 +77,7 @@ import org.jamocha.dn.nodes.TerminalNode;
 import org.jamocha.filter.FilterFunctionCompare;
 import org.jamocha.filter.Path;
 import org.jamocha.filter.PathCollector;
+import org.jamocha.filter.PathFilter;
 import org.jamocha.filter.PathFilterList;
 import org.jamocha.filter.PathNodeFilterSet;
 import org.jamocha.filter.optimizer.Optimizer;
@@ -80,6 +85,9 @@ import org.jamocha.filter.optimizer.OptimizerFactory;
 import org.jamocha.function.FunctionDictionary;
 import org.jamocha.function.fwa.Assert.TemplateContainer;
 import org.jamocha.function.fwa.ParameterLeaf;
+import org.jamocha.function.fwa.PathLeaf;
+import org.jamocha.function.fwa.PredicateWithArgumentsComposite;
+import org.jamocha.function.impls.predicates.DummyPredicate;
 import org.jamocha.languages.clips.ClipsLogFormatter;
 import org.jamocha.languages.clips.parser.SFPVisitorImpl;
 import org.jamocha.languages.clips.parser.generated.ParseException;
@@ -93,9 +101,6 @@ import org.jamocha.logging.LayoutAdapter;
 import org.jamocha.logging.LogFormatter;
 import org.jamocha.logging.OutstreamAppender;
 import org.jamocha.logging.TypedFilter;
-
-import lombok.AccessLevel;
-import lombok.Getter;
 
 /**
  * The Network class encapsulates the central objects for {@link MemoryFactory} and
@@ -176,23 +181,23 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 
 	@Getter(AccessLevel.PRIVATE)
 	private static int loggerDiscriminator = 0;
-	@Getter(onMethod = @__(@Override) )
-	private final Logger interactiveEventsLogger = LogManager
-			.getLogger(this.getClass().getCanonicalName() + Integer.valueOf(loggerDiscriminator++).toString());
+	@Getter(onMethod = @__(@Override))
+	private final Logger interactiveEventsLogger = LogManager.getLogger(this.getClass().getCanonicalName()
+			+ Integer.valueOf(loggerDiscriminator++).toString());
 
-	@Getter(onMethod = @__(@Override) )
+	@Getter(onMethod = @__(@Override))
 	private final TypedFilter typedFilter = new TypedFilter(true);
 
-	@Getter(onMethod = @__(@Override) )
+	@Getter(onMethod = @__(@Override))
 	private final LogFormatter logFormatter;
 
-	@Getter(onMethod = @__(@Override) )
+	@Getter(onMethod = @__(@Override))
 	private final ScopeStack scope = new ScopeStack();
 
-	@Getter(onMethod = @__(@Override) )
+	@Getter(onMethod = @__(@Override))
 	private Template initialFactTemplate;
 
-	@Getter(onMethod = @__(@Override) )
+	@Getter(onMethod = @__(@Override))
 	final EnumMap<SlotType, Object> defaultValues = new EnumMap<>(SlotType.class);
 
 	boolean haltWasCalled = false;
@@ -276,8 +281,9 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 			final Configuration config = ctx.getConfiguration();
 			final LoggerConfig loggerConfig = config.getLoggerConfig(this.getInteractiveEventsLogger().getName());
 			// the normal constructor is private, thus we have to use the plugin-level access
-			final Appender appender = ConsoleAppender.createAppender(LayoutAdapter.createLayout(config), (Filter) null,
-					Target.SYSTEM_OUT.name(), "consoleAppender", "true", "true");
+			final Appender appender =
+					ConsoleAppender.createAppender(LayoutAdapter.createLayout(config), (Filter) null,
+							Target.SYSTEM_OUT.name(), "consoleAppender", "true", "true");
 			appender.start();
 			// loggerConfig.getAppenders().forEach((n, a) -> loggerConfig.removeAppender(n));
 			// loggerConfig.setAdditive(false);
@@ -355,8 +361,8 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 	 */
 	public Network(final OptimizerFactory.Configuration optimizerConfiguration, final int tokenQueueCapacity,
 			final Scheduler scheduler) {
-		this(org.jamocha.dn.memory.javaimpl.MemoryFactory.getMemoryFactory(), optimizerConfiguration,
-				ClipsLogFormatter.getMessageFormatter(), tokenQueueCapacity, scheduler);
+		this(org.jamocha.dn.memory.javaimpl.MemoryFactory.getMemoryFactory(), optimizerConfiguration, ClipsLogFormatter
+				.getMessageFormatter(), tokenQueueCapacity, scheduler);
 	}
 
 	/**
@@ -488,12 +494,14 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 	 */
 	public TerminalNode buildRule(final Defrule.PathRule pathRule) {
 		final PathFilterList.PathSharedListWrapper.PathSharedList filters = pathRule.getCondition();
+		// pathRule.getResultPaths();
 		final HashSet<Path> allPaths;
 		{
 			final PathCollector<HashSet<Path>> collector = PathCollector.newHashSet();
 			for (final PathNodeFilterSet filter : filters) {
 				collector.collectAllInLists(filter);
 			}
+			collector.getPaths().addAll(pathRule.getResultPaths());
 			this.rootNode.addPaths(this, collector.getPathsArray());
 			allPaths = collector.getPaths();
 		}
@@ -506,6 +514,19 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 				} else {
 					nodes.add(new BetaNode(this, filter));
 				}
+		}
+		final Map<Node, List<Path>> nodeToJoinedPaths =
+				allPaths.stream().collect(groupingBy(Path::getCurrentlyLowestNode));
+		if (nodeToJoinedPaths.keySet().size() > 1) {
+			// FIXME improve by minimizing the intermediate results: easily done when the size of
+			// the nodes (keySet of the map) is known approximately
+			final PathLeaf[] representatives =
+					toArray(nodeToJoinedPaths.values().stream().map(l -> new PathLeaf(l.get(0), null)), PathLeaf[]::new);
+			final PathNodeFilterSet filter =
+					PathNodeFilterSet.newRegularPathNodeFilterSet(new PathFilter(
+							new PredicateWithArgumentsComposite<PathLeaf>(DummyPredicate.instance, representatives)));
+			if (!tryToShareNode(filter))
+				nodes.add(new BetaNode(this, filter));
 		}
 		assert allPaths.stream().map(Path::getCurrentlyLowestNode).distinct().count() == 1;
 		final Node lowestNode = allPaths.iterator().next().getCurrentlyLowestNode();
@@ -587,8 +608,9 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 
 	@Override
 	public void defRules(final Defrule... defrules) {
-		Collection<PathRule> rules = Arrays.stream(defrules).peek(this.constructCache::addRule)
-				.flatMap(r -> this.compileRule(r).stream()).collect(toList());
+		Collection<PathRule> rules =
+				Arrays.stream(defrules).peek(this.constructCache::addRule).flatMap(r -> this.compileRule(r).stream())
+						.collect(toList());
 		for (final Optimizer optimizer : optimizerConfiguration.getOptimizers()) {
 			rules = optimizer.optimize(rules);
 		}
@@ -763,6 +785,6 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 	 * networks.
 	 */
 	public final static Network DEFAULTNETWORK = new Network(new OptimizerFactory.Configuration(), Integer.MAX_VALUE,
-			// new ThreadPoolScheduler(10)
+	// new ThreadPoolScheduler(10)
 			new PlainScheduler());
 }
