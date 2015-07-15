@@ -86,8 +86,9 @@ public class RuleConditionProcessorTest {
 	}
 
 	private static RuleCondition clipsToCondition(final String condition) throws ParseException {
-		final StringReader parserInput = new StringReader(new StringBuilder().append(templateString).append(preRule)
-				.append(condition).append(postRule).toString());
+		final StringReader parserInput =
+				new StringReader(new StringBuilder().append(templateString).append(preRule).append(condition)
+						.append(postRule).toString());
 		final SFPParser parser = new SFPParser(parserInput);
 		final NetworkMockup ptn = new NetworkMockup();
 		final SFPVisitorImpl visitor = new SFPVisitorImpl(ptn, ptn);
@@ -196,9 +197,8 @@ public class RuleConditionProcessorTest {
 			final List<ConditionalElement> andChildren = andCE.getChildren();
 			assertThat(andChildren, hasSize(2));
 			final ConditionalElement sharedTempl1 = andChildren.get(0);
-			assertThat(sharedTempl1, instanceOf(SharedConditionalElementWrapper.class));
 			sharedCE = sharedTempl1;
-			assertSame(templ1, ((SharedConditionalElementWrapper) sharedTempl1).getCe());
+			assertSame(templ1, sharedTempl1);
 			assertSame(test10, andChildren.get(1));
 		}
 		{
@@ -206,7 +206,6 @@ public class RuleConditionProcessorTest {
 			final List<ConditionalElement> andChildren = andCE.getChildren();
 			assertThat(andChildren, hasSize(2));
 			final ConditionalElement sharedTempl1 = andChildren.get(0);
-			assertThat(sharedTempl1, instanceOf(SharedConditionalElementWrapper.class));
 			assertSame(sharedCE, sharedTempl1);
 			assertSame(test15, andChildren.get(1));
 		}
@@ -248,11 +247,9 @@ public class RuleConditionProcessorTest {
 			final List<ConditionalElement> andChildren = andCE.getChildren();
 			assertThat(andChildren, hasSize(2));
 			final ConditionalElement shared = andChildren.get(0);
-			assertThat(shared, instanceOf(SharedConditionalElementWrapper.class));
 			sharedCE = shared;
-			final ConditionalElement sharedAnd = ((SharedConditionalElementWrapper) shared).getCe();
-			assertThat(sharedAnd, instanceOf(AndFunctionConditionalElement.class));
-			final List<ConditionalElement> sharedAndChildren = sharedAnd.getChildren();
+			assertThat(shared, instanceOf(AndFunctionConditionalElement.class));
+			final List<ConditionalElement> sharedAndChildren = shared.getChildren();
 			assertThat(sharedAndChildren, hasSize(2));
 			assertSame(templ1, sharedAndChildren.get(0));
 			assertSame(test16, sharedAndChildren.get(1));
@@ -263,7 +260,6 @@ public class RuleConditionProcessorTest {
 			final List<ConditionalElement> andChildren = andCE.getChildren();
 			assertThat(andChildren, hasSize(2));
 			final ConditionalElement shared = andChildren.get(0);
-			assertThat(shared, instanceOf(SharedConditionalElementWrapper.class));
 			assertSame(sharedCE, shared);
 			assertSame(test15, andChildren.get(1));
 		}
@@ -316,34 +312,26 @@ public class RuleConditionProcessorTest {
 		assertThat(orCE, instanceOf(OrFunctionConditionalElement.class));
 		final List<ConditionalElement> orChildren = orCE.getChildren();
 		assertThat(orChildren, hasSize(4));
-		final SharedConditionalElementWrapper sharedAnd, sharedTest1, sharedTest2, sharedTest3, sharedTest4,
-				sharedTest5, sharedTest6, sharedTest7, sharedTest8;
+		final ConditionalElement sharedAnd, sharedTest1, sharedTest2, sharedTest3, sharedTest4, sharedTest5, sharedTest6, sharedTest7, sharedTest8;
 		{
 			// 1 3
 			final ConditionalElement andCE = orChildren.get(0);
 			final List<ConditionalElement> andChildren = andCE.getChildren();
 			assertThat(andChildren, hasSize(3));
 			{
-				final ConditionalElement shared = andChildren.get(0);
-				assertThat(shared, instanceOf(SharedConditionalElementWrapper.class));
-				sharedAnd = (SharedConditionalElementWrapper) shared;
-				final ConditionalElement sharedLocalAnd = ((SharedConditionalElementWrapper) shared).getCe();
-				assertThat(sharedLocalAnd, instanceOf(AndFunctionConditionalElement.class));
-				final List<ConditionalElement> sharedAndChildren = sharedLocalAnd.getChildren();
+				sharedAnd = andChildren.get(0);
+				assertThat(sharedAnd, instanceOf(AndFunctionConditionalElement.class));
+				final List<ConditionalElement> sharedAndChildren = sharedAnd.getChildren();
 				assertThat(sharedAndChildren, hasSize(3));
 				assertSame(templ1, sharedAndChildren.get(0));
 				assertSame(test5, sharedAndChildren.get(1));
 				assertSame(test6, sharedAndChildren.get(2));
 			}
 			{
-				final ConditionalElement shared = andChildren.get(1);
-				assertThat(shared, instanceOf(SharedConditionalElementWrapper.class));
-				sharedTest1 = (SharedConditionalElementWrapper) shared;
+				sharedTest1 = andChildren.get(1);
 			}
 			{
-				final ConditionalElement shared = andChildren.get(2);
-				assertThat(shared, instanceOf(SharedConditionalElementWrapper.class));
-				sharedTest2 = (SharedConditionalElementWrapper) shared;
+				sharedTest2 = andChildren.get(2);
 			}
 		}
 		{
@@ -353,18 +341,13 @@ public class RuleConditionProcessorTest {
 			assertThat(andChildren, hasSize(3));
 			{
 				final ConditionalElement shared = andChildren.get(0);
-				assertThat(shared, instanceOf(SharedConditionalElementWrapper.class));
 				assertSame(sharedAnd, shared);
 			}
 			{
-				final ConditionalElement shared = andChildren.get(1);
-				assertThat(shared, instanceOf(SharedConditionalElementWrapper.class));
-				sharedTest3 = (SharedConditionalElementWrapper) shared;
+				sharedTest3 = andChildren.get(1);
 			}
 			{
-				final ConditionalElement shared = andChildren.get(2);
-				assertThat(shared, instanceOf(SharedConditionalElementWrapper.class));
-				sharedTest4 = (SharedConditionalElementWrapper) shared;
+				sharedTest4 = andChildren.get(2);
 
 			}
 		}
@@ -375,19 +358,14 @@ public class RuleConditionProcessorTest {
 			assertThat(andChildren, hasSize(3));
 			{
 				final ConditionalElement shared = andChildren.get(0);
-				assertThat(shared, instanceOf(SharedConditionalElementWrapper.class));
 				assertSame(sharedAnd, shared);
 			}
 			{
-				final ConditionalElement shared = andChildren.get(1);
-				assertThat(shared, instanceOf(SharedConditionalElementWrapper.class));
-				sharedTest5 = (SharedConditionalElementWrapper) shared;
+				sharedTest5 = andChildren.get(1);
 
 			}
 			{
-				final ConditionalElement shared = andChildren.get(2);
-				assertThat(shared, instanceOf(SharedConditionalElementWrapper.class));
-				sharedTest6 = (SharedConditionalElementWrapper) shared;
+				sharedTest6 = andChildren.get(2);
 			}
 		}
 		{
@@ -397,22 +375,18 @@ public class RuleConditionProcessorTest {
 			assertThat(andChildren, hasSize(3));
 			{
 				final ConditionalElement shared = andChildren.get(0);
-				assertThat(shared, instanceOf(SharedConditionalElementWrapper.class));
 				assertSame(sharedAnd, shared);
 			}
 			{
-				final ConditionalElement shared = andChildren.get(1);
-				assertThat(shared, instanceOf(SharedConditionalElementWrapper.class));
-				sharedTest7 = (SharedConditionalElementWrapper) shared;
+				sharedTest7 = andChildren.get(1);
 			}
 			{
-				final ConditionalElement shared = andChildren.get(2);
-				assertThat(shared, instanceOf(SharedConditionalElementWrapper.class));
-				sharedTest8 = (SharedConditionalElementWrapper) shared;
+				sharedTest8 = andChildren.get(2);
 			}
 		}
-		final List<SharedConditionalElementWrapper> sharedTests = Stream.of(sharedTest1, sharedTest2, sharedTest3,
-				sharedTest4, sharedTest5, sharedTest6, sharedTest7, sharedTest8).collect(toCollection(LinkedList::new));
+		final List<ConditionalElement> sharedTests =
+				Stream.of(sharedTest1, sharedTest2, sharedTest3, sharedTest4, sharedTest5, sharedTest6, sharedTest7,
+						sharedTest8).collect(toCollection(LinkedList::new));
 		final List<ConditionalElement> tests =
 				Stream.of(test1, test2, test3, test4).collect(toCollection(LinkedList::new));
 		assertThat(sharedTests, hasSize(8));
@@ -420,15 +394,15 @@ public class RuleConditionProcessorTest {
 		for (int i = 0; i < 4; ++i) {
 			assertThat(sharedTests, not(empty()));
 			// get one of the shared elements
-			final SharedConditionalElementWrapper sharedTest = sharedTests.remove(sharedTests.size() - 1);
+			final ConditionalElement sharedTest = sharedTests.remove(sharedTests.size() - 1);
 			// one more occurrence
 			assertTrue(sharedTests.remove(sharedTest));
 			// now there is no further one
 			assertFalse(sharedTests.remove(sharedTest));
 			// the shared CE is one of the relevant tests
-			assertTrue(tests.remove(sharedTest.getCe()));
+			assertTrue(tests.remove(sharedTest));
 			// now its gone
-			assertFalse(tests.remove(sharedTest.getCe()));
+			assertFalse(tests.remove(sharedTest));
 		}
 		assertThat(sharedTests, empty());
 		assertThat(sharedTests, empty());
@@ -457,14 +431,14 @@ public class RuleConditionProcessorTest {
 			{
 				final ConditionalElement templCE = existentialChildren.get(0);
 				assertThat(templCE, instanceOf(TemplatePatternConditionalElement.class));
-				assertEquals("templ1",
-						((TemplatePatternConditionalElement) templCE).getFactVariable().getTemplate().getName());
+				assertEquals("templ1", ((TemplatePatternConditionalElement) templCE).getFactVariable().getTemplate()
+						.getName());
 			}
 			{
 				final ConditionalElement templCE = existentialChildren.get(1);
 				assertThat(templCE, instanceOf(TemplatePatternConditionalElement.class));
-				assertEquals("templ1",
-						((TemplatePatternConditionalElement) templCE).getFactVariable().getTemplate().getName());
+				assertEquals("templ1", ((TemplatePatternConditionalElement) templCE).getFactVariable().getTemplate()
+						.getName());
 			}
 		}
 	}
@@ -492,14 +466,14 @@ public class RuleConditionProcessorTest {
 			{
 				final ConditionalElement templCE = existentialChildren.get(0);
 				assertThat(templCE, instanceOf(TemplatePatternConditionalElement.class));
-				assertEquals("templ1",
-						((TemplatePatternConditionalElement) templCE).getFactVariable().getTemplate().getName());
+				assertEquals("templ1", ((TemplatePatternConditionalElement) templCE).getFactVariable().getTemplate()
+						.getName());
 			}
 			{
 				final ConditionalElement templCE = existentialChildren.get(1);
 				assertThat(templCE, instanceOf(TemplatePatternConditionalElement.class));
-				assertEquals("templ1",
-						((TemplatePatternConditionalElement) templCE).getFactVariable().getTemplate().getName());
+				assertEquals("templ1", ((TemplatePatternConditionalElement) templCE).getFactVariable().getTemplate()
+						.getName());
 			}
 		}
 	}
@@ -571,9 +545,7 @@ public class RuleConditionProcessorTest {
 			final List<ConditionalElement> exAndInitChildren = exAndInit.getChildren();
 			assertThat(exAndInitChildren, hasSize(2));
 			final ConditionalElement sharedInit = exAndInitChildren.get(0);
-			assertThat(sharedInit, instanceOf(SharedConditionalElementWrapper.class));
-			assertThat(((SharedConditionalElementWrapper) sharedInit).getCe(),
-					instanceOf(InitialFactConditionalElement.class));
+			assertThat(sharedInit, instanceOf(InitialFactConditionalElement.class));
 			shared = sharedInit;
 			final ConditionalElement existsCE = exAndInitChildren.get(1);
 			assertThat(existsCE, instanceOf(ExistentialConditionalElement.class));
@@ -592,9 +564,7 @@ public class RuleConditionProcessorTest {
 			final List<ConditionalElement> exAndInitChildren = exAndInit.getChildren();
 			assertThat(exAndInitChildren, hasSize(2));
 			final ConditionalElement sharedInit = exAndInitChildren.get(0);
-			assertThat(sharedInit, instanceOf(SharedConditionalElementWrapper.class));
-			assertThat(((SharedConditionalElementWrapper) sharedInit).getCe(),
-					instanceOf(InitialFactConditionalElement.class));
+			assertThat(sharedInit, instanceOf(InitialFactConditionalElement.class));
 			assertSame(shared, sharedInit);
 			final ConditionalElement existsCE = exAndInitChildren.get(1);
 			assertThat(existsCE, instanceOf(ExistentialConditionalElement.class));
@@ -684,7 +654,7 @@ public class RuleConditionProcessorTest {
 
 		RuleConditionProcessor.flatten(conditionalElements);
 
-		final SharedConditionalElementWrapper sharedTpce, sharedTest;
+		final ConditionalElement sharedTpce, sharedTest;
 
 		assertThat(conditionalElements, hasSize(1));
 		final ConditionalElement outerOrCE = conditionalElements.get(0);
@@ -698,11 +668,9 @@ public class RuleConditionProcessorTest {
 			assertThat(outerAndChildren, hasSize(2));
 			{
 				final ConditionalElement sharedCE = outerAndChildren.get(0);
-				assertThat(sharedCE, instanceOf(SharedConditionalElementWrapper.class));
-				sharedTpce = (SharedConditionalElementWrapper) sharedCE;
-				final ConditionalElement tpce = sharedTpce.getCe();
-				assertThat(tpce, instanceOf(TemplatePatternConditionalElement.class));
-				assertSame(tpce1x, tpce);
+				sharedTpce = sharedCE;
+				assertThat(sharedTpce, instanceOf(TemplatePatternConditionalElement.class));
+				assertSame(tpce1x, sharedTpce);
 			}
 			{
 				final ConditionalElement test = outerAndChildren.get(1);
@@ -717,7 +685,6 @@ public class RuleConditionProcessorTest {
 			assertThat(outerAndChildren, hasSize(2));
 			{
 				final ConditionalElement sharedCE = outerAndChildren.get(0);
-				assertThat(sharedCE, instanceOf(SharedConditionalElementWrapper.class));
 				assertSame(sharedTpce, sharedCE);
 			}
 			{
@@ -733,7 +700,6 @@ public class RuleConditionProcessorTest {
 			assertThat(outerAndChildren, hasSize(2));
 			{
 				final ConditionalElement sharedCE = outerAndChildren.get(0);
-				assertThat(sharedCE, instanceOf(SharedConditionalElementWrapper.class));
 				assertSame(sharedTpce, sharedCE);
 			}
 			{
@@ -747,9 +713,8 @@ public class RuleConditionProcessorTest {
 				assertThat(innerAndChildren, hasSize(2));
 				{
 					final ConditionalElement shared = innerAndChildren.get(0);
-					assertThat(shared, instanceOf(SharedConditionalElementWrapper.class));
-					sharedTest = (SharedConditionalElementWrapper) shared;
-					final ConditionalElement test = sharedTest.getCe();
+					sharedTest = shared;
+					final ConditionalElement test = sharedTest;
 					assertThat(test, instanceOf(TestConditionalElement.class));
 					assertSame(test3, test);
 				}
@@ -767,7 +732,6 @@ public class RuleConditionProcessorTest {
 			assertThat(outerAndChildren, hasSize(2));
 			{
 				final ConditionalElement sharedCE = outerAndChildren.get(0);
-				assertThat(sharedCE, instanceOf(SharedConditionalElementWrapper.class));
 				assertSame(sharedTpce, sharedCE);
 			}
 			{
@@ -781,7 +745,6 @@ public class RuleConditionProcessorTest {
 				assertThat(innerAndChildren, hasSize(2));
 				{
 					final ConditionalElement shared = innerAndChildren.get(0);
-					assertThat(shared, instanceOf(SharedConditionalElementWrapper.class));
 					assertSame(sharedTest, shared);
 				}
 				{
@@ -869,7 +832,7 @@ public class RuleConditionProcessorTest {
 
 		RuleConditionProcessor.flatten(conditionalElements);
 
-		final SharedConditionalElementWrapper sharedTpce, sharedTest;
+		final ConditionalElement sharedTpce, sharedTest;
 
 		assertThat(conditionalElements, hasSize(1));
 		final ConditionalElement outerOrCE = conditionalElements.get(0);
@@ -883,9 +846,8 @@ public class RuleConditionProcessorTest {
 			assertThat(outerAndChildren, hasSize(2));
 			{
 				final ConditionalElement sharedCE = outerAndChildren.get(0);
-				assertThat(sharedCE, instanceOf(SharedConditionalElementWrapper.class));
-				sharedTpce = (SharedConditionalElementWrapper) sharedCE;
-				final ConditionalElement tpce = sharedTpce.getCe();
+				sharedTpce = sharedCE;
+				final ConditionalElement tpce = sharedTpce;
 				assertThat(tpce, instanceOf(TemplatePatternConditionalElement.class));
 				assertSame(tpce1x, tpce);
 			}
@@ -902,7 +864,6 @@ public class RuleConditionProcessorTest {
 			assertThat(outerAndChildren, hasSize(2));
 			{
 				final ConditionalElement sharedCE = outerAndChildren.get(0);
-				assertThat(sharedCE, instanceOf(SharedConditionalElementWrapper.class));
 				assertSame(sharedTpce, sharedCE);
 			}
 			{
@@ -918,7 +879,6 @@ public class RuleConditionProcessorTest {
 			assertThat(outerAndChildren, hasSize(2));
 			{
 				final ConditionalElement sharedCE = outerAndChildren.get(0);
-				assertThat(sharedCE, instanceOf(SharedConditionalElementWrapper.class));
 				assertSame(sharedTpce, sharedCE);
 			}
 			{
@@ -937,9 +897,8 @@ public class RuleConditionProcessorTest {
 					assertThat(innerAndChildren, hasSize(2));
 					{
 						final ConditionalElement shared = innerAndChildren.get(0);
-						assertThat(shared, instanceOf(SharedConditionalElementWrapper.class));
-						sharedTest = (SharedConditionalElementWrapper) shared;
-						final ConditionalElement test = sharedTest.getCe();
+						sharedTest = shared;
+						final ConditionalElement test = sharedTest;
 						assertThat(test, instanceOf(TestConditionalElement.class));
 						assertSame(test3, test);
 					}
@@ -960,7 +919,6 @@ public class RuleConditionProcessorTest {
 					assertThat(innerAndChildren, hasSize(2));
 					{
 						final ConditionalElement shared = innerAndChildren.get(0);
-						assertThat(shared, instanceOf(SharedConditionalElementWrapper.class));
 						assertSame(sharedTest, shared);
 					}
 					{
