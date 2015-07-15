@@ -294,7 +294,11 @@ public class PathFilterConsolidator implements DefaultConditionalElementsVisitor
 
 				@Override
 				public void visit(final PredicateWithArgumentsComposite<SymbolLeaf> fwa) {
-					shallowTests.add(fwa);
+					if (negated) {
+						shallowTests.add(new PredicateWithArgumentsComposite<>(not, fwa));
+					} else {
+						shallowTests.add(fwa);
+					}
 				}
 
 				@Override
