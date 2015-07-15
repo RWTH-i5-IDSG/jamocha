@@ -16,6 +16,9 @@ package org.jamocha.function.fwatransformer;
 
 import java.util.Map;
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+
 import org.jamocha.function.fwa.Assert;
 import org.jamocha.function.fwa.Bind;
 import org.jamocha.function.fwa.ConstantLeaf;
@@ -24,16 +27,12 @@ import org.jamocha.function.fwa.FunctionWithArgumentsComposite;
 import org.jamocha.function.fwa.FunctionWithArgumentsVisitor;
 import org.jamocha.function.fwa.GlobalVariableLeaf;
 import org.jamocha.function.fwa.Modify;
-import org.jamocha.function.fwa.Modify.SlotAndValue;
 import org.jamocha.function.fwa.PathLeaf;
 import org.jamocha.function.fwa.PredicateWithArguments;
 import org.jamocha.function.fwa.PredicateWithArgumentsComposite;
 import org.jamocha.function.fwa.Retract;
 import org.jamocha.function.fwa.SymbolLeaf;
 import org.jamocha.languages.common.RuleCondition.EquivalenceClass;
-
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
@@ -54,81 +53,81 @@ public class FWASymbolToPathTranslator implements FunctionWithArgumentsVisitor<S
 	public static PredicateWithArgumentsComposite<PathLeaf> translate(
 			final PredicateWithArgumentsComposite<SymbolLeaf> toTranslate,
 			final Map<EquivalenceClass, PathLeaf> equivalenceClassToPathLeaf) {
-		return (PredicateWithArgumentsComposite<PathLeaf>) toTranslate
-				.accept(new FWASymbolToPathTranslator(equivalenceClassToPathLeaf)).result;
+		return (PredicateWithArgumentsComposite<PathLeaf>) toTranslate.accept(new FWASymbolToPathTranslator(
+				equivalenceClassToPathLeaf)).result;
 	}
 
 	public static PredicateWithArguments<PathLeaf> translate(final PredicateWithArguments<SymbolLeaf> toTranslate,
 			final Map<EquivalenceClass, PathLeaf> equivalenceClassToPathLeaf) {
-		return (PredicateWithArguments<PathLeaf>) toTranslate
-				.accept(new FWASymbolToPathTranslator(equivalenceClassToPathLeaf)).result;
+		return (PredicateWithArguments<PathLeaf>) toTranslate.accept(new FWASymbolToPathTranslator(
+				equivalenceClassToPathLeaf)).result;
 	}
 
 	@SuppressWarnings("unchecked")
-	private void handleArgs(final FunctionWithArguments<SymbolLeaf> fwa, final FunctionWithArguments<?>[] args) {
+	private FunctionWithArguments<PathLeaf>[] handleArgs(final FunctionWithArguments<SymbolLeaf>[] args) {
+		final FunctionWithArguments<PathLeaf>[] ret = new FunctionWithArguments[args.length];
 		for (int i = 0; i < args.length; ++i) {
-			args[i] = translate((FunctionWithArguments<SymbolLeaf>) args[i], equivalenceClassToPathLeaf);
+			ret[i] = translate((FunctionWithArguments<SymbolLeaf>) args[i], equivalenceClassToPathLeaf);
 		}
-		this.result = (FunctionWithArguments<PathLeaf>) (FunctionWithArguments<?>) fwa;
+		return ret;
 	}
 
 	@Override
 	public void visit(final FunctionWithArgumentsComposite<SymbolLeaf> fwa) {
-		handleArgs(fwa, fwa.getArgs());
+		result = new FunctionWithArgumentsComposite<PathLeaf>(fwa.getFunction(), handleArgs(fwa.getArgs()));
 	}
 
 	@Override
 	public void visit(final PredicateWithArgumentsComposite<SymbolLeaf> fwa) {
-		handleArgs(fwa, fwa.getArgs());
+		result = new PredicateWithArgumentsComposite<PathLeaf>(fwa.getFunction(), handleArgs(fwa.getArgs()));
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public void visit(final ConstantLeaf<SymbolLeaf> constantLeaf) {
-		result = (FunctionWithArguments<PathLeaf>) (FunctionWithArguments<?>) constantLeaf;
+		result = (ConstantLeaf<PathLeaf>) (ConstantLeaf<?>) constantLeaf;
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public void visit(GlobalVariableLeaf<SymbolLeaf> globalVariableLeaf) {
-		result = (FunctionWithArguments<PathLeaf>) (FunctionWithArguments<?>) globalVariableLeaf;
+	public void visit(final GlobalVariableLeaf<SymbolLeaf> globalVariableLeaf) {
+		result = (GlobalVariableLeaf<PathLeaf>) (GlobalVariableLeaf<?>) globalVariableLeaf;
 	}
 
 	@Override
 	public void visit(final Bind<SymbolLeaf> fwa) {
-		handleArgs(fwa, fwa.getArgs());
+		result = new Bind<PathLeaf>(handleArgs(fwa.getArgs()));
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public void visit(final Assert<SymbolLeaf> fwa) {
-		handleArgs(fwa, fwa.getArgs());
+		result = new Assert<PathLeaf>(fwa.getNetwork(), (Assert.TemplateContainer[]) handleArgs(fwa.getArgs()));
 	}
 
 	@Override
 	public void visit(final Assert.TemplateContainer<SymbolLeaf> fwa) {
-		handleArgs(fwa, fwa.getArgs());
+		result = new Assert.TemplateContainer<PathLeaf>(fwa.getTemplate(), handleArgs(fwa.getArgs()));
 	}
 
 	@Override
 	public void visit(final Retract<SymbolLeaf> fwa) {
-		handleArgs(fwa, fwa.getArgs());
+		result = new Retract<PathLeaf>(fwa.getNetwork(), handleArgs(fwa.getArgs()));
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public void visit(final Modify<SymbolLeaf> fwa) {
-		final FunctionWithArguments<?>[] args = fwa.getArgs();
-		for (int i = 0; i < args.length; ++i) {
-			args[i] = translate((Modify.SlotAndValue<SymbolLeaf>) args[i], equivalenceClassToPathLeaf);
-		}
-		this.result = new Modify<PathLeaf>(fwa.getNetwork(), translate(fwa.getTargetFact(), equivalenceClassToPathLeaf),
-				(SlotAndValue<PathLeaf>[]) args);
+		result =
+				new Modify<PathLeaf>(fwa.getNetwork(), translate(fwa.getTargetFact(), equivalenceClassToPathLeaf),
+						(Modify.SlotAndValue[]) handleArgs(fwa.getArgs()));
 	}
 
 	@Override
 	public void visit(final Modify.SlotAndValue<SymbolLeaf> fwa) {
-		this.result = new Modify.SlotAndValue<PathLeaf>(fwa.getSlotName(),
-				translate(fwa.getValue(), equivalenceClassToPathLeaf));
+		this.result =
+				new Modify.SlotAndValue<PathLeaf>(fwa.getSlotName(), translate(fwa.getValue(),
+						equivalenceClassToPathLeaf));
 	}
 
 	@Override
