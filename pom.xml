@@ -53,6 +53,7 @@
 				<configuration>
 					<source>1.8</source>
 					<target>1.8</target>
+					<!-- <compilerArgument>-Xlint:unchecked</compilerArgument> -->
 				</configuration>
 			</plugin>
 			<!-- Help: http://stackoverflow.com/questions/6831954 -->
@@ -73,6 +74,7 @@
 								<transformer
 									implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
 									<mainClass>org.jamocha.Jamocha</mainClass>
+									<!-- <mainClass>org.jamocha.gui.JamochaGui</mainClass> -->
 								</transformer>
 							</transformers>
 							<filters>
