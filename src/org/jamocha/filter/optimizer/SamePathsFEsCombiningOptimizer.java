@@ -16,7 +16,6 @@ package org.jamocha.filter.optimizer;
 
 import static java.util.stream.Collectors.toCollection;
 import static java.util.stream.Collectors.toList;
-import static org.jamocha.util.ToArray.toArray;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -25,6 +24,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import lombok.RequiredArgsConstructor;
 
 import org.jamocha.dn.ConstructCache.Defrule.PathRule;
 import org.jamocha.filter.Path;
@@ -40,7 +41,7 @@ import org.jamocha.function.fwa.PathLeaf;
 import org.jamocha.function.fwa.PredicateWithArguments;
 import org.jamocha.function.impls.predicates.And;
 
-import lombok.RequiredArgsConstructor;
+import com.google.common.collect.Sets;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
@@ -70,9 +71,10 @@ public class SamePathsFEsCombiningOptimizer implements Optimizer {
 					save(resultFilters, joinSet2FilterElement, filter, currentPaths);
 					continue;
 				}
-				final HashSet<Path> joined = currentPaths.stream()
-						.flatMap(p -> path2JoinedWith.getOrDefault(p, Collections.singleton(p)).stream())
-						.collect(toCollection(HashSet::new));
+				final HashSet<Path> joined =
+						currentPaths.stream()
+								.flatMap(p -> path2JoinedWith.getOrDefault(p, Collections.singleton(p)).stream())
+								.collect(toCollection(HashSet::new));
 				final PathFilter samePathsFilterElement = joinSet2FilterElement.get(joined);
 				if (null == samePathsFilterElement) {
 					save(resultFilters, joinSet2FilterElement, filter, joined);
@@ -82,8 +84,14 @@ public class SamePathsFEsCombiningOptimizer implements Optimizer {
 				save(resultFilters, joinSet2FilterElement, combineTwoFiltersElements(samePathsFilterElement, filter),
 						joined);
 			}
-			result = PathNodeFilterSet.newExistentialPathNodeFilterSet(filterSet.getPositiveExistentialPaths(),
-					filterSet.getNegativeExistentialPaths(), toArray(resultFilters, PathFilter[]::new));
+			if (!filterSet.getPositiveExistentialPaths().isEmpty()
+					|| !filterSet.getNegativeExistentialPaths().isEmpty()) {
+				result =
+						PathNodeFilterSet.newExistentialPathNodeFilterSet(filterSet.getPositiveExistentialPaths(),
+								filterSet.getNegativeExistentialPaths(), Sets.newHashSet(resultFilters));
+			} else {
+				result = PathNodeFilterSet.newRegularPathNodeFilterSet(Sets.newHashSet(resultFilters));
+			}
 		}
 
 		PathFilter combineTwoFiltersElements(final PathFilter samePathsFilterElement, final PathFilter fe) {
@@ -103,8 +111,9 @@ public class SamePathsFEsCombiningOptimizer implements Optimizer {
 
 		@Override
 		public void visit(final PathExistentialList filter) {
-			result = new PathExistentialList(filter.getInitialPath(), processShared(filter.getPurePart()),
-					filter.getExistentialClosure());
+			result =
+					new PathExistentialList(filter.getInitialPath(), processShared(filter.getPurePart()),
+							filter.getExistentialClosure());
 		}
 
 		@Override
@@ -127,9 +136,11 @@ public class SamePathsFEsCombiningOptimizer implements Optimizer {
 
 	@Override
 	public Collection<PathRule> optimize(final Collection<PathRule> rules) {
-		return rules.stream().map(rule -> {
-			return rule.getParent().new PathRule(optimize(rule.getCondition()), rule.getResultPaths(),
-					rule.getActionList(), rule.getEquivalenceClassToPathLeaf(), rule.getSpecificity());
-		}).collect(toList());
+		return rules
+				.stream()
+				.map(rule -> {
+					return rule.getParent().new PathRule(optimize(rule.getCondition()), rule.getResultPaths(), rule
+							.getActionList(), rule.getEquivalenceClassToPathLeaf(), rule.getSpecificity());
+				}).collect(toList());
 	}
 }
