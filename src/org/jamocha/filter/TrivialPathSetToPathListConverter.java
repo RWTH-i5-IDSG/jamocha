@@ -15,6 +15,7 @@
 package org.jamocha.filter;
 
 import static java.util.stream.Collectors.toList;
+import static org.jamocha.util.ToArray.toArray;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -41,21 +42,28 @@ public class TrivialPathSetToPathListConverter implements PathFilterSetVisitor {
 
 	@Override
 	public void visit(final PathExistentialSet set) {
-		PathFilter existentialClosure = set.getExistentialClosure();
-		final HashSet<Path> mixedPaths = PathCollector.newHashSet().collectAllInSets(existentialClosure).getPaths();
 		final Set<Path> existentialPaths = set.getExistentialPaths();
-		mixedPaths.removeAll(existentialPaths);
-		if (mixedPaths.isEmpty()) {
+		PathFilter existentialClosure = set.getExistentialClosure();
+		final Set<PathFilterSet> purePart = set.getPurePart();
+		final HashSet<Path> regularPaths = PathCollector.newHashSet().collectAllInSets(purePart).getPaths();
+		regularPaths.removeAll(existentialPaths);
+		final HashSet<Path> closurePaths = PathCollector.newHashSet().collectAllInSets(existentialClosure).getPaths();
+		closurePaths.removeAll(existentialPaths);
+		regularPaths.removeAll(closurePaths);
+		if (closurePaths.isEmpty()) {
+			final PathLeaf[] args =
+					(regularPaths.isEmpty() ? new PathLeaf[] { new PathLeaf(set.getInitialPath(), null) } : toArray(
+							regularPaths.stream().map(p -> new PathLeaf(p, null)), PathLeaf[]::new));
 			existentialClosure =
 					new PathFilter(GenericWithArgumentsComposite.newPredicateInstance(And.inClips,
 							set.existentialClosure.getFunction(), new PredicateWithArgumentsComposite<PathLeaf>(
-									DummyPredicate.instance, new PathLeaf(set.getInitialPath(), null))));
+									DummyPredicate.instance, args)));
 		}
 		this.result =
 				new PathExistentialList(set.getInitialPath(),
-						new PathFilterList.PathSharedListWrapper().newSharedElement(set.getPurePart().stream()
+						new PathFilterList.PathSharedListWrapper().newSharedElement(purePart.stream()
 								.map(TrivialPathSetToPathListConverter::convert).collect(toList())),
-						PathNodeFilterSet.newExistentialPathNodeFilterSet(set.isPositive(), existentialPaths,
+						PathNodeFilterSet.newExistentialPathNodeFilterSet(!set.isPositive(), existentialPaths,
 								existentialClosure));
 	}
 
