@@ -309,4 +309,34 @@ public class FunctionDictionary {
 			throw new UnsupportedOperationException(unsupportedMsg(inClips, params));
 		}
 	}
+
+	private static String formatSimpleFunction(final String inClips, final SlotType[] slotTypes) {
+		final StringBuilder sb = new StringBuilder();
+		sb.append('(').append(inClips);
+		for (final SlotType slotType : slotTypes) {
+			sb.append(' ').append(slotType);
+		}
+		sb.append(')');
+		return sb.toString();
+	}
+
+	public static Collection<String> autoComplete(final String inClips) {
+		final List<String> simpleFunctions =
+				clipsFunctions
+						.entrySet()
+						.stream()
+						.filter(e -> e.getKey().startsWith(inClips))
+						.<String> flatMap(
+								e -> e.getValue().keySet().stream()
+										.map(types -> formatSimpleFunction(e.getKey(), types.params)))
+						.collect(Collectors.toList());
+		return simpleFunctions;
+	}
+
+	public static void main(final String[] args) {
+		FunctionDictionary.load();
+		for (final String a : autoComplete(">")) {
+			System.out.println(a);
+		}
+	}
 }
