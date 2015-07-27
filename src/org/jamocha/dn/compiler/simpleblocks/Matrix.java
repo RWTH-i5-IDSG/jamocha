@@ -16,6 +16,7 @@ package org.jamocha.dn.compiler.simpleblocks;
 
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.partitioningBy;
+import static java.util.stream.Collectors.toCollection;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
@@ -32,6 +33,7 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 import java.util.Stack;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -71,7 +73,7 @@ import com.atlassian.fugue.Either;
 import com.atlassian.fugue.Pair;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
-import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import com.google.common.collect.Sets.SetView;
@@ -86,11 +88,18 @@ public class Matrix {
 	 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
 	 */
 	@lombok.Data
+	@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 	@EqualsAndHashCode(of = { "predicate", "arguments" })
 	static class Filter {
 		final Predicate predicate;
 		final List<Pair<Template, SlotAddress>> arguments;
 		final Map<Either<Rule, ExistentialProxy>, Set<FilterInstance>> ruleToInstances = new HashMap<>();
+
+		static final Map<Filter, Filter> cache = new HashMap<>();
+
+		static Filter newFilter(final Predicate predicate, final List<Pair<Template, SlotAddress>> arguments) {
+			return cache.computeIfAbsent(new Filter(predicate, arguments), Function.identity());
+		}
 
 		public FilterInstance addInstance(final Either<Rule, ExistentialProxy> ruleOrProxy, final PathFilter pathFilter) {
 			final ArrayList<PathLeaf> parameterLeafs = PathLeafCollector.collect(pathFilter.getFunction());
@@ -199,10 +208,16 @@ public class Matrix {
 	static class FilterProxy extends Filter {
 		final ExistentialProxy proxy;
 
-		public FilterProxy(final Predicate predicate, final List<Pair<Template, SlotAddress>> arguments,
+		private FilterProxy(final Predicate predicate, final List<Pair<Template, SlotAddress>> arguments,
 				final ExistentialProxy proxy) {
 			super(predicate, arguments);
 			this.proxy = proxy;
+		}
+
+		static FilterProxy newFilterProxy(final Predicate predicate, final List<Pair<Template, SlotAddress>> arguments,
+				final ExistentialProxy proxy) {
+			return (FilterProxy) cache.computeIfAbsent(new FilterProxy(predicate, arguments, proxy),
+					Function.identity());
 		}
 
 		@Override
@@ -219,40 +234,48 @@ public class Matrix {
 			final FilterProxy other = (FilterProxy) o;
 			if (!other.canEqual((Object) this))
 				return false;
-			if (!super.equals(o))
+			if (!super.equals(other))
 				return false;
-			if (this.proxy == null ? other.proxy != null : !this.proxy.equals(other.proxy))
+			if (!equalProxies(this, other))
 				return false;
 			return true;
 		}
 
-		private static boolean equalProxies(final ExistentialProxy a, final ExistentialProxy b) {
-			if (a.existential.getExistentialPaths().size() != b.existential.getExistentialPaths().size())
+		private static boolean equalProxies(final FilterProxy aFilterProxy, final FilterProxy bFilterProxy) {
+			final ExistentialProxy aProxy = aFilterProxy.proxy;
+			final ExistentialProxy bProxy = bFilterProxy.proxy;
+			if (aProxy.existential.getExistentialPaths().size() != bProxy.existential.getExistentialPaths().size())
 				return false;
-			if (a.existential.isPositive() != b.existential.isPositive())
+			if (aProxy.existential.isPositive() != bProxy.existential.isPositive())
 				return false;
-			// FIXME the existential closure needs to have identical conflicts into the pure part!?
-			final Set<Filter> aFilters = a.getFilters();
-			final Set<Filter> bFilters = b.getFilters();
+			final Set<Filter> aFilters = aProxy.getFilters();
+			final Set<Filter> bFilters = bProxy.getFilters();
 			if (aFilters.size() != bFilters.size())
 				return false;
 
-			final UndirectedGraph<FilterInstance, ConflictEdge> graph =
-					determineConflictGraph(ImmutableList.of(Either.right(a), Either.right(b)));
+			final List<Set<FilterInstance>> aFilterInstanceSets =
+					aFilters.stream().map(f -> f.getInstances(Either.right(aProxy))).collect(toList());
+			final List<Set<FilterInstance>> bFilterInstanceSets =
+					bFilters.stream().map(f -> f.getInstances(Either.right(bProxy))).collect(toList());
 
-			final List<Set<FilterInstance>> as =
-					aFilters.stream().map(f -> f.getInstances(Either.right(a))).collect(toList());
-			final List<Set<FilterInstance>> bs =
-					bFilters.stream().map(f -> f.getInstances(Either.right(b))).collect(toList());
+			final ArrayList<FilterInstance> aPureAndClosure =
+					aFilterInstanceSets.stream().flatMap(Set::stream).collect(toCollection(ArrayList::new));
+			aPureAndClosure.add(aProxy.getExistentialClosure());
+			final ArrayList<FilterInstance> bPureAndClosure =
+					bFilterInstanceSets.stream().flatMap(Set::stream).collect(toCollection(ArrayList::new));
+			bPureAndClosure.add(bProxy.getExistentialClosure());
+			final UndirectedGraph<FilterInstance, ConflictEdge> graph =
+					determineConflictGraph(ImmutableSet.of(aPureAndClosure, bPureAndClosure));
+
 			final Set<List<List<FilterInstance>>> cartesianProduct =
-					Sets.cartesianProduct(bs.stream()
+					Sets.cartesianProduct(bFilterInstanceSets.stream()
 							.map(set -> Sets.newHashSet(new PermutationIterator<FilterInstance>(set)))
 							.collect(toList()));
 
 			final HashMap<FilterInstance, Pair<Integer, Integer>> aFI2IndexPair = new HashMap<>();
 			{
 				int i = 0;
-				for (final Set<FilterInstance> aCell : as) {
+				for (final Set<FilterInstance> aCell : aFilterInstanceSets) {
 					int j = 0;
 					for (final FilterInstance filterInstance : aCell) {
 						aFI2IndexPair.put(filterInstance, Pair.pair(i, j));
@@ -263,7 +286,7 @@ public class Matrix {
 			}
 			bijectionLoop: for (final List<List<FilterInstance>> bijection : cartesianProduct) {
 				int i = 0;
-				for (final Set<FilterInstance> aCell : as) {
+				for (final Set<FilterInstance> aCell : aFilterInstanceSets) {
 					final List<FilterInstance> bCell = bijection.get(i);
 					int j = 0;
 					for (final FilterInstance aSource : aCell) {
@@ -292,7 +315,10 @@ public class Matrix {
 			final int PRIME = 59;
 			int result = 1;
 			result = (result * PRIME) + super.hashCode();
-			result = (result * PRIME) + (this.proxy == null ? 0 : this.proxy.hashCode());
+			result =
+					(result * PRIME)
+							+ (this.proxy == null ? 0
+									: (this.proxy.filters == null ? 0 : this.proxy.filters.hashCode()));
 			return result;
 		}
 
@@ -372,6 +398,10 @@ public class Matrix {
 		final Rule rule;
 		final PathExistentialSet existential;
 		final Set<Filter> filters = new HashSet<>();
+
+		public FilterInstance getExistentialClosure() {
+			return this.rule.getExistentialProxies().inverse().get(this);
+		}
 	}
 
 	/**
@@ -514,17 +544,17 @@ public class Matrix {
 	}
 
 	public static UndirectedGraph<FilterInstance, ConflictEdge> determineConflictGraph(
-			final Either<Rule, ExistentialProxy> ruleOrProxy) {
-		return determineConflictGraph(Collections.singleton(ruleOrProxy));
+			final List<Either<Rule, ExistentialProxy>> ruleOrProxies) {
+		return determineConflictGraph(ruleOrProxies
+				.stream()
+				.map(ruleOrProxy -> getFilters(ruleOrProxy).stream().flatMap(f -> f.getInstances(ruleOrProxy).stream())
+						.collect(toList())).collect(toSet()));
 	}
 
 	public static UndirectedGraph<FilterInstance, ConflictEdge> determineConflictGraph(
-			final Iterable<Either<Rule, ExistentialProxy>> ruleOrProxies) {
+			final Set<List<FilterInstance>> filterInstances) {
 		final UndirectedGraph<FilterInstance, ConflictEdge> graph = new SimpleGraph<>(ConflictEdge::new);
-		for (final Either<Rule, ExistentialProxy> ruleOrProxy : ruleOrProxies) {
-			final List<FilterInstance> instances =
-					getFilters(ruleOrProxy).stream().flatMap(f -> f.getInstances(ruleOrProxy).stream())
-							.collect(toList());
+		for (final List<FilterInstance> instances : filterInstances) {
 			instances.forEach(graph::addVertex);
 			final int numInstances = instances.size();
 			for (int i = 0; i < numInstances; i++) {
@@ -548,15 +578,16 @@ public class Matrix {
 
 		@Override
 		public void visit(final PathFilter pathFilter) {
-			final Filter filter = convertFilter(pathFilter);
+			final Filter filter = convertFilter(pathFilter, Filter::newFilter);
 			filter.addInstance(ruleOrProxy, pathFilter);
 			getFilters(ruleOrProxy).add(filter);
 		}
 
-		protected Filter convertFilter(final PathFilter pathFilter) {
+		protected static <T extends Filter> T convertFilter(final PathFilter pathFilter,
+				final BiFunction<Predicate, List<Pair<Template, SlotAddress>>, T> ctor) {
 			final PredicateWithArguments<PathLeaf> predicate = pathFilter.getFunction();
 			assert predicate instanceof PredicateWithArgumentsComposite;
-			return new Filter(((PredicateWithArgumentsComposite<PathLeaf>) predicate).getFunction(), PathLeafCollector
+			return ctor.apply(((PredicateWithArgumentsComposite<PathLeaf>) predicate).getFunction(), PathLeafCollector
 					.collect(predicate).stream().map(pl -> Pair.pair(pl.getPath().getTemplate(), pl.getSlot()))
 					.collect(toList()));
 		}
@@ -574,28 +605,21 @@ public class Matrix {
 			final Set<PathFilterSet> purePart = existentialSet.getPurePart();
 
 			final ExistentialProxy proxy = new ExistentialProxy(rule, existentialSet);
-			final RuleConverter visitor = new RuleConverter(rules, Either.right(proxy));
+			final Either<Rule, ExistentialProxy> proxyEither = Either.right(proxy);
+			final RuleConverter visitor = new RuleConverter(rules, proxyEither);
 
-			// create own row for the pure part
+			// insert all pure filters into the proxy
 			for (final PathFilterSet pathFilterSet : purePart) {
 				pathFilterSet.accept(visitor);
 			}
+			// create own row for the pure part
+			rules.add(proxyEither);
 
-			final Filter convertedExCl = convertFilter(existentialClosure);
-			// look for instances of this filter in other rules
-			
-			// TODO we need derived class of Filter to be able to say that two filters are not equal because we determined it here
-			// we could add the check we perform here to their equals method
-			
-			// ... if
-			convertedExCl.addInstance(ruleOrProxy, pathFilter);
+			final FilterProxy convertedExCl =
+					convertFilter(existentialClosure, (pred, args) -> FilterProxy.newFilterProxy(pred, args, proxy));
 			getFilters(ruleOrProxy).add(convertedExCl);
-			rule.existentialProxies.put(convertedExCl, proxy);
-			rules.add(Either.right(proxy));
-
-			// FIXME separate and do something smart here, check whether closure has identical
-			// conflicts to ex. part, too
-			existentialClosure.accept(visitor);
+			final FilterInstance filterInstance = convertedExCl.addInstance(ruleOrProxy, existentialClosure);
+			rule.existentialProxies.put(filterInstance, proxy);
 		}
 	}
 
