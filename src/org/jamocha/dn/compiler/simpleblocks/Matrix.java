@@ -69,6 +69,8 @@ import org.jgrapht.graph.SimpleGraph;
 
 import com.atlassian.fugue.Either;
 import com.atlassian.fugue.Pair;
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
@@ -359,7 +361,7 @@ public class Matrix {
 	static class Rule {
 		final PathSetBasedRule original;
 		final Set<Filter> filters = new HashSet<>();
-		final Set<ExistentialProxy> existentialProxies = new HashSet<>();
+		final BiMap<FilterInstance, ExistentialProxy> existentialProxies = HashBiMap.create();
 	}
 
 	/**
@@ -483,7 +485,7 @@ public class Matrix {
 		// first step: create all filter instances
 		final Set<PathFilterSet> condition = pathBasedRule.getCondition();
 		final Either<Rule, ExistentialProxy> ruleEither = Either.left(rule);
-		final RuleConverter converter = new RuleConverter(ruleEither);
+		final RuleConverter converter = new RuleConverter(this.rules, ruleEither);
 		for (final PathFilterSet filter : condition) {
 			filter.accept(converter);
 		}
@@ -491,27 +493,24 @@ public class Matrix {
 		// proxies have been added) => it can be used as a key in a HashMap
 
 		// second step: determine conflicts between filter instances according to the paths used
-		{
-			final Set<FilterInstance> filterInstances =
-					rule.filters.stream().flatMap(f -> f.getInstances(ruleEither).stream()).collect(toSet());
-			for (final FilterInstance source : filterInstances) {
-				for (final FilterInstance target : filterInstances) {
-					source.addConflict(target);
-				}
-			}
+		determineAllConflicts(rule.filters.stream().flatMap(f -> f.getInstances(ruleEither).stream()).collect(toSet()));
+		for (final ExistentialProxy proxy : rule.existentialProxies.values()) {
+			final Either<Rule, ExistentialProxy> proxyEither = Either.right(proxy);
+			determineAllConflicts(proxy.filters.stream().flatMap(f -> f.getInstances(proxyEither).stream())
+					.collect(toSet()));
 		}
-		for (final ExistentialProxy proxy : rule.existentialProxies) {
-			final Set<FilterInstance> filterInstances =
-					proxy.filters.stream().flatMap(f -> f.getInstances(Either.right(proxy)).stream()).collect(toSet());
-			for (final FilterInstance source : filterInstances) {
-				for (final FilterInstance target : filterInstances) {
-					source.addConflict(target);
-				}
-			}
-		}
-		// add rule and proxies to rule list
+		// add rule to rule list
 		rules.add(ruleEither);
-		rule.existentialProxies.forEach(p -> rules.add(Either.right(p)));
+	}
+
+	protected void determineAllConflicts(final Set<FilterInstance> filterInstances) {
+		for (final FilterInstance source : filterInstances) {
+			for (final FilterInstance target : filterInstances) {
+				if (source == target)
+					continue;
+				source.addConflict(target);
+			}
+		}
 	}
 
 	public static UndirectedGraph<FilterInstance, ConflictEdge> determineConflictGraph(
@@ -544,33 +543,59 @@ public class Matrix {
 
 	@AllArgsConstructor
 	static class RuleConverter implements PathFilterSetVisitor {
+		final List<Either<Rule, ExistentialProxy>> rules;
 		final Either<Rule, ExistentialProxy> ruleOrProxy;
 
 		@Override
 		public void visit(final PathFilter pathFilter) {
+			final Filter filter = convertFilter(pathFilter);
+			filter.addInstance(ruleOrProxy, pathFilter);
+			getFilters(ruleOrProxy).add(filter);
+		}
+
+		protected Filter convertFilter(final PathFilter pathFilter) {
 			final PredicateWithArguments<PathLeaf> predicate = pathFilter.getFunction();
 			assert predicate instanceof PredicateWithArgumentsComposite;
-			final Filter filter =
-					new Filter(((PredicateWithArgumentsComposite<PathLeaf>) predicate).getFunction(), PathLeafCollector
-							.collect(predicate).stream().map(pl -> Pair.pair(pl.getPath().getTemplate(), pl.getSlot()))
-							.collect(toList()));
-			getFilters(ruleOrProxy).add(filter);
-			filter.addInstance(ruleOrProxy, pathFilter);
+			return new Filter(((PredicateWithArgumentsComposite<PathLeaf>) predicate).getFunction(), PathLeafCollector
+					.collect(predicate).stream().map(pl -> Pair.pair(pl.getPath().getTemplate(), pl.getSlot()))
+					.collect(toList()));
 		}
 
 		@Override
 		public void visit(final PathExistentialSet existentialSet) {
 			final Rule rule =
 					ruleOrProxy.left().getOrThrow(() -> new UnsupportedOperationException("Nested Existentials!"));
-			// we can put the existential closure part
+			// we may be able to share the existential closure part
+			// existential closure filter instances are put into the same column if and only if they
+			// have the same conflicts to their pure part and the pure parts have the same inner
+			// conflicts
+
+			final PathFilter existentialClosure = existentialSet.getExistentialClosure();
+			final Set<PathFilterSet> purePart = existentialSet.getPurePart();
 
 			final ExistentialProxy proxy = new ExistentialProxy(rule, existentialSet);
-			rule.existentialProxies.add(proxy);
-			final RuleConverter visitor = new RuleConverter(Either.right(proxy));
+			final RuleConverter visitor = new RuleConverter(rules, Either.right(proxy));
+
+			// create own row for the pure part
+			for (final PathFilterSet pathFilterSet : purePart) {
+				pathFilterSet.accept(visitor);
+			}
+
+			final Filter convertedExCl = convertFilter(existentialClosure);
+			// look for instances of this filter in other rules
+			
+			// TODO we need derived class of Filter to be able to say that two filters are not equal because we determined it here
+			// we could add the check we perform here to their equals method
+			
+			// ... if
+			convertedExCl.addInstance(ruleOrProxy, pathFilter);
+			getFilters(ruleOrProxy).add(convertedExCl);
+			rule.existentialProxies.put(convertedExCl, proxy);
+			rules.add(Either.right(proxy));
+
 			// FIXME separate and do something smart here, check whether closure has identical
 			// conflicts to ex. part, too
-			existentialSet.getPurePart().forEach(f -> f.accept(visitor));
-			existentialSet.getExistentialClosure().accept(visitor);
+			existentialClosure.accept(visitor);
 		}
 	}
 
