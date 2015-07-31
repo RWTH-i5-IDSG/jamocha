@@ -254,18 +254,20 @@ public class Matrix {
 				return false;
 
 			final List<Set<FilterInstance>> aFilterInstanceSets =
-					aFilters.stream().map(f -> f.getInstances(Either.right(aProxy))).collect(toList());
+					aFilters.stream().map(f -> f.getInstances(Either.right(aProxy)))
+							.collect(toCollection(ArrayList::new));
+			aFilterInstanceSets.add(Collections.singleton(aProxy.getExistentialClosure()));
 			final List<Set<FilterInstance>> bFilterInstanceSets =
-					bFilters.stream().map(f -> f.getInstances(Either.right(bProxy))).collect(toList());
+					bFilters.stream().map(f -> f.getInstances(Either.right(bProxy)))
+							.collect(toCollection(ArrayList::new));
+			bFilterInstanceSets.add(Collections.singleton(bProxy.getExistentialClosure()));
 
-			final ArrayList<FilterInstance> aPureAndClosure =
-					aFilterInstanceSets.stream().flatMap(Set::stream).collect(toCollection(ArrayList::new));
-			aPureAndClosure.add(aProxy.getExistentialClosure());
-			final ArrayList<FilterInstance> bPureAndClosure =
-					bFilterInstanceSets.stream().flatMap(Set::stream).collect(toCollection(ArrayList::new));
-			bPureAndClosure.add(bProxy.getExistentialClosure());
+			final List<FilterInstance> aFlatFilterInstances =
+					aFilterInstanceSets.stream().flatMap(Set::stream).collect(toList());
+			final List<FilterInstance> bFlatFilterInstances =
+					bFilterInstanceSets.stream().flatMap(Set::stream).collect(toList());
 			final UndirectedGraph<FilterInstance, ConflictEdge> graph =
-					determineConflictGraph(ImmutableSet.of(aPureAndClosure, bPureAndClosure));
+					determineConflictGraph(ImmutableSet.of(aFlatFilterInstances, bFlatFilterInstances));
 
 			final Set<List<List<FilterInstance>>> cartesianProduct =
 					Sets.cartesianProduct(bFilterInstanceSets.stream()
