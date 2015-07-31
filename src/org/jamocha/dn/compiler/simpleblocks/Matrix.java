@@ -545,18 +545,18 @@ public class Matrix {
 		}
 	}
 
-	public static UndirectedGraph<FilterInstance, ConflictEdge> determineConflictGraph(
+	public static UndirectedGraph<FilterInstance, ConflictEdge> determineConflictGraphForRules(
 			final List<Either<Rule, ExistentialProxy>> ruleOrProxies) {
 		return determineConflictGraph(ruleOrProxies
 				.stream()
 				.map(ruleOrProxy -> getFilters(ruleOrProxy).stream().flatMap(f -> f.getInstances(ruleOrProxy).stream())
-						.collect(toList())).collect(toSet()));
+						.collect(toList())).collect(toList()));
 	}
 
 	public static UndirectedGraph<FilterInstance, ConflictEdge> determineConflictGraph(
-			final Set<List<FilterInstance>> filterInstances) {
-		final UndirectedGraph<FilterInstance, ConflictEdge> graph = new SimpleGraph<>(ConflictEdge::new);
-		for (final List<FilterInstance> instances : filterInstances) {
+			final Iterable<? extends List<FilterInstance>> filterInstancesGroupedByRule) {
+		final UndirectedGraph<FilterInstance, ConflictEdge> graph = new SimpleGraph<>(ConflictEdge::of);
+		for (final List<FilterInstance> instances : filterInstancesGroupedByRule) {
 			instances.forEach(graph::addVertex);
 			final int numInstances = instances.size();
 			for (int i = 0; i < numInstances; i++) {
@@ -650,11 +650,19 @@ public class Matrix {
 
 	private static void findAllHorizontallyMaximalBlocks(final List<Either<Rule, ExistentialProxy>> rules,
 			final Set<Block> resultBlocks) {
-		final UndirectedGraph<FilterInstance, ConflictEdge> conflictGraph = determineConflictGraph(rules);
+		final UndirectedGraph<FilterInstance, ConflictEdge> conflictGraph = determineConflictGraphForRules(rules);
 		final Set<Filter> filters = rules.stream().flatMap(rule -> getFilters(rule).stream()).collect(toSet());
 		for (final Filter filter : filters) {
-			vertical(conflictGraph, filter, resultBlocks);
+			vertical(conflictGraph, new HashSet<>(filter.getRuleToInstances().values()), resultBlocks);
 		}
+	}
+
+	private static void findAllHorizontallyMaximalBlocksInReducedScope(
+			final Set<Set<FilterInstance>> filterInstancesGroupedByRule, final Set<Block> resultBlocks) {
+		final UndirectedGraph<FilterInstance, ConflictEdge> conflictGraph =
+				determineConflictGraph(filterInstancesGroupedByRule.stream().map(ArrayList<FilterInstance>::new)
+						.collect(toList()));
+		vertical(conflictGraph, filterInstancesGroupedByRule, resultBlocks);
 	}
 
 	public static void solveConflicts() {
@@ -701,10 +709,9 @@ public class Matrix {
 		}
 	}
 
-	public static void vertical(final UndirectedGraph<FilterInstance, ConflictEdge> graph, final Filter filter,
-			final Set<Block> resultBlocks) {
-		final Set<Set<Set<FilterInstance>>> filterInstancesPowerSet =
-				Sets.powerSet(new HashSet<>(filter.getRuleToInstances().values()));
+	public static void vertical(final UndirectedGraph<FilterInstance, ConflictEdge> graph,
+			final Set<Set<FilterInstance>> filterInstancesGroupedByRule, final Set<Block> resultBlocks) {
+		final Set<Set<Set<FilterInstance>>> filterInstancesPowerSet = Sets.powerSet(filterInstancesGroupedByRule);
 		for (final Set<Set<FilterInstance>> powerSetElement : filterInstancesPowerSet) {
 			final Set<List<FilterInstance>> cartesianProduct = Sets.cartesianProduct(new ArrayList<>(powerSetElement));
 			for (final List<FilterInstance> filterInstances : cartesianProduct) {
@@ -712,13 +719,9 @@ public class Matrix {
 				newBlock.addFilterInstances(filterInstances.stream().collect(
 						toMap(FilterInstance::getRuleOrProxy, fi -> Collections
 								.singleton(new FilterInstancesSideBySide(new FilterInstancesStack(fi))))));
-				horizontal(newBlock, resultBlocks);
+				horizontalRecursion(newBlock, new Stack<>(), resultBlocks);
 			}
 		}
-	}
-
-	public static void horizontal(final Block block, final Set<Block> resultBlocks) {
-		horizontalRecursion(block, new Stack<>(), resultBlocks);
 	}
 
 	public static void horizontalRecursion(final Block block, final Stack<Set<FilterInstance>> exclusionStack,
@@ -785,13 +788,14 @@ public class Matrix {
 			boolean matchingConstellationFound = false;
 
 			// iterate over the possible mappings: (filter,rule) -> filter instance
-			final List<Set<FilterInstance>> listForCartesianProduct =
-					filter.getRuleToInstances().entrySet().stream().filter(e -> rulesInBlock.contains(e.getKey()))
-							.map(Entry::getValue).collect(toList());
+			final List<Set<FilterInstance>> listOfRelevantFilterInstancesGroupedByRule =
+					new ArrayList<>(filterToInstances.get(filter).stream()
+							.collect(groupingBy(FilterInstance::getRuleOrProxy, toSet())).values());
 			// create the cartesian product
-			final Set<List<FilterInstance>> cartesianProduct = Sets.cartesianProduct(listForCartesianProduct);
+			final Set<List<FilterInstance>> relevantFilterInstanceCombinations =
+					Sets.cartesianProduct(listOfRelevantFilterInstancesGroupedByRule);
 			// iterate over the possible filter instance combinations
-			cartesianProductLoop: for (final List<FilterInstance> currentOutsideFilterInstances : cartesianProduct) {
+			cartesianProductLoop: for (final List<FilterInstance> currentOutsideFilterInstances : relevantFilterInstanceCombinations) {
 				// create a map for faster lookup: rule -> filter instance (outside)
 				final Map<Either<Rule, ExistentialProxy>, FilterInstance> ruleToCurrentOutsideFilterInstance =
 						currentOutsideFilterInstances.stream().collect(
