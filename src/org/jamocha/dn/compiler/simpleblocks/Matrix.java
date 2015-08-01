@@ -793,9 +793,59 @@ public class Matrix {
 						.collect(
 								groupingBy(FilterInstancesSideBySide::getFilter,
 										toMap(FilterInstancesSideBySide::getRuleOrProxy, Function.identity())));
+		// prefer singleCellFilters
+		findMatchingAndIncompatibleFilters(filterToInstances, rulesInBlock, singleCellFilters, matchingFilters,
+				incompatibleFilters, filterToRuleToBlockInstances);
+		// if none matched, try multiCellFilters, otherwise defer them
+		if (matchingFilters.isEmpty()) {
+			findMatchingAndIncompatibleFilters(filterToInstances, rulesInBlock, multiCellFilters, matchingFilters,
+					incompatibleFilters, filterToRuleToBlockInstances);
+			// if still none matched, the block is maximal, add it to the result blocks
+			if (matchingFilters.isEmpty()) {
+				resultBlocks.add(block);
+				return;
+			}
+		}
+
+		// create the next exclusion layer
+		final Set<FilterInstance> furtherExcludes = new HashSet<>();
+		// add it to the stack
+		exclusionStack.push(furtherExcludes);
+		// add all incompatible filter instances to the exclusion stack
+		for (final Filter incompatibleFilter : incompatibleFilters) {
+			for (final Either<Rule, ExistentialProxy> rule : rulesInBlock) {
+				furtherExcludes.addAll(incompatibleFilter.getInstances(rule));
+			}
+		}
+		// for every matching filter instance set, create a new block
+		for (final Map<Either<Rule, ExistentialProxy>, Set<FilterInstancesSideBySide>> neighbourMap : matchingFilters) {
+			final Block newBlock = new Block(block);
+			newBlock.addFilterInstances(neighbourMap);
+			// recurse for that block
+			horizontalRecursion(newBlock, exclusionStack, resultBlocks);
+			// after the recursion, exclude all filter instances just used
+			for (final Set<FilterInstancesSideBySide> set : neighbourMap.values()) {
+				for (final FilterInstancesSideBySide filterInstancesSideBySide : set) {
+					for (final FilterInstance filterInstance : filterInstancesSideBySide) {
+						furtherExcludes.add(filterInstance);
+					}
+				}
+			}
+		}
+		// eliminate top layer of the exclusion stack
+		exclusionStack.pop();
+	}
+
+	private static void findMatchingAndIncompatibleFilters(
+			final Map<Filter, List<FilterInstance>> filterToInstances,
+			final Set<Either<Rule, ExistentialProxy>> rulesInBlock,
+			final List<Filter> filters,
+			final List<Map<Either<Rule, ExistentialProxy>, Set<FilterInstancesSideBySide>>> matchingFilters,
+			final List<Filter> incompatibleFilters,
+			final Map<Filter, Map<Either<Rule, ExistentialProxy>, FilterInstancesSideBySide>> filterToRuleToBlockInstances) {
 		// iterate over every single-/multi-cell filter and check that its instances have the same
 		// conflicts in every rule
-		for (final Filter filter : singleCellFilters.isEmpty() ? multiCellFilters : singleCellFilters) {
+		for (final Filter filter : filters) {
 			// get the mapping from rule to filter instance for the current filter
 			final Map<Either<Rule, ExistentialProxy>, FilterInstancesSideBySide> ruleToBlockInstances =
 					filterToRuleToBlockInstances.get(filter);
@@ -855,31 +905,6 @@ public class Matrix {
 				incompatibleFilters.add(filter);
 			}
 		}
-		if (matchingFilters.isEmpty()) {
-			resultBlocks.add(block);
-			return;
-		}
-
-		final Set<FilterInstance> furtherExcludes = new HashSet<>();
-		exclusionStack.push(furtherExcludes);
-		for (final Filter incompatibleFilter : incompatibleFilters) {
-			for (final Either<Rule, ExistentialProxy> rule : rulesInBlock) {
-				furtherExcludes.addAll(incompatibleFilter.getInstances(rule));
-			}
-		}
-		for (final Map<Either<Rule, ExistentialProxy>, Set<FilterInstancesSideBySide>> neighbourMap : matchingFilters) {
-			final Block newBlock = new Block(block);
-			newBlock.addFilterInstances(neighbourMap);
-			horizontalRecursion(newBlock, exclusionStack, resultBlocks);
-			for (final Set<FilterInstancesSideBySide> set : neighbourMap.values()) {
-				for (final FilterInstancesSideBySide filterInstancesSideBySide : set) {
-					for (final FilterInstance filterInstance : filterInstancesSideBySide) {
-						furtherExcludes.add(filterInstance);
-					}
-				}
-			}
-		}
-		exclusionStack.pop();
 	}
 
 	@Getter
