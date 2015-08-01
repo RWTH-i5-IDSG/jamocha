@@ -35,6 +35,8 @@ import java.util.Set;
 import java.util.Stack;
 import java.util.function.BiFunction;
 import java.util.function.Function;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
@@ -657,12 +659,26 @@ public class Matrix {
 		}
 	}
 
-	private static void findAllHorizontallyMaximalBlocksInReducedScope(
-			final Set<Set<FilterInstance>> filterInstancesGroupedByRule, final Set<Block> resultBlocks) {
+	private static <T, K, A, D> Collector<T, ?, Set<D>> groupingIntoSets(
+			final Function<? super T, ? extends K> classifier, final Collector<? super T, A, D> downstream) {
+		final Collector<T, ?, Map<K, D>> groupingBy = groupingBy(classifier, downstream);
+		return Collectors.collectingAndThen(groupingBy, map -> new HashSet<D>(map.values()));
+	}
+
+	private static void findAllHorizontallyMaximalBlocksInReducedScope(final Set<FilterInstance> filterInstances,
+			final Set<Block> resultBlocks) {
+		final Iterable<List<FilterInstance>> filterInstancesGroupedByRule =
+				filterInstances.stream().collect(
+						Collectors.collectingAndThen(groupingBy(FilterInstance::getRuleOrProxy), Map::values));
 		final UndirectedGraph<FilterInstance, ConflictEdge> conflictGraph =
-				determineConflictGraph(filterInstancesGroupedByRule.stream().map(ArrayList<FilterInstance>::new)
-						.collect(toList()));
-		vertical(conflictGraph, filterInstancesGroupedByRule, resultBlocks);
+				determineConflictGraph(filterInstancesGroupedByRule);
+		final Set<Set<Set<FilterInstance>>> filterInstancesGroupedByFilterAndByRule =
+				filterInstances.stream().collect(
+						groupingIntoSets(FilterInstance::getFilter,
+								groupingIntoSets(FilterInstance::getRuleOrProxy, toSet())));
+		for (final Set<Set<FilterInstance>> filterInstancesOfOneFilterGroupedByRule : filterInstancesGroupedByFilterAndByRule) {
+			vertical(conflictGraph, filterInstancesOfOneFilterGroupedByRule, resultBlocks);
+		}
 	}
 
 	public static void solveConflicts() {
