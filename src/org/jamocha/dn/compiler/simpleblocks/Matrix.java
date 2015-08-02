@@ -659,8 +659,8 @@ public class Matrix {
 		}
 	}
 
-	private static <T, K, A, D> Collector<T, ?, Set<D>> groupingIntoSets(
-			final Function<? super T, ? extends K> classifier, final Collector<? super T, A, D> downstream) {
+	private static <T, K, D> Collector<T, ?, Set<D>> groupingIntoSets(
+			final Function<? super T, ? extends K> classifier, final Collector<? super T, ?, D> downstream) {
 		final Collector<T, ?, Map<K, D>> groupingBy = groupingBy(classifier, downstream);
 		return Collectors.collectingAndThen(groupingBy, map -> new HashSet<D>(map.values()));
 	}
