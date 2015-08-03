@@ -20,9 +20,15 @@ import static java.util.stream.Collectors.toCollection;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
+import static org.jamocha.util.Lambdas.compose;
+import static org.jamocha.util.Lambdas.composeToInt;
+import static org.jamocha.util.Lambdas.newHashMap;
+import static org.jamocha.util.Lambdas.newHashSet;
+import static org.jamocha.util.Lambdas.newTreeMap;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -30,16 +36,15 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Optional;
 import java.util.Set;
+import java.util.SortedMap;
 import java.util.Stack;
+import java.util.TreeMap;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -50,7 +55,6 @@ import lombok.Setter;
 import lombok.ToString;
 import lombok.Value;
 
-import org.apache.commons.collections4.IteratorUtils;
 import org.apache.commons.collections4.iterators.PermutationIterator;
 import org.jamocha.dn.ConstructCache.Defrule.PathSetBasedRule;
 import org.jamocha.dn.compiler.simpleblocks.Matrix.Filter.FilterInstance;
@@ -76,15 +80,13 @@ import com.atlassian.fugue.Pair;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import com.google.common.collect.Sets.SetView;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
-@Value
-public class Matrix {
+final @Value public class Matrix {
 
 	/**
 	 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
@@ -107,7 +109,7 @@ public class Matrix {
 			final ArrayList<PathLeaf> parameterLeafs = PathLeafCollector.collect(pathFilter.getFunction());
 			final List<Path> parameterPaths = parameterLeafs.stream().map(PathLeaf::getPath).collect(toList());
 			final FilterInstance instance = new FilterInstance(pathFilter, parameterPaths, ruleOrProxy);
-			ruleToInstances.computeIfAbsent(ruleOrProxy, x -> new HashSet<>()).add(instance);
+			ruleToInstances.computeIfAbsent(ruleOrProxy, newHashSet()).add(instance);
 			return instance;
 		}
 
@@ -333,54 +335,19 @@ public class Matrix {
 	 */
 	@Value
 	@AllArgsConstructor
-	@EqualsAndHashCode(of = { "stacks" })
-	static class FilterInstancesSideBySide implements Iterable<FilterInstance> {
-		final LinkedHashSet<FilterInstancesStack> stacks;
-		final Filter filter;
-		final Either<Rule, ExistentialProxy> ruleOrProxy;
-
-		public FilterInstancesSideBySide(final LinkedHashSet<FilterInstancesStack> stacks) {
-			this(stacks, stacks.iterator().next().getFilter(), stacks.iterator().next().getRuleOrProxy());
-			assert 1 == stacks.stream().map(FilterInstancesStack::getFilter).collect(toSet()).size();
-		}
-
-		public FilterInstancesSideBySide(final FilterInstancesStack stack) {
-			this(new LinkedHashSet<>(Collections.singleton(stack)), stack.getFilter(), stack.getRuleOrProxy());
-		}
-
-		@Override
-		public Iterator<FilterInstance> iterator() {
-			return Iterables.concat(stacks).iterator();
-		}
-
-		public Stream<FilterInstance> stream() {
-			return StreamSupport.stream(spliterator(), false);
-		}
-	}
-
-	/**
-	 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
-	 */
-	@Value
-	@AllArgsConstructor
 	@EqualsAndHashCode(of = { "instances" })
-	static class FilterInstancesStack implements Iterable<FilterInstance> {
+	static class FilterInstancesSideBySide {
 		final LinkedHashSet<FilterInstance> instances;
 		final Filter filter;
 		final Either<Rule, ExistentialProxy> ruleOrProxy;
 
-		public FilterInstancesStack(final LinkedHashSet<FilterInstance> instances) {
-			this(instances, instances.iterator().next().getFilter(), instances.iterator().next().getRuleOrProxy());
-			assert 1 == instances.stream().map(FilterInstance::getFilter).collect(toSet()).size();
+		public FilterInstancesSideBySide(final LinkedHashSet<FilterInstance> stacks) {
+			this(stacks, stacks.iterator().next().getFilter(), stacks.iterator().next().getRuleOrProxy());
+			assert 1 == stacks.stream().map(FilterInstance::getFilter).collect(toSet()).size();
 		}
 
-		public FilterInstancesStack(final FilterInstance instance) {
-			this(new LinkedHashSet<>(Collections.singleton(instance)), instance.getFilter(), instance.getRuleOrProxy());
-		}
-
-		@Override
-		public Iterator<FilterInstance> iterator() {
-			return instances.iterator();
+		public FilterInstancesSideBySide(final FilterInstance stack) {
+			this(new LinkedHashSet<>(Collections.singleton(stack)), stack.getFilter(), stack.getRuleOrProxy());
 		}
 	}
 
@@ -421,7 +388,8 @@ public class Matrix {
 		final Set<Filter> filters = new HashSet<>();
 		// mapping from rule to cells in that row
 		// keySet of this map implicitly gives all the rules
-		final Map<Either<Rule, ExistentialProxy>, Set<FilterInstancesSideBySide>> ruleToRow = new HashMap<>();
+		final Map<Either<Rule, ExistentialProxy>, Map<Filter, FilterInstancesSideBySide>> ruleToFilterToRow =
+				new HashMap<>();
 		// contains the filterInstances of this block correctly arranged (side-by-side/stacked)
 		final Set<FilterInstancesSideBySide> filterInstances = new HashSet<>();
 		// all conflicts between filter instances inside of the block
@@ -433,9 +401,9 @@ public class Matrix {
 		public Block(final Block block) {
 			graph = block.graph;
 			filters.addAll(block.filters);
-			for (final Entry<Either<Rule, ExistentialProxy>, Set<FilterInstancesSideBySide>> entry : block.ruleToRow
+			for (final Entry<Either<Rule, ExistentialProxy>, Map<Filter, FilterInstancesSideBySide>> ruleAndMap : block.ruleToFilterToRow
 					.entrySet()) {
-				ruleToRow.put(entry.getKey(), new HashSet<>(entry.getValue()));
+				ruleToFilterToRow.put(ruleAndMap.getKey(), new HashMap<>(ruleAndMap.getValue()));
 			}
 			filterInstances.addAll(block.filterInstances);
 			innerConflicts.addAll(block.innerConflicts);
@@ -444,17 +412,22 @@ public class Matrix {
 			}
 		}
 
+		Set<Either<Rule, ExistentialProxy>> getRulesOrProxies() {
+			return ruleToFilterToRow.keySet();
+		}
+
 		Set<Rule> getActualRuleInstances() {
-			return ruleToRow.keySet().stream().filter(Either::isLeft).map(a -> a.left().get()).collect(toSet());
+			return ruleToFilterToRow.keySet().stream().filter(Either::isLeft).map(a -> a.left().get()).collect(toSet());
 		}
 
 		Set<ExistentialProxy> getExistentialProxies() {
-			return ruleToRow.keySet().stream().filter(Either::isRight).map(a -> a.right().get()).collect(toSet());
+			return ruleToFilterToRow.keySet().stream().filter(Either::isRight).map(a -> a.right().get())
+					.collect(toSet());
 		}
 
 		public void addFilterInstance(final Either<Rule, ExistentialProxy> rule, final FilterInstance filterInstance) {
 			addFilterInstances(Collections.singletonMap(rule,
-					Collections.singleton(new FilterInstancesSideBySide(new FilterInstancesStack(filterInstance)))));
+					Collections.singleton(new FilterInstancesSideBySide(filterInstance))));
 		}
 
 		public void addFilterInstances(final Either<Rule, ExistentialProxy> rule,
@@ -469,41 +442,194 @@ public class Matrix {
 				final Either<Rule, ExistentialProxy> rule = entry.getKey();
 				final Set<FilterInstancesSideBySide> sideBySides = entry.getValue();
 				for (final FilterInstancesSideBySide sideBySide : sideBySides) {
-					for (final FilterInstancesStack stack : sideBySide.stacks) {
-						for (final FilterInstance prevOutside : stack.instances) {
-							final Set<ConflictEdge> newConflicts = new HashSet<>(graph.edgesOf(prevOutside));
-							final Set<ConflictEdge> oldConflicts = borderConflicts.remove(prevOutside);
-							if (null != oldConflicts) {
-								innerConflicts.addAll(oldConflicts);
-								newConflicts.removeAll(oldConflicts);
-							}
-							// group conflict edges by nodes that are outside now
-							for (final ConflictEdge conflictEdge : newConflicts) {
-								borderConflicts.computeIfAbsent(conflictEdge.getForSource(prevOutside).getTarget(),
-										x -> new HashSet<>()).add(conflictEdge);
-							}
+					for (final FilterInstance prevOutside : sideBySide.instances) {
+						final Set<ConflictEdge> newConflicts = new HashSet<>(graph.edgesOf(prevOutside));
+						final Set<ConflictEdge> oldConflicts = borderConflicts.remove(prevOutside);
+						if (null != oldConflicts) {
+							innerConflicts.addAll(oldConflicts);
+							newConflicts.removeAll(oldConflicts);
+						}
+						// group conflict edges by nodes that are outside now
+						for (final ConflictEdge conflictEdge : newConflicts) {
+							borderConflicts.computeIfAbsent(conflictEdge.getForSource(prevOutside).getTarget(),
+									newHashSet()).add(conflictEdge);
 						}
 					}
-					final Set<FilterInstancesSideBySide> filterInstancesOfThisRule =
-							ruleToRow.computeIfAbsent(rule, x -> new HashSet<>());
-					final Optional<FilterInstancesSideBySide> optionalFISBS =
-							filterInstancesOfThisRule.stream().filter(sbs -> sbs.filter == sideBySide.filter).findAny();
-					if (optionalFISBS.isPresent()) {
-						final FilterInstancesSideBySide presentSideBySide = optionalFISBS.get();
+					final Map<Filter, FilterInstancesSideBySide> filterInstancesOfThisRule =
+							ruleToFilterToRow.computeIfAbsent(rule, newHashMap());
+					final Filter filter = sideBySide.filter;
+					final FilterInstancesSideBySide presentSideBySide = filterInstancesOfThisRule.get(filter);
+					if (null != presentSideBySide) {
 						filterInstancesOfThisRule.remove(presentSideBySide);
 						filterInstances.remove(presentSideBySide);
-						final LinkedHashSet<FilterInstancesStack> stacks = new LinkedHashSet<FilterInstancesStack>();
-						stacks.addAll(presentSideBySide.getStacks());
-						stacks.addAll(sideBySide.getStacks());
-						final FilterInstancesSideBySide newSideBySide = new FilterInstancesSideBySide(stacks);
-						filterInstancesOfThisRule.add(newSideBySide);
+						final LinkedHashSet<FilterInstance> instances = new LinkedHashSet<FilterInstance>();
+						instances.addAll(presentSideBySide.getInstances());
+						instances.addAll(sideBySide.getInstances());
+						final FilterInstancesSideBySide newSideBySide = new FilterInstancesSideBySide(instances);
+						filterInstancesOfThisRule.put(filter, newSideBySide);
 						filterInstances.add(newSideBySide);
 					} else {
-						filterInstancesOfThisRule.add(sideBySide);
+						filterInstancesOfThisRule.put(filter, sideBySide);
 						filterInstances.add(sideBySide);
 					}
 				}
 			}
+		}
+
+		public boolean containedIn(final Block other) {
+			if (!other.ruleToFilterToRow.keySet().containsAll(this.ruleToFilterToRow.keySet())) {
+				return false;
+			}
+			if (!other.filters.containsAll(this.filters)) {
+				return false;
+			}
+			/*
+			 * before really considering multi cell filters, just check the sizes and containment
+			 * for single cell filters
+			 */
+			final Set<Filter> multiFilters = new HashSet<>();
+			for (final Entry<Either<Rule, ExistentialProxy>, Map<Filter, FilterInstancesSideBySide>> entry : this.ruleToFilterToRow
+					.entrySet()) {
+				final Map<Filter, FilterInstancesSideBySide> thisRow = entry.getValue();
+				final Map<Filter, FilterInstancesSideBySide> otherRow = other.ruleToFilterToRow.get(entry.getKey());
+				for (final Filter filter : this.filters) {
+					final LinkedHashSet<FilterInstance> thisFIs = thisRow.get(filter).getInstances();
+					final LinkedHashSet<FilterInstance> otherFIs = otherRow.get(filter).getInstances();
+					final int otherFIsCount = otherFIs.size();
+					final int thisFIsCount = thisFIs.size();
+					if (thisFIsCount > otherFIsCount) {
+						return false;
+					}
+					if (1 == thisFIsCount) {
+						if (!otherFIs.contains(thisFIs.iterator().next())) {
+							return false;
+						}
+					} else {
+						multiFilters.add(filter);
+					}
+				}
+			}
+			if (multiFilters.isEmpty()) {
+				return true;
+			}
+			/*
+			 * for every multi filter, we have to check whether the same filter instances are in the
+			 * corresponding columns, otherwise its not the same filter or this is not contained in
+			 * other
+			 */
+			// since we will compare lists, fix the iteration order
+			final List<Either<Rule, ExistentialProxy>> rules = new ArrayList<>(this.ruleToFilterToRow.keySet());
+			final Set<List<FilterInstance>> thisFilterInstanceColumns =
+					getFilterInstanceColumns(multiFilters, this.ruleToFilterToRow, rules);
+			final Set<List<FilterInstance>> otherFilterInstanceColumns =
+					getFilterInstanceColumns(multiFilters, other.ruleToFilterToRow, rules);
+			for (final List<FilterInstance> thisFilterInstanceColumn : thisFilterInstanceColumns) {
+				if (!otherFilterInstanceColumns.contains(thisFilterInstanceColumn)) {
+					return false;
+				}
+			}
+			return true;
+		}
+
+		private static Set<List<FilterInstance>> getFilterInstanceColumns(final Set<Filter> filters,
+				final Map<Either<Rule, ExistentialProxy>, Map<Filter, FilterInstancesSideBySide>> ruleToFilterToRow,
+				final List<Either<Rule, ExistentialProxy>> rules) {
+			final Set<List<FilterInstance>> filterInstanceColumns = new HashSet<>();
+			for (final Filter filter : filters) {
+				final List<Iterator<FilterInstance>> iterators = new ArrayList<>();
+				for (final Either<Rule, ExistentialProxy> rule : rules) {
+					iterators.add(ruleToFilterToRow.get(rule).get(filter).getInstances().iterator());
+				}
+				final int size = ruleToFilterToRow.get(rules.get(0)).get(filter).getInstances().size();
+				for (int i = 0; i < size; ++i) {
+					filterInstanceColumns.add(iterators.stream().map(Iterator::next).collect(toList()));
+				}
+			}
+			return filterInstanceColumns;
+		}
+	}
+
+	static class BlockSet {
+		final HashSet<Block> blocks = new HashSet<>();
+		final TreeMap<Integer, HashSet<Block>> ruleCountToBlocks = new TreeMap<>();
+		final TreeMap<Integer, HashSet<Block>> filterCountToBlocks = new TreeMap<>();
+		final TreeMap<Integer, TreeMap<Integer, HashSet<Block>>> ruleCountToFilterCountToBlocks = new TreeMap<>();
+		final TreeMap<Integer, TreeMap<Integer, HashSet<Block>>> filterCountToRuleCountToBlocks = new TreeMap<>();
+
+		public BlockSet(final Set<Block> horizontallyMaximalBlocks) {
+			horizontallyMaximalBlocks
+					.stream()
+					.sorted(Collections.reverseOrder(Comparator.comparingInt(composeToInt(Block::getRulesOrProxies,
+							Set::size)))).forEachOrdered(this::orderedInsertionOfHorizontallyMaximalBlock);
+		}
+
+		private void orderedInsertionOfHorizontallyMaximalBlock(final Block block) {
+			/*
+			 * block is horizontally maximal, thus there can not be a block containing more filters
+			 * with these or even more rules, so we just need to check the blocks containing more
+			 * rules and the same filters. To make it feasible, we use the counts instead of the
+			 * actual instances regarding rules and filters.
+			 */
+			final Integer ruleCount = block.getRulesOrProxies().size();
+			final Integer filterCount = block.getFilters().size();
+			final SortedMap<Integer, HashSet<Block>> fixedFilterCountRules =
+					filterCountToRuleCountToBlocks.computeIfAbsent(filterCount, newTreeMap()).tailMap(ruleCount, false);
+			for (final Set<Block> fixedFilterCountRule : fixedFilterCountRules.values()) {
+				for (final Block candidate : fixedFilterCountRule) {
+					if (block.containedIn(candidate)) {
+						return;
+					}
+				}
+			}
+			actuallyInsertBlockIntoAllCaches(block);
+		}
+
+		private void actuallyInsertBlockIntoAllCaches(final Block block) {
+			blocks.add(block);
+			final Integer ruleCount = block.getRulesOrProxies().size();
+			final Integer filterCount = block.getFilters().size();
+			ruleCountToBlocks.computeIfAbsent(ruleCount, newHashSet()).add(block);
+			filterCountToBlocks.computeIfAbsent(filterCount, newHashSet()).add(block);
+			ruleCountToFilterCountToBlocks.computeIfAbsent(ruleCount, newTreeMap())
+					.computeIfAbsent(filterCount, newHashSet()).add(block);
+			filterCountToRuleCountToBlocks.computeIfAbsent(filterCount, newTreeMap())
+					.computeIfAbsent(ruleCount, newHashSet()).add(block);
+		}
+
+		public boolean isContained(final Block block) {
+			final Integer ruleCount = block.getRulesOrProxies().size();
+			final Integer filterCount = block.getFilters().size();
+			for (final TreeMap<Integer, HashSet<Block>> treeMap : filterCountToRuleCountToBlocks.tailMap(filterCount)
+					.values()) {
+				for (final HashSet<Block> blocks : treeMap.tailMap(ruleCount).values()) {
+					if (blocks.stream().anyMatch(block::containedIn)) {
+						return true;
+					}
+				}
+			}
+			return false;
+		}
+
+		public boolean addDuringConflictResolution(final Block block) {
+			if (isContained(block)) {
+				return false;
+			}
+			actuallyInsertBlockIntoAllCaches(block);
+			return true;
+		}
+
+		public boolean remove(final Block block) {
+			if (!blocks.remove(block))
+				return false;
+			final Integer ruleCount = block.getRulesOrProxies().size();
+			final Integer filterCount = block.getFilters().size();
+			ruleCountToBlocks.computeIfAbsent(ruleCount, newHashSet()).remove(block);
+			filterCountToBlocks.computeIfAbsent(filterCount, newHashSet()).remove(block);
+			ruleCountToFilterCountToBlocks.computeIfAbsent(ruleCount, newTreeMap())
+					.computeIfAbsent(filterCount, newHashSet()).remove(block);
+			filterCountToRuleCountToBlocks.computeIfAbsent(filterCount, newTreeMap())
+					.computeIfAbsent(ruleCount, newHashSet()).remove(block);
+			return true;
 		}
 	}
 
@@ -686,44 +812,69 @@ public class Matrix {
 
 	}
 
-	public void stackSideBySides() {
-		for (final Block block : blocks) {
-			final Map<Either<Rule, ExistentialProxy>, Map<Filter, FilterInstancesSideBySide>> ruleToFilterToInstances =
-					block.filterInstances
-							.stream()
-							.filter(sbs -> 1 != sbs.getStacks().size())
-							.collect(
-									groupingBy(FilterInstancesSideBySide::getRuleOrProxy,
-											toMap(FilterInstancesSideBySide::getFilter, Function.identity())));
-			// take any rule of the block
-			final Either<Rule, ExistentialProxy> firstRule = ruleToFilterToInstances.keySet().iterator().next();
-			for (final Entry<Filter, FilterInstancesSideBySide> firstRuleFilterAndInstances : ruleToFilterToInstances
-					.get(firstRule).entrySet()) {
-				final Filter firstRuleFilter = firstRuleFilterAndInstances.getKey();
-				final FilterInstancesSideBySide firstRuleFilterInstances = firstRuleFilterAndInstances.getValue();
-				// check if that side-by-side can be transformed
-
-				// apply transformation to all other instances
-				for (final Entry<Either<Rule, ExistentialProxy>, Map<Filter, FilterInstancesSideBySide>> ruleAndFilterAndInstances : ruleToFilterToInstances
-						.entrySet()) {
-					final Either<Rule, ExistentialProxy> rule = ruleAndFilterAndInstances.getKey();
-					if (rule == firstRule)
-						continue;
-					final FilterInstancesSideBySide filterInstancesSideBySide =
-							ruleAndFilterAndInstances.getValue().get(firstRuleFilter);
-					final List<FilterInstance> filterInstances =
-							IteratorUtils.toList(filterInstancesSideBySide.iterator());
-					for (int i = 0; i < filterInstances.size(); ++i) {
-						for (int j = i + 1; j < filterInstances.size(); ++j) {
-							final FilterInstance fi1 = filterInstances.get(i);
-							final FilterInstance fi2 = filterInstances.get(j);
-
-						}
-					}
-				}
+	public static void solveConflict(final Block replaceBlock, final Block conflictingBlock,
+			final BlockSet resultBlocks, final BlockSet deletedBlocks) {
+		final Set<FilterInstance> yFIs =
+				conflictingBlock.filterInstances.stream()
+						.flatMap(compose(FilterInstancesSideBySide::getInstances, Set::stream)).collect(toSet());
+		final Set<FilterInstance> xWOcfi =
+				replaceBlock.filterInstances.stream().map(FilterInstancesSideBySide::getInstances).flatMap(Set::stream)
+						.filter(xFI -> !yFIs.stream().anyMatch(yFI -> null != yFI.getOrDetermineConflicts(xFI)))
+						.collect(toSet());
+		resultBlocks.remove(replaceBlock);
+		final HashSet<Block> newBlocks = new HashSet<Block>();
+		findAllHorizontallyMaximalBlocksInReducedScope(xWOcfi, newBlocks);
+		for (final Block block : newBlocks) {
+			if (!deletedBlocks.isContained(block)) {
+				resultBlocks.addDuringConflictResolution(block);
 			}
 		}
+		deletedBlocks.addDuringConflictResolution(replaceBlock);
 	}
+
+	// public void stackSideBySides() {
+	// for (final Block block : blocks) {
+	// final Map<Either<Rule, ExistentialProxy>, Map<Filter, FilterInstancesSideBySide>>
+	// ruleToFilterToInstances =
+	// block.filterInstances
+	// .stream()
+	// .filter(sbs -> 1 != sbs.getStacks().size())
+	// .collect(
+	// groupingBy(FilterInstancesSideBySide::getRuleOrProxy,
+	// toMap(FilterInstancesSideBySide::getFilter, Function.identity())));
+	// // take any rule of the block
+	// final Either<Rule, ExistentialProxy> firstRule =
+	// ruleToFilterToInstances.keySet().iterator().next();
+	// for (final Entry<Filter, FilterInstancesSideBySide> firstRuleFilterAndInstances :
+	// ruleToFilterToInstances
+	// .get(firstRule).entrySet()) {
+	// final Filter firstRuleFilter = firstRuleFilterAndInstances.getKey();
+	// final FilterInstancesSideBySide firstRuleFilterInstances =
+	// firstRuleFilterAndInstances.getValue();
+	// // check if that side-by-side can be transformed
+	//
+	// // apply transformation to all other instances
+	// for (final Entry<Either<Rule, ExistentialProxy>, Map<Filter, FilterInstancesSideBySide>>
+	// ruleAndFilterAndInstances : ruleToFilterToInstances
+	// .entrySet()) {
+	// final Either<Rule, ExistentialProxy> rule = ruleAndFilterAndInstances.getKey();
+	// if (rule == firstRule)
+	// continue;
+	// final FilterInstancesSideBySide filterInstancesSideBySide =
+	// ruleAndFilterAndInstances.getValue().get(firstRuleFilter);
+	// final List<FilterInstance> filterInstances =
+	// IteratorUtils.toList(filterInstancesSideBySide.iterator());
+	// for (int i = 0; i < filterInstances.size(); ++i) {
+	// for (int j = i + 1; j < filterInstances.size(); ++j) {
+	// final FilterInstance fi1 = filterInstances.get(i);
+	// final FilterInstance fi2 = filterInstances.get(j);
+	//
+	// }
+	// }
+	// }
+	// }
+	// }
+	// }
 
 	public static void vertical(final UndirectedGraph<FilterInstance, ConflictEdge> graph,
 			final Set<Set<FilterInstance>> filterInstancesGroupedByRule, final Set<Block> resultBlocks) {
@@ -733,8 +884,8 @@ public class Matrix {
 			for (final List<FilterInstance> filterInstances : cartesianProduct) {
 				final Block newBlock = new Block(graph);
 				newBlock.addFilterInstances(filterInstances.stream().collect(
-						toMap(FilterInstance::getRuleOrProxy, fi -> Collections
-								.singleton(new FilterInstancesSideBySide(new FilterInstancesStack(fi))))));
+						toMap(FilterInstance::getRuleOrProxy,
+								fi -> Collections.singleton(new FilterInstancesSideBySide(fi)))));
 				horizontalRecursion(newBlock, new Stack<>(), resultBlocks);
 			}
 		}
@@ -753,7 +904,7 @@ public class Matrix {
 		final Map<Filter, List<FilterInstance>> filterToInstances =
 				neighbours.stream().collect(groupingBy(FilterInstance::getFilter));
 		// get all the rules in the block
-		final Set<Either<Rule, ExistentialProxy>> rulesInBlock = block.getRuleToRow().keySet();
+		final Set<Either<Rule, ExistentialProxy>> rulesInBlock = block.getRuleToFilterToRow().keySet();
 		// get a map from filter to all rules containing instances of that filter
 		final Map<Filter, Set<Either<Rule, ExistentialProxy>>> filterToRulesContainingIt =
 				filterToInstances
@@ -826,7 +977,7 @@ public class Matrix {
 			// after the recursion, exclude all filter instances just used
 			for (final Set<FilterInstancesSideBySide> set : neighbourMap.values()) {
 				for (final FilterInstancesSideBySide filterInstancesSideBySide : set) {
-					for (final FilterInstance filterInstance : filterInstancesSideBySide) {
+					for (final FilterInstance filterInstance : filterInstancesSideBySide.getInstances()) {
 						furtherExcludes.add(filterInstance);
 					}
 				}
@@ -874,13 +1025,8 @@ public class Matrix {
 					// get the corresponding filter instance(s) that may be added
 					final FilterInstance source = ruleToCurrentOutsideFilterInstance.get(rule);
 					int i = 0;
-					// iterate over the filter instance stacks (which all only contain one instance)
-					for (final FilterInstancesStack filterInstancesStack : sideBySide.getStacks()) {
-						// stacks should only contain one instance at this point
-						assert 1 == filterInstancesStack.getInstances().size();
-						// get the single instance within the stack
-						final FilterInstance target = filterInstancesStack.iterator().next();
-
+					// iterate over the filter instances
+					for (final FilterInstance target : sideBySide.getInstances()) {
 						// determine conflict between inside instance and outside instance
 						final Conflict conflict = source.getOrDetermineConflicts(target);
 						// if this is the first loop iteration, just add the conflict to be compared
@@ -898,7 +1044,7 @@ public class Matrix {
 				// conflict identical for all rules
 				matchingFilters.add(rulesInBlock.stream().collect(
 						toMap(Function.identity(), rule -> Collections.singleton(new FilterInstancesSideBySide(
-								new FilterInstancesStack(ruleToCurrentOutsideFilterInstance.get(rule)))))));
+								ruleToCurrentOutsideFilterInstance.get(rule))))));
 				matchingConstellationFound = true;
 			}
 			if (!matchingConstellationFound) {
