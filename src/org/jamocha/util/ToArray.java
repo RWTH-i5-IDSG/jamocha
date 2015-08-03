@@ -18,9 +18,12 @@ import java.util.Collection;
 import java.util.function.IntFunction;
 import java.util.stream.Stream;
 
+import lombok.experimental.UtilityClass;
+
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
+@UtilityClass
 public class ToArray {
 	public static <T> T[] toArray(final Collection<T> list, final IntFunction<T[]> gen) {
 		return list.toArray(gen.apply(list.size()));
