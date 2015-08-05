@@ -20,8 +20,8 @@ import static java.util.stream.Collectors.toCollection;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
-import static org.jamocha.util.Lambdas.compose;
 import static org.jamocha.util.Lambdas.composeToInt;
+import static org.jamocha.util.Lambdas.negate;
 import static org.jamocha.util.Lambdas.newHashMap;
 import static org.jamocha.util.Lambdas.newHashSet;
 import static org.jamocha.util.Lambdas.newTreeMap;
@@ -55,6 +55,7 @@ import lombok.Setter;
 import lombok.ToString;
 import lombok.Value;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.iterators.PermutationIterator;
 import org.jamocha.dn.ConstructCache.Defrule.PathSetBasedRule;
 import org.jamocha.dn.compiler.simpleblocks.Matrix.Filter.FilterInstance;
@@ -71,8 +72,10 @@ import org.jamocha.function.Predicate;
 import org.jamocha.function.fwa.PathLeaf;
 import org.jamocha.function.fwa.PredicateWithArguments;
 import org.jamocha.function.fwa.PredicateWithArgumentsComposite;
+import org.jgrapht.DirectedGraph;
 import org.jgrapht.UndirectedGraph;
 import org.jgrapht.alg.VertexCovers;
+import org.jgrapht.graph.SimpleDirectedGraph;
 import org.jgrapht.graph.SimpleGraph;
 
 import com.atlassian.fugue.Either;
@@ -392,6 +395,9 @@ final @Value public class Matrix {
 				new HashMap<>();
 		// contains the filterInstances of this block correctly arranged (side-by-side/stacked)
 		final Set<FilterInstancesSideBySide> filterInstances = new HashSet<>();
+		// contains the filterInstances without the correct arrangement, just to avoid having to
+		// flat map the filterInstances every time
+		final Set<FilterInstance> flatFilterInstances = new HashSet<>();
 		// all conflicts between filter instances inside of the block
 		final Set<ConflictEdge> innerConflicts = new HashSet<>();
 		// conflicts between filter instances, where the source has to be outside and the target
@@ -406,6 +412,7 @@ final @Value public class Matrix {
 				ruleToFilterToRow.put(ruleAndMap.getKey(), new HashMap<>(ruleAndMap.getValue()));
 			}
 			filterInstances.addAll(block.filterInstances);
+			flatFilterInstances.addAll(block.flatFilterInstances);
 			innerConflicts.addAll(block.innerConflicts);
 			for (final Entry<FilterInstance, Set<ConflictEdge>> entry : block.borderConflicts.entrySet()) {
 				borderConflicts.put(entry.getKey(), new HashSet<>(entry.getValue()));
@@ -472,6 +479,7 @@ final @Value public class Matrix {
 						filterInstancesOfThisRule.put(filter, sideBySide);
 						filterInstances.add(sideBySide);
 					}
+					flatFilterInstances.addAll(sideBySide.getInstances());
 				}
 			}
 		}
@@ -549,10 +557,12 @@ final @Value public class Matrix {
 		}
 	}
 
+	@Getter
 	static class BlockSet {
 		final HashSet<Block> blocks = new HashSet<>();
 		final TreeMap<Integer, HashSet<Block>> ruleCountToBlocks = new TreeMap<>();
 		final TreeMap<Integer, HashSet<Block>> filterCountToBlocks = new TreeMap<>();
+		final HashMap<Either<Rule, ExistentialProxy>, HashSet<Block>> ruleInstanceToBlocks = new HashMap<>();
 		final TreeMap<Integer, TreeMap<Integer, HashSet<Block>>> ruleCountToFilterCountToBlocks = new TreeMap<>();
 		final TreeMap<Integer, TreeMap<Integer, HashSet<Block>>> filterCountToRuleCountToBlocks = new TreeMap<>();
 
@@ -594,6 +604,7 @@ final @Value public class Matrix {
 					.computeIfAbsent(filterCount, newHashSet()).add(block);
 			filterCountToRuleCountToBlocks.computeIfAbsent(filterCount, newTreeMap())
 					.computeIfAbsent(ruleCount, newHashSet()).add(block);
+			block.getRulesOrProxies().forEach(r -> ruleInstanceToBlocks.computeIfAbsent(r, newHashSet()).add(block));
 		}
 
 		public boolean isContained(final Block block) {
@@ -629,6 +640,7 @@ final @Value public class Matrix {
 					.computeIfAbsent(filterCount, newHashSet()).remove(block);
 			filterCountToRuleCountToBlocks.computeIfAbsent(filterCount, newTreeMap())
 					.computeIfAbsent(ruleCount, newHashSet()).remove(block);
+			block.getRulesOrProxies().forEach(r -> ruleInstanceToBlocks.computeIfAbsent(r, newHashSet()).remove(block));
 			return true;
 		}
 	}
@@ -761,14 +773,15 @@ final @Value public class Matrix {
 		// find all horizontally maximal blocks
 		findAllHorizontallyMaximalBlocks(rules, resultBlocks);
 		// eliminate all blocks fully contained within other blocks
-		for (final Iterator<Block> iterator = resultBlocks.iterator(); iterator.hasNext();) {
-			final Block block = iterator.next();
-			if (resultBlocks.stream().anyMatch(
-					b -> b != block && b.getFilterInstances().containsAll(block.getFilterInstances()))) {
-				iterator.remove();
-			}
-		}
-		solveConflicts();
+		// for (final Iterator<Block> iterator = resultBlocks.iterator(); iterator.hasNext();) {
+		// final Block block = iterator.next();
+		// if (resultBlocks.stream().anyMatch(
+		// b -> b != block && b.getFilterInstances().containsAll(block.getFilterInstances()))) {
+		// iterator.remove();
+		// }
+		// }
+		final BlockSet resultBlockSet = new BlockSet(resultBlocks);
+		solveConflicts(resultBlockSet);
 
 		// TODO can we first solve conflicts and then stack the side-by-sides??
 		// FIXME afterwards: try combining instances within side-by-side to stacked instances (for
@@ -807,26 +820,107 @@ final @Value public class Matrix {
 		}
 	}
 
-	public static void solveConflicts() {
-		// TODO Auto-generated method stub
-
+	public static void solveConflicts(final BlockSet resultBlocks) {
+		final BlockSet deletedBlocks = new BlockSet(Collections.emptySet());
+		final DirectedGraph<Block, BlockConflict> blockConflictGraph = new SimpleDirectedGraph<>(BlockConflict::of);
+		for (final Block block : resultBlocks.getBlocks()) {
+			blockConflictGraph.addVertex(block);
+		}
+		for (final Block x : blockConflictGraph.vertexSet()) {
+			createArcs(blockConflictGraph, resultBlocks, x);
+		}
+		final List<Pair<BlockConflict, Integer>> mostUsefulConflictsFirst = blockConflictGraph
+				.edgeSet()
+				.stream()
+				.map(bc -> Pair.pair(
+						bc,
+						blockConflictGraph.outgoingEdgesOf(bc.getReplaceBlock()).stream()
+								.mapToInt(b -> CollectionUtils.intersection(bc.cfi, b.cfi).size()).sum()
+								- bc.cfi.size())).sorted(Collections.reverseOrder(Comparator.comparingInt(Pair::right))).collect(toList());
+		// TODO
 	}
 
-	public static void solveConflict(final Block replaceBlock, final Block conflictingBlock,
-			final BlockSet resultBlocks, final BlockSet deletedBlocks) {
-		final Set<FilterInstance> yFIs =
-				conflictingBlock.filterInstances.stream()
-						.flatMap(compose(FilterInstancesSideBySide::getInstances, Set::stream)).collect(toSet());
+	protected static void createArcs(final DirectedGraph<Block, BlockConflict> blockConflictGraph,
+			final BlockSet resultBlocks, final Block x) {
+		for (final Either<Rule, ExistentialProxy> rule : x.getRulesOrProxies()) {
+			for (final Block y : resultBlocks.getRuleInstanceToBlocks().get(rule)) {
+				if (x == y) {
+					continue;
+				}
+				final BlockConflict arc = BlockConflict.of(x, y);
+				if (null != arc) {
+					blockConflictGraph.addEdge(x, y, arc);
+					blockConflictGraph.addEdge(y, x);
+				}
+			}
+		}
+	}
+
+	@RequiredArgsConstructor
+	@Getter
+	@Setter
+	static class BlockConflict {
+		final Block replaceBlock, conflictingBlock;
+		final Set<FilterInstance> cfi;
+
+		public static BlockConflict of(final Block replaceBlock, final Block conflictingBlock) {
+			final Map<Either<Rule, ExistentialProxy>, List<FilterInstance>> yFIsByRule =
+					conflictingBlock.getFlatFilterInstances().stream()
+							.collect(groupingBy(FilterInstance::getRuleOrProxy));
+			final Set<FilterInstance> cfi =
+					replaceBlock
+							.getFlatFilterInstances()
+							.stream()
+							.filter(xFI -> yFIsByRule.get(xFI.getRuleOrProxy()).stream()
+									.anyMatch(yFI -> null != yFI.getOrDetermineConflicts(xFI))).collect(toSet());
+			if (cfi.isEmpty())
+				return null;
+			return new BlockConflict(replaceBlock, conflictingBlock, cfi);
+		}
+	}
+
+	@Getter
+	@Setter
+	@RequiredArgsConstructor
+	// no @EqualsAndHashCode so equals will not prevent new edges
+	static class BlockConflictEdge {
+		final BlockConflict a, b;
+
+		public BlockConflict getForReplaceBlock(final Block replaceBlock) {
+			assert a.getReplaceBlock() == replaceBlock || b.getReplaceBlock() == replaceBlock;
+			return a.getReplaceBlock() == replaceBlock ? a : b;
+		}
+
+		public BlockConflict getForConflictingBlock(final Block conflictingBlock) {
+			assert a.getConflictingBlock() == conflictingBlock || b.getConflictingBlock() == conflictingBlock;
+			return a.getConflictingBlock() == conflictingBlock ? a : b;
+		}
+
+		public static BlockConflictEdge of(final Block x, final Block y) {
+			final BlockConflict xy = BlockConflict.of(x, y);
+			if (null == xy)
+				return null;
+			return new BlockConflictEdge(xy, BlockConflict.of(y, x));
+		}
+	}
+
+	public static void solveConflict(final BlockConflict blockConflict,
+			final DirectedGraph<Block, BlockConflict> blockConflictGraph, final BlockSet resultBlocks,
+			final BlockSet deletedBlocks) {
+		final Block replaceBlock = blockConflict.getReplaceBlock();
 		final Set<FilterInstance> xWOcfi =
-				replaceBlock.filterInstances.stream().map(FilterInstancesSideBySide::getInstances).flatMap(Set::stream)
-						.filter(xFI -> !yFIs.stream().anyMatch(yFI -> null != yFI.getOrDetermineConflicts(xFI)))
-						.collect(toSet());
+				replaceBlock.getFilterInstances().stream().map(FilterInstancesSideBySide::getInstances)
+						.flatMap(Set::stream).filter(negate(blockConflict.getCfi()::contains)).collect(toSet());
 		resultBlocks.remove(replaceBlock);
+		blockConflictGraph.removeVertex(replaceBlock);
 		final HashSet<Block> newBlocks = new HashSet<Block>();
 		findAllHorizontallyMaximalBlocksInReducedScope(xWOcfi, newBlocks);
 		for (final Block block : newBlocks) {
 			if (!deletedBlocks.isContained(block)) {
-				resultBlocks.addDuringConflictResolution(block);
+				if (resultBlocks.addDuringConflictResolution(block)) {
+					blockConflictGraph.addVertex(block);
+					createArcs(blockConflictGraph, resultBlocks, block);
+				}
 			}
 		}
 		deletedBlocks.addDuringConflictResolution(replaceBlock);
