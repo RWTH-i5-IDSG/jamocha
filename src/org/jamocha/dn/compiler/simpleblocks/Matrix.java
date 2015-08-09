@@ -36,6 +36,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.Stack;
@@ -782,10 +783,6 @@ final @Value public class Matrix {
 		// }
 		final BlockSet resultBlockSet = new BlockSet(resultBlocks);
 		solveConflicts(resultBlockSet);
-
-		// TODO can we first solve conflicts and then stack the side-by-sides??
-		// FIXME afterwards: try combining instances within side-by-side to stacked instances (for
-		// all rules of a block at once)
 		// stackSideBySides();
 	}
 
@@ -804,7 +801,7 @@ final @Value public class Matrix {
 		return Collectors.collectingAndThen(groupingBy, map -> new HashSet<D>(map.values()));
 	}
 
-	private static void findAllHorizontallyMaximalBlocksInReducedScope(final Set<FilterInstance> filterInstances,
+	private static Set<Block> findAllHorizontallyMaximalBlocksInReducedScope(final Set<FilterInstance> filterInstances,
 			final Set<Block> resultBlocks) {
 		final Iterable<List<FilterInstance>> filterInstancesGroupedByRule =
 				filterInstances.stream().collect(
@@ -818,6 +815,7 @@ final @Value public class Matrix {
 		for (final Set<Set<FilterInstance>> filterInstancesOfOneFilterGroupedByRule : filterInstancesGroupedByFilterAndByRule) {
 			vertical(conflictGraph, filterInstancesOfOneFilterGroupedByRule, resultBlocks);
 		}
+		return resultBlocks;
 	}
 
 	public static void solveConflicts(final BlockSet resultBlocks) {
@@ -829,15 +827,15 @@ final @Value public class Matrix {
 		for (final Block x : blockConflictGraph.vertexSet()) {
 			createArcs(blockConflictGraph, resultBlocks, x);
 		}
-		final List<Pair<BlockConflict, Integer>> mostUsefulConflictsFirst = blockConflictGraph
-				.edgeSet()
-				.stream()
-				.map(bc -> Pair.pair(
-						bc,
-						blockConflictGraph.outgoingEdgesOf(bc.getReplaceBlock()).stream()
-								.mapToInt(b -> CollectionUtils.intersection(bc.cfi, b.cfi).size()).sum()
-								- bc.cfi.size())).sorted(Collections.reverseOrder(Comparator.comparingInt(Pair::right))).collect(toList());
-		// TODO
+		while (true) {
+			final Optional<BlockConflict> mostUsefulConflictsFirst =
+					blockConflictGraph.edgeSet().stream().max(Comparator.comparingInt(BlockConflict::getQuality));
+			if (!mostUsefulConflictsFirst.isPresent()) {
+				break;
+			}
+			final BlockConflict blockConflict = mostUsefulConflictsFirst.get();
+			solveConflict(blockConflict, blockConflictGraph, resultBlocks, deletedBlocks);
+		}
 	}
 
 	protected static void createArcs(final DirectedGraph<Block, BlockConflict> blockConflictGraph,
@@ -847,13 +845,50 @@ final @Value public class Matrix {
 				if (x == y) {
 					continue;
 				}
-				final BlockConflict arc = BlockConflict.of(x, y);
-				if (null != arc) {
-					blockConflictGraph.addEdge(x, y, arc);
-					blockConflictGraph.addEdge(y, x);
-				}
+				addArc(blockConflictGraph, x, y);
+				addArc(blockConflictGraph, y, x);
 			}
 		}
+	}
+
+	protected static void addArc(final DirectedGraph<Block, BlockConflict> blockConflictGraph, final Block x,
+			final Block y) {
+		final BlockConflict arc = BlockConflict.of(x, y);
+		if (null == arc)
+			return;
+		final Set<BlockConflict> oldArcs = blockConflictGraph.outgoingEdgesOf(x);
+		// determine arc's quality
+		arc.setQuality(oldArcs.stream().mapToInt(conf -> CollectionUtils.intersection(arc.cfi, conf.cfi).size()).sum());
+		// update quality of all arcs affected
+		for (final BlockConflict conf : oldArcs) {
+			conf.quality += CollectionUtils.intersection(arc.cfi, conf.cfi).size();
+		}
+		// add the new edge
+		final boolean arcAdded = blockConflictGraph.addEdge(x, y, arc);
+		assert arcAdded;
+	}
+
+	protected static void removeArc(final DirectedGraph<Block, BlockConflict> blockConflictGraph,
+			final BlockConflict arc) {
+		final Block x = arc.getReplaceBlock();
+		// about updating the quality of all affected arcs:
+		// the outgoing arcs of x only influence each other, but all get deleted
+		// the incoming arcs of x influence arcs not getting deleted
+		for (final BlockConflict yxArc : blockConflictGraph.incomingEdgesOf(x)) {
+			// for every neighbor y of x
+			final Block y = yxArc.getReplaceBlock();
+			for (final BlockConflict yzArc : blockConflictGraph.outgoingEdgesOf(y)) {
+				// for every conflict of that neighbor
+				if (yxArc == yzArc)
+					// excluding the arc getting deleted
+					continue;
+				// decrement the quality of the block conflict
+				yzArc.quality -= CollectionUtils.intersection(yxArc.cfi, yzArc.cfi).size();
+			}
+		}
+		// remove the block to be replaced
+		final boolean vertexRemoved = blockConflictGraph.removeVertex(x);
+		assert vertexRemoved;
 	}
 
 	@RequiredArgsConstructor
@@ -862,6 +897,7 @@ final @Value public class Matrix {
 	static class BlockConflict {
 		final Block replaceBlock, conflictingBlock;
 		final Set<FilterInstance> cfi;
+		int quality;
 
 		public static BlockConflict of(final Block replaceBlock, final Block conflictingBlock) {
 			final Map<Either<Rule, ExistentialProxy>, List<FilterInstance>> yFIsByRule =
@@ -909,12 +945,14 @@ final @Value public class Matrix {
 			final BlockSet deletedBlocks) {
 		final Block replaceBlock = blockConflict.getReplaceBlock();
 		final Set<FilterInstance> xWOcfi =
-				replaceBlock.getFilterInstances().stream().map(FilterInstancesSideBySide::getInstances)
-						.flatMap(Set::stream).filter(negate(blockConflict.getCfi()::contains)).collect(toSet());
+				replaceBlock.getFlatFilterInstances().stream().filter(negate(blockConflict.getCfi()::contains))
+						.collect(toSet());
 		resultBlocks.remove(replaceBlock);
-		blockConflictGraph.removeVertex(replaceBlock);
-		final HashSet<Block> newBlocks = new HashSet<Block>();
-		findAllHorizontallyMaximalBlocksInReducedScope(xWOcfi, newBlocks);
+		// remove replaceBlock and update qualities
+		removeArc(blockConflictGraph, blockConflict);
+		// find the horizontally maximal blocks within xWOcfi
+		final Set<Block> newBlocks = findAllHorizontallyMaximalBlocksInReducedScope(xWOcfi, new HashSet<>());
+		// for every such block,
 		for (final Block block : newBlocks) {
 			if (!deletedBlocks.isContained(block)) {
 				if (resultBlocks.addDuringConflictResolution(block)) {
@@ -925,50 +963,6 @@ final @Value public class Matrix {
 		}
 		deletedBlocks.addDuringConflictResolution(replaceBlock);
 	}
-
-	// public void stackSideBySides() {
-	// for (final Block block : blocks) {
-	// final Map<Either<Rule, ExistentialProxy>, Map<Filter, FilterInstancesSideBySide>>
-	// ruleToFilterToInstances =
-	// block.filterInstances
-	// .stream()
-	// .filter(sbs -> 1 != sbs.getStacks().size())
-	// .collect(
-	// groupingBy(FilterInstancesSideBySide::getRuleOrProxy,
-	// toMap(FilterInstancesSideBySide::getFilter, Function.identity())));
-	// // take any rule of the block
-	// final Either<Rule, ExistentialProxy> firstRule =
-	// ruleToFilterToInstances.keySet().iterator().next();
-	// for (final Entry<Filter, FilterInstancesSideBySide> firstRuleFilterAndInstances :
-	// ruleToFilterToInstances
-	// .get(firstRule).entrySet()) {
-	// final Filter firstRuleFilter = firstRuleFilterAndInstances.getKey();
-	// final FilterInstancesSideBySide firstRuleFilterInstances =
-	// firstRuleFilterAndInstances.getValue();
-	// // check if that side-by-side can be transformed
-	//
-	// // apply transformation to all other instances
-	// for (final Entry<Either<Rule, ExistentialProxy>, Map<Filter, FilterInstancesSideBySide>>
-	// ruleAndFilterAndInstances : ruleToFilterToInstances
-	// .entrySet()) {
-	// final Either<Rule, ExistentialProxy> rule = ruleAndFilterAndInstances.getKey();
-	// if (rule == firstRule)
-	// continue;
-	// final FilterInstancesSideBySide filterInstancesSideBySide =
-	// ruleAndFilterAndInstances.getValue().get(firstRuleFilter);
-	// final List<FilterInstance> filterInstances =
-	// IteratorUtils.toList(filterInstancesSideBySide.iterator());
-	// for (int i = 0; i < filterInstances.size(); ++i) {
-	// for (int j = i + 1; j < filterInstances.size(); ++j) {
-	// final FilterInstance fi1 = filterInstances.get(i);
-	// final FilterInstance fi2 = filterInstances.get(j);
-	//
-	// }
-	// }
-	// }
-	// }
-	// }
-	// }
 
 	public static void vertical(final UndirectedGraph<FilterInstance, ConflictEdge> graph,
 			final Set<Set<FilterInstance>> filterInstancesGroupedByRule, final Set<Block> resultBlocks) {
