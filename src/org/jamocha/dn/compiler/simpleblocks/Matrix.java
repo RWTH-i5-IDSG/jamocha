@@ -259,10 +259,14 @@ public class Matrix {
 		public PathFilterList convert(final FilterInstance instance,
 				final Map<Either<Rule, ExistentialProxy>, Map<FilterInstance, Set<FilterInstance>>> ruleToJoinedWith,
 				final Map<Set<FilterInstance>, PathFilterList> joinedWithToComponent) {
-			final Map<FilterInstance, Set<FilterInstance>> map = ruleToJoinedWith.get(instance.getRuleOrProxy());
-			final Set<FilterInstance> joinedWith = map.values().iterator().next();
-			final PathFilterList component = joinedWithToComponent.get(joinedWith);
-			final PathExistentialSet existential = instance.getRuleOrProxy().right().getOrNull().getExistential();
+			final Map<FilterInstance, Set<FilterInstance>> joinedWithMap =
+					ruleToJoinedWith.get(instance.getRuleOrProxy());
+			final List<PathFilterList> components =
+					joinedWithMap.values().stream().distinct().map(joinedWithToComponent::get).collect(toList());
+			final PathFilterList component =
+					(1 == components.size()) ? components.get(0) : new PathSharedListWrapper()
+							.newSharedElement(components);
+			final PathExistentialSet existential = instance.getRuleOrProxy().right().get().getExistential();
 			return new PathFilterList.PathExistentialList(existential.getInitialPath(), component,
 					PathNodeFilterSet.newExistentialPathNodeFilterSet(!existential.isPositive(),
 							existential.getExistentialPaths(), instance.getPathFilter()));
