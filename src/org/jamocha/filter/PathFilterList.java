@@ -43,7 +43,7 @@ public interface PathFilterList extends Visitable<PathFilterListVisitor>, Iterab
 	@RequiredArgsConstructor
 	public class PathExistentialList implements PathFilterList {
 		final Path initialPath;
-		final PathSharedListWrapper.PathSharedList purePart;
+		final PathFilterList purePart;
 		final PathNodeFilterSet existentialClosure;
 
 		@Override

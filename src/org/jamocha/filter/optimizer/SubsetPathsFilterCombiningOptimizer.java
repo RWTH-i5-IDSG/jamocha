@@ -40,6 +40,8 @@ import org.jamocha.filter.PathFilterList.PathSharedListWrapper.PathSharedList;
 import org.jamocha.filter.PathFilterListVisitor;
 import org.jamocha.filter.PathNodeFilterSet;
 
+import com.google.common.collect.Lists;
+
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
@@ -104,7 +106,7 @@ public class SubsetPathsFilterCombiningOptimizer implements Optimizer {
 		@Override
 		public void visit(final PathExistentialList filter) {
 			result.add(new PathExistentialList(filter.getInitialPath(), new PathSharedListWrapper()
-					.newSharedElement(combine(filter.getPurePart().getFilters())), filter.getExistentialClosure()));
+					.newSharedElement(Lists.newArrayList(filter.getPurePart())), filter.getExistentialClosure()));
 		}
 
 		@Override

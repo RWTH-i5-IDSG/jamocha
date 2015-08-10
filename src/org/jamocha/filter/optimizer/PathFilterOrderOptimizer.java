@@ -335,8 +335,9 @@ public class PathFilterOrderOptimizer implements Optimizer {
 		elements.forEach(e -> e.accept(partitioner));
 		// recurse on the children of the shared list elements
 		partitioner.pathFilterSharedLists.forEach(this::optimize);
-		// recurse on the non existential parts of the existential list elements
-		partitioner.pathFilterExistentialLists.stream().map(PathExistentialList::getPurePart).forEach(this::optimize);
+		// recurse on the pure parts of the existential list elements
+		partitioner.pathFilterExistentialLists.stream().map(PathExistentialList::getPurePart)
+				.forEach(this::identifyAndOptimize);
 		// clear the list to re-insert the elements in an optimal way
 		elements.clear();
 		// first, insert the shared elements
@@ -351,6 +352,24 @@ public class PathFilterOrderOptimizer implements Optimizer {
 			optimizeUnsharedList(unshared);
 			elements.addAll(unshared);
 		}
+	}
+
+	public void identifyAndOptimize(final PathFilterList list) {
+		list.accept(new PathFilterListVisitor() {
+			@Override
+			public void visit(final PathSharedList filter) {
+				optimize(filter);
+			}
+
+			@Override
+			public void visit(final PathExistentialList filter) {
+				filter.getPurePart().accept(this);
+			}
+
+			@Override
+			public void visit(final PathNodeFilterSet filter) {
+			}
+		});
 	}
 
 	@Override

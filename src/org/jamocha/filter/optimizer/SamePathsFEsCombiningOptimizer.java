@@ -112,8 +112,8 @@ public class SamePathsFEsCombiningOptimizer implements Optimizer {
 		@Override
 		public void visit(final PathExistentialList filter) {
 			result =
-					new PathExistentialList(filter.getInitialPath(), processShared(filter.getPurePart()),
-							filter.getExistentialClosure());
+					new PathExistentialList(filter.getInitialPath(), filter.getPurePart().accept(
+							new Identifier(path2JoinedWith)).result, filter.getExistentialClosure());
 		}
 
 		@Override
