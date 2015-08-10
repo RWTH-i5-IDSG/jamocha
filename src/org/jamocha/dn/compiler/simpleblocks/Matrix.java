@@ -22,7 +22,6 @@ import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
 import static org.jamocha.util.Lambdas.composeToInt;
 import static org.jamocha.util.Lambdas.negate;
-import static org.jamocha.util.Lambdas.newArrayList;
 import static org.jamocha.util.Lambdas.newHashMap;
 import static org.jamocha.util.Lambdas.newHashSet;
 import static org.jamocha.util.Lambdas.newTreeMap;
@@ -62,6 +61,7 @@ import lombok.Value;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.iterators.PermutationIterator;
 import org.apache.commons.collections4.list.CursorableLinkedList;
+import org.jamocha.dn.ConstructCache.Defrule.PathRule;
 import org.jamocha.dn.ConstructCache.Defrule.PathSetBasedRule;
 import org.jamocha.dn.compiler.simpleblocks.Matrix.Filter.FilterInstance;
 import org.jamocha.dn.compiler.simpleblocks.Matrix.Filter.FilterInstance.Conflict;
@@ -70,10 +70,13 @@ import org.jamocha.dn.memory.Template;
 import org.jamocha.filter.Path;
 import org.jamocha.filter.PathFilter;
 import org.jamocha.filter.PathFilterList;
+import org.jamocha.filter.PathFilterList.PathSharedListWrapper;
+import org.jamocha.filter.PathFilterList.PathSharedListWrapper.PathSharedList;
 import org.jamocha.filter.PathFilterSet;
 import org.jamocha.filter.PathFilterSet.PathExistentialSet;
 import org.jamocha.filter.PathFilterSetVisitor;
 import org.jamocha.filter.PathLeafCollector;
+import org.jamocha.filter.PathNodeFilterSet;
 import org.jamocha.function.Predicate;
 import org.jamocha.function.fwa.PathLeaf;
 import org.jamocha.function.fwa.PredicateWithArguments;
@@ -126,6 +129,13 @@ public class Matrix {
 			return ruleToInstances.get(ruleOrProxy);
 		}
 
+		public PathFilterList convert(
+				final FilterInstance instance,
+				@SuppressWarnings("unused") final Map<Either<Rule, ExistentialProxy>, Map<FilterInstance, Set<FilterInstance>>> ruleToJoinedWith,
+				@SuppressWarnings("unused") final Map<Set<FilterInstance>, PathFilterList> joinedWithToComponent) {
+			return PathNodeFilterSet.newRegularPathNodeFilterSet(instance.pathFilter);
+		}
+
 		/**
 		 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
 		 */
@@ -159,6 +169,12 @@ public class Matrix {
 
 			public Filter getFilter() {
 				return Filter.this;
+			}
+
+			public PathFilterList convert(
+					final Map<Either<Rule, ExistentialProxy>, Map<FilterInstance, Set<FilterInstance>>> ruleToJoinedWith,
+					final Map<Set<FilterInstance>, PathFilterList> joinedWithToComponent) {
+				return getFilter().convert(this, ruleToJoinedWith, joinedWithToComponent);
 			}
 
 			/**
@@ -237,6 +253,19 @@ public class Matrix {
 
 		static Set<FilterProxy> getFilterProxies() {
 			return cache.keySet();
+		}
+
+		@Override
+		public PathFilterList convert(final FilterInstance instance,
+				final Map<Either<Rule, ExistentialProxy>, Map<FilterInstance, Set<FilterInstance>>> ruleToJoinedWith,
+				final Map<Set<FilterInstance>, PathFilterList> joinedWithToComponent) {
+			final Map<FilterInstance, Set<FilterInstance>> map = ruleToJoinedWith.get(instance.getRuleOrProxy());
+			final Set<FilterInstance> joinedWith = map.values().iterator().next();
+			final PathFilterList component = joinedWithToComponent.get(joinedWith);
+			final PathExistentialSet existential = instance.getRuleOrProxy().right().getOrNull().getExistential();
+			return new PathFilterList.PathExistentialList(existential.getInitialPath(), component,
+					PathNodeFilterSet.newExistentialPathNodeFilterSet(!existential.isPositive(),
+							existential.getExistentialPaths(), instance.getPathFilter()));
 		}
 
 		@Override
@@ -774,7 +803,7 @@ public class Matrix {
 		}
 	}
 
-	public static Collection<PathFilterList> transform(final Collection<PathSetBasedRule> rules) {
+	public static Collection<PathRule> transform(final Collection<PathSetBasedRule> rules) {
 		final List<Either<Rule, ExistentialProxy>> translatedRules = new ArrayList<>();
 		for (final PathSetBasedRule rule : rules) {
 			addRule(rule, translatedRules);
@@ -790,7 +819,7 @@ public class Matrix {
 		return createOutput(translatedRules, resultBlockSet);
 	}
 
-	private static Collection<PathFilterList> createOutput(final List<Either<Rule, ExistentialProxy>> rules,
+	private static Collection<PathRule> createOutput(final List<Either<Rule, ExistentialProxy>> rules,
 			final BlockSet resultBlockSet) {
 		final Function<? super Block, ? extends Integer> characteristicNumber =
 				block -> block.getFlatFilterInstances().size() / block.getRulesOrProxies().size();
@@ -832,32 +861,49 @@ public class Matrix {
 			}
 		}
 		final Set<FilterInstance> constructedFIs = new HashSet<>();
-		final Map<Either<Rule, ExistentialProxy>, List<PathFilterList>> ruleToCondition = new HashMap<>();
-		// TODO use this map instead of the one above
-		final Map<Either<Rule, ExistentialProxy>, Map<FilterInstance, PathFilterList>> ruleToJoinedWith = new HashMap<>();
+		final Map<Either<Rule, ExistentialProxy>, Map<FilterInstance, Set<FilterInstance>>> ruleToJoinedWith =
+				new HashMap<>();
+		final Map<Set<FilterInstance>, PathFilterList> joinedWithToComponent = new HashMap<>();
 		// at this point, the network can be constructed
 		for (final CursorableLinkedList<Block> blockList : blockMap.values()) {
 			for (final Block block : blockList) {
-				if (1 == block.getRulesOrProxies().size()) {
-					// no sharing involved
+				final PathSharedListWrapper sharedListWrapper = new PathSharedListWrapper();
+				for (final Either<Rule, ExistentialProxy> rule : block.getRulesOrProxies()) {
 					final List<FilterInstance> fisToConstruct =
-							block.getFilterInstances().stream().flatMap(sbs -> sbs.getInstances().stream())
+							block.ruleToFilterToRow.get(rule).values().stream()
+									.flatMap(sbs -> sbs.getInstances().stream())
 									.filter(negate(constructedFIs::contains)).collect(toList());
-					final Either<Rule, ExistentialProxy> rule = block.getRulesOrProxies().iterator().next();
-					
+					final Map<FilterInstance, Set<FilterInstance>> fiToJoinedWith =
+							ruleToJoinedWith.computeIfAbsent(rule, newHashMap());
+					final Set<Set<FilterInstance>> joinedWithSets =
+							fisToConstruct.stream()
+									.map(fi -> fiToJoinedWith.computeIfAbsent(fi, x -> Sets.newHashSet(x)))
+									.collect(toSet());
+					final Set<FilterInstance> joinedWith =
+							joinedWithSets.stream().flatMap(Set::stream).collect(toSet());
+					joinedWith.forEach(fi -> fiToJoinedWith.put(fi, joinedWith));
+					final PathSharedList newSharedElement =
+							sharedListWrapper.newSharedElement(joinedWithSets
+									.stream()
+									.map(set -> joinedWithToComponent.computeIfAbsent(set, x -> x.iterator().next()
+											.convert(ruleToJoinedWith, joinedWithToComponent))).collect(toList()));
+					joinedWithToComponent.put(joinedWith, newSharedElement);
+					constructedFIs.addAll(fisToConstruct);
 				}
-				final Map<Either<Rule, ExistentialProxy>, Map<Filter, FilterInstancesSideBySide>> ruleToFilterToRow =
-						block.getRuleToFilterToRow();
-				for (final Either<Rule, ExistentialProxy> ruleOrProxy : block.getRulesOrProxies()) {
-					final List<PathFilterList> asd = ruleToCondition.computeIfAbsent(ruleOrProxy, newArrayList());
-
-				}
-
 			}
 		}
-
-		// TODO Auto-generated method stub
-		return null;
+		final List<PathRule> pathRules = new ArrayList<>();
+		for (final Either<Rule, ExistentialProxy> either : rules) {
+			if (either.isRight()) {
+				continue;
+			}
+			final List<PathFilterList> pathFilterLists =
+					ruleToJoinedWith.get(either).values().stream().distinct().map(joinedWithToComponent::get)
+							.collect(toList());
+			pathRules.add(either.left().get().getOriginal()
+					.toPathRule(new PathSharedListWrapper().newSharedElement(pathFilterLists)));
+		}
+		return pathRules;
 	}
 
 	private static void findAllHorizontallyMaximalBlocks(final List<Either<Rule, ExistentialProxy>> rules,

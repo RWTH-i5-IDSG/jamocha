@@ -152,6 +152,11 @@ public class ConstructCache {
 						.map(TrivialPathSetToPathListConverter::convert).collect(toList())), resultPaths, actionList,
 						equivalenceClassToPathLeaf, specificity);
 			}
+
+			public PathRule toPathRule(final PathSharedListWrapper.PathSharedList convertedCondition) {
+				return new PathRule(convertedCondition, resultPaths, actionList, equivalenceClassToPathLeaf,
+						specificity);
+			}
 		}
 
 		@Data
