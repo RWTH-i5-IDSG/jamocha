@@ -443,8 +443,6 @@ public class Matrix {
 		// contains the filterInstances without the correct arrangement, just to avoid having to
 		// flat map the filterInstances every time
 		final Set<FilterInstance> flatFilterInstances = new HashSet<>();
-		// all conflicts between filter instances inside of the block
-		final Set<ConflictEdge> innerConflicts = new HashSet<>();
 		// conflicts between filter instances, where the source has to be outside and the target
 		// inside of the block, grouped by the one outside
 		final Map<FilterInstance, Set<ConflictEdge>> borderConflicts = new HashMap<>();
@@ -458,7 +456,6 @@ public class Matrix {
 			}
 			filterInstances.addAll(block.filterInstances);
 			flatFilterInstances.addAll(block.flatFilterInstances);
-			innerConflicts.addAll(block.innerConflicts);
 			for (final Entry<FilterInstance, Set<ConflictEdge>> entry : block.borderConflicts.entrySet()) {
 				borderConflicts.put(entry.getKey(), new HashSet<>(entry.getValue()));
 			}
@@ -498,7 +495,6 @@ public class Matrix {
 						final Set<ConflictEdge> newConflicts = new HashSet<>(graph.edgesOf(prevOutside));
 						final Set<ConflictEdge> oldConflicts = borderConflicts.remove(prevOutside);
 						if (null != oldConflicts) {
-							innerConflicts.addAll(oldConflicts);
 							newConflicts.removeAll(oldConflicts);
 						}
 						// group conflict edges by nodes that are outside now
