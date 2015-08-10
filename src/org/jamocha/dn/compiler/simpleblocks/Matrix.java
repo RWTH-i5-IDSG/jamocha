@@ -479,7 +479,7 @@ public class Matrix {
 					final Filter filter = sideBySide.filter;
 					final FilterInstancesSideBySide presentSideBySide = filterInstancesOfThisRule.get(filter);
 					if (null != presentSideBySide) {
-						filterInstancesOfThisRule.remove(presentSideBySide);
+						filterInstancesOfThisRule.remove(presentSideBySide.getFilter(), presentSideBySide);
 						filterInstances.remove(presentSideBySide);
 						final LinkedHashSet<FilterInstance> instances = new LinkedHashSet<FilterInstance>();
 						instances.addAll(presentSideBySide.getInstances());
