@@ -14,6 +14,7 @@
  */
 package org.jamocha.util;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.TreeMap;
@@ -150,5 +151,9 @@ public class Lambdas {
 
 	public static <A, B, C> Function<A, TreeMap<B, C>> newTreeMap() {
 		return x -> new TreeMap<B, C>();
+	}
+
+	public static <A, B> Function<? super A, ? extends ArrayList<B>> newArrayList() {
+		return x -> new ArrayList<B>();
 	}
 }

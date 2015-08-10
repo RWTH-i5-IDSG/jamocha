@@ -22,11 +22,13 @@ import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
 import static org.jamocha.util.Lambdas.composeToInt;
 import static org.jamocha.util.Lambdas.negate;
+import static org.jamocha.util.Lambdas.newArrayList;
 import static org.jamocha.util.Lambdas.newHashMap;
 import static org.jamocha.util.Lambdas.newHashSet;
 import static org.jamocha.util.Lambdas.newTreeMap;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -34,6 +36,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
@@ -58,6 +61,7 @@ import lombok.Value;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.iterators.PermutationIterator;
+import org.apache.commons.collections4.list.CursorableLinkedList;
 import org.jamocha.dn.ConstructCache.Defrule.PathSetBasedRule;
 import org.jamocha.dn.compiler.simpleblocks.Matrix.Filter.FilterInstance;
 import org.jamocha.dn.compiler.simpleblocks.Matrix.Filter.FilterInstance.Conflict;
@@ -65,6 +69,7 @@ import org.jamocha.dn.memory.SlotAddress;
 import org.jamocha.dn.memory.Template;
 import org.jamocha.filter.Path;
 import org.jamocha.filter.PathFilter;
+import org.jamocha.filter.PathFilterList;
 import org.jamocha.filter.PathFilterSet;
 import org.jamocha.filter.PathFilterSet.PathExistentialSet;
 import org.jamocha.filter.PathFilterSetVisitor;
@@ -90,7 +95,7 @@ import com.google.common.collect.Sets.SetView;
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
-final @Value public class Matrix {
+public class Matrix {
 
 	/**
 	 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
@@ -213,19 +218,25 @@ final @Value public class Matrix {
 		}
 	}
 
+	@Getter
 	static class FilterProxy extends Filter {
-		final ExistentialProxy proxy;
+		final Set<ExistentialProxy> proxies;
 
 		private FilterProxy(final Predicate predicate, final List<Pair<Template, SlotAddress>> arguments,
 				final ExistentialProxy proxy) {
 			super(predicate, arguments);
-			this.proxy = proxy;
+			this.proxies = Sets.newHashSet(proxy);
 		}
+
+		static final Map<FilterProxy, FilterProxy> cache = new HashMap<>();
 
 		static FilterProxy newFilterProxy(final Predicate predicate, final List<Pair<Template, SlotAddress>> arguments,
 				final ExistentialProxy proxy) {
-			return (FilterProxy) cache.computeIfAbsent(new FilterProxy(predicate, arguments, proxy),
-					Function.identity());
+			return cache.computeIfAbsent(new FilterProxy(predicate, arguments, proxy), Function.identity());
+		}
+
+		static Set<FilterProxy> getFilterProxies() {
+			return cache.keySet();
 		}
 
 		@Override
@@ -250,8 +261,8 @@ final @Value public class Matrix {
 		}
 
 		private static boolean equalProxies(final FilterProxy aFilterProxy, final FilterProxy bFilterProxy) {
-			final ExistentialProxy aProxy = aFilterProxy.proxy;
-			final ExistentialProxy bProxy = bFilterProxy.proxy;
+			final ExistentialProxy aProxy = aFilterProxy.proxies.iterator().next();
+			final ExistentialProxy bProxy = bFilterProxy.proxies.iterator().next();
 			if (aProxy.existential.getExistentialPaths().size() != bProxy.existential.getExistentialPaths().size())
 				return false;
 			if (aProxy.existential.isPositive() != bProxy.existential.isPositive())
@@ -327,8 +338,8 @@ final @Value public class Matrix {
 			result = (result * PRIME) + super.hashCode();
 			result =
 					(result * PRIME)
-							+ (this.proxy == null ? 0
-									: (this.proxy.filters == null ? 0 : this.proxy.filters.hashCode()));
+							+ (this.proxies == null ? 0 : (this.proxies.iterator().next().filters == null ? 0
+									: this.proxies.iterator().next().filters.hashCode()));
 			return result;
 		}
 
@@ -646,19 +657,16 @@ final @Value public class Matrix {
 		}
 	}
 
-	final private List<Either<Rule, ExistentialProxy>> rules = new ArrayList<>();
-	final private Set<Block> blocks = new HashSet<>();
-
 	private static Set<Filter> getFilters(final Either<Rule, ExistentialProxy> ruleOrProxy) {
 		return ruleOrProxy.fold(Rule::getFilters, ExistentialProxy::getFilters);
 	}
 
-	public void addRule(final PathSetBasedRule pathBasedRule) {
+	private static void addRule(final PathSetBasedRule pathBasedRule, final List<Either<Rule, ExistentialProxy>> rules) {
 		final Rule rule = new Rule(pathBasedRule);
 		// first step: create all filter instances
 		final Set<PathFilterSet> condition = pathBasedRule.getCondition();
 		final Either<Rule, ExistentialProxy> ruleEither = Either.left(rule);
-		final RuleConverter converter = new RuleConverter(this.rules, ruleEither);
+		final RuleConverter converter = new RuleConverter(rules, ruleEither);
 		for (final PathFilterSet filter : condition) {
 			filter.accept(converter);
 		}
@@ -676,7 +684,7 @@ final @Value public class Matrix {
 		rules.add(ruleEither);
 	}
 
-	protected void determineAllConflicts(final Set<FilterInstance> filterInstances) {
+	private static void determineAllConflicts(final Set<FilterInstance> filterInstances) {
 		for (final FilterInstance source : filterInstances) {
 			for (final FilterInstance target : filterInstances) {
 				if (source == target)
@@ -766,24 +774,90 @@ final @Value public class Matrix {
 		}
 	}
 
-	public void start() {
-		start(rules, blocks);
+	public static Collection<PathFilterList> transform(final Collection<PathSetBasedRule> rules) {
+		final List<Either<Rule, ExistentialProxy>> translatedRules = new ArrayList<>();
+		for (final PathSetBasedRule rule : rules) {
+			addRule(rule, translatedRules);
+		}
+		// find all horizontally maximal blocks
+		final Set<Block> resultBlocks = new HashSet<>();
+		findAllHorizontallyMaximalBlocks(translatedRules, resultBlocks);
+		// convert to maximal blocks via BlockSet-Constructor
+		final BlockSet resultBlockSet = new BlockSet(resultBlocks);
+		// solve the conflicts
+		solveConflicts(resultBlockSet);
+		// transform into PathFilterList
+		return createOutput(translatedRules, resultBlockSet);
 	}
 
-	public static void start(final List<Either<Rule, ExistentialProxy>> rules, final Set<Block> resultBlocks) {
-		// find all horizontally maximal blocks
-		findAllHorizontallyMaximalBlocks(rules, resultBlocks);
-		// eliminate all blocks fully contained within other blocks
-		// for (final Iterator<Block> iterator = resultBlocks.iterator(); iterator.hasNext();) {
-		// final Block block = iterator.next();
-		// if (resultBlocks.stream().anyMatch(
-		// b -> b != block && b.getFilterInstances().containsAll(block.getFilterInstances()))) {
-		// iterator.remove();
-		// }
-		// }
-		final BlockSet resultBlockSet = new BlockSet(resultBlocks);
-		solveConflicts(resultBlockSet);
-		// stackSideBySides();
+	private static Collection<PathFilterList> createOutput(final List<Either<Rule, ExistentialProxy>> rules,
+			final BlockSet resultBlockSet) {
+		final Function<? super Block, ? extends Integer> characteristicNumber =
+				block -> block.getFlatFilterInstances().size() / block.getRulesOrProxies().size();
+		final Map<Integer, CursorableLinkedList<Block>> blockMap =
+				resultBlockSet.getBlocks().stream()
+						.collect(groupingBy(characteristicNumber, toCollection(CursorableLinkedList::new)));
+
+		// iterate over all the filter proxies ever used
+		for (final FilterProxy filterProxy : FilterProxy.getFilterProxies()) {
+			final Set<ExistentialProxy> existentialProxies = filterProxy.getProxies();
+			// determine the largest characteristic number of the blocks containing filter instances
+			// of one of the existential proxies (choice is arbitrary, since the filters and the
+			// conflicts are identical if they belong to the same filter).
+			final int eCN =
+					resultBlockSet.getRuleInstanceToBlocks().get(Either.right(existentialProxies.iterator().next()))
+							.stream().mapToInt(composeToInt(characteristicNumber, Integer::intValue)).max().getAsInt();
+			// get the list to append the blocks using the existential closure filter instance to
+			final CursorableLinkedList<Block> targetList = blockMap.get(eCN);
+			// for every existential part
+			for (final ExistentialProxy existentialProxy : existentialProxies) {
+				final FilterInstance exClosure = existentialProxy.getExistentialClosure();
+				// create a list storing the blocks to move
+				final List<Block> toMove = new ArrayList<>();
+				// scan all lists up to characteristic number eCN
+				for (int i = 0; i <= eCN; ++i) {
+					// iterate over the blocks in the current list
+					for (final ListIterator<Block> iterator = blockMap.get(i).listIterator(); iterator.hasNext();) {
+						final Block current = iterator.next();
+						// if the current block uses the current existential closure filter
+						// instance, it has to be moved
+						if (current.getFlatFilterInstances().contains(exClosure)) {
+							iterator.remove();
+							toMove.add(current);
+						}
+					}
+				}
+				// append the blocks to be moved (they were only removed so far)
+				targetList.addAll(toMove);
+			}
+		}
+		final Set<FilterInstance> constructedFIs = new HashSet<>();
+		final Map<Either<Rule, ExistentialProxy>, List<PathFilterList>> ruleToCondition = new HashMap<>();
+		// TODO use this map instead of the one above
+		final Map<Either<Rule, ExistentialProxy>, Map<FilterInstance, PathFilterList>> ruleToJoinedWith = new HashMap<>();
+		// at this point, the network can be constructed
+		for (final CursorableLinkedList<Block> blockList : blockMap.values()) {
+			for (final Block block : blockList) {
+				if (1 == block.getRulesOrProxies().size()) {
+					// no sharing involved
+					final List<FilterInstance> fisToConstruct =
+							block.getFilterInstances().stream().flatMap(sbs -> sbs.getInstances().stream())
+									.filter(negate(constructedFIs::contains)).collect(toList());
+					final Either<Rule, ExistentialProxy> rule = block.getRulesOrProxies().iterator().next();
+					
+				}
+				final Map<Either<Rule, ExistentialProxy>, Map<Filter, FilterInstancesSideBySide>> ruleToFilterToRow =
+						block.getRuleToFilterToRow();
+				for (final Either<Rule, ExistentialProxy> ruleOrProxy : block.getRulesOrProxies()) {
+					final List<PathFilterList> asd = ruleToCondition.computeIfAbsent(ruleOrProxy, newArrayList());
+
+				}
+
+			}
+		}
+
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 	private static void findAllHorizontallyMaximalBlocks(final List<Either<Rule, ExistentialProxy>> rules,
