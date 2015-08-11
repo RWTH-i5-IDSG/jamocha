@@ -973,41 +973,60 @@ public class Matrix {
 
 	protected static void addArc(final DirectedGraph<Block, BlockConflict> blockConflictGraph, final Block x,
 			final Block y) {
+		// arc is a conflict between X and Y
+		// conf will always be a conflict between X and B
 		final BlockConflict arc = BlockConflict.of(x, y);
 		if (null == arc)
 			return;
 		final Set<BlockConflict> oldArcs = blockConflictGraph.outgoingEdgesOf(x);
 		// determine arc's quality
-		arc.setQuality(oldArcs.stream().mapToInt(conf -> CollectionUtils.intersection(arc.cfi, conf.cfi).size()).sum());
+		final Set<FilterInstance> xFIs = x.getFlatFilterInstances();
+		final Set<FilterInstance> yFIs = y.getFlatFilterInstances();
+		arc.quality =
+				oldArcs.stream()
+						.mapToInt(
+								conf -> usefulness(arc, xFIs, conf, conf.getConflictingBlock().getFlatFilterInstances())
+										- (CollectionUtils.removeAll(arc.cfi, yFIs).size() + (CollectionUtils
+												.intersection(xFIs, yFIs).isEmpty() ? 0 : 1))).sum();
 		// update quality of all arcs affected
 		for (final BlockConflict conf : oldArcs) {
-			conf.quality += CollectionUtils.intersection(arc.cfi, conf.cfi).size();
+			final Set<FilterInstance> bFIs = conf.getConflictingBlock().getFlatFilterInstances();
+			conf.quality += usefulness(arc, xFIs, conf, bFIs);
 		}
 		// add the new edge
 		final boolean arcAdded = blockConflictGraph.addEdge(x, y, arc);
 		assert arcAdded;
 	}
 
+	private static int usefulness(final BlockConflict xyArc, final Set<FilterInstance> xFIs, final BlockConflict xbArc,
+			final Set<FilterInstance> bFIs) {
+		return CollectionUtils.intersection(CollectionUtils.removeAll(xbArc.cfi, bFIs), xyArc.cfi).size()
+				+ (CollectionUtils.removeAll(CollectionUtils.intersection(xFIs, bFIs), xyArc.cfi).isEmpty() ? 0 : 1);
+	}
+
 	protected static void removeArc(final DirectedGraph<Block, BlockConflict> blockConflictGraph,
 			final BlockConflict arc) {
-		final Block x = arc.getReplaceBlock();
+		final Block b = arc.getReplaceBlock();
+		final Set<FilterInstance> bFIs = b.getFlatFilterInstances();
 		// about updating the quality of all affected arcs:
-		// the outgoing arcs of x only influence each other, but all get deleted
-		// the incoming arcs of x influence arcs not getting deleted
-		for (final BlockConflict yxArc : blockConflictGraph.incomingEdgesOf(x)) {
-			// for every neighbor y of x
-			final Block y = yxArc.getReplaceBlock();
-			for (final BlockConflict yzArc : blockConflictGraph.outgoingEdgesOf(y)) {
+		// the outgoing arcs of b only influence each other, but all get deleted
+		// the incoming arcs of b influence arcs not getting deleted
+		for (final BlockConflict xbArc : blockConflictGraph.incomingEdgesOf(b)) {
+			// for every neighbor x of b
+			final Block x = xbArc.getReplaceBlock();
+			final Set<FilterInstance> xFIs = x.getFlatFilterInstances();
+			for (final BlockConflict xyArc : blockConflictGraph.outgoingEdgesOf(x)) {
 				// for every conflict of that neighbor
-				if (yxArc == yzArc)
+				if (xbArc == xyArc)
 					// excluding the arc getting deleted
 					continue;
 				// decrement the quality of the block conflict
-				yzArc.quality -= CollectionUtils.intersection(yxArc.cfi, yzArc.cfi).size();
+				// remove the influence of the xb arc regarding the xy arc
+				xyArc.quality -= usefulness(xyArc, xFIs, xbArc, bFIs);
 			}
 		}
 		// remove the block to be replaced
-		final boolean vertexRemoved = blockConflictGraph.removeVertex(x);
+		final boolean vertexRemoved = blockConflictGraph.removeVertex(b);
 		assert vertexRemoved;
 	}
 
