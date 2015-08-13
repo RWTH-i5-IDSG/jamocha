@@ -92,6 +92,7 @@ import com.atlassian.fugue.Pair;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.common.collect.Sets.SetView;
 
@@ -814,7 +815,7 @@ public class Matrix {
 		// convert to maximal blocks via BlockSet-Constructor
 		final BlockSet resultBlockSet = new BlockSet(resultBlocks);
 		// solve the conflicts
-		solveConflicts(resultBlockSet);
+		determineAndSolveConflicts(resultBlockSet);
 		// transform into PathFilterList
 		return createOutput(translatedRules, resultBlockSet);
 	}
@@ -938,7 +939,8 @@ public class Matrix {
 		return resultBlocks;
 	}
 
-	public static void solveConflicts(final BlockSet resultBlocks) {
+	public static void determineAndSolveConflicts(final BlockSet resultBlocks) {
+		// determine conflicts
 		final BlockSet deletedBlocks = new BlockSet(Collections.emptySet());
 		final DirectedGraph<Block, BlockConflict> blockConflictGraph = new SimpleDirectedGraph<>(BlockConflict::of);
 		for (final Block block : resultBlocks.getBlocks()) {
@@ -947,6 +949,7 @@ public class Matrix {
 		for (final Block x : blockConflictGraph.vertexSet()) {
 			createArcs(blockConflictGraph, resultBlocks, x);
 		}
+		// solve conflicts
 		while (true) {
 			final Optional<BlockConflict> mostUsefulConflictsFirst =
 					blockConflictGraph.edgeSet().stream().max(Comparator.comparingInt(BlockConflict::getQuality));
@@ -1039,6 +1042,7 @@ public class Matrix {
 		int quality;
 
 		public static BlockConflict of(final Block replaceBlock, final Block conflictingBlock) {
+			// determine if there is a pair of FIs in conflict
 			final Map<Either<Rule, ExistentialProxy>, List<FilterInstance>> yFIsByRule =
 					conflictingBlock.getFlatFilterInstances().stream()
 							.collect(groupingBy(FilterInstance::getRuleOrProxy));
@@ -1050,7 +1054,32 @@ public class Matrix {
 									.anyMatch(yFI -> null != yFI.getOrDetermineConflicts(xFI))).collect(toSet());
 			if (cfi.isEmpty())
 				return null;
-			return new BlockConflict(replaceBlock, conflictingBlock, cfi);
+			// if non-overlapping
+			if (Collections.disjoint(replaceBlock.getFlatFilterInstances(), conflictingBlock.getFlatFilterInstances())) {
+				return new BlockConflict(replaceBlock, conflictingBlock, cfi);
+			}
+			// else overlapping
+			// check whether X\Y and Y\X are blocks
+			if (!allColumnsSameHeight(replaceBlock, conflictingBlock)
+					|| !allColumnsSameHeight(conflictingBlock, replaceBlock)) {
+				return new BlockConflict(replaceBlock, conflictingBlock, cfi);
+			}
+			return null;
+		}
+
+		private static boolean allColumnsSameHeight(final Block x, final Block y) {
+			// check whether X\Y is a block by checking whether all columns of X\Y have the same
+			// height
+			final Set<FilterInstance> yFIs = y.getFlatFilterInstances();
+			final Set<List<FilterInstance>> columns =
+					Block.getFilterInstanceColumns(x.getFilters(), x.getRuleToFilterToRow(),
+							Lists.newArrayList(x.getRulesOrProxies()));
+			if (1L != columns.stream().mapToLong(col -> col.stream().filter(negate(yFIs::contains)).count()).distinct()
+					.count()) {
+				// not a block
+				return false;
+			}
+			return true;
 		}
 	}
 
