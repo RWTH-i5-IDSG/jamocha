@@ -58,7 +58,6 @@ import lombok.Setter;
 import lombok.ToString;
 import lombok.Value;
 
-import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.iterators.PermutationIterator;
 import org.apache.commons.collections4.list.CursorableLinkedList;
 import org.jamocha.dn.ConstructCache.Defrule.PathRule;
@@ -989,8 +988,8 @@ public class Matrix {
 				oldArcs.stream()
 						.mapToInt(
 								conf -> usefulness(arc, xFIs, conf, conf.getConflictingBlock().getFlatFilterInstances())
-										- (CollectionUtils.removeAll(arc.cfi, yFIs).size() + (CollectionUtils
-												.intersection(xFIs, yFIs).isEmpty() ? 0 : 1))).sum();
+										- (Sets.difference(arc.cfi, yFIs).size() + (Sets.intersection(xFIs, yFIs)
+												.isEmpty() ? 0 : 1))).sum();
 		// update quality of all arcs affected
 		for (final BlockConflict conf : oldArcs) {
 			final Set<FilterInstance> bFIs = conf.getConflictingBlock().getFlatFilterInstances();
@@ -1003,8 +1002,8 @@ public class Matrix {
 
 	private static int usefulness(final BlockConflict xyArc, final Set<FilterInstance> xFIs, final BlockConflict xbArc,
 			final Set<FilterInstance> bFIs) {
-		return CollectionUtils.intersection(CollectionUtils.removeAll(xbArc.cfi, bFIs), xyArc.cfi).size()
-				+ (CollectionUtils.removeAll(CollectionUtils.intersection(xFIs, bFIs), xyArc.cfi).isEmpty() ? 0 : 1);
+		return Sets.intersection(Sets.difference(xbArc.cfi, bFIs), xyArc.cfi).size()
+				+ (Sets.difference(Sets.intersection(xFIs, bFIs), xyArc.cfi).isEmpty() ? 0 : 1);
 	}
 
 	protected static void removeArc(final DirectedGraph<Block, BlockConflict> blockConflictGraph,
