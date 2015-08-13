@@ -474,6 +474,10 @@ public class Matrix {
 					.collect(toSet());
 		}
 
+		public int getNumberOfColumns() {
+			return (flatFilterInstances.size() - filterInstances.size()) / getRulesOrProxies().size() + filters.size();
+		}
+
 		public void addFilterInstance(final Either<Rule, ExistentialProxy> rule, final FilterInstance filterInstance) {
 			addFilterInstances(Collections.singletonMap(rule,
 					Collections.singleton(new FilterInstancesSideBySide(filterInstance))));
@@ -1058,27 +1062,38 @@ public class Matrix {
 				return new BlockConflict(replaceBlock, conflictingBlock, cfi);
 			}
 			// else overlapping
-			// check whether X\Y and Y\X are blocks
-			if (!allColumnsSameHeight(replaceBlock, conflictingBlock)
-					|| !allColumnsSameHeight(conflictingBlock, replaceBlock)) {
+			final int rnoc = replaceBlock.getNumberOfColumns();
+			final int cnoc = conflictingBlock.getNumberOfColumns();
+			if (rnoc == cnoc) {
+				// containment of columns impossible (only if one block is fully contained within
+				// the other, which we won't consider here)
 				return new BlockConflict(replaceBlock, conflictingBlock, cfi);
 			}
-			return null;
-		}
-
-		private static boolean allColumnsSameHeight(final Block x, final Block y) {
-			// check whether X\Y is a block by checking whether all columns of X\Y have the same
-			// height
-			final Set<FilterInstance> yFIs = y.getFlatFilterInstances();
-			final Set<List<FilterInstance>> columns =
-					Block.getFilterInstanceColumns(x.getFilters(), x.getRuleToFilterToRow(),
-							Lists.newArrayList(x.getRulesOrProxies()));
-			if (1L != columns.stream().mapToLong(col -> col.stream().filter(negate(yFIs::contains)).count()).distinct()
-					.count()) {
-				// not a block
-				return false;
+			// x will be wider, y will be taller
+			final Block x, y;
+			if (rnoc >= cnoc) {
+				x = replaceBlock;
+				y = conflictingBlock;
+			} else {
+				x = conflictingBlock;
+				y = replaceBlock;
 			}
-			return true;
+			// only consider the rules of x (the wider block)
+			final ArrayList<Either<Rule, ExistentialProxy>> rules = Lists.newArrayList(x.getRulesOrProxies());
+			// only consider the filters of y (the taller block)
+			final Set<Filter> filters = y.getFilters();
+			// the result will be the columns within the intersection
+			final Set<List<FilterInstance>> xColumns =
+					Block.getFilterInstanceColumns(filters, x.getRuleToFilterToRow(), rules);
+			final Set<List<FilterInstance>> yColumns =
+					Block.getFilterInstanceColumns(filters, y.getRuleToFilterToRow(), rules);
+			// if one of the (shrinked) columns of the taller block is not present in the
+			// intersection part of the wider block, the blocks are in conflict
+			for (final List<FilterInstance> yColumn : yColumns) {
+				if (!xColumns.contains(yColumn))
+					return new BlockConflict(replaceBlock, conflictingBlock, cfi);
+			}
+			return null;
 		}
 	}
 
