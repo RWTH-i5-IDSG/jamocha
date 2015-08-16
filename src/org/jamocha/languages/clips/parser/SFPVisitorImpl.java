@@ -22,11 +22,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Queue;
+import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -1965,7 +1967,7 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 
 		@RequiredArgsConstructor
 		class SFPDefruleBodyVisitor implements SelectiveSFPVisitor {
-			final List<String> previousRuleNames;
+			final Set<String> previousRuleNames;
 			Defrule defrule;
 
 			@Override
@@ -2067,7 +2069,7 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 			final int numChildren = node.jjtGetNumChildren();
 			assert numChildren >= 1;
 			final Defrule[] defrules = new Defrule[numChildren];
-			final List<String> previousRuleNames = new ArrayList<>();
+			final Set<String> previousRuleNames = new HashSet<>();
 			for (int i = 0; i < numChildren; ++i) {
 				final Node child = node.jjtGetChild(i);
 				final Defrule defrule =
@@ -2086,8 +2088,8 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 			// <DEFRULE> Symbol() [ ConstructDescription() ] ( [ LOOKAHEAD(3) Declaration() ] (
 			// ConditionalElement() )* ) <ARROW> ActionList()
 			assert node.jjtGetNumChildren() == 1;
-			parserToNetwork.defRules(SelectiveSFPVisitor.sendVisitor(
-					new SFPDefruleBodyVisitor(Collections.emptyList()), node.jjtGetChild(0), data).defrule);
+			parserToNetwork.defRules(SelectiveSFPVisitor.sendVisitor(new SFPDefruleBodyVisitor(Collections.emptySet()),
+					node.jjtGetChild(0), data).defrule);
 			return data;
 		}
 
