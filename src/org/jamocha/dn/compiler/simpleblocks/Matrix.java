@@ -700,11 +700,11 @@ public class Matrix {
 		}
 	}
 
-	private static Set<Filter> getFilters(final Either<Rule, ExistentialProxy> ruleOrProxy) {
+	protected static Set<Filter> getFilters(final Either<Rule, ExistentialProxy> ruleOrProxy) {
 		return ruleOrProxy.fold(Rule::getFilters, ExistentialProxy::getFilters);
 	}
 
-	private static void addRule(final PathSetBasedRule pathBasedRule, final List<Either<Rule, ExistentialProxy>> rules) {
+	protected static void addRule(final PathSetBasedRule pathBasedRule, final List<Either<Rule, ExistentialProxy>> rules) {
 		final Rule rule = new Rule(pathBasedRule);
 		// first step: create all filter instances
 		final Set<PathFilterSet> condition = pathBasedRule.getCondition();
@@ -727,7 +727,7 @@ public class Matrix {
 		rules.add(ruleEither);
 	}
 
-	private static void determineAllConflicts(final Set<FilterInstance> filterInstances) {
+	protected static void determineAllConflicts(final Set<FilterInstance> filterInstances) {
 		for (final FilterInstance source : filterInstances) {
 			for (final FilterInstance target : filterInstances) {
 				if (source == target)
@@ -737,7 +737,7 @@ public class Matrix {
 		}
 	}
 
-	public static UndirectedGraph<FilterInstance, ConflictEdge> determineConflictGraphForRules(
+	protected static UndirectedGraph<FilterInstance, ConflictEdge> determineConflictGraphForRules(
 			final List<Either<Rule, ExistentialProxy>> ruleOrProxies) {
 		return determineConflictGraph(ruleOrProxies
 				.stream()
@@ -745,7 +745,7 @@ public class Matrix {
 						.collect(toList())).collect(toList()));
 	}
 
-	public static UndirectedGraph<FilterInstance, ConflictEdge> determineConflictGraph(
+	protected static UndirectedGraph<FilterInstance, ConflictEdge> determineConflictGraph(
 			final Iterable<? extends List<FilterInstance>> filterInstancesGroupedByRule) {
 		final UndirectedGraph<FilterInstance, ConflictEdge> graph = new SimpleGraph<>(ConflictEdge::of);
 		for (final List<FilterInstance> instances : filterInstancesGroupedByRule) {
@@ -834,7 +834,7 @@ public class Matrix {
 		return createOutput(translatedRules, resultBlockSet);
 	}
 
-	private static List<PathRule> createOutput(final List<Either<Rule, ExistentialProxy>> rules,
+	protected static List<PathRule> createOutput(final List<Either<Rule, ExistentialProxy>> rules,
 			final BlockSet resultBlockSet) {
 		final Function<? super Block, ? extends Integer> characteristicNumber =
 				block -> block.getFlatFilterInstances().size() / block.getRulesOrProxies().size();
@@ -925,7 +925,7 @@ public class Matrix {
 		return pathRules;
 	}
 
-	private static void findAllHorizontallyMaximalBlocks(final List<Either<Rule, ExistentialProxy>> rules,
+	protected static void findAllHorizontallyMaximalBlocks(final List<Either<Rule, ExistentialProxy>> rules,
 			final Set<Block> resultBlocks) {
 		final UndirectedGraph<FilterInstance, ConflictEdge> conflictGraph = determineConflictGraphForRules(rules);
 		final Set<Filter> filters = rules.stream().flatMap(rule -> getFilters(rule).stream()).collect(toSet());
@@ -936,14 +936,14 @@ public class Matrix {
 		}
 	}
 
-	private static <T, K, D> Collector<T, ?, Set<D>> groupingIntoSets(
+	protected static <T, K, D> Collector<T, ?, Set<D>> groupingIntoSets(
 			final Function<? super T, ? extends K> classifier, final Collector<? super T, ?, D> downstream) {
 		final Collector<T, ?, Map<K, D>> groupingBy = groupingBy(classifier, downstream);
 		return Collectors.collectingAndThen(groupingBy, map -> new HashSet<D>(map.values()));
 	}
 
-	private static Set<Block> findAllHorizontallyMaximalBlocksInReducedScope(final Set<FilterInstance> filterInstances,
-			final Set<Block> resultBlocks) {
+	protected static Set<Block> findAllHorizontallyMaximalBlocksInReducedScope(
+			final Set<FilterInstance> filterInstances, final Set<Block> resultBlocks) {
 		final Iterable<List<FilterInstance>> filterInstancesGroupedByRule =
 				filterInstances.stream().collect(
 						Collectors.collectingAndThen(groupingBy(FilterInstance::getRuleOrProxy), Map::values));
@@ -959,7 +959,7 @@ public class Matrix {
 		return resultBlocks;
 	}
 
-	public static void determineAndSolveConflicts(final BlockSet resultBlocks) {
+	protected static void determineAndSolveConflicts(final BlockSet resultBlocks) {
 		// determine conflicts
 		final BlockSet deletedBlocks = new BlockSet(Collections.emptySet());
 		final DirectedGraph<Block, BlockConflict> blockConflictGraph = new SimpleDirectedGraph<>(BlockConflict::of);
@@ -1021,8 +1021,8 @@ public class Matrix {
 		assert arcAdded;
 	}
 
-	private static int usefulness(final BlockConflict xyArc, final Set<FilterInstance> xFIs, final BlockConflict xbArc,
-			final Set<FilterInstance> bFIs) {
+	protected static int usefulness(final BlockConflict xyArc, final Set<FilterInstance> xFIs,
+			final BlockConflict xbArc, final Set<FilterInstance> bFIs) {
 		return Sets.intersection(Sets.difference(xbArc.cfi, bFIs), xyArc.cfi).size()
 				+ (Sets.difference(Sets.intersection(xFIs, bFIs), xyArc.cfi).isEmpty() ? 0 : 1);
 	}
@@ -1139,7 +1139,7 @@ public class Matrix {
 		}
 	}
 
-	public static void solveConflict(final BlockConflict blockConflict,
+	protected static void solveConflict(final BlockConflict blockConflict,
 			final DirectedGraph<Block, BlockConflict> blockConflictGraph, final BlockSet resultBlocks,
 			final BlockSet deletedBlocks) {
 		final Block replaceBlock = blockConflict.getReplaceBlock();
@@ -1163,7 +1163,7 @@ public class Matrix {
 		deletedBlocks.addDuringConflictResolution(replaceBlock);
 	}
 
-	public static void vertical(final UndirectedGraph<FilterInstance, ConflictEdge> graph,
+	protected static void vertical(final UndirectedGraph<FilterInstance, ConflictEdge> graph,
 			final Set<Set<FilterInstance>> filterInstancesGroupedByRule, final Set<Block> resultBlocks) {
 		final Set<Set<Set<FilterInstance>>> filterInstancesPowerSet = Sets.powerSet(filterInstancesGroupedByRule);
 		for (final Set<Set<FilterInstance>> powerSetElement : filterInstancesPowerSet) {
@@ -1181,7 +1181,7 @@ public class Matrix {
 		}
 	}
 
-	public static void horizontalRecursion(final Block block, final Stack<Set<FilterInstance>> exclusionStack,
+	protected static void horizontalRecursion(final Block block, final Stack<Set<FilterInstance>> exclusionStack,
 			final Set<Block> resultBlocks) {
 		// needed: the filters that are contained in every rule of the block, where for every
 		// filter it is the case that: every rule contains at least one instance not already
@@ -1277,7 +1277,7 @@ public class Matrix {
 		exclusionStack.pop();
 	}
 
-	private static void findMatchingAndIncompatibleFilters(
+	protected static void findMatchingAndIncompatibleFilters(
 			final Map<Filter, List<FilterInstance>> filterToInstances,
 			final Set<Either<Rule, ExistentialProxy>> rulesInBlock,
 			final List<Filter> filters,
@@ -1372,7 +1372,7 @@ public class Matrix {
 		}
 	}
 
-	static SetView<FilterInstance> getStableSet(final UndirectedGraph<FilterInstance, ConflictEdge> graph) {
+	protected static SetView<FilterInstance> getStableSet(final UndirectedGraph<FilterInstance, ConflictEdge> graph) {
 		// could be improved by DOI 10.1137/0206036
 		return Sets.difference(graph.vertexSet(), VertexCovers.find2ApproximationCover(graph));
 	}
