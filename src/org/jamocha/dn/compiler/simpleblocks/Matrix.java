@@ -410,7 +410,7 @@ public class Matrix {
 	 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
 	 */
 	@Value
-	@EqualsAndHashCode(of = { "original", "filters" })
+	@EqualsAndHashCode(of = { "original" })
 	@ToString(of = { "original", "filters" })
 	static class Rule {
 		final PathSetBasedRule original;
