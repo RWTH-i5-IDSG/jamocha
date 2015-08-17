@@ -23,6 +23,7 @@ import java.util.stream.StreamSupport;
 
 import lombok.AccessLevel;
 import lombok.Data;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
 import org.jamocha.dn.nodes.Node;
@@ -42,8 +43,11 @@ public interface PathFilterList extends Visitable<PathFilterListVisitor>, Iterab
 	@Data
 	@RequiredArgsConstructor
 	public class PathExistentialList implements PathFilterList {
+		@NonNull
 		final Path initialPath;
+		@NonNull
 		final PathFilterList purePart;
+		@NonNull
 		final PathNodeFilterSet existentialClosure;
 
 		@Override
@@ -84,6 +88,7 @@ public interface PathFilterList extends Visitable<PathFilterListVisitor>, Iterab
 		@Data
 		@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 		public class PathSharedList implements PathFilterList {
+			@NonNull
 			final List<PathFilterList> filters;
 
 			public PathSharedListWrapper getWrapper() {
