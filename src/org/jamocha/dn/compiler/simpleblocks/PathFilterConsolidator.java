@@ -46,6 +46,7 @@ import org.jamocha.dn.ConstructCache.Defrule.PathSetBasedRule;
 import org.jamocha.dn.compiler.DeepFactVariableCollector;
 import org.jamocha.dn.compiler.ShallowFactVariableCollector;
 import org.jamocha.dn.compiler.Specificity;
+import org.jamocha.dn.memory.SlotAddress;
 import org.jamocha.dn.memory.SlotType;
 import org.jamocha.dn.memory.Template;
 import org.jamocha.filter.FWACollector;
@@ -729,7 +730,8 @@ public class PathFilterConsolidator implements DefaultConditionalElementsVisitor
 			if (mixedExistentialFilters.isEmpty()) {
 				existentialClosure =
 						new PathFilter(new PredicateWithArgumentsComposite<PathLeaf>(DummyPredicate.instance, toArray(
-								shallowExistentialPaths.stream().map(p -> new PathLeaf(p, null)), PathLeaf[]::new)));
+								Stream.concat(shallowExistentialPaths.stream(), Stream.of(initialFactPath)).map(
+										p -> new PathLeaf(p, (SlotAddress) null)), PathLeaf[]::new)));
 			} else if (1 == mixedExistentialFilters.size()) {
 				final PathFilter mixed = (PathFilter) mixedExistentialFilters.getFirst();
 				final HashSet<Path> pathsInMixed = PathCollector.newHashSet().collect(mixed).getPaths();

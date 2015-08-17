@@ -507,16 +507,16 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 			allPaths = collector.getPaths();
 		}
 		final ArrayList<Node> nodes = new ArrayList<>();
-		// FIXME !!! change to some visitor style construction using the information stored in the
-		// PathFilterList classes such as the initial path for existential lists !!!
 		for (final PathNodeFilterSet filter : filters) {
-			if (!tryToShareNode(filter))
-				if (PathCollector.newHashSet().collectAllInLists(filter).getPaths().stream()
-						.flatMap(p -> p.getJoinedWith().stream()).distinct().count() == 1) {
-					nodes.add(new AlphaNode(this, filter));
-				} else {
-					nodes.add(new BetaNode(this, filter));
-				}
+			if (tryToShareNode(filter)) {
+				continue;
+			}
+			if (PathCollector.newHashSet().collectAllInLists(filter).getPaths().stream()
+					.flatMap(p -> p.getJoinedWith().stream()).distinct().count() == 1) {
+				nodes.add(new AlphaNode(this, filter));
+			} else {
+				nodes.add(new BetaNode(this, filter));
+			}
 		}
 		final Map<Node, List<Path>> nodeToJoinedPaths =
 				allPaths.stream().collect(groupingBy(Path::getCurrentlyLowestNode));
