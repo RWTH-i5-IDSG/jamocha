@@ -217,7 +217,8 @@ public class Matrix {
 					final int size = sourceParameters.size();
 					for (int i = 0; i < size; ++i) {
 						final Integer oi = Integer.valueOf(i);
-						for (final Integer ji : targetPathIndices.get(sourceParameters.get(oi))) {
+						for (final Integer ji : targetPathIndices.getOrDefault(sourceParameters.get(oi),
+								Collections.emptyList())) {
 							this.samePathsIndices.add(Pair.of(oi, ji));
 						}
 					}
