@@ -80,6 +80,9 @@ import org.jamocha.filter.PathFilterSetVisitor;
 import org.jamocha.filter.PathLeafCollector;
 import org.jamocha.filter.PathNodeFilterSet;
 import org.jamocha.function.Predicate;
+import org.jamocha.function.fwa.ConstantLeaf;
+import org.jamocha.function.fwa.DefaultFunctionWithArgumentsLeafVisitor;
+import org.jamocha.function.fwa.GlobalVariableLeaf;
 import org.jamocha.function.fwa.PathLeaf;
 import org.jamocha.function.fwa.PredicateWithArguments;
 import org.jamocha.function.fwa.PredicateWithArgumentsComposite;
@@ -102,6 +105,32 @@ import com.google.common.collect.Sets.SetView;
  */
 public class Matrix {
 
+	static class PWAArgumentsExtractor implements DefaultFunctionWithArgumentsLeafVisitor<PathLeaf> {
+		private final ArrayList<Either<Pair<Template, SlotAddress>, Object>> arguments = new ArrayList<>();
+
+		public static List<Either<Pair<Template, SlotAddress>, Object>> getArguments(
+				final PredicateWithArguments<PathLeaf> predicate) {
+			final PWAArgumentsExtractor instance = new PWAArgumentsExtractor();
+			predicate.accept(instance);
+			return instance.arguments;
+		}
+
+		@Override
+		public void visit(final ConstantLeaf<PathLeaf> constantLeaf) {
+			arguments.add(Either.right(constantLeaf.evaluate()));
+		}
+
+		@Override
+		public void visit(final GlobalVariableLeaf<PathLeaf> globalVariableLeaf) {
+			arguments.add(Either.right(globalVariableLeaf.evaluate()));
+		}
+
+		@Override
+		public void visit(final PathLeaf leaf) {
+			arguments.add(Either.left(Pair.of(leaf.getPath().getTemplate(), leaf.getSlot())));
+		}
+	}
+
 	/**
 	 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
 	 */
@@ -111,12 +140,13 @@ public class Matrix {
 	@ToString(of = { "predicate", "arguments" })
 	static class Filter {
 		final Predicate predicate;
-		final List<Pair<Template, SlotAddress>> arguments;
+		final List<Either<Pair<Template, SlotAddress>, Object>> arguments;
 		final Map<Either<Rule, ExistentialProxy>, Set<FilterInstance>> ruleToInstances = new HashMap<>();
 
 		static final Map<Filter, Filter> cache = new HashMap<>();
 
-		static Filter newFilter(final Predicate predicate, final List<Pair<Template, SlotAddress>> arguments) {
+		static Filter newFilter(final Predicate predicate,
+				final List<Either<Pair<Template, SlotAddress>, Object>> arguments) {
 			return cache.computeIfAbsent(new Filter(predicate, arguments), Function.identity());
 		}
 
@@ -242,16 +272,16 @@ public class Matrix {
 	static class FilterProxy extends Filter {
 		final Set<ExistentialProxy> proxies;
 
-		private FilterProxy(final Predicate predicate, final List<Pair<Template, SlotAddress>> arguments,
-				final ExistentialProxy proxy) {
+		private FilterProxy(final Predicate predicate,
+				final List<Either<Pair<Template, SlotAddress>, Object>> arguments, final ExistentialProxy proxy) {
 			super(predicate, arguments);
 			this.proxies = Sets.newHashSet(proxy);
 		}
 
 		static final Map<FilterProxy, FilterProxy> cache = new HashMap<>();
 
-		static FilterProxy newFilterProxy(final Predicate predicate, final List<Pair<Template, SlotAddress>> arguments,
-				final ExistentialProxy proxy) {
+		static FilterProxy newFilterProxy(final Predicate predicate,
+				final List<Either<Pair<Template, SlotAddress>, Object>> arguments, final ExistentialProxy proxy) {
 			return cache.computeIfAbsent(new FilterProxy(predicate, arguments, proxy), Function.identity());
 		}
 
@@ -779,13 +809,11 @@ public class Matrix {
 		}
 
 		protected static <T extends Filter> T convertFilter(final PathFilter pathFilter,
-				final BiFunction<Predicate, List<Pair<Template, SlotAddress>>, T> ctor) {
+				final BiFunction<Predicate, List<Either<Pair<Template, SlotAddress>, Object>>, T> ctor) {
 			final PredicateWithArguments<PathLeaf> predicate = pathFilter.getFunction();
 			assert predicate instanceof PredicateWithArgumentsComposite;
-			return ctor.apply(
-					((PredicateWithArgumentsComposite<PathLeaf>) predicate).getFunction(),
-					PathLeafCollector.collect(predicate).stream()
-							.map(pl -> Pair.of(pl.getPath().getTemplate(), pl.getSlot())).collect(toList()));
+			return ctor.apply(((PredicateWithArgumentsComposite<PathLeaf>) predicate).getFunction(),
+					PWAArgumentsExtractor.getArguments(predicate));
 		}
 
 		@Override
