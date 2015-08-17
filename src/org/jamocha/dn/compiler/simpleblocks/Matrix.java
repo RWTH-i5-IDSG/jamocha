@@ -269,10 +269,9 @@ public class Matrix {
 			final PathFilterList component =
 					(1 == components.size()) ? components.get(0) : new PathSharedListWrapper()
 							.newSharedElement(components);
+			assert instance.getRuleOrProxy().isLeft() : "Nested Existentials Unsupported!";
 			final PathExistentialSet existential =
 					instance.getRuleOrProxy().left().get().getExistentialProxies().get(instance).getExistential();
-			// final PathExistentialSet existential =
-			// instance.getRuleOrProxy().right().get().getExistential();
 			return new PathFilterList.PathExistentialList(existential.getInitialPath(), component,
 					PathNodeFilterSet.newExistentialPathNodeFilterSet(!existential.isPositive(),
 							existential.getExistentialPaths(), instance.getPathFilter()));
