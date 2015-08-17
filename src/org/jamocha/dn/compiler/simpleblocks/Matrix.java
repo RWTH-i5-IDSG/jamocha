@@ -27,7 +27,6 @@ import static org.jamocha.util.Lambdas.newHashSet;
 import static org.jamocha.util.Lambdas.newTreeMap;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -38,7 +37,9 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.OptionalInt;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.Stack;
@@ -60,6 +61,7 @@ import lombok.Value;
 
 import org.apache.commons.collections4.iterators.PermutationIterator;
 import org.apache.commons.collections4.list.CursorableLinkedList;
+import org.apache.commons.lang3.tuple.Pair;
 import org.jamocha.dn.ConstructCache.Defrule.PathRule;
 import org.jamocha.dn.ConstructCache.Defrule.PathSetBasedRule;
 import org.jamocha.dn.compiler.simpleblocks.Matrix.Filter.FilterInstance;
@@ -87,7 +89,6 @@ import org.jgrapht.graph.SimpleDirectedGraph;
 import org.jgrapht.graph.SimpleGraph;
 
 import com.atlassian.fugue.Either;
-import com.atlassian.fugue.Pair;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.google.common.collect.ImmutableSet;
@@ -106,6 +107,7 @@ public class Matrix {
 	@lombok.Data
 	@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 	@EqualsAndHashCode(of = { "predicate", "arguments" })
+	@ToString(of = { "predicate", "arguments" })
 	static class Filter {
 		final Predicate predicate;
 		final List<Pair<Template, SlotAddress>> arguments;
@@ -126,7 +128,7 @@ public class Matrix {
 		}
 
 		public Set<FilterInstance> getInstances(final Either<Rule, ExistentialProxy> ruleOrProxy) {
-			return ruleToInstances.get(ruleOrProxy);
+			return ruleToInstances.computeIfAbsent(ruleOrProxy, newHashSet());
 		}
 
 		public PathFilterList convert(
@@ -141,7 +143,7 @@ public class Matrix {
 		 */
 		@Getter
 		@Setter
-		@ToString
+		@ToString(of = { "pathFilter" })
 		@AllArgsConstructor(access = AccessLevel.PRIVATE)
 		// no EqualsAndHashCode
 		class FilterInstance {
@@ -216,7 +218,7 @@ public class Matrix {
 					for (int i = 0; i < size; ++i) {
 						final Integer oi = Integer.valueOf(i);
 						for (final Integer ji : targetPathIndices.get(sourceParameters.get(oi))) {
-							this.samePathsIndices.add(Pair.pair(oi, ji));
+							this.samePathsIndices.add(Pair.of(oi, ji));
 						}
 					}
 				}
@@ -262,11 +264,15 @@ public class Matrix {
 			final Map<FilterInstance, Set<FilterInstance>> joinedWithMap =
 					ruleToJoinedWith.get(instance.getRuleOrProxy());
 			final List<PathFilterList> components =
-					joinedWithMap.values().stream().distinct().map(joinedWithToComponent::get).collect(toList());
+					joinedWithMap.values().stream().distinct().map(joinedWithToComponent::get).filter(Objects::nonNull)
+							.collect(toList());
 			final PathFilterList component =
 					(1 == components.size()) ? components.get(0) : new PathSharedListWrapper()
 							.newSharedElement(components);
-			final PathExistentialSet existential = instance.getRuleOrProxy().right().get().getExistential();
+			final PathExistentialSet existential =
+					instance.getRuleOrProxy().left().get().getExistentialProxies().get(instance).getExistential();
+			// final PathExistentialSet existential =
+			// instance.getRuleOrProxy().right().get().getExistential();
 			return new PathFilterList.PathExistentialList(existential.getInitialPath(), component,
 					PathNodeFilterSet.newExistentialPathNodeFilterSet(!existential.isPositive(),
 							existential.getExistentialPaths(), instance.getPathFilter()));
@@ -332,7 +338,7 @@ public class Matrix {
 				for (final Set<FilterInstance> aCell : aFilterInstanceSets) {
 					int j = 0;
 					for (final FilterInstance filterInstance : aCell) {
-						aFI2IndexPair.put(filterInstance, Pair.pair(i, j));
+						aFI2IndexPair.put(filterInstance, Pair.of(i, j));
 						++j;
 					}
 					++i;
@@ -349,7 +355,7 @@ public class Matrix {
 						for (final ConflictEdge edge : aConflicts) {
 							final Conflict aConflict = edge.getForSource(aSource);
 							final Pair<Integer, Integer> indexPair = aFI2IndexPair.get(aConflict.getTarget());
-							final FilterInstance bTarget = bijection.get(indexPair.left()).get(indexPair.right());
+							final FilterInstance bTarget = bijection.get(indexPair.getLeft()).get(indexPair.getRight());
 							final Conflict bConflict = bSource.getOrDetermineConflicts(bTarget);
 							if (!aConflict.equals(bConflict)) {
 								continue bijectionLoop;
@@ -384,6 +390,7 @@ public class Matrix {
 	@Value
 	@AllArgsConstructor
 	@EqualsAndHashCode(of = { "instances" })
+	@ToString(of = { "instances" })
 	static class FilterInstancesSideBySide {
 		final LinkedHashSet<FilterInstance> instances;
 		final Filter filter;
@@ -403,6 +410,8 @@ public class Matrix {
 	 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
 	 */
 	@Value
+	@EqualsAndHashCode(of = { "original", "filters" })
+	@ToString(of = { "original", "filters" })
 	static class Rule {
 		final PathSetBasedRule original;
 		final Set<Filter> filters = new HashSet<>();
@@ -428,6 +437,7 @@ public class Matrix {
 	 */
 	@Value
 	@EqualsAndHashCode(of = { "filterInstances" })
+	@ToString(of = { "filterInstances" })
 	@RequiredArgsConstructor
 	public static class Block {
 		// conflict graph
@@ -771,9 +781,10 @@ public class Matrix {
 				final BiFunction<Predicate, List<Pair<Template, SlotAddress>>, T> ctor) {
 			final PredicateWithArguments<PathLeaf> predicate = pathFilter.getFunction();
 			assert predicate instanceof PredicateWithArgumentsComposite;
-			return ctor.apply(((PredicateWithArgumentsComposite<PathLeaf>) predicate).getFunction(), PathLeafCollector
-					.collect(predicate).stream().map(pl -> Pair.pair(pl.getPath().getTemplate(), pl.getSlot()))
-					.collect(toList()));
+			return ctor.apply(
+					((PredicateWithArgumentsComposite<PathLeaf>) predicate).getFunction(),
+					PathLeafCollector.collect(predicate).stream()
+							.map(pl -> Pair.of(pl.getPath().getTemplate(), pl.getSlot())).collect(toList()));
 		}
 
 		@Override
@@ -807,7 +818,7 @@ public class Matrix {
 		}
 	}
 
-	public static Collection<PathRule> transform(final Collection<PathSetBasedRule> rules) {
+	public static List<PathRule> transform(final List<PathSetBasedRule> rules) {
 		final List<Either<Rule, ExistentialProxy>> translatedRules = new ArrayList<>();
 		for (final PathSetBasedRule rule : rules) {
 			addRule(rule, translatedRules);
@@ -823,7 +834,7 @@ public class Matrix {
 		return createOutput(translatedRules, resultBlockSet);
 	}
 
-	private static Collection<PathRule> createOutput(final List<Either<Rule, ExistentialProxy>> rules,
+	private static List<PathRule> createOutput(final List<Either<Rule, ExistentialProxy>> rules,
 			final BlockSet resultBlockSet) {
 		final Function<? super Block, ? extends Integer> characteristicNumber =
 				block -> block.getFlatFilterInstances().size() / block.getRulesOrProxies().size();
@@ -837,9 +848,13 @@ public class Matrix {
 			// determine the largest characteristic number of the blocks containing filter instances
 			// of one of the existential proxies (choice is arbitrary, since the filters and the
 			// conflicts are identical if they belong to the same filter).
-			final int eCN =
-					resultBlockSet.getRuleInstanceToBlocks().get(Either.right(existentialProxies.iterator().next()))
-							.stream().mapToInt(composeToInt(characteristicNumber, Integer::intValue)).max().getAsInt();
+			final OptionalInt optMax =
+					resultBlockSet.getRuleInstanceToBlocks()
+							.computeIfAbsent(Either.right(existentialProxies.iterator().next()), newHashSet()).stream()
+							.mapToInt(composeToInt(characteristicNumber, Integer::intValue)).max();
+			if (!optMax.isPresent())
+				continue;
+			final int eCN = optMax.getAsInt();
 			// get the list to append the blocks using the existential closure filter instance to
 			final CursorableLinkedList<Block> targetList = blockMap.get(eCN);
 			// for every existential part
@@ -902,8 +917,8 @@ public class Matrix {
 				continue;
 			}
 			final List<PathFilterList> pathFilterLists =
-					ruleToJoinedWith.get(either).values().stream().distinct().map(joinedWithToComponent::get)
-							.collect(toList());
+					ruleToJoinedWith.getOrDefault(either, Collections.emptyMap()).values().stream().distinct()
+							.map(joinedWithToComponent::get).collect(toList());
 			pathRules.add(either.left().get().getOriginal()
 					.toPathRule(new PathSharedListWrapper().newSharedElement(pathFilterLists)));
 		}
@@ -915,7 +930,9 @@ public class Matrix {
 		final UndirectedGraph<FilterInstance, ConflictEdge> conflictGraph = determineConflictGraphForRules(rules);
 		final Set<Filter> filters = rules.stream().flatMap(rule -> getFilters(rule).stream()).collect(toSet());
 		for (final Filter filter : filters) {
-			vertical(conflictGraph, new HashSet<>(filter.getRuleToInstances().values()), resultBlocks);
+			vertical(conflictGraph, rules.stream().map(r -> filter.getInstances(r)).collect(toSet()), resultBlocks);
+			// vertical(conflictGraph, new HashSet<>(filter.getRuleToInstances().values()),
+			// resultBlocks);
 		}
 	}
 
@@ -1150,6 +1167,9 @@ public class Matrix {
 			final Set<Set<FilterInstance>> filterInstancesGroupedByRule, final Set<Block> resultBlocks) {
 		final Set<Set<Set<FilterInstance>>> filterInstancesPowerSet = Sets.powerSet(filterInstancesGroupedByRule);
 		for (final Set<Set<FilterInstance>> powerSetElement : filterInstancesPowerSet) {
+			if (powerSetElement.isEmpty()) {
+				continue;
+			}
 			final Set<List<FilterInstance>> cartesianProduct = Sets.cartesianProduct(new ArrayList<>(powerSetElement));
 			for (final List<FilterInstance> filterInstances : cartesianProduct) {
 				final Block newBlock = new Block(graph);
