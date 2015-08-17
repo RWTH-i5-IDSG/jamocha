@@ -55,6 +55,7 @@ import org.jamocha.dn.ConstructCache.Deffacts;
 import org.jamocha.dn.ConstructCache.Defrule;
 import org.jamocha.dn.ConstructCache.Defrule.PathRule;
 import org.jamocha.dn.ConstructCache.Defrule.PathSetBasedRule;
+import org.jamocha.dn.compiler.simpleblocks.Matrix;
 import org.jamocha.dn.compiler.simpleblocks.PathFilterConsolidator;
 import org.jamocha.dn.memory.Fact;
 import org.jamocha.dn.memory.FactAddress;
@@ -506,6 +507,8 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 			allPaths = collector.getPaths();
 		}
 		final ArrayList<Node> nodes = new ArrayList<>();
+		// FIXME !!! change to some visitor style construction using the information stored in the
+		// PathFilterList classes such as the initial path for existential lists !!!
 		for (final PathNodeFilterSet filter : filters) {
 			if (!tryToShareNode(filter))
 				if (PathCollector.newHashSet().collectAllInLists(filter).getPaths().stream()
@@ -541,8 +544,11 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 		// Preprocess CEs
 		RuleConditionProcessor.flatten(rule.getCondition());
 		// Transform TestCEs to PathFilters
-		return new PathFilterConsolidator(this.initialFactTemplate, rule).consolidate().stream()
-				.map(PathSetBasedRule::trivialToPathRule).collect(toList());
+		final List<PathSetBasedRule> consolidatedRules =
+				new PathFilterConsolidator(this.initialFactTemplate, rule).consolidate();
+		return Matrix.transform(consolidatedRules);
+		// return consolidatedRules.stream()
+		// .map(PathSetBasedRule::trivialToPathRule).collect(toList());
 	}
 
 	@Override
