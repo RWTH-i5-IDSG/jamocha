@@ -27,6 +27,7 @@ import static org.jamocha.util.Lambdas.newHashSet;
 import static org.jamocha.util.Lambdas.newTreeMap;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -1191,35 +1192,35 @@ public class Matrix {
 				block.getBorderConflicts().keySet().stream()
 						.filter(fi -> !exclusionStack.stream().anyMatch(as -> as.contains(fi))).collect(toSet());
 		// group them by their filter
-		final Map<Filter, List<FilterInstance>> filterToInstances =
+		final Map<Filter, List<FilterInstance>> nFilterToInstances =
 				neighbours.stream().collect(groupingBy(FilterInstance::getFilter));
 		// get all the rules in the block
-		final Set<Either<Rule, ExistentialProxy>> rulesInBlock = block.getRuleToFilterToRow().keySet();
+		final Set<Either<Rule, ExistentialProxy>> bRules = block.getRulesOrProxies();
 		// get a map from filter to all rules containing instances of that filter
-		final Map<Filter, Set<Either<Rule, ExistentialProxy>>> filterToRulesContainingIt =
-				filterToInstances
+		final Map<Filter, Set<Either<Rule, ExistentialProxy>>> nFilterToRulesContainingIt =
+				nFilterToInstances
 						.entrySet()
 						.stream()
 						.collect(
 								toMap(Entry::getKey, e -> e.getValue().stream().map(FilterInstance::getRuleOrProxy)
 										.collect(toSet())));
 		// get the filters that are contained in every rule
-		final Set<Filter> relevantFilters =
-				filterToInstances.keySet().stream()
-						.filter(f -> filterToRulesContainingIt.get(f).containsAll(rulesInBlock)).collect(toSet());
+		final Set<Filter> bRelevantFilters =
+				nFilterToInstances.keySet().stream().filter(f -> nFilterToRulesContainingIt.get(f).containsAll(bRules))
+						.collect(toSet());
 		// if no filters are left to add, the block is horizontally maximized, add it
-		if (relevantFilters.isEmpty()) {
+		if (bRelevantFilters.isEmpty()) {
 			resultBlocks.add(block);
 			return;
 		}
 		// divide into filters without multiple instances and filters with multiple instances
-		final List<Filter> singleCellFilters, multiCellFilters;
+		final List<Filter> nSingleCellFilters, nMultiCellFilters;
 		{
 			final Map<Boolean, List<Filter>> partition =
-					relevantFilters.stream().collect(
-							partitioningBy(f -> filterToInstances.get(f).size() > rulesInBlock.size()));
-			singleCellFilters = partition.get(Boolean.FALSE);
-			multiCellFilters = partition.get(Boolean.TRUE);
+					bRelevantFilters.stream().collect(
+							partitioningBy(f -> nFilterToInstances.get(f).size() > bRules.size()));
+			nSingleCellFilters = partition.get(Boolean.FALSE);
+			nMultiCellFilters = partition.get(Boolean.TRUE);
 		}
 		// list of rule-filter-matchings that may be added
 		final List<Map<Either<Rule, ExistentialProxy>, Set<FilterInstancesSideBySide>>> matchingFilters =
@@ -1228,19 +1229,19 @@ public class Matrix {
 
 		// there is a 1 to 1 mapping from filter instances (side-by-side) to rules
 		// for every filter instance, the conflicts have to be the same in all rules
-		final Map<Filter, Map<Either<Rule, ExistentialProxy>, FilterInstancesSideBySide>> filterToRuleToBlockInstances =
+		final Map<Filter, Map<Either<Rule, ExistentialProxy>, FilterInstancesSideBySide>> bFilterToRuleToBlockInstances =
 				block.getFilterInstances()
 						.stream()
 						.collect(
 								groupingBy(FilterInstancesSideBySide::getFilter,
 										toMap(FilterInstancesSideBySide::getRuleOrProxy, Function.identity())));
 		// prefer singleCellFilters
-		findMatchingAndIncompatibleFilters(filterToInstances, rulesInBlock, singleCellFilters, matchingFilters,
-				incompatibleFilters, filterToRuleToBlockInstances);
+		findMatchingAndIncompatibleFilters(nFilterToInstances, bRules, nSingleCellFilters, block.getFilters(),
+				matchingFilters, incompatibleFilters, bFilterToRuleToBlockInstances);
 		// if none matched, try multiCellFilters, otherwise defer them
 		if (matchingFilters.isEmpty()) {
-			findMatchingAndIncompatibleFilters(filterToInstances, rulesInBlock, multiCellFilters, matchingFilters,
-					incompatibleFilters, filterToRuleToBlockInstances);
+			findMatchingAndIncompatibleFilters(nFilterToInstances, bRules, nMultiCellFilters, block.getFilters(),
+					matchingFilters, incompatibleFilters, bFilterToRuleToBlockInstances);
 			// if still none matched, the block is maximal, add it to the result blocks
 			if (matchingFilters.isEmpty()) {
 				resultBlocks.add(block);
@@ -1254,7 +1255,7 @@ public class Matrix {
 		exclusionStack.push(furtherExcludes);
 		// add all incompatible filter instances to the exclusion stack
 		for (final Filter incompatibleFilter : incompatibleFilters) {
-			for (final Either<Rule, ExistentialProxy> rule : rulesInBlock) {
+			for (final Either<Rule, ExistentialProxy> rule : bRules) {
 				furtherExcludes.addAll(incompatibleFilter.getInstances(rule));
 			}
 		}
@@ -1278,25 +1279,23 @@ public class Matrix {
 	}
 
 	protected static void findMatchingAndIncompatibleFilters(
-			final Map<Filter, List<FilterInstance>> filterToInstances,
-			final Set<Either<Rule, ExistentialProxy>> rulesInBlock,
-			final List<Filter> filters,
+			final Map<Filter, List<FilterInstance>> nFilterToInstances,
+			final Set<Either<Rule, ExistentialProxy>> bRules,
+			final List<Filter> nFilters,
+			final Collection<Filter> bFilters,
 			final List<Map<Either<Rule, ExistentialProxy>, Set<FilterInstancesSideBySide>>> matchingFilters,
 			final List<Filter> incompatibleFilters,
-			final Map<Filter, Map<Either<Rule, ExistentialProxy>, FilterInstancesSideBySide>> filterToRuleToBlockInstances) {
+			final Map<Filter, Map<Either<Rule, ExistentialProxy>, FilterInstancesSideBySide>> bFilterToRuleToBlockInstances) {
 		// iterate over every single-/multi-cell filter and check that its instances have the same
 		// conflicts in every rule
-		for (final Filter filter : filters) {
-			// get the mapping from rule to filter instance for the current filter
-			final Map<Either<Rule, ExistentialProxy>, FilterInstancesSideBySide> ruleToBlockInstances =
-					filterToRuleToBlockInstances.get(filter);
+		for (final Filter nFilter : nFilters) {
 			// list of conflicts for this filter
 			final List<Conflict> conflicts = new ArrayList<>();
 			boolean matchingConstellationFound = false;
 
 			// iterate over the possible mappings: (filter,rule) -> filter instance
 			final List<Set<FilterInstance>> listOfRelevantFilterInstancesGroupedByRule =
-					new ArrayList<>(filterToInstances.get(filter).stream()
+					new ArrayList<>(nFilterToInstances.get(nFilter).stream()
 							.collect(groupingBy(FilterInstance::getRuleOrProxy, toSet())).values());
 			// create the cartesian product
 			final Set<List<FilterInstance>> relevantFilterInstanceCombinations =
@@ -1307,38 +1306,44 @@ public class Matrix {
 				final Map<Either<Rule, ExistentialProxy>, FilterInstance> ruleToCurrentOutsideFilterInstance =
 						currentOutsideFilterInstances.stream().collect(
 								toMap(FilterInstance::getRuleOrProxy, Function.identity()));
-				// iterate over the Rule-BlockFilterInstance-mappings
-				for (final Entry<Either<Rule, ExistentialProxy>, FilterInstancesSideBySide> entry : ruleToBlockInstances
-						.entrySet()) {
-					final Either<Rule, ExistentialProxy> rule = entry.getKey();
-					final FilterInstancesSideBySide sideBySide = entry.getValue();
-					// get the corresponding filter instance(s) that may be added
-					final FilterInstance source = ruleToCurrentOutsideFilterInstance.get(rule);
-					int i = 0;
-					// iterate over the filter instances
-					for (final FilterInstance target : sideBySide.getInstances()) {
-						// determine conflict between inside instance and outside instance
-						final Conflict conflict = source.getOrDetermineConflicts(target);
-						// if this is the first loop iteration, just add the conflict to be compared
-						// later on
-						if (i >= conflicts.size()) {
-							conflicts.add(conflict);
+				// get the mapping from rule to filter instance for the current filter
+				for (final Filter bFilter : bFilters) {
+					final Map<Either<Rule, ExistentialProxy>, FilterInstancesSideBySide> ruleToBlockInstances =
+							bFilterToRuleToBlockInstances.get(bFilter);
+					// iterate over the Rule-BlockFilterInstance-mappings
+					for (final Entry<Either<Rule, ExistentialProxy>, FilterInstancesSideBySide> entry : ruleToBlockInstances
+							.entrySet()) {
+						final Either<Rule, ExistentialProxy> rule = entry.getKey();
+						final FilterInstancesSideBySide sideBySide = entry.getValue();
+						// get the corresponding filter instance(s) that may be added
+						final FilterInstance source = ruleToCurrentOutsideFilterInstance.get(rule);
+						int i = 0;
+						// iterate over the filter instances
+						for (final FilterInstance target : sideBySide.getInstances()) {
+							// determine conflict between inside instance and outside instance
+							final Conflict conflict = source.getOrDetermineConflicts(target);
+							// if this is the first loop iteration, just add the conflict to be
+							// compared
+							// later on
+							if (i >= conflicts.size()) {
+								conflicts.add(conflict);
+							}
+							// if the conflicts don't match, continue with next filter
+							else if (!conflicts.get(i).equals(conflict)) {
+								continue cartesianProductLoop;
+							}
+							++i;
 						}
-						// if the conflicts don't match, continue with next filter
-						else if (!conflicts.get(i).equals(conflict)) {
-							continue cartesianProductLoop;
-						}
-						++i;
 					}
 				}
 				// conflict identical for all rules
-				matchingFilters.add(rulesInBlock.stream().collect(
+				matchingFilters.add(bRules.stream().collect(
 						toMap(Function.identity(), rule -> Collections.singleton(new FilterInstancesSideBySide(
 								ruleToCurrentOutsideFilterInstance.get(rule))))));
 				matchingConstellationFound = true;
 			}
 			if (!matchingConstellationFound) {
-				incompatibleFilters.add(filter);
+				incompatibleFilters.add(nFilter);
 			}
 		}
 	}
