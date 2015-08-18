@@ -133,9 +133,14 @@ public class RuleCondition {
 		}
 
 		public Set<SingleFactVariable> getDependentFactVariables() {
-			// TODO include FVs in symbols in variableExpressions ??
-			return Sets.union(Sets.newHashSet(this.getFactVariables()),
-					this.slotVariables.stream().map(SingleSlotVariable::getFactVariable).collect(toSet()));
+			return Sets.union(Sets.newHashSet(this.getFactVariables()), Sets.union(
+					this.slotVariables.stream().map(SingleSlotVariable::getFactVariable).collect(toSet()),
+					this.variableExpressions
+							.stream()
+							.flatMap(
+									fwa -> SymbolInSymbolLeafsCollector.collect(fwa).stream()
+											.map(VariableSymbol::getEqual)).distinct()
+							.flatMap(ec -> ec.getFactVariables().stream()).collect(toSet())));
 		}
 
 		public void merge(final EquivalenceClass other) {
