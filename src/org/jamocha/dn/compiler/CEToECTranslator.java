@@ -321,7 +321,7 @@ public class CEToECTranslator implements DefaultConditionalElementsVisitor {
 							final EquivalenceClass right = getEC(arg);
 							final boolean rightInCS = right.getCorrespondingScope() == scope;
 							if (leftInCS || rightInCS) {
-								EquivalenceClass.addUnequalEquivalenceClassRelation(left, left);
+								EquivalenceClass.addUnequalEquivalenceClassRelation(left, right);
 							} else {
 								// test stays
 								remainingArguments.add(arg);
