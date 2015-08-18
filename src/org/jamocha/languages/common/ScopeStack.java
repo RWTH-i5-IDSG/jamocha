@@ -196,13 +196,11 @@ public class ScopeStack {
 		}
 	}
 
-	public VariableSymbol createDummyFactVariable(final Template template, final RuleCondition rc,
-			final Consumer<? super SingleFactVariable> consumer) {
+	public SingleFactVariable createDummyFactVariable(final Template template, final RuleCondition rc) {
 		final VariableSymbol instance = getScope().createDummySymbol(SlotType.FACTADDRESS);
 		if (null != rc)
 			rc.addSymbol(instance);
-		consumer.accept(new SingleFactVariable(template, instance));
-		return instance;
+		return new SingleFactVariable(template, instance);
 	}
 
 	public VariableSymbol createDummySlotVariable(final SingleFactVariable fv, final SlotAddress slot,

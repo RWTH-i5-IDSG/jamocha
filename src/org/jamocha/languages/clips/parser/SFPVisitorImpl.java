@@ -1284,14 +1284,9 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 			}
 			contextStack.mark();
 			// if we have the job to determine the type of a fact variable, publish the template now
-			if (null != possibleFactVariable) {
-				this.factVariable = new SingleFactVariable(template, possibleFactVariable);
-			} else {
-				parserToNetwork.getScope().createDummyFactVariable(template, contextStack,
-						(final SingleFactVariable fv) -> {
-							this.factVariable = fv;
-						});
-			}
+			this.factVariable =
+					(null != possibleFactVariable) ? new SingleFactVariable(template, possibleFactVariable)
+							: parserToNetwork.getScope().createDummyFactVariable(template, contextStack);
 			final ConditionalElement templCE =
 					parserToNetwork.getInitialFactTemplate() == template ? new InitialFactConditionalElement(
 							this.factVariable) : new TemplatePatternConditionalElement(this.factVariable);
@@ -2008,9 +2003,8 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 						}
 					}
 					if (!existentialStack.templateCEContained) {
-						parserToNetwork.getScope().createDummyFactVariable(parserToNetwork.getInitialFactTemplate(),
-								existentialStack,
-								(final SingleFactVariable fv) -> ces.add(0, new InitialFactConditionalElement(fv)));
+						ces.add(0, new InitialFactConditionalElement(parserToNetwork.getScope()
+								.createDummyFactVariable(parserToNetwork.getInitialFactTemplate(), existentialStack)));
 					}
 					existentialStack.getConditionalElements().addAll(ces);
 					this.defrule = new Defrule(symbol.getImage(), comment, salience, existentialStack, actionList);
