@@ -65,8 +65,8 @@ import org.apache.commons.collections4.list.CursorableLinkedList;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jamocha.dn.ConstructCache.Defrule.PathRule;
 import org.jamocha.dn.ConstructCache.Defrule.PathSetBasedRule;
-import org.jamocha.dn.compiler.simpleblocks.Matrix.Filter.FilterInstance;
-import org.jamocha.dn.compiler.simpleblocks.Matrix.Filter.FilterInstance.Conflict;
+import org.jamocha.dn.compiler.simpleblocks.SimpleBlocks.Filter.FilterInstance;
+import org.jamocha.dn.compiler.simpleblocks.SimpleBlocks.Filter.FilterInstance.Conflict;
 import org.jamocha.dn.memory.SlotAddress;
 import org.jamocha.dn.memory.Template;
 import org.jamocha.filter.Path;
@@ -103,7 +103,7 @@ import com.google.common.collect.Sets.SetView;
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
-public class Matrix {
+public class SimpleBlocks {
 
 	static class PWAArgumentsExtractor implements DefaultFunctionWithArgumentsLeafVisitor<PathLeaf> {
 		private final ArrayList<Either<Pair<Template, SlotAddress>, Object>> arguments = new ArrayList<>();

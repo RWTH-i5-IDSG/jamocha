@@ -55,8 +55,8 @@ import org.jamocha.dn.ConstructCache.Deffacts;
 import org.jamocha.dn.ConstructCache.Defrule;
 import org.jamocha.dn.ConstructCache.Defrule.PathRule;
 import org.jamocha.dn.ConstructCache.Defrule.PathSetBasedRule;
-import org.jamocha.dn.compiler.simpleblocks.Matrix;
 import org.jamocha.dn.compiler.simpleblocks.PathFilterConsolidator;
+import org.jamocha.dn.compiler.simpleblocks.SimpleBlocks;
 import org.jamocha.dn.memory.Fact;
 import org.jamocha.dn.memory.FactAddress;
 import org.jamocha.dn.memory.FactIdentifier;
@@ -546,7 +546,7 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 		// Transform TestCEs to PathFilters
 		final List<PathSetBasedRule> consolidatedRules =
 				new PathFilterConsolidator(this.initialFactTemplate, rule).consolidate();
-		return Matrix.transform(consolidatedRules);
+		return SimpleBlocks.transform(consolidatedRules);
 		// return consolidatedRules.stream()
 		// .map(PathSetBasedRule::trivialToPathRule).collect(toList());
 	}
