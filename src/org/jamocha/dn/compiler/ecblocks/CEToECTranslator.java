@@ -12,7 +12,7 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package org.jamocha.dn.compiler;
+package org.jamocha.dn.compiler.ecblocks;
 
 import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
@@ -36,6 +36,10 @@ import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jamocha.dn.ConstructCache.Defrule;
 import org.jamocha.dn.ConstructCache.Defrule.ECFilterSetCondition;
+import org.jamocha.dn.compiler.DeepFactVariableCollector;
+import org.jamocha.dn.compiler.ECCollector;
+import org.jamocha.dn.compiler.ShallowFactVariableCollector;
+import org.jamocha.dn.compiler.Specificity;
 import org.jamocha.dn.memory.Template;
 import org.jamocha.filter.ECFilter;
 import org.jamocha.filter.ECFilterSet;
