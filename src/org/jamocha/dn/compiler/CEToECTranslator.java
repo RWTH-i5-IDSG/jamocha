@@ -295,9 +295,9 @@ public class CEToECTranslator implements DefaultConditionalElementsVisitor {
 					return equivalenceClasses.computeIfAbsent(fwa, f -> {
 						Scope max = scope;
 						for (final VariableSymbol symbol : SymbolInSymbolLeafsCollector.collect(f)) {
-							final Scope correspondingScope = symbol.getEqual().getCorrespondingScope();
-							if (correspondingScope.isParentOf(max)) {
-								max = correspondingScope;
+							final Scope maximalScope = symbol.getEqual().getMaximalScope();
+							if (maximalScope.isParentOf(max)) {
+								max = maximalScope;
 							}
 						}
 						return new EquivalenceClass(max, f);
@@ -314,12 +314,12 @@ public class CEToECTranslator implements DefaultConditionalElementsVisitor {
 					final FunctionWithArguments<SymbolLeaf>[] args =
 							FunctionNormaliser.normalise(FWADeepCopy.copy(fwa)).getArgs();
 					final EquivalenceClass left = getEC(args[0]);
-					final boolean leftInCS = left.getCorrespondingScope() == scope;
+					final boolean leftInCS = left.getMaximalScope() == scope;
 					if (negated) {
 						for (int i = 1; i < args.length; ++i) {
 							final FunctionWithArguments<SymbolLeaf> arg = args[i];
 							final EquivalenceClass right = getEC(arg);
-							final boolean rightInCS = right.getCorrespondingScope() == scope;
+							final boolean rightInCS = right.getMaximalScope() == scope;
 							if (leftInCS || rightInCS) {
 								EquivalenceClass.addUnequalEquivalenceClassRelation(left, right);
 							} else {
@@ -331,7 +331,7 @@ public class CEToECTranslator implements DefaultConditionalElementsVisitor {
 						for (int i = 1; i < args.length; i++) {
 							final FunctionWithArguments<SymbolLeaf> arg = args[i];
 							final EquivalenceClass right = getEC(arg);
-							final boolean rightInCS = right.getCorrespondingScope() == scope;
+							final boolean rightInCS = right.getMaximalScope() == scope;
 							if (leftInCS && rightInCS) {
 								// merge right into left
 								left.merge(right);

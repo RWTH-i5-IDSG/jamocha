@@ -77,47 +77,47 @@ public class RuleCondition {
 	@Getter
 	@AllArgsConstructor(access = AccessLevel.PRIVATE)
 	public static class EquivalenceClass {
-		final Scope correspondingScope;
 		final LinkedList<SingleFactVariable> factVariables;
 		final LinkedList<SingleSlotVariable> equalSlotVariables;
 		final LinkedList<FunctionWithArguments<SymbolLeaf>> equalFWAs;
 		final Set<EquivalenceClass> equalParentEquivalenceClasses = new HashSet<>();
 		final Set<EquivalenceClass> unequalEquivalenceClasses = new HashSet<>();
 		final Set<SingleFactVariable> merged = new HashSet<>();
+		protected Scope maximalScope;
 		@Setter
 		SlotType type;
 
-		public EquivalenceClass(final Scope correspondingScope) {
-			this(correspondingScope, new LinkedList<>(), new LinkedList<>(), new LinkedList<>(), null);
+		public EquivalenceClass(final Scope maximalScope) {
+			this(new LinkedList<>(), new LinkedList<>(), new LinkedList<>(), maximalScope, null);
 		}
 
-		public EquivalenceClass(final Scope correspondingScope, final SlotType type) {
-			this(correspondingScope, new LinkedList<>(), new LinkedList<>(), new LinkedList<>(), type);
+		public EquivalenceClass(final Scope maximalScope, final SlotType type) {
+			this(new LinkedList<>(), new LinkedList<>(), new LinkedList<>(), maximalScope, type);
 		}
 
-		public EquivalenceClass(final Scope correspondingScope, final FunctionWithArguments<SymbolLeaf> fwa) {
-			this(correspondingScope, new LinkedList<>(), new LinkedList<>(), new LinkedList<>(
-					Collections.singletonList(fwa)), fwa.getReturnType());
+		public EquivalenceClass(final Scope maximalScope, final FunctionWithArguments<SymbolLeaf> fwa) {
+			this(new LinkedList<>(), new LinkedList<>(), new LinkedList<>(Collections.singletonList(fwa)),
+					maximalScope, fwa.getReturnType());
 		}
 
-		public EquivalenceClass(final Scope correspondingScope, final SingleFactVariable fv) {
-			this(correspondingScope, new LinkedList<>(Collections.singleton(fv)), new LinkedList<>(),
-					new LinkedList<>(), SlotType.FACTADDRESS);
+		public EquivalenceClass(final Scope maximalScope, final SingleFactVariable fv) {
+			this(new LinkedList<>(Collections.singleton(fv)), new LinkedList<>(), new LinkedList<>(), maximalScope,
+					SlotType.FACTADDRESS);
 		}
 
-		public EquivalenceClass(final Scope correspondingScope, final SingleSlotVariable sv) {
-			this(correspondingScope, new LinkedList<>(), new LinkedList<>(Collections.singletonList(sv)),
-					new LinkedList<>(), sv.getType());
+		public EquivalenceClass(final Scope maximalScope, final SingleSlotVariable sv) {
+			this(new LinkedList<>(), new LinkedList<>(Collections.singletonList(sv)), new LinkedList<>(), maximalScope,
+					sv.getType());
 		}
 
 		public EquivalenceClass(final EquivalenceClass copy) {
-			this(copy.correspondingScope, new LinkedList<>(copy.factVariables), new LinkedList<>(
-					copy.equalSlotVariables), new LinkedList<>(copy.equalFWAs), copy.type);
+			this(new LinkedList<>(copy.factVariables), new LinkedList<>(copy.equalSlotVariables), new LinkedList<>(
+					copy.equalFWAs), copy.maximalScope, copy.type);
 			this.unequalEquivalenceClasses.addAll(copy.unequalEquivalenceClasses);
 		}
 
 		public void merge(final EquivalenceClass other) {
-			if (this.correspondingScope != other.correspondingScope) {
+			if (this.maximalScope != other.maximalScope) {
 				throw new IllegalArgumentException("Only equivalence classes of the same scope can be merged!");
 			}
 			if (this == other)
@@ -229,9 +229,9 @@ public class RuleCondition {
 		}
 
 		public static void addEqualParentEquivalenceClassRelation(final EquivalenceClass a, final EquivalenceClass b) {
-			if (a.correspondingScope.isParentOf(b.correspondingScope)) {
+			if (a.maximalScope.isParentOf(b.maximalScope)) {
 				b.addEqualParentEquivalenceClass(a);
-			} else if (b.correspondingScope.isParentOf(a.correspondingScope)) {
+			} else if (b.maximalScope.isParentOf(a.maximalScope)) {
 				a.addEqualParentEquivalenceClass(b);
 			} else {
 				throw new IllegalArgumentException(
@@ -240,7 +240,7 @@ public class RuleCondition {
 		}
 
 		public void addEqualParentEquivalenceClass(final EquivalenceClass ec) {
-			if (!ec.correspondingScope.isParentOf(this.correspondingScope)) {
+			if (!ec.maximalScope.isParentOf(this.maximalScope)) {
 				throw new IllegalArgumentException(
 						"Given equivalence class is not part of a parenting scope w.r.t. this equivalence class!");
 			}
@@ -248,9 +248,9 @@ public class RuleCondition {
 		}
 
 		public static void addUnequalEquivalenceClassRelation(final EquivalenceClass a, final EquivalenceClass b) {
-			if (a.correspondingScope.isParentOf(b.correspondingScope)) {
+			if (a.maximalScope.isParentOf(b.maximalScope)) {
 				b.addNegatedArc(a);
-			} else if (b.correspondingScope.isParentOf(a.correspondingScope)) {
+			} else if (b.maximalScope.isParentOf(a.maximalScope)) {
 				a.addNegatedArc(b);
 			} else {
 				a.addNegatedEdge(b);
