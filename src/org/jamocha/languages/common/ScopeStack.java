@@ -136,12 +136,12 @@ public class ScopeStack {
 
 		protected VariableSymbol(final Scope scope, final String image, final SlotType type) {
 			super(image);
-			this.equal = new EquivalenceClass(scope, type);
+			this.equal = EquivalenceClass.newECFromType(scope, type);
 		}
 
 		protected VariableSymbol(final Scope scope, final String image) {
 			super(image);
-			this.equal = new EquivalenceClass(scope);
+			this.equal = EquivalenceClass.newPlainEC(scope);
 		}
 
 		public SlotType getType() {

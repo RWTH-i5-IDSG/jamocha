@@ -421,7 +421,7 @@ public class RuleConditionProcessor {
 				final Set<VariableSymbol> childSymbols = child.accept(new ShallowSymbolCollector()).symbols;
 				for (final VariableSymbol childSymbol : childSymbols) {
 					final Set<SingleFactVariable> factVariables =
-							childSymbol.equal.equalSlotVariables.stream().map(ssv -> ssv.getFactVariable())
+							childSymbol.equal.slotVariables.stream().map(ssv -> ssv.getFactVariable())
 									.collect(toSet());
 					factVariables.addAll(childSymbol.equal.factVariables);
 					final Set<SingleFactVariable> combinedFVs =

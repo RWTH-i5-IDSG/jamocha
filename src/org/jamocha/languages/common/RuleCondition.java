@@ -36,6 +36,7 @@ import org.jamocha.dn.memory.SlotType;
 import org.jamocha.dn.memory.Template;
 import org.jamocha.dn.memory.Template.Slot;
 import org.jamocha.filter.Path;
+import org.jamocha.filter.SymbolInSymbolLeafsCollector;
 import org.jamocha.function.fwa.FunctionWithArguments;
 import org.jamocha.function.fwa.PathLeaf;
 import org.jamocha.function.fwa.SymbolLeaf;
@@ -82,8 +83,9 @@ public class RuleCondition {
 	@AllArgsConstructor(access = AccessLevel.PRIVATE)
 	public static class EquivalenceClass {
 		final LinkedList<SingleFactVariable> factVariables;
-		final LinkedList<SingleSlotVariable> equalSlotVariables;
-		final LinkedList<FunctionWithArguments<SymbolLeaf>> equalFWAs;
+		final LinkedList<SingleSlotVariable> slotVariables;
+		final LinkedList<FunctionWithArguments<SymbolLeaf>> constantExpressions;
+		final LinkedList<FunctionWithArguments<SymbolLeaf>> variableExpressions;
 		final Set<EquivalenceClass> equalParentEquivalenceClasses = new HashSet<>();
 		final Set<EquivalenceClass> unequalEquivalenceClasses = new HashSet<>();
 		final Set<SingleFactVariable> merged = new HashSet<>();
@@ -91,38 +93,49 @@ public class RuleCondition {
 		@Setter
 		SlotType type;
 
-		public EquivalenceClass(final Scope maximalScope) {
-			this(new LinkedList<>(), new LinkedList<>(), new LinkedList<>(), maximalScope, null);
+		public static EquivalenceClass newPlainEC(final Scope maximalScope) {
+			return new EquivalenceClass(new LinkedList<>(), new LinkedList<>(), new LinkedList<>(), new LinkedList<>(),
+					maximalScope, null);
 		}
 
-		public EquivalenceClass(final Scope maximalScope, final SlotType type) {
-			this(new LinkedList<>(), new LinkedList<>(), new LinkedList<>(), maximalScope, type);
+		public static EquivalenceClass newECFromType(final Scope maximalScope, final SlotType type) {
+			return new EquivalenceClass(new LinkedList<>(), new LinkedList<>(), new LinkedList<>(), new LinkedList<>(),
+					maximalScope, type);
 		}
 
-		public EquivalenceClass(final Scope maximalScope, final FunctionWithArguments<SymbolLeaf> fwa) {
-			this(new LinkedList<>(), new LinkedList<>(), new LinkedList<>(Collections.singletonList(fwa)),
-					maximalScope, fwa.getReturnType());
+		public static EquivalenceClass newECFromFactVariable(final Scope maximalScope, final SingleFactVariable fv) {
+			return new EquivalenceClass(new LinkedList<>(Collections.singleton(fv)), new LinkedList<>(),
+					new LinkedList<>(), new LinkedList<>(), maximalScope, SlotType.FACTADDRESS);
 		}
 
-		public EquivalenceClass(final Scope maximalScope, final SingleFactVariable fv) {
-			this(new LinkedList<>(Collections.singleton(fv)), new LinkedList<>(), new LinkedList<>(), maximalScope,
-					SlotType.FACTADDRESS);
+		public static EquivalenceClass newECFromSlotVariable(final Scope maximalScope, final SingleSlotVariable sv) {
+			return new EquivalenceClass(new LinkedList<>(), new LinkedList<>(Collections.singleton(sv)),
+					new LinkedList<>(), new LinkedList<>(), maximalScope, sv.getType());
 		}
 
-		public EquivalenceClass(final Scope maximalScope, final SingleSlotVariable sv) {
-			this(new LinkedList<>(), new LinkedList<>(Collections.singletonList(sv)), new LinkedList<>(), maximalScope,
-					sv.getType());
+		public static EquivalenceClass newECFromConstantExpression(final Scope maximalScope,
+				final FunctionWithArguments<SymbolLeaf> constantExpression) {
+			return new EquivalenceClass(new LinkedList<>(), new LinkedList<>(), new LinkedList<>(
+					Collections.singleton(constantExpression)), new LinkedList<>(), maximalScope,
+					constantExpression.getReturnType());
+		}
+
+		public static EquivalenceClass newECFromVariableExpression(final Scope maximalScope,
+				final FunctionWithArguments<SymbolLeaf> variableExpression) {
+			return new EquivalenceClass(new LinkedList<>(), new LinkedList<>(), new LinkedList<>(), new LinkedList<>(
+					Collections.singleton(variableExpression)), maximalScope, variableExpression.getReturnType());
 		}
 
 		public EquivalenceClass(final EquivalenceClass copy) {
-			this(new LinkedList<>(copy.factVariables), new LinkedList<>(copy.equalSlotVariables), new LinkedList<>(
-					copy.equalFWAs), copy.maximalScope, copy.type);
+			this(new LinkedList<>(copy.factVariables), new LinkedList<>(copy.slotVariables), new LinkedList<>(
+					copy.constantExpressions), new LinkedList<>(copy.variableExpressions), copy.maximalScope, copy.type);
 			this.unequalEquivalenceClasses.addAll(copy.unequalEquivalenceClasses);
 		}
 
 		public Set<SingleFactVariable> getDependentFactVariables() {
+			// TODO include FVs in symbols in variableExpressions ??
 			return Sets.union(Sets.newHashSet(this.getFactVariables()),
-					this.equalSlotVariables.stream().map(SingleSlotVariable::getFactVariable).collect(toSet()));
+					this.slotVariables.stream().map(SingleSlotVariable::getFactVariable).collect(toSet()));
 		}
 
 		public void merge(final EquivalenceClass other) {
@@ -132,8 +145,8 @@ public class RuleCondition {
 			if (this == other)
 				return;
 			other.factVariables.forEach(this::add);
-			other.equalSlotVariables.forEach(this::add);
-			other.equalFWAs.forEach(this::add);
+			other.slotVariables.forEach(this::add);
+			other.constantExpressions.forEach(this::add);
 			for (final EquivalenceClass ec : other.unequalEquivalenceClasses) {
 				ec.unequalEquivalenceClasses.remove(other);
 				addNegatedEdge(ec);
@@ -143,7 +156,7 @@ public class RuleCondition {
 			else if (null != other.type && other.type != this.type)
 				throw new IllegalArgumentException("Only equivalence classes of equal types can be merged!");
 			other.factVariables.forEach(fv -> fv.setEqual(this));
-			other.equalSlotVariables.forEach(sv -> {
+			other.slotVariables.forEach(sv -> {
 				sv.getEqualSet().clear();
 				sv.getEqualSet().add(this);
 			});
@@ -216,11 +229,11 @@ public class RuleCondition {
 				throw new IllegalArgumentException("Tried to add a SingleSlotVariable of type " + sv.getType()
 						+ " to an EquivalenceClass of type " + type + "!");
 			}
-			if (this.equalSlotVariables.contains(sv)) {
+			if (this.slotVariables.contains(sv)) {
 				throw new IllegalArgumentException(
 						"Tried to add a SingleSlotVariable to an EquivalenceClass that already contained it!");
 			}
-			this.equalSlotVariables.add(sv);
+			this.slotVariables.add(sv);
 		}
 
 		public void add(final FunctionWithArguments<SymbolLeaf> fwa) {
@@ -230,11 +243,17 @@ public class RuleCondition {
 				throw new IllegalArgumentException("Tried to add a FunctionWithArguments of type "
 						+ fwa.getReturnType() + " to an EquivalenceClass of type " + type + "!");
 			}
-			if (this.equalFWAs.contains(fwa)) {
+			checkContainmentAndAdd(SymbolInSymbolLeafsCollector.collect(fwa).isEmpty() ? constantExpressions
+					: variableExpressions, fwa);
+		}
+
+		private static void checkContainmentAndAdd(final LinkedList<FunctionWithArguments<SymbolLeaf>> target,
+				final FunctionWithArguments<SymbolLeaf> fwa) {
+			if (target.contains(fwa)) {
 				throw new IllegalArgumentException(
 						"Tried to add a FunctionWithArguments to an EquivalenceClass that already contained it!");
 			}
-			this.equalFWAs.add(fwa);
+			target.add(fwa);
 		}
 
 		public static void addEqualParentEquivalenceClassRelation(final EquivalenceClass a, final EquivalenceClass b) {
@@ -318,11 +337,11 @@ public class RuleCondition {
 		}
 
 		public PathLeaf getPathLeaf(final Map<EquivalenceClass, Path> ec2Path) {
-			return getPathLeaf(ec2Path, equalSlotVariables.peekFirst());
+			return getPathLeaf(ec2Path, slotVariables.peekFirst());
 		}
 
 		public boolean isNonTrivial() {
-			return (this.factVariables.isEmpty() ? 0 : 1) + this.equalSlotVariables.size() > 1;
+			return (this.factVariables.isEmpty() ? 0 : 1) + this.slotVariables.size() > 1;
 		}
 	}
 }

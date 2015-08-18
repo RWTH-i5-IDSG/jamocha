@@ -121,7 +121,7 @@ public class RuleConditionProcessorTest {
 		final FunctionWithArguments<SymbolLeaf> symbolLeaf = args[0];
 		assertThat(symbolLeaf, instanceOf(SymbolLeaf.class));
 		final VariableSymbol symbol = ((SymbolLeaf) symbolLeaf).getSymbol();
-		final LinkedList<SingleSlotVariable> positiveSlotVariables = symbol.getEqual().getEqualSlotVariables();
+		final LinkedList<SingleSlotVariable> positiveSlotVariables = symbol.getEqual().getSlotVariables();
 		assertThat(positiveSlotVariables, hasSize(1));
 		final SingleSlotVariable singleSlotVariable = positiveSlotVariables.get(0);
 		final Template slotTemplate = singleSlotVariable.getFactVariable().getTemplate();

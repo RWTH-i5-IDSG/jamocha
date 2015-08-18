@@ -57,8 +57,9 @@ public class Specificity implements DefaultFunctionWithArgumentsLeafVisitor<Symb
 						.map(sv -> sv.getEqual())
 						.distinct()
 						.mapToInt(
-								ec -> ec.getEqualFWAs().size() + ec.getEqualSlotVariables().size()
-										+ (ec.getFactVariables().isEmpty() ? 0 : 1) - 1).filter(i -> i > 0).sum();
+								ec -> ec.getConstantExpressions().size() + ec.getVariableExpressions().size()
+										+ ec.getSlotVariables().size() + (ec.getFactVariables().isEmpty() ? 0 : 1) - 1)
+						.filter(i -> i > 0).sum();
 		return instance.specificity;
 	}
 

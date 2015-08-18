@@ -44,7 +44,7 @@ import org.jamocha.languages.common.SingleFactVariable.SingleSlotVariable;
  */
 public class SymbolCollector {
 	@Getter
-	private Set<VariableSymbol> symbols;
+	private final Set<VariableSymbol> symbols;
 
 	public SymbolCollector(final RuleCondition rc) {
 		this.symbols = rc.getVariableSymbols();
@@ -60,7 +60,7 @@ public class SymbolCollector {
 
 	private Stream<Pair<VariableSymbol, SingleSlotVariable>> getSlotVariableStream() {
 		return this.symbols.stream().flatMap(
-				symbol -> StreamSupport.stream(symbol.getEqual().getEqualSlotVariables().spliterator(), true).map(
+				symbol -> StreamSupport.stream(symbol.getEqual().getSlotVariables().spliterator(), true).map(
 						sv -> Pair.of(symbol, sv)));
 	}
 

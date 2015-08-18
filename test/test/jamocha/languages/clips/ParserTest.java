@@ -264,7 +264,7 @@ public class ParserTest {
 		final VariableSymbol x, y, z;
 		{
 			x = getSymbol(condition, "?x");
-			final List<SingleSlotVariable> list = x.getEqual().getEqualSlotVariables();
+			final List<SingleSlotVariable> list = x.getEqual().getSlotVariables();
 			assertNotNull(list);
 			assertEquals(1, list.size());
 			final SingleSlotVariable var = list.get(0);
@@ -275,7 +275,7 @@ public class ParserTest {
 		}
 		{
 			y = getSymbol(condition, "?y");
-			final List<SingleSlotVariable> list = y.getEqual().getEqualSlotVariables();
+			final List<SingleSlotVariable> list = y.getEqual().getSlotVariables();
 			assertNotNull(list);
 			assertEquals(1, list.size());
 			final SingleSlotVariable var = list.get(0);
@@ -373,7 +373,7 @@ public class ParserTest {
 		final VariableSymbol x;
 		{
 			x = getSymbol(condition, "?x");
-			final List<SingleSlotVariable> list = x.getEqual().getEqualSlotVariables();
+			final List<SingleSlotVariable> list = x.getEqual().getSlotVariables();
 			assertNotNull(list);
 			assertEquals(1, list.size());
 			final SingleSlotVariable var = list.get(0);
@@ -524,7 +524,7 @@ public class ParserTest {
 		final VariableSymbol x = getSymbol(condition, "?x"), y = getSymbol(condition, "?y");
 		final SingleSlotVariable x1, x2, ySlot;
 		{
-			final List<SingleSlotVariable> list = x.getEqual().getEqualSlotVariables();
+			final List<SingleSlotVariable> list = x.getEqual().getSlotVariables();
 			assertNotNull(list);
 			assertThat(list, hasSize(2));
 			{
@@ -545,7 +545,7 @@ public class ParserTest {
 			}
 		}
 		{
-			final List<SingleSlotVariable> list = y.getEqual().getEqualSlotVariables();
+			final List<SingleSlotVariable> list = y.getEqual().getSlotVariables();
 			assertNotNull(list);
 			assertThat(list, hasSize(1));
 			final SingleSlotVariable var = list.get(0);

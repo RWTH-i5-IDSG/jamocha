@@ -182,8 +182,7 @@ public class CEToECTranslator implements DefaultConditionalElementsVisitor {
 				}
 				// for every slot variable, check whether the corresponding fact variable is
 				// contained in the CE
-				for (final Iterator<SingleSlotVariable> iterator = ec.getEqualSlotVariables().iterator(); iterator
-						.hasNext();) {
+				for (final Iterator<SingleSlotVariable> iterator = ec.getSlotVariables().iterator(); iterator.hasNext();) {
 					final SingleSlotVariable sv = iterator.next();
 					if (!occurringFactVariables.contains(sv.getFactVariable())) {
 						// not contained, remove the SV and its reference to this EC
@@ -192,13 +191,14 @@ public class CEToECTranslator implements DefaultConditionalElementsVisitor {
 					}
 				}
 				// for every FWA, check whether the FWA occurs in the CE
-				ec.getEqualFWAs().removeIf(fwa -> !occurringFWAs.contains(fwa));
+				ec.getConstantExpressions().removeIf(fwa -> !occurringFWAs.contains(fwa));
+				ec.getVariableExpressions().removeIf(fwa -> !occurringFWAs.contains(fwa));
 			}
 
 			/* merge (bind)s and overlapping SlotVariables */
 			for (final VariableSymbol vs : symbols) {
 				final EquivalenceClass ec = vs.getEqual();
-				for (final SingleSlotVariable sv : ec.getEqualSlotVariables()) {
+				for (final SingleSlotVariable sv : ec.getSlotVariables()) {
 					if (sv.getEqualSet().size() <= 1)
 						continue;
 					final Iterator<EquivalenceClass> ecIter = sv.getEqualSet().iterator();
@@ -218,7 +218,7 @@ public class CEToECTranslator implements DefaultConditionalElementsVisitor {
 			final Set<VariableSymbol> symbolsInLeafs = SymbolInSymbolLeafsCollector.collect(ce);
 			for (final VariableSymbol vs : symbols) {
 				final EquivalenceClass ec = vs.getEqual();
-				if (ec.getFactVariables().isEmpty() && ec.getEqualSlotVariables().isEmpty()) {
+				if (ec.getFactVariables().isEmpty() && ec.getSlotVariables().isEmpty()) {
 					if (!ec.getUnequalEquivalenceClasses().isEmpty() || symbolsInLeafs.contains(vs))
 						// vs is not bound
 						throw new VariableNotDeclaredError(vs.getImage());
@@ -243,7 +243,7 @@ public class CEToECTranslator implements DefaultConditionalElementsVisitor {
 			symbolToECbackup.forEach((vs, ec) -> vs.setEqual(ec));
 			replaceEC(symbols, oldToNew.inverse());
 			// restore the SlotVariable - equivalence class mapping
-			symbolToECbackup.forEach((vs, ec) -> vs.getEqual().getEqualSlotVariables()
+			symbolToECbackup.forEach((vs, ec) -> vs.getEqual().getSlotVariables()
 					.forEach(sv -> sv.getEqualSet().add(ec)));
 			return result;
 		}
@@ -265,7 +265,7 @@ public class CEToECTranslator implements DefaultConditionalElementsVisitor {
 				// SingleFactVariable.equal
 				oldEC.getFactVariables().forEach(fv -> fv.setEqual(newEC));
 				// SingleSlotVariable.equal (Set)
-				for (final SingleSlotVariable sv : oldEC.getEqualSlotVariables()) {
+				for (final SingleSlotVariable sv : oldEC.getSlotVariables()) {
 					final Set<EquivalenceClass> equalSet = sv.getEqualSet();
 					for (final Map.Entry<EquivalenceClass, EquivalenceClass> innerEntry : map.entrySet()) {
 						if (equalSet.remove(innerEntry.getKey()))
@@ -296,20 +296,23 @@ public class CEToECTranslator implements DefaultConditionalElementsVisitor {
 
 			@RequiredArgsConstructor
 			class FWAEquivalenceClassBuilder implements DefaultFunctionWithArgumentsVisitor<SymbolLeaf> {
-				// TODO improvement: distinguish whether the expressions contain symbols
 				// assumption: all expressions are constant in the sense that subsequent calls to
 				// evaluate yield the same result
 
 				private EquivalenceClass getEC(final FunctionWithArguments<SymbolLeaf> fwa) {
 					return equivalenceClasses.computeIfAbsent(fwa, f -> {
+						final Set<VariableSymbol> symbols = SymbolInSymbolLeafsCollector.collect(f);
+						if (symbols.isEmpty()) {
+							return EquivalenceClass.newECFromConstantExpression(scope, f);
+						}
 						Scope max = scope;
-						for (final VariableSymbol symbol : SymbolInSymbolLeafsCollector.collect(f)) {
+						for (final VariableSymbol symbol : symbols) {
 							final Scope maximalScope = symbol.getEqual().getMaximalScope();
 							if (maximalScope.isParentOf(max)) {
 								max = maximalScope;
 							}
 						}
-						return new EquivalenceClass(max, f);
+						return EquivalenceClass.newECFromVariableExpression(max, f);
 					});
 				}
 
