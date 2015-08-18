@@ -39,7 +39,7 @@ public interface ECFilterSet extends Visitable<ECFilterSetVisitor> {
 		final Set<SingleFactVariable> existentialFactVariables;
 		final Set<EquivalenceClass> equivalenceClasses;
 		final Set<ECFilterSet> purePart;
-		final Set<ECFilterSet> existentialClosure;
+		final ECFilter existentialClosure;
 
 		@Override
 		public <V extends ECFilterSetVisitor> V accept(final V visitor) {

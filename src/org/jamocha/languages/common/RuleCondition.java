@@ -14,6 +14,8 @@
  */
 package org.jamocha.languages.common;
 
+import static java.util.stream.Collectors.toSet;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -40,6 +42,8 @@ import org.jamocha.function.fwa.SymbolLeaf;
 import org.jamocha.languages.common.ScopeStack.Scope;
 import org.jamocha.languages.common.ScopeStack.VariableSymbol;
 import org.jamocha.languages.common.SingleFactVariable.SingleSlotVariable;
+
+import com.google.common.collect.Sets;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
@@ -114,6 +118,11 @@ public class RuleCondition {
 			this(new LinkedList<>(copy.factVariables), new LinkedList<>(copy.equalSlotVariables), new LinkedList<>(
 					copy.equalFWAs), copy.maximalScope, copy.type);
 			this.unequalEquivalenceClasses.addAll(copy.unequalEquivalenceClasses);
+		}
+
+		public Set<SingleFactVariable> getDependentFactVariables() {
+			return Sets.union(Sets.newHashSet(this.getFactVariables()),
+					this.equalSlotVariables.stream().map(SingleSlotVariable::getFactVariable).collect(toSet()));
 		}
 
 		public void merge(final EquivalenceClass other) {

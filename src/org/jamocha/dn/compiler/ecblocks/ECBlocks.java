@@ -49,7 +49,6 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -63,29 +62,30 @@ import lombok.Value;
 import org.apache.commons.collections4.iterators.PermutationIterator;
 import org.apache.commons.collections4.list.CursorableLinkedList;
 import org.apache.commons.lang3.tuple.Pair;
+import org.jamocha.dn.ConstructCache.Defrule.ECFilterSetCondition;
 import org.jamocha.dn.ConstructCache.Defrule.PathRule;
-import org.jamocha.dn.ConstructCache.Defrule.PathSetBasedRule;
 import org.jamocha.dn.compiler.ecblocks.ECBlocks.Filter.FilterInstance;
 import org.jamocha.dn.compiler.ecblocks.ECBlocks.Filter.FilterInstance.Conflict;
-import org.jamocha.dn.memory.SlotAddress;
-import org.jamocha.dn.memory.Template;
+import org.jamocha.dn.memory.SlotType;
+import org.jamocha.filter.ECFilter;
+import org.jamocha.filter.ECFilterSet;
+import org.jamocha.filter.ECFilterSet.ECExistentialSet;
+import org.jamocha.filter.ECFilterSetVisitor;
 import org.jamocha.filter.Path;
-import org.jamocha.filter.PathFilter;
 import org.jamocha.filter.PathFilterList;
 import org.jamocha.filter.PathFilterList.PathSharedListWrapper;
 import org.jamocha.filter.PathFilterList.PathSharedListWrapper.PathSharedList;
-import org.jamocha.filter.PathFilterSet;
 import org.jamocha.filter.PathFilterSet.PathExistentialSet;
-import org.jamocha.filter.PathFilterSetVisitor;
-import org.jamocha.filter.PathLeafCollector;
 import org.jamocha.filter.PathNodeFilterSet;
 import org.jamocha.function.Predicate;
 import org.jamocha.function.fwa.ConstantLeaf;
 import org.jamocha.function.fwa.DefaultFunctionWithArgumentsLeafVisitor;
+import org.jamocha.function.fwa.ECLeaf;
 import org.jamocha.function.fwa.GlobalVariableLeaf;
-import org.jamocha.function.fwa.PathLeaf;
 import org.jamocha.function.fwa.PredicateWithArguments;
 import org.jamocha.function.fwa.PredicateWithArgumentsComposite;
+import org.jamocha.languages.common.RuleCondition.EquivalenceClass;
+import org.jamocha.languages.common.SingleFactVariable;
 import org.jgrapht.DirectedGraph;
 import org.jgrapht.UndirectedGraph;
 import org.jgrapht.alg.VertexCovers;
@@ -105,29 +105,28 @@ import com.google.common.collect.Sets.SetView;
  */
 public class ECBlocks {
 
-	static class PWAArgumentsExtractor implements DefaultFunctionWithArgumentsLeafVisitor<PathLeaf> {
-		private final ArrayList<Either<Pair<Template, SlotAddress>, Object>> arguments = new ArrayList<>();
+	static class PWAArgumentsExtractor implements DefaultFunctionWithArgumentsLeafVisitor<ECLeaf> {
+		private final ArrayList<Either<SlotType, Object>> arguments = new ArrayList<>();
 
-		public static List<Either<Pair<Template, SlotAddress>, Object>> getArguments(
-				final PredicateWithArguments<PathLeaf> predicate) {
+		public static List<Either<SlotType, Object>> getArguments(final PredicateWithArguments<ECLeaf> predicate) {
 			final PWAArgumentsExtractor instance = new PWAArgumentsExtractor();
 			predicate.accept(instance);
 			return instance.arguments;
 		}
 
 		@Override
-		public void visit(final ConstantLeaf<PathLeaf> constantLeaf) {
+		public void visit(final ConstantLeaf<ECLeaf> constantLeaf) {
 			arguments.add(Either.right(constantLeaf.evaluate()));
 		}
 
 		@Override
-		public void visit(final GlobalVariableLeaf<PathLeaf> globalVariableLeaf) {
+		public void visit(final GlobalVariableLeaf<ECLeaf> globalVariableLeaf) {
 			arguments.add(Either.right(globalVariableLeaf.evaluate()));
 		}
 
 		@Override
-		public void visit(final PathLeaf leaf) {
-			arguments.add(Either.left(Pair.of(leaf.getPath().getTemplate(), leaf.getSlot())));
+		public void visit(final ECLeaf leaf) {
+			arguments.add(Either.left(leaf.getReturnType()));
 		}
 	}
 
@@ -140,20 +139,18 @@ public class ECBlocks {
 	@ToString(of = { "predicate", "arguments" })
 	static class Filter {
 		final Predicate predicate;
-		final List<Either<Pair<Template, SlotAddress>, Object>> arguments;
+		final List<Either<SlotType, Object>> arguments;
 		final Map<Either<Rule, ExistentialProxy>, Set<FilterInstance>> ruleToInstances = new HashMap<>();
 
 		static final Map<Filter, Filter> cache = new HashMap<>();
 
-		static Filter newFilter(final Predicate predicate,
-				final List<Either<Pair<Template, SlotAddress>, Object>> arguments) {
+		static Filter newFilter(final Predicate predicate, final List<Either<SlotType, Object>> arguments) {
 			return cache.computeIfAbsent(new Filter(predicate, arguments), Function.identity());
 		}
 
-		public FilterInstance addInstance(final Either<Rule, ExistentialProxy> ruleOrProxy, final PathFilter pathFilter) {
-			final ArrayList<PathLeaf> parameterLeafs = PathLeafCollector.collect(pathFilter.getFunction());
-			final List<Path> parameterPaths = parameterLeafs.stream().map(PathLeaf::getPath).collect(toList());
-			final FilterInstance instance = new FilterInstance(pathFilter, parameterPaths, ruleOrProxy);
+		public FilterInstance addInstance(final Either<Rule, ExistentialProxy> ruleOrProxy, final ECFilter ecFilter) {
+			final ArrayList<EquivalenceClass> parameterECs = OrderedECCollector.collect(ecFilter.getFunction());
+			final FilterInstance instance = new FilterInstance(ecFilter, parameterECs, ruleOrProxy);
 			ruleToInstances.computeIfAbsent(ruleOrProxy, newHashSet()).add(instance);
 			return instance;
 		}
@@ -166,7 +163,7 @@ public class ECBlocks {
 				final FilterInstance instance,
 				@SuppressWarnings("unused") final Map<Either<Rule, ExistentialProxy>, Map<FilterInstance, Set<FilterInstance>>> ruleToJoinedWith,
 				@SuppressWarnings("unused") final Map<Set<FilterInstance>, PathFilterList> joinedWithToComponent) {
-			return PathNodeFilterSet.newRegularPathNodeFilterSet(instance.pathFilter);
+			return PathNodeFilterSet.newRegularPathNodeFilterSet(instance.ecFilter);
 		}
 
 		/**
@@ -174,18 +171,18 @@ public class ECBlocks {
 		 */
 		@Getter
 		@Setter
-		@ToString(of = { "pathFilter" })
+		@ToString(of = { "ecFilter" })
 		@AllArgsConstructor(access = AccessLevel.PRIVATE)
 		// no EqualsAndHashCode
 		class FilterInstance {
-			final PathFilter pathFilter;
-			final List<Path> parameters;
+			final ECFilter ecFilter;
+			final List<EquivalenceClass> parameters;
 			final Either<Rule, ExistentialProxy> ruleOrProxy;
 			final Map<FilterInstance, Conflict> conflicts = new HashMap<>();
 
 			public Conflict addConflict(final FilterInstance targetFilterInstance) {
 				final Conflict conflict = new Conflict(targetFilterInstance);
-				if (conflict.samePathsIndices.isEmpty()) {
+				if (conflict.intersectingECsIndices.isEmpty()) {
 					conflicts.put(targetFilterInstance, null);
 					return null;
 				}
@@ -234,23 +231,25 @@ public class ECBlocks {
 			@Value
 			class Conflict {
 				// left refers to the source, right to the target of the conflicts
-				final Set<Pair<Integer, Integer>> samePathsIndices;
+				final Set<Pair<Integer, Integer>> intersectingECsIndices;
 				final FilterInstance target;
 
 				public Conflict(final FilterInstance target) {
 					this.target = target;
-					this.samePathsIndices = new HashSet<>();
-					final List<Path> sourceParameters = FilterInstance.this.parameters;
-					final List<Path> targetParameters = target.parameters;
-					final Map<Path, List<Integer>> targetPathIndices =
-							IntStream.range(0, targetParameters.size()).boxed()
-									.collect(groupingBy(targetParameters::get));
+					this.intersectingECsIndices = new HashSet<>();
+					final List<EquivalenceClass> sourceParameters = FilterInstance.this.parameters;
+					final List<EquivalenceClass> targetParameters = target.parameters;
 					final int size = sourceParameters.size();
+					final List<Set<SingleFactVariable>> targetFVsList =
+							targetParameters.stream().map(EquivalenceClass::getDependentFactVariables)
+									.collect(toList());
 					for (int i = 0; i < size; ++i) {
-						final Integer oi = Integer.valueOf(i);
-						for (final Integer ji : targetPathIndices.getOrDefault(sourceParameters.get(oi),
-								Collections.emptyList())) {
-							this.samePathsIndices.add(Pair.of(oi, ji));
+						final Set<SingleFactVariable> sourceFVs = sourceParameters.get(i).getDependentFactVariables();
+						for (int j = 0; j < size; ++j) {
+							final Set<SingleFactVariable> targetFVs = targetFVsList.get(j);
+							if (Collections.disjoint(sourceFVs, targetFVs))
+								continue;
+							this.intersectingECsIndices.add(Pair.of(i, j));
 						}
 					}
 				}
@@ -258,7 +257,7 @@ public class ECBlocks {
 				public boolean hasCompatibleFiltersAndEqualConflicts(final Conflict conflict) {
 					return Filter.this.equals(conflict.getSource().getFilter())
 							&& target.getFilter().equals(conflict.getTarget().getFilter())
-							&& samePathsIndices.equals(conflict.samePathsIndices);
+							&& intersectingECsIndices.equals(conflict.intersectingECsIndices);
 				}
 
 				public FilterInstance getSource() {
@@ -272,16 +271,16 @@ public class ECBlocks {
 	static class FilterProxy extends Filter {
 		final Set<ExistentialProxy> proxies;
 
-		private FilterProxy(final Predicate predicate,
-				final List<Either<Pair<Template, SlotAddress>, Object>> arguments, final ExistentialProxy proxy) {
+		private FilterProxy(final Predicate predicate, final List<Either<SlotType, Object>> arguments,
+				final ExistentialProxy proxy) {
 			super(predicate, arguments);
 			this.proxies = Sets.newHashSet(proxy);
 		}
 
 		static final Map<FilterProxy, FilterProxy> cache = new HashMap<>();
 
-		static FilterProxy newFilterProxy(final Predicate predicate,
-				final List<Either<Pair<Template, SlotAddress>, Object>> arguments, final ExistentialProxy proxy) {
+		static FilterProxy newFilterProxy(final Predicate predicate, final List<Either<SlotType, Object>> arguments,
+				final ExistentialProxy proxy) {
 			return cache.computeIfAbsent(new FilterProxy(predicate, arguments, proxy), Function.identity());
 		}
 
@@ -333,7 +332,8 @@ public class ECBlocks {
 		private static boolean equalProxies(final FilterProxy aFilterProxy, final FilterProxy bFilterProxy) {
 			final ExistentialProxy aProxy = aFilterProxy.proxies.iterator().next();
 			final ExistentialProxy bProxy = bFilterProxy.proxies.iterator().next();
-			if (aProxy.existential.getExistentialPaths().size() != bProxy.existential.getExistentialPaths().size())
+			if (aProxy.existential.getExistentialFactVariables().size() != bProxy.existential
+					.getExistentialFactVariables().size())
 				return false;
 			if (aProxy.existential.isPositive() != bProxy.existential.isPositive())
 				return false;
@@ -444,7 +444,7 @@ public class ECBlocks {
 	@EqualsAndHashCode(of = { "original" })
 	@ToString(of = { "original", "filters" })
 	static class Rule {
-		final PathSetBasedRule original;
+		final ECFilterSetCondition original;
 		final Set<Filter> filters = new HashSet<>();
 		final BiMap<FilterInstance, ExistentialProxy> existentialProxies = HashBiMap.create();
 	}
@@ -455,7 +455,7 @@ public class ECBlocks {
 	@Value
 	static class ExistentialProxy {
 		final Rule rule;
-		final PathExistentialSet existential;
+		final ECExistentialSet existential;
 		final Set<Filter> filters = new HashSet<>();
 
 		public FilterInstance getExistentialClosure() {
@@ -735,13 +735,14 @@ public class ECBlocks {
 		return ruleOrProxy.fold(Rule::getFilters, ExistentialProxy::getFilters);
 	}
 
-	protected static void addRule(final PathSetBasedRule pathBasedRule, final List<Either<Rule, ExistentialProxy>> rules) {
-		final Rule rule = new Rule(pathBasedRule);
+	protected static void addRule(final ECFilterSetCondition ecFilterSetCondition,
+			final List<Either<Rule, ExistentialProxy>> rules) {
+		final Rule rule = new Rule(ecFilterSetCondition);
 		// first step: create all filter instances
-		final Set<PathFilterSet> condition = pathBasedRule.getCondition();
+		final Set<ECFilterSet> condition = ecFilterSetCondition.getCondition();
 		final Either<Rule, ExistentialProxy> ruleEither = Either.left(rule);
 		final RuleConverter converter = new RuleConverter(rules, ruleEither);
-		for (final PathFilterSet filter : condition) {
+		for (final ECFilterSet filter : condition) {
 			filter.accept(converter);
 		}
 		// from this point on, the rule won't change any more (aka the filters and the existential
@@ -797,27 +798,27 @@ public class ECBlocks {
 	}
 
 	@AllArgsConstructor
-	static class RuleConverter implements PathFilterSetVisitor {
+	static class RuleConverter implements ECFilterSetVisitor {
 		final List<Either<Rule, ExistentialProxy>> rules;
 		final Either<Rule, ExistentialProxy> ruleOrProxy;
 
 		@Override
-		public void visit(final PathFilter pathFilter) {
-			final Filter filter = convertFilter(pathFilter, Filter::newFilter);
-			filter.addInstance(ruleOrProxy, pathFilter);
+		public void visit(final ECFilter ecFilter) {
+			final Filter filter = convertFilter(ecFilter, Filter::newFilter);
+			filter.addInstance(ruleOrProxy, ecFilter);
 			getFilters(ruleOrProxy).add(filter);
 		}
 
-		protected static <T extends Filter> T convertFilter(final PathFilter pathFilter,
-				final BiFunction<Predicate, List<Either<Pair<Template, SlotAddress>, Object>>, T> ctor) {
-			final PredicateWithArguments<PathLeaf> predicate = pathFilter.getFunction();
+		protected static <T extends Filter> T convertFilter(final ECFilter ecFilter,
+				final BiFunction<Predicate, List<Either<SlotType, Object>>, T> ctor) {
+			final PredicateWithArguments<ECLeaf> predicate = ecFilter.getFunction();
 			assert predicate instanceof PredicateWithArgumentsComposite;
-			return ctor.apply(((PredicateWithArgumentsComposite<PathLeaf>) predicate).getFunction(),
+			return ctor.apply(((PredicateWithArgumentsComposite<ECLeaf>) predicate).getFunction(),
 					PWAArgumentsExtractor.getArguments(predicate));
 		}
 
 		@Override
-		public void visit(final PathExistentialSet existentialSet) {
+		public void visit(final ECExistentialSet existentialSet) {
 			final Rule rule =
 					ruleOrProxy.left().getOrThrow(() -> new UnsupportedOperationException("Nested Existentials!"));
 			// we may be able to share the existential closure part
@@ -825,15 +826,15 @@ public class ECBlocks {
 			// have the same conflicts to their pure part and the pure parts have the same inner
 			// conflicts
 
-			final PathFilter existentialClosure = existentialSet.getExistentialClosure();
-			final Set<PathFilterSet> purePart = existentialSet.getPurePart();
+			final ECFilter existentialClosure = existentialSet.getExistentialClosure();
+			final Set<ECFilterSet> purePart = existentialSet.getPurePart();
 
 			final ExistentialProxy proxy = new ExistentialProxy(rule, existentialSet);
 			final Either<Rule, ExistentialProxy> proxyEither = Either.right(proxy);
 			final RuleConverter visitor = new RuleConverter(rules, proxyEither);
 
 			// insert all pure filters into the proxy
-			for (final PathFilterSet pathFilterSet : purePart) {
+			for (final ECFilterSet pathFilterSet : purePart) {
 				pathFilterSet.accept(visitor);
 			}
 			// create own row for the pure part
@@ -847,9 +848,9 @@ public class ECBlocks {
 		}
 	}
 
-	public static List<PathRule> transform(final List<PathSetBasedRule> rules) {
+	public static List<PathRule> transform(final List<ECFilterSetCondition> rules) {
 		final List<Either<Rule, ExistentialProxy>> translatedRules = new ArrayList<>();
-		for (final PathSetBasedRule rule : rules) {
+		for (final ECFilterSetCondition rule : rules) {
 			addRule(rule, translatedRules);
 		}
 		// find all horizontally maximal blocks

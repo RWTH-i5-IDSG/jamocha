@@ -113,11 +113,10 @@ public class ConstructCache {
 				return Defrule.this;
 			}
 
-			public PathRule bindVariables(final Map<EquivalenceClass, PathLeaf> equivalenceClassToPathLeaf) {
-				// FIXME implement binding
-				// new TranslatedPath(condition, actionList, equivalenceClassToPathLeaf,
-				// specificity)
-				return null;
+			public PathRule toPathRule(final PathSharedListWrapper.PathSharedList convertedCondition,
+					final Set<Path> resultPaths, final Map<EquivalenceClass, PathLeaf> equivalenceClassToPathLeaf) {
+				return new PathRule(convertedCondition, resultPaths, actionList, equivalenceClassToPathLeaf,
+						specificity);
 			}
 		}
 

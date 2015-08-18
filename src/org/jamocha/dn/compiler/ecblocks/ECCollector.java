@@ -17,6 +17,8 @@ package org.jamocha.dn.compiler.ecblocks;
 import java.util.HashSet;
 import java.util.Set;
 
+import lombok.Getter;
+
 import org.jamocha.filter.ECFilter;
 import org.jamocha.filter.ECFilterList;
 import org.jamocha.filter.ECFilterList.ECExistentialList;
@@ -37,6 +39,7 @@ import org.jamocha.languages.common.RuleCondition.EquivalenceClass;
  */
 public class ECCollector implements DefaultFunctionWithArgumentsLeafVisitor<ECLeaf>, ECFilterListVisitor,
 		ECFilterSetVisitor {
+	@Getter
 	final Set<EquivalenceClass> equivalenceClasses = new HashSet<>();
 
 	static Set<EquivalenceClass> collect(final ECFilterList filter) {
@@ -82,7 +85,7 @@ public class ECCollector implements DefaultFunctionWithArgumentsLeafVisitor<ECLe
 	@Override
 	public void visit(final ECExistentialSet set) {
 		set.getPurePart().forEach(s -> s.accept(this));
-		set.getExistentialClosure().forEach(s -> s.accept(this));
+		set.getExistentialClosure().accept(this);
 	}
 
 	@Override

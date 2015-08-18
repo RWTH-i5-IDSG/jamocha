@@ -77,7 +77,6 @@ import org.jamocha.filter.PathFilterList.PathSharedListWrapper.PathSharedList;
 import org.jamocha.filter.PathFilterSet;
 import org.jamocha.filter.PathFilterSet.PathExistentialSet;
 import org.jamocha.filter.PathFilterSetVisitor;
-import org.jamocha.filter.PathLeafCollector;
 import org.jamocha.filter.PathNodeFilterSet;
 import org.jamocha.function.Predicate;
 import org.jamocha.function.fwa.ConstantLeaf;
@@ -151,8 +150,7 @@ public class SimpleBlocks {
 		}
 
 		public FilterInstance addInstance(final Either<Rule, ExistentialProxy> ruleOrProxy, final PathFilter pathFilter) {
-			final ArrayList<PathLeaf> parameterLeafs = PathLeafCollector.collect(pathFilter.getFunction());
-			final List<Path> parameterPaths = parameterLeafs.stream().map(PathLeaf::getPath).collect(toList());
+			final ArrayList<Path> parameterPaths = OrderedPathCollector.collect(pathFilter.getFunction());
 			final FilterInstance instance = new FilterInstance(pathFilter, parameterPaths, ruleOrProxy);
 			ruleToInstances.computeIfAbsent(ruleOrProxy, newHashSet()).add(instance);
 			return instance;

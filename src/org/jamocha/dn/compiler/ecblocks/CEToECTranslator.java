@@ -28,6 +28,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -48,6 +49,7 @@ import org.jamocha.filter.SymbolCollector;
 import org.jamocha.filter.SymbolInSymbolLeafsCollector;
 import org.jamocha.function.FunctionNormaliser;
 import org.jamocha.function.fwa.DefaultFunctionWithArgumentsVisitor;
+import org.jamocha.function.fwa.ECLeaf;
 import org.jamocha.function.fwa.FunctionWithArguments;
 import org.jamocha.function.fwa.GenericWithArgumentsComposite;
 import org.jamocha.function.fwa.PredicateWithArguments;
@@ -55,6 +57,8 @@ import org.jamocha.function.fwa.PredicateWithArgumentsComposite;
 import org.jamocha.function.fwa.SymbolLeaf;
 import org.jamocha.function.fwatransformer.FWADeepCopy;
 import org.jamocha.function.fwatransformer.FWASymbolToECTranslator;
+import org.jamocha.function.impls.predicates.And;
+import org.jamocha.function.impls.predicates.DummyPredicate;
 import org.jamocha.function.impls.predicates.Equals;
 import org.jamocha.languages.common.ConditionalElement;
 import org.jamocha.languages.common.ConditionalElement.ExistentialConditionalElement;
@@ -72,6 +76,8 @@ import org.jamocha.languages.common.errors.VariableNotDeclaredError;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
+import com.google.common.collect.Sets;
+import com.google.common.collect.Sets.SetView;
 
 /**
  * Collect all ECFilters inside all children of an OrFunctionConditionalElement, returning a List of
@@ -457,7 +463,7 @@ public class CEToECTranslator implements DefaultConditionalElementsVisitor {
 			// A filter is mixed if it contains both
 
 			// FIXME nested existentials may contain local fact variables and fact variables bound
-			// in parents (and fact variables bound within the nested existential) and thus me mixed
+			// in parents (and fact variables bound within the nested existential) and thus be mixed
 
 			// Partition filters according to their category
 			final Set<ECFilterSet> pureFilters, mixedFilters;
@@ -473,8 +479,46 @@ public class CEToECTranslator implements DefaultConditionalElementsVisitor {
 				pureFilters = tmp.get(Boolean.TRUE);
 				mixedFilters = tmp.get(Boolean.FALSE);
 			}
+			// FIXME is this creation of the existential closure correct?
+			final ECFilter existentialClosure;
+			if (mixedFilters.isEmpty()) {
+				existentialClosure =
+						new ECFilter(new PredicateWithArgumentsComposite<ECLeaf>(DummyPredicate.instance,
+								toArray(Stream.concat(shallowExistentialECs.stream(),
+										Stream.of(initialFactVariable.getEqual())).map(ECLeaf::new), ECLeaf[]::new)));
+			} else if (1 == mixedFilters.size()) {
+				final ECFilter mixed = (ECFilter) mixedFilters.iterator().next();
+				final Set<EquivalenceClass> ecsInMixed = ECCollector.collect(mixed);
+				if (ecsInMixed.containsAll(shallowExistentialECs)) {
+					existentialClosure = mixed;
+				} else {
+					final SetView<EquivalenceClass> missingECs = Sets.difference(shallowExistentialECs, ecsInMixed);
+					existentialClosure =
+							new ECFilter(PredicateWithArgumentsComposite.newPredicateInstance(
+									And.inClips,
+									mixed.getFunction(),
+									new PredicateWithArgumentsComposite<ECLeaf>(DummyPredicate.instance, toArray(
+											missingECs.stream().map(ECLeaf::new), ECLeaf[]::new))));
+				}
+			} else {
+				Stream<FunctionWithArguments<ECLeaf>> argStream =
+						mixedFilters.stream().map(f -> ((ECFilter) f).getFunction());
+				final ECCollector ecCollector = new ECCollector();
+				mixedFilters.forEach(f -> f.accept(ecCollector));
+				final Set<EquivalenceClass> ecsInMixed = ecCollector.getEquivalenceClasses();
+				if (!ecsInMixed.containsAll(shallowExistentialECs)) {
+					final SetView<EquivalenceClass> missingECs = Sets.difference(shallowExistentialECs, ecsInMixed);
+					argStream =
+							Stream.concat(argStream, Stream.of(new PredicateWithArgumentsComposite<ECLeaf>(
+									DummyPredicate.instance, toArray(missingECs.stream().map(ECLeaf::new),
+											ECLeaf[]::new))));
+				}
+				existentialClosure =
+						new ECFilter(GenericWithArgumentsComposite.newPredicateInstance(And.inClips,
+								(FunctionWithArguments<ECLeaf>[]) toArray(argStream, FunctionWithArguments[]::new)));
+			}
 			return new ECFilterSet.ECExistentialSet(isPositive, initialFactVariable, shallowExistentialFVs,
-					equivalenceClasses, pureFilters, mixedFilters);
+					equivalenceClasses, pureFilters, existentialClosure);
 		}
 
 		@Override
