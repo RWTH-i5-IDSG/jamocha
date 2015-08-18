@@ -37,7 +37,6 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.jamocha.dn.ConstructCache.Defrule;
 import org.jamocha.dn.ConstructCache.Defrule.ECFilterSetCondition;
 import org.jamocha.dn.compiler.DeepFactVariableCollector;
-import org.jamocha.dn.compiler.ECCollector;
 import org.jamocha.dn.compiler.ShallowFactVariableCollector;
 import org.jamocha.dn.compiler.Specificity;
 import org.jamocha.dn.memory.Template;
