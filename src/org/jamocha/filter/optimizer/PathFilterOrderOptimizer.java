@@ -42,12 +42,7 @@ import org.jamocha.filter.PathNodeFilterSet;
  */
 public class PathFilterOrderOptimizer implements Optimizer {
 
-	static final String name = "PathFilterOrder";
-	static final PathFilterOrderOptimizer instance = new PathFilterOrderOptimizer();
-
-	static {
-		OptimizerFactory.addImpl(name, () -> instance);
-	}
+	public static final PathFilterOrderOptimizer instance = new PathFilterOrderOptimizer();
 
 	/**
 	 * Graph class storing the mapping from filters to graph components and the edges between the

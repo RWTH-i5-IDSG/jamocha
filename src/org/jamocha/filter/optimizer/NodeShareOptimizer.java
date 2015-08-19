@@ -40,12 +40,6 @@ import com.google.common.collect.Sets;
  */
 public class NodeShareOptimizer implements Optimizer {
 
-	static final String name = "NodeSharing";
-
-	static {
-		OptimizerFactory.addImpl(name, () -> new NodeShareOptimizer());
-	}
-
 	final Map<Path, Set<PathNodeFilterSet>> path2Filters = new HashMap<>();
 
 	final Map<PathNodeFilterSet, Set<Set<PathNodeFilterSet>>> filter2Blocks = new HashMap<>();
@@ -59,24 +53,24 @@ public class NodeShareOptimizer implements Optimizer {
 	final PathFilterPool pool = new PathFilterPool();
 
 	@Override
-	public Collection<PathRule> optimize(Collection<PathRule> rules) {
-		for (Defrule.PathRule pathRule : rules) {
+	public Collection<PathRule> optimize(final Collection<PathRule> rules) {
+		for (final Defrule.PathRule pathRule : rules) {
 			allRules.add(pathRule);
-			for (PathNodeFilterSet pathFilter : pathRule.getCondition()) {
+			for (final PathNodeFilterSet pathFilter : pathRule.getCondition()) {
 				pool.addFilter(pathFilter);
 				filter2Rule.put(pathFilter, pathRule);
-				Set<Path> paths = PathCollector.newHashSet().collectAllInLists(pathFilter).getPaths();
+				final Set<Path> paths = PathCollector.newHashSet().collectAllInLists(pathFilter).getPaths();
 				paths.addAll(pathFilter.getNegativeExistentialPaths());
 				paths.addAll(pathFilter.getPositiveExistentialPaths());
 				filter2Paths.put(pathFilter, paths);
-				for (Path path : paths) {
-					Set<PathNodeFilterSet> set = path2Filters.computeIfAbsent(path, p -> new HashSet<>());
+				for (final Path path : paths) {
+					final Set<PathNodeFilterSet> set = path2Filters.computeIfAbsent(path, p -> new HashSet<>());
 					set.add(pathFilter);
 				}
 			}
 		}
-		for (Defrule.PathRule pathRule : rules) {
-			for (PathNodeFilterSet pathFilter : pathRule.getCondition()) {
+		for (final Defrule.PathRule pathRule : rules) {
+			for (final PathNodeFilterSet pathFilter : pathRule.getCondition()) {
 				buildBlock(pathRule, pathFilter);
 			}
 		}
@@ -94,14 +88,14 @@ public class NodeShareOptimizer implements Optimizer {
 			newFilters.add(pathFilter);
 			while (!newFilters.isEmpty()) {
 				final Set<PathNodeFilterSet> conflictFilters = new HashSet<>();
-				for (PathNodeFilterSet newFilter : newFilters) {
-					for (Path path : filter2Paths.get(newFilter)) {
+				for (final PathNodeFilterSet newFilter : newFilters) {
+					for (final Path path : filter2Paths.get(newFilter)) {
 						conflictFilters.addAll(path2Filters.getOrDefault((path), Collections.emptySet()));
 					}
 				}
 				conflictFilters.removeAll(preBlock);
 				newFilters = new HashSet<>();
-				for (PathNodeFilterSet conflictFilter : conflictFilters) {
+				for (final PathNodeFilterSet conflictFilter : conflictFilters) {
 					final Set<PathNodeFilterSet> conflictingInBlock =
 							filter2Paths.get(conflictFilter).stream().flatMap(p -> path2Filters.get(p).stream())
 									.filter(f -> preBlock.contains(f)).collect(toSet());
@@ -117,11 +111,11 @@ public class NodeShareOptimizer implements Optimizer {
 			final Set<PathNodeFilterSet> preBlockAdds = new HashSet<>();
 			final Set<Defrule.PathRule> possibleRules = new HashSet<>();
 			possibleRules.addAll(allRules);
-			for (PathNodeFilterSet filter : preBlock) {
+			for (final PathNodeFilterSet filter : preBlock) {
 				possibleRules.retainAll(pool.getEqualFilters(filter).stream().map(f -> filter2Rule.get(f))
 						.collect(toSet()));
 			}
-			for (Defrule.PathRule possibleRule : possibleRules) {
+			for (final Defrule.PathRule possibleRule : possibleRules) {
 				final Map<Path, Path> pathMap = new HashMap<>();
 				final Map<PathNodeFilterSet, PathNodeFilterSet> filterMap =
 						comparePathFilters(preBlock, Sets.newHashSet(possibleRule.getCondition()), pathMap);
@@ -132,10 +126,10 @@ public class NodeShareOptimizer implements Optimizer {
 			}
 		}
 		{
-			for (PathNodeFilterSet filter : rule.getCondition()) {
+			for (final PathNodeFilterSet filter : rule.getCondition()) {
 				if (preBlock.contains(filter))
 					continue;
-				for (Defrule.PathRule otherRule : rule2PathMap.keySet()) {
+				for (final Defrule.PathRule otherRule : rule2PathMap.keySet()) {
 					// FIXME hier weiterarbeiten
 				}
 			}
@@ -171,7 +165,7 @@ public class NodeShareOptimizer implements Optimizer {
 		final PathNodeFilterSet filter1 = iterator.next();
 		iterator.remove();
 		try {
-			for (PathNodeFilterSet filter2 : IteratorUtils.asIterable(pool.getEqualFilters(filter1).stream()
+			for (final PathNodeFilterSet filter2 : IteratorUtils.asIterable(pool.getEqualFilters(filter1).stream()
 					.filter(f -> filters2.contains(f)).iterator())) {
 				final Map<Path, Path> tmpPathMap = new HashMap<>(pathMap);
 				if (PathNodeFilterSet.equals(filter1, filter2, tmpPathMap)) {
@@ -193,9 +187,9 @@ public class NodeShareOptimizer implements Optimizer {
 
 		Map<Integer, Set<Set<PathNodeFilterSet>>> pool = new HashMap<>();
 
-		public Set<PathNodeFilterSet> getEqualFilters(PathNodeFilterSet filter) {
-			Set<Set<PathNodeFilterSet>> sets = pool.get(filter.getHashCode());
-			for (Set<PathNodeFilterSet> set : sets) {
+		public Set<PathNodeFilterSet> getEqualFilters(final PathNodeFilterSet filter) {
+			final Set<Set<PathNodeFilterSet>> sets = pool.get(filter.getHashCode());
+			for (final Set<PathNodeFilterSet> set : sets) {
 				if (set.contains(filter))
 					return set;
 				if (PathNodeFilterSet.equals(set.iterator().next(), filter))
@@ -204,7 +198,7 @@ public class NodeShareOptimizer implements Optimizer {
 			return null;
 		}
 
-		public void addFilter(PathNodeFilterSet filter) {
+		public void addFilter(final PathNodeFilterSet filter) {
 			final Set<Set<PathNodeFilterSet>> setOfSets = pool.get(filter.getHashCode());
 			if (null == setOfSets) {
 				final Set<Set<PathNodeFilterSet>> newSetOfSets = new HashSet<>();
@@ -214,7 +208,7 @@ public class NodeShareOptimizer implements Optimizer {
 				pool.put(filter.getHashCode(), newSetOfSets);
 				return;
 			}
-			for (Set<PathNodeFilterSet> set : setOfSets) {
+			for (final Set<PathNodeFilterSet> set : setOfSets) {
 				if (PathNodeFilterSet.equals(set.iterator().next(), filter)) {
 					set.add(filter);
 					return;
@@ -230,7 +224,7 @@ public class NodeShareOptimizer implements Optimizer {
 	private class Block {
 		final Map<Defrule.PathRule, Set<PathNodeFilterSet>> rule2PathFilters = new HashMap<>();
 
-		void addFilter(Defrule.PathRule rule, PathNodeFilterSet filter) {
+		void addFilter(final Defrule.PathRule rule, final PathNodeFilterSet filter) {
 			Set<PathNodeFilterSet> filters = rule2PathFilters.get(rule);
 			if (null == filters) {
 				filters = new HashSet<>();

@@ -15,7 +15,6 @@
 package org.jamocha.dn;
 
 import static java.util.stream.Collectors.groupingBy;
-import static java.util.stream.Collectors.toList;
 import static org.jamocha.util.ToArray.toArray;
 
 import java.io.File;
@@ -25,7 +24,6 @@ import java.io.OutputStream;
 import java.lang.reflect.Array;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumMap;
@@ -54,9 +52,7 @@ import org.jamocha.dn.ConflictSet.RuleAndToken;
 import org.jamocha.dn.ConstructCache.Deffacts;
 import org.jamocha.dn.ConstructCache.Defrule;
 import org.jamocha.dn.ConstructCache.Defrule.PathRule;
-import org.jamocha.dn.ConstructCache.Defrule.PathSetBasedRule;
-import org.jamocha.dn.compiler.simpleblocks.PathFilterConsolidator;
-import org.jamocha.dn.compiler.simpleblocks.SimpleBlocks;
+import org.jamocha.dn.compiler.RuleCompiler;
 import org.jamocha.dn.memory.Fact;
 import org.jamocha.dn.memory.FactAddress;
 import org.jamocha.dn.memory.FactIdentifier;
@@ -81,8 +77,6 @@ import org.jamocha.filter.PathCollector;
 import org.jamocha.filter.PathFilter;
 import org.jamocha.filter.PathFilterList;
 import org.jamocha.filter.PathNodeFilterSet;
-import org.jamocha.filter.optimizer.Optimizer;
-import org.jamocha.filter.optimizer.OptimizerFactory;
 import org.jamocha.function.FunctionDictionary;
 import org.jamocha.function.fwa.Assert.TemplateContainer;
 import org.jamocha.function.fwa.ParameterLeaf;
@@ -125,12 +119,6 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 	 * @return the networks memory Factory
 	 */
 	private final MemoryFactory memoryFactory;
-
-	/**
-	 * Optimizer configuration
-	 */
-	@Getter(AccessLevel.PRIVATE)
-	private final OptimizerFactory.Configuration optimizerConfiguration;
 
 	/**
 	 * -- GETTER --
@@ -217,10 +205,9 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 	 * @param scheduler
 	 *            the {@link Scheduler} to handle the dispatching of token processing
 	 */
-	public Network(final MemoryFactory memoryFactory, final OptimizerFactory.Configuration optimizerConfiguration,
-			final LogFormatter logFormatter, final int tokenQueueCapacity, final Scheduler scheduler) {
+	public Network(final MemoryFactory memoryFactory, final LogFormatter logFormatter, final int tokenQueueCapacity,
+			final Scheduler scheduler) {
 		this.memoryFactory = memoryFactory;
-		this.optimizerConfiguration = optimizerConfiguration;
 		this.tokenQueueCapacity = tokenQueueCapacity;
 		this.scheduler = scheduler;
 		this.conflictSet = new ConflictSet(this, ConflictResolutionStrategy.DEPTH);
@@ -320,55 +307,18 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 	 *
 	 * @param memoryFactory
 	 *            memory factory
-	 * @param optimizerConfiguration
-	 *            optimizer configuration
-	 * @param tokenQueueCapacity
-	 *            the capacity of the token queues in all token processing {@link Node nodes}
-	 * @param scheduler
-	 *            the {@link Scheduler} to handle the dispatching of token processing
-	 */
-	public Network(final MemoryFactory memoryFactory, final OptimizerFactory.Configuration optimizerConfiguration,
-			final int tokenQueueCapacity, final Scheduler scheduler) {
-		this(memoryFactory, optimizerConfiguration, ClipsLogFormatter.getMessageFormatter(), tokenQueueCapacity,
-				scheduler);
-	}
-
-	/**
-	 * Creates a new network object using the {@link OptimizerFactory.Configuration default
-	 * optimizer configuration} and {@link ClipsLogFormatter}.
-	 *
-	 * @param memoryFactory
-	 *            memory factory
 	 * @param tokenQueueCapacity
 	 *            the capacity of the token queues in all token processing {@link Node nodes}
 	 * @param scheduler
 	 *            the {@link Scheduler} to handle the dispatching of token processing
 	 */
 	public Network(final MemoryFactory memoryFactory, final int tokenQueueCapacity, final Scheduler scheduler) {
-		this(memoryFactory, new OptimizerFactory.Configuration(), ClipsLogFormatter.getMessageFormatter(),
-				tokenQueueCapacity, scheduler);
+		this(memoryFactory, ClipsLogFormatter.getMessageFormatter(), tokenQueueCapacity, scheduler);
 	}
 
 	/**
 	 * Creates a new network object with the {@link org.jamocha.dn.memory.javaimpl default memory
 	 * implementation}.
-	 *
-	 * @param optimizerConfiguration
-	 *            optimizer configuration
-	 * @param tokenQueueCapacity
-	 *            the capacity of the token queues in all token processing {@link Node nodes}
-	 * @param scheduler
-	 *            the {@link Scheduler} to handle the dispatching of token processing
-	 */
-	public Network(final OptimizerFactory.Configuration optimizerConfiguration, final int tokenQueueCapacity,
-			final Scheduler scheduler) {
-		this(org.jamocha.dn.memory.javaimpl.MemoryFactory.getMemoryFactory(), optimizerConfiguration, ClipsLogFormatter
-				.getMessageFormatter(), tokenQueueCapacity, scheduler);
-	}
-
-	/**
-	 * Creates a new network object with the {@link org.jamocha.dn.memory.javaimpl default memory
-	 * implementation} and {@link OptimizerFactory.Configuration default optimizer configuration}.
 	 *
 	 * @param tokenQueueCapacity
 	 *            the capacity of the token queues in all token processing {@link Node nodes}
@@ -376,8 +326,8 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 	 *            the {@link Scheduler} to handle the dispatching of token processing
 	 */
 	public Network(final int tokenQueueCapacity, final Scheduler scheduler) {
-		this(org.jamocha.dn.memory.javaimpl.MemoryFactory.getMemoryFactory(), new OptimizerFactory.Configuration(),
-				ClipsLogFormatter.getMessageFormatter(), tokenQueueCapacity, scheduler);
+		this(org.jamocha.dn.memory.javaimpl.MemoryFactory.getMemoryFactory(), ClipsLogFormatter.getMessageFormatter(),
+				tokenQueueCapacity, scheduler);
 	}
 
 	/**
@@ -387,17 +337,8 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 	 * @param optimizerConfiguration
 	 *            optimizer configuration
 	 */
-	public Network(final OptimizerFactory.Configuration optimizerConfiguration) {
-		this(optimizerConfiguration, Integer.MAX_VALUE, new ThreadPoolScheduler(10));
-	}
-
-	/**
-	 * Creates a new network object with the {@link org.jamocha.dn.memory.javaimpl default memory
-	 * implementation}, {@link OptimizerFactory.Configuration default optimizer configuration} and
-	 * {@link ThreadPoolScheduler scheduler}.
-	 */
 	public Network() {
-		this(new OptimizerFactory.Configuration(), Integer.MAX_VALUE, new ThreadPoolScheduler(10));
+		this(Integer.MAX_VALUE, new ThreadPoolScheduler(10));
 	}
 
 	/**
@@ -540,17 +481,6 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 		return terminalNode;
 	}
 
-	private List<PathRule> compileRule(final Defrule rule) {
-		// Preprocess CEs
-		RuleConditionProcessor.flatten(rule.getCondition());
-		// Transform TestCEs to PathFilters
-		final List<PathSetBasedRule> consolidatedRules =
-				new PathFilterConsolidator(this.initialFactTemplate, rule).consolidate();
-		return SimpleBlocks.transform(consolidatedRules);
-		// return consolidatedRules.stream()
-		// .map(PathSetBasedRule::trivialToPathRule).collect(toList());
-	}
-
 	@Override
 	public FactIdentifier[] assertFacts(final Fact... facts) {
 		final FactIdentifier[] assertedFacts = getRootNode().assertFacts(facts);
@@ -613,15 +543,15 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 	}
 
 	@Override
-	public void defRules(final Defrule... defrules) {
-		Collection<PathRule> rules =
-				Arrays.stream(defrules).peek(this.constructCache::addRule).flatMap(r -> this.compileRule(r).stream())
-						.collect(toList());
-		for (final Optimizer optimizer : optimizerConfiguration.getOptimizers()) {
-			rules = optimizer.optimize(rules);
+	public void defRules(final List<Defrule> defrules) {
+		for (final Defrule rule : defrules) {
+			this.constructCache.addRule(rule);
+			// Preprocess CEs
+			RuleConditionProcessor.flatten(rule.getCondition());
 		}
+		final Collection<PathRule> rules = RuleCompiler.SIMPLEBLOCKS.compileRules(this.initialFactTemplate, defrules);
 		for (final PathRule rule : rules) {
-			terminalNodes.add(buildRule(rule));
+			this.terminalNodes.add(buildRule(rule));
 		}
 	}
 
@@ -790,7 +720,7 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 	 * A default network object with a basic setup, used for testing and other quick and dirty
 	 * networks.
 	 */
-	public final static Network DEFAULTNETWORK = new Network(new OptimizerFactory.Configuration(), Integer.MAX_VALUE,
+	public final static Network DEFAULTNETWORK = new Network(Integer.MAX_VALUE,
 	// new ThreadPoolScheduler(10)
 			new PlainScheduler());
 }

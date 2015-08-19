@@ -183,6 +183,8 @@ import org.jamocha.languages.common.errors.TypeMismatchError;
 import org.jamocha.languages.common.errors.VariableNotDeclaredError;
 import org.jamocha.util.ToArray;
 
+import com.google.common.collect.ImmutableList;
+
 /**
  * This class is final to prevent accidental derived classes. All inner classes shall share the same
  * outer instance giving them access to its attributes.
@@ -806,7 +808,8 @@ public final class SFPToCETranslator implements SelectiveSFPVisitor {
 			assert node.jjtGetNumChildren() == 0;
 			if (sideEffectsAllowed) {
 				this.symbol =
-						SFPToCETranslator.this.parserToNetwork.getScope().getVariableSymbol(node.jjtGetValue().toString());
+						SFPToCETranslator.this.parserToNetwork.getScope().getVariableSymbol(
+								node.jjtGetValue().toString());
 				if (null == symbol) {
 					throw new VariableNotDeclaredError(node.jjtGetValue().toString());
 				}
@@ -830,7 +833,8 @@ public final class SFPToCETranslator implements SelectiveSFPVisitor {
 			assert node.jjtGetNumChildren() == 0;
 			if (sideEffectsAllowed) {
 				this.symbol =
-						SFPToCETranslator.this.parserToNetwork.getScope().getVariableSymbol(node.jjtGetValue().toString());
+						SFPToCETranslator.this.parserToNetwork.getScope().getVariableSymbol(
+								node.jjtGetValue().toString());
 				if (null == symbol) {
 					throw new VariableNotDeclaredError(node.jjtGetValue().toString());
 				}
@@ -1930,7 +1934,8 @@ public final class SFPToCETranslator implements SelectiveSFPVisitor {
 		@Override
 		public Object visit(final SFPGlobalVariable node, final Object data) {
 			final Symbol var = SelectiveSFPVisitor.sendVisitor(new GlobalVariableVisitor(), node, data).symbol;
-			final GlobalVariable globalVariable = SFPToCETranslator.this.parserToNetwork.getScope().getGlobalVariable(var);
+			final GlobalVariable globalVariable =
+					SFPToCETranslator.this.parserToNetwork.getScope().getGlobalVariable(var);
 			if (null != type && globalVariable.getType() != type) {
 				throw new TypeMismatchError(var);
 			}
@@ -2062,13 +2067,13 @@ public final class SFPToCETranslator implements SelectiveSFPVisitor {
 			// <RBRACE> )+ )
 			final int numChildren = node.jjtGetNumChildren();
 			assert numChildren >= 1;
-			final Defrule[] defrules = new Defrule[numChildren];
+			final List<Defrule> defrules = new ArrayList<>(numChildren);
 			final Set<String> previousRuleNames = new HashSet<>();
 			for (int i = 0; i < numChildren; ++i) {
 				final Node child = node.jjtGetChild(i);
 				final Defrule defrule =
 						SelectiveSFPVisitor.sendVisitor(new SFPDefruleBodyVisitor(previousRuleNames), child, data).defrule;
-				defrules[i] = defrule;
+				defrules.add(defrule);
 				previousRuleNames.add(defrule.getName());
 			}
 			parserToNetwork.defRules(defrules);
@@ -2082,8 +2087,8 @@ public final class SFPToCETranslator implements SelectiveSFPVisitor {
 			// <DEFRULE> Symbol() [ ConstructDescription() ] ( [ LOOKAHEAD(3) Declaration() ] (
 			// ConditionalElement() )* ) <ARROW> ActionList()
 			assert node.jjtGetNumChildren() == 1;
-			parserToNetwork.defRules(SelectiveSFPVisitor.sendVisitor(new SFPDefruleBodyVisitor(Collections.emptySet()),
-					node.jjtGetChild(0), data).defrule);
+			parserToNetwork.defRules(ImmutableList.of(SelectiveSFPVisitor.sendVisitor(new SFPDefruleBodyVisitor(
+					Collections.emptySet()), node.jjtGetChild(0), data).defrule));
 			return data;
 		}
 

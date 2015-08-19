@@ -23,7 +23,6 @@ import lombok.extern.log4j.Log4j2;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.jamocha.dn.Network;
-import org.jamocha.filter.optimizer.OptimizerFactory;
 import org.jamocha.languages.clips.parser.SFPToCETranslator;
 import org.jamocha.languages.clips.parser.generated.ParseException;
 import org.jamocha.languages.clips.parser.generated.SFPParser;
@@ -44,11 +43,11 @@ public class Jamocha {
 	final SFPToCETranslator visitor;
 
 	public Jamocha() {
-		network = new Network(new OptimizerFactory.Configuration());
+		network = new Network();
 		visitor = new SFPToCETranslator(network, network);
 	}
 
-	public void loadParser(InputStream inputStream) {
+	public void loadParser(final InputStream inputStream) {
 		parser = new SFPParser(inputStream);
 	}
 
@@ -65,7 +64,7 @@ public class Jamocha {
 	}
 
 	public static void main(final String[] args) {
-		Jamocha jamocha = new Jamocha();
+		final Jamocha jamocha = new Jamocha();
 		jamocha.loadParser(System.in);
 
 		while (true) {

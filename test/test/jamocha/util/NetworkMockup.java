@@ -130,7 +130,7 @@ public class NetworkMockup implements ParserToNetwork, SideEffectFunctionToNetwo
 	}
 
 	@Override
-	public void defRules(final Defrule... defrules) {
+	public void defRules(final List<Defrule> defrules) {
 		for (final Defrule defrule : defrules) {
 			rules.put(defrule.getName(), defrule);
 		}
@@ -235,31 +235,31 @@ public class NetworkMockup implements ParserToNetwork, SideEffectFunctionToNetwo
 	}
 
 	@Override
-	public void setConflictResolutionStrategy(ConflictResolutionStrategy conflictResolutionStrategy) {
+	public void setConflictResolutionStrategy(final ConflictResolutionStrategy conflictResolutionStrategy) {
 	}
 
 	@Override
-	public Symbol createTopLevelSymbol(String image) {
+	public Symbol createTopLevelSymbol(final String image) {
 		return null;
 	}
 
 	@Override
-	public boolean loadFromFile(String path, boolean progressInformation) {
+	public boolean loadFromFile(final String path, final boolean progressInformation) {
 		return false;
 	}
 
 	@Override
-	public boolean saveToFile(String path) {
+	public boolean saveToFile(final String path) {
 		return false;
 	}
 
 	@Override
-	public boolean loadFactsFromFile(String path) {
+	public boolean loadFactsFromFile(final String path) {
 		return false;
 	}
 
 	@Override
-	public boolean saveFactsToFile(String path) {
+	public boolean saveFactsToFile(final String path) {
 		return false;
 	}
 }

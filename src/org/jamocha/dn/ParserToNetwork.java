@@ -37,7 +37,7 @@ public interface ParserToNetwork {
 
 	Collection<Template> getTemplates();
 
-	void defRules(final Defrule... defrules);
+	void defRules(final List<Defrule> defrules);
 
 	Defrule getRule(final String name);
 
