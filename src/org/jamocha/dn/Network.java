@@ -90,7 +90,7 @@ import org.jamocha.function.fwa.PathLeaf;
 import org.jamocha.function.fwa.PredicateWithArgumentsComposite;
 import org.jamocha.function.impls.predicates.DummyPredicate;
 import org.jamocha.languages.clips.ClipsLogFormatter;
-import org.jamocha.languages.clips.parser.SFPVisitorImpl;
+import org.jamocha.languages.clips.parser.SFPToCETranslator;
 import org.jamocha.languages.clips.parser.generated.ParseException;
 import org.jamocha.languages.clips.parser.generated.SFPParser;
 import org.jamocha.languages.clips.parser.generated.SFPStart;
@@ -702,7 +702,7 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 
 	@Override
 	public boolean loadFromFile(final String path, final boolean progressInformation) {
-		final SFPVisitorImpl visitor = new SFPVisitorImpl(this, this);
+		final SFPToCETranslator visitor = new SFPToCETranslator(this, this);
 		try (final FileInputStream inputStream = new FileInputStream(new File(path))) {
 			final SFPParser parser = new SFPParser(inputStream);
 			while (true) {
@@ -726,7 +726,7 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 
 	@Override
 	public boolean loadFactsFromFile(final String path) {
-		final SFPVisitorImpl visitor = new SFPVisitorImpl(this, this);
+		final SFPToCETranslator visitor = new SFPToCETranslator(this, this);
 		try (final FileInputStream inputStream = new FileInputStream(new File(path))) {
 			final SFPParser parser = new SFPParser(inputStream);
 			while (true) {

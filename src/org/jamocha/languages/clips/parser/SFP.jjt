@@ -64,7 +64,7 @@ PARSER_BEGIN(SFPParser)
  */
 package org.jamocha.languages.clips.parser.generated;
 
-import org.jamocha.languages.clips.parser.SFPVisitorImpl;
+import org.jamocha.languages.clips.parser.SFPToCETranslator;
 import org.jamocha.languages.common.ParserUtils;
 import org.jamocha.dn.Network;
 

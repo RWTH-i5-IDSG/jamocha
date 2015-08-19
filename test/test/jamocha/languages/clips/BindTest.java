@@ -30,7 +30,7 @@ import java.util.Queue;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.jamocha.dn.Network;
-import org.jamocha.languages.clips.parser.SFPVisitorImpl;
+import org.jamocha.languages.clips.parser.SFPToCETranslator;
 import org.jamocha.languages.clips.parser.generated.ParseException;
 import org.jamocha.languages.clips.parser.generated.SFPParser;
 import org.jamocha.languages.clips.parser.generated.SFPStart;
@@ -79,7 +79,7 @@ public class BindTest {
 	private static Pair<Queue<Object>, Queue<Warning>> run(final Network network, final String parserInput)
 			throws ParseException {
 		final SFPParser parser = new SFPParser(new StringReader(parserInput + linesep));
-		final SFPVisitorImpl visitor = new SFPVisitorImpl(network, network);
+		final SFPToCETranslator visitor = new SFPToCETranslator(network, network);
 		final Queue<Object> values = new LinkedList<>();
 
 		while (true) {

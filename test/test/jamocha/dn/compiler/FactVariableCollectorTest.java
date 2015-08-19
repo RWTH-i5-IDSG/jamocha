@@ -34,7 +34,7 @@ import org.jamocha.dn.ConstructCache.Defrule;
 import org.jamocha.dn.compiler.ShallowFactVariableCollector;
 import org.jamocha.filter.Path;
 import org.jamocha.filter.SymbolCollector;
-import org.jamocha.languages.clips.parser.SFPVisitorImpl;
+import org.jamocha.languages.clips.parser.SFPToCETranslator;
 import org.jamocha.languages.clips.parser.generated.ParseException;
 import org.jamocha.languages.clips.parser.generated.SFPParser;
 import org.jamocha.languages.clips.parser.generated.SFPStart;
@@ -69,7 +69,7 @@ public class FactVariableCollectorTest {
 	private static String preRule = "(defrule " + ruleName;
 	private static String postRule = "=> )\n";
 
-	private static Queue<Warning> run(final SFPParser parser, final SFPVisitorImpl visitor) throws ParseException {
+	private static Queue<Warning> run(final SFPParser parser, final SFPToCETranslator visitor) throws ParseException {
 		while (true) {
 			final SFPStart n = parser.Start();
 			if (n == null)
@@ -92,7 +92,7 @@ public class FactVariableCollectorTest {
 				new StringReader(new StringJoiner(" ").add(templateString).add(template2String).add(template3String)
 						.add(preRule).add(condition).add(postRule).toString());
 		final SFPParser parser = new SFPParser(parserInput);
-		final SFPVisitorImpl visitor = new SFPVisitorImpl(ptn, ptn);
+		final SFPToCETranslator visitor = new SFPToCETranslator(ptn, ptn);
 		run(parser, visitor);
 		final Defrule rule = ptn.getRule(ruleName);
 		return rule.getCondition();
