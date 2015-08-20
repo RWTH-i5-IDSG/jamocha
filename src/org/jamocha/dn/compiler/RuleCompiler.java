@@ -20,7 +20,7 @@ import java.util.Collection;
 import java.util.List;
 
 import org.jamocha.dn.ConstructCache.Defrule;
-import org.jamocha.dn.ConstructCache.Defrule.ECFilterSetCondition;
+import org.jamocha.dn.ConstructCache.Defrule.ECSetRule;
 import org.jamocha.dn.ConstructCache.Defrule.PathRule;
 import org.jamocha.dn.ConstructCache.Defrule.PathSetBasedRule;
 import org.jamocha.dn.compiler.ecblocks.CEToECTranslator;
@@ -108,7 +108,7 @@ public enum RuleCompiler {
 	ECBLOCKS {
 		@Override
 		public Collection<PathRule> compileRules(final Template initialFactTemplate, final Collection<Defrule> defrules) {
-			final List<ECFilterSetCondition> consolidatedRules =
+			final List<ECSetRule> consolidatedRules =
 					defrules.stream()
 							.flatMap(rule -> new CEToECTranslator(initialFactTemplate, rule).translate().stream())
 							.collect(toList());

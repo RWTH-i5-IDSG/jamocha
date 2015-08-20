@@ -36,7 +36,7 @@ import lombok.extern.log4j.Log4j2;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.jamocha.dn.ConstructCache.Defrule;
-import org.jamocha.dn.ConstructCache.Defrule.ECFilterSetCondition;
+import org.jamocha.dn.ConstructCache.Defrule.ECSetRule;
 import org.jamocha.dn.compiler.DeepFactVariableCollector;
 import org.jamocha.dn.compiler.ShallowFactVariableCollector;
 import org.jamocha.dn.compiler.Specificity;
@@ -93,9 +93,9 @@ public class CEToECTranslator implements DefaultConditionalElementsVisitor {
 	private final Template initialFactTemplate;
 	private final Defrule rule;
 	@Getter
-	private List<ECFilterSetCondition> translateds = Collections.emptyList();
+	private List<ECSetRule> translateds = Collections.emptyList();
 
-	public List<ECFilterSetCondition> translate() {
+	public List<ECSetRule> translate() {
 		assert rule.getCondition().getConditionalElements().size() == 1;
 		return rule.getCondition().getConditionalElements().get(0).accept(this).translateds;
 	}
@@ -146,7 +146,7 @@ public class CEToECTranslator implements DefaultConditionalElementsVisitor {
 							.collect(toSet());
 		}
 
-		public static ECFilterSetCondition consolidate(final Template initialFactTemplate, final Defrule rule,
+		public static ECSetRule consolidate(final Template initialFactTemplate, final Defrule rule,
 				final ConditionalElement ce, final Map<VariableSymbol, EquivalenceClass> symbolToECbackup) {
 			final Scope scope = rule.getCondition().getScope();
 			final Set<VariableSymbol> symbols = symbolToECbackup.keySet();
@@ -235,7 +235,7 @@ public class CEToECTranslator implements DefaultConditionalElementsVisitor {
 					new HashSet<>(equivalenceClassBuilder.equivalenceClasses.values());
 			final Set<PredicateWithArguments<SymbolLeaf>> shallowTests = equivalenceClassBuilder.shallowTests;
 
-			final ECFilterSetCondition result =
+			final ECSetRule result =
 					consolidateOnCopiedEquivalenceClasses(initialFactTemplate, rule, ce, shallowTests,
 							equivalenceClasses, Specificity.calculate(ce));
 
@@ -412,7 +412,7 @@ public class CEToECTranslator implements DefaultConditionalElementsVisitor {
 			}
 		}
 
-		private static ECFilterSetCondition consolidateOnCopiedEquivalenceClasses(final Template initialFactTemplate,
+		private static ECSetRule consolidateOnCopiedEquivalenceClasses(final Template initialFactTemplate,
 				final Defrule rule, final ConditionalElement ce,
 				final Set<PredicateWithArguments<SymbolLeaf>> shallowTests,
 				final Set<EquivalenceClass> equivalenceClasses, final int specificity) {

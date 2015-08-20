@@ -94,15 +94,15 @@ public class ConstructCache {
 			this.activationMarker = MarkerType.ACTIVATIONS.createChild(name);
 		}
 
-		public ECFilterSetCondition newECFilterSetCondition(final Set<ECFilterSet> condition,
+		public ECSetRule newECFilterSetCondition(final Set<ECFilterSet> condition,
 				final Set<SingleFactVariable> factVariables, final Set<EquivalenceClass> equivalenceClasses,
 				final int specificity) {
-			return new ECFilterSetCondition(condition, factVariables, equivalenceClasses, actionList, specificity);
+			return new ECSetRule(condition, factVariables, equivalenceClasses, actionList, specificity);
 		}
 
 		@Data
 		@RequiredArgsConstructor
-		public class ECFilterSetCondition {
+		public class ECSetRule {
 			final Set<ECFilterSet> condition;
 			final Set<SingleFactVariable> factVariables;
 			final Set<EquivalenceClass> equivalenceClasses;

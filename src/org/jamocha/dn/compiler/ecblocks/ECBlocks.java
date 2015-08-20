@@ -62,7 +62,7 @@ import lombok.Value;
 import org.apache.commons.collections4.iterators.PermutationIterator;
 import org.apache.commons.collections4.list.CursorableLinkedList;
 import org.apache.commons.lang3.tuple.Pair;
-import org.jamocha.dn.ConstructCache.Defrule.ECFilterSetCondition;
+import org.jamocha.dn.ConstructCache.Defrule.ECSetRule;
 import org.jamocha.dn.ConstructCache.Defrule.PathRule;
 import org.jamocha.dn.compiler.ecblocks.ECBlocks.Filter.FilterInstance;
 import org.jamocha.dn.compiler.ecblocks.ECBlocks.Filter.FilterInstance.Conflict;
@@ -444,7 +444,7 @@ public class ECBlocks {
 	@EqualsAndHashCode(of = { "original" })
 	@ToString(of = { "original", "filters" })
 	static class Rule {
-		final ECFilterSetCondition original;
+		final ECSetRule original;
 		final Set<Filter> filters = new HashSet<>();
 		final BiMap<FilterInstance, ExistentialProxy> existentialProxies = HashBiMap.create();
 	}
@@ -735,7 +735,7 @@ public class ECBlocks {
 		return ruleOrProxy.fold(Rule::getFilters, ExistentialProxy::getFilters);
 	}
 
-	protected static void addRule(final ECFilterSetCondition ecFilterSetCondition,
+	protected static void addRule(final ECSetRule ecFilterSetCondition,
 			final List<Either<Rule, ExistentialProxy>> rules) {
 		final Rule rule = new Rule(ecFilterSetCondition);
 		// first step: create all filter instances
@@ -848,9 +848,9 @@ public class ECBlocks {
 		}
 	}
 
-	public static List<PathRule> transform(final List<ECFilterSetCondition> rules) {
+	public static List<PathRule> transform(final List<ECSetRule> rules) {
 		final List<Either<Rule, ExistentialProxy>> translatedRules = new ArrayList<>();
-		for (final ECFilterSetCondition rule : rules) {
+		for (final ECSetRule rule : rules) {
 			addRule(rule, translatedRules);
 		}
 		// find all horizontally maximal blocks
