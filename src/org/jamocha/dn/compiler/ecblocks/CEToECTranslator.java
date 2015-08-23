@@ -291,7 +291,20 @@ public class CEToECTranslator implements DefaultConditionalElementsVisitor {
 				this.negated = negated;
 				this.occurringSymbols = occurringSymbols;
 				this.equivalenceClasses =
-						occurringSymbols.stream().collect(toMap(SymbolLeaf::new, VariableSymbol::getEqual));
+						occurringSymbols.stream().collect(toMap(SymbolLeaf::new, this::getNewECForExistentials));
+			}
+
+			private EquivalenceClass getNewECForExistentials(final VariableSymbol vs) {
+				final EquivalenceClass oldEc = vs.getEqual();
+				if (this.scope == oldEc.getMaximalScope()) {
+					return oldEc;
+				}
+				final EquivalenceClass newEc = EquivalenceClass.newECFromType(this.scope, oldEc.getType());
+				for (final FunctionWithArguments<SymbolLeaf> constant : oldEc.getConstantExpressions()) {
+					newEc.add(constant);
+				}
+				EquivalenceClass.addEqualParentEquivalenceClassRelation(newEc, oldEc);
+				return newEc;
 			}
 
 			@RequiredArgsConstructor
