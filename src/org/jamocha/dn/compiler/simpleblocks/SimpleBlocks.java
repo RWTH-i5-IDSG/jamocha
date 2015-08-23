@@ -738,10 +738,7 @@ public class SimpleBlocks {
 		// first step: create all filter instances
 		final Set<PathFilterSet> condition = pathBasedRule.getCondition();
 		final Either<Rule, ExistentialProxy> ruleEither = Either.left(rule);
-		final RuleConverter converter = new RuleConverter(rules, ruleEither);
-		for (final PathFilterSet filter : condition) {
-			filter.accept(converter);
-		}
+		RuleConverter.convert(rules, ruleEither, condition);
 		// from this point on, the rule won't change any more (aka the filters and the existential
 		// proxies have been added) => it can be used as a key in a HashMap
 
@@ -798,6 +795,14 @@ public class SimpleBlocks {
 	static class RuleConverter implements PathFilterSetVisitor {
 		final List<Either<Rule, ExistentialProxy>> rules;
 		final Either<Rule, ExistentialProxy> ruleOrProxy;
+
+		public static void convert(final List<Either<Rule, ExistentialProxy>> rules,
+				final Either<Rule, ExistentialProxy> ruleOrProxy, final Collection<PathFilterSet> filters) {
+			final RuleConverter ruleConverter = new RuleConverter(rules, ruleOrProxy);
+			for (final PathFilterSet filter : filters) {
+				filter.accept(ruleConverter);
+			}
+		}
 
 		@Override
 		public void visit(final PathFilter pathFilter) {

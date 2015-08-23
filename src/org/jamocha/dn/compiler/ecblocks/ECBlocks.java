@@ -735,16 +735,12 @@ public class ECBlocks {
 		return ruleOrProxy.fold(Rule::getFilters, ExistentialProxy::getFilters);
 	}
 
-	protected static void addRule(final ECSetRule ecFilterSetCondition,
-			final List<Either<Rule, ExistentialProxy>> rules) {
+	protected static void addRule(final ECSetRule ecFilterSetCondition, final List<Either<Rule, ExistentialProxy>> rules) {
 		final Rule rule = new Rule(ecFilterSetCondition);
 		// first step: create all filter instances
 		final Set<ECFilterSet> condition = ecFilterSetCondition.getCondition();
 		final Either<Rule, ExistentialProxy> ruleEither = Either.left(rule);
-		final RuleConverter converter = new RuleConverter(rules, ruleEither);
-		for (final ECFilterSet filter : condition) {
-			filter.accept(converter);
-		}
+		RuleConverter.convert(rules, ruleEither, condition);
 		// from this point on, the rule won't change any more (aka the filters and the existential
 		// proxies have been added) => it can be used as a key in a HashMap
 
@@ -801,6 +797,14 @@ public class ECBlocks {
 	static class RuleConverter implements ECFilterSetVisitor {
 		final List<Either<Rule, ExistentialProxy>> rules;
 		final Either<Rule, ExistentialProxy> ruleOrProxy;
+
+		public static void convert(final List<Either<Rule, ExistentialProxy>> rules,
+				final Either<Rule, ExistentialProxy> ruleOrProxy, final Collection<ECFilterSet> filters) {
+			final RuleConverter ruleConverter = new RuleConverter(rules, ruleOrProxy);
+			for (final ECFilterSet filter : filters) {
+				filter.accept(ruleConverter);
+			}
+		}
 
 		@Override
 		public void visit(final ECFilter ecFilter) {
