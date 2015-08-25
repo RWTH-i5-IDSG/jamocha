@@ -32,6 +32,7 @@ import lombok.Value;
 import org.apache.logging.log4j.Marker;
 import org.jamocha.dn.memory.MemoryHandlerTerminal.AssertOrRetract;
 import org.jamocha.dn.memory.Template;
+import org.jamocha.filter.ECFilterList.ECSharedListWrapper.ECSharedList;
 import org.jamocha.filter.ECFilterSet;
 import org.jamocha.filter.Path;
 import org.jamocha.filter.PathCollector;
@@ -104,6 +105,30 @@ public class ConstructCache {
 		@RequiredArgsConstructor
 		public class ECSetRule {
 			final Set<ECFilterSet> condition;
+			final Set<SingleFactVariable> factVariables;
+			final Set<EquivalenceClass> equivalenceClasses;
+			final FunctionWithArguments<SymbolLeaf>[] actionList;
+			final int specificity;
+
+			public Defrule getParent() {
+				return Defrule.this;
+			}
+
+			public PathRule toPathRule(final PathSharedListWrapper.PathSharedList convertedCondition,
+					final Set<Path> resultPaths, final Map<EquivalenceClass, PathLeaf> equivalenceClassToPathLeaf) {
+				return new PathRule(convertedCondition, resultPaths, actionList, equivalenceClassToPathLeaf,
+						specificity);
+			}
+
+			public ECListRule toECListRule(final ECSharedList condition) {
+				return new ECListRule(condition, factVariables, equivalenceClasses, actionList, specificity);
+			}
+		}
+
+		@Data
+		@RequiredArgsConstructor
+		public class ECListRule {
+			final ECSharedList condition;
 			final Set<SingleFactVariable> factVariables;
 			final Set<EquivalenceClass> equivalenceClasses;
 			final FunctionWithArguments<SymbolLeaf>[] actionList;

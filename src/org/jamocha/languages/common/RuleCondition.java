@@ -346,7 +346,9 @@ public class RuleCondition {
 		}
 
 		public boolean isNonTrivial() {
-			return (this.factVariables.isEmpty() ? 0 : 1) + this.slotVariables.size() > 1;
+			return (this.factVariables.isEmpty() ? 0 : 1) + this.slotVariables.size()
+					+ this.unequalEquivalenceClasses.size() + this.equalParentEquivalenceClasses.size()
+					+ this.constantExpressions.size() + this.variableExpressions.size() > 1;
 		}
 	}
 }

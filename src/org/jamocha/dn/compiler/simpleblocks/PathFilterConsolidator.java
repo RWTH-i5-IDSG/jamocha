@@ -180,6 +180,7 @@ public class PathFilterConsolidator implements DefaultConditionalElementsVisitor
 													(final EquivalenceClass ec) -> new EquivalenceClass(ec))));
 			replaceEC(symbols, oldToNew);
 
+			// FIXME !check why this is unused!
 			final HashSet<FunctionWithArguments<SymbolLeaf>> occurringFWAs =
 					FWACollector.newHashSet().collect(ce).getFwas();
 			final HashSet<SingleFactVariable> occurringFactVariables =

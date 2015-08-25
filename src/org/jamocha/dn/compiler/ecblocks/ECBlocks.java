@@ -34,6 +34,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
@@ -62,30 +63,33 @@ import lombok.Value;
 import org.apache.commons.collections4.iterators.PermutationIterator;
 import org.apache.commons.collections4.list.CursorableLinkedList;
 import org.apache.commons.lang3.tuple.Pair;
+import org.jamocha.dn.ConstructCache.Defrule.ECListRule;
 import org.jamocha.dn.ConstructCache.Defrule.ECSetRule;
 import org.jamocha.dn.ConstructCache.Defrule.PathRule;
 import org.jamocha.dn.compiler.ecblocks.ECBlocks.Filter.FilterInstance;
 import org.jamocha.dn.compiler.ecblocks.ECBlocks.Filter.FilterInstance.Conflict;
 import org.jamocha.dn.memory.SlotType;
 import org.jamocha.filter.ECFilter;
+import org.jamocha.filter.ECFilterList;
+import org.jamocha.filter.ECFilterList.ECNodeFilterSet;
+import org.jamocha.filter.ECFilterList.ECSharedListWrapper;
+import org.jamocha.filter.ECFilterList.ECSharedListWrapper.ECSharedList;
 import org.jamocha.filter.ECFilterSet;
 import org.jamocha.filter.ECFilterSet.ECExistentialSet;
 import org.jamocha.filter.ECFilterSetVisitor;
 import org.jamocha.filter.Path;
-import org.jamocha.filter.PathFilterList;
-import org.jamocha.filter.PathFilterList.PathSharedListWrapper;
-import org.jamocha.filter.PathFilterList.PathSharedListWrapper.PathSharedList;
-import org.jamocha.filter.PathFilterSet.PathExistentialSet;
-import org.jamocha.filter.PathNodeFilterSet;
 import org.jamocha.function.Predicate;
 import org.jamocha.function.fwa.ConstantLeaf;
 import org.jamocha.function.fwa.DefaultFunctionWithArgumentsLeafVisitor;
 import org.jamocha.function.fwa.ECLeaf;
+import org.jamocha.function.fwa.FunctionWithArguments;
 import org.jamocha.function.fwa.GlobalVariableLeaf;
 import org.jamocha.function.fwa.PredicateWithArguments;
 import org.jamocha.function.fwa.PredicateWithArgumentsComposite;
+import org.jamocha.function.fwa.SymbolLeaf;
 import org.jamocha.languages.common.RuleCondition.EquivalenceClass;
 import org.jamocha.languages.common.SingleFactVariable;
+import org.jamocha.languages.common.SingleFactVariable.SingleSlotVariable;
 import org.jgrapht.DirectedGraph;
 import org.jgrapht.UndirectedGraph;
 import org.jgrapht.alg.VertexCovers;
@@ -159,11 +163,11 @@ public class ECBlocks {
 			return ruleToInstances.computeIfAbsent(ruleOrProxy, newHashSet());
 		}
 
-		public PathFilterList convert(
+		public ECFilterList convert(
 				final FilterInstance instance,
 				@SuppressWarnings("unused") final Map<Either<Rule, ExistentialProxy>, Map<FilterInstance, Set<FilterInstance>>> ruleToJoinedWith,
-				@SuppressWarnings("unused") final Map<Set<FilterInstance>, PathFilterList> joinedWithToComponent) {
-			return PathNodeFilterSet.newRegularPathNodeFilterSet(instance.ecFilter);
+				@SuppressWarnings("unused") final Map<Set<FilterInstance>, ECFilterList> joinedWithToComponent) {
+			return new ECNodeFilterSet(instance.ecFilter);
 		}
 
 		/**
@@ -201,9 +205,9 @@ public class ECBlocks {
 				return Filter.this;
 			}
 
-			public PathFilterList convert(
+			public ECFilterList convert(
 					final Map<Either<Rule, ExistentialProxy>, Map<FilterInstance, Set<FilterInstance>>> ruleToJoinedWith,
-					final Map<Set<FilterInstance>, PathFilterList> joinedWithToComponent) {
+					final Map<Set<FilterInstance>, ECFilterList> joinedWithToComponent) {
 				return getFilter().convert(this, ruleToJoinedWith, joinedWithToComponent);
 			}
 
@@ -289,23 +293,22 @@ public class ECBlocks {
 		}
 
 		@Override
-		public PathFilterList convert(final FilterInstance instance,
+		public ECFilterList convert(final FilterInstance instance,
 				final Map<Either<Rule, ExistentialProxy>, Map<FilterInstance, Set<FilterInstance>>> ruleToJoinedWith,
-				final Map<Set<FilterInstance>, PathFilterList> joinedWithToComponent) {
+				final Map<Set<FilterInstance>, ECFilterList> joinedWithToComponent) {
 			final Map<FilterInstance, Set<FilterInstance>> joinedWithMap =
 					ruleToJoinedWith.get(instance.getRuleOrProxy());
-			final List<PathFilterList> components =
+			final List<ECFilterList> components =
 					joinedWithMap.values().stream().distinct().map(joinedWithToComponent::get).filter(Objects::nonNull)
 							.collect(toList());
-			final PathFilterList component =
-					(1 == components.size()) ? components.get(0) : new PathSharedListWrapper()
+			final ECFilterList component =
+					(1 == components.size()) ? components.get(0) : new ECSharedListWrapper()
 							.newSharedElement(components);
 			assert instance.getRuleOrProxy().isLeft() : "Nested Existentials Unsupported!";
-			final PathExistentialSet existential =
+			final ECExistentialSet existential =
 					instance.getRuleOrProxy().left().get().getExistentialProxies().get(instance).getExistential();
-			return new PathFilterList.PathExistentialList(existential.getInitialPath(), component,
-					PathNodeFilterSet.newExistentialPathNodeFilterSet(!existential.isPositive(),
-							existential.getExistentialPaths(), instance.getPathFilter()));
+			return new ECFilterList.ECExistentialList(existential.isPositive(), existential.getInitialFactVariable(),
+					existential.getExistentialFactVariables(), component, new ECNodeFilterSet(instance.getEcFilter()));
 		}
 
 		@Override
@@ -793,6 +796,15 @@ public class ECBlocks {
 		return graph;
 	}
 
+	static class EquivalenceClassProxy extends EquivalenceClass {
+		final EquivalenceClass original;
+
+		public EquivalenceClassProxy(final EquivalenceClass original) {
+			super(original);
+			this.original = original;
+		}
+	}
+
 	@AllArgsConstructor
 	static class RuleConverter implements ECFilterSetVisitor {
 		final List<Either<Rule, ExistentialProxy>> rules;
@@ -801,6 +813,19 @@ public class ECBlocks {
 		public static void convert(final List<Either<Rule, ExistentialProxy>> rules,
 				final Either<Rule, ExistentialProxy> ruleOrProxy, final Collection<ECFilterSet> filters) {
 			final RuleConverter ruleConverter = new RuleConverter(rules, ruleOrProxy);
+			// FIXME !explicitly add the tests currently implicit within the equivalence classes!
+			final Rule rule = ruleOrProxy.left().get();
+			final Set<EquivalenceClass> equivalenceClasses = rule.getOriginal().getEquivalenceClasses();
+			for (final EquivalenceClass equivalenceClass : equivalenceClasses) {
+				final LinkedList<SingleFactVariable> factVariables = equivalenceClass.getFactVariables();
+				final LinkedList<SingleSlotVariable> slotVariables = equivalenceClass.getSlotVariables();
+				final LinkedList<FunctionWithArguments<SymbolLeaf>> constantExpressions = equivalenceClass.getConstantExpressions();
+				final LinkedList<FunctionWithArguments<SymbolLeaf>> variableExpressions = equivalenceClass.getVariableExpressions();
+				final Set<EquivalenceClass> unequalEquivalenceClasses = equivalenceClass.getUnequalEquivalenceClasses();
+				final Set<EquivalenceClass> equalParentEquivalenceClasses = equivalenceClass.getEqualParentEquivalenceClasses();
+				// FWASymbolToECTranslator
+				final EquivalenceClassProxy equivalenceClassProxy = new EquivalenceClassProxy(equivalenceClass);
+			}
 			for (final ECFilterSet filter : filters) {
 				filter.accept(ruleConverter);
 			}
@@ -916,11 +941,11 @@ public class ECBlocks {
 		final Set<FilterInstance> constructedFIs = new HashSet<>();
 		final Map<Either<Rule, ExistentialProxy>, Map<FilterInstance, Set<FilterInstance>>> ruleToJoinedWith =
 				new HashMap<>();
-		final Map<Set<FilterInstance>, PathFilterList> joinedWithToComponent = new HashMap<>();
+		final Map<Set<FilterInstance>, ECFilterList> joinedWithToComponent = new HashMap<>();
 		// at this point, the network can be constructed
 		for (final CursorableLinkedList<Block> blockList : blockMap.values()) {
 			for (final Block block : blockList) {
-				final PathSharedListWrapper sharedListWrapper = new PathSharedListWrapper();
+				final ECSharedListWrapper sharedListWrapper = new ECSharedListWrapper();
 				for (final Either<Rule, ExistentialProxy> rule : block.getRulesOrProxies()) {
 					final List<FilterInstance> fisToConstruct =
 							block.ruleToFilterToRow.get(rule).values().stream()
@@ -935,7 +960,7 @@ public class ECBlocks {
 					final Set<FilterInstance> joinedWith =
 							joinedWithSets.stream().flatMap(Set::stream).collect(toSet());
 					joinedWith.forEach(fi -> fiToJoinedWith.put(fi, joinedWith));
-					final PathSharedList newSharedElement =
+					final ECSharedList newSharedElement =
 							sharedListWrapper.newSharedElement(joinedWithSets
 									.stream()
 									.map(set -> joinedWithToComponent.computeIfAbsent(set, x -> x.iterator().next()
@@ -950,11 +975,14 @@ public class ECBlocks {
 			if (either.isRight()) {
 				continue;
 			}
-			final List<PathFilterList> pathFilterLists =
+			final List<ECFilterList> pathFilterLists =
 					ruleToJoinedWith.getOrDefault(either, Collections.emptyMap()).values().stream().distinct()
 							.map(joinedWithToComponent::get).collect(toList());
-			pathRules.add(either.left().get().getOriginal()
-					.toPathRule(new PathSharedListWrapper().newSharedElement(pathFilterLists)));
+			final ECSetRule ecSetRule = either.left().get().getOriginal();
+			final ECListRule ecListRule =
+					ecSetRule.toECListRule(new ECSharedListWrapper().newSharedElement(pathFilterLists));
+			final PathRule pathRule = ECFilterOrderOptimizer.optimize(ecListRule);
+			pathRules.add(pathRule);
 		}
 		return pathRules;
 	}

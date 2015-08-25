@@ -18,6 +18,7 @@ import java.util.Set;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.ToString;
 
 import org.jamocha.visitor.Visitable;
 
@@ -31,6 +32,7 @@ public interface PathFilterSet extends Visitable<PathFilterSetVisitor> {
 	 */
 	@RequiredArgsConstructor
 	@Getter
+	@ToString
 	public static class PathExistentialSet implements PathFilterSet {
 		final boolean positive;
 		final Path initialPath;

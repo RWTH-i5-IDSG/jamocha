@@ -12,20 +12,23 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package org.jamocha.filter;
+package org.jamocha.dn.compiler.ecblocks;
 
-import org.jamocha.filter.ECFilterList.ECExistentialList;
-import org.jamocha.filter.ECFilterList.ECNodeFilterSet;
-import org.jamocha.filter.ECFilterList.ECSharedListWrapper.ECSharedList;
-import org.jamocha.visitor.Visitor;
+import org.jamocha.dn.ConstructCache.Defrule.ECListRule;
+import org.jamocha.dn.ConstructCache.Defrule.PathRule;
+import org.jamocha.filter.ECFilterList;
 
 /**
+ * A class to optimize the order of a list of {@link ECFilterList}s
+ * 
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
-public interface ECFilterListVisitor extends Visitor {
-	public void visit(final ECNodeFilterSet list);
+public class ECFilterOrderOptimizer {
 
-	public void visit(final ECExistentialList list);
+	public static PathRule optimize(final ECListRule rule) {
+		// FIXME !implement me!
+		return null;
+		// return rule.toPathRule(convertedCondition, resultPaths, equivalenceClassToPathLeaf);
+	}
 
-	public void visit(final ECSharedList list);
 }
