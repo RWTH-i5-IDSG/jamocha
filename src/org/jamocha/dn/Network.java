@@ -465,7 +465,11 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 			// FIXME improve by minimizing the intermediate results: easily done when the size of
 			// the nodes (keySet of the map) is known approximately
 			final PathLeaf[] representatives =
-					toArray(nodeToJoinedPaths.values().stream().map(l -> new PathLeaf(l.get(0), null)), PathLeaf[]::new);
+					toArray(nodeToJoinedPaths
+							.values()
+							.stream()
+							.map(l -> new PathLeaf(l.stream().filter(pathRule.resultPaths::contains).findAny().get(),
+									null)), PathLeaf[]::new);
 			final PathNodeFilterSet filter =
 					PathNodeFilterSet.newRegularPathNodeFilterSet(new PathFilter(
 							new PredicateWithArgumentsComposite<PathLeaf>(DummyPredicate.instance, representatives)));
