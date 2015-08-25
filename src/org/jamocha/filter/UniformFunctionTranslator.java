@@ -39,7 +39,8 @@ public class UniformFunctionTranslator {
 	public static <L extends ExchangeableLeaf<L>> PredicateWithArguments<L> translate(
 			final PredicateWithArguments<L> predicateWithArguments) {
 		final PredicateWithArguments<L> copy =
-				(PredicateWithArguments<L>) predicateWithArguments.accept(new FWADeepCopy<>()).getResult();
+				(PredicateWithArguments<L>) predicateWithArguments.accept(new FWADeepCopy<>())
+						.getFunctionWithArguments();
 		final PredicateWithArguments<L> transformed =
 				(PredicateWithArguments<L>) copy.accept(new UpperLevelFWATranslator<>(copy)).result;
 		return transformed;

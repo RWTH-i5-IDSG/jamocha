@@ -77,9 +77,7 @@ public class PathNodeFilterSetToAddressNodeFilterSetTranslator {
 		public void visit(final PathFilter pathFilter) {
 			final ArrayList<SlotInFactAddress> addresses = new ArrayList<>();
 			final PredicateWithArguments<ParameterLeaf> predicateWithArguments =
-					pathFilter.getFunction()
-							.accept(new FWAPathToAddressTranslator.PWAPathToAddressTranslator(addresses))
-							.getFunctionWithArguments();
+					FWAPathToAddressTranslator.translate(pathFilter.getFunction(), addresses);
 			final SlotInFactAddress[] addressArray = toArray(addresses, SlotInFactAddress[]::new);
 			final CounterColumn counterColumn = counterColumnMatcher.getCounterColumn(pathFilter);
 			if (null == counterColumn) {
@@ -91,20 +89,7 @@ public class PathNodeFilterSetToAddressNodeFilterSetTranslator {
 
 		@Override
 		public void visit(final PathExistentialSet existential) {
-			final PathFilter pathFilter = existential.getExistentialClosure();
-			final ArrayList<SlotInFactAddress> addresses = new ArrayList<>();
-			final PredicateWithArguments<ParameterLeaf> predicateWithArguments =
-					pathFilter.getFunction()
-							.accept(new FWAPathToAddressTranslator.PWAPathToAddressTranslator(addresses))
-							.getFunctionWithArguments();
-
-			final SlotInFactAddress[] addressArray = toArray(addresses, SlotInFactAddress[]::new);
-			final CounterColumn counterColumn = counterColumnMatcher.getCounterColumn(pathFilter);
-			if (null == counterColumn) {
-				this.result = new AddressFilter(predicateWithArguments, addressArray);
-			} else {
-				this.result = new ExistentialAddressFilter(predicateWithArguments, addressArray, counterColumn);
-			}
+			existential.getExistentialClosure().accept(this);
 		}
 	}
 }
