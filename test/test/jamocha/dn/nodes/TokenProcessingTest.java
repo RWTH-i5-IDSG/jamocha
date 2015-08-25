@@ -166,10 +166,10 @@ public class TokenProcessingTest {
 		assertEquals(0, betaNodeStudent.getOutgoingExistentialEdges().size());
 		final Edge[] studentIncomingEdges = betaNodeStudent.getIncomingEdges();
 		assertEquals(2, studentIncomingEdges.length);
-		final int alphaIndex = studentIncomingEdges[0].getSourceNode() instanceof AlphaNode ? 0 : 1;
-		final Node alphaNode = studentIncomingEdges[1 - alphaIndex].getSourceNode();
+		final int otnIndex = studentIncomingEdges[0].getSourceNode() instanceof ObjectTypeNode ? 0 : 1;
+		final Node alphaNode = studentIncomingEdges[1 - otnIndex].getSourceNode();
 		assertThat(alphaNode, Matchers.instanceOf(AlphaNode.class));
-		final Node studentOTN = studentIncomingEdges[0].getSourceNode();
+		final Node studentOTN = studentIncomingEdges[otnIndex].getSourceNode();
 		assertThat(studentOTN, Matchers.instanceOf(ObjectTypeNode.class));
 		assertEquals(1, studentOTN.getOutgoingExistentialEdges().size());
 		assertEquals(2, studentOTN.getOutgoingEdges().size());
