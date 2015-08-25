@@ -74,7 +74,7 @@ public class ECCollector implements DefaultFunctionWithArgumentsLeafVisitor<ECLe
 
 	@Override
 	public void visit(final ECExistentialList list) {
-		list.getPurePart().forEach(fl -> fl.accept(this));
+		list.getPurePart().accept(this);
 		list.getExistentialClosure().accept(this);
 	}
 
