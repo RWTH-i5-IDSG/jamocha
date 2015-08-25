@@ -14,11 +14,15 @@
  */
 package test.jamocha.dn.nodes;
 
+import static java.util.stream.Collectors.toList;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertThat;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -124,8 +128,8 @@ public class BetaNodeTest {
 						new PathAndSlotAddress(p3, s1)));
 		incomingEdges = beta2.getIncomingEdges();
 		assertEquals(2, incomingEdges.length);
-		assertEquals(beta, incomingEdges[0].getSourceNode());
-		assertEquals(otn, incomingEdges[1].getSourceNode());
+		assertThat(Arrays.stream(incomingEdges).map(Edge::getSourceNode).collect(toList()),
+				containsInAnyOrder(beta, otn));
 		assertSame(beta2, p1.getCurrentlyLowestNode());
 		assertSame(beta2, p2.getCurrentlyLowestNode());
 		assertSame(beta2, p3.getCurrentlyLowestNode());
