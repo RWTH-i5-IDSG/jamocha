@@ -49,7 +49,6 @@ import org.jamocha.dn.compiler.Specificity;
 import org.jamocha.dn.memory.SlotAddress;
 import org.jamocha.dn.memory.SlotType;
 import org.jamocha.dn.memory.Template;
-import org.jamocha.filter.FWACollector;
 import org.jamocha.filter.Path;
 import org.jamocha.filter.PathCollector;
 import org.jamocha.filter.PathFilter;
@@ -79,7 +78,6 @@ import org.jamocha.languages.common.ConditionalElement.OrFunctionConditionalElem
 import org.jamocha.languages.common.ConditionalElement.TestConditionalElement;
 import org.jamocha.languages.common.DefaultConditionalElementsVisitor;
 import org.jamocha.languages.common.RuleCondition.EquivalenceClass;
-import org.jamocha.languages.common.ScopeStack.Scope;
 import org.jamocha.languages.common.ScopeStack.VariableSymbol;
 import org.jamocha.languages.common.SingleFactVariable;
 import org.jamocha.languages.common.SingleFactVariable.SingleSlotVariable;
@@ -180,9 +178,6 @@ public class PathFilterConsolidator implements DefaultConditionalElementsVisitor
 													(final EquivalenceClass ec) -> new EquivalenceClass(ec))));
 			replaceEC(symbols, oldToNew);
 
-			// FIXME !check why this is unused!
-			final HashSet<FunctionWithArguments<SymbolLeaf>> occurringFWAs =
-					FWACollector.newHashSet().collect(ce).getFwas();
 			final HashSet<SingleFactVariable> occurringFactVariables =
 					new HashSet<>(DeepFactVariableCollector.collect(ce));
 			/*
@@ -295,7 +290,6 @@ public class PathFilterConsolidator implements DefaultConditionalElementsVisitor
 
 			@RequiredArgsConstructor
 			class FWAShallowTestsCollector implements DefaultFunctionWithArgumentsVisitor<SymbolLeaf> {
-				// TODO improvement: distinguish whether the expressions contain symbols
 				// assumption: all expressions are constant in the sense that subsequent calls to
 				// evaluate yield the same result
 
@@ -351,8 +345,6 @@ public class PathFilterConsolidator implements DefaultConditionalElementsVisitor
 		private static PathSetBasedRule consolidateOnCopiedEquivalenceClasses(final Template initialFactTemplate,
 				final Defrule rule, final ConditionalElement ce, final Set<EquivalenceClass> equivalenceClasses,
 				final int specificity, final Map<EquivalenceClass, EquivalenceClass> oldToNew) {
-			final Scope scope = rule.getCondition().getScope();
-
 			// get the tests on this level (stopping at existentials)
 			final Set<PredicateWithArguments<SymbolLeaf>> shallowTests =
 					ce.accept(new ECShallowTestsCollector()).shallowTests;
@@ -403,10 +395,7 @@ public class PathFilterConsolidator implements DefaultConditionalElementsVisitor
 				return;
 			final FunctionWithArguments<PathLeaf> element = equivalenceClassToPathLeaf.get(equiv);
 			Objects.requireNonNull(element, "EquivalenceClass could not be mapped to PathLeaf!");
-			// if (!shallowPaths.contains(element)) {
-			// return;
-			// }
-
+			// constant and variable expressions are empty - no need to create tests for them
 			if (!equiv.getSlotVariables().isEmpty()) {
 				createEqualSlotsAndFactsTests(equiv, filters, ec2Path, (x) -> true, (x) -> element);
 			}
@@ -488,8 +477,7 @@ public class PathFilterConsolidator implements DefaultConditionalElementsVisitor
 		}
 
 		static Set<PathFilterSet> processExistentialCondition(final Template initialFactTemplate,
-				final Path initialFactPath, final ConditionalElement ce, final Scope scope,
-				final Map<EquivalenceClass, Path> ec2Path,
+				final Path initialFactPath, final ConditionalElement ce, final Map<EquivalenceClass, Path> ec2Path,
 				final Map<EquivalenceClass, PathLeaf> equivalenceClassToPathLeaf, final boolean isPositive) {
 			// Collect the existential FactVariables and corresponding paths from the existentialCE
 			final Pair<Path, Map<EquivalenceClass, Path>> initialFactAndPathMap =
@@ -754,14 +742,14 @@ public class PathFilterConsolidator implements DefaultConditionalElementsVisitor
 		public void visit(final ExistentialConditionalElement ce) {
 			assert ce.getChildren().size() == 1;
 			this.filters.addAll(processExistentialCondition(initialFactTemplate, initialFactPath,
-					ce.getChildren().get(0), ce.getScope(), ec2Path, equivalenceClassToPathLeaf, true));
+					ce.getChildren().get(0), ec2Path, equivalenceClassToPathLeaf, true));
 		}
 
 		@Override
 		public void visit(final NegatedExistentialConditionalElement ce) {
 			assert ce.getChildren().size() == 1;
 			this.filters.addAll(processExistentialCondition(initialFactTemplate, initialFactPath,
-					ce.getChildren().get(0), ce.getScope(), ec2Path, equivalenceClassToPathLeaf, false));
+					ce.getChildren().get(0), ec2Path, equivalenceClassToPathLeaf, false));
 		}
 
 		@Override
