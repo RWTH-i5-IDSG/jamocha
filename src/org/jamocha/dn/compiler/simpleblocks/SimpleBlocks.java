@@ -39,11 +39,11 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.NavigableMap;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.Set;
-import java.util.SortedMap;
 import java.util.Stack;
 import java.util.TreeMap;
 import java.util.function.Function;
@@ -705,32 +705,29 @@ public class SimpleBlocks {
 		final TreeMap<Integer, TreeMap<Integer, HashSet<Block>>> ruleCountToFilterCountToBlocks = new TreeMap<>();
 		final TreeMap<Integer, TreeMap<Integer, HashSet<Block>>> filterCountToRuleCountToBlocks = new TreeMap<>();
 
-		public BlockSet(final Set<Block> horizontallyMaximalBlocks) {
-			horizontallyMaximalBlocks
-					.stream()
-					.sorted(Collections.reverseOrder(Comparator.comparingInt(composeToInt(Block::getRulesOrProxies,
-							Set::size)))).forEachOrdered(this::orderedInsertionOfHorizontallyMaximalBlock);
-		}
-
-		private void orderedInsertionOfHorizontallyMaximalBlock(final Block block) {
-			/*
-			 * block is horizontally maximal, thus there can not be a block containing more filters
-			 * with these or even more rules, so we just need to check the blocks containing more
-			 * rules and the same filters. To make it feasible, we use the counts instead of the
-			 * actual instances regarding rules and filters.
-			 */
+		private boolean addDuringHorizontalRecursion(final Block block) {
 			final Integer ruleCount = block.getRulesOrProxies().size();
-			final Integer filterCount = block.getFilters().size();
-			final SortedMap<Integer, HashSet<Block>> fixedFilterCountRules =
+			final Integer filterCount = block.getFlatFilterInstances().size() / ruleCount;
+			final NavigableMap<Integer, HashSet<Block>> fixedRuleCountFilters =
+					ruleCountToFilterCountToBlocks.computeIfAbsent(ruleCount, newTreeMap()).tailMap(filterCount, false);
+			for (final Set<Block> fixedFilterCountRule : fixedRuleCountFilters.values()) {
+				for (final Block candidate : fixedFilterCountRule) {
+					if (block.containedIn(candidate)) {
+						return false;
+					}
+				}
+			}
+			final NavigableMap<Integer, HashSet<Block>> fixedFilterCountRules =
 					filterCountToRuleCountToBlocks.computeIfAbsent(filterCount, newTreeMap()).tailMap(ruleCount, false);
 			for (final Set<Block> fixedFilterCountRule : fixedFilterCountRules.values()) {
 				for (final Block candidate : fixedFilterCountRule) {
 					if (block.containedIn(candidate)) {
-						return;
+						return false;
 					}
 				}
 			}
 			actuallyInsertBlockIntoAllCaches(block);
+			return true;
 		}
 
 		private void actuallyInsertBlockIntoAllCaches(final Block block) {
@@ -912,11 +909,9 @@ public class SimpleBlocks {
 		for (final PathSetBasedRule rule : rules) {
 			addRule(rule, translatedRules);
 		}
-		// find all horizontally maximal blocks
-		final Set<Block> resultBlocks = new HashSet<>();
-		findAllHorizontallyMaximalBlocks(translatedRules, resultBlocks);
-		// convert to maximal blocks via BlockSet-Constructor
-		final BlockSet resultBlockSet = new BlockSet(resultBlocks);
+		// find all maximal blocks
+		final BlockSet resultBlockSet = new BlockSet();
+		findAllHorizontallyMaximalBlocks(translatedRules, resultBlockSet);
 		// solve the conflicts
 		determineAndSolveConflicts(resultBlockSet);
 		// transform into PathFilterList
@@ -1016,7 +1011,7 @@ public class SimpleBlocks {
 	}
 
 	protected static void findAllHorizontallyMaximalBlocks(final List<Either<Rule, ExistentialProxy>> rules,
-			final Set<Block> resultBlocks) {
+			final BlockSet resultBlocks) {
 		final UndirectedGraph<FilterInstance, ConflictEdge> conflictGraph = determineConflictGraphForRules(rules);
 		final Set<Filter> filters = rules.stream().flatMap(rule -> getFilters(rule).stream()).collect(toSet());
 		for (final Filter filter : filters) {
@@ -1032,8 +1027,8 @@ public class SimpleBlocks {
 		return Collectors.collectingAndThen(groupingBy, map -> new HashSet<D>(map.values()));
 	}
 
-	protected static Set<Block> findAllHorizontallyMaximalBlocksInReducedScope(
-			final Set<FilterInstance> filterInstances, final Set<Block> resultBlocks) {
+	protected static BlockSet findAllHorizontallyMaximalBlocksInReducedScope(final Set<FilterInstance> filterInstances,
+			final BlockSet resultBlocks) {
 		final Iterable<List<FilterInstance>> filterInstancesGroupedByRule =
 				filterInstances.stream().collect(
 						Collectors.collectingAndThen(groupingBy(FilterInstance::getRuleOrProxy), Map::values));
@@ -1051,7 +1046,7 @@ public class SimpleBlocks {
 
 	protected static void determineAndSolveConflicts(final BlockSet resultBlocks) {
 		// determine conflicts
-		final BlockSet deletedBlocks = new BlockSet(Collections.emptySet());
+		final BlockSet deletedBlocks = new BlockSet();
 		final DirectedGraph<Block, BlockConflict> blockConflictGraph = new SimpleDirectedGraph<>(BlockConflict::of);
 		for (final Block block : resultBlocks.getBlocks()) {
 			blockConflictGraph.addVertex(block);
@@ -1244,9 +1239,9 @@ public class SimpleBlocks {
 		// remove replaceBlock and update qualities
 		removeArc(blockConflictGraph, blockConflict);
 		// find the horizontally maximal blocks within xWOcfi
-		final Set<Block> newBlocks = findAllHorizontallyMaximalBlocksInReducedScope(xWOcfi, new HashSet<>());
+		final BlockSet newBlocks = findAllHorizontallyMaximalBlocksInReducedScope(xWOcfi, new BlockSet());
 		// for every such block,
-		for (final Block block : newBlocks) {
+		for (final Block block : newBlocks.getBlocks()) {
 			if (!deletedBlocks.isContained(block)) {
 				if (resultBlocks.addDuringConflictResolution(block)) {
 					blockConflictGraph.addVertex(block);
@@ -1258,7 +1253,7 @@ public class SimpleBlocks {
 	}
 
 	protected static void vertical(final UndirectedGraph<FilterInstance, ConflictEdge> graph,
-			final Set<Set<FilterInstance>> filterInstancesGroupedByRule, final Set<Block> resultBlocks) {
+			final Set<Set<FilterInstance>> filterInstancesGroupedByRule, final BlockSet resultBlocks) {
 		final Set<Set<Set<FilterInstance>>> filterInstancesPowerSet = Sets.powerSet(filterInstancesGroupedByRule);
 		for (final Set<Set<FilterInstance>> powerSetElement : filterInstancesPowerSet) {
 			if (powerSetElement.isEmpty()) {
@@ -1276,7 +1271,7 @@ public class SimpleBlocks {
 	}
 
 	protected static void horizontalRecursion(final Block block, final Stack<Set<FilterInstance>> exclusionStack,
-			final Set<Block> resultBlocks) {
+			final BlockSet resultBlocks) {
 		// needed: the filters that are contained in every rule of the block, where for every
 		// filter it is the case that: every rule contains at least one instance not already
 		// excluded by the exclusion stack
@@ -1285,7 +1280,7 @@ public class SimpleBlocks {
 				block.getBorderConflicts().keySet().stream()
 						.filter(fi -> !exclusionStack.stream().anyMatch(as -> as.contains(fi))).collect(toSet());
 		if (neighbours.isEmpty()) {
-			resultBlocks.add(block);
+			resultBlocks.addDuringHorizontalRecursion(block);
 			return;
 		}
 		// group them by their filter
@@ -1307,7 +1302,7 @@ public class SimpleBlocks {
 						.collect(toSet());
 		// if no filters are left to add, the block is horizontally maximized, add it
 		if (nRelevantFilters.isEmpty()) {
-			resultBlocks.add(block);
+			resultBlocks.addDuringHorizontalRecursion(block);
 			return;
 		}
 		// divide into filters without multiple instances and filters with multiple instances
@@ -1342,7 +1337,7 @@ public class SimpleBlocks {
 					matchingFilters, incompatibleFilters, bRuleToFilterToBlockInstances);
 			// if still none matched, the block is maximal, add it to the result blocks
 			if (matchingFilters.isEmpty()) {
-				resultBlocks.add(block);
+				resultBlocks.addDuringHorizontalRecursion(block);
 				return;
 			}
 		}
