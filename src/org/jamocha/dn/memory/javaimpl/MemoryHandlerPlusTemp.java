@@ -16,11 +16,11 @@ package org.jamocha.dn.memory.javaimpl;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -179,7 +179,7 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements org.jamo
 			final Edge originIncomingEdge, final AddressNodeFilterSet filter) throws CouldNotAcquireLockException {
 		// create follow-up-temp
 		final org.jamocha.dn.memory.MemoryHandlerTemp token =
-				newRegularBetaTemp(originatingMainHandler, filter, this, originIncomingEdge);
+				newRegularBetaTemp(originatingMainHandler, originIncomingEdge, filter, this);
 		// push old temp into incoming edge to augment the memory seen by its target
 		originIncomingEdge.getTempMemories().add(this);
 		// return new temp
@@ -291,8 +291,9 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements org.jamo
 			return new StackElement(memStack, offset) {
 				@Override
 				Object getValue(final AddressPredecessor addr, final SlotAddress slot) {
-					return this.getRow().getFactTuple()[((org.jamocha.dn.memory.javaimpl.FactAddress) addr.getAddress()).index]
-							.getValue(slot);
+					final FactAddress factAddress = (FactAddress) addr.getAddress();
+					final Fact[] factTuple = this.getRow().getFactTuple();
+					return factTuple[factAddress.index].getValue(slot);
 				}
 			};
 		}
@@ -311,8 +312,9 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements org.jamo
 			return new StackElement(memStack, offset) {
 				@Override
 				Object getValue(final AddressPredecessor addr, final SlotAddress slot) {
-					return this.getRow().getFactTuple()[((org.jamocha.dn.memory.javaimpl.FactAddress) addr.getEdge()
-							.localizeAddress(addr.getAddress())).index].getValue(slot);
+					final FactAddress factAddress = (FactAddress) addr.getEdge().localizeAddress(addr.getAddress());
+					final Fact[] factTuple = this.getRow().getFactTuple();
+					return factTuple[factAddress.index].getValue(slot);
 				}
 			};
 		}
@@ -364,30 +366,28 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements org.jamo
 		public void apply(final JamochaArray<Row> TR, final StackElement originElement);
 	}
 
-	private static JamochaArray<Row> loop(final FunctionPointer functionPointer, final Collection<StackElement> stack,
-			final StackElement originElement, final boolean existential) {
+	private static JamochaArray<Row> loop(final FunctionPointer functionPointer, final List<StackElement> stack) {
 		if (stack.isEmpty()) {
 			return new JamochaArray<>();
 		}
-		final JamochaArray<Row> TR = (existential ? originElement.getTable() : new JamochaArray<>());
+		final StackElement originElement = stack.get(0);
+		final JamochaArray<Row> TR = new JamochaArray<>();
 		{
 			final Iterator<StackElement> iter = stack.iterator();
-			// skip originElement
-			iter.next();
 			// initialize all memory indices to valid values
 			while (iter.hasNext()) {
 				final StackElement element = iter.next();
 				while (!element.checkRowBounds()) {
 					if (!element.checkMemBounds()) {
 						// one of the elements doesn't hold any facts, the join will be empty
-						if (!existential) {
-							// delete all partial fact tuples in the TR for regular joins
-							originElement.memStack.set(0, new JamochaArray<Row>(0));
-							TR.clear();
+						// reset all indices in the StackElements
+						for (final StackElement elem : stack) {
+							elem.resetIndices();
 						}
 						return TR;
 					}
 					element.memIndex++;
+					// we could break here, since there can be no empty temp memories
 				}
 			}
 		}
@@ -444,7 +444,6 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements org.jamo
 				if (incomingEdge == originIncomingEdge) {
 					tempOriginElement = StackElement.originInput(columns, originIncomingEdge, tokenRows, offset);
 					offset += incomingEdge.getSourceNode().getMemory().getTemplate().length;
-					// don't lock the originInput
 					continue;
 				}
 				edgeToStack.put(incomingEdge, StackElement.ordinaryInput(incomingEdge, offset));
@@ -457,7 +456,7 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements org.jamo
 	}
 
 	private static MemoryHandlerTemp newRegularBetaTemp(final MemoryHandlerMain originatingMainHandler,
-			final AddressNodeFilterSet filter, final MemoryHandlerPlusTemp token, final Edge originEdge)
+			final Edge originEdge, final AddressNodeFilterSet filter, final MemoryHandlerPlusTemp token)
 			throws CouldNotAcquireLockException {
 		final JamochaArray<Row> facts = regularLockJoinAndUnlock(filter, token, originEdge);
 		final int numChildren = originEdge.getTargetNode().getNumberOfOutgoingEdges();
@@ -508,6 +507,7 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements org.jamo
 			final JamochaArray<Row> newUnfilteredRows = regularLockJoinAndUnlock(filter, token, originEdge);
 			// push new rows into main.allRows
 			// no need for a lock as the current node is the only one reading/writing allRows
+			// FIXME think about locking originatingMainHandler.allRows - really unnecessary ?
 			for (final Row newUnfilteredRow : newUnfilteredRows) {
 				originatingMainHandler.allRows.add(newUnfilteredRow);
 			}
@@ -538,7 +538,7 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements org.jamo
 
 		for (final AddressFilter filter : nodeFilterSet.getFilters()) {
 			final SlotInFactAddress addresses[] = filter.getAddressesInTarget();
-			final Collection<StackElement> stack = new ArrayList<>(addresses.length);
+			final List<StackElement> stack = new ArrayList<>(addresses.length);
 			final PredicateWithArguments<ParameterLeaf> predicate = filter.getFunction();
 			final CounterColumn counterColumn = (CounterColumn) filter.getCounterColumn();
 			final boolean existential = (counterColumn != null);
@@ -565,9 +565,8 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements org.jamo
 			// if existential, perform slightly different join not copying but only changing
 			// counters.
 
-			final JamochaArray<Row> TR;
 			if (existential) {
-				TR = loop(new FunctionPointer() {
+				loop(new FunctionPointer() {
 					@Override
 					public void apply(final JamochaArray<Row> TR, final StackElement originElement) {
 						final int paramLength = predicate.getParamTypes().length;
@@ -586,17 +585,12 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements org.jamo
 							final Row row = originElement.getRow();
 							// use counter to set counterColumn to 1 if counterColumn is not null
 							counter.increment(row, counterColumn, 1);
-							// insert information from new inputs
-							for (final Edge edge : newEdges) {
-								// source is some temp, destination new TR
-								final StackElement se = edgeToStack.get(edge);
-								row.copy(se.getOffset(), se.getRow());
-							}
 						}
 					}
-				}, stack, originElement, true);
+				}, stack);
 			} else {
-				TR = loop(new FunctionPointer() {
+				// replace TR in originElement with new temporary result
+				originElement.memStack.set(0, loop(new FunctionPointer() {
 					@Override
 					public void apply(final JamochaArray<Row> TR, final StackElement originElement) {
 						final int paramLength = predicate.getParamTypes().length;
@@ -624,10 +618,9 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements org.jamo
 							TR.add(row);
 						}
 					}
-				}, stack, originElement, false);
+				}, stack));
 			}
-			// replace TR in originElement with new temporary result
-			originElement.memStack.set(0, TR);
+
 			// point all inputs that were joint during this turn to the TR StackElement
 			for (final Edge incomingEdge : newEdges) {
 				edgeToStack.put(incomingEdge, originElement);
@@ -648,7 +641,7 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements org.jamo
 	}
 
 	private static void fullJoin(final LinkedHashMap<Edge, StackElement> edgeToStack, final StackElement originElement,
-			final Edge nodeInput, final StackElement se) {
+			final Edge edge, final StackElement se) {
 		// replace TR in originElement with new temporary result
 		originElement.memStack.set(0, loop(new FunctionPointer() {
 			@Override
@@ -660,9 +653,9 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements org.jamo
 				// copy the result to new TR
 				TR.add(originElement.getRow().copy().copy(se.getOffset(), se.getRow()));
 			}
-		}, Arrays.asList(originElement, se), originElement, false));
+		}, Arrays.asList(originElement, se)));
 		// point all inputs that were joint during this turn to the TR StackElement
-		edgeToStack.put(nodeInput, originElement);
+		edgeToStack.put(edge, originElement);
 	}
 
 	@Value
@@ -708,7 +701,8 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements org.jamo
 				prepareMatchings(filter, edgeToStack, originEdge);
 
 				// perform the actual join to get the counter updates
-				counterUpdates = performExistentialJoin(filter, edgeToStack, originEdge, counterUpdater);
+				counterUpdates =
+						performExistentialJoin(filter, edgeToStack.get(originEdge), originEdge, counterUpdater);
 			}
 		}
 
@@ -772,20 +766,19 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements org.jamo
 		};
 	}
 
-	static JamochaArray<CounterUpdate> performExistentialJoin(final AddressNodeFilterSet filter,
-			final LinkedHashMap<Edge, StackElement> edgeToStack, final Edge originEdge,
-			final CounterUpdater counterUpdater) {
+	static JamochaArray<CounterUpdate> performExistentialJoin(final AddressNodeFilterSet filterSet,
+			final StackElement originElement, final Edge originEdge, final CounterUpdater counterUpdater) {
 		final AddressFilter[] filterPartsForCounterColumns = originEdge.getFilterPartsForCounterColumns();
 		// if there are existential facts in the token, perform a join with the main memory
 		final JamochaArray<CounterUpdate> counterUpdates = new JamochaArray<>();
-		final StackElement originElement = edgeToStack.get(originEdge);
-		final FactAddressPartition partition = partitionFactAddresses(filter, originEdge);
+		final FactAddressPartition partition = partitionFactAddresses(filterSet, originEdge);
 		final MemoryHandlerMainWithExistentials memoryHandlerMain =
 				(MemoryHandlerMainWithExistentials) originEdge.getTargetNode().getMemory();
 		final JamochaArray<Row> mainRows = memoryHandlerMain.allRows;
 		final JamochaArray<Row> tokenRows = originElement.getTable();
 		final int mainSize = mainRows.size();
 		final int tokenSize = tokenRows.size();
+		// TODO adjust to be able to handle multiple existential edges
 		for (int mainIndex = 0; mainIndex < mainSize; ++mainIndex) {
 			final Row mainRow = mainRows.get(mainIndex);
 			final Fact[] mainFactTuple = mainRow.getFactTuple();
@@ -793,17 +786,11 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements org.jamo
 			tokenloop: for (int tokenIndex = 0; tokenIndex < tokenSize; ++tokenIndex) {
 				final Row tokenRow = tokenRows.get(tokenIndex);
 				final Fact[] tokenFactTuple = tokenRow.getFactTuple();
-				// check whether the allRows are the same in the regular fact part
-				for (final FactAddress factAddress : partition.regular) {
-					if (tokenFactTuple[factAddress.index] != mainFactTuple[factAddress.index]) {
-						continue tokenloop;
-					}
-				}
 				// check whether the existential part fulfill the filter conditions
-				for (final AddressFilter filterElement : filterPartsForCounterColumns) {
-					final PredicateWithArguments<ParameterLeaf> predicate = filterElement.getFunction();
-					final SlotInFactAddress[] addresses = filterElement.getAddressesInTarget();
-					final CounterColumn counterColumn = (CounterColumn) filterElement.getCounterColumn();
+				for (final AddressFilter filter : filterPartsForCounterColumns) {
+					final PredicateWithArguments<ParameterLeaf> predicate = filter.getFunction();
+					final SlotInFactAddress[] addresses = filter.getAddressesInTarget();
+					final CounterColumn counterColumn = (CounterColumn) filter.getCounterColumn();
 					final int paramLength = predicate.getParamTypes().length;
 					final Object params[] = new Object[paramLength];
 					// determine parameters using facts in the token where possible
