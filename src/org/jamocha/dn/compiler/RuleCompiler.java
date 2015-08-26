@@ -84,6 +84,10 @@ public enum RuleCompiler {
 			Collection<PathRule> transformedRules = SimpleBlocks.transform(consolidatedRules);
 			for (final Optimizer optimizer : ImmutableList.of(
 			/*
+			 * now perform the actual optimization of the filter order
+			 */
+			PathFilterOrderOptimizer.instance,
+			/*
 			 * node filter sets using the same paths can be combined
 			 */
 			SamePathsNodeFilterSetCombiningOptimizer.instance,
@@ -91,10 +95,6 @@ public enum RuleCompiler {
 			 * filters using the same paths can be combined
 			 */
 			SamePathsFilterCombiningOptimizer.instance,
-			/*
-			 * now perform the actual optimization of the filter order
-			 */
-			PathFilterOrderOptimizer.instance,
 			/*
 			 * now that the order of the node filter sets is fixed, we can combine node filter sets
 			 * using only a subset of the paths of their predecessors
