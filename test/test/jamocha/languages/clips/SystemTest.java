@@ -60,7 +60,7 @@ public class SystemTest {
 		@SuppressWarnings("unused")
 		final Network network = new Network();
 		@SuppressWarnings("unused")
-		int a = 5;
+		final int a = 5;
 	}
 
 	/**
@@ -113,7 +113,7 @@ public class SystemTest {
 		}
 	}
 
-	private static ByteArrayOutputStream initializeAppender(Network network) {
+	private static ByteArrayOutputStream initializeAppender(final Network network) {
 		final ByteArrayOutputStream out = new ByteArrayOutputStream();
 		network.clearAppender();
 		network.addAppender(out, true);
@@ -579,7 +579,7 @@ public class SystemTest {
 			assertThat(returnValues.getRight(), empty());
 			final String[] lines = out.toString().split(linesep);
 			assertThat(lines, arrayWithSize(1));
-			assertThat(lines[0], isOneOf("FIRE r2 : f-1,f-2", "FIRE r2 : f-2,f-1"));
+			assertThat(lines[0], isOneOf("FIRE r2 : *,f-2", "FIRE r2 : f-2,*"));
 			out.reset();
 		}
 	}
