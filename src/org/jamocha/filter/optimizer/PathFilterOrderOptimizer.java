@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 import org.jamocha.dn.ConstructCache.Defrule.PathRule;
@@ -226,7 +227,8 @@ public class PathFilterOrderOptimizer implements Optimizer {
 	 *
 	 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
 	 */
-	static class Partitioner implements PathFilterListVisitor {
+	@Getter
+	public static class Partitioner implements PathFilterListVisitor {
 		final ArrayList<PathNodeFilterSet> pathFilters = new ArrayList<>();
 		final ArrayList<PathSharedList> pathFilterSharedLists = new ArrayList<>();
 		final ArrayList<PathExistentialList> pathFilterExistentialLists = new ArrayList<>();
