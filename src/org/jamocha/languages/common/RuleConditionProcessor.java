@@ -294,13 +294,13 @@ public class RuleConditionProcessor {
 
 		@Override
 		public void visit(final OrFunctionConditionalElement ce) {
-			this.ce = applySkippingIfNegated(ce, negated, AndFunctionConditionalElement::new);
+			this.ce = applySkippingIfNegated(ce, negated, RuleConditionProcessor::combineViaAnd);
 			processChildren(this.ce, negated);
 		}
 
 		@Override
 		public void visit(final AndFunctionConditionalElement ce) {
-			this.ce = applySkippingIfNegated(ce, negated, OrFunctionConditionalElement::new);
+			this.ce = applySkippingIfNegated(ce, negated, RuleConditionProcessor::combineViaOr);
 			processChildren(this.ce, negated);
 		}
 

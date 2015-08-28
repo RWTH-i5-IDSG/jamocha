@@ -173,6 +173,7 @@ import org.jamocha.languages.common.GlobalVariable;
 import org.jamocha.languages.common.RuleCondition;
 import org.jamocha.languages.common.RuleCondition.EquivalenceClass;
 import org.jamocha.languages.common.RuleCondition.MatchingConfiguration;
+import org.jamocha.languages.common.RuleConditionProcessor;
 import org.jamocha.languages.common.ScopeCloser;
 import org.jamocha.languages.common.ScopeStack.Symbol;
 import org.jamocha.languages.common.ScopeStack.VariableSymbol;
@@ -1037,7 +1038,7 @@ public final class SFPToCETranslator implements SelectiveSFPVisitor {
 			// AmpersandConnectedConstraint(): ( Term() ( <AMPERSAND> Term() )* )
 			@Override
 			public Object visit(final SFPAmpersandConnectedConstraint node, final Object data) {
-				return handleConnectedConstraint(node, data, SFPTermVisitor::new, AndFunctionConditionalElement::new);
+				return handleConnectedConstraint(node, data, SFPTermVisitor::new, RuleConditionProcessor::combineViaAnd);
 			}
 		}
 
@@ -1058,7 +1059,7 @@ public final class SFPToCETranslator implements SelectiveSFPVisitor {
 			@Override
 			public Object visit(final SFPLineConnectedConstraint node, final Object data) {
 				return handleConnectedConstraint(node, data, SFPAmpersandConnectedConstraintVisitor::new,
-						OrFunctionConditionalElement::new);
+						RuleConditionProcessor::combineViaOr);
 			}
 
 			@Override
@@ -1153,7 +1154,9 @@ public final class SFPToCETranslator implements SelectiveSFPVisitor {
 							visitorSupplier.create(parent, constraints::add, template, slotCreator, bindingsAllowed,
 									constraintVariable);
 					SelectiveSFPVisitor.stream(node, 0).forEach(n -> SelectiveSFPVisitor.sendVisitor(visitor, n, data));
-					constraintAdder.accept(connector.apply(constraints));
+					if (!constraints.isEmpty()) {
+						constraintAdder.accept(connector.apply(constraints));
+					}
 					this.constraintVariable = visitor.constraintVariable;
 				}
 				return data;
