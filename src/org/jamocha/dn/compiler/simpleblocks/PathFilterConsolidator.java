@@ -250,8 +250,10 @@ public class PathFilterConsolidator implements DefaultConditionalElementsVisitor
 			symbolToECbackup.forEach((vs, ec) -> vs.setEqual(ec));
 			replaceEC(symbols, oldToNew.inverse());
 			// restore the SlotVariable - equivalence class mapping
-			symbolToECbackup.forEach((vs, ec) -> vs.getEqual().getSlotVariables()
-					.forEach(sv -> sv.getEqualSet().add(ec)));
+			symbolToECbackup.forEach((vs, ec) -> vs.getEqual().getSlotVariables().forEach(sv -> {
+				sv.getEqualSet().clear();
+				sv.getEqualSet().add(ec);
+			}));
 			return result;
 		}
 
