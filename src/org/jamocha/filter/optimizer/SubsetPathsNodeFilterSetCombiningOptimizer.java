@@ -45,8 +45,8 @@ import com.google.common.collect.Sets;
  */
 public class SubsetPathsNodeFilterSetCombiningOptimizer implements Optimizer {
 
-	public static final SamePathsNodeFilterSetCombiningOptimizer instance =
-			new SamePathsNodeFilterSetCombiningOptimizer();
+	public static final SubsetPathsNodeFilterSetCombiningOptimizer instance =
+			new SubsetPathsNodeFilterSetCombiningOptimizer();
 
 	/*
 	 * Do not consider merging a filter with another filter if one of them is used as an existential
