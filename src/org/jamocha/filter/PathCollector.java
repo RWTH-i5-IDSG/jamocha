@@ -21,18 +21,11 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 
 import org.jamocha.filter.PathFilterSet.PathExistentialSet;
-import org.jamocha.function.fwa.Assert;
-import org.jamocha.function.fwa.Bind;
 import org.jamocha.function.fwa.ConstantLeaf;
+import org.jamocha.function.fwa.DefaultFunctionWithArgumentsLeafVisitor;
 import org.jamocha.function.fwa.FunctionWithArguments;
-import org.jamocha.function.fwa.FunctionWithArgumentsComposite;
-import org.jamocha.function.fwa.FunctionWithArgumentsVisitor;
 import org.jamocha.function.fwa.GlobalVariableLeaf;
-import org.jamocha.function.fwa.Modify;
-import org.jamocha.function.fwa.Modify.SlotAndValue;
 import org.jamocha.function.fwa.PathLeaf;
-import org.jamocha.function.fwa.PredicateWithArgumentsComposite;
-import org.jamocha.function.fwa.Retract;
 
 /**
  * Collects all paths used within the filter.
@@ -140,8 +133,7 @@ public class PathCollector<T extends Collection<Path>> implements PathFilterSetV
 		return toArray(getPaths(), Path[]::new);
 	}
 
-	class PathCollectorInFWA implements FunctionWithArgumentsVisitor<PathLeaf> {
-
+	class PathCollectorInFWA implements DefaultFunctionWithArgumentsLeafVisitor<PathLeaf> {
 		@Override
 		public void visit(final ConstantLeaf<PathLeaf> constantLeaf) {
 		}
@@ -151,63 +143,8 @@ public class PathCollector<T extends Collection<Path>> implements PathFilterSetV
 		}
 
 		@Override
-		public void visit(final FunctionWithArgumentsComposite<PathLeaf> functionWithArgumentsComposite) {
-			for (final FunctionWithArguments<PathLeaf> fwa : functionWithArgumentsComposite.getArgs()) {
-				fwa.accept(this);
-			}
-		}
-
-		@Override
-		public void visit(final PredicateWithArgumentsComposite<PathLeaf> predicateWithArgumentsComposite) {
-			for (final FunctionWithArguments<PathLeaf> fwa : predicateWithArgumentsComposite.getArgs()) {
-				fwa.accept(this);
-			}
-		}
-
-		@Override
 		public void visit(final PathLeaf pathLeaf) {
 			paths.add(pathLeaf.getPath());
-		}
-
-		@Override
-		public void visit(final Bind<PathLeaf> fwa) {
-			for (final FunctionWithArguments<PathLeaf> child : fwa.getArgs()) {
-				child.accept(this);
-			}
-		}
-
-		@Override
-		public void visit(final Assert<PathLeaf> fwa) {
-			for (final FunctionWithArguments<PathLeaf> child : fwa.getArgs()) {
-				child.accept(this);
-			}
-		}
-
-		@Override
-		public void visit(final Modify<PathLeaf> fwa) {
-			fwa.getTargetFact().accept(this);
-			for (final SlotAndValue<PathLeaf> child : fwa.getArgs()) {
-				child.getValue().accept(this);
-			}
-		}
-
-		@Override
-		public void visit(final Modify.SlotAndValue<PathLeaf> fwa) {
-			fwa.getValue().accept(this);
-		}
-
-		@Override
-		public void visit(final Retract<PathLeaf> fwa) {
-			for (final FunctionWithArguments<PathLeaf> child : fwa.getArgs()) {
-				child.accept(this);
-			}
-		}
-
-		@Override
-		public void visit(final Assert.TemplateContainer<PathLeaf> fwa) {
-			for (final FunctionWithArguments<PathLeaf> child : fwa.getArgs()) {
-				child.accept(this);
-			}
 		}
 	}
 }
