@@ -17,6 +17,8 @@ package org.jamocha.util;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.function.Function;
@@ -24,6 +26,8 @@ import java.util.function.Predicate;
 import java.util.function.ToDoubleFunction;
 import java.util.function.ToIntFunction;
 import java.util.function.ToLongFunction;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import lombok.experimental.UtilityClass;
 
@@ -141,8 +145,16 @@ public class Lambdas {
 		return x -> new HashSet<B>();
 	}
 
+	public static <A, B> Function<A, LinkedHashSet<B>> newLinkedHashSet() {
+		return x -> new LinkedHashSet<B>();
+	}
+
 	public static <A, B, C> Function<A, HashMap<B, C>> newHashMap() {
 		return x -> new HashMap<B, C>();
+	}
+
+	public static <A, B, C> Function<A, LinkedHashMap<B, C>> newLinkedHashMap() {
+		return x -> new LinkedHashMap<B, C>();
 	}
 
 	public static <A, B> Function<A, TreeSet<B>> newTreeSet() {
@@ -155,5 +167,20 @@ public class Lambdas {
 
 	public static <A, B> Function<? super A, ? extends ArrayList<B>> newArrayList() {
 		return x -> new ArrayList<B>();
+	}
+
+	/*
+	 * iterable to stream
+	 */
+
+	public static <T> Stream<T> stream(final Iterable<T> iterable) {
+		return StreamSupport.stream(iterable.spliterator(), false);
+	}
+
+	/*
+	 * stream as iterable
+	 */
+	public static <T> Iterable<T> iterable(final Stream<T> stream) {
+		return stream::iterator;
 	}
 }
