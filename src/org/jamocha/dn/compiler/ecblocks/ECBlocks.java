@@ -46,7 +46,6 @@ import java.util.Set;
 import java.util.SortedMap;
 import java.util.Stack;
 import java.util.TreeMap;
-import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
@@ -78,15 +77,14 @@ import org.jamocha.filter.ECFilterSet;
 import org.jamocha.filter.ECFilterSet.ECExistentialSet;
 import org.jamocha.filter.ECFilterSetVisitor;
 import org.jamocha.filter.Path;
-import org.jamocha.function.Predicate;
-import org.jamocha.function.fwa.ConstantLeaf;
-import org.jamocha.function.fwa.DefaultFunctionWithArgumentsLeafVisitor;
 import org.jamocha.function.fwa.ECLeaf;
+import org.jamocha.function.fwa.ExchangeableLeaf;
 import org.jamocha.function.fwa.FunctionWithArguments;
-import org.jamocha.function.fwa.GlobalVariableLeaf;
+import org.jamocha.function.fwa.FunctionWithArgumentsVisitor;
 import org.jamocha.function.fwa.PredicateWithArguments;
 import org.jamocha.function.fwa.PredicateWithArgumentsComposite;
 import org.jamocha.function.fwa.SymbolLeaf;
+import org.jamocha.function.fwatransformer.FWATranslator;
 import org.jamocha.languages.common.RuleCondition.EquivalenceClass;
 import org.jamocha.languages.common.SingleFactVariable;
 import org.jamocha.languages.common.SingleFactVariable.SingleSlotVariable;
@@ -109,28 +107,76 @@ import com.google.common.collect.Sets.SetView;
  */
 public class ECBlocks {
 
-	static class PWAArgumentsExtractor implements DefaultFunctionWithArgumentsLeafVisitor<ECLeaf> {
-		private final ArrayList<Either<SlotType, Object>> arguments = new ArrayList<>();
-
-		public static List<Either<SlotType, Object>> getArguments(final PredicateWithArguments<ECLeaf> predicate) {
-			final PWAArgumentsExtractor instance = new PWAArgumentsExtractor();
+	static class FWAPathLeafToTemplateSlotLeafTranslator extends FWATranslator<ECLeaf, TypeLeaf> {
+		public static PredicateWithArguments<TypeLeaf> getArguments(final PredicateWithArguments<ECLeaf> predicate) {
+			final FWAPathLeafToTemplateSlotLeafTranslator instance = new FWAPathLeafToTemplateSlotLeafTranslator();
 			predicate.accept(instance);
-			return instance.arguments;
+			return (PredicateWithArguments<TypeLeaf>) instance.functionWithArguments;
 		}
 
 		@Override
-		public void visit(final ConstantLeaf<ECLeaf> constantLeaf) {
-			arguments.add(Either.right(constantLeaf.evaluate()));
-		}
-
-		@Override
-		public void visit(final GlobalVariableLeaf<ECLeaf> globalVariableLeaf) {
-			arguments.add(Either.right(globalVariableLeaf.evaluate()));
+		public FWATranslator<ECLeaf, TypeLeaf> of() {
+			return new FWAPathLeafToTemplateSlotLeafTranslator();
 		}
 
 		@Override
 		public void visit(final ECLeaf leaf) {
-			arguments.add(Either.left(leaf.getReturnType()));
+			this.functionWithArguments = new TypeLeaf(leaf.getReturnType());
+		}
+	}
+
+	@Value
+	@EqualsAndHashCode(of = { "type" })
+	static class TypeLeaf implements ExchangeableLeaf<TypeLeaf> {
+		final SlotType type;
+
+		final SlotType[] paramTypes;
+
+		public TypeLeaf(final SlotType type) {
+			this.type = type;
+			this.paramTypes = new SlotType[] { this.type };
+		}
+
+		@Override
+		public String toString() {
+			return type.toString();
+		}
+
+		@Override
+		public SlotType[] getParamTypes() {
+			return this.paramTypes;
+		}
+
+		@Override
+		public SlotType getReturnType() {
+			return this.type;
+		}
+
+		@Override
+		public org.jamocha.function.Function<?> lazyEvaluate(final org.jamocha.function.Function<?>... params) {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public Object evaluate(final Object... params) {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public int hashPositionIsIrrelevant() {
+			return FunctionWithArguments.hash(new int[] { Objects.hash(type) },
+					FunctionWithArguments.positionIsIrrelevant);
+		}
+
+		@Override
+		public <V extends FunctionWithArgumentsVisitor<TypeLeaf>> V accept(final V visitor) {
+			visitor.visit(this);
+			return visitor;
+		}
+
+		@Override
+		public ExchangeableLeaf<TypeLeaf> copy() {
+			throw new UnsupportedOperationException();
 		}
 	}
 
@@ -139,17 +185,16 @@ public class ECBlocks {
 	 */
 	@lombok.Data
 	@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-	@EqualsAndHashCode(of = { "predicate", "arguments" })
-	@ToString(of = { "predicate", "arguments" })
+	@EqualsAndHashCode(of = { "predicate" })
+	@ToString(of = { "predicate" })
 	static class Filter {
-		final Predicate predicate;
-		final List<Either<SlotType, Object>> arguments;
+		final FunctionWithArguments<TypeLeaf> predicate;
 		final Map<Either<Rule, ExistentialProxy>, Set<FilterInstance>> ruleToInstances = new HashMap<>();
 
 		static final Map<Filter, Filter> cache = new HashMap<>();
 
-		static Filter newFilter(final Predicate predicate, final List<Either<SlotType, Object>> arguments) {
-			return cache.computeIfAbsent(new Filter(predicate, arguments), Function.identity());
+		static Filter newFilter(final FunctionWithArguments<TypeLeaf> predicate) {
+			return cache.computeIfAbsent(new Filter(predicate), Function.identity());
 		}
 
 		public FilterInstance addInstance(final Either<Rule, ExistentialProxy> ruleOrProxy, final ECFilter ecFilter) {
@@ -275,17 +320,15 @@ public class ECBlocks {
 	static class FilterProxy extends Filter {
 		final Set<ExistentialProxy> proxies;
 
-		private FilterProxy(final Predicate predicate, final List<Either<SlotType, Object>> arguments,
-				final ExistentialProxy proxy) {
-			super(predicate, arguments);
+		private FilterProxy(final FunctionWithArguments<TypeLeaf> predicate, final ExistentialProxy proxy) {
+			super(predicate);
 			this.proxies = Sets.newHashSet(proxy);
 		}
 
 		static final Map<FilterProxy, FilterProxy> cache = new HashMap<>();
 
-		static FilterProxy newFilterProxy(final Predicate predicate, final List<Either<SlotType, Object>> arguments,
-				final ExistentialProxy proxy) {
-			return cache.computeIfAbsent(new FilterProxy(predicate, arguments, proxy), Function.identity());
+		static FilterProxy newFilterProxy(final FunctionWithArguments<TypeLeaf> predicate, final ExistentialProxy proxy) {
+			return cache.computeIfAbsent(new FilterProxy(predicate, proxy), Function.identity());
 		}
 
 		static Set<FilterProxy> getFilterProxies() {
@@ -819,10 +862,13 @@ public class ECBlocks {
 			for (final EquivalenceClass equivalenceClass : equivalenceClasses) {
 				final LinkedList<SingleFactVariable> factVariables = equivalenceClass.getFactVariables();
 				final LinkedList<SingleSlotVariable> slotVariables = equivalenceClass.getSlotVariables();
-				final LinkedList<FunctionWithArguments<SymbolLeaf>> constantExpressions = equivalenceClass.getConstantExpressions();
-				final LinkedList<FunctionWithArguments<SymbolLeaf>> variableExpressions = equivalenceClass.getVariableExpressions();
+				final LinkedList<FunctionWithArguments<SymbolLeaf>> constantExpressions =
+						equivalenceClass.getConstantExpressions();
+				final LinkedList<FunctionWithArguments<SymbolLeaf>> variableExpressions =
+						equivalenceClass.getVariableExpressions();
 				final Set<EquivalenceClass> unequalEquivalenceClasses = equivalenceClass.getUnequalEquivalenceClasses();
-				final Set<EquivalenceClass> equalParentEquivalenceClasses = equivalenceClass.getEqualParentEquivalenceClasses();
+				final Set<EquivalenceClass> equalParentEquivalenceClasses =
+						equivalenceClass.getEqualParentEquivalenceClasses();
 				// FWASymbolToECTranslator
 				final EquivalenceClassProxy equivalenceClassProxy = new EquivalenceClassProxy(equivalenceClass);
 			}
@@ -839,11 +885,10 @@ public class ECBlocks {
 		}
 
 		protected static <T extends Filter> T convertFilter(final ECFilter ecFilter,
-				final BiFunction<Predicate, List<Either<SlotType, Object>>, T> ctor) {
+				final Function<PredicateWithArguments<TypeLeaf>, T> ctor) {
 			final PredicateWithArguments<ECLeaf> predicate = ecFilter.getFunction();
 			assert predicate instanceof PredicateWithArgumentsComposite;
-			return ctor.apply(((PredicateWithArgumentsComposite<ECLeaf>) predicate).getFunction(),
-					PWAArgumentsExtractor.getArguments(predicate));
+			return ctor.apply(FWAPathLeafToTemplateSlotLeafTranslator.getArguments(predicate));
 		}
 
 		@Override
@@ -870,7 +915,7 @@ public class ECBlocks {
 			rules.add(proxyEither);
 
 			final FilterProxy convertedExCl =
-					convertFilter(existentialClosure, (pred, args) -> FilterProxy.newFilterProxy(pred, args, proxy));
+					convertFilter(existentialClosure, pred -> FilterProxy.newFilterProxy(pred, proxy));
 			getFilters(ruleOrProxy).add(convertedExCl);
 			final FilterInstance filterInstance = convertedExCl.addInstance(ruleOrProxy, existentialClosure);
 			rule.existentialProxies.put(filterInstance, proxy);
