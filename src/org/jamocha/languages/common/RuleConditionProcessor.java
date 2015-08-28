@@ -16,11 +16,11 @@ package org.jamocha.languages.common;
 
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.partitioningBy;
+import static java.util.stream.Collectors.toCollection;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -30,10 +30,12 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
+import org.jamocha.dn.compiler.ShallowFactVariableCollector;
 import org.jamocha.function.fwa.ConstantLeaf;
 import org.jamocha.function.fwa.DefaultFunctionWithArgumentsLeafVisitor;
 import org.jamocha.function.fwa.GlobalVariableLeaf;
@@ -47,6 +49,9 @@ import org.jamocha.languages.common.ConditionalElement.OrFunctionConditionalElem
 import org.jamocha.languages.common.ConditionalElement.TemplatePatternConditionalElement;
 import org.jamocha.languages.common.ConditionalElement.TestConditionalElement;
 import org.jamocha.languages.common.ScopeStack.VariableSymbol;
+
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
@@ -90,6 +95,9 @@ public class RuleConditionProcessor {
 		// combine nested ands and ors
 		RuleConditionProcessor.combineNested(ce);
 
+		// expand ors
+		ce = RuleConditionProcessor.expandOrs(ce);
+
 		// split existential CEs into their atomic groups
 		ce = ce.accept(new ExistentialSplitter()).ce;
 
@@ -125,6 +133,9 @@ public class RuleConditionProcessor {
 
 	private static class ExpandOrs implements DefaultConditionalElementsVisitor {
 
+		public ExpandOrs() {
+		}
+
 		@Getter
 		private List<ConditionalElement> ces;
 
@@ -140,7 +151,7 @@ public class RuleConditionProcessor {
 			final int numOrs = orLists.size();
 			if (0 == numOrs) {
 				// no (or )s, nothing to do
-				this.ces = new ArrayList<>(Collections.singletonList(ce));
+				this.ces = Lists.newArrayList(ce);
 				return;
 			}
 			if (1 == numOrs) {
@@ -155,10 +166,8 @@ public class RuleConditionProcessor {
 				// only one (or ), no need to share the elements of the (or )
 				// combine shared part with each of the (or )-elements
 				this.ces =
-						orLists.get(0)
-								.stream()
-								.map(orPart -> new AndFunctionConditionalElement(new ArrayList<>(Arrays.asList(andPart,
-										orPart)))).collect(toList());
+						orLists.get(0).stream().map(orPart -> combineViaAnd(Lists.newArrayList(andPart, orPart)))
+								.collect(toList());
 				return;
 			}
 			// gradually blow up the CEs
@@ -172,18 +181,18 @@ public class RuleConditionProcessor {
 			}
 			// for every (or ) occurrence we need to duplicate the list of CEs and combine them with
 			// the (or ) elements
-			orLists.forEach(orList -> {
+			for (final List<ConditionalElement> orList : orLists) {
 				final List<ConditionalElement> newCEs = new ArrayList<>(orList.size() * this.ces.size());
-				orList.forEach(orPart -> {
+				for (final ConditionalElement orPart : orList) {
 					// copy the old part and add the shared part, add combination of them to newCEs
-					this.ces.forEach(oldPart -> {
+					for (final ConditionalElement oldPart : this.ces) {
 						final ArrayList<ConditionalElement> children = new ArrayList<>(oldPart.getChildren());
 						children.add(orPart);
-						newCEs.add(new AndFunctionConditionalElement(children));
-					});
-				});
+						newCEs.add(combineViaAnd(children));
+					}
+				}
 				this.ces = newCEs;
-			});
+			}
 		}
 
 		@Override
@@ -194,25 +203,29 @@ public class RuleConditionProcessor {
 		@Override
 		public void visit(final ExistentialConditionalElement ce) {
 			expand(ce);
+			if (this.ces.size() == 1 && this.ces.get(0) == ce) {
+				return;
+			}
 			this.ces =
-					this.ces.stream()
-							.map(c -> new ExistentialConditionalElement(ce.scope, new ArrayList<>(Collections
-									.singletonList(c)))).collect(toList());
+					this.ces.stream().map(c -> new ExistentialConditionalElement(ce.scope, Lists.newArrayList(c)))
+							.collect(toList());
 		}
 
 		@Override
 		public void visit(final NegatedExistentialConditionalElement ce) {
 			expand(ce);
+			if (this.ces.size() == 1 && this.ces.get(0) == ce) {
+				return;
+			}
 			this.ces =
-					new ArrayList<>(Collections.singletonList(new AndFunctionConditionalElement(this.ces
-							.stream()
-							.map(c -> new NegatedExistentialConditionalElement(ce.scope, new ArrayList<>(Collections
-									.singletonList(c)))).collect(toList()))));
+					Lists.newArrayList(combineViaAnd(this.ces.stream()
+							.map(c -> new NegatedExistentialConditionalElement(ce.scope, Lists.newArrayList(c)))
+							.collect(toList())));
 		}
 
 		@Override
 		public void defaultAction(final ConditionalElement ce) {
-			this.ces = new ArrayList<>(Collections.singletonList(ce));
+			this.ces = Lists.newArrayList(ce);
 		}
 
 		@Override
@@ -225,42 +238,25 @@ public class RuleConditionProcessor {
 
 	private static class CombineNested implements DefaultConditionalElementsVisitor {
 
-		private void combineNestedAnds(final ConditionalElement ce) {
-			final List<ConditionalElement> oldChildrenList = new ArrayList<ConditionalElement>(ce.getChildren());
+		private void combineNested(final ConditionalElement ce, final Supplier<Stripping> supplier) {
+			final List<ConditionalElement> oldChildrenList = ImmutableList.copyOf(ce.getChildren());
 			final List<ConditionalElement> childrenList = ce.getChildren();
 			childrenList.clear();
 			for (final ConditionalElement conditionalElement : oldChildrenList) {
-				childrenList.addAll(conditionalElement.accept(new StripAnds()).getCes());
+				childrenList.addAll(conditionalElement.accept(supplier.get()).getCes());
 			}
 		}
 
 		@Override
 		public void visit(final AndFunctionConditionalElement ce) {
 			defaultAction(ce);
-			combineNestedAnds(ce);
+			combineNested(ce, StripAnds::new);
 		}
 
 		@Override
 		public void visit(final OrFunctionConditionalElement ce) {
 			defaultAction(ce);
-			final List<ConditionalElement> oldChildrenList = new ArrayList<ConditionalElement>(ce.getChildren());
-			final List<ConditionalElement> childrenList = ce.getChildren();
-			childrenList.clear();
-			for (final ConditionalElement conditionalElement : oldChildrenList) {
-				childrenList.addAll(conditionalElement.accept(new StripOrs()).getCes());
-			}
-		}
-
-		@Override
-		public void visit(final ExistentialConditionalElement ce) {
-			defaultAction(ce);
-			combineNestedAnds(ce);
-		}
-
-		@Override
-		public void visit(final NegatedExistentialConditionalElement ce) {
-			defaultAction(ce);
-			combineNestedAnds(ce);
+			combineNested(ce, StripOrs::new);
 		}
 
 		@Override
@@ -285,14 +281,15 @@ public class RuleConditionProcessor {
 					(final ConditionalElement x) -> x.accept(new NotFunctionConditionalElementSeep(nextNegated)).ce);
 		}
 
-		@Override
-		public void visit(final NotFunctionConditionalElement ce) {
-			this.ce = combineViaAnd(ce.getChildren()).accept(new NotFunctionConditionalElementSeep(!negated)).ce;
-		}
-
 		private static ConditionalElement applySkippingIfNegated(final ConditionalElement ce, final boolean negated,
 				final Function<List<ConditionalElement>, ConditionalElement> ctor) {
 			return negated ? ctor.apply(ce.getChildren()) : ce;
+		}
+
+		@Override
+		public void visit(final NotFunctionConditionalElement ce) {
+			assert 1 == ce.getChildren().size();
+			this.ce = ce.getChildren().get(0).accept(new NotFunctionConditionalElementSeep(!negated)).ce;
 		}
 
 		@Override
@@ -320,7 +317,7 @@ public class RuleConditionProcessor {
 		}
 
 		private void visitLeaf(final ConditionalElement ce) {
-			this.ce = negated ? new NotFunctionConditionalElement(new ArrayList<>(Collections.singletonList(ce))) : ce;
+			this.ce = negated ? new NotFunctionConditionalElement(Lists.newArrayList(ce)) : ce;
 		}
 
 		@Override
@@ -339,13 +336,17 @@ public class RuleConditionProcessor {
 		}
 	}
 
-	private static class StripAnds implements DefaultConditionalElementsVisitor {
-		@Getter
+	private static interface Stripping extends ConditionalElementsVisitor {
+		List<ConditionalElement> getCes();
+	}
+
+	private static class StripAnds implements DefaultConditionalElementsVisitor, Stripping {
+		@Getter(onMethod = @__({ @Override }))
 		private List<ConditionalElement> ces;
 
 		@Override
 		public void defaultAction(final ConditionalElement ce) {
-			this.ces = new ArrayList<>(Collections.singletonList(ce));
+			this.ces = Lists.newArrayList(ce);
 		}
 
 		@Override
@@ -354,13 +355,13 @@ public class RuleConditionProcessor {
 		}
 	}
 
-	private static class StripOrs implements DefaultConditionalElementsVisitor {
-		@Getter
+	private static class StripOrs implements DefaultConditionalElementsVisitor, Stripping {
+		@Getter(onMethod = @__({ @Override }))
 		private List<ConditionalElement> ces;
 
 		@Override
 		public void defaultAction(final ConditionalElement ce) {
-			this.ces = new ArrayList<>(Collections.singletonList(ce));
+			this.ces = Lists.newArrayList(ce);
 		}
 
 		@Override
@@ -421,17 +422,17 @@ public class RuleConditionProcessor {
 				final Set<VariableSymbol> childSymbols = child.accept(new ShallowSymbolCollector()).symbols;
 				for (final VariableSymbol childSymbol : childSymbols) {
 					final Set<SingleFactVariable> factVariables =
-							childSymbol.equal.slotVariables.stream().map(ssv -> ssv.getFactVariable())
-									.collect(toSet());
+							childSymbol.equal.slotVariables.stream().map(ssv -> ssv.getFactVariable()).collect(toSet());
 					factVariables.addAll(childSymbol.equal.factVariables);
-					final Set<SingleFactVariable> combinedFVs =
-							factVariables.stream()
-									.flatMap(fv -> occurringWith.getOrDefault(fv, Collections.emptySet()).stream())
-									.collect(toSet());
-					combinedFVs.forEach(fv -> occurringWith.put(fv, combinedFVs));
 					if (!factVariables.isEmpty()) {
 						childToRepresentative.put(child, factVariables.iterator().next());
 					}
+					merge(occurringWith, factVariables);
+				}
+				final List<SingleFactVariable> childFVs = ShallowFactVariableCollector.collect(child);
+				if (!childFVs.isEmpty()) {
+					childToRepresentative.put(child, childFVs.get(0));
+					merge(occurringWith, childFVs);
 				}
 			}
 			final Map<Set<SingleFactVariable>, List<ConditionalElement>> partition =
@@ -441,13 +442,23 @@ public class RuleConditionProcessor {
 									groupingBy(c -> Optional.ofNullable(childToRepresentative.get(c))
 											.map(occurringWith::get).orElse(Collections.emptySet())));
 			final List<ConditionalElement> empty = partition.get(Collections.emptySet());
-			if (empty.isEmpty())
+			if (null == empty || empty.isEmpty())
 				return partition.values();
 			final List<List<ConditionalElement>> groups =
 					partition.keySet().stream().filter(k -> k != Collections.<SingleFactVariable> emptySet())
 							.map(partition::get).collect(toList());
-			empty.forEach(c -> groups.add(new ArrayList<>(Collections.singletonList(c))));
+			empty.forEach(c -> groups.add(Lists.newArrayList(c)));
 			return groups;
+		}
+
+		protected void merge(final Map<SingleFactVariable, Set<SingleFactVariable>> occurringWith,
+				final Collection<SingleFactVariable> factVariables) {
+			final Set<SingleFactVariable> combinedFVs =
+					factVariables.stream()
+							.flatMap(fv -> occurringWith.getOrDefault(fv, Collections.emptySet()).stream())
+							.collect(toCollection(HashSet::new));
+			combinedFVs.addAll(factVariables);
+			combinedFVs.forEach(fv -> occurringWith.put(fv, combinedFVs));
 		}
 
 		@Override
