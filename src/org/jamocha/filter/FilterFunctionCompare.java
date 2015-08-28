@@ -54,6 +54,8 @@ import org.jamocha.function.fwa.ParameterLeaf;
 import org.jamocha.function.fwa.PathLeaf;
 import org.jamocha.function.fwa.PredicateWithArgumentsComposite;
 
+import com.google.common.base.Objects;
+
 /**
  * Compares the Filters.
  *
@@ -113,7 +115,7 @@ public abstract class FilterFunctionCompare<L extends ExchangeableLeaf<L>> {
 							AddressFilterFunctionCompare.this.compareAddressContainer.getNextAddress();
 					final SlotInFactAddress targetAddress =
 							AddressFilterFunctionCompare.this.targetAddressContainer.getNextAddress();
-					if (!compareAddress.equals(targetAddress)) {
+					if (!Objects.equal(compareAddress, targetAddress)) {
 						invalidate();
 					}
 				} catch (final IndexOutOfBoundsException e) {
@@ -299,7 +301,7 @@ public abstract class FilterFunctionCompare<L extends ExchangeableLeaf<L>> {
 
 		@Override
 		public void visit(final ConstantLeaf<A> constantLeaf) {
-			if (!constantLeaf.getValue().equals(this.constantLeaf.getValue())) {
+			if (!Objects.equal(constantLeaf.getValue(), this.constantLeaf.getValue())) {
 				context.invalidate();
 			}
 		}
@@ -320,7 +322,8 @@ public abstract class FilterFunctionCompare<L extends ExchangeableLeaf<L>> {
 		}
 
 		private void generic(final GenericWithArgumentsComposite<?, ?, A> genericWithArgumentsComposite) {
-			if (!genericWithArgumentsComposite.getFunction().inClips().equals(this.composite.getFunction().inClips())) {
+			if (!Objects.equal(genericWithArgumentsComposite.getFunction().inClips(), this.composite.getFunction()
+					.inClips())) {
 				context.invalidate();
 				return;
 			}
