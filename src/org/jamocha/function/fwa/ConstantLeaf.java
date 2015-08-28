@@ -14,6 +14,8 @@
  */
 package org.jamocha.function.fwa;
 
+import java.util.Objects;
+
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
@@ -74,6 +76,6 @@ public class ConstantLeaf<L extends ExchangeableLeaf<L>> implements FunctionWith
 
 	@Override
 	public int hashPositionIsIrrelevant() {
-		return value.hashCode();
+		return Objects.hashCode(value);
 	}
 }
