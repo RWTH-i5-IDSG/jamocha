@@ -53,7 +53,7 @@ public class ConstantLeaf<L extends ExchangeableLeaf<L>> implements FunctionWith
 
 	@Override
 	public String toString() {
-		return this.value.toString();
+		return this.value == null ? "nil" : this.value.toString();
 	}
 
 	@Override
