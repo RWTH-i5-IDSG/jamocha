@@ -34,7 +34,6 @@ import org.jamocha.filter.PathCollector;
 import org.jamocha.filter.PathFilterList;
 import org.jamocha.filter.PathFilterList.PathExistentialList;
 import org.jamocha.filter.PathFilterList.PathSharedListWrapper.PathSharedList;
-import org.jamocha.filter.PathFilterList.PathSharedListWrapper.PathSharedList.CombinationProxy;
 import org.jamocha.filter.PathFilterListVisitor;
 import org.jamocha.filter.PathNodeFilterSet;
 
@@ -126,9 +125,8 @@ public class SamePathsNodeFilterSetCombiningOptimizer implements Optimizer {
 					pathNodeFilterSets.stream().collect(
 							groupingBy(pnfs -> PathCollector.newHashSet().collectOnlyInFilterLists(pnfs).getPaths(),
 									toSet()));
-			final CombinationProxy combinationProxy = filter.startCombining();
 			for (final Iterable<PathFilterList> set : map.values()) {
-				combinationProxy.combine(set, SamePathsNodeFilterSetCombiningOptimizer::combineFilters);
+				filter.combine(set, SamePathsNodeFilterSetCombiningOptimizer::combineFilters);
 			}
 		}
 	}
