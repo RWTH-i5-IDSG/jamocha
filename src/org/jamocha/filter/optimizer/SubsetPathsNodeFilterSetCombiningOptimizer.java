@@ -72,13 +72,12 @@ public class SubsetPathsNodeFilterSetCombiningOptimizer implements Optimizer {
 
 		@Override
 		public void visit(final PathSharedList filter) {
-			final ImmutableList<PathFilterList> unmodifiableFilterListCopy = filter.getUnmodifiableFilterListCopy();
+			final ImmutableList<PathFilterList> elements = filter.getUnmodifiableFilterListCopy();
 			// recurse
-			for (final PathFilterList element : unmodifiableFilterListCopy) {
+			for (final PathFilterList element : elements) {
 				element.accept(this);
 			}
-			final List<PathNodeFilterSet> pathNodeFilterSets =
-					PathNodeFilterSetCollector.collect(unmodifiableFilterListCopy);
+			final List<PathNodeFilterSet> pathNodeFilterSets = PathNodeFilterSetCollector.collectList(elements);
 
 			// at every point in time, there will only be one single PathNodeFilterSet for each set
 			// of paths relevant for merging

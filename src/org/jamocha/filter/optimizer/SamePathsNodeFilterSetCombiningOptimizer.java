@@ -24,6 +24,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Supplier;
 
 import lombok.RequiredArgsConstructor;
 
@@ -57,11 +58,21 @@ public class SamePathsNodeFilterSetCombiningOptimizer implements Optimizer {
 	 * PathFilterList.PathFilterSharedListWrapper.PathFilterSharedList#filters.
 	 */
 
-	static class PathNodeFilterSetCollector implements PathFilterListVisitor {
-		final List<PathNodeFilterSet> pathNodeFilterSets = new ArrayList<>();
+	@RequiredArgsConstructor
+	static class PathNodeFilterSetCollector<T extends Collection<PathNodeFilterSet>> implements PathFilterListVisitor {
+		final T pathNodeFilterSets;
 
-		static List<PathNodeFilterSet> collect(final Iterable<PathFilterList> filters) {
-			final PathNodeFilterSetCollector instance = new PathNodeFilterSetCollector();
+		static ArrayList<PathNodeFilterSet> collectList(final Iterable<PathFilterList> filters) {
+			return collect(filters, ArrayList::new);
+		}
+
+		static HashSet<PathNodeFilterSet> collectSet(final Iterable<PathFilterList> filters) {
+			return collect(filters, HashSet::new);
+		}
+
+		static <T extends Collection<PathNodeFilterSet>> T collect(final Iterable<PathFilterList> filters,
+				final Supplier<T> supplier) {
+			final PathNodeFilterSetCollector<T> instance = new PathNodeFilterSetCollector<>(supplier.get());
 			filters.forEach(f -> f.accept(instance));
 			return instance.pathNodeFilterSets;
 		}
@@ -110,7 +121,7 @@ public class SamePathsNodeFilterSetCombiningOptimizer implements Optimizer {
 				element.accept(this);
 			}
 			final List<PathNodeFilterSet> pathNodeFilterSets =
-					PathNodeFilterSetCollector.collect(unmodifiableFilterListCopy);
+					PathNodeFilterSetCollector.collectList(unmodifiableFilterListCopy);
 			final Map<HashSet<Path>, Set<PathFilterList>> map =
 					pathNodeFilterSets.stream().collect(
 							groupingBy(pnfs -> PathCollector.newHashSet().collectOnlyInFilterLists(pnfs).getPaths(),
