@@ -710,11 +710,19 @@ public class SimpleBlocks {
 		final TreeMap<Integer, TreeMap<Integer, HashSet<Block>>> ruleCountToFilterCountToBlocks = new TreeMap<>();
 		final TreeMap<Integer, TreeMap<Integer, HashSet<Block>>> filterCountToRuleCountToBlocks = new TreeMap<>();
 
+		private static int getRuleCount(final Block block) {
+			return block.getRulesOrProxies().size();
+		}
+
+		private static int getFilterCount(final Block block) {
+			return block.getFlatFilterInstances().size() / getRuleCount(block);
+		}
+
 		private boolean addDuringHorizontalRecursion(final Block block) {
-			final Integer ruleCount = block.getRulesOrProxies().size();
-			final Integer filterCount = block.getFlatFilterInstances().size() / ruleCount;
+			final Integer ruleCount = getRuleCount(block);
+			final Integer filterCount = getFilterCount(block);
 			final NavigableMap<Integer, HashSet<Block>> fixedRuleCountFilters =
-					ruleCountToFilterCountToBlocks.computeIfAbsent(ruleCount, newTreeMap()).tailMap(filterCount, false);
+					ruleCountToFilterCountToBlocks.computeIfAbsent(ruleCount, newTreeMap()).tailMap(filterCount, true);
 			for (final Set<Block> fixedFilterCountRule : fixedRuleCountFilters.values()) {
 				for (final Block candidate : fixedFilterCountRule) {
 					if (block.containedIn(candidate)) {
@@ -723,7 +731,7 @@ public class SimpleBlocks {
 				}
 			}
 			final NavigableMap<Integer, HashSet<Block>> fixedFilterCountRules =
-					filterCountToRuleCountToBlocks.computeIfAbsent(filterCount, newTreeMap()).tailMap(ruleCount, false);
+					filterCountToRuleCountToBlocks.computeIfAbsent(filterCount, newTreeMap()).tailMap(ruleCount, true);
 			for (final Set<Block> fixedFilterCountRule : fixedFilterCountRules.values()) {
 				for (final Block candidate : fixedFilterCountRule) {
 					if (block.containedIn(candidate)) {
@@ -735,10 +743,36 @@ public class SimpleBlocks {
 			return true;
 		}
 
+		private void removeContainedBlocks(final Block block) {
+			final Integer ruleCount = getRuleCount(block);
+			final Integer filterCount = getFilterCount(block);
+
+			final List<Block> toRemove = new ArrayList<>();
+
+			final Collection<TreeMap<Integer, HashSet<Block>>> filterCountToBlocksRuleCountHead =
+					ruleCountToFilterCountToBlocks.headMap(ruleCount).values();
+			for (final TreeMap<Integer, HashSet<Block>> filterCountToBlocksFixedRuleCount : filterCountToBlocksRuleCountHead) {
+				final Collection<HashSet<Block>> blocksFixedRuleCountFilterCountHead =
+						filterCountToBlocksFixedRuleCount.headMap(filterCount, true).values();
+				for (final HashSet<Block> blocksFixedRuleCountFixedFilterCount : blocksFixedRuleCountFilterCountHead) {
+					for (final Block candidate : blocksFixedRuleCountFixedFilterCount) {
+						if (candidate.containedIn(block)) {
+							// can't remove right now since we are iterating over a collection that
+							// would be changed
+							toRemove.add(candidate);
+						}
+					}
+				}
+			}
+			for (final Block remove : toRemove) {
+				remove(remove);
+			}
+		}
+
 		private void actuallyInsertBlockIntoAllCaches(final Block block) {
 			blocks.add(block);
-			final Integer ruleCount = block.getRulesOrProxies().size();
-			final Integer filterCount = block.getFilters().size();
+			final Integer ruleCount = getRuleCount(block);
+			final Integer filterCount = getFilterCount(block);
 			ruleCountToBlocks.computeIfAbsent(ruleCount, newHashSet()).add(block);
 			filterCountToBlocks.computeIfAbsent(filterCount, newHashSet()).add(block);
 			ruleCountToFilterCountToBlocks.computeIfAbsent(ruleCount, newTreeMap())
@@ -746,11 +780,12 @@ public class SimpleBlocks {
 			filterCountToRuleCountToBlocks.computeIfAbsent(filterCount, newTreeMap())
 					.computeIfAbsent(ruleCount, newHashSet()).add(block);
 			block.getRulesOrProxies().forEach(r -> ruleInstanceToBlocks.computeIfAbsent(r, newHashSet()).add(block));
+			removeContainedBlocks(block);
 		}
 
 		public boolean isContained(final Block block) {
-			final Integer ruleCount = block.getRulesOrProxies().size();
-			final Integer filterCount = block.getFilters().size();
+			final Integer ruleCount = getRuleCount(block);
+			final Integer filterCount = getFilterCount(block);
 			for (final TreeMap<Integer, HashSet<Block>> treeMap : filterCountToRuleCountToBlocks.tailMap(filterCount)
 					.values()) {
 				for (final HashSet<Block> blocks : treeMap.tailMap(ruleCount).values()) {
@@ -773,8 +808,8 @@ public class SimpleBlocks {
 		public boolean remove(final Block block) {
 			if (!blocks.remove(block))
 				return false;
-			final Integer ruleCount = block.getRulesOrProxies().size();
-			final Integer filterCount = block.getFilters().size();
+			final Integer ruleCount = getRuleCount(block);
+			final Integer filterCount = getFilterCount(block);
 			ruleCountToBlocks.computeIfAbsent(ruleCount, newHashSet()).remove(block);
 			filterCountToBlocks.computeIfAbsent(filterCount, newHashSet()).remove(block);
 			ruleCountToFilterCountToBlocks.computeIfAbsent(ruleCount, newTreeMap())
