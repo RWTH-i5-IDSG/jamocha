@@ -50,6 +50,7 @@ import java.util.function.Function;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -73,8 +74,10 @@ import org.jamocha.dn.memory.Template;
 import org.jamocha.filter.Path;
 import org.jamocha.filter.PathFilter;
 import org.jamocha.filter.PathFilterList;
+import org.jamocha.filter.PathFilterList.PathExistentialList;
 import org.jamocha.filter.PathFilterList.PathSharedListWrapper;
 import org.jamocha.filter.PathFilterList.PathSharedListWrapper.PathSharedList;
+import org.jamocha.filter.PathFilterListVisitor;
 import org.jamocha.filter.PathFilterSet;
 import org.jamocha.filter.PathFilterSet.PathExistentialSet;
 import org.jamocha.filter.PathFilterSetVisitor;
@@ -992,11 +995,63 @@ public class SimpleBlocks {
 				continue;
 			}
 			final List<PathFilterList> pathFilterLists =
-					ruleToJoinedWith.getOrDefault(either, Collections.emptyMap()).values().stream().distinct()
-							.map(joinedWithToComponent::get).collect(toList());
-			pathRules.add(either.left().get().getOriginal().toPathRule(PathFilterList.toSimpleList(pathFilterLists)));
+					Stream.concat(either.left().get().existentialProxies.values().stream().map(p -> Either.right(p)),
+							Stream.of(either))
+							.flatMap(
+									e -> ruleToJoinedWith.getOrDefault(e, Collections.emptyMap()).values().stream()
+											.distinct()).map(joinedWithToComponent::get).collect(toList());
+			pathRules.add(either
+					.left()
+					.get()
+					.getOriginal()
+					.toPathRule(PathFilterList.toSimpleList(pathFilterLists),
+							InitialFactPathsFinder.gather(pathFilterLists)));
 		}
 		return pathRules;
+	}
+
+	static class InitialFactPathsFinder implements PathFilterListVisitor {
+		final Set<Path> initialFactPaths = Sets.newHashSet();
+
+		static Set<Path> gather(final Iterable<PathFilterList> filters) {
+			final InitialFactPathsFinder instance = new InitialFactPathsFinder();
+			for (final PathFilterList filter : filters) {
+				filter.accept(instance);
+			}
+			return instance.initialFactPaths;
+		}
+
+		@Override
+		public void visit(final PathSharedList filter) {
+			final ImmutableList<PathFilterList> elements = filter.getUnmodifiableFilterListCopy();
+			if (1 != elements.size()) {
+				return;
+			}
+			elements.get(0).accept(new InitialFactPathsFinderHelper());
+		}
+
+		class InitialFactPathsFinderHelper implements PathFilterListVisitor {
+			@Override
+			public void visit(final PathExistentialList filter) {
+				initialFactPaths.add(filter.getInitialPath());
+			}
+
+			@Override
+			public void visit(final PathNodeFilterSet filter) {
+			}
+
+			@Override
+			public void visit(final PathSharedList filter) {
+			}
+		}
+
+		@Override
+		public void visit(final PathNodeFilterSet filter) {
+		}
+
+		@Override
+		public void visit(final PathExistentialList filter) {
+		}
 	}
 
 	protected static void findAllHorizontallyMaximalBlocks(final List<Either<Rule, ExistentialProxy>> rules,

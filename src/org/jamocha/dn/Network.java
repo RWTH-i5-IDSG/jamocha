@@ -436,15 +436,18 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 	 */
 	public TerminalNode buildRule(final Defrule.PathRule pathRule) {
 		final PathFilterList filters = pathRule.getCondition();
-		final HashSet<Path> allPaths;
+		final HashSet<Path> regularPaths;
 		{
-			final PathCollector<HashSet<Path>> collector = PathCollector.newHashSet();
+			final PathCollector<HashSet<Path>> allPathsCollector = PathCollector.newHashSet();
+			final PathCollector<HashSet<Path>> regularPathsCollector = PathCollector.newHashSet();
 			for (final PathNodeFilterSet filter : filters) {
-				collector.collectAllInLists(filter);
+				allPathsCollector.collectAllInLists(filter);
+				regularPathsCollector.collectOnlyInFilterLists(filter);
 			}
-			collector.getPaths().addAll(pathRule.getResultPaths());
-			this.rootNode.addPaths(this, collector.getPathsArray());
-			allPaths = collector.getPaths();
+			allPathsCollector.getPaths().addAll(pathRule.getResultPaths());
+			regularPathsCollector.getPaths().addAll(pathRule.getResultPaths());
+			this.rootNode.addPaths(this, allPathsCollector.getPathsArray());
+			regularPaths = regularPathsCollector.getPaths();
 		}
 		final ArrayList<Node> nodes = new ArrayList<>();
 		for (final PathNodeFilterSet filter : filters) {
@@ -459,7 +462,7 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 			}
 		}
 		final Map<Node, List<Path>> nodeToJoinedPaths =
-				allPaths.stream().collect(groupingBy(Path::getCurrentlyLowestNode));
+				regularPaths.stream().collect(groupingBy(Path::getCurrentlyLowestNode));
 		if (nodeToJoinedPaths.keySet().size() > 1) {
 			// FIXME improve by minimizing the intermediate results: easily done when the size of
 			// the nodes (keySet of the map) is known approximately
@@ -475,8 +478,8 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 			if (!tryToShareNode(filter))
 				nodes.add(new BetaNode(this, filter));
 		}
-		assert allPaths.stream().map(Path::getCurrentlyLowestNode).distinct().count() == 1;
-		final Node lowestNode = allPaths.iterator().next().getCurrentlyLowestNode();
+		assert regularPaths.stream().map(Path::getCurrentlyLowestNode).distinct().count() == 1;
+		final Node lowestNode = regularPaths.iterator().next().getCurrentlyLowestNode();
 		final TerminalNode terminalNode = new TerminalNode(this, lowestNode, pathRule);
 		for (final Node node : nodes) {
 			node.activateTokenQueue();

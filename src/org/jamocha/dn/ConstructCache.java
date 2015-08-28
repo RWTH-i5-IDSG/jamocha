@@ -54,6 +54,8 @@ import org.jamocha.languages.common.RuleCondition.EquivalenceClass;
 import org.jamocha.languages.common.SingleFactVariable;
 import org.jamocha.logging.MarkerType;
 
+import com.google.common.collect.Sets;
+
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
@@ -181,9 +183,9 @@ public class ConstructCache {
 						equivalenceClassToPathLeaf, specificity);
 			}
 
-			public PathRule toPathRule(final PathFilterList convertedCondition) {
-				return new PathRule(convertedCondition, resultPaths, actionList, equivalenceClassToPathLeaf,
-						specificity);
+			public PathRule toPathRule(final PathFilterList convertedCondition, final Set<Path> additionalInitialPaths) {
+				return new PathRule(convertedCondition, Sets.union(resultPaths, additionalInitialPaths), actionList,
+						equivalenceClassToPathLeaf, specificity);
 			}
 		}
 
