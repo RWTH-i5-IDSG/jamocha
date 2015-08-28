@@ -189,8 +189,9 @@ public interface PathFilterList extends Visitable<PathFilterListVisitor>, Iterab
 				}
 			}
 
-			public CombinationProxy startCombining() {
-				return new CombinationProxy();
+			public void combine(final Iterable<? extends PathFilterList> oldFilters,
+					final Function<Iterable<PathFilterList>, PathFilterList> transformer) {
+				new CombinationProxy().combine(oldFilters, transformer);
 			}
 
 			public class CombinationProxy extends Proxy {
