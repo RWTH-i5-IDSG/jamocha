@@ -24,6 +24,7 @@ import static org.jamocha.util.Lambdas.composeToInt;
 import static org.jamocha.util.Lambdas.negate;
 import static org.jamocha.util.Lambdas.newHashMap;
 import static org.jamocha.util.Lambdas.newHashSet;
+import static org.jamocha.util.Lambdas.newLinkedHashSet;
 import static org.jamocha.util.Lambdas.newTreeMap;
 
 import java.util.ArrayList;
@@ -1016,13 +1017,33 @@ public class SimpleBlocks {
 						Block.getFilterInstanceColumns(block.getFilters(), block.getRuleToFilterToRow(), blockRules);
 				// since we are considering blocks, it is either the case that all filter
 				// instances of the column have been constructed or none of them have
-				filterInstanceColumns.removeIf(column -> !Collections.disjoint(column, constructedFIs));
 				final PathSharedListWrapper sharedListWrapper = new PathSharedListWrapper(blockRules.size());
 				final Map<Either<Rule, ExistentialProxy>, PathSharedList> ruleToSharedList =
 						IntStream.range(0, blockRules.size()).boxed()
 								.collect(toMap(blockRules::get, sharedListWrapper.getSharedSiblings()::get));
+				final List<List<FilterInstance>> columnsToConstruct, columnsAlreadyConstructed;
+				{
+					final Map<Boolean, List<List<FilterInstance>>> partition =
+							filterInstanceColumns.stream().collect(
+									partitioningBy(column -> Collections.disjoint(column, constructedFIs)));
+					columnsAlreadyConstructed = partition.get(Boolean.FALSE);
+					columnsToConstruct = partition.get(Boolean.TRUE);
+				}
 
-				for (final List<FilterInstance> column : filterInstanceColumns) {
+				block.getFlatFilterInstances().stream().filter(negate(constructedFIs::contains))
+						.map(fi -> ruleToJoinedWith.get(fi.getRuleOrProxy()).get(fi)).distinct();
+				if (!columnsAlreadyConstructed.isEmpty()) {
+					final Map<PathSharedList, LinkedHashSet<PathFilterList>> sharedPart = new HashMap<>();
+					for (final List<FilterInstance> column : columnsAlreadyConstructed) {
+						for (final FilterInstance fi : column) {
+							sharedPart.computeIfAbsent(ruleToSharedList.get(fi.getRuleOrProxy()), newLinkedHashSet())
+									.add(joinedWithToComponent.get(ruleToJoinedWith.get(fi.getRuleOrProxy()).get(fi)));
+						}
+					}
+					sharedListWrapper.addSharedColumns(sharedPart);
+				}
+
+				for (final List<FilterInstance> column : columnsToConstruct) {
 					sharedListWrapper.addSharedColumn(column.stream().collect(
 							toMap(fi -> ruleToSharedList.get(fi.getRuleOrProxy()), FilterInstance::convert)));
 				}
