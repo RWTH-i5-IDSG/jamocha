@@ -17,6 +17,7 @@ package org.jamocha.languages.common;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -56,6 +57,11 @@ public abstract class ConditionalElement implements Visitable<ConditionalElement
 			visitor.visit(this);
 			return visitor;
 		}
+
+		@Override
+		public String toString() {
+			return "ExistentialCE " + Objects.toString(children);
+		}
 	}
 
 	public static class NegatedExistentialConditionalElement extends PositiveOrNegativeExistentialConditionalElement {
@@ -67,6 +73,11 @@ public abstract class ConditionalElement implements Visitable<ConditionalElement
 		public <V extends ConditionalElementsVisitor> V accept(final V visitor) {
 			visitor.visit(this);
 			return visitor;
+		}
+
+		@Override
+		public String toString() {
+			return "NegatedExistentialCE " + Objects.toString(children);
 		}
 	}
 
@@ -84,6 +95,11 @@ public abstract class ConditionalElement implements Visitable<ConditionalElement
 			visitor.visit(this);
 			return visitor;
 		}
+
+		@Override
+		public String toString() {
+			return "TestCE (" + Objects.toString(predicateWithArguments) + ")";
+		}
 	}
 
 	public static class OrFunctionConditionalElement extends ConditionalElement {
@@ -95,6 +111,11 @@ public abstract class ConditionalElement implements Visitable<ConditionalElement
 		public <V extends ConditionalElementsVisitor> V accept(final V visitor) {
 			visitor.visit(this);
 			return visitor;
+		}
+
+		@Override
+		public String toString() {
+			return "OrCE " + Objects.toString(children);
 		}
 	}
 
@@ -108,6 +129,11 @@ public abstract class ConditionalElement implements Visitable<ConditionalElement
 			visitor.visit(this);
 			return visitor;
 		}
+
+		@Override
+		public String toString() {
+			return "AndCE " + Objects.toString(children);
+		}
 	}
 
 	public static class NotFunctionConditionalElement extends ConditionalElement {
@@ -119,6 +145,11 @@ public abstract class ConditionalElement implements Visitable<ConditionalElement
 		public <V extends ConditionalElementsVisitor> V accept(final V visitor) {
 			visitor.visit(this);
 			return visitor;
+		}
+
+		@Override
+		public String toString() {
+			return "NotCE " + Objects.toString(children);
 		}
 	}
 
@@ -142,6 +173,11 @@ public abstract class ConditionalElement implements Visitable<ConditionalElement
 			visitor.visit(this);
 			return visitor;
 		}
+
+		@Override
+		public String toString() {
+			return "InitialFactCE";
+		}
 	}
 
 	/**
@@ -160,6 +196,11 @@ public abstract class ConditionalElement implements Visitable<ConditionalElement
 		public <V extends ConditionalElementsVisitor> V accept(final V visitor) {
 			visitor.visit(this);
 			return visitor;
+		}
+
+		@Override
+		public String toString() {
+			return "TPCE [" + Objects.toString(factVariable) + "]";
 		}
 	}
 }
