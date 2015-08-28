@@ -40,12 +40,12 @@ public class PathFilterListSetFlattener implements PathFilterListVisitor {
 
 	@Override
 	public void visit(final PathExistentialList filter) {
-		filter.getPurePart().accept(this);
+		filter.getPurePart().forEach(p -> p.accept(this));
 		filter.getExistentialClosure().accept(this);
 	}
 
 	@Override
 	public void visit(final PathSharedList filter) {
-		filter.getFilters().forEach(a -> a.accept(this));
+		filter.getUnmodifiableFilterListCopy().forEach(a -> a.accept(this));
 	}
 }

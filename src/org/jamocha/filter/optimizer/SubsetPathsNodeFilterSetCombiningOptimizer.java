@@ -14,19 +14,15 @@
  */
 package org.jamocha.filter.optimizer;
 
-import static java.util.stream.Collectors.toCollection;
-import static java.util.stream.Collectors.toList;
-import static org.jamocha.filter.optimizer.SamePathsNodeFilterSetCombiningOptimizer.combineTwoFilters;
+import static org.jamocha.util.Lambdas.newLinkedHashSet;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedList;
+import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.ListIterator;
-import java.util.Set;
+import java.util.NavigableMap;
+import java.util.TreeMap;
 
 import lombok.RequiredArgsConstructor;
 
@@ -35,12 +31,14 @@ import org.jamocha.filter.Path;
 import org.jamocha.filter.PathCollector;
 import org.jamocha.filter.PathFilterList;
 import org.jamocha.filter.PathFilterList.PathExistentialList;
-import org.jamocha.filter.PathFilterList.PathSharedListWrapper;
 import org.jamocha.filter.PathFilterList.PathSharedListWrapper.PathSharedList;
+import org.jamocha.filter.PathFilterList.PathSharedListWrapper.PathSharedList.CombinationProxy;
 import org.jamocha.filter.PathFilterListVisitor;
 import org.jamocha.filter.PathNodeFilterSet;
+import org.jamocha.filter.optimizer.SamePathsNodeFilterSetCombiningOptimizer.PathNodeFilterSetCollector;
 
-import com.google.common.collect.Lists;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Sets;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
@@ -56,78 +54,76 @@ public class SubsetPathsNodeFilterSetCombiningOptimizer implements Optimizer {
 	 * when the new FEs kick out rows that keep reappearing.
 	 * 
 	 * Thus only consider filters on the same level within
-	 * PathFilterList.PathFilterExistentialList#nonExistentialPart and
-	 * PathFilterList.PathFilterSharedListWrapper.PathFilterSharedList#filterElements.
+	 * PathFilterList.PathFilterExistentialList#purePart and
+	 * PathFilterList.PathFilterSharedListWrapper.PathFilterSharedList#filters.
 	 */
 
 	@RequiredArgsConstructor
 	static class Identifier implements PathFilterListVisitor {
-		final HashMap<Path, Set<Path>> path2JoinedWith;
-		final List<PathFilterList> result = new ArrayList<>();
-		final List<PathNodeFilterSet> filtersOnThisLevel = new LinkedList<>();
-		final HashMap<PathNodeFilterSet, Set<Path>> filter2Paths = new HashMap<>();
-
-		private void save(final PathNodeFilterSet filter, final HashSet<Path> paths) {
-			filtersOnThisLevel.add(filter);
-			result.add(filter);
-			paths.forEach(p -> path2JoinedWith.put(p, paths));
-			filter2Paths.put(filter, paths);
-		}
-
 		@Override
 		public void visit(final PathNodeFilterSet filter) {
-			final HashSet<Path> currentPaths = PathCollector.newHashSet().collectAllInLists(filter).getPaths();
-			if (filtersOnThisLevel.isEmpty()) {
-				save(filter, currentPaths);
-				return;
-			}
-			final HashSet<Path> joined =
-					currentPaths.stream()
-							.flatMap(p -> path2JoinedWith.getOrDefault(p, Collections.singleton(p)).stream())
-							.collect(toCollection(HashSet::new));
-			for (final ListIterator<PathNodeFilterSet> listIterator =
-					filtersOnThisLevel.listIterator(filtersOnThisLevel.size()); listIterator.hasPrevious();) {
-				final PathNodeFilterSet samePathsFilter = listIterator.previous();
-				final Set<Path> set = filter2Paths.get(samePathsFilter);
-				if (set.containsAll(joined)) {
-					listIterator.remove();
-					result.remove(samePathsFilter);
-					save(combineTwoFilters(samePathsFilter, filter), joined);
-					return;
-				}
-			}
-			save(filter, joined);
 		}
 
 		@Override
 		public void visit(final PathExistentialList filter) {
-			result.add(new PathExistentialList(filter.getInitialPath(), new PathSharedListWrapper()
-					.newSharedElement(Lists.newArrayList(filter.getPurePart())), filter.getExistentialClosure()));
+			// recurse on pure part only
+			filter.getPurePart().accept(this);
 		}
 
 		@Override
 		public void visit(final PathSharedList filter) {
-			result.add(filter.getWrapper().replace(filter, combine(filter.getFilters())));
-		}
+			final ImmutableList<PathFilterList> unmodifiableFilterListCopy = filter.getUnmodifiableFilterListCopy();
+			// recurse
+			for (final PathFilterList element : unmodifiableFilterListCopy) {
+				element.accept(this);
+			}
+			final List<PathNodeFilterSet> pathNodeFilterSets =
+					PathNodeFilterSetCollector.collect(unmodifiableFilterListCopy);
 
-		List<PathFilterList> combine(final List<PathFilterList> filters) {
-			final Identifier instance = new Identifier(path2JoinedWith);
-			filters.forEach(f -> f.accept(instance));
-			return instance.result;
-		}
-	}
+			// at every point in time, there will only be one single PathNodeFilterSet for each set
+			// of paths relevant for merging
+			final HashMap<HashSet<Path>, PathNodeFilterSet> pathSetToFilter = new HashMap<>();
+			final TreeMap<Integer, LinkedHashSet<HashSet<Path>>> sizeToSets = new TreeMap<>();
+			final HashMap<PathNodeFilterSet, LinkedHashSet<PathNodeFilterSet>> joins = new HashMap<>();
 
-	static PathSharedList optimize(final PathSharedList condition) {
-		return (PathSharedList) condition.accept(new Identifier(new HashMap<>())).result.get(0);
+			for (final PathNodeFilterSet currentFilter : pathNodeFilterSets) {
+				final HashSet<Path> currentPaths =
+						PathCollector.newHashSet().collectOnlyInFilterLists(currentFilter).getPaths();
+				final NavigableMap<Integer, LinkedHashSet<HashSet<Path>>> tailMap =
+						sizeToSets.tailMap(currentPaths.size(), false);
+				// in ascending order of path set size, search for filters containing all our paths
+				// (and at least one further path)
+				pathSetLoop: for (final HashSet<HashSet<Path>> pathSets : tailMap.values()) {
+					for (final HashSet<Path> pathSet : pathSets) {
+						if (pathSet.containsAll(currentPaths)) {
+							final PathNodeFilterSet targetFilter = pathSetToFilter.get(pathSet);
+							// merge targetFilter and currentFilter
+							final LinkedHashSet<PathNodeFilterSet> joinSet =
+									joins.computeIfAbsent(targetFilter, x -> Sets.newLinkedHashSet(x));
+							joinSet.add(currentFilter);
+							joins.put(currentFilter, joinSet);
+							break pathSetLoop;
+						}
+					}
+				}
+				sizeToSets.computeIfAbsent(currentPaths.size(), newLinkedHashSet()).add(currentPaths);
+				pathSetToFilter.put(currentPaths, currentFilter);
+			}
+
+			final CombinationProxy combinationProxy = filter.startCombining();
+			final HashSet<LinkedHashSet<PathNodeFilterSet>> joinSets = Sets.newHashSet(joins.values());
+			for (final Iterable<? extends PathFilterList> joinSet : joinSets) {
+				combinationProxy.combine(joinSet, SamePathsNodeFilterSetCombiningOptimizer::combineFilters);
+			}
+		}
 	}
 
 	@Override
 	public Collection<PathRule> optimize(final Collection<PathRule> rules) {
-		return rules
-				.stream()
-				.map(rule -> {
-					return rule.getParent().new PathRule(optimize(rule.getCondition()), rule.getResultPaths(), rule
-							.getActionList(), rule.getEquivalenceClassToPathLeaf(), rule.getSpecificity());
-				}).collect(toList());
+		final Identifier identifier = new Identifier();
+		for (final PathRule pathRule : rules) {
+			pathRule.getCondition().accept(identifier);
+		}
+		return rules;
 	}
 }

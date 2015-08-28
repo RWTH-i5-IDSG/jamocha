@@ -435,8 +435,7 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 	 * @return created TerminalNode for the constructed rule
 	 */
 	public TerminalNode buildRule(final Defrule.PathRule pathRule) {
-		final PathFilterList.PathSharedListWrapper.PathSharedList filters = pathRule.getCondition();
-		// pathRule.getResultPaths();
+		final PathFilterList filters = pathRule.getCondition();
 		final HashSet<Path> allPaths;
 		{
 			final PathCollector<HashSet<Path>> collector = PathCollector.newHashSet();

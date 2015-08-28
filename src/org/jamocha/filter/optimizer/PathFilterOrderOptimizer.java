@@ -16,9 +16,11 @@ package org.jamocha.filter.optimizer;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.IdentityHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -32,7 +34,9 @@ import org.jamocha.filter.Path;
 import org.jamocha.filter.PathCollector;
 import org.jamocha.filter.PathFilterList;
 import org.jamocha.filter.PathFilterList.PathExistentialList;
+import org.jamocha.filter.PathFilterList.PathSharedListWrapper;
 import org.jamocha.filter.PathFilterList.PathSharedListWrapper.PathSharedList;
+import org.jamocha.filter.PathFilterList.PathSharedListWrapper.PathSharedList.ModificationProxy;
 import org.jamocha.filter.PathFilterListVisitor;
 import org.jamocha.filter.PathNodeFilterSet;
 
@@ -256,7 +260,7 @@ public class PathFilterOrderOptimizer implements Optimizer {
 	 * @param list
 	 *            list of filters to order-optimize
 	 */
-	public void optimizeUnsharedList(final ArrayList<PathFilterList> list) {
+	public void optimizeUnsharedList(final List<PathFilterList> list) {
 		if (list.isEmpty())
 			return;
 		// collect the set of PathFilterLists that share paths by creating a mapping from path to
@@ -267,12 +271,11 @@ public class PathFilterOrderOptimizer implements Optimizer {
 		// for every filter
 		for (final PathFilterList pathFilter : list) {
 			// collect the paths used in the filter
-			final HashSet<Path> onlyNonExistentialPaths =
-					PathCollector.newHashSet().collectOnlyNonExistentialInLists(pathFilter).getPaths();
+			final HashSet<Path> allPaths = PathCollector.newHashSet().collectAllInLists(pathFilter).getPaths();
 			// create a component for the filter using the collected paths
-			graph.createInitialComponent(pathFilter, onlyNonExistentialPaths);
+			graph.createInitialComponent(pathFilter, allPaths);
 			// put the filter into the path to filters map using every collected path as a key
-			for (final Path path : onlyNonExistentialPaths) {
+			for (final Path path : allPaths) {
 				pathToFilters.computeIfAbsent(path, x -> new HashSet<>()).add(pathFilter);
 			}
 		}
@@ -326,19 +329,25 @@ public class PathFilterOrderOptimizer implements Optimizer {
 	 *            list of filters to order-optimize
 	 */
 	public void optimize(final PathSharedList list) {
+		final PathSharedListWrapper wrapper = list.getWrapper();
+		if (wrappersAlreadyDone.contains(wrapper)) {
+			return;
+		}
+		wrappersAlreadyDone.add(wrapper);
 		// partition the children of the list
 		final Partitioner partitioner = new Partitioner();
-		final List<PathFilterList> elements = list.getFilters();
-		elements.forEach(e -> e.accept(partitioner));
+		list.getUnmodifiableFilterListCopy().forEach(e -> e.accept(partitioner));
 		// recurse on the children of the shared list elements
 		partitioner.pathFilterSharedLists.forEach(this::optimize);
 		// recurse on the pure parts of the existential list elements
 		partitioner.pathFilterExistentialLists.stream().map(PathExistentialList::getPurePart)
 				.forEach(this::identifyAndOptimize);
+		// create modification proxy
+		final ModificationProxy modificationProxy = list.startModifying();
 		// clear the list to re-insert the elements in an optimal way
-		elements.clear();
+		modificationProxy.clear();
 		// first, insert the shared elements
-		elements.addAll(partitioner.pathFilterSharedLists);
+		modificationProxy.addAll(partitioner.pathFilterSharedLists);
 		{
 			// afterwards, combine the existential parts (as blocks) and the PathFilters in an
 			// optimal order
@@ -347,7 +356,7 @@ public class PathFilterOrderOptimizer implements Optimizer {
 			unshared.addAll(partitioner.pathFilterExistentialLists);
 			unshared.addAll(partitioner.pathFilters);
 			optimizeUnsharedList(unshared);
-			elements.addAll(unshared);
+			modificationProxy.addAll(unshared);
 		}
 	}
 
@@ -360,7 +369,7 @@ public class PathFilterOrderOptimizer implements Optimizer {
 
 			@Override
 			public void visit(final PathExistentialList filter) {
-				filter.getPurePart().accept(this);
+				filter.getPurePart().forEach(p -> p.accept(this));
 			}
 
 			@Override
@@ -369,11 +378,14 @@ public class PathFilterOrderOptimizer implements Optimizer {
 		});
 	}
 
+	public Set<PathSharedListWrapper> wrappersAlreadyDone = Collections.newSetFromMap(new IdentityHashMap<>());
+
 	@Override
 	public Collection<PathRule> optimize(final Collection<PathRule> rules) {
 		for (final PathRule rule : rules) {
-			optimize(rule.getCondition());
+			identifyAndOptimize(rule.getCondition());
 		}
+		wrappersAlreadyDone.clear();
 		return rules;
 	}
 }

@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -124,11 +125,10 @@ public class TokenProcessingTest {
 
 		// get the (old) students with hobby "Coding", for which there are younger (semester-wise)
 		// students in the same course of study, but who lack a professor for their course of study
-		final PathFilterList.PathSharedListWrapper.PathSharedList filter =
-				new PathFilterList.PathSharedListWrapper().newSharedElement(Arrays.asList(PathNodeFilterSet
-						.newRegularPathNodeFilterSet(new PredicateBuilder(eqStrStr).addPath(oldStudent, studentHobby)
-								.addConstant("Coding", SlotType.STRING).buildFilter()), PathNodeFilterSet
-						.newExistentialPathNodeFilterSet(
+		final List<PathFilterList> filter =
+				Arrays.asList(PathNodeFilterSet.newRegularPathNodeFilterSet(new PredicateBuilder(eqStrStr)
+						.addPath(oldStudent, studentHobby).addConstant("Coding", SlotType.STRING).buildFilter()),
+						PathNodeFilterSet.newExistentialPathNodeFilterSet(
 								false,
 								existentialYoungStudent,
 								new PredicateBuilder(and)
@@ -142,7 +142,7 @@ public class TokenProcessingTest {
 								true,
 								negatedExistentialMatchingProf,
 								new PredicateBuilder(eqStrStr).addPath(oldStudent, studentSG)
-										.addPath(matchingProf, profSG).buildFilter())));
+										.addPath(matchingProf, profSG).buildFilter()));
 
 		final TerminalNode terminal =
 				network.buildRule(new Defrule("dummyrule", "", 0, (RuleCondition) null, new ArrayList<>())
@@ -231,17 +231,14 @@ public class TokenProcessingTest {
 		final Predicate eqBoolBool = FunctionDictionary.lookupPredicate("=", SlotType.BOOLEAN, SlotType.BOOLEAN);
 		final Predicate and = FunctionDictionary.lookupPredicate(And.inClips, SlotType.BOOLEAN, SlotType.BOOLEAN);
 
-		final PathFilterList.PathSharedListWrapper.PathSharedList filter =
-				new PathFilterList.PathSharedListWrapper().newSharedElement(Arrays.asList(PathNodeFilterSet
-						.newExistentialPathNodeFilterSet(
-								new HashSet<Path>(Arrays.asList(p2)),
-								new HashSet<Path>(),
-								new PredicateBuilder(and)
-										.addFunction(
-												new PredicateBuilder(eqStrStr).addPath(p1, s1).addPath(p2, s1).build())
-										.addFunction(
-												new PredicateBuilder(eqBoolBool).addBoolean(false).addPath(p2, s2)
-														.build()).buildFilter())));
+		final List<PathFilterList> filter =
+				Arrays.asList(PathNodeFilterSet.newExistentialPathNodeFilterSet(
+						new HashSet<Path>(Arrays.asList(p2)),
+						new HashSet<Path>(),
+						new PredicateBuilder(and)
+								.addFunction(new PredicateBuilder(eqStrStr).addPath(p1, s1).addPath(p2, s1).build())
+								.addFunction(new PredicateBuilder(eqBoolBool).addBoolean(false).addPath(p2, s2).build())
+								.buildFilter()));
 
 		final TerminalNode terminal =
 				network.buildRule(new Defrule("dummyrule", "", 0, (RuleCondition) null, new ArrayList<>())
@@ -306,8 +303,8 @@ public class TokenProcessingTest {
 		final Predicate eqBoolBool = FunctionDictionary.lookupPredicate("=", SlotType.BOOLEAN, SlotType.BOOLEAN);
 		final Predicate and = FunctionDictionary.lookupPredicate(And.inClips, SlotType.BOOLEAN, SlotType.BOOLEAN);
 
-		final PathFilterList.PathSharedListWrapper.PathSharedList filter =
-				new PathFilterList.PathSharedListWrapper().newSharedElement(Arrays.asList(PathNodeFilterSet
+		final List<PathFilterList> filter =
+				Arrays.asList(PathNodeFilterSet
 						.newExistentialPathNodeFilterSet(
 								new HashSet<Path>(),
 								new HashSet<Path>(Arrays.asList(p2)),
@@ -316,7 +313,7 @@ public class TokenProcessingTest {
 												new PredicateBuilder(eqStrStr).addPath(p1, s1).addPath(p2, s1).build())
 										.addFunction(
 												new PredicateBuilder(eqBoolBool).addBoolean(false).addPath(p2, s2)
-														.build()).buildFilter())));
+														.build()).buildFilter()));
 
 		final TerminalNode terminal =
 				network.buildRule(new Defrule("dummyrule", "", 0, (RuleCondition) null, new ArrayList<>())
@@ -386,12 +383,12 @@ public class TokenProcessingTest {
 		final Predicate lessLongLong = FunctionDictionary.lookupPredicate("<", SlotType.LONG, SlotType.LONG);
 		final Predicate eqStrStr = FunctionDictionary.lookupPredicate("=", SlotType.STRING, SlotType.STRING);
 
-		final PathFilterList.PathSharedListWrapper.PathSharedList filter =
-				new PathFilterList.PathSharedListWrapper()
-						.newSharedElement(Arrays.asList(PathNodeFilterSet.newRegularPathNodeFilterSet(
-								new PredicateBuilder(lessLongLong).addPath(youngStudent, studentSem)
-										.addPath(oldStudent, studentSem).buildFilter(), new PredicateBuilder(eqStrStr)
-										.addPath(youngStudent, studentSG).addPath(oldStudent, studentSG).buildFilter())));
+		final List<PathFilterList> filter =
+				Arrays.asList(PathNodeFilterSet.newRegularPathNodeFilterSet(
+						new PredicateBuilder(lessLongLong).addPath(youngStudent, studentSem)
+								.addPath(oldStudent, studentSem).buildFilter(),
+						new PredicateBuilder(eqStrStr).addPath(youngStudent, studentSG).addPath(oldStudent, studentSG)
+								.buildFilter()));
 
 		network.buildRule(new Defrule("dummyrule", "", 0, (RuleCondition) null, new ArrayList<>()).newTranslated(
 				filter, (Map<EquivalenceClass, PathLeaf>) null));
@@ -449,18 +446,18 @@ public class TokenProcessingTest {
 		final Predicate lessLongLong = FunctionDictionary.lookupPredicate("<", SlotType.LONG, SlotType.LONG);
 		final Predicate eqStrStr = FunctionDictionary.lookupPredicate("=", SlotType.STRING, SlotType.STRING);
 
-		final PathFilterList.PathSharedListWrapper.PathSharedList filter =
-				new PathFilterList.PathSharedListWrapper()
-						.newSharedElement(Arrays.asList(
-								PathNodeFilterSet.newRegularPathNodeFilterSet(new PredicateBuilder(eqStrStr)
+		final List<PathFilterList> filter =
+				Arrays.asList(
+						PathNodeFilterSet
+								.newRegularPathNodeFilterSet(new PredicateBuilder(eqStrStr)
 										.addPath(oldStudent, studentHobby).addConstant("Coding", SlotType.STRING)
 										.buildFilter()),
-								PathNodeFilterSet.newRegularPathNodeFilterSet(new PredicateBuilder(lessLongLong)
-										.addPath(youngStudent, studentSem).addPath(oldStudent, studentSem)
-										.buildFilter(), new PredicateBuilder(eqStrStr).addPath(youngStudent, studentSG)
-										.addPath(oldStudent, studentSG).buildFilter()),
-								PathNodeFilterSet.newRegularPathNodeFilterSet(new PredicateBuilder(eqStrStr)
-										.addPath(youngStudent, studentSG).addPath(matchingProf, profSG).buildFilter())));
+						PathNodeFilterSet.newRegularPathNodeFilterSet(
+								new PredicateBuilder(lessLongLong).addPath(youngStudent, studentSem)
+										.addPath(oldStudent, studentSem).buildFilter(), new PredicateBuilder(eqStrStr)
+										.addPath(youngStudent, studentSG).addPath(oldStudent, studentSG).buildFilter()),
+						PathNodeFilterSet.newRegularPathNodeFilterSet(new PredicateBuilder(eqStrStr)
+								.addPath(youngStudent, studentSG).addPath(matchingProf, profSG).buildFilter()));
 
 		network.buildRule(new Defrule("dummyrule", "", 0, (RuleCondition) null, new ArrayList<>()).newTranslated(
 				filter, (Map<EquivalenceClass, PathLeaf>) null));
@@ -527,18 +524,18 @@ public class TokenProcessingTest {
 		final Predicate lessLongLong = FunctionDictionary.lookupPredicate("<", SlotType.LONG, SlotType.LONG);
 		final Predicate eqStrStr = FunctionDictionary.lookupPredicate("=", SlotType.STRING, SlotType.STRING);
 
-		final PathFilterList.PathSharedListWrapper.PathSharedList filter =
-				new PathFilterList.PathSharedListWrapper()
-						.newSharedElement(Arrays.asList(
-								PathNodeFilterSet.newRegularPathNodeFilterSet(new PredicateBuilder(eqStrStr)
+		final List<PathFilterList> filter =
+				Arrays.asList(
+						PathNodeFilterSet
+								.newRegularPathNodeFilterSet(new PredicateBuilder(eqStrStr)
 										.addPath(oldStudent, studentHobby).addConstant("Coding", SlotType.STRING)
 										.buildFilter()),
-								PathNodeFilterSet.newRegularPathNodeFilterSet(new PredicateBuilder(lessLongLong)
-										.addPath(youngStudent, studentSem).addPath(oldStudent, studentSem)
-										.buildFilter(), new PredicateBuilder(eqStrStr).addPath(youngStudent, studentSG)
-										.addPath(oldStudent, studentSG).buildFilter()),
-								PathNodeFilterSet.newRegularPathNodeFilterSet(new PredicateBuilder(eqStrStr)
-										.addPath(youngStudent, studentSG).addPath(matchingProf, profSG).buildFilter())));
+						PathNodeFilterSet.newRegularPathNodeFilterSet(
+								new PredicateBuilder(lessLongLong).addPath(youngStudent, studentSem)
+										.addPath(oldStudent, studentSem).buildFilter(), new PredicateBuilder(eqStrStr)
+										.addPath(youngStudent, studentSG).addPath(oldStudent, studentSG).buildFilter()),
+						PathNodeFilterSet.newRegularPathNodeFilterSet(new PredicateBuilder(eqStrStr)
+								.addPath(youngStudent, studentSG).addPath(matchingProf, profSG).buildFilter()));
 
 		network.buildRule(new Defrule("dummyrule", "", 0, (RuleCondition) null, new ArrayList<>()).newTranslated(
 				filter, (Map<EquivalenceClass, PathLeaf>) null));
@@ -592,10 +589,9 @@ public class TokenProcessingTest {
 
 		final Predicate eqStrStr = FunctionDictionary.lookupPredicate("=", SlotType.STRING, SlotType.STRING);
 
-		final PathFilterList.PathSharedListWrapper.PathSharedList filter =
-				new PathFilterList.PathSharedListWrapper().newSharedElement(Arrays.asList(PathNodeFilterSet
-						.newRegularPathNodeFilterSet(new PredicateBuilder(eqStrStr).addPath(p1, slotStr)
-								.addPath(p2, slotStr).buildFilter())));
+		final List<PathFilterList> filter =
+				Arrays.asList(PathNodeFilterSet.newRegularPathNodeFilterSet(new PredicateBuilder(eqStrStr)
+						.addPath(p1, slotStr).addPath(p2, slotStr).buildFilter()));
 		network.buildRule(new Defrule("dummyrule", "", 0, (RuleCondition) null, new ArrayList<>()).newTranslated(
 				filter, (Map<EquivalenceClass, PathLeaf>) null));
 		final RootNode rootNode = network.getRootNode();
@@ -639,13 +635,12 @@ public class TokenProcessingTest {
 		final Predicate lessLongLong = FunctionDictionary.lookupPredicate("<", SlotType.LONG, SlotType.LONG);
 		final Predicate eqBoolBool = FunctionDictionary.lookupPredicate("=", SlotType.BOOLEAN, SlotType.BOOLEAN);
 
-		final PathFilterList.PathSharedListWrapper.PathSharedList filter =
-				new PathFilterList.PathSharedListWrapper().newSharedElement(Arrays.asList(PathNodeFilterSet
-						.newRegularPathNodeFilterSet(new PredicateBuilder(eqBoolBool)
-								.addPath(p1, slotBool)
-								.addFunction(
-										new FunctionBuilder(lessLongLong).addPath(p1, slotLong)
-												.addConstant(3L, SlotType.LONG).build()).buildFilter())));
+		final List<PathFilterList> filter =
+				Arrays.asList(PathNodeFilterSet.newRegularPathNodeFilterSet(new PredicateBuilder(eqBoolBool)
+						.addPath(p1, slotBool)
+						.addFunction(
+								new FunctionBuilder(lessLongLong).addPath(p1, slotLong).addConstant(3L, SlotType.LONG)
+										.build()).buildFilter()));
 
 		network.buildRule(new Defrule("dummyrule", "", 0, (RuleCondition) null, new ArrayList<>()).newTranslated(
 				filter, (Map<EquivalenceClass, PathLeaf>) null));
@@ -697,8 +692,7 @@ public class TokenProcessingTest {
 		// create & append terminal
 		new TerminalNode(network, alphaNode,
 				new Defrule("dummyrule", "", 0, (RuleCondition) null, new ArrayList<>()).newTranslated(
-						new PathFilterList.PathSharedListWrapper().newSharedElement(Arrays.asList(filter)),
-						(Map<EquivalenceClass, PathLeaf>) null));
+						Arrays.asList(filter), (Map<EquivalenceClass, PathLeaf>) null));
 
 		otn.activateTokenQueue();
 		alphaNode.activateTokenQueue();
@@ -772,8 +766,7 @@ public class TokenProcessingTest {
 		// create & append terminal
 		new TerminalNode(network, alphaNode,
 				new Defrule("dummyrule", "", 0, (RuleCondition) null, new ArrayList<>()).newTranslated(
-						new PathFilterList.PathSharedListWrapper().newSharedElement(Arrays.asList(filter)),
-						(Map<EquivalenceClass, PathLeaf>) null));
+						Arrays.asList(filter), (Map<EquivalenceClass, PathLeaf>) null));
 		otn.activateTokenQueue();
 		alphaNode.activateTokenQueue();
 
@@ -820,8 +813,7 @@ public class TokenProcessingTest {
 										.build()).buildFilter());
 
 		network.buildRule(new Defrule("dummyrule", "", 0, (RuleCondition) null, new ArrayList<>()).newTranslated(
-				new PathFilterList.PathSharedListWrapper().newSharedElement(Arrays.asList(filter)),
-				(Map<EquivalenceClass, PathLeaf>) null));
+				Arrays.asList(filter), (Map<EquivalenceClass, PathLeaf>) null));
 		final RootNode rootNode = network.getRootNode();
 
 		// false == 5 < 3

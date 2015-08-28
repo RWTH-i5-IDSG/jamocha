@@ -32,11 +32,12 @@ import lombok.Value;
 import org.apache.logging.log4j.Marker;
 import org.jamocha.dn.memory.MemoryHandlerTerminal.AssertOrRetract;
 import org.jamocha.dn.memory.Template;
+import org.jamocha.filter.ECFilterList;
 import org.jamocha.filter.ECFilterList.ECSharedListWrapper.ECSharedList;
 import org.jamocha.filter.ECFilterSet;
 import org.jamocha.filter.Path;
 import org.jamocha.filter.PathCollector;
-import org.jamocha.filter.PathFilterList.PathSharedListWrapper;
+import org.jamocha.filter.PathFilterList;
 import org.jamocha.filter.PathFilterSet;
 import org.jamocha.filter.TrivialPathSetToPathListConverter;
 import org.jamocha.function.Function;
@@ -114,8 +115,8 @@ public class ConstructCache {
 				return Defrule.this;
 			}
 
-			public PathRule toPathRule(final PathSharedListWrapper.PathSharedList convertedCondition,
-					final Set<Path> resultPaths, final Map<EquivalenceClass, PathLeaf> equivalenceClassToPathLeaf) {
+			public PathRule toPathRule(final PathFilterList convertedCondition, final Set<Path> resultPaths,
+					final Map<EquivalenceClass, PathLeaf> equivalenceClassToPathLeaf) {
 				return new PathRule(convertedCondition, resultPaths, actionList, equivalenceClassToPathLeaf,
 						specificity);
 			}
@@ -128,7 +129,7 @@ public class ConstructCache {
 		@Data
 		@RequiredArgsConstructor
 		public class ECListRule {
-			final ECSharedList condition;
+			final ECFilterList condition;
 			final Set<SingleFactVariable> factVariables;
 			final Set<EquivalenceClass> equivalenceClasses;
 			final FunctionWithArguments<SymbolLeaf>[] actionList;
@@ -138,24 +139,27 @@ public class ConstructCache {
 				return Defrule.this;
 			}
 
-			public PathRule toPathRule(final PathSharedListWrapper.PathSharedList convertedCondition,
-					final Set<Path> resultPaths, final Map<EquivalenceClass, PathLeaf> equivalenceClassToPathLeaf) {
+			public PathRule toPathRule(final PathFilterList convertedCondition, final Set<Path> resultPaths,
+					final Map<EquivalenceClass, PathLeaf> equivalenceClassToPathLeaf) {
 				return new PathRule(convertedCondition, resultPaths, actionList, equivalenceClassToPathLeaf,
 						specificity);
 			}
 		}
 
-		public PathRule newTranslated(final PathSharedListWrapper.PathSharedList condition,
-				final Set<Path> resultPaths, final Map<EquivalenceClass, PathLeaf> equivalenceClassToPathLeaf,
-				final int specificity) {
+		public PathRule newTranslated(final PathFilterList condition, final Set<Path> resultPaths,
+				final Map<EquivalenceClass, PathLeaf> equivalenceClassToPathLeaf, final int specificity) {
 			return new PathRule(condition, resultPaths, actionList, equivalenceClassToPathLeaf, specificity);
 		}
 
-		public PathRule newTranslated(final PathSharedListWrapper.PathSharedList condition,
+		public PathRule newTranslated(final PathFilterList condition,
 				final Map<EquivalenceClass, PathLeaf> equivalenceClassToPathLeaf) {
-			return newTranslated(condition, PathCollector.newHashSet().collectOnlyNonExistentialInLists(condition)
-					.getPaths(), equivalenceClassToPathLeaf, (int) StreamSupport.stream(condition.spliterator(), false)
-					.count());
+			return newTranslated(condition, PathCollector.newHashSet().collectOnlyInFilterLists(condition).getPaths(),
+					equivalenceClassToPathLeaf, (int) StreamSupport.stream(condition.spliterator(), false).count());
+		}
+
+		public PathRule newTranslated(final List<PathFilterList> condition,
+				final Map<EquivalenceClass, PathLeaf> equivalenceClassToPathLeaf) {
+			return newTranslated(PathFilterList.toSimpleList(condition), equivalenceClassToPathLeaf);
 		}
 
 		@Data
@@ -172,12 +176,12 @@ public class ConstructCache {
 			}
 
 			public PathRule trivialToPathRule() {
-				return new PathRule(new PathSharedListWrapper().newSharedElement(condition.stream()
+				return new PathRule(PathFilterList.toSimpleList(condition.stream()
 						.map(TrivialPathSetToPathListConverter::convert).collect(toList())), resultPaths, actionList,
 						equivalenceClassToPathLeaf, specificity);
 			}
 
-			public PathRule toPathRule(final PathSharedListWrapper.PathSharedList convertedCondition) {
+			public PathRule toPathRule(final PathFilterList convertedCondition) {
 				return new PathRule(convertedCondition, resultPaths, actionList, equivalenceClassToPathLeaf,
 						specificity);
 			}
@@ -186,7 +190,7 @@ public class ConstructCache {
 		@Data
 		@RequiredArgsConstructor
 		public class PathRule {
-			final PathSharedListWrapper.PathSharedList condition;
+			final PathFilterList condition;
 			final Set<Path> resultPaths;
 			final FunctionWithArguments<SymbolLeaf>[] actionList;
 			final Map<EquivalenceClass, PathLeaf> equivalenceClassToPathLeaf;
@@ -206,7 +210,7 @@ public class ConstructCache {
 
 		@Data
 		public class Translated {
-			final PathSharedListWrapper.PathSharedList condition;
+			final PathFilterList condition;
 			final AddressesActionList actionList;
 			final int specificity;
 

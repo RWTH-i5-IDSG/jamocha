@@ -60,9 +60,8 @@ public class TrivialPathSetToPathListConverter implements PathFilterSetVisitor {
 									DummyPredicate.instance, args)));
 		}
 		this.result =
-				new PathExistentialList(set.getInitialPath(),
-						new PathFilterList.PathSharedListWrapper().newSharedElement(purePart.stream()
-								.map(TrivialPathSetToPathListConverter::convert).collect(toList())),
+				new PathExistentialList(set.getInitialPath(), PathFilterList.toSimpleList(purePart.stream()
+						.map(TrivialPathSetToPathListConverter::convert).collect(toList())),
 						PathNodeFilterSet.newExistentialPathNodeFilterSet(!set.isPositive(), existentialPaths,
 								existentialClosure));
 	}

@@ -125,6 +125,7 @@ public class SimpleBlocks {
 	}
 
 	@Value
+	@EqualsAndHashCode(of = { "template", "slot" })
 	static class TemplateSlotLeaf implements ExchangeableLeaf<TemplateSlotLeaf> {
 		final Template template;
 		final SlotAddress slot;
@@ -213,10 +214,7 @@ public class SimpleBlocks {
 			return ruleToInstances.computeIfAbsent(ruleOrProxy, newHashSet());
 		}
 
-		public PathFilterList convert(
-				final FilterInstance instance,
-				@SuppressWarnings("unused") final Map<Either<Rule, ExistentialProxy>, Map<FilterInstance, Set<FilterInstance>>> ruleToJoinedWith,
-				@SuppressWarnings("unused") final Map<Set<FilterInstance>, PathFilterList> joinedWithToComponent) {
+		public PathFilterList convert(final FilterInstance instance) {
 			return PathNodeFilterSet.newRegularPathNodeFilterSet(instance.pathFilter);
 		}
 
@@ -255,10 +253,8 @@ public class SimpleBlocks {
 				return Filter.this;
 			}
 
-			public PathFilterList convert(
-					final Map<Either<Rule, ExistentialProxy>, Map<FilterInstance, Set<FilterInstance>>> ruleToJoinedWith,
-					final Map<Set<FilterInstance>, PathFilterList> joinedWithToComponent) {
-				return getFilter().convert(this, ruleToJoinedWith, joinedWithToComponent);
+			public PathFilterList convert() {
+				return getFilter().convert(this);
 			}
 
 			/**
@@ -340,22 +336,13 @@ public class SimpleBlocks {
 		}
 
 		@Override
-		public PathFilterList convert(final FilterInstance instance,
-				final Map<Either<Rule, ExistentialProxy>, Map<FilterInstance, Set<FilterInstance>>> ruleToJoinedWith,
-				final Map<Set<FilterInstance>, PathFilterList> joinedWithToComponent) {
+		public PathFilterList convert(final FilterInstance instance) {
 			assert instance.getRuleOrProxy().isLeft() : "Nested Existentials Unsupported!";
 			final Rule rule = instance.getRuleOrProxy().left().get();
 			final ExistentialProxy existentialProxy = rule.getExistentialProxies().get(instance);
-			final Map<FilterInstance, Set<FilterInstance>> joinedWithMap =
-					ruleToJoinedWith.getOrDefault(Either.right(existentialProxy), Collections.emptyMap());
-			final List<PathFilterList> components =
-					joinedWithMap.values().stream().distinct().map(joinedWithToComponent::get).filter(Objects::nonNull)
-							.collect(toList());
-			final PathFilterList component =
-					(1 == components.size()) ? components.get(0) : new PathSharedListWrapper()
-							.newSharedElement(components);
 			final PathExistentialSet existential = existentialProxy.getExistential();
-			return new PathFilterList.PathExistentialList(existential.getInitialPath(), component,
+			return new PathFilterList.PathExistentialList(existential.getInitialPath(),
+					PathFilterList.toSimpleList(Collections.emptyList()),
 					PathNodeFilterSet.newExistentialPathNodeFilterSet(!existential.isPositive(),
 							existential.getExistentialPaths(), instance.getPathFilter()));
 		}
@@ -463,7 +450,6 @@ public class SimpleBlocks {
 									: this.proxies.iterator().next().filters.hashCode()));
 			return result;
 		}
-
 	}
 
 	/**
@@ -971,28 +957,32 @@ public class SimpleBlocks {
 		// at this point, the network can be constructed
 		for (final CursorableLinkedList<Block> blockList : blockMap.values()) {
 			for (final Block block : blockList) {
-				final PathSharedListWrapper sharedListWrapper = new PathSharedListWrapper();
-				for (final Either<Rule, ExistentialProxy> rule : block.getRulesOrProxies()) {
-					final List<FilterInstance> fisToConstruct =
-							block.ruleToFilterToRow.get(rule).values().stream()
-									.flatMap(sbs -> sbs.getInstances().stream())
-									.filter(negate(constructedFIs::contains)).collect(toList());
-					final Map<FilterInstance, Set<FilterInstance>> fiToJoinedWith =
-							ruleToJoinedWith.computeIfAbsent(rule, newHashMap());
-					final Set<Set<FilterInstance>> joinedWithSets =
-							fisToConstruct.stream()
-									.map(fi -> fiToJoinedWith.computeIfAbsent(fi, x -> Sets.newHashSet(x)))
+				final List<Either<Rule, ExistentialProxy>> blockRules = Lists.newArrayList(block.getRulesOrProxies());
+				final Set<List<FilterInstance>> filterInstanceColumns =
+						Block.getFilterInstanceColumns(block.getFilters(), block.getRuleToFilterToRow(), blockRules);
+				// since we are considering blocks, it is either the case that all filter
+				// instances of the column have been constructed or none of them have
+				filterInstanceColumns.removeIf(column -> !Collections.disjoint(column, constructedFIs));
+				final PathSharedListWrapper sharedListWrapper = new PathSharedListWrapper(blockRules.size());
+				final Map<Either<Rule, ExistentialProxy>, PathSharedList> ruleToSharedList =
+						IntStream.range(0, blockRules.size()).boxed()
+								.collect(toMap(blockRules::get, sharedListWrapper.getSharedSiblings()::get));
+
+				for (final List<FilterInstance> column : filterInstanceColumns) {
+					sharedListWrapper.addSharedColumn(column.stream().collect(
+							toMap(fi -> ruleToSharedList.get(fi.getRuleOrProxy()), FilterInstance::convert)));
+				}
+				constructedFIs.addAll(block.getFlatFilterInstances());
+				for (final Entry<Either<Rule, ExistentialProxy>, Map<Filter, FilterInstancesSideBySide>> entry : block
+						.getRuleToFilterToRow().entrySet()) {
+					final Either<Rule, ExistentialProxy> rule = entry.getKey();
+					final Set<FilterInstance> joined =
+							entry.getValue().values().stream().flatMap(sbs -> sbs.getInstances().stream())
 									.collect(toSet());
-					final Set<FilterInstance> joinedWith =
-							joinedWithSets.stream().flatMap(Set::stream).collect(toSet());
-					joinedWith.forEach(fi -> fiToJoinedWith.put(fi, joinedWith));
-					final PathSharedList newSharedElement =
-							sharedListWrapper.newSharedElement(joinedWithSets
-									.stream()
-									.map(set -> joinedWithToComponent.computeIfAbsent(set, x -> x.iterator().next()
-											.convert(ruleToJoinedWith, joinedWithToComponent))).collect(toList()));
-					joinedWithToComponent.put(joinedWith, newSharedElement);
-					constructedFIs.addAll(fisToConstruct);
+					final Map<FilterInstance, Set<FilterInstance>> joinedWithMapForThisRule =
+							ruleToJoinedWith.computeIfAbsent(rule, newHashMap());
+					joined.forEach(fi -> joinedWithMapForThisRule.put(fi, joined));
+					joinedWithToComponent.put(joined, ruleToSharedList.get(rule));
 				}
 			}
 		}
@@ -1004,8 +994,7 @@ public class SimpleBlocks {
 			final List<PathFilterList> pathFilterLists =
 					ruleToJoinedWith.getOrDefault(either, Collections.emptyMap()).values().stream().distinct()
 							.map(joinedWithToComponent::get).collect(toList());
-			pathRules.add(either.left().get().getOriginal()
-					.toPathRule(new PathSharedListWrapper().newSharedElement(pathFilterLists)));
+			pathRules.add(either.left().get().getOriginal().toPathRule(PathFilterList.toSimpleList(pathFilterLists)));
 		}
 		return pathRules;
 	}
