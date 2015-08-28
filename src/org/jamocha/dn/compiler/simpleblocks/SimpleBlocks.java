@@ -226,7 +226,6 @@ public class SimpleBlocks {
 		 */
 		@Getter
 		@Setter
-		@ToString(of = { "pathFilter" })
 		@AllArgsConstructor(access = AccessLevel.PRIVATE)
 		// no EqualsAndHashCode
 		class FilterInstance {
@@ -234,6 +233,11 @@ public class SimpleBlocks {
 			final List<Path> parameters;
 			final Either<Rule, ExistentialProxy> ruleOrProxy;
 			final Map<FilterInstance, Conflict> conflicts = new HashMap<>();
+
+			@Override
+			public String toString() {
+				return Objects.toString(pathFilter);
+			}
 
 			public Conflict addConflict(final FilterInstance targetFilterInstance) {
 				final Conflict conflict = new Conflict(targetFilterInstance);
@@ -461,7 +465,6 @@ public class SimpleBlocks {
 	@Value
 	@AllArgsConstructor
 	@EqualsAndHashCode(of = { "instances" })
-	@ToString(of = { "instances" })
 	static class FilterInstancesSideBySide {
 		final LinkedHashSet<FilterInstance> instances;
 		final Filter filter;
@@ -475,6 +478,11 @@ public class SimpleBlocks {
 		public FilterInstancesSideBySide(final FilterInstance stack) {
 			this(new LinkedHashSet<>(Collections.singleton(stack)), stack.getFilter(), stack.getRuleOrProxy());
 		}
+
+		@Override
+		public String toString() {
+			return Objects.toString(instances);
+		}
 	}
 
 	/**
@@ -482,11 +490,15 @@ public class SimpleBlocks {
 	 */
 	@Value
 	@EqualsAndHashCode(of = { "original" })
-	@ToString(of = { "filters" })
 	static class Rule {
 		final PathSetBasedRule original;
 		final Set<Filter> filters = new HashSet<>();
 		final BiMap<FilterInstance, ExistentialProxy> existentialProxies = HashBiMap.create();
+
+		@Override
+		public String toString() {
+			return original.getParent().getName();
+		}
 	}
 
 	/**
@@ -509,7 +521,6 @@ public class SimpleBlocks {
 	 */
 	@Value
 	@EqualsAndHashCode(of = { "filterInstances" })
-	@ToString(of = { "filterInstances" })
 	@RequiredArgsConstructor
 	public static class Block {
 		// conflict graph
@@ -541,6 +552,11 @@ public class SimpleBlocks {
 			for (final Entry<FilterInstance, Set<ConflictEdge>> entry : block.borderConflicts.entrySet()) {
 				borderConflicts.put(entry.getKey(), new HashSet<>(entry.getValue()));
 			}
+		}
+
+		@Override
+		public String toString() {
+			return "Block: " + Objects.toString(filterInstances);
 		}
 
 		Set<Either<Rule, ExistentialProxy>> getRulesOrProxies() {
