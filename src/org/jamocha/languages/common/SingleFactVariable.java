@@ -79,9 +79,9 @@ public class SingleFactVariable {
 	@AllArgsConstructor(access = AccessLevel.PRIVATE)
 	public class SingleSlotVariable {
 		@NonNull
-		final SlotAddress slot;
+		private final SlotAddress slot;
 		@NonNull
-		final Set<EquivalenceClass> equalSet = new HashSet<>();
+		private final Set<EquivalenceClass> equalSet = new HashSet<>();
 
 		public SlotType getType() {
 			return template.getSlotType(slot);
