@@ -1004,8 +1004,10 @@ public class SimpleBlocks {
 					.left()
 					.get()
 					.getOriginal()
-					.toPathRule(PathFilterList.toSimpleList(pathFilterLists),
-							InitialFactPathsFinder.gather(pathFilterLists)));
+					.toPathRule(
+							PathFilterList.toSimpleList(pathFilterLists),
+							pathFilterLists.size() > 1 ? InitialFactPathsFinder.gather(pathFilterLists) : Collections
+									.emptySet()));
 		}
 		return pathRules;
 	}
