@@ -61,7 +61,7 @@ public class NetworkToDot {
 		private final StringBuffer sb = new StringBuffer();
 
 		private static String escape(final String string) {
-			return string.replace("<", "&lt;").replace(">", "&gt;").replace("&", "&amp;");
+			return string.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;");
 		}
 
 		private void visitComposite(final GenericWithArgumentsComposite<?, ?, ParameterLeaf> gwac) {
