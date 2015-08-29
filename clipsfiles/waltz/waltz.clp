@@ -236,7 +236,7 @@
 	(assert (line (p1 0122) (p2 5222)))
 	(assert (line (p1 5222) (p2 7416)))
 	(assert (line (p1 5222) (p2 5216)))
-	(modify ?f1 (value duplicate)))
+	(modify ?f1 (value duplicateStage)))
 
 ;;; **********************************************************************
 ;;; reverse_edges: If the duplicate flag is set, and there is still a line
@@ -245,7 +245,7 @@
 ;;; **********************************************************************
 
 (defrule reverse_edges
-	(stage (value duplicate))
+	(stage (value duplicateStage))
 	?f2 <- (line (p1 ?p1) (p2 ?p2))
 	=>
 	(assert (edge (p1 ?p1) (p2 ?p2) (joined false)))
@@ -259,7 +259,7 @@
 
 (defrule done_reversing
 	(declare (salience -10))
-	?f1 <- (stage (value duplicate))
+	?f1 <- (stage (value duplicateStage))
 	(not (line))
 	=>
 	(modify ?f1 (value detect_junctions)))
