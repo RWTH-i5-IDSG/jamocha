@@ -1320,8 +1320,12 @@ public class SimpleBlocks {
 			if (!x.getFilters().containsAll(y.getFilters())) {
 				return new BlockConflict(replaceBlock, conflictingBlock, cfi);
 			}
+			// will only work if x.getRules subseteq y.getRules
+			if (!y.getRulesOrProxies().containsAll(x.getRulesOrProxies())) {
+				return new BlockConflict(replaceBlock, conflictingBlock, cfi);
+			}
 			// only consider the rules of x (the wider block)
-			final ArrayList<Either<Rule, ExistentialProxy>> rules = Lists.newArrayList(x.getRulesOrProxies());
+			final List<Either<Rule, ExistentialProxy>> rules = ImmutableList.copyOf(x.getRulesOrProxies());
 			// only consider the filters of y (the taller block)
 			final Set<Filter> filters = y.getFilters();
 			// the result will be the columns within the intersection
