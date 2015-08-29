@@ -203,4 +203,10 @@ public interface DefaultFunctionVisitor extends FunctionVisitor {
 	default void visit(final org.jamocha.function.impls.sideeffects.SaveFacts function) {
 		defaultAction(function);
 	}
+
+	// waltz
+	@Override
+	default void visit(final org.jamocha.function.impls.waltz.Make3Junction function) {
+		defaultAction(function);
+	}
 }
