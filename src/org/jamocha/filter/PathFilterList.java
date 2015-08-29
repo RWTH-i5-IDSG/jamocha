@@ -76,15 +76,6 @@ public interface PathFilterList extends Visitable<PathFilterListVisitor>, Iterab
 		}
 	}
 
-	/*
-	 * initialisiere mit Anzahl Regeln (n)
-	 * 
-	 * dadurch werden n PathSharedList erzeugt
-	 * 
-	 * wrapper kann dann genutzt werden, um via Map<PathSharedList, List<PathFilterList>> spalten
-	 * hinzuzufügen
-	 */
-
 	public static PathFilterList toSimpleList(final List<PathFilterList> list) {
 		if (list.size() == 1)
 			return list.get(0);
