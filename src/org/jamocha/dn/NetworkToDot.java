@@ -48,7 +48,7 @@ public class NetworkToDot {
 	final private String rootNode = "root";
 	final private List<String> edges = new ArrayList<>();
 
-	private void generateEdge(String from, String to, String label) {
+	private void generateEdge(final String from, final String to, final String label) {
 		edges.add('"' + from + "\" -> \"" + to + '"' + (null == label ? "" : " [label=\"" + label + "\"]"));
 	}
 
@@ -60,10 +60,14 @@ public class NetworkToDot {
 		@Getter
 		private final StringBuffer sb = new StringBuffer();
 
+		private static String escape(final String string) {
+			return string.replace("<", "&lt;").replace(">", "&gt;").replace("&", "&amp;");
+		}
+
 		private void visitComposite(final GenericWithArgumentsComposite<?, ?, ParameterLeaf> gwac) {
-			sb.append("(" + gwac.getFunction().inClips());
+			sb.append("(" + escape(gwac.getFunction().inClips()));
 			int pos = 0;
-			for (FunctionWithArguments<ParameterLeaf> functionWithArguments : gwac.getArgs()) {
+			for (final FunctionWithArguments<ParameterLeaf> functionWithArguments : gwac.getArgs()) {
 				final int width = functionWithArguments.getParamTypes().length;
 				sb.append(" ");
 				sb.append(functionWithArguments.accept(new FWAFormatter(Arrays.copyOfRange(params, pos, pos + width)))
@@ -140,7 +144,7 @@ public class NetworkToDot {
 		private int alphaCounter = 0;
 		private int betaCounter = 0;
 
-		String getNodeName(Node node) {
+		String getNodeName(final Node node) {
 			final String name = nodeNames.get(node);
 			if (null != name)
 				return name;
@@ -150,17 +154,17 @@ public class NetworkToDot {
 		}
 
 		@Override
-		public void visit(AlphaNode node) {
+		public void visit(final AlphaNode node) {
 			lastName = "Alpha" + alphaCounter++;
 		}
 
 		@Override
-		public void visit(BetaNode node) {
+		public void visit(final BetaNode node) {
 			lastName = "Beta" + betaCounter++;
 		}
 
 		@Override
-		public void visit(ObjectTypeNode node) {
+		public void visit(final ObjectTypeNode node) {
 			lastName = node.getTemplate().getName();
 		}
 
@@ -193,12 +197,12 @@ public class NetworkToDot {
 		}
 
 		@Override
-		public void visit(AlphaNode node) {
+		public void visit(final AlphaNode node) {
 			if (alphaNodes.containsKey(node)) {
 				assert node2AddressArrays.containsKey(node);
 				final List<FactAddress> list = node2AddressArrays.get(node);
 				assert list.size() == addresses.size();
-				Iterator<FactAddress> i = list.iterator();
+				final Iterator<FactAddress> i = list.iterator();
 				addresses.replaceAll(a -> i.next());
 				return;
 			}
@@ -214,7 +218,7 @@ public class NetworkToDot {
 			addresses.replaceAll(edge::localizeAddress);
 
 			final StringBuilder targetNodeLabel = new StringBuilder();
-			for (AddressFilter addressFilterElement : node.getFilter().getFilters()) {
+			for (final AddressFilter addressFilterElement : node.getFilter().getFilters()) {
 				final String[] fullNames = translateAddresses2Names(addressFilterElement.getAddressesInTarget());
 				String formatted =
 						addressFilterElement.getFunction().accept(new FWAFormatter(fullNames)).getSb().toString();
@@ -229,18 +233,18 @@ public class NetworkToDot {
 		}
 
 		@Override
-		public void visit(BetaNode node) {
+		public void visit(final BetaNode node) {
 			if (betaNodes.containsKey(node)) {
 				assert node2AddressArrays.containsKey(node);
 				final List<FactAddress> list = node2AddressArrays.get(node);
 				assert list.size() == addresses.size();
-				Iterator<FactAddress> i = list.iterator();
+				final Iterator<FactAddress> i = list.iterator();
 				addresses.replaceAll(a -> i.next());
 				return;
 			}
 			final String targetNodeName = getNodeName(node);
 			int pos = 0;
-			for (Edge edge : node.getIncomingEdges()) {
+			for (final Edge edge : node.getIncomingEdges()) {
 				final Node sourceNode = edge.getSourceNode();
 				final int width = sourceNode.getMemory().getTemplate().length;
 				final String sourceNodeName = getNodeName(sourceNode);
@@ -253,7 +257,7 @@ public class NetworkToDot {
 				pos += width;
 			}
 			final StringBuilder targetNodeLabel = new StringBuilder();
-			for (AddressFilter addressFilterElement : node.getFilter().getFilters()) {
+			for (final AddressFilter addressFilterElement : node.getFilter().getFilters()) {
 				final String[] fullNames = translateAddresses2Names(addressFilterElement.getAddressesInTarget());
 				String formatted =
 						addressFilterElement.getFunction().accept(new FWAFormatter(fullNames)).getSb().toString();
@@ -264,7 +268,7 @@ public class NetworkToDot {
 				targetNodeLabel.append(formatted);
 			}
 			pos = 0;
-			for (Edge edge : node.getIncomingEdges()) {
+			for (final Edge edge : node.getIncomingEdges()) {
 				final int width = edge.getSourceNode().getMemory().getTemplate().length;
 				if (edge.getSourceNode().getOutgoingExistentialEdges().contains(edge)) {
 					final List<String> namesPart = names.subList(pos, pos + width);
@@ -277,14 +281,14 @@ public class NetworkToDot {
 		}
 
 		@Override
-		public void visit(ObjectTypeNode node) {
+		public void visit(final ObjectTypeNode node) {
 			final String targetNodeName = getNodeName(node);
 			if (otns.containsKey(node)) {
 				assert node2AddressArrays.containsKey(node);
 				final List<FactAddress> list = node2AddressArrays.get(node);
 				assert addresses.size() == 1;
 				assert list.size() == 1;
-				Iterator<FactAddress> i = list.iterator();
+				final Iterator<FactAddress> i = list.iterator();
 				addresses.replaceAll(a -> i.next());
 				return;
 			}
@@ -298,14 +302,14 @@ public class NetworkToDot {
 
 	private final NameNodes nameNodes = new NameNodes();
 
-	private String getNodeName(Node node) {
+	private String getNodeName(final Node node) {
 		return nameNodes.getNodeName(node);
 	}
 
 	public NetworkToDot(final SideEffectFunctionToNetwork network, final String... rules) {
 		super();
 		Arrays.sort(rules);
-		for (TerminalNode terminalNode : network.getTerminalNodes()) {
+		for (final TerminalNode terminalNode : network.getTerminalNodes()) {
 			final String ruleName = terminalNode.getRule().getParent().getName();
 			if (rules.length != 0 && Arrays.binarySearch(rules, ruleName) < 0) {
 				continue;
@@ -315,11 +319,11 @@ public class NetworkToDot {
 
 			final Map<Template, String> template2Name = new HashMap<>();
 			final Map<Template, Integer> template2Occurences = new HashMap<>();
-			List<Template> templates = Arrays.asList(sourceNode.getMemory().getTemplate());
-			List<FactAddress> addresses = new ArrayList<>(Collections.nCopies(templates.size(), null));
-			List<String> names = new ArrayList<>(Collections.nCopies(templates.size(), null));
+			final List<Template> templates = Arrays.asList(sourceNode.getMemory().getTemplate());
+			final List<FactAddress> addresses = new ArrayList<>(Collections.nCopies(templates.size(), null));
+			final List<String> names = new ArrayList<>(Collections.nCopies(templates.size(), null));
 			for (int i = 0; i < templates.size(); i++) {
-				Template template = templates.get(i);
+				final Template template = templates.get(i);
 				String name = template2Name.get(template);
 				if (null == name) {
 					int length = 1;
@@ -327,7 +331,7 @@ public class NetworkToDot {
 						name = template.getName().substring(0, length++);
 					template2Name.put(template, name);
 				}
-				Integer occurencesI = template2Occurences.get(template);
+				final Integer occurencesI = template2Occurences.get(template);
 				int occurences = 0;
 				if (null != occurencesI) {
 					occurences = occurencesI;
@@ -346,7 +350,7 @@ public class NetworkToDot {
 
 	@Override
 	public String toString() {
-		StringBuilder sb = new StringBuilder();
+		final StringBuilder sb = new StringBuilder();
 		final String n = System.lineSeparator();
 		sb.append("digraph network {").append(n).append(n);
 
