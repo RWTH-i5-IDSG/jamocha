@@ -432,6 +432,7 @@ public class SimpleBlocks {
 	 */
 	@RequiredArgsConstructor
 	@Getter
+	@ToString(of = { "filters" })
 	static class ExistentialProxy {
 		final Rule rule;
 		final PathExistentialSet existential;
@@ -881,6 +882,7 @@ public class SimpleBlocks {
 		findAllHorizontallyMaximalBlocks(translatedRules, resultBlockSet);
 		// solve the conflicts
 		determineAndSolveConflicts(resultBlockSet);
+		checkContainment(resultBlockSet);
 		// transform into PathFilterList
 		return createOutput(translatedRules, resultBlockSet);
 	}
@@ -1303,6 +1305,18 @@ public class SimpleBlocks {
 			}
 		}
 		deletedBlocks.addDuringConflictResolution(replaceBlock);
+	}
+
+	private static void checkContainment(final BlockSet blockSet) {
+		final HashSet<Block> blocks = blockSet.getBlocks();
+		for (final Block a : blocks) {
+			for (final Block b : blocks) {
+				if (a == b)
+					continue;
+				if (a.containedIn(b))
+					throw new IllegalStateException();
+			}
+		}
 	}
 
 	protected static void vertical(final UndirectedGraph<FilterInstance, ConflictEdge> graph,
