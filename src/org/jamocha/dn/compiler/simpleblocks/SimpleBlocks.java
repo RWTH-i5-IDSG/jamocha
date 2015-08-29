@@ -396,6 +396,9 @@ public class SimpleBlocks {
 			final Set<Filter> bFilters = bProxy.getFilters();
 			if (aFilters.size() != bFilters.size())
 				return false;
+			if (aFilters.size() == 0) {
+				return true;
+			}
 
 			final List<Set<FilterInstance>> aFilterInstanceSets =
 					aFilters.stream().map(f -> f.getInstances(Either.right(aProxy)))
