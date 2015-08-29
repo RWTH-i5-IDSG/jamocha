@@ -645,6 +645,8 @@ public class SimpleBlocks {
 			if (!other.filters.containsAll(this.filters)) {
 				return false;
 			}
+			if (other.flatFilterInstances.containsAll(this.flatFilterInstances))
+				return true;
 			/*
 			 * before really considering multi cell filters, just check the sizes and containment
 			 * for single cell filters
