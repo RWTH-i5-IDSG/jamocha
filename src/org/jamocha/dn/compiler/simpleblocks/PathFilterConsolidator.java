@@ -85,6 +85,7 @@ import org.jamocha.languages.common.errors.VariableNotDeclaredError;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import com.google.common.collect.Sets.SetView;
 
@@ -565,7 +566,8 @@ public class PathFilterConsolidator implements DefaultConditionalElementsVisitor
 					final FunctionWithArguments<PathLeaf> element =
 							equivalenceClassToPathLeaf.get(localEquivalenceClass);
 					createEqualSlotsAndFactsTests(localEquivalenceClass, filters, ec2Path, (x) -> true, (x) -> element);
-					for (final EquivalenceClass unequal : localEquivalenceClass.getUnequalEquivalenceClasses()) {
+					for (final EquivalenceClass unequal : ImmutableSet.copyOf(localEquivalenceClass
+							.getUnequalEquivalenceClasses())) {
 						final PathLeaf other = equivalenceClassToPathLeaf.get(unequal);
 						addEqualityTestTo(filters, element, other, false);
 						localEquivalenceClass.removeNegatedEdge(unequal);
