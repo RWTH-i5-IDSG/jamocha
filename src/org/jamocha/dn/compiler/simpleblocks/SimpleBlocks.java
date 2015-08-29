@@ -310,6 +310,15 @@ public class SimpleBlocks {
 					}
 				}
 
+				public boolean hasEqualConflicts(final Conflict other) {
+					if (null == other)
+						return false;
+					if (this == other)
+						return true;
+					return this.samePathsIndices == other.samePathsIndices
+							|| (this.samePathsIndices != null && this.samePathsIndices.equals(other.samePathsIndices));
+				}
+
 				public boolean hasCompatibleFiltersAndEqualConflicts(final Conflict conflict) {
 					return Filter.this.equals(conflict.getSource().getFilter())
 							&& target.getFilter().equals(conflict.getTarget().getFilter())
@@ -1128,6 +1137,10 @@ public class SimpleBlocks {
 		}
 	}
 
+	public static boolean hasEqualConflicts(final Conflict a, final Conflict b) {
+		return (a == b) || (a != null && a.hasEqualConflicts(b));
+	}
+
 	protected static void findAllHorizontallyMaximalBlocks(final List<Either<Rule, ExistentialProxy>> rules,
 			final BlockSet resultBlocks) {
 		final UndirectedGraph<FilterInstance, ConflictEdge> conflictGraph = determineConflictGraphForRules(rules);
@@ -1541,7 +1554,7 @@ public class SimpleBlocks {
 									conflicts.add(conflict);
 								}
 								// if the conflicts don't match, continue with next filter
-								else if (!Objects.equals(conflicts.get(i), (conflict))) {
+								else if (!hasEqualConflicts(conflicts.get(i), conflict)) {
 									continue cartesianProductLoop;
 								}
 								++i;
