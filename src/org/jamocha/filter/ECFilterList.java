@@ -14,21 +14,37 @@
  */
 package org.jamocha.filter;
 
+import static java.util.stream.Collectors.toList;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import lombok.AccessLevel;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
+import org.jamocha.filter.ECFilterList.ECSharedListWrapper.ECSharedList;
 import org.jamocha.function.fwa.ECLeaf;
 import org.jamocha.languages.common.SingleFactVariable;
+import org.jamocha.util.Lambdas;
 import org.jamocha.visitor.Visitable;
+
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
@@ -73,39 +89,57 @@ public interface ECFilterList extends Visitable<ECFilterListVisitor> {
 		}
 	}
 
+	public static ECFilterList toSimpleList(final List<ECFilterList> list) {
+		if (list.size() == 1)
+			return list.get(0);
+		final ECSharedListWrapper pathSharedListWrapper = new ECSharedListWrapper(1);
+		final ECSharedList pathSharedList = pathSharedListWrapper.sharedSiblings.get(0);
+		pathSharedListWrapper.addSharedColumns(Collections.singletonMap(pathSharedList, list));
+		return pathSharedList;
+	}
+
+	@Getter
 	public static class ECSharedListWrapper {
-		final List<ECSharedList> sharedSiblings = new ArrayList<>();
+		final ImmutableList<ECSharedList> sharedSiblings;
 
-		public ECSharedList newSharedElement(final List<ECFilterList> filters) {
-			final ECSharedList newSharedElement = new ECSharedList(filters);
-			this.sharedSiblings.add(newSharedElement);
-			return newSharedElement;
+		public ECSharedListWrapper(final int ruleCount) {
+			this.sharedSiblings =
+					IntStream.range(0, ruleCount).mapToObj(i -> new ECSharedList(new LinkedList<>()))
+							.collect(Collectors.collectingAndThen(Collectors.toList(), ImmutableList::copyOf));
 		}
 
-		public ECSharedList newSharedElement() {
-			final ECSharedList newSharedElement = new ECSharedList(new ArrayList<>());
-			this.sharedSiblings.add(newSharedElement);
-			return newSharedElement;
-		}
-
-		public ECSharedList replace(final ECSharedList filter, final List<ECFilterList> list) {
-			if (!this.sharedSiblings.remove(filter)) {
-				return null;
+		public void addSharedColumn(final Map<ECSharedList, ECFilterList> filters) {
+			for (final ECSharedList sibling : sharedSiblings) {
+				sibling.filters.add(filters.get(sibling));
 			}
-			return newSharedElement(list);
 		}
 
-		@Data
+		public void addSharedColumns(final Map<ECSharedList, ? extends Iterable<ECFilterList>> filters) {
+			for (final ECSharedList sibling : sharedSiblings) {
+				Iterables.addAll(sibling.filters, filters.get(sibling));
+			}
+		}
+
+		public void clear() {
+			for (final ECSharedList sibling : sharedSiblings) {
+				sibling.filters.clear();
+			}
+		}
+
 		@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 		public class ECSharedList implements ECFilterList {
 			@NonNull
-			final List<ECFilterList> filters;
+			final LinkedList<ECFilterList> filters;
 
 			public ECSharedListWrapper getWrapper() {
 				return ECSharedListWrapper.this;
 			}
 
-			public List<ECSharedList> getSiblings() {
+			public ImmutableList<ECFilterList> getUnmodifiableFilterListCopy() {
+				return ImmutableList.copyOf(filters);
+			}
+
+			public ImmutableList<ECSharedList> getSiblings() {
 				return sharedSiblings;
 			}
 
@@ -113,6 +147,82 @@ public interface ECFilterList extends Visitable<ECFilterListVisitor> {
 			public <V extends ECFilterListVisitor> V accept(final V visitor) {
 				visitor.visit(this);
 				return visitor;
+			}
+
+			public ModificationProxy startModifying() {
+				return new ModificationProxy();
+			}
+
+			private abstract class Proxy {
+				final ImmutableMap<ECSharedList, ImmutableList<ECFilterList>> siblingToFilters = Maps.toMap(
+						sharedSiblings, ECSharedList::getUnmodifiableFilterListCopy);
+				final ImmutableMap<ECFilterList, Integer> chosenElementToIndex;
+
+				private Proxy() {
+					final ImmutableList<ECFilterList> chosenElements = siblingToFilters.get(ECSharedList.this);
+					chosenElementToIndex =
+							Maps.uniqueIndex(IntStream.range(0, chosenElements.size()).iterator(), chosenElements::get);
+				}
+			}
+
+			public class ModificationProxy extends Proxy {
+				public void clear() {
+					ECSharedListWrapper.this.clear();
+				}
+
+				public void add(final ECFilterList oldFilter) {
+					final int index = chosenElementToIndex.get(oldFilter);
+					ECSharedListWrapper.this.addSharedColumn(Maps.transformValues(siblingToFilters, l -> l.get(index)));
+				}
+
+				public void addAll(final Iterable<? extends ECFilterList> oldFilters) {
+					final List<Integer> indices =
+							Lambdas.stream(oldFilters).map(chosenElementToIndex::get).collect(toList());
+					final ImmutableMap<ECSharedList, Iterable<ECFilterList>> oldFilterMap =
+							Maps.toMap(sharedSiblings, (final ECSharedList sibling) -> {
+								final ImmutableList<ECFilterList> siblingFilters = siblingToFilters.get(sibling);
+								return Iterables.transform(indices, siblingFilters::get);
+							});
+					ECSharedListWrapper.this.addSharedColumns(oldFilterMap);
+				}
+			}
+
+			public void combine(final Iterable<? extends ECFilterList> oldFilters,
+					final Function<Iterable<ECFilterList>, ECFilterList> transformer) {
+				new CombinationProxy().combine(oldFilters, transformer);
+			}
+
+			public class CombinationProxy extends Proxy {
+				public void combine(final Iterable<? extends ECFilterList> oldFilters,
+						final Function<Iterable<ECFilterList>, ECFilterList> transformer) {
+					final HashSet<ECFilterList> oldFilterSet = Sets.newHashSet(oldFilters);
+					final List<Integer> indices =
+							Lambdas.stream(oldFilters).map(chosenElementToIndex::get).collect(toList());
+					final Map<ECSharedList, List<ECFilterList>> newFilterMap =
+							Maps.toMap(
+									sharedSiblings,
+									(final ECSharedList sibling) -> {
+										boolean inserted = false;
+										final ImmutableList<ECFilterList> siblingFilters =
+												siblingToFilters.get(sibling);
+										final Iterable<ECFilterList> changingFilters =
+												Iterables.transform(indices, siblingFilters::get);
+										final List<ECFilterList> newFilterList = new ArrayList<>();
+										for (final ECFilterList filter : siblingFilters) {
+											if (!oldFilterSet.contains(filter)) {
+												newFilterList.add(filter);
+												continue;
+											}
+											if (!inserted) {
+												newFilterList.add(transformer.apply(changingFilters));
+											}
+											inserted = true;
+										}
+										return newFilterList;
+									});
+					ECSharedListWrapper.this.clear();
+					ECSharedListWrapper.this.addSharedColumns(newFilterMap);
+				}
 			}
 		}
 	}

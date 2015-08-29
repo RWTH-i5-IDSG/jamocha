@@ -33,7 +33,6 @@ import org.apache.logging.log4j.Marker;
 import org.jamocha.dn.memory.MemoryHandlerTerminal.AssertOrRetract;
 import org.jamocha.dn.memory.Template;
 import org.jamocha.filter.ECFilterList;
-import org.jamocha.filter.ECFilterList.ECSharedListWrapper.ECSharedList;
 import org.jamocha.filter.ECFilterSet;
 import org.jamocha.filter.Path;
 import org.jamocha.filter.PathCollector;
@@ -123,8 +122,10 @@ public class ConstructCache {
 						specificity);
 			}
 
-			public ECListRule toECListRule(final ECSharedList condition) {
-				return new ECListRule(condition, factVariables, equivalenceClasses, actionList, specificity);
+			public ECListRule toECListRule(final ECFilterList condition,
+					final Set<SingleFactVariable> additionalInitialFactVariables) {
+				return new ECListRule(condition, Sets.union(factVariables, additionalInitialFactVariables),
+						equivalenceClasses, actionList, specificity);
 			}
 		}
 

@@ -24,6 +24,7 @@ import static org.jamocha.util.Lambdas.composeToInt;
 import static org.jamocha.util.Lambdas.negate;
 import static org.jamocha.util.Lambdas.newHashMap;
 import static org.jamocha.util.Lambdas.newHashSet;
+import static org.jamocha.util.Lambdas.newLinkedHashSet;
 import static org.jamocha.util.Lambdas.newTreeMap;
 
 import java.util.ArrayList;
@@ -49,6 +50,8 @@ import java.util.TreeMap;
 import java.util.function.Function;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -69,9 +72,11 @@ import org.jamocha.dn.compiler.ecblocks.ECBlocks.Filter.FilterInstance;
 import org.jamocha.dn.compiler.ecblocks.ECBlocks.Filter.FilterInstance.Conflict;
 import org.jamocha.filter.ECFilter;
 import org.jamocha.filter.ECFilterList;
+import org.jamocha.filter.ECFilterList.ECExistentialList;
 import org.jamocha.filter.ECFilterList.ECNodeFilterSet;
 import org.jamocha.filter.ECFilterList.ECSharedListWrapper;
 import org.jamocha.filter.ECFilterList.ECSharedListWrapper.ECSharedList;
+import org.jamocha.filter.ECFilterListVisitor;
 import org.jamocha.filter.ECFilterSet;
 import org.jamocha.filter.ECFilterSet.ECExistentialSet;
 import org.jamocha.filter.ECFilterSetVisitor;
@@ -95,6 +100,7 @@ import org.jgrapht.graph.SimpleGraph;
 import com.atlassian.fugue.Either;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -108,8 +114,8 @@ public class ECBlocks {
 	/**
 	 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
 	 */
-	@lombok.Data
 	@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+	@Getter
 	@EqualsAndHashCode(of = { "predicate" })
 	@ToString(of = { "predicate" })
 	static class Filter {
@@ -133,10 +139,7 @@ public class ECBlocks {
 			return ruleToInstances.computeIfAbsent(ruleOrProxy, newHashSet());
 		}
 
-		public ECFilterList convert(
-				final FilterInstance instance,
-				@SuppressWarnings("unused") final Map<Either<Rule, ExistentialProxy>, Map<FilterInstance, Set<FilterInstance>>> ruleToJoinedWith,
-				@SuppressWarnings("unused") final Map<Set<FilterInstance>, ECFilterList> joinedWithToComponent) {
+		public ECFilterList convert(final FilterInstance instance) {
 			return new ECNodeFilterSet(instance.ecFilter);
 		}
 
@@ -145,7 +148,6 @@ public class ECBlocks {
 		 */
 		@Getter
 		@Setter
-		@ToString(of = { "ecFilter" })
 		@AllArgsConstructor(access = AccessLevel.PRIVATE)
 		// no EqualsAndHashCode
 		class FilterInstance {
@@ -153,6 +155,11 @@ public class ECBlocks {
 			final List<EquivalenceClass> parameters;
 			final Either<Rule, ExistentialProxy> ruleOrProxy;
 			final Map<FilterInstance, Conflict> conflicts = new HashMap<>();
+
+			@Override
+			public String toString() {
+				return Objects.toString(ecFilter);
+			}
 
 			public Conflict addConflict(final FilterInstance targetFilterInstance) {
 				final Conflict conflict = new Conflict(targetFilterInstance);
@@ -175,10 +182,8 @@ public class ECBlocks {
 				return Filter.this;
 			}
 
-			public ECFilterList convert(
-					final Map<Either<Rule, ExistentialProxy>, Map<FilterInstance, Set<FilterInstance>>> ruleToJoinedWith,
-					final Map<Set<FilterInstance>, ECFilterList> joinedWithToComponent) {
-				return getFilter().convert(this, ruleToJoinedWith, joinedWithToComponent);
+			public ECFilterList convert() {
+				return getFilter().convert(this);
 			}
 
 			/**
@@ -228,6 +233,16 @@ public class ECBlocks {
 					}
 				}
 
+				public boolean hasEqualConflicts(final Conflict other) {
+					if (null == other)
+						return false;
+					if (this == other)
+						return true;
+					return this.intersectingECsIndices == other.intersectingECsIndices
+							|| (this.intersectingECsIndices != null && this.intersectingECsIndices
+									.equals(other.intersectingECsIndices));
+				}
+
 				public boolean hasCompatibleFiltersAndEqualConflicts(final Conflict conflict) {
 					return Filter.this.equals(conflict.getSource().getFilter())
 							&& target.getFilter().equals(conflict.getTarget().getFilter())
@@ -261,22 +276,14 @@ public class ECBlocks {
 		}
 
 		@Override
-		public ECFilterList convert(final FilterInstance instance,
-				final Map<Either<Rule, ExistentialProxy>, Map<FilterInstance, Set<FilterInstance>>> ruleToJoinedWith,
-				final Map<Set<FilterInstance>, ECFilterList> joinedWithToComponent) {
-			final Map<FilterInstance, Set<FilterInstance>> joinedWithMap =
-					ruleToJoinedWith.get(instance.getRuleOrProxy());
-			final List<ECFilterList> components =
-					joinedWithMap.values().stream().distinct().map(joinedWithToComponent::get).filter(Objects::nonNull)
-							.collect(toList());
-			final ECFilterList component =
-					(1 == components.size()) ? components.get(0) : new ECSharedListWrapper()
-							.newSharedElement(components);
+		public ECFilterList convert(final FilterInstance instance) {
 			assert instance.getRuleOrProxy().isLeft() : "Nested Existentials Unsupported!";
-			final ECExistentialSet existential =
-					instance.getRuleOrProxy().left().get().getExistentialProxies().get(instance).getExistential();
+			final Rule rule = instance.getRuleOrProxy().left().get();
+			final ExistentialProxy existentialProxy = rule.getExistentialProxies().get(instance);
+			final ECExistentialSet existential = existentialProxy.getExistential();
 			return new ECFilterList.ECExistentialList(existential.isPositive(), existential.getInitialFactVariable(),
-					existential.getExistentialFactVariables(), component, new ECNodeFilterSet(instance.getEcFilter()));
+					existential.getExistentialFactVariables(), ECFilterList.toSimpleList(Collections.emptyList()),
+					new ECNodeFilterSet(instance.getEcFilter()));
 		}
 
 		@Override
@@ -915,46 +922,124 @@ public class ECBlocks {
 		// at this point, the network can be constructed
 		for (final CursorableLinkedList<Block> blockList : blockMap.values()) {
 			for (final Block block : blockList) {
-				final ECSharedListWrapper sharedListWrapper = new ECSharedListWrapper();
-				for (final Either<Rule, ExistentialProxy> rule : block.getRulesOrProxies()) {
-					final List<FilterInstance> fisToConstruct =
-							block.ruleToFilterToRow.get(rule).values().stream()
-									.flatMap(sbs -> sbs.getInstances().stream())
-									.filter(negate(constructedFIs::contains)).collect(toList());
-					final Map<FilterInstance, Set<FilterInstance>> fiToJoinedWith =
-							ruleToJoinedWith.computeIfAbsent(rule, newHashMap());
-					final Set<Set<FilterInstance>> joinedWithSets =
-							fisToConstruct.stream()
-									.map(fi -> fiToJoinedWith.computeIfAbsent(fi, x -> Sets.newHashSet(x)))
+				final List<Either<Rule, ExistentialProxy>> blockRules = Lists.newArrayList(block.getRulesOrProxies());
+				final Set<List<FilterInstance>> filterInstanceColumns =
+						Block.getFilterInstanceColumns(block.getFilters(), block.getRuleToFilterToRow(), blockRules);
+				// since we are considering blocks, it is either the case that all filter
+				// instances of the column have been constructed or none of them have
+				final ECSharedListWrapper sharedListWrapper = new ECSharedListWrapper(blockRules.size());
+				final Map<Either<Rule, ExistentialProxy>, ECSharedList> ruleToSharedList =
+						IntStream.range(0, blockRules.size()).boxed()
+								.collect(toMap(blockRules::get, sharedListWrapper.getSharedSiblings()::get));
+				final List<List<FilterInstance>> columnsToConstruct, columnsAlreadyConstructed;
+				{
+					final Map<Boolean, List<List<FilterInstance>>> partition =
+							filterInstanceColumns.stream().collect(
+									partitioningBy(column -> Collections.disjoint(column, constructedFIs)));
+					columnsAlreadyConstructed = partition.get(Boolean.FALSE);
+					columnsToConstruct = partition.get(Boolean.TRUE);
+				}
+
+				block.getFlatFilterInstances().stream().filter(negate(constructedFIs::contains))
+						.map(fi -> ruleToJoinedWith.get(fi.getRuleOrProxy()).get(fi)).distinct();
+				if (!columnsAlreadyConstructed.isEmpty()) {
+					final Map<ECSharedList, LinkedHashSet<ECFilterList>> sharedPart = new HashMap<>();
+					for (final List<FilterInstance> column : columnsAlreadyConstructed) {
+						for (final FilterInstance fi : column) {
+							sharedPart.computeIfAbsent(ruleToSharedList.get(fi.getRuleOrProxy()), newLinkedHashSet())
+									.add(joinedWithToComponent.get(ruleToJoinedWith.get(fi.getRuleOrProxy()).get(fi)));
+						}
+					}
+					sharedListWrapper.addSharedColumns(sharedPart);
+				}
+
+				for (final List<FilterInstance> column : columnsToConstruct) {
+					sharedListWrapper.addSharedColumn(column.stream().collect(
+							toMap(fi -> ruleToSharedList.get(fi.getRuleOrProxy()), FilterInstance::convert)));
+				}
+				constructedFIs.addAll(block.getFlatFilterInstances());
+				for (final Entry<Either<Rule, ExistentialProxy>, Map<Filter, FilterInstancesSideBySide>> entry : block
+						.getRuleToFilterToRow().entrySet()) {
+					final Either<Rule, ExistentialProxy> rule = entry.getKey();
+					final Set<FilterInstance> joined =
+							entry.getValue().values().stream().flatMap(sbs -> sbs.getInstances().stream())
 									.collect(toSet());
-					final Set<FilterInstance> joinedWith =
-							joinedWithSets.stream().flatMap(Set::stream).collect(toSet());
-					joinedWith.forEach(fi -> fiToJoinedWith.put(fi, joinedWith));
-					final ECSharedList newSharedElement =
-							sharedListWrapper.newSharedElement(joinedWithSets
-									.stream()
-									.map(set -> joinedWithToComponent.computeIfAbsent(set, x -> x.iterator().next()
-											.convert(ruleToJoinedWith, joinedWithToComponent))).collect(toList()));
-					joinedWithToComponent.put(joinedWith, newSharedElement);
-					constructedFIs.addAll(fisToConstruct);
+					final Map<FilterInstance, Set<FilterInstance>> joinedWithMapForThisRule =
+							ruleToJoinedWith.computeIfAbsent(rule, newHashMap());
+					joined.forEach(fi -> joinedWithMapForThisRule.put(fi, joined));
+					joinedWithToComponent.put(joined, ruleToSharedList.get(rule));
 				}
 			}
 		}
-		final List<PathRule> pathRules = new ArrayList<>();
+		final List<PathRule> ecRules = new ArrayList<>();
 		for (final Either<Rule, ExistentialProxy> either : rules) {
 			if (either.isRight()) {
 				continue;
 			}
-			final List<ECFilterList> pathFilterLists =
-					ruleToJoinedWith.getOrDefault(either, Collections.emptyMap()).values().stream().distinct()
-							.map(joinedWithToComponent::get).collect(toList());
+			final List<ECFilterList> ecFilterLists =
+					Stream.concat(either.left().get().existentialProxies.values().stream().map(p -> Either.right(p)),
+							Stream.of(either))
+							.flatMap(
+									e -> ruleToJoinedWith.getOrDefault(e, Collections.emptyMap()).values().stream()
+											.distinct()).map(joinedWithToComponent::get).collect(toList());
 			final ECSetRule ecSetRule = either.left().get().getOriginal();
 			final ECListRule ecListRule =
-					ecSetRule.toECListRule(new ECSharedListWrapper().newSharedElement(pathFilterLists));
+					ecSetRule.toECListRule(
+							ECFilterList.toSimpleList(ecFilterLists),
+							ecFilterLists.size() > 1 ? InitialFactVariablesFinder.gather(ecFilterLists) : Collections
+									.emptySet());
 			final PathRule pathRule = ECFilterOrderOptimizer.optimize(ecListRule);
-			pathRules.add(pathRule);
+			ecRules.add(pathRule);
 		}
-		return pathRules;
+		return ecRules;
+	}
+
+	static class InitialFactVariablesFinder implements ECFilterListVisitor {
+		final Set<SingleFactVariable> initialFactVariables = Sets.newHashSet();
+
+		static Set<SingleFactVariable> gather(final Iterable<ECFilterList> filters) {
+			final InitialFactVariablesFinder instance = new InitialFactVariablesFinder();
+			for (final ECFilterList filter : filters) {
+				filter.accept(instance);
+			}
+			return instance.initialFactVariables;
+		}
+
+		@Override
+		public void visit(final ECSharedList filter) {
+			final ImmutableList<ECFilterList> elements = filter.getUnmodifiableFilterListCopy();
+			if (1 != elements.size()) {
+				return;
+			}
+			elements.get(0).accept(new InitialFactVariablesFinderHelper());
+		}
+
+		class InitialFactVariablesFinderHelper implements ECFilterListVisitor {
+			@Override
+			public void visit(final ECExistentialList filter) {
+				initialFactVariables.add(filter.getInitialFactVariable());
+			}
+
+			@Override
+			public void visit(final ECNodeFilterSet filter) {
+			}
+
+			@Override
+			public void visit(final ECSharedList filter) {
+			}
+		}
+
+		@Override
+		public void visit(final ECNodeFilterSet filter) {
+		}
+
+		@Override
+		public void visit(final ECExistentialList filter) {
+		}
+	}
+
+	public static boolean hasEqualConflicts(final Conflict a, final Conflict b) {
+		return (a == b) || (a != null && a.hasEqualConflicts(b));
 	}
 
 	protected static void findAllHorizontallyMaximalBlocks(final List<Either<Rule, ExistentialProxy>> rules,
