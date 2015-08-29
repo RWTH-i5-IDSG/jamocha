@@ -1063,7 +1063,8 @@ public class SimpleBlocks {
 		final UndirectedGraph<FilterInstance, ConflictEdge> conflictGraph = determineConflictGraphForRules(rules);
 		final Set<Filter> filters = rules.stream().flatMap(rule -> getFilters(rule).stream()).collect(toSet());
 		for (final Filter filter : filters) {
-			vertical(conflictGraph, rules.stream().map(r -> filter.getInstances(r)).collect(toSet()), resultBlocks);
+			vertical(conflictGraph, rules.stream().map(r -> filter.getInstances(r)).filter(negate(Set::isEmpty))
+					.collect(toSet()), resultBlocks);
 			// vertical(conflictGraph, new HashSet<>(filter.getRuleToInstances().values()),
 			// resultBlocks);
 		}
@@ -1307,11 +1308,13 @@ public class SimpleBlocks {
 	protected static void vertical(final UndirectedGraph<FilterInstance, ConflictEdge> graph,
 			final Set<Set<FilterInstance>> filterInstancesGroupedByRule, final BlockSet resultBlocks) {
 		final Set<Set<Set<FilterInstance>>> filterInstancesPowerSet = Sets.powerSet(filterInstancesGroupedByRule);
-		for (final Set<Set<FilterInstance>> powerSetElement : filterInstancesPowerSet) {
-			if (powerSetElement.isEmpty()) {
-				continue;
-			}
-			final Set<List<FilterInstance>> cartesianProduct = Sets.cartesianProduct(new ArrayList<>(powerSetElement));
+		final Iterator<Set<Set<FilterInstance>>> iterator = filterInstancesPowerSet.iterator();
+		// skip empty set
+		iterator.next();
+		while (iterator.hasNext()) {
+			final Set<Set<FilterInstance>> powerSetElement = iterator.next();
+			final Set<List<FilterInstance>> cartesianProduct =
+					Sets.cartesianProduct(ImmutableList.copyOf(powerSetElement));
 			for (final List<FilterInstance> filterInstances : cartesianProduct) {
 				final Block newBlock = new Block(graph);
 				newBlock.addFilterInstances(filterInstances.stream().collect(
