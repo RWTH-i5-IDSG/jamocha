@@ -44,6 +44,7 @@ import org.jamocha.dn.nodes.Node;
 import org.jamocha.dn.nodes.SlotInFactAddress;
 import org.jamocha.filter.AddressNodeFilterSet.AddressFilter;
 import org.jamocha.function.CommutativeFunction;
+import org.jamocha.function.FunctionNormaliser;
 import org.jamocha.function.fwa.ConstantLeaf;
 import org.jamocha.function.fwa.DefaultFunctionWithArgumentsVisitor;
 import org.jamocha.function.fwa.ExchangeableLeaf;
@@ -52,6 +53,7 @@ import org.jamocha.function.fwa.FunctionWithArgumentsComposite;
 import org.jamocha.function.fwa.GenericWithArgumentsComposite;
 import org.jamocha.function.fwa.ParameterLeaf;
 import org.jamocha.function.fwa.PathLeaf;
+import org.jamocha.function.fwa.PredicateWithArguments;
 import org.jamocha.function.fwa.PredicateWithArgumentsComposite;
 
 import com.google.common.base.Objects;
@@ -570,6 +572,19 @@ public abstract class FilterFunctionCompare<L extends ExchangeableLeaf<L>> {
 						.getPositiveExistentialPaths().size()) {
 			return null;
 		}
+
+		if (targetNode.getFilter().getFilters().size() == 1 && pathFilter.getFilters().size() == 1) {
+			final PredicateWithArguments<ParameterLeaf> targetPredicate =
+					FunctionNormaliser.normalise(UniformFunctionTranslator.translate(targetNode.getFilter()
+							.getFilters().iterator().next().getFunction()));
+			final PredicateWithArguments<PathLeaf> comparePredicate =
+					FunctionNormaliser.normalise(UniformFunctionTranslator.translate(pathFilter.getFilters().iterator()
+							.next().getFunction()));
+			if (!Arrays.equals(targetPredicate.getParamTypes(), comparePredicate.getParamTypes())) {
+				return null;
+			}
+		}
+
 		final List<Path> pathsPermutation = new LinkedList<>();
 		final ComponentwisePermutation<Path> componentwisePermutation;
 		// create list of Paths with permutable parts where self-joins occur
