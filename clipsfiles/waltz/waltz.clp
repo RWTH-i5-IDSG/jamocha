@@ -50,161 +50,161 @@
    (slot base_point (type INTEGER))
    (slot jtype))
 
-;;; #################################################################
-;;; Deffunctions
-;;;
-;;; In the OPS5 version of this program, the following deffunctions
-;;; were implemented in C code that needed to be linked with the OPS5
-;;; interpreter. Using deffunctions allows the benchmark to be run
-;;; without having to recompile and relink CLIPS with the C code used
-;;; in the original benchmark. The performance impact of using
-;;; deffunctions for this benchmark rather than C code is minimal.
-;;; #################################################################
+; ;;; #################################################################
+; ;;; Deffunctions
+; ;;;
+; ;;; In the OPS5 version of this program, the following deffunctions
+; ;;; were implemented in C code that needed to be linked with the OPS5
+; ;;; interpreter. Using deffunctions allows the benchmark to be run
+; ;;; without having to recompile and relink CLIPS with the C code used
+; ;;; in the original benchmark. The performance impact of using
+; ;;; deffunctions for this benchmark rather than C code is minimal.
+; ;;; #################################################################
 
-(defglobal ?*MOD-NUM* = 100)
+; (defglobal ?*MOD-NUM* = 100)
 
-;;; *****
-;;; atan2
-;;; *****
+; ;;; *****
+; ;;; atan2
+; ;;; *****
 
-(deffunction atan2 (?y ?x)
-   (if (> ?x 0)
-      then
-      (return (atan (/ ?y ?x))))
+; (deffunction atan2 (?y ?x)
+;    (if (> ?x 0)
+;       then
+;       (return (atan (/ ?y ?x))))
 
-   (if (< ?x 0)
-      then
-      (return (- (atan (/ ?y ?x)) (pi))))
+;    (if (< ?x 0)
+;       then
+;       (return (- (atan (/ ?y ?x)) (pi))))
 
-   (if (> ?y 0) then
-      then
-      (return (pi)))
+;    (if (> ?y 0) then
+;       then
+;       (return (pi)))
 
-   (if (< ?y 0)
-      then
-      (return (- 0 (pi))))
+;    (if (< ?y 0)
+;       then
+;       (return (- 0 (pi))))
 
-   (return undefined))
+;    (return undefined))
 
-;;; *****
-;;; get-y
-;;; *****
+; ;;; *****
+; ;;; get-y
+; ;;; *****
 
-(deffunction get-y (?val)
-   (mod ?val ?*MOD-NUM*))
+; (deffunction get-y (?val)
+;    (mod ?val ?*MOD-NUM*))
 
-;;; *****
-;;; get-x
-;;; *****
+; ;;; *****
+; ;;; get-x
+; ;;; *****
 
-(deffunction get-x (?val)
-   (integer (/ ?val ?*MOD-NUM*)))
+; (deffunction get-x (?val)
+;    (integer (/ ?val ?*MOD-NUM*)))
 
-;;; *********
-;;; get-angle
-;;; *********
+; ;;; *********
+; ;;; get-angle
+; ;;; *********
 
-(deffunction get-angle (?p1 ?p2)
-   (bind ?delta-x (- (get-x ?p2) (get-x ?p1)))
-   (bind ?delta-y (- (get-y ?p2) (get-y ?p1)))
-   (if (= ?delta-x 0)
-      then
-       (if (> ?delta-y 0)
-		  then (return (/ (pi) 2))
-		  else (if (< ?delta-y 0) then (return (/ (pi) -2))))
-      else
-      (if (= ?delta-y 0)
-         then
-         (if (> ?delta-x 0)
-            then (return 0.0)
-		    else (if (< ?delta-x 0) then return (pi)))
-         else
-         (return (atan2 ?delta-y ?delta-x)))))
+; (deffunction get-angle (?p1 ?p2)
+;    (bind ?delta-x (- (get-x ?p2) (get-x ?p1)))
+;    (bind ?delta-y (- (get-y ?p2) (get-y ?p1)))
+;    (if (= ?delta-x 0)
+;       then
+;        (if (> ?delta-y 0)
+; 		  then (return (/ (pi) 2))
+; 		  else (if (< ?delta-y 0) then (return (/ (pi) -2))))
+;       else
+;       (if (= ?delta-y 0)
+;          then
+;          (if (> ?delta-x 0)
+;             then (return 0.0)
+; 		    else (if (< ?delta-x 0) then return (pi)))
+;          else
+;          (return (atan2 ?delta-y ?delta-x)))))
 
-;;; ***************
-;;; inscribed-angle
-;;; ***************
+; ;;; ***************
+; ;;; inscribed-angle
+; ;;; ***************
 
-(deffunction inscribed-angle (?basepoint ?p1 ?p2)
+; (deffunction inscribed-angle (?basepoint ?p1 ?p2)
 
-	;; Get the angle between line #1 and the origin and the angle
-	;; between line #2 and the origin, and then subtract these values.
+; 	;; Get the angle between line #1 and the origin and the angle
+; 	;; between line #2 and the origin, and then subtract these values.
 
-   (bind ?angle1 (get-angle ?basepoint ?p1))
-   (bind ?angle2 (get-angle ?basepoint ?p2))
-   (bind ?temp (- ?angle1 ?angle2))
+;    (bind ?angle1 (get-angle ?basepoint ?p1))
+;    (bind ?angle2 (get-angle ?basepoint ?p2))
+;    (bind ?temp (- ?angle1 ?angle2))
 
-   (if (< ?temp 0)
-      then (bind ?temp (- 0 ?temp)))
+;    (if (< ?temp 0)
+;       then (bind ?temp (- 0 ?temp)))
 
-   ;; We always want the smaller of the two angles inscribed, so
-   ;; if the answer is greater than 180 degrees, calculate the
-   ;; smaller angle and return it.
+;    ;; We always want the smaller of the two angles inscribed, so
+;    ;; if the answer is greater than 180 degrees, calculate the
+;    ;; smaller angle and return it.
 
-   (if (> ?temp (pi))
-      then
-      (bind ?temp (- (* 2 (pi)) ?temp)))
+;    (if (> ?temp (pi))
+;       then
+;       (bind ?temp (- (* 2 (pi)) ?temp)))
 
-   (if (< ?temp 0)
-      then (return (- 0 ?temp)))
+;    (if (< ?temp 0)
+;       then (return (- 0 ?temp)))
 
-   (return ?temp))
+;    (return ?temp))
 
-;;; ***************
-;;; make-3-junction
-;;; ***************
+; ;;; ***************
+; ;;; make-3-junction
+; ;;; ***************
 
-(deffunction make-3-junction (?basepoint ?p1 ?p2 ?p3)
-   (bind ?angle12 (inscribed-angle ?basepoint ?p1 ?p2))
-   (bind ?angle13 (inscribed-angle ?basepoint ?p1 ?p3))
-   (bind ?angle23 (inscribed-angle ?basepoint ?p2 ?p3))
+; (deffunction make-3-junction (?basepoint ?p1 ?p2 ?p3)
+;    (bind ?angle12 (inscribed-angle ?basepoint ?p1 ?p2))
+;    (bind ?angle13 (inscribed-angle ?basepoint ?p1 ?p3))
+;    (bind ?angle23 (inscribed-angle ?basepoint ?p2 ?p3))
 
-   (bind ?sum1213 (+ ?angle12 ?angle13))
-   (bind ?sum1223 (+ ?angle12 ?angle23))
-   (bind ?sum1323 (+ ?angle13 ?angle23))
+;    (bind ?sum1213 (+ ?angle12 ?angle13))
+;    (bind ?sum1223 (+ ?angle12 ?angle23))
+;    (bind ?sum1323 (+ ?angle13 ?angle23))
 
-   (if (< ?sum1213 ?sum1223)
-      then
-      (if (< ?sum1213 ?sum1323)
-         then
-         (bind ?sum ?sum1213)
-         (bind ?shaft ?p1)
-         (bind ?barb1 ?p2)
-         (bind ?barb2 ?p3)
-         else
-         (bind ?sum ?sum1323)
-         (bind ?shaft ?p3)
-         (bind ?barb1 ?p1)
-         (bind ?barb2 ?p2))
-      else
-      (if (< ?sum1223 ?sum1323)
-         then
-         (bind ?sum ?sum1223)
-         (bind ?shaft ?p2)
-         (bind ?barb1 ?p1)
-         (bind ?barb2 ?p3)
-         else
-         (bind ?sum ?sum1323)
-         (bind ?shaft ?p3)
-         (bind ?barb1 ?p1)
-         (bind ?barb2 ?p2)))
+;    (if (< ?sum1213 ?sum1223)
+;       then
+;       (if (< ?sum1213 ?sum1323)
+;          then
+;          (bind ?sum ?sum1213)
+;          (bind ?shaft ?p1)
+;          (bind ?barb1 ?p2)
+;          (bind ?barb2 ?p3)
+;          else
+;          (bind ?sum ?sum1323)
+;          (bind ?shaft ?p3)
+;          (bind ?barb1 ?p1)
+;          (bind ?barb2 ?p2))
+;       else
+;       (if (< ?sum1223 ?sum1323)
+;          then
+;          (bind ?sum ?sum1223)
+;          (bind ?shaft ?p2)
+;          (bind ?barb1 ?p1)
+;          (bind ?barb2 ?p3)
+;          else
+;          (bind ?sum ?sum1323)
+;          (bind ?shaft ?p3)
+;          (bind ?barb1 ?p1)
+;          (bind ?barb2 ?p2)))
 
-   (bind ?delta (- ?sum (pi)))
-   (if (< ?delta 0)
-      then (bind ?delta (- 0 ?delta)))
+;    (bind ?delta (- ?sum (pi)))
+;    (if (< ?delta 0)
+;       then (bind ?delta (- 0 ?delta)))
 
-   (if (< ?delta 0.001)
-      then (bind ?jtype tee)
-      else
-      (if (> ?sum (pi))
-         then (bind ?jtype fork)
-         else (bind ?jtype arrow)))
+;    (if (< ?delta 0.001)
+;       then (bind ?jtype tee)
+;       else
+;       (if (> ?sum (pi))
+;          then (bind ?jtype fork)
+;          else (bind ?jtype arrow)))
 
-   (assert (junction (p1 (integer ?barb1))
-                     (p2 (integer ?shaft))
-                     (p3 (integer ?barb2))
-                     (base_point (integer ?basepoint))
-                     (jtype ?jtype))))
+;    (assert (junction (p1 (integer ?barb1))
+;                      (p2 (integer ?shaft))
+;                      (p3 (integer ?barb2))
+;                      (base_point (integer ?basepoint))
+;                      (jtype ?jtype))))
 
 ;;; ########
 ;;; Defrules
