@@ -28,7 +28,6 @@ import static org.jamocha.util.Lambdas.newLinkedHashSet;
 import static org.jamocha.util.Lambdas.newTreeMap;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -60,7 +59,6 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import lombok.Value;
 
 import org.apache.commons.collections4.iterators.PermutationIterator;
 import org.apache.commons.collections4.list.CursorableLinkedList;
@@ -69,9 +67,6 @@ import org.jamocha.dn.ConstructCache.Defrule.PathRule;
 import org.jamocha.dn.ConstructCache.Defrule.PathSetBasedRule;
 import org.jamocha.dn.compiler.simpleblocks.SimpleBlocks.Filter.FilterInstance;
 import org.jamocha.dn.compiler.simpleblocks.SimpleBlocks.Filter.FilterInstance.Conflict;
-import org.jamocha.dn.memory.SlotAddress;
-import org.jamocha.dn.memory.SlotType;
-import org.jamocha.dn.memory.Template;
 import org.jamocha.filter.Path;
 import org.jamocha.filter.PathFilter;
 import org.jamocha.filter.PathFilterList;
@@ -83,12 +78,11 @@ import org.jamocha.filter.PathFilterSet;
 import org.jamocha.filter.PathFilterSet.PathExistentialSet;
 import org.jamocha.filter.PathFilterSetVisitor;
 import org.jamocha.filter.PathNodeFilterSet;
-import org.jamocha.function.fwa.ExchangeableLeaf;
 import org.jamocha.function.fwa.FunctionWithArguments;
-import org.jamocha.function.fwa.FunctionWithArgumentsVisitor;
 import org.jamocha.function.fwa.PathLeaf;
 import org.jamocha.function.fwa.PredicateWithArguments;
-import org.jamocha.function.fwatransformer.FWATranslator;
+import org.jamocha.function.fwa.TemplateSlotLeaf;
+import org.jamocha.function.fwatransformer.FWAPathLeafToTemplateSlotLeafTranslator;
 import org.jgrapht.DirectedGraph;
 import org.jgrapht.UndirectedGraph;
 import org.jgrapht.alg.VertexCovers;
@@ -108,87 +102,6 @@ import com.google.common.collect.Sets.SetView;
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
 public class SimpleBlocks {
-
-	static class FWAPathLeafToTemplateSlotLeafTranslator extends FWATranslator<PathLeaf, TemplateSlotLeaf> {
-		public static PredicateWithArguments<TemplateSlotLeaf> getArguments(
-				final PredicateWithArguments<PathLeaf> predicate) {
-			final FWAPathLeafToTemplateSlotLeafTranslator instance = new FWAPathLeafToTemplateSlotLeafTranslator();
-			predicate.accept(instance);
-			return (PredicateWithArguments<TemplateSlotLeaf>) instance.functionWithArguments;
-		}
-
-		@Override
-		public FWATranslator<PathLeaf, TemplateSlotLeaf> of() {
-			return new FWAPathLeafToTemplateSlotLeafTranslator();
-		}
-
-		@Override
-		public void visit(final PathLeaf leaf) {
-			this.functionWithArguments = new TemplateSlotLeaf(leaf.getPath().getTemplate(), leaf.getSlot());
-		}
-	}
-
-	@Value
-	@EqualsAndHashCode(of = { "template", "slot" })
-	static class TemplateSlotLeaf implements ExchangeableLeaf<TemplateSlotLeaf> {
-		final Template template;
-		final SlotAddress slot;
-
-		final SlotType[] paramTypes;
-		final SlotType returnType;
-
-		public TemplateSlotLeaf(final Template template, final SlotAddress slot) {
-			this.template = template;
-			this.slot = slot;
-			this.returnType = template.getSlotType(slot);
-			this.paramTypes = new SlotType[] { this.returnType };
-		}
-
-		@Override
-		public String toString() {
-			if (null == slot)
-				return template.getName();
-			return template.getName() + "::" + template.getSlotName(slot);
-		}
-
-		@Override
-		public SlotType[] getParamTypes() {
-			return this.paramTypes;
-		}
-
-		@Override
-		public SlotType getReturnType() {
-			return this.returnType;
-		}
-
-		@Override
-		public org.jamocha.function.Function<?> lazyEvaluate(final org.jamocha.function.Function<?>... params) {
-			throw new UnsupportedOperationException();
-		}
-
-		@Override
-		public Object evaluate(final Object... params) {
-			throw new UnsupportedOperationException();
-		}
-
-		@Override
-		public int hashPositionIsIrrelevant() {
-			return FunctionWithArguments.hash(
-					Arrays.asList(this.template, this.slot).stream().mapToInt(java.util.Objects::hashCode).toArray(),
-					FunctionWithArguments.positionIsIrrelevant);
-		}
-
-		@Override
-		public <V extends FunctionWithArgumentsVisitor<TemplateSlotLeaf>> V accept(final V visitor) {
-			visitor.visit(this);
-			return visitor;
-		}
-
-		@Override
-		public ExchangeableLeaf<TemplateSlotLeaf> copy() {
-			throw new UnsupportedOperationException();
-		}
-	}
 
 	/**
 	 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>

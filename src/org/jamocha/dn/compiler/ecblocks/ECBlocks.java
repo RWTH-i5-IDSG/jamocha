@@ -67,7 +67,6 @@ import org.jamocha.dn.ConstructCache.Defrule.ECSetRule;
 import org.jamocha.dn.ConstructCache.Defrule.PathRule;
 import org.jamocha.dn.compiler.ecblocks.ECBlocks.Filter.FilterInstance;
 import org.jamocha.dn.compiler.ecblocks.ECBlocks.Filter.FilterInstance.Conflict;
-import org.jamocha.dn.memory.SlotType;
 import org.jamocha.filter.ECFilter;
 import org.jamocha.filter.ECFilterList;
 import org.jamocha.filter.ECFilterList.ECNodeFilterSet;
@@ -78,13 +77,12 @@ import org.jamocha.filter.ECFilterSet.ECExistentialSet;
 import org.jamocha.filter.ECFilterSetVisitor;
 import org.jamocha.filter.Path;
 import org.jamocha.function.fwa.ECLeaf;
-import org.jamocha.function.fwa.ExchangeableLeaf;
 import org.jamocha.function.fwa.FunctionWithArguments;
-import org.jamocha.function.fwa.FunctionWithArgumentsVisitor;
 import org.jamocha.function.fwa.PredicateWithArguments;
 import org.jamocha.function.fwa.PredicateWithArgumentsComposite;
 import org.jamocha.function.fwa.SymbolLeaf;
-import org.jamocha.function.fwatransformer.FWATranslator;
+import org.jamocha.function.fwa.TypeLeaf;
+import org.jamocha.function.fwatransformer.FWAPathLeafToTypeLeafTranslator;
 import org.jamocha.languages.common.RuleCondition.EquivalenceClass;
 import org.jamocha.languages.common.SingleFactVariable;
 import org.jamocha.languages.common.SingleFactVariable.SingleSlotVariable;
@@ -106,79 +104,6 @@ import com.google.common.collect.Sets.SetView;
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
 public class ECBlocks {
-
-	static class FWAPathLeafToTemplateSlotLeafTranslator extends FWATranslator<ECLeaf, TypeLeaf> {
-		public static PredicateWithArguments<TypeLeaf> getArguments(final PredicateWithArguments<ECLeaf> predicate) {
-			final FWAPathLeafToTemplateSlotLeafTranslator instance = new FWAPathLeafToTemplateSlotLeafTranslator();
-			predicate.accept(instance);
-			return (PredicateWithArguments<TypeLeaf>) instance.functionWithArguments;
-		}
-
-		@Override
-		public FWATranslator<ECLeaf, TypeLeaf> of() {
-			return new FWAPathLeafToTemplateSlotLeafTranslator();
-		}
-
-		@Override
-		public void visit(final ECLeaf leaf) {
-			this.functionWithArguments = new TypeLeaf(leaf.getReturnType());
-		}
-	}
-
-	@Value
-	@EqualsAndHashCode(of = { "type" })
-	static class TypeLeaf implements ExchangeableLeaf<TypeLeaf> {
-		final SlotType type;
-
-		final SlotType[] paramTypes;
-
-		public TypeLeaf(final SlotType type) {
-			this.type = type;
-			this.paramTypes = new SlotType[] { this.type };
-		}
-
-		@Override
-		public String toString() {
-			return type.toString();
-		}
-
-		@Override
-		public SlotType[] getParamTypes() {
-			return this.paramTypes;
-		}
-
-		@Override
-		public SlotType getReturnType() {
-			return this.type;
-		}
-
-		@Override
-		public org.jamocha.function.Function<?> lazyEvaluate(final org.jamocha.function.Function<?>... params) {
-			throw new UnsupportedOperationException();
-		}
-
-		@Override
-		public Object evaluate(final Object... params) {
-			throw new UnsupportedOperationException();
-		}
-
-		@Override
-		public int hashPositionIsIrrelevant() {
-			return FunctionWithArguments.hash(new int[] { Objects.hash(type) },
-					FunctionWithArguments.positionIsIrrelevant);
-		}
-
-		@Override
-		public <V extends FunctionWithArgumentsVisitor<TypeLeaf>> V accept(final V visitor) {
-			visitor.visit(this);
-			return visitor;
-		}
-
-		@Override
-		public ExchangeableLeaf<TypeLeaf> copy() {
-			throw new UnsupportedOperationException();
-		}
-	}
 
 	/**
 	 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
@@ -888,7 +813,7 @@ public class ECBlocks {
 				final Function<PredicateWithArguments<TypeLeaf>, T> ctor) {
 			final PredicateWithArguments<ECLeaf> predicate = ecFilter.getFunction();
 			assert predicate instanceof PredicateWithArgumentsComposite;
-			return ctor.apply(FWAPathLeafToTemplateSlotLeafTranslator.getArguments(predicate));
+			return ctor.apply(FWAPathLeafToTypeLeafTranslator.getArguments(predicate));
 		}
 
 		@Override
