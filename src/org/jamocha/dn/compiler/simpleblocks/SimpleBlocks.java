@@ -193,8 +193,8 @@ public class SimpleBlocks {
 	/**
 	 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
 	 */
-	@lombok.Data
 	@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+	@Getter
 	@EqualsAndHashCode(of = { "predicate" })
 	@ToString(of = { "predicate" })
 	static class Filter {
@@ -286,7 +286,8 @@ public class SimpleBlocks {
 			 *
 			 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
 			 */
-			@Value
+			@RequiredArgsConstructor
+			@Getter
 			class Conflict {
 				// left refers to the source, right to the target of the conflicts
 				final Set<Pair<Integer, Integer>> samePathsIndices;
@@ -475,9 +476,8 @@ public class SimpleBlocks {
 	/**
 	 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
 	 */
-	@Value
 	@AllArgsConstructor
-	@EqualsAndHashCode(of = { "instances" })
+	@Getter
 	static class FilterInstancesSideBySide {
 		final LinkedHashSet<FilterInstance> instances;
 		final Filter filter;
@@ -501,8 +501,8 @@ public class SimpleBlocks {
 	/**
 	 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
 	 */
-	@Value
-	@EqualsAndHashCode(of = { "original" })
+	@RequiredArgsConstructor
+	@Getter
 	static class Rule {
 		final PathSetBasedRule original;
 		final Set<Filter> filters = new HashSet<>();
@@ -517,8 +517,8 @@ public class SimpleBlocks {
 	/**
 	 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
 	 */
-	@Value
-	@EqualsAndHashCode(of = { "rule", "existential" })
+	@RequiredArgsConstructor
+	@Getter
 	static class ExistentialProxy {
 		final Rule rule;
 		final PathExistentialSet existential;
@@ -532,8 +532,7 @@ public class SimpleBlocks {
 	/**
 	 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
 	 */
-	@Value
-	@EqualsAndHashCode(of = { "filterInstances" })
+	@Getter
 	@RequiredArgsConstructor
 	public static class Block {
 		// conflict graph
