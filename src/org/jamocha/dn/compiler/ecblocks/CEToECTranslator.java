@@ -218,10 +218,9 @@ public class CEToECTranslator implements DefaultConditionalElementsVisitor {
 			final Set<VariableSymbol> symbolsInLeafs = SymbolInSymbolLeafsCollector.collect(ce);
 			for (final VariableSymbol vs : symbols) {
 				final EquivalenceClass ec = vs.getEqual();
-				if (ec.getFactVariables().isEmpty() && ec.getSlotVariables().isEmpty()) {
-					if (!ec.getUnequalEquivalenceClasses().isEmpty() || symbolsInLeafs.contains(vs))
-						// vs is not bound
-						throw new VariableNotDeclaredError(vs.getImage());
+				if (ec.getFactVariables().isEmpty() && ec.getSlotVariables().isEmpty() && symbolsInLeafs.contains(vs)) {
+					// vs is not bound
+					throw new VariableNotDeclaredError(vs.getImage());
 				}
 			}
 
@@ -254,7 +253,6 @@ public class CEToECTranslator implements DefaultConditionalElementsVisitor {
 		// VariableSymbol.equal
 		// SingleFactVariable.equal
 		// SingleSlotVariable.equal (Set)
-		// EquivalenceClass.unequalEquivalenceClasses (Set)
 		// FIXME may need to enhance to cover all members of EquivalenceClass and thus all
 		// references
 		private static void replaceEC(final Set<VariableSymbol> symbols,
@@ -274,8 +272,6 @@ public class CEToECTranslator implements DefaultConditionalElementsVisitor {
 							equalSet.add(innerEntry.getValue());
 					}
 				}
-				// EquivalenceClass.unequalEquivalenceClasses (Set)
-				newEC.replace(map);
 			}
 		}
 
@@ -333,7 +329,7 @@ public class CEToECTranslator implements DefaultConditionalElementsVisitor {
 
 				@Override
 				public void visit(final PredicateWithArgumentsComposite<SymbolLeaf> fwa) {
-					if (!fwa.getFunction().inClips().equals(Equals.inClips)) {
+					if (negated || !fwa.getFunction().inClips().equals(Equals.inClips)) {
 						shallowTests.add(fwa);
 						return;
 					}
@@ -342,36 +338,22 @@ public class CEToECTranslator implements DefaultConditionalElementsVisitor {
 							FunctionNormaliser.normalise(FWADeepCopy.copy(fwa)).getArgs();
 					final EquivalenceClass left = getEC(args[0]);
 					final boolean leftInCS = left.getMaximalScope() == scope;
-					if (negated) {
-						for (int i = 1; i < args.length; ++i) {
-							final FunctionWithArguments<SymbolLeaf> arg = args[i];
-							final EquivalenceClass right = getEC(arg);
-							final boolean rightInCS = right.getMaximalScope() == scope;
-							if (leftInCS || rightInCS) {
-								EquivalenceClass.addUnequalEquivalenceClassRelation(left, right);
-							} else {
-								// test stays
-								remainingArguments.add(arg);
-							}
-						}
-					} else {
-						for (int i = 1; i < args.length; i++) {
-							final FunctionWithArguments<SymbolLeaf> arg = args[i];
-							final EquivalenceClass right = getEC(arg);
-							final boolean rightInCS = right.getMaximalScope() == scope;
-							if (leftInCS && rightInCS) {
-								// merge right into left
-								left.merge(right);
-								// replace right with left everywhere
-								equivalenceClasses.put(arg, left);
-								replaceEC(occurringSymbols, Collections.singletonMap(right, left));
-							} else if (leftInCS || rightInCS) {
-								// equal parent scope relation
-								EquivalenceClass.addEqualParentEquivalenceClassRelation(left, right);
-							} else {
-								// test stays
-								remainingArguments.add(arg);
-							}
+					for (int i = 1; i < args.length; i++) {
+						final FunctionWithArguments<SymbolLeaf> arg = args[i];
+						final EquivalenceClass right = getEC(arg);
+						final boolean rightInCS = right.getMaximalScope() == scope;
+						if (leftInCS && rightInCS) {
+							// merge right into left
+							left.merge(right);
+							// replace right with left everywhere
+							equivalenceClasses.put(arg, left);
+							replaceEC(occurringSymbols, Collections.singletonMap(right, left));
+						} else if (leftInCS || rightInCS) {
+							// equal parent scope relation
+							EquivalenceClass.addEqualParentEquivalenceClassRelation(left, right);
+						} else {
+							// test stays
+							remainingArguments.add(arg);
 						}
 					}
 					if (!remainingArguments.isEmpty()) {

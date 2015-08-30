@@ -85,7 +85,6 @@ import org.jamocha.languages.common.errors.VariableNotDeclaredError;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
-import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import com.google.common.collect.Sets.SetView;
 
@@ -236,7 +235,7 @@ public class PathFilterConsolidator implements DefaultConditionalElementsVisitor
 			for (final VariableSymbol vs : symbols) {
 				final EquivalenceClass ec = vs.getEqual();
 				if (ec.getFactVariables().isEmpty() && ec.getSlotVariables().isEmpty()) {
-					if (!ec.getUnequalEquivalenceClasses().isEmpty() || symbolsInLeafs.contains(vs))
+					if (symbolsInLeafs.contains(vs))
 						// vs is not bound
 						throw new VariableNotDeclaredError(vs.getImage());
 				}
@@ -262,7 +261,6 @@ public class PathFilterConsolidator implements DefaultConditionalElementsVisitor
 		// VariableSymbol.equal
 		// SingleFactVariable.equal
 		// SingleSlotVariable.equal (Set)
-		// EquivalenceClass.unequalEquivalenceClasses (Set)
 		private static void replaceEC(final Set<VariableSymbol> symbols,
 				final Map<EquivalenceClass, EquivalenceClass> map) {
 			// VariableSymbol.equal
@@ -280,8 +278,6 @@ public class PathFilterConsolidator implements DefaultConditionalElementsVisitor
 							equalSet.add(innerEntry.getValue());
 					}
 				}
-				// EquivalenceClass.unequalEquivalenceClasses (Set)
-				newEC.replace(map);
 			}
 		}
 
@@ -401,13 +397,6 @@ public class PathFilterConsolidator implements DefaultConditionalElementsVisitor
 			// constant and variable expressions are empty - no need to create tests for them
 			if (!equiv.getSlotVariables().isEmpty()) {
 				createEqualSlotsAndFactsTests(equiv, filters, ec2Path, (x) -> true, (x) -> element);
-			}
-			for (final EquivalenceClass nequiv : equiv.getUnequalEquivalenceClasses()) {
-				if (!neqAlreadyDone.contains(nequiv)) {
-					filters.add(new PathFilter(new PredicateWithArgumentsComposite<PathLeaf>(not,
-							GenericWithArgumentsComposite.newPredicateInstance(Equals.inClips, element,
-									equivalenceClassToPathLeaf.get(nequiv)))));
-				}
 			}
 			for (final EquivalenceClass parent : equiv.getEqualParentEquivalenceClasses()) {
 				filters.add(new PathFilter(GenericWithArgumentsComposite.newPredicateInstance(Equals.inClips, element,
@@ -566,12 +555,6 @@ public class PathFilterConsolidator implements DefaultConditionalElementsVisitor
 					final FunctionWithArguments<PathLeaf> element =
 							equivalenceClassToPathLeaf.get(localEquivalenceClass);
 					createEqualSlotsAndFactsTests(localEquivalenceClass, filters, ec2Path, (x) -> true, (x) -> element);
-					for (final EquivalenceClass unequal : ImmutableSet.copyOf(localEquivalenceClass
-							.getUnequalEquivalenceClasses())) {
-						final PathLeaf other = equivalenceClassToPathLeaf.get(unequal);
-						addEqualityTestTo(filters, element, other, false);
-						localEquivalenceClass.removeNegatedEdge(unequal);
-					}
 				}
 
 				final Set<EquivalenceClass> nonLocalEquivalenceClasses =
@@ -708,13 +691,6 @@ public class PathFilterConsolidator implements DefaultConditionalElementsVisitor
 			}
 			return Sets.newHashSet(new PathExistentialSet(isPositive, initialFactPath, shallowExistentialPaths,
 					purePart, existentialClosure));
-		}
-
-		private static void addEqualityTestTo(final Set<PathFilterSet> filters,
-				final FunctionWithArguments<PathLeaf> element, final FunctionWithArguments<PathLeaf> other,
-				final boolean isPositive) {
-			filters.add(new PathFilter(GenericWithArgumentsComposite.newPredicateInstance(isPositive, Equals.inClips,
-					element, other)));
 		}
 
 		@Override

@@ -171,7 +171,6 @@ import org.jamocha.languages.common.ConditionalElement.TemplatePatternConditiona
 import org.jamocha.languages.common.ConditionalElement.TestConditionalElement;
 import org.jamocha.languages.common.GlobalVariable;
 import org.jamocha.languages.common.RuleCondition;
-import org.jamocha.languages.common.RuleCondition.EquivalenceClass;
 import org.jamocha.languages.common.RuleCondition.MatchingConfiguration;
 import org.jamocha.languages.common.RuleConditionProcessor;
 import org.jamocha.languages.common.ScopeCloser;
@@ -918,8 +917,10 @@ public final class SFPToCETranslator implements SelectiveSFPVisitor {
 
 			private void handleVariable(final VariableSymbol symbol, final SlotAddress slot) {
 				if (negated) {
-					EquivalenceClass.addUnequalEquivalenceClassRelation(createConstraintVariable(slot).getEqual(),
-							symbol.getEqual());
+					final VariableSymbol csv = createConstraintVariable(slot);
+					constraintAdder.accept(new TestConditionalElement(
+							GenericWithArgumentsComposite.newPredicateInstance(!negated, Equals.inClips,
+									new SymbolLeaf(csv), new SymbolLeaf(symbol))));
 				} else {
 					if (bindingsAllowed) {
 						parent.factVariable.newSingleSlotVariable(slot, symbol);

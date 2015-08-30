@@ -87,7 +87,6 @@ public class RuleCondition {
 		final LinkedList<FunctionWithArguments<SymbolLeaf>> constantExpressions;
 		final LinkedList<FunctionWithArguments<SymbolLeaf>> variableExpressions;
 		final Set<EquivalenceClass> equalParentEquivalenceClasses = new HashSet<>();
-		final Set<EquivalenceClass> unequalEquivalenceClasses = new HashSet<>();
 		final Set<SingleFactVariable> merged = new HashSet<>();
 		protected Scope maximalScope;
 		@Setter
@@ -129,7 +128,6 @@ public class RuleCondition {
 		public EquivalenceClass(final EquivalenceClass copy) {
 			this(new LinkedList<>(copy.factVariables), new LinkedList<>(copy.slotVariables), new LinkedList<>(
 					copy.constantExpressions), new LinkedList<>(copy.variableExpressions), copy.maximalScope, copy.type);
-			this.unequalEquivalenceClasses.addAll(copy.unequalEquivalenceClasses);
 		}
 
 		public Set<SingleFactVariable> getDependentFactVariables() {
@@ -152,10 +150,6 @@ public class RuleCondition {
 			other.factVariables.forEach(this::add);
 			other.slotVariables.forEach(this::add);
 			other.constantExpressions.forEach(this::add);
-			for (final EquivalenceClass ec : other.unequalEquivalenceClasses) {
-				ec.unequalEquivalenceClasses.remove(other);
-				addNegatedEdge(ec);
-			}
 			if (null == this.type)
 				this.type = other.type;
 			else if (null != other.type && other.type != this.type)
@@ -280,59 +274,6 @@ public class RuleCondition {
 			this.equalParentEquivalenceClasses.add(ec);
 		}
 
-		public static void addUnequalEquivalenceClassRelation(final EquivalenceClass a, final EquivalenceClass b) {
-			if (a.maximalScope.isParentOf(b.maximalScope)) {
-				b.addNegatedArc(a);
-			} else if (b.maximalScope.isParentOf(a.maximalScope)) {
-				a.addNegatedArc(b);
-			} else {
-				a.addNegatedEdge(b);
-			}
-		}
-
-		private void addNegatedArc(final EquivalenceClass ec) {
-			if (this == ec) {
-				throw new IllegalArgumentException("Tried to insert a negated arc as a loop!");
-			}
-			if (null == type)
-				type = ec.type;
-			if (null != ec.type && type != ec.type) {
-				throw new IllegalArgumentException(
-						"Tried to add a negated arc between EquivalenceClasses of different types (left=" + type
-								+ ", right=" + ec.type + ")!");
-			}
-			this.unequalEquivalenceClasses.add(ec);
-		}
-
-		private void addNegatedEdge(final EquivalenceClass ec) {
-			if (this == ec) {
-				throw new IllegalArgumentException("Tried to insert a negated edge as a loop!");
-			}
-			if (null == type)
-				type = ec.type;
-			if (null != ec.type && type != ec.type) {
-				throw new IllegalArgumentException(
-						"Tried to add a negated edge between EquivalenceClasses of different types (left=" + type
-								+ ", right=" + ec.type + ")!");
-			}
-			ec.unequalEquivalenceClasses.add(this);
-			this.unequalEquivalenceClasses.add(ec);
-		}
-
-		public void removeNegatedEdge(final EquivalenceClass ec) {
-			assert this.unequalEquivalenceClasses.contains(ec) || ec.unequalEquivalenceClasses.contains(this);
-			ec.unequalEquivalenceClasses.remove(this);
-			this.unequalEquivalenceClasses.remove(ec);
-		}
-
-		public void replace(final Map<EquivalenceClass, EquivalenceClass> map) {
-			// iterate over the map as the set can't be modified during iteration
-			map.forEach((o, n) -> {
-				if (this.unequalEquivalenceClasses.remove(o))
-					this.unequalEquivalenceClasses.add(n);
-			});
-		}
-
 		public PathLeaf getPathLeaf(final Map<EquivalenceClass, Path> ec2Path, final SingleSlotVariable sv) {
 			if (!factVariables.isEmpty()) {
 				return Optional.ofNullable(ec2Path.get(factVariables.getFirst().getEqual()))
@@ -347,8 +288,8 @@ public class RuleCondition {
 
 		public boolean isNonTrivial() {
 			return (this.factVariables.isEmpty() ? 0 : 1) + this.slotVariables.size()
-					+ this.unequalEquivalenceClasses.size() + this.equalParentEquivalenceClasses.size()
-					+ this.constantExpressions.size() + this.variableExpressions.size() > 1;
+					+ this.equalParentEquivalenceClasses.size() + this.constantExpressions.size()
+					+ this.variableExpressions.size() > 1;
 		}
 	}
 }

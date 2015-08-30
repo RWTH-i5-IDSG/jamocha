@@ -850,7 +850,6 @@ public class ECBlocks {
 						equivalenceClass.getConstantExpressions();
 				final LinkedList<FunctionWithArguments<SymbolLeaf>> variableExpressions =
 						equivalenceClass.getVariableExpressions();
-				final Set<EquivalenceClass> unequalEquivalenceClasses = equivalenceClass.getUnequalEquivalenceClasses();
 				final Set<EquivalenceClass> equalParentEquivalenceClasses =
 						equivalenceClass.getEqualParentEquivalenceClasses();
 				// FWASymbolToECTranslator
