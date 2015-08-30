@@ -96,6 +96,6 @@ public class ECCollector implements DefaultFunctionWithArgumentsLeafVisitor<ECLe
 
 	@Override
 	public void visit(final ECSharedList list) {
-		list.getFilters().forEach(f -> f.accept(this));
+		list.getUnmodifiableFilterListCopy().forEach(f -> f.accept(this));
 	}
 }
