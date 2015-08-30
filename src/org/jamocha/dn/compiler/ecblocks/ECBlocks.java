@@ -40,11 +40,11 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.NavigableMap;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.Set;
-import java.util.SortedMap;
 import java.util.Stack;
 import java.util.TreeMap;
 import java.util.function.Function;
@@ -319,6 +319,9 @@ public class ECBlocks {
 			final Set<Filter> bFilters = bProxy.getFilters();
 			if (aFilters.size() != bFilters.size())
 				return false;
+			if (aFilters.size() == 0) {
+				return true;
+			}
 
 			final List<Set<FilterInstance>> aFilterInstanceSets =
 					aFilters.stream().map(f -> f.getInstances(Either.right(aProxy)))
@@ -396,10 +399,8 @@ public class ECBlocks {
 	/**
 	 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
 	 */
-	@Value
 	@AllArgsConstructor
-	@EqualsAndHashCode(of = { "instances" })
-	@ToString(of = { "instances" })
+	@Getter
 	static class FilterInstancesSideBySide {
 		final LinkedHashSet<FilterInstance> instances;
 		final Filter filter;
@@ -413,24 +414,34 @@ public class ECBlocks {
 		public FilterInstancesSideBySide(final FilterInstance stack) {
 			this(new LinkedHashSet<>(Collections.singleton(stack)), stack.getFilter(), stack.getRuleOrProxy());
 		}
+
+		@Override
+		public String toString() {
+			return Objects.toString(instances);
+		}
 	}
 
 	/**
 	 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
 	 */
 	@Value
-	@EqualsAndHashCode(of = { "original" })
-	@ToString(of = { "original", "filters" })
 	static class Rule {
 		final ECSetRule original;
 		final Set<Filter> filters = new HashSet<>();
 		final BiMap<FilterInstance, ExistentialProxy> existentialProxies = HashBiMap.create();
+
+		@Override
+		public String toString() {
+			return original.getParent().getName();
+		}
 	}
 
 	/**
 	 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
 	 */
-	@Value
+	@RequiredArgsConstructor
+	@Getter
+	@ToString(of = { "filters" })
 	static class ExistentialProxy {
 		final Rule rule;
 		final ECExistentialSet existential;
@@ -444,9 +455,7 @@ public class ECBlocks {
 	/**
 	 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
 	 */
-	@Value
-	@EqualsAndHashCode(of = { "filterInstances" })
-	@ToString(of = { "filterInstances" })
+	@Getter
 	@RequiredArgsConstructor
 	public static class Block {
 		// conflict graph
@@ -478,6 +487,11 @@ public class ECBlocks {
 			for (final Entry<FilterInstance, Set<ConflictEdge>> entry : block.borderConflicts.entrySet()) {
 				borderConflicts.put(entry.getKey(), new HashSet<>(entry.getValue()));
 			}
+		}
+
+		@Override
+		public String toString() {
+			return "Block: " + Objects.toString(filterInstances);
 		}
 
 		Set<Either<Rule, ExistentialProxy>> getRulesOrProxies() {
@@ -555,6 +569,8 @@ public class ECBlocks {
 			if (!other.filters.containsAll(this.filters)) {
 				return false;
 			}
+			if (other.flatFilterInstances.containsAll(this.flatFilterInstances))
+				return true;
 			/*
 			 * before really considering multi cell filters, just check the sizes and containment
 			 * for single cell filters
@@ -630,38 +646,69 @@ public class ECBlocks {
 		final TreeMap<Integer, TreeMap<Integer, HashSet<Block>>> ruleCountToFilterCountToBlocks = new TreeMap<>();
 		final TreeMap<Integer, TreeMap<Integer, HashSet<Block>>> filterCountToRuleCountToBlocks = new TreeMap<>();
 
-		public BlockSet(final Set<Block> horizontallyMaximalBlocks) {
-			horizontallyMaximalBlocks
-					.stream()
-					.sorted(Collections.reverseOrder(Comparator.comparingInt(composeToInt(Block::getRulesOrProxies,
-							Set::size)))).forEachOrdered(this::orderedInsertionOfHorizontallyMaximalBlock);
+		private static int getRuleCount(final Block block) {
+			return block.getRulesOrProxies().size();
 		}
 
-		private void orderedInsertionOfHorizontallyMaximalBlock(final Block block) {
-			/*
-			 * block is horizontally maximal, thus there can not be a block containing more filters
-			 * with these or even more rules, so we just need to check the blocks containing more
-			 * rules and the same filters. To make it feasible, we use the counts instead of the
-			 * actual instances regarding rules and filters.
-			 */
-			final Integer ruleCount = block.getRulesOrProxies().size();
-			final Integer filterCount = block.getFilters().size();
-			final SortedMap<Integer, HashSet<Block>> fixedFilterCountRules =
-					filterCountToRuleCountToBlocks.computeIfAbsent(filterCount, newTreeMap()).tailMap(ruleCount, false);
+		private static int getFilterCount(final Block block) {
+			return block.getFlatFilterInstances().size() / getRuleCount(block);
+		}
+
+		private boolean addDuringHorizontalRecursion(final Block block) {
+			final Integer ruleCount = getRuleCount(block);
+			final Integer filterCount = getFilterCount(block);
+			final NavigableMap<Integer, HashSet<Block>> fixedRuleCountFilters =
+					ruleCountToFilterCountToBlocks.computeIfAbsent(ruleCount, newTreeMap()).tailMap(filterCount, true);
+			for (final Set<Block> fixedFilterCountRule : fixedRuleCountFilters.values()) {
+				for (final Block candidate : fixedFilterCountRule) {
+					if (block.containedIn(candidate)) {
+						return false;
+					}
+				}
+			}
+			final NavigableMap<Integer, HashSet<Block>> fixedFilterCountRules =
+					filterCountToRuleCountToBlocks.computeIfAbsent(filterCount, newTreeMap()).tailMap(ruleCount, true);
 			for (final Set<Block> fixedFilterCountRule : fixedFilterCountRules.values()) {
 				for (final Block candidate : fixedFilterCountRule) {
 					if (block.containedIn(candidate)) {
-						return;
+						return false;
 					}
 				}
 			}
 			actuallyInsertBlockIntoAllCaches(block);
+			return true;
+		}
+
+		private void removeContainedBlocks(final Block block) {
+			final Integer ruleCount = getRuleCount(block);
+			final Integer filterCount = getFilterCount(block);
+
+			final List<Block> toRemove = new ArrayList<>();
+
+			final Collection<TreeMap<Integer, HashSet<Block>>> filterCountToBlocksRuleCountHead =
+					ruleCountToFilterCountToBlocks.headMap(ruleCount).values();
+			for (final TreeMap<Integer, HashSet<Block>> filterCountToBlocksFixedRuleCount : filterCountToBlocksRuleCountHead) {
+				final Collection<HashSet<Block>> blocksFixedRuleCountFilterCountHead =
+						filterCountToBlocksFixedRuleCount.headMap(filterCount, true).values();
+				for (final HashSet<Block> blocksFixedRuleCountFixedFilterCount : blocksFixedRuleCountFilterCountHead) {
+					for (final Block candidate : blocksFixedRuleCountFixedFilterCount) {
+						if (candidate.containedIn(block)) {
+							// can't remove right now since we are iterating over a collection that
+							// would be changed
+							toRemove.add(candidate);
+						}
+					}
+				}
+			}
+			for (final Block remove : toRemove) {
+				remove(remove);
+			}
 		}
 
 		private void actuallyInsertBlockIntoAllCaches(final Block block) {
 			blocks.add(block);
-			final Integer ruleCount = block.getRulesOrProxies().size();
-			final Integer filterCount = block.getFilters().size();
+			final Integer ruleCount = getRuleCount(block);
+			final Integer filterCount = getFilterCount(block);
 			ruleCountToBlocks.computeIfAbsent(ruleCount, newHashSet()).add(block);
 			filterCountToBlocks.computeIfAbsent(filterCount, newHashSet()).add(block);
 			ruleCountToFilterCountToBlocks.computeIfAbsent(ruleCount, newTreeMap())
@@ -669,11 +716,12 @@ public class ECBlocks {
 			filterCountToRuleCountToBlocks.computeIfAbsent(filterCount, newTreeMap())
 					.computeIfAbsent(ruleCount, newHashSet()).add(block);
 			block.getRulesOrProxies().forEach(r -> ruleInstanceToBlocks.computeIfAbsent(r, newHashSet()).add(block));
+			removeContainedBlocks(block);
 		}
 
 		public boolean isContained(final Block block) {
-			final Integer ruleCount = block.getRulesOrProxies().size();
-			final Integer filterCount = block.getFilters().size();
+			final Integer ruleCount = getRuleCount(block);
+			final Integer filterCount = getFilterCount(block);
 			for (final TreeMap<Integer, HashSet<Block>> treeMap : filterCountToRuleCountToBlocks.tailMap(filterCount)
 					.values()) {
 				for (final HashSet<Block> blocks : treeMap.tailMap(ruleCount).values()) {
@@ -696,8 +744,8 @@ public class ECBlocks {
 		public boolean remove(final Block block) {
 			if (!blocks.remove(block))
 				return false;
-			final Integer ruleCount = block.getRulesOrProxies().size();
-			final Integer filterCount = block.getFilters().size();
+			final Integer ruleCount = getRuleCount(block);
+			final Integer filterCount = getFilterCount(block);
 			ruleCountToBlocks.computeIfAbsent(ruleCount, newHashSet()).remove(block);
 			filterCountToBlocks.computeIfAbsent(filterCount, newHashSet()).remove(block);
 			ruleCountToFilterCountToBlocks.computeIfAbsent(ruleCount, newTreeMap())
@@ -755,7 +803,11 @@ public class ECBlocks {
 			final Iterable<? extends List<FilterInstance>> filterInstancesGroupedByRule) {
 		final UndirectedGraph<FilterInstance, ConflictEdge> graph = new SimpleGraph<>(ConflictEdge::of);
 		for (final List<FilterInstance> instances : filterInstancesGroupedByRule) {
-			instances.forEach(graph::addVertex);
+			for (final FilterInstance filterInstance : instances) {
+				assert null != filterInstance;
+				graph.addVertex(filterInstance);
+			}
+			// instances.forEach(graph::addVertex);
 			final int numInstances = instances.size();
 			for (int i = 0; i < numInstances; i++) {
 				final FilterInstance fi1 = instances.get(i);
@@ -859,11 +911,9 @@ public class ECBlocks {
 		for (final ECSetRule rule : rules) {
 			addRule(rule, translatedRules);
 		}
-		// find all horizontally maximal blocks
-		final Set<Block> resultBlocks = new HashSet<>();
-		findAllHorizontallyMaximalBlocks(translatedRules, resultBlocks);
-		// convert to maximal blocks via BlockSet-Constructor
-		final BlockSet resultBlockSet = new BlockSet(resultBlocks);
+		// find all maximal blocks
+		final BlockSet resultBlockSet = new BlockSet();
+		findAllHorizontallyMaximalBlocks(translatedRules, resultBlockSet);
 		// solve the conflicts
 		determineAndSolveConflicts(resultBlockSet);
 		// transform into PathFilterList
@@ -874,9 +924,12 @@ public class ECBlocks {
 			final BlockSet resultBlockSet) {
 		final Function<? super Block, ? extends Integer> characteristicNumber =
 				block -> block.getFlatFilterInstances().size() / block.getRulesOrProxies().size();
-		final Map<Integer, CursorableLinkedList<Block>> blockMap =
-				resultBlockSet.getBlocks().stream()
-						.collect(groupingBy(characteristicNumber, toCollection(CursorableLinkedList::new)));
+		final TreeMap<Integer, CursorableLinkedList<Block>> blockMap =
+				resultBlockSet
+						.getBlocks()
+						.stream()
+						.collect(
+								groupingBy(characteristicNumber, TreeMap::new, toCollection(CursorableLinkedList::new)));
 
 		// iterate over all the filter proxies ever used
 		for (final FilterProxy filterProxy : FilterProxy.getFilterProxies()) {
@@ -899,9 +952,9 @@ public class ECBlocks {
 				// create a list storing the blocks to move
 				final List<Block> toMove = new ArrayList<>();
 				// scan all lists up to characteristic number eCN
-				for (int i = 0; i <= eCN; ++i) {
+				for (final CursorableLinkedList<Block> blockList : blockMap.headMap(eCN, true).values()) {
 					// iterate over the blocks in the current list
-					for (final ListIterator<Block> iterator = blockMap.get(i).listIterator(); iterator.hasNext();) {
+					for (final ListIterator<Block> iterator = blockList.listIterator(); iterator.hasNext();) {
 						final Block current = iterator.next();
 						// if the current block uses the current existential closure filter
 						// instance, it has to be moved
@@ -1043,11 +1096,12 @@ public class ECBlocks {
 	}
 
 	protected static void findAllHorizontallyMaximalBlocks(final List<Either<Rule, ExistentialProxy>> rules,
-			final Set<Block> resultBlocks) {
+			final BlockSet resultBlocks) {
 		final UndirectedGraph<FilterInstance, ConflictEdge> conflictGraph = determineConflictGraphForRules(rules);
 		final Set<Filter> filters = rules.stream().flatMap(rule -> getFilters(rule).stream()).collect(toSet());
 		for (final Filter filter : filters) {
-			vertical(conflictGraph, rules.stream().map(r -> filter.getInstances(r)).collect(toSet()), resultBlocks);
+			vertical(conflictGraph, rules.stream().map(r -> filter.getInstances(r)).filter(negate(Set::isEmpty))
+					.collect(toSet()), resultBlocks);
 			// vertical(conflictGraph, new HashSet<>(filter.getRuleToInstances().values()),
 			// resultBlocks);
 		}
@@ -1059,8 +1113,8 @@ public class ECBlocks {
 		return Collectors.collectingAndThen(groupingBy, map -> new HashSet<D>(map.values()));
 	}
 
-	protected static Set<Block> findAllHorizontallyMaximalBlocksInReducedScope(
-			final Set<FilterInstance> filterInstances, final Set<Block> resultBlocks) {
+	protected static BlockSet findAllHorizontallyMaximalBlocksInReducedScope(final Set<FilterInstance> filterInstances,
+			final BlockSet resultBlocks) {
 		final Iterable<List<FilterInstance>> filterInstancesGroupedByRule =
 				filterInstances.stream().collect(
 						Collectors.collectingAndThen(groupingBy(FilterInstance::getRuleOrProxy), Map::values));
@@ -1078,7 +1132,7 @@ public class ECBlocks {
 
 	protected static void determineAndSolveConflicts(final BlockSet resultBlocks) {
 		// determine conflicts
-		final BlockSet deletedBlocks = new BlockSet(Collections.emptySet());
+		final BlockSet deletedBlocks = new BlockSet();
 		final DirectedGraph<Block, BlockConflict> blockConflictGraph = new SimpleDirectedGraph<>(BlockConflict::of);
 		for (final Block block : resultBlocks.getBlocks()) {
 			blockConflictGraph.addVertex(block);
@@ -1212,6 +1266,14 @@ public class ECBlocks {
 				x = conflictingBlock;
 				y = replaceBlock;
 			}
+			// will only work if y.getFilters() subseteq x.getFilters()
+			if (!x.getFilters().containsAll(y.getFilters())) {
+				return new BlockConflict(replaceBlock, conflictingBlock, cfi);
+			}
+			// will only work if x.getRules subseteq y.getRules
+			if (!y.getRulesOrProxies().containsAll(x.getRulesOrProxies())) {
+				return new BlockConflict(replaceBlock, conflictingBlock, cfi);
+			}
 			// only consider the rules of x (the wider block)
 			final ArrayList<Either<Rule, ExistentialProxy>> rules = Lists.newArrayList(x.getRulesOrProxies());
 			// only consider the filters of y (the taller block)
@@ -1267,9 +1329,9 @@ public class ECBlocks {
 		// remove replaceBlock and update qualities
 		removeArc(blockConflictGraph, blockConflict);
 		// find the horizontally maximal blocks within xWOcfi
-		final Set<Block> newBlocks = findAllHorizontallyMaximalBlocksInReducedScope(xWOcfi, new HashSet<>());
+		final BlockSet newBlocks = findAllHorizontallyMaximalBlocksInReducedScope(xWOcfi, new BlockSet());
 		// for every such block,
-		for (final Block block : newBlocks) {
+		for (final Block block : newBlocks.getBlocks()) {
 			if (!deletedBlocks.isContained(block)) {
 				if (resultBlocks.addDuringConflictResolution(block)) {
 					blockConflictGraph.addVertex(block);
@@ -1281,13 +1343,15 @@ public class ECBlocks {
 	}
 
 	protected static void vertical(final UndirectedGraph<FilterInstance, ConflictEdge> graph,
-			final Set<Set<FilterInstance>> filterInstancesGroupedByRule, final Set<Block> resultBlocks) {
+			final Set<Set<FilterInstance>> filterInstancesGroupedByRule, final BlockSet resultBlocks) {
 		final Set<Set<Set<FilterInstance>>> filterInstancesPowerSet = Sets.powerSet(filterInstancesGroupedByRule);
-		for (final Set<Set<FilterInstance>> powerSetElement : filterInstancesPowerSet) {
-			if (powerSetElement.isEmpty()) {
-				continue;
-			}
-			final Set<List<FilterInstance>> cartesianProduct = Sets.cartesianProduct(new ArrayList<>(powerSetElement));
+		final Iterator<Set<Set<FilterInstance>>> iterator = filterInstancesPowerSet.iterator();
+		// skip empty set
+		iterator.next();
+		while (iterator.hasNext()) {
+			final Set<Set<FilterInstance>> powerSetElement = iterator.next();
+			final Set<List<FilterInstance>> cartesianProduct =
+					Sets.cartesianProduct(ImmutableList.copyOf(powerSetElement));
 			for (final List<FilterInstance> filterInstances : cartesianProduct) {
 				final Block newBlock = new Block(graph);
 				newBlock.addFilterInstances(filterInstances.stream().collect(
@@ -1299,7 +1363,7 @@ public class ECBlocks {
 	}
 
 	protected static void horizontalRecursion(final Block block, final Stack<Set<FilterInstance>> exclusionStack,
-			final Set<Block> resultBlocks) {
+			final BlockSet resultBlocks) {
 		// needed: the filters that are contained in every rule of the block, where for every
 		// filter it is the case that: every rule contains at least one instance not already
 		// excluded by the exclusion stack
@@ -1326,7 +1390,7 @@ public class ECBlocks {
 						.collect(toSet());
 		// if no filters are left to add, the block is horizontally maximized, add it
 		if (bRelevantFilters.isEmpty()) {
-			resultBlocks.add(block);
+			resultBlocks.addDuringHorizontalRecursion(block);
 			return;
 		}
 		// divide into filters without multiple instances and filters with multiple instances
@@ -1360,7 +1424,7 @@ public class ECBlocks {
 					matchingFilters, incompatibleFilters, bFilterToRuleToBlockInstances);
 			// if still none matched, the block is maximal, add it to the result blocks
 			if (matchingFilters.isEmpty()) {
-				resultBlocks.add(block);
+				resultBlocks.addDuringHorizontalRecursion(block);
 				return;
 			}
 		}
