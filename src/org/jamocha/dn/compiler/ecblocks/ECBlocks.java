@@ -563,14 +563,20 @@ public class ECBlocks {
 		}
 
 		public boolean containedIn(final Block other) {
-			if (!other.ruleToFilterToRow.keySet().containsAll(this.ruleToFilterToRow.keySet())) {
+			final Set<Either<Rule, ExistentialProxy>> otherRules = other.ruleToFilterToRow.keySet();
+			final Set<Either<Rule, ExistentialProxy>> thisRules = this.ruleToFilterToRow.keySet();
+			if (otherRules.size() < thisRules.size() || !otherRules.containsAll(thisRules)) {
 				return false;
 			}
-			if (!other.filters.containsAll(this.filters)) {
+			if (other.filters.size() < this.filters.size() || !other.filters.containsAll(this.filters)) {
 				return false;
 			}
-			if (other.flatFilterInstances.containsAll(this.flatFilterInstances))
+			if (other.flatFilterInstances.size() < this.flatFilterInstances.size()) {
+				return false;
+			}
+			if (other.flatFilterInstances.containsAll(this.flatFilterInstances)) {
 				return true;
+			}
 			/*
 			 * before really considering multi cell filters, just check the sizes and containment
 			 * for single cell filters
@@ -606,7 +612,7 @@ public class ECBlocks {
 			 * other
 			 */
 			// since we will compare lists, fix the iteration order
-			final List<Either<Rule, ExistentialProxy>> rules = new ArrayList<>(this.ruleToFilterToRow.keySet());
+			final List<Either<Rule, ExistentialProxy>> rules = new ArrayList<>(thisRules);
 			final Set<List<FilterInstance>> thisFilterInstanceColumns =
 					getFilterInstanceColumns(multiFilters, this.ruleToFilterToRow, rules);
 			final Set<List<FilterInstance>> otherFilterInstanceColumns =
