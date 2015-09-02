@@ -71,7 +71,7 @@ public class NetworkToDot {
 				final int width = functionWithArguments.getParamTypes().length;
 				sb.append(" ");
 				sb.append(functionWithArguments.accept(new FWAFormatter(Arrays.copyOfRange(params, pos, pos + width)))
-						.getSb().toString());
+						.getSb());
 				pos += width;
 			}
 			sb.append(")");
