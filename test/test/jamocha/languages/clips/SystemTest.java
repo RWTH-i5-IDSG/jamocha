@@ -57,10 +57,6 @@ public class SystemTest {
 	 */
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
-		@SuppressWarnings("unused")
-		final Network network = new Network();
-		@SuppressWarnings("unused")
-		final int a = 5;
 	}
 
 	/**
