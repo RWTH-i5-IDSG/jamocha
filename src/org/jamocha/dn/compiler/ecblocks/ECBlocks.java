@@ -441,7 +441,7 @@ public class ECBlocks {
 	 */
 	@RequiredArgsConstructor
 	@Getter
-	@ToString(of = { "filters" })
+	@ToString(of = { "rule", "filters" })
 	static class ExistentialProxy {
 		final Rule rule;
 		final ECExistentialSet existential;

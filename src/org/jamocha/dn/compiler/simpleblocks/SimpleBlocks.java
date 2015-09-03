@@ -432,7 +432,7 @@ public class SimpleBlocks {
 	 */
 	@RequiredArgsConstructor
 	@Getter
-	@ToString(of = { "filters" })
+	@ToString(of = { "rule", "filters" })
 	static class ExistentialProxy {
 		final Rule rule;
 		final PathExistentialSet existential;
