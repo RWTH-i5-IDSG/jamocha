@@ -1127,7 +1127,7 @@ public class SimpleBlocks {
 			final BlockSet resultBlocks, final Block x) {
 		for (final Either<Rule, ExistentialProxy> rule : x.getRulesOrProxies()) {
 			for (final Block y : resultBlocks.getRuleInstanceToBlocks().get(rule)) {
-				if (x == y) {
+				if (x == y || blockConflictGraph.containsEdge(x, y)) {
 					continue;
 				}
 				addArc(blockConflictGraph, x, y);
