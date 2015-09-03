@@ -890,7 +890,10 @@ public class SimpleBlocks {
 		determineAndSolveConflicts(resultBlockSet);
 		checkContainment(resultBlockSet);
 		// transform into PathFilterList
-		return createOutput(translatedRules, resultBlockSet);
+		final List<PathRule> output = createOutput(translatedRules, resultBlockSet);
+		Filter.cache.clear();
+		FilterProxy.cache.clear();
+		return output;
 	}
 
 	protected static List<PathRule> createOutput(final List<Either<Rule, ExistentialProxy>> rules,
