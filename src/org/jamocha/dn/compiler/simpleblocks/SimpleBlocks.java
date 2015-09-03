@@ -655,21 +655,42 @@ public class SimpleBlocks {
 		private boolean addDuringHorizontalRecursion(final Block block) {
 			final Integer ruleCount = getRuleCount(block);
 			final Integer filterCount = getFilterCount(block);
-			final NavigableMap<Integer, HashSet<Block>> fixedRuleCountFilters =
-					ruleCountToFilterCountToBlocks.computeIfAbsent(ruleCount, newTreeMap()).tailMap(filterCount, true);
-			for (final Set<Block> fixedFilterCountRule : fixedRuleCountFilters.values()) {
-				for (final Block candidate : fixedFilterCountRule) {
-					if (block.containedIn(candidate)) {
-						return false;
+			// first check if there is a block of the same height with more filter instances
+			{
+				final NavigableMap<Integer, HashSet<Block>> fixedRuleCountFilters =
+						ruleCountToFilterCountToBlocks.computeIfAbsent(ruleCount, newTreeMap()).tailMap(filterCount,
+								true);
+				for (final Set<Block> fixedFilterCountRule : fixedRuleCountFilters.values()) {
+					for (final Block candidate : fixedFilterCountRule) {
+						if (block.containedIn(candidate)) {
+							return false;
+						}
 					}
 				}
 			}
-			final NavigableMap<Integer, HashSet<Block>> fixedFilterCountRules =
-					filterCountToRuleCountToBlocks.computeIfAbsent(filterCount, newTreeMap()).tailMap(ruleCount, true);
-			for (final Set<Block> fixedFilterCountRule : fixedFilterCountRules.values()) {
-				for (final Block candidate : fixedFilterCountRule) {
-					if (block.containedIn(candidate)) {
-						return false;
+			// then check if there is a block of the same width with more rules
+			{
+				final NavigableMap<Integer, HashSet<Block>> fixedFilterCountRules =
+						filterCountToRuleCountToBlocks.computeIfAbsent(filterCount, newTreeMap()).tailMap(ruleCount,
+								true);
+				for (final Set<Block> fixedFilterCountRule : fixedFilterCountRules.values()) {
+					for (final Block candidate : fixedFilterCountRule) {
+						if (block.containedIn(candidate)) {
+							return false;
+						}
+					}
+				}
+			}
+			// finally check if there is a block larger in both dimensions
+			{
+				for (final TreeMap<Integer, HashSet<Block>> fixedFilterCountMap : filterCountToRuleCountToBlocks
+						.tailMap(filterCount, false).values()) {
+					for (final HashSet<Block> candidates : fixedFilterCountMap.tailMap(ruleCount, false).values()) {
+						for (final Block candidate : candidates) {
+							if (block.containedIn(candidate)) {
+								return false;
+							}
+						}
 					}
 				}
 			}
@@ -684,13 +705,13 @@ public class SimpleBlocks {
 			final List<Block> toRemove = new ArrayList<>();
 
 			final Collection<TreeMap<Integer, HashSet<Block>>> filterCountToBlocksRuleCountHead =
-					ruleCountToFilterCountToBlocks.headMap(ruleCount).values();
+					ruleCountToFilterCountToBlocks.headMap(ruleCount, true).values();
 			for (final TreeMap<Integer, HashSet<Block>> filterCountToBlocksFixedRuleCount : filterCountToBlocksRuleCountHead) {
 				final Collection<HashSet<Block>> blocksFixedRuleCountFilterCountHead =
 						filterCountToBlocksFixedRuleCount.headMap(filterCount, true).values();
 				for (final HashSet<Block> blocksFixedRuleCountFixedFilterCount : blocksFixedRuleCountFilterCountHead) {
 					for (final Block candidate : blocksFixedRuleCountFixedFilterCount) {
-						if (candidate.containedIn(block)) {
+						if (candidate != block && candidate.containedIn(block)) {
 							// can't remove right now since we are iterating over a collection that
 							// would be changed
 							toRemove.add(candidate);
