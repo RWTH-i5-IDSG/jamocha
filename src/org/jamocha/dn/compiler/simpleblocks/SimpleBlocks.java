@@ -909,7 +909,7 @@ public class SimpleBlocks {
 		findAllHorizontallyMaximalBlocks(translatedRules, resultBlockSet);
 		// solve the conflicts
 		determineAndSolveConflicts(resultBlockSet);
-		checkContainment(resultBlockSet);
+		assert checkContainment(resultBlockSet);
 		// transform into PathFilterList
 		final List<PathRule> output = createOutput(translatedRules, resultBlockSet);
 		Filter.cache.clear();
@@ -1337,7 +1337,7 @@ public class SimpleBlocks {
 		deletedBlocks.addDuringConflictResolution(replaceBlock);
 	}
 
-	private static void checkContainment(final BlockSet blockSet) {
+	private static boolean checkContainment(final BlockSet blockSet) {
 		final HashSet<Block> blocks = blockSet.getBlocks();
 		for (final Block a : blocks) {
 			for (final Block b : blocks) {
@@ -1347,6 +1347,7 @@ public class SimpleBlocks {
 					throw new IllegalStateException();
 			}
 		}
+		return true;
 	}
 
 	protected static void vertical(final UndirectedGraph<FilterInstance, ConflictEdge> graph,
