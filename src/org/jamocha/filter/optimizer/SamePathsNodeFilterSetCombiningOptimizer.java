@@ -15,15 +15,16 @@
 package org.jamocha.filter.optimizer;
 
 import static java.util.stream.Collectors.groupingBy;
-import static java.util.stream.Collectors.toSet;
+import static java.util.stream.Collectors.toCollection;
+import static java.util.stream.Collectors.toList;
 import static org.jamocha.util.Lambdas.stream;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.function.Supplier;
 
 import lombok.RequiredArgsConstructor;
@@ -95,9 +96,8 @@ public class SamePathsNodeFilterSetCombiningOptimizer implements Optimizer {
 	 * PathExistentialList, everything we combine will be a regular PathNodeFilterSet
 	 */
 	static PathNodeFilterSet combineFilters(final Iterable<? extends PathFilterList> samePathsFilterSets) {
-		return PathNodeFilterSet.newRegularPathNodeFilterSet(stream(samePathsFilterSets)
-				.map(a -> (PathNodeFilterSet) a).map(PathNodeFilterSet::getFilters).flatMap(Set::stream)
-				.collect(toSet()));
+		return PathNodeFilterSet.newRegularPathNodeFilterSet(stream(samePathsFilterSets).flatMap(
+				a -> ((PathNodeFilterSet) a).getFilters().stream()).collect(toCollection(LinkedHashSet::new)));
 	}
 
 	@RequiredArgsConstructor
@@ -121,10 +121,10 @@ public class SamePathsNodeFilterSetCombiningOptimizer implements Optimizer {
 			}
 			final List<PathNodeFilterSet> pathNodeFilterSets =
 					PathNodeFilterSetCollector.collectList(unmodifiableFilterListCopy);
-			final Map<HashSet<Path>, Set<PathFilterList>> map =
+			final Map<HashSet<Path>, List<PathFilterList>> map =
 					pathNodeFilterSets.stream().collect(
 							groupingBy(pnfs -> PathCollector.newHashSet().collectOnlyInFilterLists(pnfs).getPaths(),
-									toSet()));
+									toList()));
 			for (final Iterable<PathFilterList> set : map.values()) {
 				filter.combine(set, SamePathsNodeFilterSetCombiningOptimizer::combineFilters);
 			}

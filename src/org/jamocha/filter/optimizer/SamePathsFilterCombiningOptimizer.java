@@ -15,10 +15,11 @@
 package org.jamocha.filter.optimizer;
 
 import static java.util.stream.Collectors.groupingBy;
-import static java.util.stream.Collectors.toSet;
+import static java.util.stream.Collectors.toList;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -51,10 +52,10 @@ public class SamePathsFilterCombiningOptimizer implements Optimizer {
 		public void visit(final PathNodeFilterSet filterSet) {
 			final Set<PathFilter> filters = filterSet.getFilters();
 
-			final Map<HashSet<Path>, Set<PathFilter>> map =
+			final Map<HashSet<Path>, List<PathFilter>> map =
 					filters.stream().collect(
-							groupingBy(pnfs -> PathCollector.newHashSet().collect(pnfs).getPaths(), toSet()));
-			for (final Set<PathFilter> set : map.values()) {
+							groupingBy(pnfs -> PathCollector.newHashSet().collect(pnfs).getPaths(), toList()));
+			for (final List<PathFilter> set : map.values()) {
 				if (set.size() == 1) {
 					continue;
 				}
