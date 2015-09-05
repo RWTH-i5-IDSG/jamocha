@@ -67,6 +67,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.jamocha.dn.ConstructCache.Defrule.ECListRule;
 import org.jamocha.dn.ConstructCache.Defrule.ECSetRule;
 import org.jamocha.dn.ConstructCache.Defrule.PathRule;
+import org.jamocha.dn.compiler.ecblocks.ECBlocks.Filter.ExplicitFilterInstance;
 import org.jamocha.dn.compiler.ecblocks.ECBlocks.Filter.FilterInstance;
 import org.jamocha.dn.compiler.ecblocks.ECBlocks.Filter.FilterInstance.Conflict;
 import org.jamocha.filter.ECFilter;
@@ -80,15 +81,20 @@ import org.jamocha.filter.ECFilterSet;
 import org.jamocha.filter.ECFilterSet.ECExistentialSet;
 import org.jamocha.filter.ECFilterSetVisitor;
 import org.jamocha.filter.Path;
+import org.jamocha.function.fwa.ConstantLeaf;
 import org.jamocha.function.fwa.ECLeaf;
 import org.jamocha.function.fwa.FunctionWithArguments;
+import org.jamocha.function.fwa.GenericWithArgumentsComposite;
 import org.jamocha.function.fwa.PredicateWithArguments;
 import org.jamocha.function.fwa.SymbolLeaf;
+import org.jamocha.function.fwa.TemplateSlotLeaf;
 import org.jamocha.function.fwa.TypeLeaf;
 import org.jamocha.function.fwatransformer.FWAPathLeafToTypeLeafTranslator;
 import org.jamocha.languages.common.RuleCondition.EquivalenceClass;
 import org.jamocha.languages.common.SingleFactVariable;
 import org.jamocha.languages.common.SingleFactVariable.SingleSlotVariable;
+import org.jamocha.visitor.Visitable;
+import org.jamocha.visitor.Visitor;
 import org.jgrapht.DirectedGraph;
 import org.jgrapht.UndirectedGraph;
 import org.jgrapht.alg.VertexCovers;
@@ -109,6 +115,106 @@ import com.google.common.collect.Sets.SetView;
  */
 public class ECBlocks {
 
+	static interface ElementVisitor extends Visitor {
+		public void visit(final FactBinding element);
+
+		public void visit(final SlotBinding element);
+
+		public void visit(final ConstantExpression element);
+	}
+
+	static interface Element extends Visitable<ElementVisitor> {
+		public EquivalenceClass getEquivalenceClass();
+
+		public SingleFactVariable getFactVariable();
+	}
+
+	@RequiredArgsConstructor
+	@Getter
+	@EqualsAndHashCode
+	static class FactBinding implements Element {
+		final SingleFactVariable fact;
+
+		@Override
+		public EquivalenceClass getEquivalenceClass() {
+			return fact.getEqual();
+		}
+
+		@Override
+		public SingleFactVariable getFactVariable() {
+			return fact;
+		}
+
+		@Override
+		public <V extends ElementVisitor> V accept(final V visitor) {
+			visitor.visit(this);
+			return visitor;
+		}
+	}
+
+	@RequiredArgsConstructor
+	@Getter
+	@EqualsAndHashCode
+	static class SlotBinding implements Element {
+		final SingleSlotVariable slot;
+
+		@Override
+		public EquivalenceClass getEquivalenceClass() {
+			return slot.getEqual();
+		}
+
+		@Override
+		public SingleFactVariable getFactVariable() {
+			return slot.getFactVariable();
+		}
+
+		@Override
+		public <V extends ElementVisitor> V accept(final V visitor) {
+			visitor.visit(this);
+			return visitor;
+		}
+	}
+
+	@RequiredArgsConstructor
+	@Getter
+	@EqualsAndHashCode
+	static class ConstantExpression implements Element {
+		final FunctionWithArguments<SymbolLeaf> constant;
+		@Getter(onMethod = @__({ @Override }))
+		final EquivalenceClass equivalenceClass;
+
+		@Override
+		public SingleFactVariable getFactVariable() {
+			return null;
+		}
+
+		@Override
+		public <V extends ElementVisitor> V accept(final V visitor) {
+			visitor.visit(this);
+			return visitor;
+		}
+	}
+
+	static class ElementToTemplateSlotLeafTranslator implements ElementVisitor {
+		FunctionWithArguments<TemplateSlotLeaf> arg;
+
+		@Override
+		public void visit(final FactBinding element) {
+			arg = new TemplateSlotLeaf(element.getFact().getTemplate(), null);
+		}
+
+		@Override
+		public void visit(final SlotBinding element) {
+			arg = new TemplateSlotLeaf(element.getFactVariable().getTemplate(), element.getSlot().getSlot());
+		}
+
+		@SuppressWarnings("unchecked")
+		@Override
+		public void visit(final ConstantExpression element) {
+			arg = (ConstantLeaf<TemplateSlotLeaf>) (ConstantLeaf<?>) element.constant;
+		}
+	}
+
 	/**
 	 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
 	 */
@@ -117,18 +223,32 @@ public class ECBlocks {
 	@EqualsAndHashCode(of = { "predicate" })
 	@ToString(of = { "predicate" })
 	static class Filter {
-		final FunctionWithArguments<TypeLeaf> predicate;
+		final FunctionWithArguments<?> predicate;
 		final Map<Either<Rule, ExistentialProxy>, Set<FilterInstance>> ruleToInstances = new HashMap<>();
 
 		static final Map<Filter, Filter> cache = new HashMap<>();
 
-		static Filter newFilter(final FunctionWithArguments<TypeLeaf> predicate) {
+		static Filter newFilter(final FunctionWithArguments<?> predicate) {
 			return cache.computeIfAbsent(new Filter(predicate), Function.identity());
 		}
 
-		public FilterInstance addInstance(final Either<Rule, ExistentialProxy> ruleOrProxy, final ECFilter ecFilter) {
+		static Filter newEqualityFilter(final Element left, final Element right) {
+			return newFilter(GenericWithArgumentsComposite.newPredicateInstance("=",
+					left.accept(new ElementToTemplateSlotLeafTranslator()).arg,
+					right.accept(new ElementToTemplateSlotLeafTranslator()).arg));
+		}
+
+		public ExplicitFilterInstance addExplicitInstance(final Either<Rule, ExistentialProxy> ruleOrProxy,
+				final ECFilter ecFilter) {
 			final ArrayList<EquivalenceClass> parameterECs = OrderedECCollector.collect(ecFilter.getFunction());
-			final FilterInstance instance = new FilterInstance(ecFilter, parameterECs, ruleOrProxy);
+			final ExplicitFilterInstance instance = new ExplicitFilterInstance(ruleOrProxy, ecFilter, parameterECs);
+			ruleToInstances.computeIfAbsent(ruleOrProxy, newHashSet()).add(instance);
+			return instance;
+		}
+
+		public ImplicitFilterInstance addImplicitInstance(final Either<Rule, ExistentialProxy> ruleOrProxy,
+				final Element left, final Element right) {
+			final ImplicitFilterInstance instance = new ImplicitFilterInstance(ruleOrProxy, left, right);
 			ruleToInstances.computeIfAbsent(ruleOrProxy, newHashSet()).add(instance);
 			return instance;
 		}
@@ -137,62 +257,15 @@ public class ECBlocks {
 			return ruleToInstances.computeIfAbsent(ruleOrProxy, newHashSet());
 		}
 
-		public ECFilterList convert(final FilterInstance instance) {
+		public ECFilterList convert(final ExplicitFilterInstance instance) {
 			return new ECNodeFilterSet(instance.ecFilter);
 		}
 
-		/**
-		 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
-		 */
 		@Getter
-		@Setter
 		@AllArgsConstructor(access = AccessLevel.PRIVATE)
-		// no EqualsAndHashCode
-		class FilterInstance {
-			final ECFilter ecFilter;
-			final List<EquivalenceClass> parameters;
+		abstract class FilterInstance {
 			final Either<Rule, ExistentialProxy> ruleOrProxy;
 			final Map<FilterInstance, Conflict> conflicts = new HashMap<>();
-
-			@Override
-			public String toString() {
-				return Objects.toString(ecFilter);
-			}
-
-			public Conflict addConflict(final FilterInstance targetFilterInstance) {
-				final Conflict conflict = new Conflict(targetFilterInstance);
-				if (conflict.intersectingECsIndices.isEmpty()) {
-					conflicts.put(targetFilterInstance, null);
-					return null;
-				}
-				conflicts.put(targetFilterInstance, conflict);
-				return conflict;
-			}
-
-			public Conflict getOrDetermineConflicts(final FilterInstance targetFilterInstance) {
-				// call to containsKey prevents recalculation of null conflicts
-				// (design currently doesn't easily allow for a better null-object)
-				return conflicts.containsKey(targetFilterInstance) ? conflicts.get(targetFilterInstance)
-						: addConflict(targetFilterInstance);
-			}
-
-			public Filter getFilter() {
-				return Filter.this;
-			}
-
-			public ECFilterList convert() {
-				return getFilter().convert(this);
-			}
-
-			/**
-			 * Returns the filter instances of the same filter within the same rule (result contains
-			 * the filter instance this method is called upon).
-			 *
-			 * @return the filter instances of the same filter within the same rule
-			 */
-			public Set<FilterInstance> getSiblings() {
-				return getInstances(ruleOrProxy);
-			}
 
 			/**
 			 * A conflict represents the fact that two filter instances are using the same data
@@ -212,26 +285,6 @@ public class ECBlocks {
 				final Set<Pair<Integer, Integer>> intersectingECsIndices;
 				final FilterInstance target;
 
-				public Conflict(final FilterInstance target) {
-					this.target = target;
-					this.intersectingECsIndices = new HashSet<>();
-					final List<EquivalenceClass> sourceParameters = FilterInstance.this.parameters;
-					final List<EquivalenceClass> targetParameters = target.parameters;
-					final int size = sourceParameters.size();
-					final List<Set<SingleFactVariable>> targetFVsList =
-							targetParameters.stream().map(EquivalenceClass::getDependentFactVariables)
-									.collect(toList());
-					for (int i = 0; i < size; ++i) {
-						final Set<SingleFactVariable> sourceFVs = sourceParameters.get(i).getDependentFactVariables();
-						for (int j = 0; j < size; ++j) {
-							final Set<SingleFactVariable> targetFVs = targetFVsList.get(j);
-							if (Collections.disjoint(sourceFVs, targetFVs))
-								continue;
-							this.intersectingECsIndices.add(Pair.of(i, j));
-						}
-					}
-				}
-
 				public boolean hasEqualConflicts(final Conflict other) {
 					if (null == other)
 						return false;
@@ -242,15 +295,183 @@ public class ECBlocks {
 									.equals(other.intersectingECsIndices));
 				}
 
-				public boolean hasCompatibleFiltersAndEqualConflicts(final Conflict conflict) {
-					return Filter.this.equals(conflict.getSource().getFilter())
-							&& target.getFilter().equals(conflict.getTarget().getFilter())
-							&& intersectingECsIndices.equals(conflict.intersectingECsIndices);
-				}
-
 				public FilterInstance getSource() {
 					return FilterInstance.this;
 				}
+			}
+
+			protected Conflict newConflict(final ImplicitFilterInstance source, final ImplicitFilterInstance target) {
+				final Set<Pair<Integer, Integer>> intersectingECsIndices = new HashSet<>();
+				final SingleFactVariable s0 = source.left.getFactVariable();
+				final SingleFactVariable s1 = source.right.getFactVariable();
+				final SingleFactVariable t0 = target.left.getFactVariable();
+				final SingleFactVariable t1 = target.right.getFactVariable();
+				if (s0 == t0) {
+					intersectingECsIndices.add(Pair.of(0, 0));
+				}
+				if (s0 == t1) {
+					intersectingECsIndices.add(Pair.of(0, 1));
+				}
+				if (s1 == t0) {
+					intersectingECsIndices.add(Pair.of(1, 0));
+				}
+				if (s1 == t1) {
+					intersectingECsIndices.add(Pair.of(1, 1));
+				}
+				return new Conflict(intersectingECsIndices, target);
+			}
+
+			protected Conflict newConflict(final ImplicitFilterInstance source, final ExplicitFilterInstance target) {
+				return newConflict(target, source, true);
+			}
+
+			protected Conflict newConflict(final ExplicitFilterInstance source, final ImplicitFilterInstance target) {
+				return newConflict(source, target, false);
+			}
+
+			protected Conflict newConflict(final ExplicitFilterInstance source, final ImplicitFilterInstance target,
+					final boolean reverse) {
+				final Set<Pair<Integer, Integer>> intersectingECsIndices = new HashSet<>();
+				final List<EquivalenceClass> sourceParameters = source.parameters;
+				final SingleFactVariable left = target.left.getFactVariable();
+				final SingleFactVariable right = target.right.getFactVariable();
+				final int size = sourceParameters.size();
+				for (int i = 0; i < size; ++i) {
+					final Set<SingleFactVariable> sourceFVs = sourceParameters.get(i).getDependentFactVariables();
+					if (sourceFVs.contains(left)) {
+						intersectingECsIndices.add(reverse ? Pair.of(0, i) : Pair.of(i, 0));
+					}
+					if (sourceFVs.contains(right)) {
+						intersectingECsIndices.add(reverse ? Pair.of(1, i) : Pair.of(i, 1));
+					}
+				}
+				return new Conflict(intersectingECsIndices, target);
+			}
+
+			protected Conflict newConflict(final ExplicitFilterInstance source, final ExplicitFilterInstance target) {
+				final Set<Pair<Integer, Integer>> intersectingECsIndices = new HashSet<>();
+				final List<EquivalenceClass> sourceParameters = source.parameters;
+				final List<EquivalenceClass> targetParameters = target.parameters;
+				final int size = sourceParameters.size();
+				final List<Set<SingleFactVariable>> targetFVsList =
+						targetParameters.stream().map(EquivalenceClass::getDependentFactVariables).collect(toList());
+				for (int i = 0; i < size; ++i) {
+					final Set<SingleFactVariable> sourceFVs = sourceParameters.get(i).getDependentFactVariables();
+					for (int j = 0; j < size; ++j) {
+						final Set<SingleFactVariable> targetFVs = targetFVsList.get(j);
+						if (Collections.disjoint(sourceFVs, targetFVs))
+							continue;
+						intersectingECsIndices.add(Pair.of(i, j));
+					}
+				}
+				return new Conflict(intersectingECsIndices, target);
+			}
+
+			protected abstract Conflict newConflict(final FilterInstance targetFilterInstance);
+
+			protected abstract Conflict forSource(final ImplicitFilterInstance source);
+
+			protected abstract Conflict forSource(final ExplicitFilterInstance source);
+
+			public Conflict addConflict(final FilterInstance targetFilterInstance) {
+				final Conflict conflict = newConflict(targetFilterInstance);
+				if (conflict.intersectingECsIndices.isEmpty()) {
+					conflicts.put(targetFilterInstance, null);
+					return null;
+				}
+				conflicts.put(targetFilterInstance, conflict);
+				return conflict;
+			}
+
+			public Conflict getOrDetermineConflicts(final FilterInstance targetFilterInstance) {
+				// call to containsKey prevents recalculation of null conflicts
+				// (design currently doesn't easily allow for a better null-object)
+				return conflicts.containsKey(targetFilterInstance) ? conflicts.get(targetFilterInstance)
+						: addConflict(targetFilterInstance);
+			}
+
+			public Filter getFilter() {
+				return Filter.this;
+			}
+
+			/**
+			 * Returns the filter instances of the same filter within the same rule (result contains
+			 * the filter instance this method is called upon).
+			 *
+			 * @return the filter instances of the same filter within the same rule
+			 */
+			public Set<FilterInstance> getSiblings() {
+				return getInstances(ruleOrProxy);
+			}
+
+		}
+
+		@Getter
+		// no EqualsAndHashCode
+		class ImplicitFilterInstance extends FilterInstance {
+			final Element left, right;
+
+			private ImplicitFilterInstance(final Either<Rule, ExistentialProxy> ruleOrProxy, final Element left,
+					final Element right) {
+				super(ruleOrProxy);
+				this.left = left;
+				this.right = right;
+			}
+
+			@Override
+			protected FilterInstance.Conflict newConflict(final FilterInstance targetFilterInstance) {
+				return targetFilterInstance.forSource(this);
+			}
+
+			@Override
+			protected FilterInstance.Conflict forSource(final ImplicitFilterInstance source) {
+				return newConflict(source, this);
+			}
+
+			@Override
+			protected FilterInstance.Conflict forSource(final ExplicitFilterInstance source) {
+				return newConflict(source, this);
+			}
+		}
+
+		/**
+		 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
+		 */
+		@Getter
+		// no EqualsAndHashCode
+		class ExplicitFilterInstance extends FilterInstance {
+			final ECFilter ecFilter;
+			final List<EquivalenceClass> parameters;
+
+			private ExplicitFilterInstance(final Either<Rule, ExistentialProxy> ruleOrProxy, final ECFilter ecFilter,
+					final List<EquivalenceClass> parameters) {
+				super(ruleOrProxy);
+				this.ecFilter = ecFilter;
+				this.parameters = parameters;
+			}
+
+			@Override
+			public String toString() {
+				return Objects.toString(ecFilter);
+			}
+
+			@Override
+			protected FilterInstance.Conflict newConflict(final FilterInstance targetFilterInstance) {
+				return targetFilterInstance.forSource(this);
+			}
+
+			@Override
+			protected FilterInstance.Conflict forSource(final ImplicitFilterInstance source) {
+				return newConflict(source, this);
+			}
+
+			@Override
+			protected FilterInstance.Conflict forSource(final ExplicitFilterInstance source) {
+				return newConflict(source, this);
+			}
+
+			public ECFilterList convert() {
+				return getFilter().convert(this);
 			}
 		}
 	}
@@ -275,7 +496,7 @@ public class ECBlocks {
 		}
 
 		@Override
-		public ECFilterList convert(final FilterInstance instance) {
+		public ECFilterList convert(final ExplicitFilterInstance instance) {
 			assert instance.getRuleOrProxy().isLeft() : "Nested Existentials Unsupported!";
 			final Rule rule = instance.getRuleOrProxy().left().get();
 			final ExistentialProxy existentialProxy = rule.getExistentialProxies().get(instance);
@@ -452,6 +673,19 @@ public class ECBlocks {
 		}
 	}
 
+	@RequiredArgsConstructor
+	@Getter
+	static class Partition<T> {
+		@RequiredArgsConstructor
+		@Getter
+		class SubSet {
+			final Map<Either<Rule, ExistentialProxy>, T> elements;
+		}
+
+		final Set<SubSet> elements;
+		final Map<T, SubSet> lookup;
+	}
+
 	/**
 	 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
 	 */
@@ -474,6 +708,13 @@ public class ECBlocks {
 		// conflicts between filter instances, where the source has to be outside and the target
 		// inside of the block, grouped by the one outside
 		final Map<FilterInstance, Set<ConflictEdge>> borderConflicts = new HashMap<>();
+
+		// vartheta : map the arguments of the filter instances used instead of modifying them
+		// in-place to be able to have the same instance within different blocks
+		Map<EquivalenceClass, EquivalenceClassProxy> equivalenceClassToReduced;
+		Partition<FilterInstance> filterInstancePartition;
+		Partition<SingleFactVariable> factVariablePartition;
+		Partition<Element> elementPartition;
 
 		public Block(final Block block) {
 			graph = block.graph;
@@ -872,10 +1113,19 @@ public class ECBlocks {
 			final Rule rule = ruleOrProxy.left().get();
 			final Set<EquivalenceClass> equivalenceClasses = rule.getOriginal().getEquivalenceClasses();
 			for (final EquivalenceClass equivalenceClass : equivalenceClasses) {
-				final LinkedList<SingleFactVariable> factVariables = equivalenceClass.getFactVariables();
-				final LinkedList<SingleSlotVariable> slotVariables = equivalenceClass.getSlotVariables();
-				final LinkedList<FunctionWithArguments<SymbolLeaf>> constantExpressions =
-						equivalenceClass.getConstantExpressions();
+				final List<Element> elements = new ArrayList<>();
+				equivalenceClass.getFactVariables().stream().map(FactBinding::new).forEach(elements::add);
+				equivalenceClass.getSlotVariables().stream().map(SlotBinding::new).forEach(elements::add);
+				equivalenceClass.getConstantExpressions().stream()
+						.map(c -> new ConstantExpression(c, equivalenceClass)).forEach(elements::add);
+				for (final Element left : elements) {
+					for (final Element right : elements) {
+						if (left == right)
+							continue;
+						Filter.newEqualityFilter(left, right).addImplicitInstance(ruleOrProxy, left, right);
+					}
+				}
+
 				final LinkedList<FunctionWithArguments<SymbolLeaf>> variableExpressions =
 						equivalenceClass.getVariableExpressions();
 				final Set<EquivalenceClass> equalParentEquivalenceClasses =
@@ -891,7 +1141,7 @@ public class ECBlocks {
 		@Override
 		public void visit(final ECFilter ecFilter) {
 			final Filter filter = convertFilter(ecFilter, Filter::newFilter);
-			filter.addInstance(ruleOrProxy, ecFilter);
+			filter.addExplicitInstance(ruleOrProxy, ecFilter);
 			getFilters(ruleOrProxy).add(filter);
 		}
 
@@ -927,7 +1177,7 @@ public class ECBlocks {
 			final FilterProxy convertedExCl =
 					convertFilter(existentialClosure, pred -> FilterProxy.newFilterProxy(pred, proxy));
 			getFilters(ruleOrProxy).add(convertedExCl);
-			final FilterInstance filterInstance = convertedExCl.addInstance(ruleOrProxy, existentialClosure);
+			final FilterInstance filterInstance = convertedExCl.addExplicitInstance(ruleOrProxy, existentialClosure);
 			rule.existentialProxies.put(filterInstance, proxy);
 		}
 	}
@@ -939,7 +1189,7 @@ public class ECBlocks {
 		}
 		// find all maximal blocks
 		final BlockSet resultBlockSet = new BlockSet();
-		findAllHorizontallyMaximalBlocks(translatedRules, resultBlockSet);
+		findAllMaximalBlocks(translatedRules, resultBlockSet);
 		// solve the conflicts
 		determineAndSolveConflicts(resultBlockSet);
 		// transform into PathFilterList
@@ -1035,9 +1285,9 @@ public class ECBlocks {
 					sharedListWrapper.addSharedColumns(sharedPart);
 				}
 
-				for (final List<FilterInstance> column : columnsToConstruct) {
+				for (final List<ExplicitFilterInstance> column : columnsToConstruct) {
 					sharedListWrapper.addSharedColumn(column.stream().collect(
-							toMap(fi -> ruleToSharedList.get(fi.getRuleOrProxy()), FilterInstance::convert)));
+							toMap(fi -> ruleToSharedList.get(fi.getRuleOrProxy()), ExplicitFilterInstance::convert)));
 				}
 				constructedFIs.addAll(block.getFlatFilterInstances());
 				for (final Entry<Either<Rule, ExistentialProxy>, Map<Filter, FilterInstancesSideBySide>> entry : block
@@ -1124,15 +1374,13 @@ public class ECBlocks {
 		return (a == b) || (a != null && a.hasEqualConflicts(b));
 	}
 
-	protected static void findAllHorizontallyMaximalBlocks(final List<Either<Rule, ExistentialProxy>> rules,
+	protected static void findAllMaximalBlocks(final List<Either<Rule, ExistentialProxy>> rules,
 			final BlockSet resultBlocks) {
 		final UndirectedGraph<FilterInstance, ConflictEdge> conflictGraph = determineConflictGraphForRules(rules);
 		final Set<Filter> filters = rules.stream().flatMap(rule -> getFilters(rule).stream()).collect(toSet());
 		for (final Filter filter : filters) {
 			vertical(conflictGraph, rules.stream().map(r -> filter.getInstances(r)).filter(negate(Set::isEmpty))
 					.collect(toSet()), resultBlocks);
-			// vertical(conflictGraph, new HashSet<>(filter.getRuleToInstances().values()),
-			// resultBlocks);
 		}
 	}
 
@@ -1142,7 +1390,7 @@ public class ECBlocks {
 		return Collectors.collectingAndThen(groupingBy, map -> new HashSet<D>(map.values()));
 	}
 
-	protected static BlockSet findAllHorizontallyMaximalBlocksInReducedScope(final Set<FilterInstance> filterInstances,
+	protected static BlockSet findAllMaximalBlocksInReducedScope(final Set<FilterInstance> filterInstances,
 			final BlockSet resultBlocks) {
 		final Iterable<List<FilterInstance>> filterInstancesGroupedByRule =
 				filterInstances.stream().collect(
@@ -1358,7 +1606,7 @@ public class ECBlocks {
 		// remove replaceBlock and update qualities
 		removeArc(blockConflictGraph, blockConflict);
 		// find the horizontally maximal blocks within xWOcfi
-		final BlockSet newBlocks = findAllHorizontallyMaximalBlocksInReducedScope(xWOcfi, new BlockSet());
+		final BlockSet newBlocks = findAllMaximalBlocksInReducedScope(xWOcfi, new BlockSet());
 		// for every such block,
 		for (final Block block : newBlocks.getBlocks()) {
 			if (!deletedBlocks.isContained(block)) {
