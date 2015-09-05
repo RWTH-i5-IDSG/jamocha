@@ -233,12 +233,6 @@ public class SimpleBlocks {
 							|| (this.samePathsIndices != null && this.samePathsIndices.equals(other.samePathsIndices));
 				}
 
-				public boolean hasCompatibleFiltersAndEqualConflicts(final Conflict conflict) {
-					return Filter.this.equals(conflict.getSource().getFilter())
-							&& target.getFilter().equals(conflict.getTarget().getFilter())
-							&& samePathsIndices.equals(conflict.samePathsIndices);
-				}
-
 				public FilterInstance getSource() {
 					return FilterInstance.this;
 				}
@@ -906,7 +900,7 @@ public class SimpleBlocks {
 		}
 		// find all maximal blocks
 		final BlockSet resultBlockSet = new BlockSet();
-		findAllHorizontallyMaximalBlocks(translatedRules, resultBlockSet);
+		findAllMaximalBlocks(translatedRules, resultBlockSet);
 		// solve the conflicts
 		determineAndSolveConflicts(resultBlockSet);
 		assert checkContainment(resultBlockSet);
@@ -1090,15 +1084,13 @@ public class SimpleBlocks {
 		return (a == b) || (a != null && a.hasEqualConflicts(b));
 	}
 
-	protected static void findAllHorizontallyMaximalBlocks(final List<Either<Rule, ExistentialProxy>> rules,
+	protected static void findAllMaximalBlocks(final List<Either<Rule, ExistentialProxy>> rules,
 			final BlockSet resultBlocks) {
 		final UndirectedGraph<FilterInstance, ConflictEdge> conflictGraph = determineConflictGraphForRules(rules);
 		final Set<Filter> filters = rules.stream().flatMap(rule -> getFilters(rule).stream()).collect(toSet());
 		for (final Filter filter : filters) {
 			vertical(conflictGraph, rules.stream().map(r -> filter.getInstances(r)).filter(negate(Set::isEmpty))
 					.collect(toSet()), resultBlocks);
-			// vertical(conflictGraph, new HashSet<>(filter.getRuleToInstances().values()),
-			// resultBlocks);
 		}
 	}
 
@@ -1108,7 +1100,7 @@ public class SimpleBlocks {
 		return Collectors.collectingAndThen(groupingBy, map -> new HashSet<D>(map.values()));
 	}
 
-	protected static BlockSet findAllHorizontallyMaximalBlocksInReducedScope(final Set<FilterInstance> filterInstances,
+	protected static BlockSet findAllMaximalBlocksInReducedScope(final Set<FilterInstance> filterInstances,
 			final BlockSet resultBlocks) {
 		final Iterable<List<FilterInstance>> filterInstancesGroupedByRule =
 				filterInstances.stream().collect(
@@ -1324,7 +1316,7 @@ public class SimpleBlocks {
 		// remove replaceBlock and update qualities
 		removeArc(blockConflictGraph, blockConflict);
 		// find the horizontally maximal blocks within xWOcfi
-		final BlockSet newBlocks = findAllHorizontallyMaximalBlocksInReducedScope(xWOcfi, new BlockSet());
+		final BlockSet newBlocks = findAllMaximalBlocksInReducedScope(xWOcfi, new BlockSet());
 		// for every such block,
 		for (final Block block : newBlocks.getBlocks()) {
 			if (!deletedBlocks.isContained(block)) {
