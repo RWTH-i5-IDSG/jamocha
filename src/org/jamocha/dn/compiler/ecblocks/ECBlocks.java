@@ -35,7 +35,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
@@ -90,6 +89,7 @@ import org.jamocha.function.fwa.SymbolLeaf;
 import org.jamocha.function.fwa.TemplateSlotLeaf;
 import org.jamocha.function.fwa.TypeLeaf;
 import org.jamocha.function.fwatransformer.FWAPathLeafToTypeLeafTranslator;
+import org.jamocha.function.fwatransformer.FWASymbolToECTranslator;
 import org.jamocha.languages.common.RuleCondition.EquivalenceClass;
 import org.jamocha.languages.common.SingleFactVariable;
 import org.jamocha.languages.common.SingleFactVariable.SingleSlotVariable;
@@ -115,20 +115,31 @@ import com.google.common.collect.Sets.SetView;
  */
 public class ECBlocks {
 
+	/**
+	 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
+	 */
 	static interface ElementVisitor extends Visitor {
 		public void visit(final FactBinding element);
 
 		public void visit(final SlotBinding element);
 
 		public void visit(final ConstantExpression element);
+
+		public void visit(final VariableExpression element);
 	}
 
+	/**
+	 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
+	 */
 	static interface Element extends Visitable<ElementVisitor> {
 		public EquivalenceClass getEquivalenceClass();
 
 		public SingleFactVariable getFactVariable();
 	}
 
+	/**
+	 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
+	 */
 	@RequiredArgsConstructor
 	@Getter
 	@EqualsAndHashCode
@@ -152,6 +163,9 @@ public class ECBlocks {
 		}
 	}
 
+	/**
+	 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
+	 */
 	@RequiredArgsConstructor
 	@Getter
 	@EqualsAndHashCode
@@ -175,9 +189,12 @@ public class ECBlocks {
 		}
 	}
 
+	/**
+	 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
+	 */
 	@RequiredArgsConstructor
 	@Getter
-	@EqualsAndHashCode
+	@EqualsAndHashCode(of = { "constant" })
 	static class ConstantExpression implements Element {
 		final FunctionWithArguments<SymbolLeaf> constant;
 		@Getter(onMethod = @__({ @Override }))
@@ -195,6 +212,32 @@ public class ECBlocks {
 		}
 	}
 
+	/**
+	 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
+	 */
+	@RequiredArgsConstructor
+	@Getter
+	@EqualsAndHashCode(of = { "variable" })
+	static class VariableExpression implements Element {
+		final FunctionWithArguments<SymbolLeaf> variable;
+		@Getter(onMethod = @__({ @Override }))
+		final EquivalenceClass equivalenceClass;
+
+		@Override
+		public SingleFactVariable getFactVariable() {
+			return null;
+		}
+
+		@Override
+		public <V extends ElementVisitor> V accept(final V visitor) {
+			visitor.visit(this);
+			return visitor;
+		}
+	}
+
+	/**
+	 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
+	 */
 	static class ElementToTemplateSlotLeafTranslator implements ElementVisitor {
 		FunctionWithArguments<TemplateSlotLeaf> arg;
 
@@ -211,7 +254,13 @@ public class ECBlocks {
 		@SuppressWarnings("unchecked")
 		@Override
 		public void visit(final ConstantExpression element) {
-			arg = (ConstantLeaf<TemplateSlotLeaf>) (ConstantLeaf<?>) element.constant;
+			arg = new ConstantLeaf<TemplateSlotLeaf>(element.constant.evaluate(), element.constant.getReturnType());
+		}
+
+		@Override
+		public void visit(final VariableExpression element) {
+			throw new UnsupportedOperationException(
+					"VariableElements can not to be transformed into TemplateSlotLeaf, but only into TypeLeaf!");
 		}
 	}
 
@@ -238,6 +287,11 @@ public class ECBlocks {
 					right.accept(new ElementToTemplateSlotLeafTranslator()).arg));
 		}
 
+		static Filter newEqualityFilter(final FunctionWithArguments<ECLeaf> left,
+				final FunctionWithArguments<ECLeaf> right) {
+			return newFilter(GenericWithArgumentsComposite.newPredicateInstance("=", left, right));
+		}
+
 		public ExplicitFilterInstance addExplicitInstance(final Either<Rule, ExistentialProxy> ruleOrProxy,
 				final ECFilter ecFilter) {
 			final ArrayList<EquivalenceClass> parameterECs = OrderedECCollector.collect(ecFilter.getFunction());
@@ -246,9 +300,29 @@ public class ECBlocks {
 			return instance;
 		}
 
-		public ImplicitFilterInstance addImplicitInstance(final Either<Rule, ExistentialProxy> ruleOrProxy,
-				final Element left, final Element right) {
-			final ImplicitFilterInstance instance = new ImplicitFilterInstance(ruleOrProxy, left, right);
+		public static ImplicitElementFilterInstance newImplicitElementInstance(
+				final Either<Rule, ExistentialProxy> ruleOrProxy, final Element left, final Element right) {
+			return newEqualityFilter(left, right).addImplicitElementInstance(ruleOrProxy, left, right);
+		}
+
+		public ImplicitElementFilterInstance addImplicitElementInstance(
+				final Either<Rule, ExistentialProxy> ruleOrProxy, final Element left, final Element right) {
+			final ImplicitElementFilterInstance instance = new ImplicitElementFilterInstance(ruleOrProxy, left, right);
+			ruleToInstances.computeIfAbsent(ruleOrProxy, newHashSet()).add(instance);
+			return instance;
+		}
+
+		public static ImplicitECFilterInstance newImplicitECInstance(final Either<Rule, ExistentialProxy> ruleOrProxy,
+				final FunctionWithArguments<ECLeaf> left, final FunctionWithArguments<ECLeaf> right) {
+			return newEqualityFilter(left, right).addImplicitECInstance(ruleOrProxy, left, right);
+		}
+
+		public ImplicitECFilterInstance addImplicitECInstance(final Either<Rule, ExistentialProxy> ruleOrProxy,
+				final FunctionWithArguments<ECLeaf> left, final FunctionWithArguments<ECLeaf> right) {
+			final ImplicitECFilterInstance instance =
+					new ImplicitECFilterInstance(ruleOrProxy,
+							ImmutableList.<EquivalenceClass> builder().addAll(OrderedECCollector.collect(left))
+									.addAll(OrderedECCollector.collect(right)).build(), left, right);
 			ruleToInstances.computeIfAbsent(ruleOrProxy, newHashSet()).add(instance);
 			return instance;
 		}
@@ -261,6 +335,9 @@ public class ECBlocks {
 			return new ECNodeFilterSet(instance.ecFilter);
 		}
 
+		/**
+		 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
+		 */
 		@Getter
 		@AllArgsConstructor(access = AccessLevel.PRIVATE)
 		abstract class FilterInstance {
@@ -300,36 +377,41 @@ public class ECBlocks {
 				}
 			}
 
-			protected Conflict newConflict(final ImplicitFilterInstance source, final ImplicitFilterInstance target) {
+			protected Conflict newConflict(final ImplicitElementFilterInstance source,
+					final ImplicitElementFilterInstance target) {
 				final Set<Pair<Integer, Integer>> intersectingECsIndices = new HashSet<>();
 				final SingleFactVariable s0 = source.left.getFactVariable();
 				final SingleFactVariable s1 = source.right.getFactVariable();
 				final SingleFactVariable t0 = target.left.getFactVariable();
 				final SingleFactVariable t1 = target.right.getFactVariable();
-				if (s0 == t0) {
-					intersectingECsIndices.add(Pair.of(0, 0));
+				if (null != s0) {
+					if (s0 == t0) {
+						intersectingECsIndices.add(Pair.of(0, 0));
+					}
+					if (s0 == t1) {
+						intersectingECsIndices.add(Pair.of(0, 1));
+					}
 				}
-				if (s0 == t1) {
-					intersectingECsIndices.add(Pair.of(0, 1));
-				}
-				if (s1 == t0) {
-					intersectingECsIndices.add(Pair.of(1, 0));
-				}
-				if (s1 == t1) {
-					intersectingECsIndices.add(Pair.of(1, 1));
+				if (null != s1) {
+					if (s1 == t0) {
+						intersectingECsIndices.add(Pair.of(1, 0));
+					}
+					if (s1 == t1) {
+						intersectingECsIndices.add(Pair.of(1, 1));
+					}
 				}
 				return new Conflict(intersectingECsIndices, target);
 			}
 
-			protected Conflict newConflict(final ImplicitFilterInstance source, final ExplicitFilterInstance target) {
+			protected Conflict newConflict(final ImplicitElementFilterInstance source, final ECFilterInstance target) {
 				return newConflict(target, source, true);
 			}
 
-			protected Conflict newConflict(final ExplicitFilterInstance source, final ImplicitFilterInstance target) {
+			protected Conflict newConflict(final ECFilterInstance source, final ImplicitElementFilterInstance target) {
 				return newConflict(source, target, false);
 			}
 
-			protected Conflict newConflict(final ExplicitFilterInstance source, final ImplicitFilterInstance target,
+			protected Conflict newConflict(final ECFilterInstance source, final ImplicitElementFilterInstance target,
 					final boolean reverse) {
 				final Set<Pair<Integer, Integer>> intersectingECsIndices = new HashSet<>();
 				final List<EquivalenceClass> sourceParameters = source.parameters;
@@ -348,7 +430,7 @@ public class ECBlocks {
 				return new Conflict(intersectingECsIndices, target);
 			}
 
-			protected Conflict newConflict(final ExplicitFilterInstance source, final ExplicitFilterInstance target) {
+			protected Conflict newConflict(final ECFilterInstance source, final ECFilterInstance target) {
 				final Set<Pair<Integer, Integer>> intersectingECsIndices = new HashSet<>();
 				final List<EquivalenceClass> sourceParameters = source.parameters;
 				final List<EquivalenceClass> targetParameters = target.parameters;
@@ -369,9 +451,9 @@ public class ECBlocks {
 
 			protected abstract Conflict newConflict(final FilterInstance targetFilterInstance);
 
-			protected abstract Conflict forSource(final ImplicitFilterInstance source);
+			protected abstract Conflict forSource(final ImplicitElementFilterInstance source);
 
-			protected abstract Conflict forSource(final ExplicitFilterInstance source);
+			protected abstract Conflict forSource(final ECFilterInstance source);
 
 			public Conflict addConflict(final FilterInstance targetFilterInstance) {
 				final Conflict conflict = newConflict(targetFilterInstance);
@@ -406,16 +488,24 @@ public class ECBlocks {
 
 		}
 
+		/**
+		 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
+		 */
 		@Getter
 		// no EqualsAndHashCode
-		class ImplicitFilterInstance extends FilterInstance {
+		class ImplicitElementFilterInstance extends FilterInstance {
 			final Element left, right;
 
-			private ImplicitFilterInstance(final Either<Rule, ExistentialProxy> ruleOrProxy, final Element left,
+			private ImplicitElementFilterInstance(final Either<Rule, ExistentialProxy> ruleOrProxy, final Element left,
 					final Element right) {
 				super(ruleOrProxy);
 				this.left = left;
 				this.right = right;
+			}
+
+			@Override
+			public String toString() {
+				return "[= " + Objects.toString(left) + " " + Objects.toString(right) + "]";
 			}
 
 			@Override
@@ -424,12 +514,40 @@ public class ECBlocks {
 			}
 
 			@Override
-			protected FilterInstance.Conflict forSource(final ImplicitFilterInstance source) {
+			protected FilterInstance.Conflict forSource(final ImplicitElementFilterInstance source) {
 				return newConflict(source, this);
 			}
 
 			@Override
-			protected FilterInstance.Conflict forSource(final ExplicitFilterInstance source) {
+			protected FilterInstance.Conflict forSource(final ECFilterInstance source) {
+				return newConflict(source, this);
+			}
+		}
+
+		/**
+		 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
+		 */
+		private abstract class ECFilterInstance extends FilterInstance {
+			final List<EquivalenceClass> parameters;
+
+			private ECFilterInstance(final Either<Rule, ExistentialProxy> ruleOrProxy,
+					final List<EquivalenceClass> parameters) {
+				super(ruleOrProxy);
+				this.parameters = parameters;
+			}
+
+			@Override
+			protected FilterInstance.Conflict newConflict(final FilterInstance targetFilterInstance) {
+				return targetFilterInstance.forSource(this);
+			}
+
+			@Override
+			protected FilterInstance.Conflict forSource(final ImplicitElementFilterInstance source) {
+				return newConflict(source, this);
+			}
+
+			@Override
+			protected FilterInstance.Conflict forSource(final ECFilterInstance source) {
 				return newConflict(source, this);
 			}
 		}
@@ -439,35 +557,40 @@ public class ECBlocks {
 		 */
 		@Getter
 		// no EqualsAndHashCode
-		class ExplicitFilterInstance extends FilterInstance {
+		class ImplicitECFilterInstance extends ECFilterInstance {
+			final FunctionWithArguments<ECLeaf> left, right;
+
+			private ImplicitECFilterInstance(final Either<Rule, ExistentialProxy> ruleOrProxy,
+					final List<EquivalenceClass> parameters, final FunctionWithArguments<ECLeaf> left,
+					final FunctionWithArguments<ECLeaf> right) {
+				super(ruleOrProxy, parameters);
+				this.left = left;
+				this.right = right;
+			}
+
+			@Override
+			public String toString() {
+				return "[= " + Objects.toString(left) + " " + Objects.toString(right) + "]";
+			}
+		}
+
+		/**
+		 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
+		 */
+		@Getter
+		// no EqualsAndHashCode
+		class ExplicitFilterInstance extends ECFilterInstance {
 			final ECFilter ecFilter;
-			final List<EquivalenceClass> parameters;
 
 			private ExplicitFilterInstance(final Either<Rule, ExistentialProxy> ruleOrProxy, final ECFilter ecFilter,
 					final List<EquivalenceClass> parameters) {
-				super(ruleOrProxy);
+				super(ruleOrProxy, parameters);
 				this.ecFilter = ecFilter;
-				this.parameters = parameters;
 			}
 
 			@Override
 			public String toString() {
 				return Objects.toString(ecFilter);
-			}
-
-			@Override
-			protected FilterInstance.Conflict newConflict(final FilterInstance targetFilterInstance) {
-				return targetFilterInstance.forSource(this);
-			}
-
-			@Override
-			protected FilterInstance.Conflict forSource(final ImplicitFilterInstance source) {
-				return newConflict(source, this);
-			}
-
-			@Override
-			protected FilterInstance.Conflict forSource(final ExplicitFilterInstance source) {
-				return newConflict(source, this);
 			}
 
 			public ECFilterList convert() {
@@ -476,6 +599,9 @@ public class ECBlocks {
 		}
 	}
 
+	/**
+	 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
+	 */
 	@Getter
 	static class FilterProxy extends Filter {
 		final Set<ExistentialProxy> proxies;
@@ -673,6 +799,9 @@ public class ECBlocks {
 		}
 	}
 
+	/**
+	 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
+	 */
 	@RequiredArgsConstructor
 	@Getter
 	static class Partition<T> {
@@ -711,7 +840,7 @@ public class ECBlocks {
 
 		// vartheta : map the arguments of the filter instances used instead of modifying them
 		// in-place to be able to have the same instance within different blocks
-		Map<EquivalenceClass, EquivalenceClassProxy> equivalenceClassToReduced;
+		Map<EquivalenceClass, ReducedEquivalenceClass> equivalenceClassToReduced;
 		Partition<FilterInstance> filterInstancePartition;
 		Partition<SingleFactVariable> factVariablePartition;
 		Partition<Element> elementPartition;
@@ -1092,12 +1221,29 @@ public class ECBlocks {
 		return graph;
 	}
 
-	static class EquivalenceClassProxy extends EquivalenceClass {
+	@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+	static class ReducedEquivalenceClass {
 		final EquivalenceClass original;
+		final Set<Element> elements;
 
-		public EquivalenceClassProxy(final EquivalenceClass original) {
-			super(original);
-			this.original = original;
+		public ReducedEquivalenceClass(final EquivalenceClass original) {
+			this(original, Sets.newHashSet());
+		}
+
+		public ReducedEquivalenceClass(final EquivalenceClass original, final Element firstElement) {
+			this(original, Sets.newHashSet(firstElement));
+		}
+
+		public ReducedEquivalenceClass add(final Element element) {
+			assert element.getEquivalenceClass() == original;
+			this.elements.add(element);
+			return this;
+		}
+
+		public ReducedEquivalenceClass remove(final Element element) {
+			assert element.getEquivalenceClass() == original;
+			this.elements.remove(element);
+			return this;
 		}
 	}
 
@@ -1122,16 +1268,35 @@ public class ECBlocks {
 					for (final Element right : elements) {
 						if (left == right)
 							continue;
-						Filter.newEqualityFilter(left, right).addImplicitInstance(ruleOrProxy, left, right);
+						Filter.newImplicitElementInstance(ruleOrProxy, left, right);
+					}
+				}
+				final List<FunctionWithArguments<ECLeaf>> converted =
+						equivalenceClass.getVariableExpressions().stream().map(FWASymbolToECTranslator::translate)
+								.collect(toList());
+				for (final FunctionWithArguments<ECLeaf> left : converted) {
+					for (final FunctionWithArguments<ECLeaf> right : converted) {
+						if (left == right)
+							continue;
+						Filter.newImplicitECInstance(ruleOrProxy, left, right);
+					}
+				}
+				if (!elements.isEmpty()) {
+					final ECLeaf ecLeaf = new ECLeaf(equivalenceClass);
+					for (final FunctionWithArguments<ECLeaf> fwa : converted) {
+						Filter.newImplicitECInstance(ruleOrProxy, ecLeaf, fwa);
+						Filter.newImplicitECInstance(ruleOrProxy, fwa, ecLeaf);
 					}
 				}
 
-				final LinkedList<FunctionWithArguments<SymbolLeaf>> variableExpressions =
-						equivalenceClass.getVariableExpressions();
+				// ignore here, perform additional actions in visit(ECExistentialSet)
+				// 1 : just ignore and check within FilterProxy ::new and ::convert
+				// 2 : add explicitly to FilterProxy
+				// 3 : add explicitly to existentialClosure
 				final Set<EquivalenceClass> equalParentEquivalenceClasses =
 						equivalenceClass.getEqualParentEquivalenceClasses();
 				// FWASymbolToECTranslator
-				final EquivalenceClassProxy equivalenceClassProxy = new EquivalenceClassProxy(equivalenceClass);
+				final ReducedEquivalenceClass reducedEquivalenceClass = new ReducedEquivalenceClass(equivalenceClass);
 			}
 			for (final ECFilterSet filter : filters) {
 				filter.accept(ruleConverter);
