@@ -412,67 +412,79 @@ public class ECBlocks {
 			}
 
 			protected Conflict newConflict(final ImplicitElementFilterInstance source,
-					final ImplicitElementFilterInstance target) {
+					final ImplicitElementFilterInstance target, final Theta sourceTheta, final Theta targetTheta) {
 				final Set<Pair<Integer, Integer>> intersectingECsIndices = new HashSet<>();
 				final SingleFactVariable s0 = source.left.getFactVariable();
 				final SingleFactVariable s1 = source.right.getFactVariable();
 				final SingleFactVariable t0 = target.left.getFactVariable();
 				final SingleFactVariable t1 = target.right.getFactVariable();
-				if (null != s0) {
-					if (s0 == t0) {
+				final boolean tlRelevant = targetTheta.isRelevant(target.left);
+				final boolean trRelevant = targetTheta.isRelevant(target.right);
+				if (null != s0 && sourceTheta.isRelevant(source.left)) {
+					if (s0 == t0 && tlRelevant) {
 						intersectingECsIndices.add(Pair.of(0, 0));
 					}
-					if (s0 == t1) {
+					if (s0 == t1 && trRelevant) {
 						intersectingECsIndices.add(Pair.of(0, 1));
 					}
 				}
-				if (null != s1) {
-					if (s1 == t0) {
+				if (null != s1 && sourceTheta.isRelevant(source.right)) {
+					if (s1 == t0 && tlRelevant) {
 						intersectingECsIndices.add(Pair.of(1, 0));
 					}
-					if (s1 == t1) {
+					if (s1 == t1 && trRelevant) {
 						intersectingECsIndices.add(Pair.of(1, 1));
 					}
 				}
 				return new Conflict(intersectingECsIndices, target);
 			}
 
-			protected Conflict newConflict(final ImplicitElementFilterInstance source, final ECFilterInstance target) {
-				return newConflict(target, source, true);
-			}
-
-			protected Conflict newConflict(final ECFilterInstance source, final ImplicitElementFilterInstance target) {
-				return newConflict(source, target, false);
+			protected Conflict newConflict(final ImplicitElementFilterInstance source, final ECFilterInstance target,
+					final Theta sourceTheta, final Theta targetTheta) {
+				return newConflict(target, source, targetTheta, sourceTheta, true);
 			}
 
 			protected Conflict newConflict(final ECFilterInstance source, final ImplicitElementFilterInstance target,
-					final boolean reverse) {
+					final Theta sourceTheta, final Theta targetTheta) {
+				return newConflict(source, target, sourceTheta, targetTheta, false);
+			}
+
+			protected Conflict newConflict(final ECFilterInstance source, final ImplicitElementFilterInstance target,
+					final Theta sourceTheta, final Theta targetTheta, final boolean reverse) {
 				final Set<Pair<Integer, Integer>> intersectingECsIndices = new HashSet<>();
 				final List<EquivalenceClass> sourceParameters = source.parameters;
 				final SingleFactVariable left = target.left.getFactVariable();
 				final SingleFactVariable right = target.right.getFactVariable();
-				final int size = sourceParameters.size();
-				for (int i = 0; i < size; ++i) {
-					final Set<SingleFactVariable> sourceFVs = sourceParameters.get(i).getDependentFactVariables();
-					if (sourceFVs.contains(left)) {
-						intersectingECsIndices.add(reverse ? Pair.of(0, i) : Pair.of(i, 0));
-					}
-					if (sourceFVs.contains(right)) {
-						intersectingECsIndices.add(reverse ? Pair.of(1, i) : Pair.of(i, 1));
+				final boolean leftRelevant = targetTheta.isRelevant(target.left);
+				final boolean rightRelevant = targetTheta.isRelevant(target.right);
+				if (leftRelevant || rightRelevant) {
+					final int size = sourceParameters.size();
+					for (int i = 0; i < size; ++i) {
+						final Set<SingleFactVariable> sourceFVs =
+								sourceTheta.get(sourceParameters.get(i)).getDependentFactVariables();
+						if (leftRelevant && sourceFVs.contains(left)) {
+							intersectingECsIndices.add(reverse ? Pair.of(0, i) : Pair.of(i, 0));
+						}
+						if (rightRelevant && sourceFVs.contains(right)) {
+							intersectingECsIndices.add(reverse ? Pair.of(1, i) : Pair.of(i, 1));
+						}
 					}
 				}
 				return new Conflict(intersectingECsIndices, target);
 			}
 
-			protected Conflict newConflict(final ECFilterInstance source, final ECFilterInstance target) {
+			protected Conflict newConflict(final ECFilterInstance source, final ECFilterInstance target,
+					final Theta sourceTheta, final Theta targetTheta) {
 				final Set<Pair<Integer, Integer>> intersectingECsIndices = new HashSet<>();
 				final List<EquivalenceClass> sourceParameters = source.parameters;
 				final List<EquivalenceClass> targetParameters = target.parameters;
 				final int size = sourceParameters.size();
 				final List<Set<SingleFactVariable>> targetFVsList =
-						targetParameters.stream().map(EquivalenceClass::getDependentFactVariables).collect(toList());
+						targetParameters.stream().map(ec -> targetTheta.get(ec).getDependentFactVariables())
+								.collect(toList());
 				for (int i = 0; i < size; ++i) {
-					final Set<SingleFactVariable> sourceFVs = sourceParameters.get(i).getDependentFactVariables();
+					final Set<SingleFactVariable> sourceFVs =
+							sourceTheta.get(sourceParameters.get(i)).getDependentFactVariables();
 					for (int j = 0; j < size; ++j) {
 						final Set<SingleFactVariable> targetFVs = targetFVsList.get(j);
 						if (Collections.disjoint(sourceFVs, targetFVs))
@@ -483,27 +495,22 @@ public class ECBlocks {
 				return new Conflict(intersectingECsIndices, target);
 			}
 
-			protected abstract Conflict newConflict(final FilterInstance targetFilterInstance);
+			protected abstract Conflict newConflict(final FilterInstance targetFilterInstance, final Theta sourceTheta,
+					final Theta targetTheta);
 
-			protected abstract Conflict forSource(final ImplicitElementFilterInstance source);
+			protected abstract Conflict forSource(final ImplicitElementFilterInstance source, final Theta sourceTheta,
+					final Theta targetTheta);
 
-			protected abstract Conflict forSource(final ECFilterInstance source);
+			protected abstract Conflict forSource(final ECFilterInstance source, final Theta sourceTheta,
+					final Theta targetTheta);
 
-			public Conflict addConflict(final FilterInstance targetFilterInstance) {
-				final Conflict conflict = newConflict(targetFilterInstance);
+			public Conflict getConflict(final FilterInstance targetFilterInstance, final Theta sourceTheta,
+					final Theta targetTheta) {
+				final Conflict conflict = newConflict(targetFilterInstance, sourceTheta, targetTheta);
 				if (conflict.intersectingECsIndices.isEmpty()) {
-					conflicts.put(targetFilterInstance, null);
 					return null;
 				}
-				conflicts.put(targetFilterInstance, conflict);
 				return conflict;
-			}
-
-			public Conflict getOrDetermineConflicts(final FilterInstance targetFilterInstance) {
-				// call to containsKey prevents recalculation of null conflicts
-				// (design currently doesn't easily allow for a better null-object)
-				return conflicts.containsKey(targetFilterInstance) ? conflicts.get(targetFilterInstance)
-						: addConflict(targetFilterInstance);
 			}
 
 			public Filter getFilter() {
@@ -556,18 +563,21 @@ public class ECBlocks {
 			}
 
 			@Override
-			protected FilterInstance.Conflict newConflict(final FilterInstance targetFilterInstance) {
-				return targetFilterInstance.forSource(this);
+			protected FilterInstance.Conflict newConflict(final FilterInstance targetFilterInstance,
+					final Theta sourceTheta, final Theta targetTheta) {
+				return targetFilterInstance.forSource(this, sourceTheta, targetTheta);
 			}
 
 			@Override
-			protected FilterInstance.Conflict forSource(final ImplicitElementFilterInstance source) {
-				return newConflict(source, this);
+			protected FilterInstance.Conflict forSource(final ImplicitElementFilterInstance source,
+					final Theta sourceTheta, final Theta targetTheta) {
+				return newConflict(source, this, sourceTheta, targetTheta);
 			}
 
 			@Override
-			protected FilterInstance.Conflict forSource(final ECFilterInstance source) {
-				return newConflict(source, this);
+			protected FilterInstance.Conflict forSource(final ECFilterInstance source, final Theta sourceTheta,
+					final Theta targetTheta) {
+				return newConflict(source, this, sourceTheta, targetTheta);
 			}
 
 			@Override
@@ -610,18 +620,21 @@ public class ECBlocks {
 			}
 
 			@Override
-			protected FilterInstance.Conflict newConflict(final FilterInstance targetFilterInstance) {
-				return targetFilterInstance.forSource(this);
+			protected FilterInstance.Conflict newConflict(final FilterInstance targetFilterInstance,
+					final Theta sourceTheta, final Theta targetTheta) {
+				return targetFilterInstance.forSource(this, sourceTheta, targetTheta);
 			}
 
 			@Override
-			protected FilterInstance.Conflict forSource(final ImplicitElementFilterInstance source) {
-				return newConflict(source, this);
+			protected FilterInstance.Conflict forSource(final ImplicitElementFilterInstance source,
+					final Theta sourceTheta, final Theta targetTheta) {
+				return newConflict(source, this, sourceTheta, targetTheta);
 			}
 
 			@Override
-			protected FilterInstance.Conflict forSource(final ECFilterInstance source) {
-				return newConflict(source, this);
+			protected FilterInstance.Conflict forSource(final ECFilterInstance source, final Theta sourceTheta,
+					final Theta targetTheta) {
+				return newConflict(source, this, sourceTheta, targetTheta);
 			}
 
 			@Override
@@ -1005,6 +1018,23 @@ public class ECBlocks {
 	/**
 	 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
 	 */
+	@RequiredArgsConstructor
+	@Getter
+	static class Theta {
+		final Map<EquivalenceClass, ReducedEquivalenceClass> equivalenceClassToReduced = new IdentityHashMap<>();
+
+		public boolean isRelevant(final Element element) {
+			return equivalenceClassToReduced.get(element.getEquivalenceClass()).isRelevant(element);
+		}
+
+		public ReducedEquivalenceClass get(final EquivalenceClass equivalenceClass) {
+			return equivalenceClassToReduced.get(equivalenceClass);
+		}
+	}
+
+	/**
+	 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
+	 */
 	@Getter
 	public static class Block {
 		// conflict graph
@@ -1020,9 +1050,9 @@ public class ECBlocks {
 		// inside of the block, grouped by the one outside
 		final Map<FilterInstance, Set<ConflictEdge>> borderConflicts = new HashMap<>();
 
-		// vartheta : map the arguments of the filter instances used instead of modifying them
+		// theta : map the arguments of the filter instances used instead of modifying them
 		// in-place to be able to have the same instance within different blocks
-		final Map<EquivalenceClass, ReducedEquivalenceClass> equivalenceClassToReduced = new HashMap<>();
+		final Theta theta = new Theta();
 		final FilterInstancePartition filterInstancePartition;
 		final FactVariablePartition factVariablePartition;
 		final ElementPartition elementPartition;
@@ -1044,9 +1074,9 @@ public class ECBlocks {
 			for (final Entry<FilterInstance, Set<ConflictEdge>> entry : block.borderConflicts.entrySet()) {
 				borderConflicts.put(entry.getKey(), new HashSet<>(entry.getValue()));
 			}
-			for (final Entry<EquivalenceClass, ReducedEquivalenceClass> entry : block.equivalenceClassToReduced
+			for (final Entry<EquivalenceClass, ReducedEquivalenceClass> entry : block.theta.equivalenceClassToReduced
 					.entrySet()) {
-				equivalenceClassToReduced.put(entry.getKey(), new ReducedEquivalenceClass(entry.getValue()));
+				theta.equivalenceClassToReduced.put(entry.getKey(), new ReducedEquivalenceClass(entry.getValue()));
 			}
 			filterInstancePartition = new FilterInstancePartition(block.filterInstancePartition);
 			factVariablePartition = new FactVariablePartition(block.factVariablePartition);
@@ -1073,7 +1103,7 @@ public class ECBlocks {
 		public void addElementSet(final SubSet<ECBlocks.Element> newSubSet) {
 			assert rulesOrProxies.stream().allMatch(newSubSet.elements.keySet()::contains);
 			for (final Element element : newSubSet.elements.values()) {
-				equivalenceClassToReduced.get(element.getEquivalenceClass()).add(element);
+				theta.equivalenceClassToReduced.get(element.getEquivalenceClass()).add(element);
 			}
 			elementPartition.add(newSubSet);
 		}
@@ -1108,7 +1138,7 @@ public class ECBlocks {
 				final ImmutableList<EquivalenceClass> newECs =
 						ImmutableList.copyOf(Sets.difference(
 								Sets.newLinkedHashSet(filterInstance.getDirectlyContainedEquivalenceClasses()),
-								equivalenceClassToReduced.keySet()));
+								theta.equivalenceClassToReduced.keySet()));
 				final Either<Rule, ExistentialProxy> ruleOrProxy = filterInstance.getRuleOrProxy();
 				for (int i = 0; i < newECs.size(); i++) {
 					ecPartition.computeIfAbsent(i, newHashMap()).put(ruleOrProxy, newECs.get(i));
@@ -1419,6 +1449,14 @@ public class ECBlocks {
 			assert element.getEquivalenceClass() == original;
 			this.elements.remove(element);
 			return this;
+		}
+
+		public boolean isRelevant(final Element element) {
+			return elements.contains(element);
+		}
+
+		public Set<SingleFactVariable> getDependentFactVariables() {
+			return elements.stream().map(Element::getFactVariable).collect(toSet());
 		}
 	}
 
