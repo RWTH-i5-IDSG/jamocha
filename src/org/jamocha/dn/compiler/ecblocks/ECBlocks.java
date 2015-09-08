@@ -72,7 +72,9 @@ import org.jamocha.dn.compiler.ecblocks.ECBlocks.FactVariablePartition.FactVaria
 import org.jamocha.dn.compiler.ecblocks.ECBlocks.Filter.ExplicitFilterInstance;
 import org.jamocha.dn.compiler.ecblocks.ECBlocks.Filter.FilterInstance;
 import org.jamocha.dn.compiler.ecblocks.ECBlocks.Filter.FilterInstance.Conflict;
+import org.jamocha.dn.compiler.ecblocks.ECBlocks.Filter.ImplicitFilterInstance;
 import org.jamocha.dn.compiler.ecblocks.ECBlocks.FilterInstancePartition.FilterInstanceSubSet;
+import org.jamocha.dn.compiler.ecblocks.ECBlocks.Partition.SubSet;
 import org.jamocha.dn.memory.Template;
 import org.jamocha.filter.ECFilter;
 import org.jamocha.filter.ECFilterList;
@@ -95,6 +97,7 @@ import org.jamocha.function.fwa.TemplateSlotLeaf;
 import org.jamocha.function.fwa.TypeLeaf;
 import org.jamocha.function.fwatransformer.FWAPathLeafToTypeLeafTranslator;
 import org.jamocha.function.fwatransformer.FWASymbolToECTranslator;
+import org.jamocha.function.impls.predicates.Equals;
 import org.jamocha.languages.common.RuleCondition.EquivalenceClass;
 import org.jamocha.languages.common.SingleFactVariable;
 import org.jamocha.languages.common.SingleFactVariable.SingleSlotVariable;
@@ -113,7 +116,6 @@ import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableList.Builder;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -298,14 +300,14 @@ public class ECBlocks {
 		}
 
 		static Filter newEqualityFilter(final Element left, final Element right) {
-			return newFilter(GenericWithArgumentsComposite.newPredicateInstance("=",
+			return newFilter(GenericWithArgumentsComposite.newPredicateInstance(Equals.inClips,
 					left.accept(new ElementToTemplateSlotLeafTranslator()).arg,
 					right.accept(new ElementToTemplateSlotLeafTranslator()).arg));
 		}
 
 		static Filter newEqualityFilter(final FunctionWithArguments<ECLeaf> left,
 				final FunctionWithArguments<ECLeaf> right) {
-			return newFilter(GenericWithArgumentsComposite.newPredicateInstance("=", left, right));
+			return newFilter(GenericWithArgumentsComposite.newPredicateInstance(Equals.inClips, left, right));
 		}
 
 		public ExplicitFilterInstance addExplicitInstance(final Either<Rule, ExistentialProxy> ruleOrProxy,
@@ -517,6 +519,12 @@ public class ECBlocks {
 			public abstract Set<? extends FilterInstance> getSiblings();
 
 			public abstract List<SingleFactVariable> getDirectlyContainedFactVariables();
+
+			public abstract List<EquivalenceClass> getDirectlyContainedEquivalenceClasses();
+		}
+
+		static interface ImplicitFilterInstance {
+			public FilterInstance getDual();
 		}
 
 		/**
@@ -524,7 +532,7 @@ public class ECBlocks {
 		 */
 		@Getter
 		// no EqualsAndHashCode
-		class ImplicitElementFilterInstance extends FilterInstance {
+		class ImplicitElementFilterInstance extends FilterInstance implements ImplicitFilterInstance {
 			final Element left, right;
 
 			private ImplicitElementFilterInstance(final Either<Rule, ExistentialProxy> ruleOrProxy, final Element left,
@@ -537,6 +545,14 @@ public class ECBlocks {
 			@Override
 			public String toString() {
 				return "[= " + Objects.toString(left) + " " + Objects.toString(right) + "]";
+			}
+
+			@Override
+			public FilterInstance getDual() {
+				final Set<ImplicitElementFilterInstance> implicitElementInstances =
+						Filter.newEqualityFilter(right, left).getImplicitElementInstances(ruleOrProxy);
+				assert implicitElementInstances.size() == 1;
+				return implicitElementInstances.iterator().next();
 			}
 
 			@Override
@@ -574,6 +590,11 @@ public class ECBlocks {
 				}
 				return builder.build();
 			}
+
+			@Override
+			public List<EquivalenceClass> getDirectlyContainedEquivalenceClasses() {
+				return ImmutableList.of(left.getEquivalenceClass(), right.getEquivalenceClass());
+			}
 		}
 
 		/**
@@ -608,6 +629,11 @@ public class ECBlocks {
 				return parameters.stream().flatMap(ec -> ec.getDirectlyDependentFactVariables().stream())
 						.collect(toList());
 			}
+
+			@Override
+			public List<EquivalenceClass> getDirectlyContainedEquivalenceClasses() {
+				return parameters;
+			}
 		}
 
 		/**
@@ -615,7 +641,7 @@ public class ECBlocks {
 		 */
 		@Getter
 		// no EqualsAndHashCode
-		class ImplicitECFilterInstance extends ECFilterInstance {
+		class ImplicitECFilterInstance extends ECFilterInstance implements ImplicitFilterInstance {
 			final FunctionWithArguments<ECLeaf> left, right;
 
 			private ImplicitECFilterInstance(final Either<Rule, ExistentialProxy> ruleOrProxy,
@@ -629,6 +655,14 @@ public class ECBlocks {
 			@Override
 			public String toString() {
 				return "[= " + Objects.toString(left) + " " + Objects.toString(right) + "]";
+			}
+
+			@Override
+			public FilterInstance getDual() {
+				final Set<ImplicitECFilterInstance> implicitElementInstances =
+						Filter.newEqualityFilter(right, left).getImplicitECInstances(ruleOrProxy);
+				assert implicitElementInstances.size() == 1;
+				return implicitElementInstances.iterator().next();
 			}
 
 			@Override
@@ -994,13 +1028,11 @@ public class ECBlocks {
 		final ElementPartition elementPartition;
 
 		public Block(final UndirectedGraph<FilterInstance, ConflictEdge> graph,
-				final Map<Either<Rule, ExistentialProxy>, FilterInstance> ruleToFilterInstance,
-				final FactVariablePartition factVariablePartition) {
+				final Set<Either<Rule, ExistentialProxy>> rules, final FactVariablePartition factVariablePartition) {
 			this.graph = graph;
-			this.rulesOrProxies = Sets.newHashSet(ruleToFilterInstance.keySet());
-			this.filterInstancePartition = new FilterInstancePartition();
-			this.filterInstancePartition.add(new FilterInstanceSubSet(ruleToFilterInstance));
+			this.rulesOrProxies = Sets.newHashSet(rules);
 			this.factVariablePartition = factVariablePartition;
+			this.filterInstancePartition = new FilterInstancePartition();
 			this.elementPartition = new ElementPartition();
 		}
 
@@ -1026,14 +1058,6 @@ public class ECBlocks {
 			return "Block: " + Objects.toString(filterInstancePartition);
 		}
 
-		Set<Rule> getActualRuleInstances() {
-			return getRulesOrProxies().stream().filter(Either::isLeft).map(a -> a.left().get()).collect(toSet());
-		}
-
-		Set<ExistentialProxy> getExistentialProxies() {
-			return getRulesOrProxies().stream().filter(Either::isRight).map(a -> a.right().get()).collect(toSet());
-		}
-
 		public int getNumberOfRows() {
 			return rulesOrProxies.size();
 		}
@@ -1042,14 +1066,30 @@ public class ECBlocks {
 			return filterInstancePartition.elements.size();
 		}
 
-		public void addColumn(final Map<Either<Rule, ExistentialProxy>, FilterInstance> filterInstances) {
-			assert rulesOrProxies.stream().allMatch(filterInstances.keySet()::contains);
-			final FilterInstanceSubSet newSubSet = new FilterInstanceSubSet(filterInstances);
+		public void addElementSet(final Map<Either<Rule, ExistentialProxy>, Element> elements) {
+			addElementSet(new SubSet<>(elements));
+		}
+
+		public void addElementSet(final SubSet<ECBlocks.Element> newSubSet) {
+			assert rulesOrProxies.stream().allMatch(newSubSet.elements.keySet()::contains);
+			for (final Element element : newSubSet.elements.values()) {
+				equivalenceClassToReduced.get(element.getEquivalenceClass()).add(element);
+			}
+			elementPartition.add(newSubSet);
+		}
+
+		public boolean addColumn(final Map<Either<Rule, ExistentialProxy>, FilterInstance> filterInstances) {
+			return addColumn(new FilterInstanceSubSet(filterInstances));
+		}
+
+		public boolean addColumn(final FilterInstanceSubSet newSubSet) {
+			assert rulesOrProxies.stream().allMatch(newSubSet.elements.keySet()::contains);
 			filterInstancePartition.add(newSubSet);
 			filters.add(newSubSet.getFilter());
-			flatFilterInstances.addAll(filterInstances.values());
+			final Collection<FilterInstance> filterInstances = newSubSet.elements.values();
+			flatFilterInstances.addAll(filterInstances);
 
-			for (final FilterInstance prevOutside : filterInstances.values()) {
+			for (final FilterInstance prevOutside : filterInstances) {
 				final Set<ConflictEdge> newConflicts = new HashSet<>(graph.edgesOf(prevOutside));
 				final Set<ConflictEdge> oldConflicts = borderConflicts.remove(prevOutside);
 				if (null != oldConflicts) {
@@ -1061,6 +1101,23 @@ public class ECBlocks {
 							.add(conflictEdge);
 				}
 			}
+
+			// FIXME adjust element partition, return false if none applicable
+			final Map<Integer, Map<Either<Rule, ExistentialProxy>, EquivalenceClass>> ecPartition = new HashMap<>();
+			for (final FilterInstance filterInstance : filterInstances) {
+				final ImmutableList<EquivalenceClass> newECs =
+						ImmutableList.copyOf(Sets.difference(
+								Sets.newLinkedHashSet(filterInstance.getDirectlyContainedEquivalenceClasses()),
+								equivalenceClassToReduced.keySet()));
+				final Either<Rule, ExistentialProxy> ruleOrProxy = filterInstance.getRuleOrProxy();
+				for (int i = 0; i < newECs.size(); i++) {
+					ecPartition.computeIfAbsent(i, newHashMap()).put(ruleOrProxy, newECs.get(i));
+				}
+			}
+
+			final Collection<Map<Either<Rule, ExistentialProxy>, EquivalenceClass>> values = ecPartition.values();
+
+			return true;
 		}
 
 		public boolean containedIn(final Block other) {
@@ -1124,23 +1181,6 @@ public class ECBlocks {
 				}
 			}
 			return true;
-		}
-
-		private static Set<List<FilterInstance>> getFilterInstanceColumns(final Set<Filter> filters,
-				final Map<Either<Rule, ExistentialProxy>, Map<Filter, FilterInstancesSideBySide>> ruleToFilterToRow,
-				final List<Either<Rule, ExistentialProxy>> rules) {
-			final Set<List<FilterInstance>> filterInstanceColumns = new HashSet<>();
-			for (final Filter filter : filters) {
-				final List<Iterator<FilterInstance>> iterators = new ArrayList<>();
-				for (final Either<Rule, ExistentialProxy> rule : rules) {
-					iterators.add(ruleToFilterToRow.get(rule).get(filter).getInstances().iterator());
-				}
-				final int size = ruleToFilterToRow.get(rules.get(0)).get(filter).getInstances().size();
-				for (int i = 0; i < size; ++i) {
-					filterInstanceColumns.add(iterators.stream().map(Iterator::next).collect(toList()));
-				}
-			}
-			return filterInstanceColumns;
 		}
 	}
 
@@ -1682,15 +1722,10 @@ public class ECBlocks {
 		final UndirectedGraph<FilterInstance, ConflictEdge> conflictGraph = determineConflictGraphForRules(rules);
 		final Set<Filter> filters = rules.stream().flatMap(rule -> getFilters(rule).stream()).collect(toSet());
 		for (final Filter filter : filters) {
-			vertical(conflictGraph, rules.stream().map(r -> filter.getExplicitInstances(r))
-					.filter(negate(Set::isEmpty)).collect(toSet()), resultBlocks);
-			vertical(
-					conflictGraph,
-					rules.stream().map(r -> filter.getImplicitECInstances(r)).filter(negate(Set::isEmpty))
-							.collect(toSet()), resultBlocks);
-			vertical(conflictGraph,
-					rules.stream().map(r -> filter.getImplicitElementInstances(r)).filter(negate(Set::isEmpty))
-							.collect(toSet()), resultBlocks);
+			// FIXME this assumes that all filter instances of a filter belong to the same filter
+			// instance category
+			vertical(conflictGraph, rules.stream().map(r -> filter.getAllInstances(r)).filter(negate(Set::isEmpty))
+					.collect(toSet()), resultBlocks);
 		}
 	}
 
@@ -1930,7 +1965,7 @@ public class ECBlocks {
 	}
 
 	protected static List<FactVariablePartition> enumerateFactVariablePartitions(
-			final List<Either<Rule, ExistentialProxy>> rules) {
+			final Set<Either<Rule, ExistentialProxy>> rules) {
 		final IdentityHashMap<Template, Set<List<FactVariableSubSet>>> subsets = new IdentityHashMap<>();
 		final IdentityHashMap<Template, Map<Either<Rule, ExistentialProxy>, List<SingleFactVariable>>> partitionMap =
 				new IdentityHashMap<>();
@@ -2018,24 +2053,40 @@ public class ECBlocks {
 		return partitions;
 	}
 
-	protected static <T extends FilterInstance> void vertical(
-			final UndirectedGraph<FilterInstance, ConflictEdge> graph, final Set<Set<T>> filterInstancesGroupedByRule,
-			final BlockSet resultBlocks) {
-		final Set<Set<Set<T>>> filterInstancesPowerSet = Sets.powerSet(filterInstancesGroupedByRule);
-		final Iterator<Set<Set<T>>> iterator = filterInstancesPowerSet.iterator();
+	protected static void vertical(final UndirectedGraph<FilterInstance, ConflictEdge> graph,
+			final Set<Set<FilterInstance>> filterInstancesGroupedByRule, final BlockSet resultBlocks) {
+		final Set<Set<Set<FilterInstance>>> filterInstancesPowerSet = Sets.powerSet(filterInstancesGroupedByRule);
+		final Iterator<Set<Set<FilterInstance>>> iterator = filterInstancesPowerSet.iterator();
 		// skip empty set
 		iterator.next();
 		while (iterator.hasNext()) {
-			final ImmutableList<Set<T>> powerSetElement = ImmutableList.copyOf(iterator.next());
-			final List<FactVariablePartition> partitions =
-					enumerateFactVariablePartitions(powerSetElement.stream()
-							.map(set -> set.iterator().next().getRuleOrProxy()).collect(toList()));
-			final Set<List<T>> cartesianProduct = Sets.cartesianProduct(powerSetElement);
-			for (final List<T> filterInstances : cartesianProduct) {
-				final ImmutableMap<Either<Rule, ExistentialProxy>, T> ruleToFilterInstance =
-						Maps.uniqueIndex(filterInstances, FilterInstance::getRuleOrProxy);
+			final ImmutableList<Set<FilterInstance>> powerSetElement = ImmutableList.copyOf(iterator.next());
+			final Set<Either<Rule, ExistentialProxy>> rules =
+					powerSetElement.stream().map(set -> set.iterator().next().getRuleOrProxy()).collect(toSet());
+			final List<FactVariablePartition> partitions = enumerateFactVariablePartitions(rules);
+			final Set<List<FilterInstance>> cartesianProduct = Sets.cartesianProduct(powerSetElement);
+			for (final List<FilterInstance> filterInstances : cartesianProduct) {
+				final FilterInstanceSubSet subSet =
+						new FilterInstanceSubSet(Maps.newHashMap(Maps.uniqueIndex(filterInstances,
+								FilterInstance::getRuleOrProxy)));
+				final FilterInstanceSubSet dualSubSet;
+				if (filterInstances.get(0) instanceof ImplicitFilterInstance) {
+					assert filterInstances.stream().allMatch(fi -> fi instanceof ImplicitFilterInstance);
+					dualSubSet =
+							new FilterInstanceSubSet(Maps.newHashMap(filterInstances.stream()
+									.collect(
+											toMap(FilterInstance::getRuleOrProxy,
+													fi -> ((ImplicitFilterInstance) fi).getDual()))));
+				} else {
+					dualSubSet = null;
+				}
 				for (final FactVariablePartition partition : partitions) {
-					final Block newBlock = new Block(graph, Maps.newHashMap(ruleToFilterInstance), partition);
+					final Block newBlock = new Block(graph, rules, partition);
+					if (!newBlock.addColumn(subSet))
+						continue;
+					if (null != dualSubSet && !newBlock.addColumn(dualSubSet)) {
+						continue;
+					}
 					horizontalRecursion(newBlock, new Stack<>(), resultBlocks);
 				}
 			}
@@ -2087,26 +2138,16 @@ public class ECBlocks {
 			nMultiCellFilters = partition.get(Boolean.TRUE);
 		}
 		// list of rule-filter-matchings that may be added
-		final List<Map<Either<Rule, ExistentialProxy>, Set<FilterInstancesSideBySide>>> matchingFilters =
-				new ArrayList<>();
+		final List<FilterInstanceSubSet> matchingFilters = new ArrayList<>();
 		final List<Filter> incompatibleFilters = new ArrayList<>();
 
-		// there is a 1 to 1 mapping from filter instances (side-by-side) to rules
-		// for every filter instance, the conflicts have to be the same in all rules
-		final Map<Either<Rule, ExistentialProxy>, Map<Filter, FilterInstancesSideBySide>> bRuleToFilterToBlockInstances =
-				block.getFilterInstances()
-						.stream()
-						.collect(
-								groupingBy(FilterInstancesSideBySide::getRuleOrProxy,
-										toMap(FilterInstancesSideBySide::getFilter, Function.identity())));
 		// prefer singleCellFilters
-		final List<Filter> bFilters = ImmutableList.copyOf(block.getFilters());
-		findMatchingAndIncompatibleFilters(nFilterToInstances, bRules, nSingleCellFilters, bFilters, matchingFilters,
-				incompatibleFilters, bRuleToFilterToBlockInstances);
+		findMatchingAndIncompatibleFilters(nFilterToInstances, bRules, nSingleCellFilters,
+				block.filterInstancePartition, matchingFilters, incompatibleFilters);
 		// if none matched, try multiCellFilters, otherwise defer them
 		if (matchingFilters.isEmpty()) {
-			findMatchingAndIncompatibleFilters(nFilterToInstances, bRules, nMultiCellFilters, bFilters,
-					matchingFilters, incompatibleFilters, bRuleToFilterToBlockInstances);
+			findMatchingAndIncompatibleFilters(nFilterToInstances, bRules, nMultiCellFilters,
+					block.filterInstancePartition, matchingFilters, incompatibleFilters);
 			// if still none matched, the block is maximal, add it to the result blocks
 			if (matchingFilters.isEmpty()) {
 				resultBlocks.addDuringHorizontalRecursion(block);
@@ -2123,18 +2164,14 @@ public class ECBlocks {
 			furtherExcludes.addAll(nFilterToInstances.get(incompatibleFilter));
 		}
 		// for every matching filter instance set, create a new block
-		for (final Map<Either<Rule, ExistentialProxy>, Set<FilterInstancesSideBySide>> neighbourMap : matchingFilters) {
+		for (final FilterInstanceSubSet neighbourSubSet : matchingFilters) {
 			final Block newBlock = new Block(block);
-			newBlock.addFilterInstances(neighbourMap);
+			newBlock.addColumn(neighbourSubSet);
 			// recurse for that block
 			horizontalRecursion(newBlock, exclusionStack, resultBlocks);
 			// after the recursion, exclude all filter instances just used
-			for (final Set<FilterInstancesSideBySide> set : neighbourMap.values()) {
-				for (final FilterInstancesSideBySide filterInstancesSideBySide : set) {
-					for (final FilterInstance filterInstance : filterInstancesSideBySide.getInstances()) {
-						furtherExcludes.add(filterInstance);
-					}
-				}
+			for (final FilterInstance filterInstance : neighbourSubSet.getElements().values()) {
+				furtherExcludes.add(filterInstance);
 			}
 		}
 		// eliminate top layer of the exclusion stack
@@ -2143,12 +2180,9 @@ public class ECBlocks {
 
 	protected static void findMatchingAndIncompatibleFilters(
 			final Map<Filter, List<FilterInstance>> nFilterToInstances,
-			final Set<Either<Rule, ExistentialProxy>> bRules,
-			final List<Filter> nFilters,
-			final List<Filter> bFilters,
-			final List<Map<Either<Rule, ExistentialProxy>, Set<FilterInstancesSideBySide>>> matchingFilters,
-			final List<Filter> incompatibleFilters,
-			final Map<Either<Rule, ExistentialProxy>, Map<Filter, FilterInstancesSideBySide>> bRuleToFilterToBlockInstances) {
+			final Set<Either<Rule, ExistentialProxy>> bRules, final List<Filter> nFilters,
+			final FilterInstancePartition bFIPartition, final List<FilterInstanceSubSet> matchingFilters,
+			final List<Filter> incompatibleFilters) {
 		// iterate over every single-/multi-cell filter and check that its instances have the same
 		// conflicts in every rule
 		for (final Filter nFilter : nFilters) {
@@ -2158,53 +2192,45 @@ public class ECBlocks {
 			final List<Set<FilterInstance>> nListOfRelevantFilterInstancesGroupedByRule =
 					new ArrayList<>(nFilterToInstances.get(nFilter).stream()
 							.collect(groupingBy(FilterInstance::getRuleOrProxy, toSet())).values());
+
 			// create the cartesian product
 			final Set<List<FilterInstance>> nRelevantFilterInstanceCombinations =
 					Sets.cartesianProduct(nListOfRelevantFilterInstancesGroupedByRule);
 			// iterate over the possible filter instance combinations
 			cartesianProductLoop: for (final List<FilterInstance> nCurrentOutsideFilterInstances : nRelevantFilterInstanceCombinations) {
-				// list of conflicts for this filter instance combination
-				final List<Conflict> conflicts = new ArrayList<>();
 				// create a map for faster lookup: rule -> filter instance (outside)
 				final Map<Either<Rule, ExistentialProxy>, FilterInstance> nRuleToCurrentOutsideFilterInstance =
-						nCurrentOutsideFilterInstances.stream().collect(
-								toMap(FilterInstance::getRuleOrProxy, Function.identity()));
+						Maps.uniqueIndex(nCurrentOutsideFilterInstances, FilterInstance::getRuleOrProxy);
+				// if only one rule, every filter matches
 				if (bRules.size() > 1) {
-					// iterate over the Rule-BlockFilterInstance-mappings
-					for (final Entry<Either<Rule, ExistentialProxy>, Map<Filter, FilterInstancesSideBySide>> entry : bRuleToFilterToBlockInstances
-							.entrySet()) {
-						int i = 0;
-						final Either<Rule, ExistentialProxy> rule = entry.getKey();
-						final Map<Filter, FilterInstancesSideBySide> bFilterToBlockInstances = entry.getValue();
-						// for every filter of the block check that the conflicts are the same as
-						// those of the first rule
-						for (final Filter bFilter : bFilters) {
-							// get the mapping from rule to filter instance for the current filter
-							final FilterInstancesSideBySide bSideBySide = bFilterToBlockInstances.get(bFilter);
-							// get the corresponding filter instance(s) that may be added
+					// iterate over the block columns
+					for (final FilterInstanceSubSet bFilterInstanceSubSet : bFIPartition.getElements()) {
+						Conflict firstConflict = null;
+						boolean first = true;
+						// iterate over the rows aka the rules
+						for (final Entry<Either<Rule, ExistentialProxy>, FilterInstance> bRuleToFI : bFilterInstanceSubSet
+								.getElements().entrySet()) {
+							final Either<Rule, ExistentialProxy> rule = bRuleToFI.getKey();
 							final FilterInstance nSource = nRuleToCurrentOutsideFilterInstance.get(rule);
-							// iterate over the filter instances
-							for (final FilterInstance bTarget : bSideBySide.getInstances()) {
-								// determine conflict between inside instance and outside instance
-								final Conflict conflict = nSource.getOrDetermineConflicts(bTarget);
-								// if this is the first loop iteration, just add the conflict to be
-								// compared later on
-								if (i >= conflicts.size()) {
-									conflicts.add(conflict);
-								}
-								// if the conflicts don't match, continue with next filter
-								else if (!hasEqualConflicts(conflicts.get(i), conflict)) {
-									continue cartesianProductLoop;
-								}
-								++i;
+							final FilterInstance bTarget = bRuleToFI.getValue();
+							// determine conflict between inside instance and outside instance
+							final Conflict conflict = nSource.getOrDetermineConflicts(bTarget);
+							// if this is the first loop iteration, just remember the conflict to be
+							// compared later on
+							if (first) {
+								first = false;
+								firstConflict = conflict;
+							}
+							// if the conflicts don't match, continue with next filter
+							else if (!hasEqualConflicts(firstConflict, conflict)) {
+								continue cartesianProductLoop;
 							}
 						}
 					}
 				}
 				// conflict identical for all rules
-				matchingFilters.add(bRules.stream().collect(
-						toMap(Function.identity(), rule -> Collections.singleton(new FilterInstancesSideBySide(
-								nRuleToCurrentOutsideFilterInstance.get(rule))))));
+				matchingFilters.add(new FilterInstanceSubSet(Maps.newHashMap(Maps.asMap(bRules,
+						rule -> nRuleToCurrentOutsideFilterInstance.get(rule)))));
 				matchingConstellationFound = true;
 			}
 			if (!matchingConstellationFound) {
