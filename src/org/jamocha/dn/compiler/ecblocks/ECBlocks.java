@@ -22,7 +22,6 @@ import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
 import static org.jamocha.util.Lambdas.composeToInt;
 import static org.jamocha.util.Lambdas.negate;
-import static org.jamocha.util.Lambdas.newArrayList;
 import static org.jamocha.util.Lambdas.newHashMap;
 import static org.jamocha.util.Lambdas.newHashSet;
 import static org.jamocha.util.Lambdas.newLinkedHashSet;
@@ -34,6 +33,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.IdentityHashMap;
 import java.util.IntSummaryStatistics;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
@@ -106,7 +106,7 @@ import org.jgrapht.alg.VertexCovers;
 import org.jgrapht.graph.SimpleDirectedGraph;
 import org.jgrapht.graph.SimpleGraph;
 import org.paukov.combinatorics.Factory;
-import org.paukov.combinatorics.Generator;
+import org.paukov.combinatorics.ICombinatoricsVector;
 
 import com.atlassian.fugue.Either;
 import com.google.common.collect.BiMap;
@@ -1931,14 +1931,10 @@ public class ECBlocks {
 
 	protected static List<FactVariablePartition> enumerateFactVariablePartitions(
 			final List<Either<Rule, ExistentialProxy>> rules) {
-		// FIXME you can not determine a fact variable partition for a random set of rules - you can
-		// only partition a set of fact variables for a set of rules where for every rule, the
-		// amount of FVs of the same template is equally large
-		final List<FactVariablePartition> partitions = new ArrayList<>();
-
-		final Map<Template, List<FactVariableSubSet>> subsets = new HashMap<>();
-		final Map<Template, Map<Either<Rule, ExistentialProxy>, List<SingleFactVariable>>> partitionMap =
-				new HashMap<>();
+		final IdentityHashMap<Template, Set<List<FactVariableSubSet>>> subsets = new IdentityHashMap<>();
+		final IdentityHashMap<Template, Map<Either<Rule, ExistentialProxy>, List<SingleFactVariable>>> partitionMap =
+				new IdentityHashMap<>();
+		final IdentityHashMap<SingleFactVariable, Either<Rule, ExistentialProxy>> fvToRule = new IdentityHashMap<>();
 		for (final Either<Rule, ExistentialProxy> rule : rules) {
 			final Map<Template, List<SingleFactVariable>> template2FVs =
 					getFilters(rule).stream().flatMap(f -> f.getAllInstances(rule).stream())
@@ -1948,6 +1944,7 @@ public class ECBlocks {
 				final Template template = entry.getKey();
 				final List<SingleFactVariable> fvs = entry.getValue();
 				partitionMap.computeIfAbsent(template, newHashMap()).put(rule, fvs);
+				fvs.forEach(fv -> fvToRule.put(fv, rule));
 			}
 		}
 		for (final Entry<Template, Map<Either<Rule, ExistentialProxy>, List<SingleFactVariable>>> templateToMap : partitionMap
@@ -1957,28 +1954,67 @@ public class ECBlocks {
 					templateToMap.getValue().values().stream().mapToInt(List::size).summaryStatistics();
 			final int min = summary.getMin();
 			final int max = summary.getMax();
-			if (1 == max) {
-				subsets.computeIfAbsent(template, newArrayList()).add(
-						new FactVariableSubSet(Maps.transformValues(templateToMap.getValue(), l -> l.get(0))));
+			if (0 == min) {
+				// no FV for the current template in at least one rule
 				continue;
 			}
-			long prodLength = 1;
-			final Map<Either<Rule, ExistentialProxy>, Generator<SingleFactVariable>> generators = new HashMap<>();
+			if (1 == max) {
+				// every rule contains exactly one fv for the current template
+				subsets.computeIfAbsent(template, newHashSet()).add(
+						Collections.singletonList(new FactVariableSubSet(Maps.transformValues(templateToMap.getValue(),
+								l -> l.get(0)))));
+				continue;
+			}
+			final List<Set<ICombinatoricsVector<SingleFactVariable>>> generators = new ArrayList<>();
 			for (final Entry<Either<Rule, ExistentialProxy>, List<SingleFactVariable>> ruleToFVs : templateToMap
 					.getValue().entrySet()) {
 				final List<SingleFactVariable> fvs = ruleToFVs.getValue();
-				final Generator<SingleFactVariable> simpleCombinationGenerator =
-						Factory.createSimpleCombinationGenerator(Factory.createVector(fvs), min);
-				prodLength *= simpleCombinationGenerator.getNumberOfGeneratedObjects();
-				generators.put(ruleToFVs.getKey(), simpleCombinationGenerator);
+				final Set<ICombinatoricsVector<SingleFactVariable>> set =
+						Collections.newSetFromMap(new IdentityHashMap<>());
+				set.addAll(Factory.createSimpleCombinationGenerator(Factory.createVector(fvs), min)
+						.generateAllObjects());
+				generators.add(set);
 			}
-			final List<FactVariableSubSet> targetSubSets = subsets.computeIfAbsent(template, newArrayList());
+			final Set<List<Map<Either<Rule, ExistentialProxy>, SingleFactVariable>>> listOfMaps =
+					Collections.newSetFromMap(new IdentityHashMap<>());
+			for (final List<ICombinatoricsVector<SingleFactVariable>> list : Sets.cartesianProduct(generators)) {
+				final List<Map<Either<Rule, ExistentialProxy>, SingleFactVariable>> currentList = new ArrayList<>();
+				// every vector contains $min$ fvs corresponding to the same rule
+				for (final ICombinatoricsVector<SingleFactVariable> vector : list) {
+					for (int i = 0; i < min; ++i) {
+						final SingleFactVariable value = vector.getValue(i);
+						final Either<Rule, ExistentialProxy> rule = fvToRule.get(value);
+						if (currentList.size() > min) {
+							currentList.get(i).put(rule, value);
+						} else {
+							final HashMap<Either<Rule, ExistentialProxy>, SingleFactVariable> newMap = new HashMap<>();
+							newMap.put(rule, value);
+							currentList.add(newMap);
+						}
+					}
+				}
+				listOfMaps.add(currentList);
+			}
+			final Set<List<FactVariableSubSet>> targetSubSets =
+					subsets.computeIfAbsent(template, x -> Collections.newSetFromMap(new IdentityHashMap<>()));
+			for (final List<Map<Either<Rule, ExistentialProxy>, SingleFactVariable>> maps : listOfMaps) {
+				targetSubSets.add(maps.stream().map(FactVariableSubSet::new).collect(toList()));
+			}
 		}
-		// {
-		// final FactVariablePartition factVariablePartition = new FactVariablePartition();
-		// factVariablePartition.add(new FactVariableSubSet(elements));
-		// partitions.add(factVariablePartition);
-		// }
+		final List<FactVariablePartition> partitions = new ArrayList<>();
+		// list of possible combinations
+		for (final List<List<FactVariableSubSet>> factVariablePartitions : Sets.cartesianProduct(ImmutableList
+				.copyOf(subsets.values()))) {
+			final FactVariablePartition partition = new FactVariablePartition();
+			// list of subsets per template
+			for (final List<FactVariableSubSet> list : factVariablePartitions) {
+				// list of subsets of the same template
+				for (final FactVariableSubSet factVariableSubSet : list) {
+					partition.add(factVariableSubSet);
+				}
+			}
+			partitions.add(partition);
+		}
 		return partitions;
 	}
 
