@@ -130,6 +130,11 @@ public class RuleCondition {
 					copy.constantExpressions), new LinkedList<>(copy.variableExpressions), copy.maximalScope, copy.type);
 		}
 
+		public Set<SingleFactVariable> getDirectlyDependentFactVariables() {
+			return Sets.union(Sets.newHashSet(this.getFactVariables()),
+					this.slotVariables.stream().map(SingleSlotVariable::getFactVariable).collect(toSet()));
+		}
+
 		public Set<SingleFactVariable> getDependentFactVariables() {
 			return Sets.union(Sets.newHashSet(this.getFactVariables()), Sets.union(
 					this.slotVariables.stream().map(SingleSlotVariable::getFactVariable).collect(toSet()),
