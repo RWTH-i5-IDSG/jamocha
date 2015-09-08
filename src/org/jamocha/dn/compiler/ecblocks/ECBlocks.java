@@ -1960,7 +1960,7 @@ public class ECBlocks {
 			}
 			if (1 == max) {
 				// every rule contains exactly one fv for the current template
-				subsets.computeIfAbsent(template, newHashSet()).add(
+				subsets.computeIfAbsent(template, x -> Sets.newIdentityHashSet()).add(
 						Collections.singletonList(new FactVariableSubSet(Maps.transformValues(templateToMap.getValue(),
 								l -> l.get(0)))));
 				continue;
@@ -1969,14 +1969,13 @@ public class ECBlocks {
 			for (final Entry<Either<Rule, ExistentialProxy>, List<SingleFactVariable>> ruleToFVs : templateToMap
 					.getValue().entrySet()) {
 				final List<SingleFactVariable> fvs = ruleToFVs.getValue();
-				final Set<ICombinatoricsVector<SingleFactVariable>> set =
-						Collections.newSetFromMap(new IdentityHashMap<>());
+				final Set<ICombinatoricsVector<SingleFactVariable>> set = Sets.newIdentityHashSet();
 				set.addAll(Factory.createSimpleCombinationGenerator(Factory.createVector(fvs), min)
 						.generateAllObjects());
 				generators.add(set);
 			}
 			final Set<List<Map<Either<Rule, ExistentialProxy>, SingleFactVariable>>> listOfMaps =
-					Collections.newSetFromMap(new IdentityHashMap<>());
+					Sets.newIdentityHashSet();
 			for (final List<ICombinatoricsVector<SingleFactVariable>> list : Sets.cartesianProduct(generators)) {
 				final List<Map<Either<Rule, ExistentialProxy>, SingleFactVariable>> currentList = new ArrayList<>();
 				// every vector contains $min$ fvs corresponding to the same rule
@@ -1987,7 +1986,8 @@ public class ECBlocks {
 						if (currentList.size() > min) {
 							currentList.get(i).put(rule, value);
 						} else {
-							final HashMap<Either<Rule, ExistentialProxy>, SingleFactVariable> newMap = new HashMap<>();
+							final IdentityHashMap<Either<Rule, ExistentialProxy>, SingleFactVariable> newMap =
+									new IdentityHashMap<>();
 							newMap.put(rule, value);
 							currentList.add(newMap);
 						}
@@ -1996,7 +1996,7 @@ public class ECBlocks {
 				listOfMaps.add(currentList);
 			}
 			final Set<List<FactVariableSubSet>> targetSubSets =
-					subsets.computeIfAbsent(template, x -> Collections.newSetFromMap(new IdentityHashMap<>()));
+					subsets.computeIfAbsent(template, x -> Sets.newIdentityHashSet());
 			for (final List<Map<Either<Rule, ExistentialProxy>, SingleFactVariable>> maps : listOfMaps) {
 				targetSubSets.add(maps.stream().map(FactVariableSubSet::new).collect(toList()));
 			}
