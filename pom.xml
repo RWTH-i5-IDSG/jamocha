@@ -231,6 +231,12 @@
 			<artifactId>jgrapht-core</artifactId>
 			<version>RELEASE</version>
 		</dependency>
+		<dependency>
+			<groupId>com.googlecode.combinatoricslib</groupId>
+			<artifactId>combinatoricslib</artifactId>
+			<version>2.1</version>
+			<scope>compile</scope>
+		</dependency>
 	</dependencies>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
