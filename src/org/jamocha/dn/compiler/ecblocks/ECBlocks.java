@@ -384,14 +384,33 @@ public class ECBlocks {
 			public void visit(final ImplicitECFilterInstance filterInstance);
 		}
 
-		/**
-		 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
-		 */
-		@Getter
-		@AllArgsConstructor(access = AccessLevel.PRIVATE)
-		abstract class FilterInstance implements Visitable<FilterInstanceVisitor> {
-			final Either<Rule, ExistentialProxy> ruleOrProxy;
-			final Map<FilterInstance, Conflict> conflicts = new HashMap<>();
+		static interface FilterInstance extends Visitable<FilterInstanceVisitor> {
+			public Filter getFilter();
+
+			public Either<Rule, ExistentialProxy> getRuleOrProxy();
+
+			public Conflict getConflict(final FilterInstance targetFilterInstance, final Theta sourceTheta,
+					final Theta targetTheta);
+
+			/**
+			 * Returns the filter instances of the same filter within the same rule (result contains
+			 * the filter instance this method is called upon).
+			 *
+			 * @return the filter instances of the same filter within the same rule
+			 */
+			public Set<? extends FilterInstance> getSiblings();
+
+			public List<SingleFactVariable> getDirectlyContainedFactVariables();
+
+			public List<EquivalenceClass> getDirectlyContainedEquivalenceClasses();
+
+			Conflict private_newConflict(final FilterInstance targetFilterInstance, final Theta sourceTheta,
+					final Theta targetTheta);
+
+			Conflict private_forSource(final ImplicitElementFilterInstance source, final Theta sourceTheta,
+					final Theta targetTheta);
+
+			Conflict private_forSource(final ECFilterInstance source, final Theta sourceTheta, final Theta targetTheta);
 
 			/**
 			 * A conflict represents the fact that two filter instances are using the same data
@@ -406,10 +425,10 @@ public class ECBlocks {
 			 */
 			@RequiredArgsConstructor
 			@Getter
-			class Conflict {
+			static class Conflict {
 				// left refers to the source, right to the target of the conflicts
 				final Set<Pair<Integer, Integer>> intersectingECsIndices;
-				final FilterInstance target;
+				final FilterInstance source, target;
 
 				public boolean hasEqualConflicts(final Conflict other) {
 					if (null == other)
@@ -420,11 +439,17 @@ public class ECBlocks {
 							|| (this.intersectingECsIndices != null && this.intersectingECsIndices
 									.equals(other.intersectingECsIndices));
 				}
-
-				public FilterInstance getSource() {
-					return FilterInstance.this;
-				}
 			}
+		}
+
+		/**
+		 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
+		 */
+		@Getter
+		@AllArgsConstructor(access = AccessLevel.PRIVATE)
+		abstract class AbstractFilterInstance implements FilterInstance {
+			final Either<Rule, ExistentialProxy> ruleOrProxy;
+			final Map<FilterInstance, Conflict> conflicts = new HashMap<>();
 
 			protected Conflict newConflict(final ImplicitElementFilterInstance source,
 					final ImplicitElementFilterInstance target, final Theta sourceTheta, final Theta targetTheta) {
@@ -451,7 +476,7 @@ public class ECBlocks {
 						intersectingECsIndices.add(Pair.of(1, 1));
 					}
 				}
-				return new Conflict(intersectingECsIndices, target);
+				return new Conflict(intersectingECsIndices, source, target);
 			}
 
 			protected Conflict newConflict(final ImplicitElementFilterInstance source, final ECFilterInstance target,
@@ -485,7 +510,7 @@ public class ECBlocks {
 						}
 					}
 				}
-				return new Conflict(intersectingECsIndices, target);
+				return new Conflict(intersectingECsIndices, source, target);
 			}
 
 			protected Conflict newConflict(final ECFilterInstance source, final ECFilterInstance target,
@@ -506,45 +531,26 @@ public class ECBlocks {
 						intersectingECsIndices.add(Pair.of(i, j));
 					}
 				}
-				return new Conflict(intersectingECsIndices, target);
+				return new Conflict(intersectingECsIndices, source, target);
 			}
 
-			protected abstract Conflict newConflict(final FilterInstance targetFilterInstance, final Theta sourceTheta,
-					final Theta targetTheta);
-
-			protected abstract Conflict forSource(final ImplicitElementFilterInstance source, final Theta sourceTheta,
-					final Theta targetTheta);
-
-			protected abstract Conflict forSource(final ECFilterInstance source, final Theta sourceTheta,
-					final Theta targetTheta);
-
+			@Override
 			public Conflict getConflict(final FilterInstance targetFilterInstance, final Theta sourceTheta,
 					final Theta targetTheta) {
-				final Conflict conflict = newConflict(targetFilterInstance, sourceTheta, targetTheta);
+				final Conflict conflict = private_newConflict(targetFilterInstance, sourceTheta, targetTheta);
 				if (conflict.intersectingECsIndices.isEmpty()) {
 					return null;
 				}
 				return conflict;
 			}
 
+			@Override
 			public Filter getFilter() {
 				return Filter.this;
 			}
-
-			/**
-			 * Returns the filter instances of the same filter within the same rule (result contains
-			 * the filter instance this method is called upon).
-			 *
-			 * @return the filter instances of the same filter within the same rule
-			 */
-			public abstract Set<? extends FilterInstance> getSiblings();
-
-			public abstract List<SingleFactVariable> getDirectlyContainedFactVariables();
-
-			public abstract List<EquivalenceClass> getDirectlyContainedEquivalenceClasses();
 		}
 
-		static interface ImplicitFilterInstance {
+		static interface ImplicitFilterInstance extends FilterInstance {
 			public FilterInstance getDual();
 		}
 
@@ -553,7 +559,7 @@ public class ECBlocks {
 		 */
 		@Getter
 		// no EqualsAndHashCode
-		class ImplicitElementFilterInstance extends FilterInstance implements ImplicitFilterInstance {
+		class ImplicitElementFilterInstance extends AbstractFilterInstance implements ImplicitFilterInstance {
 			final Element left, right;
 
 			private ImplicitElementFilterInstance(final Either<Rule, ExistentialProxy> ruleOrProxy, final Element left,
@@ -583,19 +589,19 @@ public class ECBlocks {
 			}
 
 			@Override
-			protected FilterInstance.Conflict newConflict(final FilterInstance targetFilterInstance,
+			public FilterInstance.Conflict private_newConflict(final FilterInstance targetFilterInstance,
 					final Theta sourceTheta, final Theta targetTheta) {
-				return targetFilterInstance.forSource(this, sourceTheta, targetTheta);
+				return targetFilterInstance.private_forSource(this, sourceTheta, targetTheta);
 			}
 
 			@Override
-			protected FilterInstance.Conflict forSource(final ImplicitElementFilterInstance source,
+			public FilterInstance.Conflict private_forSource(final ImplicitElementFilterInstance source,
 					final Theta sourceTheta, final Theta targetTheta) {
 				return newConflict(source, this, sourceTheta, targetTheta);
 			}
 
 			@Override
-			protected FilterInstance.Conflict forSource(final ECFilterInstance source, final Theta sourceTheta,
+			public FilterInstance.Conflict private_forSource(final ECFilterInstance source, final Theta sourceTheta,
 					final Theta targetTheta) {
 				return newConflict(source, this, sourceTheta, targetTheta);
 			}
@@ -630,7 +636,7 @@ public class ECBlocks {
 		/**
 		 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
 		 */
-		private abstract class ECFilterInstance extends FilterInstance {
+		private abstract class ECFilterInstance extends AbstractFilterInstance {
 			final List<EquivalenceClass> parameters;
 
 			private ECFilterInstance(final Either<Rule, ExistentialProxy> ruleOrProxy,
@@ -640,19 +646,19 @@ public class ECBlocks {
 			}
 
 			@Override
-			protected FilterInstance.Conflict newConflict(final FilterInstance targetFilterInstance,
+			public FilterInstance.Conflict private_newConflict(final FilterInstance targetFilterInstance,
 					final Theta sourceTheta, final Theta targetTheta) {
-				return targetFilterInstance.forSource(this, sourceTheta, targetTheta);
+				return targetFilterInstance.private_forSource(this, sourceTheta, targetTheta);
 			}
 
 			@Override
-			protected FilterInstance.Conflict forSource(final ImplicitElementFilterInstance source,
+			public FilterInstance.Conflict private_forSource(final ImplicitElementFilterInstance source,
 					final Theta sourceTheta, final Theta targetTheta) {
 				return newConflict(source, this, sourceTheta, targetTheta);
 			}
 
 			@Override
-			protected FilterInstance.Conflict forSource(final ECFilterInstance source, final Theta sourceTheta,
+			public FilterInstance.Conflict private_forSource(final ECFilterInstance source, final Theta sourceTheta,
 					final Theta targetTheta) {
 				return newConflict(source, this, sourceTheta, targetTheta);
 			}
@@ -1327,7 +1333,7 @@ public class ECBlocks {
 		}
 	}
 
-	protected static boolean determineEquivalenceClassIntersection(
+	protected static List<Map<Either<Rule, ExistentialProxy>, ? extends Element>> determineEquivalenceClassIntersection(
 			final Map<Either<Rule, ExistentialProxy>, EquivalenceClass> ecs, final Block block) {
 		final Map<FactVariableSubSet, Map<Either<Rule, ExistentialProxy>, FactBinding>> fvMapping =
 				new IdentityHashMap<>();
@@ -1360,10 +1366,7 @@ public class ECBlocks {
 								svMapping.values().stream().flatMap(map -> map.values().stream())
 										.filter(map -> map.size() == ruleCount), constantMapping.values().stream()
 										.filter(map -> map.size() == ruleCount))).collect(toList());
-		for (final Map<Either<Rule, ExistentialProxy>, ? extends Element> subset : intersection) {
-			block.addElementSet(new SubSet<>(new HashMap<>(subset)));
-		}
-		return !intersection.isEmpty();
+		return intersection;
 	}
 
 	@Getter
@@ -1897,33 +1900,6 @@ public class ECBlocks {
 		return (a == b) || (a != null && a.hasEqualConflicts(b));
 	}
 
-	protected static void findAllMaximalBlocks(final List<Either<Rule, ExistentialProxy>> rules,
-			final BlockSet resultBlocks) {
-		final Set<Filter> filters = rules.stream().flatMap(rule -> getFilters(rule).stream()).collect(toSet());
-		for (final Filter filter : filters) {
-			vertical(rules.stream().map(r -> filter.getAllInstances(r)).filter(negate(Set::isEmpty)).collect(toSet()),
-					resultBlocks);
-		}
-	}
-
-	protected static <T, K, D> Collector<T, ?, Set<D>> groupingIntoSets(
-			final Function<? super T, ? extends K> classifier, final Collector<? super T, ?, D> downstream) {
-		final Collector<T, ?, Map<K, D>> groupingBy = groupingBy(classifier, downstream);
-		return Collectors.collectingAndThen(groupingBy, map -> new HashSet<D>(map.values()));
-	}
-
-	protected static BlockSet findAllMaximalBlocksInReducedScope(final Set<FilterInstance> filterInstances,
-			final BlockSet resultBlocks) {
-		final Set<Set<Set<FilterInstance>>> filterInstancesGroupedByFilterAndByRule =
-				filterInstances.stream().collect(
-						groupingIntoSets(FilterInstance::getFilter,
-								groupingIntoSets(FilterInstance::getRuleOrProxy, toSet())));
-		for (final Set<Set<FilterInstance>> filterInstancesOfOneFilterGroupedByRule : filterInstancesGroupedByFilterAndByRule) {
-			vertical(filterInstancesOfOneFilterGroupedByRule, resultBlocks);
-		}
-		return resultBlocks;
-	}
-
 	protected static void determineAndSolveConflicts(final BlockSet resultBlocks) {
 		// determine conflicts
 		final BlockSet deletedBlocks = new BlockSet();
@@ -2144,6 +2120,51 @@ public class ECBlocks {
 		deletedBlocks.addDuringConflictResolution(replaceBlock);
 	}
 
+	protected static void findAllMaximalBlocks(final List<Either<Rule, ExistentialProxy>> rules,
+			final BlockSet resultBlocks) {
+		final Set<Filter> filters = rules.stream().flatMap(rule -> getFilters(rule).stream()).collect(toSet());
+		for (final Filter filter : filters) {
+			vertical(
+					rules.stream().map(r -> filter.getExplicitInstances(r)).filter(negate(Set::isEmpty))
+							.collect(toSet()), resultBlocks, ECBlocks::explicitVerticalInner);
+			vertical(rules.stream().map(r -> filter.getImplicitElementInstances(r)).filter(negate(Set::isEmpty))
+					.collect(toSet()), resultBlocks, ECBlocks::implicitVerticalInner);
+			vertical(
+					rules.stream().map(r -> filter.getImplicitECInstances(r)).filter(negate(Set::isEmpty))
+							.collect(toSet()), resultBlocks, ECBlocks::implicitVerticalInner);
+		}
+	}
+
+	protected static <T, K, D> Collector<T, ?, Set<D>> groupingIntoSets(
+			final Function<? super T, ? extends K> classifier, final Collector<? super T, ?, D> downstream) {
+		final Collector<T, ?, Map<K, D>> groupingBy = groupingBy(classifier, downstream);
+		return Collectors.collectingAndThen(groupingBy, map -> new HashSet<D>(map.values()));
+	}
+
+	protected static BlockSet findAllMaximalBlocksInReducedScope(final Set<FilterInstance> filterInstances,
+			final BlockSet resultBlocks) {
+		final FilterInstanceTypePartitioner typePartition = FilterInstanceTypePartitioner.partition(filterInstances);
+		for (final Set<Set<ExplicitFilterInstance>> filterInstancesOfOneFilterGroupedByRule : typePartition.explicitFilterInstances
+				.stream().collect(
+						groupingIntoSets(FilterInstance::getFilter,
+								groupingIntoSets(FilterInstance::getRuleOrProxy, toSet())))) {
+			vertical(filterInstancesOfOneFilterGroupedByRule, resultBlocks, ECBlocks::explicitVerticalInner);
+		}
+		for (final Set<Set<ImplicitElementFilterInstance>> filterInstancesOfOneFilterGroupedByRule : typePartition.implicitElementFilterInstances
+				.stream().collect(
+						groupingIntoSets(FilterInstance::getFilter,
+								groupingIntoSets(FilterInstance::getRuleOrProxy, toSet())))) {
+			vertical(filterInstancesOfOneFilterGroupedByRule, resultBlocks, ECBlocks::implicitVerticalInner);
+		}
+		for (final Set<Set<ImplicitECFilterInstance>> filterInstancesOfOneFilterGroupedByRule : typePartition.implicitECFilterInstances
+				.stream().collect(
+						groupingIntoSets(FilterInstance::getFilter,
+								groupingIntoSets(FilterInstance::getRuleOrProxy, toSet())))) {
+			vertical(filterInstancesOfOneFilterGroupedByRule, resultBlocks, ECBlocks::implicitVerticalInner);
+		}
+		return resultBlocks;
+	}
+
 	protected static List<FactVariablePartition> enumerateFactVariablePartitions(
 			final Set<Either<Rule, ExistentialProxy>> rules) {
 		final IdentityHashMap<Template, Set<List<FactVariableSubSet>>> subsets = new IdentityHashMap<>();
@@ -2233,42 +2254,54 @@ public class ECBlocks {
 		return partitions;
 	}
 
-	protected static void vertical(final Set<Set<FilterInstance>> filterInstancesGroupedByRule,
+	protected static interface VerticalInner<T extends FilterInstance> {
+		public void apply(final Set<Either<Rule, ExistentialProxy>> rules, final List<T> filterInstances,
+				final List<FactVariablePartition> partitions, final BlockSet resultBlocks);
+	}
+
+	protected static <T extends ImplicitFilterInstance> void implicitVerticalInner(
+			final Set<Either<Rule, ExistentialProxy>> rules, final List<T> filterInstances,
+			final List<FactVariablePartition> partitions, final BlockSet resultBlocks) {
+		final FilterInstanceSubSet subSet =
+				new FilterInstanceSubSet(Maps.newHashMap(Maps.uniqueIndex(filterInstances,
+						ImplicitFilterInstance::getRuleOrProxy)));
+		final FilterInstanceSubSet dualSubSet =
+				new FilterInstanceSubSet(Maps.newHashMap(filterInstances.stream().collect(
+						toMap(FilterInstance::getRuleOrProxy, ImplicitFilterInstance::getDual))));
+		for (final FactVariablePartition partition : partitions) {
+			final Block newBlock = new Block(rules, partition);
+			final boolean returnValue = newBlock.addExplicitColumn(subSet);
+			horizontalRecursion(newBlock, new Stack<>(), resultBlocks);
+		}
+	}
+
+	protected static void explicitVerticalInner(final Set<Either<Rule, ExistentialProxy>> rules,
+			final List<ExplicitFilterInstance> filterInstances, final List<FactVariablePartition> partitions,
 			final BlockSet resultBlocks) {
-		final Set<Set<Set<FilterInstance>>> filterInstancesPowerSet = Sets.powerSet(filterInstancesGroupedByRule);
-		final Iterator<Set<Set<FilterInstance>>> iterator = filterInstancesPowerSet.iterator();
+		final FilterInstanceSubSet subSet =
+				new FilterInstanceSubSet(Maps.newHashMap(Maps.uniqueIndex(filterInstances,
+						FilterInstance::getRuleOrProxy)));
+		for (final FactVariablePartition partition : partitions) {
+			final Block newBlock = new Block(rules, partition);
+			final boolean returnValue = newBlock.addExplicitColumn(subSet);
+			horizontalRecursion(newBlock, new Stack<>(), resultBlocks);
+		}
+	}
+
+	protected static <T extends FilterInstance> void vertical(final Set<Set<T>> filterInstancesGroupedByRule,
+			final BlockSet resultBlocks, final VerticalInner<T> verticalInner) {
+		final Set<Set<Set<T>>> filterInstancesPowerSet = Sets.powerSet(filterInstancesGroupedByRule);
+		final Iterator<Set<Set<T>>> iterator = filterInstancesPowerSet.iterator();
 		// skip empty set
 		iterator.next();
 		while (iterator.hasNext()) {
-			final ImmutableList<Set<FilterInstance>> powerSetElement = ImmutableList.copyOf(iterator.next());
+			final ImmutableList<Set<T>> powerSetElement = ImmutableList.copyOf(iterator.next());
 			final Set<Either<Rule, ExistentialProxy>> rules =
 					powerSetElement.stream().map(set -> set.iterator().next().getRuleOrProxy()).collect(toSet());
 			final List<FactVariablePartition> partitions = enumerateFactVariablePartitions(rules);
-			final Set<List<FilterInstance>> cartesianProduct = Sets.cartesianProduct(powerSetElement);
-			for (final List<FilterInstance> filterInstances : cartesianProduct) {
-				final FilterInstanceSubSet subSet =
-						new FilterInstanceSubSet(Maps.newHashMap(Maps.uniqueIndex(filterInstances,
-								FilterInstance::getRuleOrProxy)));
-				final FilterInstanceSubSet dualSubSet;
-				if (filterInstances.get(0) instanceof ImplicitFilterInstance) {
-					assert filterInstances.stream().allMatch(fi -> fi instanceof ImplicitFilterInstance);
-					dualSubSet =
-							new FilterInstanceSubSet(Maps.newHashMap(filterInstances.stream()
-									.collect(
-											toMap(FilterInstance::getRuleOrProxy,
-													fi -> ((ImplicitFilterInstance) fi).getDual()))));
-				} else {
-					dualSubSet = null;
-				}
-				for (final FactVariablePartition partition : partitions) {
-					final Block newBlock = new Block(rules, partition);
-					if (!newBlock.addColumn(subSet))
-						continue;
-					if (null != dualSubSet && !newBlock.addColumn(dualSubSet)) {
-						continue;
-					}
-					horizontalRecursion(newBlock, new Stack<>(), resultBlocks);
-				}
+			final Set<List<T>> cartesianProduct = Sets.cartesianProduct(powerSetElement);
+			for (final List<T> filterInstances : cartesianProduct) {
+				verticalInner.apply(rules, filterInstances, partitions, resultBlocks);
 			}
 		}
 	}
@@ -2362,7 +2395,7 @@ public class ECBlocks {
 		// for every matching filter instance set, create a new block
 		for (final FilterInstanceSubSet neighbourSubSet : matchingFilters) {
 			final Block newBlock = new Block(block);
-			newBlock.addColumn(neighbourSubSet);
+			newBlock.addExplicitColumn(neighbourSubSet);
 			// recurse for that block
 			horizontalRecursion(newBlock, exclusionStack, resultBlocks);
 			// after the recursion, exclude all filter instances just used
