@@ -1018,6 +1018,10 @@ public class ECBlocks {
 			public FilterInstanceSubSet(final Either<Rule, ExistentialProxy> rule, final FilterInstance filterInstance) {
 				this(Maps.newHashMap(Collections.singletonMap(rule, filterInstance)));
 			}
+
+			public boolean contains(final FilterInstanceSubSet other) {
+				return this.elements.entrySet().containsAll(other.elements.entrySet());
+			}
 		}
 
 		final Map<Filter, Set<FilterInstanceSubSet>> filterLookup = new HashMap<>();
@@ -1126,6 +1130,15 @@ public class ECBlocks {
 			public Set<EquivalenceClass> getEquivalenceClasses() {
 				return equivalenceClassToReduced.keySet();
 			}
+
+			@Override
+			public Set<Element> reduce(final EquivalenceClass ec) {
+				final ReducedEquivalenceClass reducedEquivalenceClass = equivalenceClassToReduced.get(ec);
+				if (null == reducedEquivalenceClass)
+					return Collections.emptySet();
+				return reducedEquivalenceClass.elements;
+
+			}
 		}
 
 		static class Identity implements Theta {
@@ -1159,7 +1172,14 @@ public class ECBlocks {
 			public Set<EquivalenceClass> getEquivalenceClasses() {
 				return equivalenceClasses;
 			}
+
+			@Override
+			public Set<Element> reduce(final EquivalenceClass ec) {
+				throw new UnsupportedOperationException();
+			}
 		}
+
+		public Set<Element> reduce(final EquivalenceClass ec);
 
 		public void add(final Element element);
 
@@ -1297,7 +1317,7 @@ public class ECBlocks {
 				final Set<FilterInstanceSubSet> otherFISubSetsOfSameFilter =
 						other.filterInstancePartition.lookupByFilter(thisFISubSet.getFilter());
 				for (final FilterInstanceSubSet otherFISubSet : otherFISubSetsOfSameFilter) {
-					if (otherFISubSet.getElements().values().containsAll(thisFISubSet.getElements().values())) {
+					if (otherFISubSet.contains(thisFISubSet)) {
 						continue SubSetLoop;
 					}
 				}
@@ -1759,34 +1779,38 @@ public class ECBlocks {
 				final Map<Either<Rule, ExistentialProxy>, ECSharedList> ruleToSharedList =
 						IntStream.range(0, blockRules.size()).boxed()
 								.collect(toMap(blockRules::get, sharedListWrapper.getSharedSiblings()::get));
-				final List<List<FilterInstance>> columnsToConstruct, columnsAlreadyConstructed;
+				final List<FilterInstanceSubSet> columnsToConstruct, columnsAlreadyConstructed;
 				{
-					final Map<Boolean, List<List<FilterInstance>>> partition =
-							filterInstanceColumns.stream().map(FilterInstanceSubSet::getElements)
-									.collect(partitioningBy(column -> Collections.disjoint(column, constructedFIs)));
+					final Map<Boolean, List<FilterInstanceSubSet>> partition =
+							filterInstanceColumns.stream().collect(
+									partitioningBy(column -> Collections.disjoint(column.getElements().values(),
+											constructedFIs)));
 					columnsAlreadyConstructed = partition.get(Boolean.FALSE);
 					columnsToConstruct = partition.get(Boolean.TRUE);
 				}
 
-				block.getFlatFilterInstances().stream().filter(negate(constructedFIs::contains))
-						.map(fi -> ruleToJoinedWith.get(fi.getRuleOrProxy()).get(fi)).distinct();
 				if (!columnsAlreadyConstructed.isEmpty()) {
 					final Map<ECSharedList, LinkedHashSet<ECFilterList>> sharedPart = new HashMap<>();
-					for (final List<FilterInstance> column : columnsAlreadyConstructed) {
-						for (final FilterInstance fi : column) {
-							sharedPart.computeIfAbsent(ruleToSharedList.get(fi.getRuleOrProxy()), newLinkedHashSet())
-									.add(joinedWithToComponent.get(ruleToJoinedWith.get(fi.getRuleOrProxy()).get(fi)));
+					for (final FilterInstanceSubSet column : columnsAlreadyConstructed) {
+						for (final Entry<Either<Rule, ExistentialProxy>, FilterInstance> entry : column.getElements()
+								.entrySet()) {
+							sharedPart.computeIfAbsent(ruleToSharedList.get(entry.getKey()), newLinkedHashSet()).add(
+									joinedWithToComponent.get(ruleToJoinedWith.get(entry.getKey())
+											.get(entry.getValue())));
 						}
 					}
 					sharedListWrapper.addSharedColumns(sharedPart);
 				}
 
-				for (final List<FilterInstance> column : columnsToConstruct) {
+				for (final FilterInstanceSubSet column : columnsToConstruct) {
 					// FIXME !explicit filter instances!
-					sharedListWrapper.addSharedColumn(((List<ExplicitFilterInstance>) (List<?>) column).stream()
+					sharedListWrapper.addSharedColumn(column
+							.getElements()
+							.values()
+							.stream()
 							.collect(
 									toMap(fi -> ruleToSharedList.get(fi.getRuleOrProxy()),
-											ExplicitFilterInstance::convert)));
+											fi -> ((ExplicitFilterInstance) fi).convert())));
 				}
 				constructedFIs.addAll(block.getFlatFilterInstances());
 				for (final Entry<Either<Rule, ExistentialProxy>, Map<Filter, FilterInstancesSideBySide>> entry : block
@@ -2003,16 +2027,16 @@ public class ECBlocks {
 
 		public static BlockConflict of(final Block replaceBlock, final Block conflictingBlock) {
 			// determine if there is a pair of FIs in conflict
-			final Map<Either<Rule, ExistentialProxy>, List<FilterInstance>> yFIsByRule =
-					conflictingBlock.getFlatFilterInstances().stream()
-							.collect(groupingBy(FilterInstance::getRuleOrProxy));
 			final Set<FilterInstance> cfi =
 					replaceBlock
 							.getFlatFilterInstances()
 							.stream()
-							.filter(xFI -> yFIsByRule
-									.getOrDefault(xFI.getRuleOrProxy(), Collections.emptyList())
+							.filter(xFI -> conflictingBlock
+									.getFilterInstancePartition()
+									.getElements()
 									.stream()
+									.map(ySS -> ySS.getElements().get(xFI.getRuleOrProxy()))
+									.filter(Objects::nonNull)
 									.anyMatch(
 											yFI -> null != yFI.getConflict(xFI, conflictingBlock.theta,
 													replaceBlock.theta))).collect(toSet());
@@ -2025,11 +2049,6 @@ public class ECBlocks {
 			// else overlapping
 			final int rnoc = replaceBlock.getNumberOfColumns();
 			final int cnoc = conflictingBlock.getNumberOfColumns();
-			if (rnoc == cnoc) {
-				// containment of columns impossible (only if one block is fully contained within
-				// the other, which we won't consider here)
-				return new BlockConflict(replaceBlock, conflictingBlock, cfi);
-			}
 			// x will be wider, y will be taller
 			final Block x, y;
 			if (rnoc >= cnoc) {
@@ -2047,21 +2066,31 @@ public class ECBlocks {
 			if (!y.getRulesOrProxies().containsAll(x.getRulesOrProxies())) {
 				return new BlockConflict(replaceBlock, conflictingBlock, cfi);
 			}
-			// only consider the rules of x (the wider block)
-			final List<Either<Rule, ExistentialProxy>> rules = ImmutableList.copyOf(x.getRulesOrProxies());
 			// only consider the filters of y (the taller block)
-			final Set<Filter> filters = y.getFilters();
-			// the result will be the columns within the intersection
-			final Set<List<FilterInstance>> xColumns =
-					Block.getFilterInstanceColumns(filters, x.getRuleToFilterToRow(), rules);
-			final Set<List<FilterInstance>> yColumns =
-					Block.getFilterInstanceColumns(filters, y.getRuleToFilterToRow(), rules);
-			// if one of the (shrinked) columns of the taller block is not present in the
-			// intersection part of the wider block, the blocks are in conflict
-			for (final List<FilterInstance> yColumn : yColumns) {
-				if (!xColumns.contains(yColumn))
+			final Set<FilterInstanceSubSet> columns = y.getFilterInstancePartition().getElements();
+
+			// if one of the columns of the taller block is not present in the wider block, the
+			// blocks are in conflict
+			for (final FilterInstanceSubSet column : columns) {
+				if (!x.getFilterInstancePartition().lookupByFilter(column.getFilter()).stream()
+						.anyMatch(xSubSet -> xSubSet.contains(column))) {
 					return new BlockConflict(replaceBlock, conflictingBlock, cfi);
+				}
 			}
+
+			// if one of the intersecting equivalence classes is not reduced further by the theta of
+			// the taller block than by the theta of the wider block, the blocks are in conflict
+			final Set<EquivalenceClass> m =
+					x.flatFilterInstances.stream().map(FilterInstance::getDirectlyContainedEquivalenceClasses)
+							.flatMap(List::stream).collect(toCollection(() -> Sets.newIdentityHashSet()));
+			m.retainAll(y.flatFilterInstances.stream().map(FilterInstance::getDirectlyContainedEquivalenceClasses)
+					.flatMap(List::stream).collect(toCollection(() -> Sets.newIdentityHashSet())));
+			for (final EquivalenceClass equivalenceClass : m) {
+				if (!x.theta.reduce(equivalenceClass).containsAll(y.theta.reduce(equivalenceClass))) {
+					return new BlockConflict(replaceBlock, conflictingBlock, cfi);
+				}
+			}
+
 			return null;
 		}
 	}
