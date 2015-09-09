@@ -124,7 +124,6 @@ import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableList.Builder;
-import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -828,10 +827,6 @@ public class ECBlocks {
 
 			final List<FilterInstance> aFlatFilterInstances =
 					aFilterInstanceSets.stream().flatMap(Set::stream).collect(toList());
-			final List<FilterInstance> bFlatFilterInstances =
-					bFilterInstanceSets.stream().flatMap(Set::stream).collect(toList());
-			final UndirectedGraph<FilterInstance, ConflictEdge> graph =
-					determineConflictGraph(ImmutableSet.of(aFlatFilterInstances, bFlatFilterInstances));
 
 			final Set<List<List<FilterInstance>>> cartesianProduct =
 					Sets.cartesianProduct(bFilterInstanceSets.stream()
@@ -857,13 +852,12 @@ public class ECBlocks {
 					int j = 0;
 					for (final FilterInstance aSource : aCell) {
 						final FilterInstance bSource = bCell.get(j);
-						final Set<ConflictEdge> aConflicts = graph.edgesOf(aSource);
-						for (final ConflictEdge edge : aConflicts) {
-							final Conflict aConflict = edge.getForSource(aSource);
-							final Pair<Integer, Integer> indexPair = aFI2IndexPair.get(aConflict.getTarget());
+						for (final FilterInstance aTarget : aFlatFilterInstances) {
+							final Pair<Integer, Integer> indexPair = aFI2IndexPair.get(aTarget);
 							final FilterInstance bTarget = bijection.get(indexPair.getLeft()).get(indexPair.getRight());
-							final Conflict bConflict = bSource.getConflict(bTarget);
-							if (!aConflict.equals(bConflict)) {
+							final Set<Pair<Integer, Integer>> aConflict = getECIndexSet(aSource, aTarget);
+							final Set<Pair<Integer, Integer>> bConflict = getECIndexSet(bSource, bTarget);
+							if (!Objects.equals(aConflict, bConflict)) {
 								continue bijectionLoop;
 							}
 						}
@@ -887,7 +881,22 @@ public class ECBlocks {
 									: this.proxies.iterator().next().filters.hashCode()));
 			return result;
 		}
+	}
 
+	protected static Set<Pair<Integer, Integer>> getECIndexSet(final FilterInstance source, final FilterInstance target) {
+		final Set<Pair<Integer, Integer>> intersectingECsIndices = new HashSet<>();
+		final List<EquivalenceClass> sourceParameters = source.getDirectlyContainedEquivalenceClasses();
+		final List<EquivalenceClass> targetParameters = target.getDirectlyContainedEquivalenceClasses();
+		final Map<EquivalenceClass, List<Integer>> targetECIndices =
+				IntStream.range(0, targetParameters.size()).boxed().collect(groupingBy(targetParameters::get));
+		final int size = sourceParameters.size();
+		for (int i = 0; i < size; ++i) {
+			final Integer oi = Integer.valueOf(i);
+			for (final Integer ji : targetECIndices.getOrDefault(sourceParameters.get(oi), Collections.emptyList())) {
+				intersectingECsIndices.add(Pair.of(oi, ji));
+			}
+		}
+		return intersectingECsIndices;
 	}
 
 	@Getter
@@ -1122,6 +1131,10 @@ public class ECBlocks {
 		static class Identity implements Theta {
 			final Set<EquivalenceClass> equivalenceClasses = Sets.newIdentityHashSet();
 
+			public Identity(final Set<EquivalenceClass> equivalenceClasses) {
+				this.equivalenceClasses.addAll(equivalenceClasses);
+			}
+
 			@Override
 			public boolean isRelevant(final Element element) {
 				return equivalenceClasses.contains(element.getEquivalenceClass());
@@ -1134,9 +1147,7 @@ public class ECBlocks {
 
 			@Override
 			public Theta copy() {
-				final Identity identity = new Identity();
-				identity.equivalenceClasses.addAll(equivalenceClasses);
-				return identity;
+				return new Identity(equivalenceClasses);
 			}
 
 			@Override
@@ -1270,64 +1281,27 @@ public class ECBlocks {
 		}
 
 		public boolean containedIn(final Block other) {
-			final Set<Either<Rule, ExistentialProxy>> otherRules = other.getRulesOrProxies();
-			final Set<Either<Rule, ExistentialProxy>> thisRules = this.getRulesOrProxies();
-			if (otherRules.size() < thisRules.size() || !otherRules.containsAll(thisRules)) {
+			if (other.rulesOrProxies.size() < this.rulesOrProxies.size()
+					|| !other.rulesOrProxies.containsAll(this.rulesOrProxies)) {
 				return false;
 			}
 			if (other.filters.size() < this.filters.size() || !other.filters.containsAll(this.filters)) {
 				return false;
 			}
-			if (other.flatFilterInstances.size() < this.flatFilterInstances.size()) {
+			final Set<FilterInstanceSubSet> otherFISubSets = other.filterInstancePartition.getElements();
+			final Set<FilterInstanceSubSet> thisFISubSets = this.filterInstancePartition.getElements();
+			if (otherFISubSets.size() < thisFISubSets.size()) {
 				return false;
 			}
-			if (other.flatFilterInstances.containsAll(this.flatFilterInstances)) {
-				return true;
-			}
-			/*
-			 * before really considering multi cell filters, just check the sizes and containment
-			 * for single cell filters
-			 */
-			final Set<Filter> multiFilters = new HashSet<>();
-			for (final Entry<Either<Rule, ExistentialProxy>, Map<Filter, FilterInstancesSideBySide>> entry : this.ruleToFilterToRow
-					.entrySet()) {
-				final Map<Filter, FilterInstancesSideBySide> thisRow = entry.getValue();
-				final Map<Filter, FilterInstancesSideBySide> otherRow = other.ruleToFilterToRow.get(entry.getKey());
-				for (final Filter filter : this.filters) {
-					final LinkedHashSet<FilterInstance> thisFIs = thisRow.get(filter).getInstances();
-					final LinkedHashSet<FilterInstance> otherFIs = otherRow.get(filter).getInstances();
-					final int otherFIsCount = otherFIs.size();
-					final int thisFIsCount = thisFIs.size();
-					if (thisFIsCount > otherFIsCount) {
-						return false;
-					}
-					if (1 == thisFIsCount) {
-						if (!otherFIs.contains(thisFIs.iterator().next())) {
-							return false;
-						}
-					} else {
-						multiFilters.add(filter);
+			SubSetLoop: for (final FilterInstanceSubSet thisFISubSet : thisFISubSets) {
+				final Set<FilterInstanceSubSet> otherFISubSetsOfSameFilter =
+						other.filterInstancePartition.lookupByFilter(thisFISubSet.getFilter());
+				for (final FilterInstanceSubSet otherFISubSet : otherFISubSetsOfSameFilter) {
+					if (otherFISubSet.getElements().values().containsAll(thisFISubSet.getElements().values())) {
+						continue SubSetLoop;
 					}
 				}
-			}
-			if (multiFilters.isEmpty()) {
-				return true;
-			}
-			/*
-			 * for every multi filter, we have to check whether the same filter instances are in the
-			 * corresponding columns, otherwise its not the same filter or this is not contained in
-			 * other
-			 */
-			// since we will compare lists, fix the iteration order
-			final List<Either<Rule, ExistentialProxy>> rules = ImmutableList.copyOf(thisRules);
-			final Set<List<FilterInstance>> thisFilterInstanceColumns =
-					getFilterInstanceColumns(multiFilters, this.ruleToFilterToRow, rules);
-			final Set<List<FilterInstance>> otherFilterInstanceColumns =
-					getFilterInstanceColumns(multiFilters, other.ruleToFilterToRow, rules);
-			for (final List<FilterInstance> thisFilterInstanceColumn : thisFilterInstanceColumns) {
-				if (!otherFilterInstanceColumns.contains(thisFilterInstanceColumn)) {
-					return false;
-				}
+				return false;
 			}
 			return true;
 		}
