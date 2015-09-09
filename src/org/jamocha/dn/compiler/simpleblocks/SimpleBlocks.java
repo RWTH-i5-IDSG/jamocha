@@ -982,8 +982,6 @@ public class SimpleBlocks {
 					columnsToConstruct = partition.get(Boolean.TRUE);
 				}
 
-				block.getFlatFilterInstances().stream().filter(negate(constructedFIs::contains))
-						.map(fi -> ruleToJoinedWith.get(fi.getRuleOrProxy()).get(fi)).distinct();
 				if (!columnsAlreadyConstructed.isEmpty()) {
 					final Map<PathSharedList, LinkedHashSet<PathFilterList>> sharedPart = new HashMap<>();
 					for (final List<FilterInstance> column : columnsAlreadyConstructed) {
