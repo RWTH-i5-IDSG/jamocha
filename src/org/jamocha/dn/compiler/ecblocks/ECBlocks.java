@@ -15,12 +15,14 @@
 package org.jamocha.dn.compiler.ecblocks;
 
 import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.mapping;
 import static java.util.stream.Collectors.partitioningBy;
 import static java.util.stream.Collectors.toCollection;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
 import static org.jamocha.util.Lambdas.composeToInt;
+import static org.jamocha.util.Lambdas.iterable;
 import static org.jamocha.util.Lambdas.negate;
 import static org.jamocha.util.Lambdas.newHashMap;
 import static org.jamocha.util.Lambdas.newHashSet;
@@ -73,6 +75,9 @@ import org.jamocha.dn.compiler.ecblocks.ECBlocks.FactVariablePartition.FactVaria
 import org.jamocha.dn.compiler.ecblocks.ECBlocks.Filter.ExplicitFilterInstance;
 import org.jamocha.dn.compiler.ecblocks.ECBlocks.Filter.FilterInstance;
 import org.jamocha.dn.compiler.ecblocks.ECBlocks.Filter.FilterInstance.Conflict;
+import org.jamocha.dn.compiler.ecblocks.ECBlocks.Filter.FilterInstanceVisitor;
+import org.jamocha.dn.compiler.ecblocks.ECBlocks.Filter.ImplicitECFilterInstance;
+import org.jamocha.dn.compiler.ecblocks.ECBlocks.Filter.ImplicitElementFilterInstance;
 import org.jamocha.dn.compiler.ecblocks.ECBlocks.Filter.ImplicitFilterInstance;
 import org.jamocha.dn.compiler.ecblocks.ECBlocks.FilterInstancePartition.FilterInstanceSubSet;
 import org.jamocha.dn.compiler.ecblocks.ECBlocks.Partition.SubSet;
@@ -372,12 +377,20 @@ public class ECBlocks {
 			return new ECNodeFilterSet(instance.ecFilter);
 		}
 
+		static interface FilterInstanceVisitor extends Visitor {
+			public void visit(final ExplicitFilterInstance filterInstance);
+
+			public void visit(final ImplicitElementFilterInstance filterInstance);
+
+			public void visit(final ImplicitECFilterInstance filterInstance);
+		}
+
 		/**
 		 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
 		 */
 		@Getter
 		@AllArgsConstructor(access = AccessLevel.PRIVATE)
-		abstract class FilterInstance {
+		abstract class FilterInstance implements Visitable<FilterInstanceVisitor> {
 			final Either<Rule, ExistentialProxy> ruleOrProxy;
 			final Map<FilterInstance, Conflict> conflicts = new HashMap<>();
 
@@ -565,6 +578,12 @@ public class ECBlocks {
 			}
 
 			@Override
+			public <V extends FilterInstanceVisitor> V accept(final V visitor) {
+				visitor.visit(this);
+				return visitor;
+			}
+
+			@Override
 			protected FilterInstance.Conflict newConflict(final FilterInstance targetFilterInstance,
 					final Theta sourceTheta, final Theta targetTheta) {
 				return targetFilterInstance.forSource(this, sourceTheta, targetTheta);
@@ -681,6 +700,12 @@ public class ECBlocks {
 			}
 
 			@Override
+			public <V extends FilterInstanceVisitor> V accept(final V visitor) {
+				visitor.visit(this);
+				return visitor;
+			}
+
+			@Override
 			public Set<ImplicitECFilterInstance> getSiblings() {
 				return getImplicitECInstances(ruleOrProxy);
 			}
@@ -703,6 +728,12 @@ public class ECBlocks {
 			@Override
 			public String toString() {
 				return Objects.toString(ecFilter);
+			}
+
+			@Override
+			public <V extends FilterInstanceVisitor> V accept(final V visitor) {
+				visitor.visit(this);
+				return visitor;
 			}
 
 			public ECFilterList convert() {
@@ -857,6 +888,36 @@ public class ECBlocks {
 			return result;
 		}
 
+	}
+
+	@Getter
+	static class FilterInstanceTypePartitioner implements FilterInstanceVisitor {
+		final List<ExplicitFilterInstance> explicitFilterInstances = new ArrayList<>();
+		final List<ImplicitElementFilterInstance> implicitElementFilterInstances = new ArrayList<>();
+		final List<ImplicitECFilterInstance> implicitECFilterInstances = new ArrayList<>();
+
+		static FilterInstanceTypePartitioner partition(final Iterable<FilterInstance> filterInstances) {
+			final FilterInstanceTypePartitioner partitioner = new FilterInstanceTypePartitioner();
+			for (final FilterInstance filterInstance : filterInstances) {
+				filterInstance.accept(partitioner);
+			}
+			return partitioner;
+		}
+
+		@Override
+		public void visit(final ExplicitFilterInstance filterInstance) {
+			explicitFilterInstances.add(filterInstance);
+		}
+
+		@Override
+		public void visit(final ImplicitECFilterInstance filterInstance) {
+			implicitECFilterInstances.add(filterInstance);
+		}
+
+		@Override
+		public void visit(final ImplicitElementFilterInstance filterInstance) {
+			implicitElementFilterInstances.add(filterInstance);
+		}
 	}
 
 	/**
@@ -1483,7 +1544,7 @@ public class ECBlocks {
 	protected static UndirectedGraph<FilterInstance, ConflictEdge> determineConflictGraph(final Theta blockTheta,
 			final Iterable<? extends List<FilterInstance>> filterInstancesGroupedByRule) {
 		final UndirectedGraph<FilterInstance, ConflictEdge> graph =
-				new SimpleGraph<>(ConflictEdge.newFactory(blockTheta)::of);
+				new SimpleGraph<>(ConflictEdge.newFactory(blockTheta));
 		for (final List<FilterInstance> instances : filterInstancesGroupedByRule) {
 			for (final FilterInstance filterInstance : instances) {
 				assert null != filterInstance;
@@ -2244,12 +2305,28 @@ public class ECBlocks {
 			resultBlocks.addDuringHorizontalRecursion(block);
 			return;
 		}
+
+		final FilterInstanceTypePartitioner nTypePartition =
+				FilterInstanceTypePartitioner.partition(iterable(nRelevantFilters.stream().flatMap(
+						f -> nFilterToInstances.get(f).stream())));
+		final Map<Filter, List<ExplicitFilterInstance>> nRelevantFilterToExplicitInstances =
+				nTypePartition.getExplicitFilterInstances().stream().collect(groupingBy(FilterInstance::getFilter));
+		final Map<Filter, List<ImplicitElementFilterInstance>> nRelevantFilterToImplicitElementInstances =
+				nTypePartition.getImplicitElementFilterInstances().stream()
+						.collect(groupingBy(FilterInstance::getFilter));
+		final Map<Filter, List<ImplicitECFilterInstance>> nRelevantFilterToImplicitECInstances =
+				nTypePartition.getImplicitECFilterInstances().stream().collect(groupingBy(FilterInstance::getFilter));
+
 		// divide into filters without multiple instances and filters with multiple instances
 		final List<Filter> nSingleCellFilters, nMultiCellFilters;
 		{
 			final Map<Boolean, List<Filter>> partition =
-					nRelevantFilters.stream().collect(
-							partitioningBy(f -> nFilterToInstances.get(f).size() > bRules.size()));
+					nRelevantFilterToExplicitInstances
+							.entrySet()
+							.stream()
+							.collect(
+									partitioningBy(e -> e.getValue().size() > bRules.size(),
+											mapping(Entry::getKey, toList())));
 			nSingleCellFilters = partition.get(Boolean.FALSE);
 			nMultiCellFilters = partition.get(Boolean.TRUE);
 		}
