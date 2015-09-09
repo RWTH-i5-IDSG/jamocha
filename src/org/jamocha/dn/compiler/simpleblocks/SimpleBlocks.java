@@ -354,7 +354,7 @@ public class SimpleBlocks {
 							final Pair<Integer, Integer> indexPair = aFI2IndexPair.get(aConflict.getTarget());
 							final FilterInstance bTarget = bijection.get(indexPair.getLeft()).get(indexPair.getRight());
 							final Conflict bConflict = bSource.getOrDetermineConflicts(bTarget);
-							if (!aConflict.equals(bConflict)) {
+							if (!hasEqualConflicts(aConflict, bConflict)) {
 								continue bijectionLoop;
 							}
 						}
