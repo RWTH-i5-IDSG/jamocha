@@ -286,7 +286,6 @@ public class ECBlocks {
 			arg = new TemplateSlotLeaf(element.getFactVariable().getTemplate(), element.getSlot().getSlot());
 		}
 
-		@SuppressWarnings("unchecked")
 		@Override
 		public void visit(final ConstantExpression element) {
 			arg = new ConstantLeaf<TemplateSlotLeaf>(element.constant.evaluate(), element.constant.getReturnType());
@@ -1302,6 +1301,14 @@ public class ECBlocks {
 			elementPartition.add(newSubSet);
 		}
 
+		public void addVariableExpressionSubSet(final SubSet<ECBlocks.Element> newSubSet) {
+			assert rulesOrProxies.stream().allMatch(newSubSet.elements.keySet()::contains);
+			for (final Element element : newSubSet.elements.values()) {
+				variableExpressionTheta.add(element);
+			}
+			elementPartition.add(newSubSet);
+		}
+
 		public void addFilterInstanceSubSet(final FilterInstanceSubSet newSubSet) {
 			assert rulesOrProxies.stream().allMatch(newSubSet.elements.keySet()::contains);
 			filterInstancePartition.add(newSubSet);
@@ -1627,7 +1634,6 @@ public class ECBlocks {
 		public static void convert(final List<Either<Rule, ExistentialProxy>> rules,
 				final Either<Rule, ExistentialProxy> ruleOrProxy, final Collection<ECFilterSet> filters) {
 			final RuleConverter ruleConverter = new RuleConverter(rules, ruleOrProxy);
-			// FIXME !explicitly add the tests currently implicit within the equivalence classes!
 			final Rule rule = ruleOrProxy.left().get();
 			final Set<EquivalenceClass> equivalenceClasses = rule.getOriginal().getEquivalenceClasses();
 			for (final EquivalenceClass equivalenceClass : equivalenceClasses) {
@@ -1665,14 +1671,13 @@ public class ECBlocks {
 					}
 				}
 
+				// FIXME equalparentEquivalenceClass checks are to be included somewhere
 				// ignore here, perform additional actions in visit(ECExistentialSet)
 				// 1 : just ignore and check within FilterProxy ::new and ::convert
 				// 2 : add explicitly to FilterProxy
 				// 3 : add explicitly to existentialClosure
 				final Set<EquivalenceClass> equalParentEquivalenceClasses =
 						equivalenceClass.getEqualParentEquivalenceClasses();
-				// FWASymbolToECTranslator
-				final ReducedEquivalenceClass reducedEquivalenceClass = new ReducedEquivalenceClass(equivalenceClass);
 			}
 			for (final ECFilterSet filter : filters) {
 				filter.accept(ruleConverter);
@@ -1838,12 +1843,14 @@ public class ECBlocks {
 											fi -> ((ExplicitFilterInstance) fi).convert())));
 				}
 				constructedFIs.addAll(block.getFlatFilterInstances());
-				for (final Entry<Either<Rule, ExistentialProxy>, Map<Filter, FilterInstancesSideBySide>> entry : block
-						.getRuleToFilterToRow().entrySet()) {
+
+				final Map<Either<Rule, ExistentialProxy>, Set<FilterInstance>> ruleToFilterInstances =
+						block.getFlatFilterInstances().stream()
+								.collect(groupingBy(FilterInstance::getRuleOrProxy, toSet()));
+				for (final Entry<Either<Rule, ExistentialProxy>, Set<FilterInstance>> entry : ruleToFilterInstances
+						.entrySet()) {
 					final Either<Rule, ExistentialProxy> rule = entry.getKey();
-					final Set<FilterInstance> joined =
-							entry.getValue().values().stream().flatMap(sbs -> sbs.getInstances().stream())
-									.collect(toSet());
+					final Set<FilterInstance> joined = entry.getValue();
 					final Map<FilterInstance, Set<FilterInstance>> joinedWithMapForThisRule =
 							ruleToJoinedWith.computeIfAbsent(rule, newHashMap());
 					joined.forEach(fi -> joinedWithMapForThisRule.put(fi, joined));
@@ -2319,6 +2326,12 @@ public class ECBlocks {
 				determineECColumns(filterInstances);
 		if (ecColumns.isEmpty())
 			return;
+		final SubSet<Element> leftESS =
+				new SubSet<>(filterInstances.stream().collect(
+						toMap(FilterInstance::getRuleOrProxy, ImplicitECFilterInstance::getLeft)));
+		final SubSet<Element> rightESS =
+				new SubSet<>(filterInstances.stream().collect(
+						toMap(FilterInstance::getRuleOrProxy, ImplicitECFilterInstance::getRight)));
 		final ImmutableMap<Either<Rule, ExistentialProxy>, ImplicitECFilterInstance> map =
 				Maps.uniqueIndex(filterInstances, ImplicitFilterInstance::getRuleOrProxy);
 		final FilterInstanceSubSet fiSS = new FilterInstanceSubSet(map);
@@ -2337,6 +2350,8 @@ public class ECBlocks {
 					newBlock.addElementSubSet(new SubSet<>(ess));
 				}
 			}
+			newBlock.addVariableExpressionSubSet(leftESS);
+			newBlock.addVariableExpressionSubSet(rightESS);
 			newBlock.addFilterInstanceSubSet(fiSS);
 			newBlock.addFilterInstanceSubSet(fiSSDual);
 			horizontalRecursion(newBlock, new Stack<>(), resultBlocks);
@@ -2947,6 +2962,7 @@ public class ECBlocks {
 					// ... and remove them from the workspace
 					columnDuals.values().forEach(remove);
 				}
+				newBlock.addVariableExpressionSubSet(new SubSet<>(ruleToNElement));
 				matchingFilters.add(Pair.of(newBlock, filterInstances));
 				matchingCombinationFound = true;
 			}
