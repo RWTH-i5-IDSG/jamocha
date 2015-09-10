@@ -26,6 +26,7 @@ import static org.jamocha.util.Lambdas.iterable;
 import static org.jamocha.util.Lambdas.negate;
 import static org.jamocha.util.Lambdas.newHashMap;
 import static org.jamocha.util.Lambdas.newHashSet;
+import static org.jamocha.util.Lambdas.newIdentityHashMap;
 import static org.jamocha.util.Lambdas.newLinkedHashSet;
 import static org.jamocha.util.Lambdas.newTreeMap;
 
@@ -1334,7 +1335,8 @@ public class ECBlocks {
 	}
 
 	protected static List<Map<Either<Rule, ExistentialProxy>, ? extends Element>> determineEquivalenceClassIntersection(
-			final Map<Either<Rule, ExistentialProxy>, EquivalenceClass> ecs, final Block block) {
+			final Map<Either<Rule, ExistentialProxy>, EquivalenceClass> ecs,
+			final FactVariablePartition factVariablePartition) {
 		final Map<FactVariableSubSet, Map<Either<Rule, ExistentialProxy>, FactBinding>> fvMapping =
 				new IdentityHashMap<>();
 		final Map<FactVariableSubSet, Map<SlotAddress, Map<Either<Rule, ExistentialProxy>, SlotBinding>>> svMapping =
@@ -1344,11 +1346,11 @@ public class ECBlocks {
 			final Either<Rule, ExistentialProxy> rule = entry.getKey();
 			final EquivalenceClass ec = entry.getValue();
 			for (final SingleFactVariable fv : ec.getFactVariables()) {
-				final FactVariableSubSet subSet = block.factVariablePartition.lookup(fv);
+				final FactVariableSubSet subSet = factVariablePartition.lookup(fv);
 				fvMapping.computeIfAbsent(subSet, x -> new IdentityHashMap<>()).put(rule, new FactBinding(fv));
 			}
 			for (final SingleSlotVariable sv : ec.getSlotVariables()) {
-				final FactVariableSubSet subSet = block.factVariablePartition.lookup(sv.getFactVariable());
+				final FactVariableSubSet subSet = factVariablePartition.lookup(sv.getFactVariable());
 				svMapping.computeIfAbsent(subSet, x -> new IdentityHashMap<>())
 						.computeIfAbsent(sv.getSlot(), x -> new IdentityHashMap<>()).put(rule, new SlotBinding(sv));
 			}
@@ -2367,16 +2369,16 @@ public class ECBlocks {
 			nMultiCellFilters = partition.get(Boolean.TRUE);
 		}
 		// list of rule-filter-matchings that may be added
-		final List<FilterInstanceSubSet> matchingFilters = new ArrayList<>();
-		final List<Filter> incompatibleFilters = new ArrayList<>();
+		final List<Pair<Block, List<FilterInstance>>> matchingFilters = new ArrayList<>();
+		final List<FilterInstance> incompatibleFilters = new ArrayList<>();
 
 		// prefer singleCellFilters
-		findMatchingAndIncompatibleFilters(nFilterToInstances, bRules, nSingleCellFilters,
-				block.filterInstancePartition, block.theta, matchingFilters, incompatibleFilters);
+		findMatchingAndIncompatibleExplicitFilters(nRelevantFilterToExplicitInstances, nSingleCellFilters,
+				block.filterInstancePartition, block, matchingFilters, incompatibleFilters);
 		// if none matched, try multiCellFilters, otherwise defer them
 		if (matchingFilters.isEmpty()) {
-			findMatchingAndIncompatibleFilters(nFilterToInstances, bRules, nMultiCellFilters,
-					block.filterInstancePartition, block.theta, matchingFilters, incompatibleFilters);
+			findMatchingAndIncompatibleExplicitFilters(nRelevantFilterToExplicitInstances, nMultiCellFilters,
+					block.filterInstancePartition, block, matchingFilters, incompatibleFilters);
 			// if still none matched, the block is maximal, add it to the result blocks
 			if (matchingFilters.isEmpty()) {
 				resultBlocks.addDuringHorizontalRecursion(block);
@@ -2389,36 +2391,32 @@ public class ECBlocks {
 		// add it to the stack
 		exclusionStack.push(furtherExcludes);
 		// add all incompatible filter instances to the exclusion stack
-		for (final Filter incompatibleFilter : incompatibleFilters) {
-			furtherExcludes.addAll(nFilterToInstances.get(incompatibleFilter));
-		}
+		furtherExcludes.addAll(incompatibleFilters);
 		// for every matching filter instance set, create a new block
-		for (final FilterInstanceSubSet neighbourSubSet : matchingFilters) {
-			final Block newBlock = new Block(block);
-			newBlock.addExplicitColumn(neighbourSubSet);
+		for (final Pair<Block, List<FilterInstance>> match : matchingFilters) {
+			final Block newBlock = match.getLeft();
 			// recurse for that block
 			horizontalRecursion(newBlock, exclusionStack, resultBlocks);
 			// after the recursion, exclude all filter instances just used
-			for (final FilterInstance filterInstance : neighbourSubSet.getElements().values()) {
-				furtherExcludes.add(filterInstance);
-			}
+			furtherExcludes.addAll(match.getRight());
 		}
 		// eliminate top layer of the exclusion stack
 		exclusionStack.pop();
 	}
 
-	protected static void findMatchingAndIncompatibleFilters(
-			final Map<Filter, List<FilterInstance>> nFilterToInstances,
-			final Set<Either<Rule, ExistentialProxy>> bRules, final List<Filter> nFilters,
-			final FilterInstancePartition bFIPartition, final Theta bTheta,
-			final List<FilterInstanceSubSet> matchingFilters, final List<Filter> incompatibleFilters) {
+	protected static void findMatchingAndIncompatibleExplicitFilters(
+			final Map<Filter, List<ExplicitFilterInstance>> nFilterToInstances, final List<Filter> nFilters,
+			final FilterInstancePartition bFIPartition, final Block block,
+			final List<Pair<Block, List<FilterInstance>>> matchingFilters,
+			final List<FilterInstance> incompatibleFilters) {
+		final FactVariablePartition bFactVariablePartition = block.factVariablePartition;
 		// iterate over every single-/multi-cell filter and check that its instances have the same
 		// conflicts in every rule
 		for (final Filter nFilter : nFilters) {
 			boolean matchingConstellationFound = false;
 
 			// iterate over the possible mappings: (filter,rule) -> filter instance
-			final List<Set<FilterInstance>> nListOfRelevantFilterInstancesGroupedByRule =
+			final List<Set<ExplicitFilterInstance>> nListOfRelevantFilterInstancesGroupedByRule =
 					new ArrayList<>(nFilterToInstances.get(nFilter).stream()
 							.collect(groupingBy(FilterInstance::getRuleOrProxy, toSet())).values());
 
@@ -2426,46 +2424,100 @@ public class ECBlocks {
 			final Set<List<FilterInstance>> nRelevantFilterInstanceCombinations =
 					Sets.cartesianProduct(nListOfRelevantFilterInstancesGroupedByRule);
 			// iterate over the possible filter instance combinations
-			cartesianProductLoop: for (final List<FilterInstance> nCurrentOutsideFilterInstances : nRelevantFilterInstanceCombinations) {
+			cartesianProductLoop: for (final List<FilterInstance> nCurrentOutsideColumn : nRelevantFilterInstanceCombinations) {
 				// create a map for faster lookup: rule -> filter instance (outside)
-				final Map<Either<Rule, ExistentialProxy>, FilterInstance> nRuleToCurrentOutsideFilterInstance =
-						Maps.uniqueIndex(nCurrentOutsideFilterInstances, FilterInstance::getRuleOrProxy);
-				// if only one rule, every filter matches
-				if (bRules.size() > 1) {
-					// iterate over the block columns
-					for (final FilterInstanceSubSet bFilterInstanceSubSet : bFIPartition.getElements()) {
-						Conflict firstConflict = null;
-						boolean first = true;
-						// iterate over the rows aka the rules
-						for (final Entry<Either<Rule, ExistentialProxy>, FilterInstance> bRuleToFI : bFilterInstanceSubSet
-								.getElements().entrySet()) {
-							final Either<Rule, ExistentialProxy> rule = bRuleToFI.getKey();
-							final FilterInstance nSource = nRuleToCurrentOutsideFilterInstance.get(rule);
-							final FilterInstance bTarget = bRuleToFI.getValue();
-							// determine conflict between inside instance and outside instance
-							final Conflict conflict = nSource.getConflict(bTarget, bTheta, bTheta);
-							// if this is the first loop iteration, just remember the conflict to be
-							// compared later on
-							if (first) {
-								first = false;
-								firstConflict = conflict;
-							}
-							// if the conflicts don't match, continue with next filter
-							else if (!hasEqualConflicts(firstConflict, conflict)) {
-								continue cartesianProductLoop;
-							}
+				final Map<Either<Rule, ExistentialProxy>, FilterInstance> nRuleToCurrentOutsideColumn =
+						Maps.uniqueIndex(nCurrentOutsideColumn, FilterInstance::getRuleOrProxy);
+
+				// create the EC index pattern
+				final HashSet<List<Integer>> ecPatterns =
+						nCurrentOutsideColumn.stream().map(ECBlocks::computeECPattern)
+								.collect(toCollection(HashSet::new));
+				// if different patterns, disregard combination
+				if (ecPatterns.size() > 1) {
+					continue cartesianProductLoop;
+				}
+				final HashSet<Integer> differentECs = Sets.newHashSet(ecPatterns.iterator().next());
+
+				// create the EC columns
+				final Map<Integer, Map<Either<Rule, ExistentialProxy>, EquivalenceClass>> ecColumns = new HashMap<>();
+				for (final FilterInstance filterInstance : nCurrentOutsideColumn) {
+					final Either<Rule, ExistentialProxy> rule = filterInstance.getRuleOrProxy();
+					final List<EquivalenceClass> ecs = filterInstance.getDirectlyContainedEquivalenceClasses();
+					for (final Integer i : differentECs) {
+						final EquivalenceClass ec = ecs.get(i);
+						// if old don't consider EC
+						if (block.theta.getEquivalenceClasses().contains(ec)) {
+							continue;
+						}
+						ecColumns.computeIfAbsent(i, newIdentityHashMap()).put(rule, ec);
+					}
+				}
+				final List<List<Map<Either<Rule, ExistentialProxy>, ? extends Element>>> intersections =
+						ecColumns.values().stream()
+								.map(ecMap -> determineEquivalenceClassIntersection(ecMap, bFactVariablePartition))
+								.collect(toList());
+				// if any intersection is empty, disregard combination
+				if (intersections.stream().anyMatch(List::isEmpty)) {
+					continue cartesianProductLoop;
+				}
+				// introduce the intersections into the block
+				// create a new block first
+				final Block newBlock = new Block(block);
+				// add everything to the element partition and the theta
+				for (final List<Map<Either<Rule, ExistentialProxy>, ? extends Element>> intersection : intersections) {
+					for (final Map<Either<Rule, ExistentialProxy>, ? extends Element> subset : intersection) {
+						newBlock.addElementSet(new SubSet<>(new HashMap<>(subset)));
+					}
+				}
+
+				// iterate over the block columns
+				for (final FilterInstanceSubSet bFilterInstanceSubSet : bFIPartition.getElements()) {
+					Conflict firstConflict = null;
+					boolean first = true;
+					// iterate over the rows aka the rules
+					for (final Entry<Either<Rule, ExistentialProxy>, FilterInstance> bRuleToFI : bFilterInstanceSubSet
+							.getElements().entrySet()) {
+						final Either<Rule, ExistentialProxy> rule = bRuleToFI.getKey();
+						final FilterInstance nSource = nRuleToCurrentOutsideColumn.get(rule);
+						final FilterInstance bTarget = bRuleToFI.getValue();
+						// determine conflict between inside instance and outside instance
+						final Conflict conflict = nSource.getConflict(bTarget, newBlock.theta, newBlock.theta);
+						// if this is the first loop iteration, just remember the conflict to be
+						// compared later on
+						if (first) {
+							first = false;
+							firstConflict = conflict;
+						}
+						// if the conflicts don't match, continue with next filter
+						else if (!hasEqualConflicts(firstConflict, conflict)) {
+							continue cartesianProductLoop;
 						}
 					}
 				}
+
 				// conflict identical for all rules
-				matchingFilters.add(new FilterInstanceSubSet(Maps.newHashMap(Maps.asMap(bRules,
-						rule -> nRuleToCurrentOutsideFilterInstance.get(rule)))));
+				newBlock.addExplicitColumn(new FilterInstanceSubSet(Maps.newHashMap(nRuleToCurrentOutsideColumn)));
+				matchingFilters.add(Pair.of(newBlock, nCurrentOutsideColumn));
 				matchingConstellationFound = true;
 			}
 			if (!matchingConstellationFound) {
-				incompatibleFilters.add(nFilter);
+				incompatibleFilters.addAll(nFilterToInstances.get(nFilter));
 			}
 		}
+	}
+
+	static List<Integer> computeECPattern(final FilterInstance instance) {
+		final List<EquivalenceClass> ecs = instance.getDirectlyContainedEquivalenceClasses();
+		final List<Integer> result = new ArrayList<>();
+		final Map<EquivalenceClass, Integer> firstSighting = new IdentityHashMap<>();
+		for (int i = 0; i < ecs.size(); i++) {
+			final EquivalenceClass equivalenceClass = ecs.get(i);
+			final Integer current = Integer.valueOf(i);
+			final Integer first = firstSighting.computeIfAbsent(equivalenceClass, x -> current);
+			result.add(first);
+		}
+		return result;
 	}
 
 	@Getter

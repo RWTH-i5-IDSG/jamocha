@@ -15,10 +15,13 @@
 package org.jamocha.util;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.IdentityHashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.function.Function;
@@ -149,12 +152,20 @@ public class Lambdas {
 		return x -> new LinkedHashSet<B>();
 	}
 
+	public static <A, B> Function<A, Set<B>> newIdentityHashSet() {
+		return x -> Collections.newSetFromMap(new IdentityHashMap<>());
+	}
+
 	public static <A, B, C> Function<A, HashMap<B, C>> newHashMap() {
 		return x -> new HashMap<B, C>();
 	}
 
 	public static <A, B, C> Function<A, LinkedHashMap<B, C>> newLinkedHashMap() {
 		return x -> new LinkedHashMap<B, C>();
+	}
+
+	public static <A, B, C> Function<A, IdentityHashMap<B, C>> newIdentityHashMap() {
+		return x -> new IdentityHashMap<B, C>();
 	}
 
 	public static <A, B> Function<A, TreeSet<B>> newTreeSet() {
