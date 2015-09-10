@@ -53,6 +53,7 @@ import java.util.Set;
 import java.util.Stack;
 import java.util.TreeMap;
 import java.util.function.BiFunction;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
@@ -105,7 +106,7 @@ import org.jamocha.function.fwa.PredicateWithArguments;
 import org.jamocha.function.fwa.SymbolLeaf;
 import org.jamocha.function.fwa.TemplateSlotLeaf;
 import org.jamocha.function.fwa.TypeLeaf;
-import org.jamocha.function.fwatransformer.FWAPathLeafToTypeLeafTranslator;
+import org.jamocha.function.fwatransformer.FWAECLeafToTypeLeafTranslator;
 import org.jamocha.function.fwatransformer.FWASymbolToECTranslator;
 import org.jamocha.function.impls.predicates.Equals;
 import org.jamocha.languages.common.RuleCondition.EquivalenceClass;
@@ -317,7 +318,8 @@ public class ECBlocks {
 
 		static Filter newEqualityFilter(final FunctionWithArguments<ECLeaf> left,
 				final FunctionWithArguments<ECLeaf> right) {
-			return newFilter(GenericWithArgumentsComposite.newPredicateInstance(Equals.inClips, left, right));
+			return newFilter(FWAECLeafToTypeLeafTranslator.translate(GenericWithArgumentsComposite
+					.newPredicateInstance(Equals.inClips, left, right)));
 		}
 
 		public ExplicitFilterInstance addExplicitInstance(final Either<Rule, ExistentialProxy> ruleOrProxy,
@@ -1662,7 +1664,7 @@ public class ECBlocks {
 		protected static <T extends Filter> T convertFilter(final ECFilter ecFilter,
 				final Function<PredicateWithArguments<TypeLeaf>, T> ctor) {
 			final PredicateWithArguments<ECLeaf> predicate = ecFilter.getFunction();
-			return ctor.apply(FWAPathLeafToTypeLeafTranslator.getArguments(predicate));
+			return ctor.apply(FWAECLeafToTypeLeafTranslator.translate(predicate));
 		}
 
 		@Override
@@ -2514,10 +2516,15 @@ public class ECBlocks {
 						groupingBy(FilterInstance::getRuleOrProxy,
 								groupingBy(FilterInstance::getFilter, toCollection(() -> Sets.newIdentityHashSet()))));
 
+		final Consumer<ImplicitElementFilterInstance> remove = (fi) -> {
+			workspace.remove(fi);
+			workspaceByRule.get(fi.getRuleOrProxy()).get(fi.getFilter()).remove(fi);
+		};
+
 		workspaceLoop: while (!workspace.isEmpty()) {
 			final ImplicitElementFilterInstance nCurrentFI = workspace.iterator().next();
 			final Filter nCurrentFilter = nCurrentFI.getFilter();
-			removeFromWorkspace(workspace, workspaceByRule, nCurrentFI);
+			remove.accept(nCurrentFI);
 			final Function<ImplicitElementFilterInstance, Element> getBElement, getNElement;
 			final BiFunction<Element, Element, Filter> bnToFilter;
 			{
@@ -2561,7 +2568,7 @@ public class ECBlocks {
 					continue workspaceLoop;
 				}
 				firstFIColumn.put(rule, matchingInstance);
-				removeFromWorkspace(workspace, workspaceByRule, matchingInstance);
+				remove.accept(matchingInstance);
 			}
 			// now we know there is an equivalent filter instance for every rule
 			final Map<Either<Rule, ExistentialProxy>, Element> ruleToNElement =
@@ -2584,7 +2591,7 @@ public class ECBlocks {
 			filterInstances.addAll(firstFIColumnDuals.values());
 			// ... which also have to be removed from the workspace
 			for (final ImplicitElementFilterInstance dual : firstFIColumnDuals.values()) {
-				removeFromWorkspace(workspace, workspaceByRule, dual);
+				remove.accept(dual);
 			}
 
 			// since the list of ElementSubSets is the same for all rules, we can iterate over them
@@ -2603,14 +2610,13 @@ public class ECBlocks {
 					final Element currentNElement = ruleToNElement.get(rule);
 					final Filter filter = bnToFilter.apply(currentBElement, currentNElement);
 					final ImplicitElementFilterInstance matchingInstance =
-							getMatchingFilterInstanceForRule(factVariablePartition, bElementPartition,
-									workspaceByRule, filter, getBElement, getNElement, currentBElement,
-									currentNElement, rule);
+							getMatchingFilterInstanceForRule(factVariablePartition, bElementPartition, workspaceByRule,
+									filter, getBElement, getNElement, currentBElement, currentNElement, rule);
 					if (null == matchingInstance) {
 						throw new IllegalStateException("Inconsistent!");
 					}
 					column.put(rule, matchingInstance);
-					removeFromWorkspace(workspace, workspaceByRule, matchingInstance);
+					remove.accept(matchingInstance);
 				}
 				// add the newly found filter instances
 				newBlock.addFilterInstanceSubSet(new FilterInstanceSubSet(column));
@@ -2623,19 +2629,11 @@ public class ECBlocks {
 				filterInstances.addAll(columnDuals.values());
 				// ... and remove them from the workspace
 				for (final ImplicitElementFilterInstance dual : columnDuals.values()) {
-					removeFromWorkspace(workspace, workspaceByRule, dual);
+					remove.accept(dual);
 				}
 			}
 			matchingFilters.add(Pair.of(newBlock, filterInstances));
 		}
-	}
-
-	protected static <T extends FilterInstance> void removeFromWorkspace(final Set<T> workspace,
-			final Map<Either<Rule, ExistentialProxy>, Map<Filter, Set<T>>> workspaceByRule,
-			final T filterInstanceToRemove) {
-		workspace.remove(filterInstanceToRemove);
-		workspaceByRule.get(filterInstanceToRemove.getRuleOrProxy()).get(filterInstanceToRemove.getFilter())
-				.remove(filterInstanceToRemove);
 	}
 
 	protected static ImplicitElementFilterInstance getMatchingFilterInstanceForRule(
