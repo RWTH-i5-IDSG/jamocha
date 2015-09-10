@@ -4,16 +4,16 @@ import org.jamocha.function.fwa.ECLeaf;
 import org.jamocha.function.fwa.PredicateWithArguments;
 import org.jamocha.function.fwa.TypeLeaf;
 
-public class FWAPathLeafToTypeLeafTranslator extends FWATranslator<ECLeaf, TypeLeaf> {
-	public static PredicateWithArguments<TypeLeaf> getArguments(final PredicateWithArguments<ECLeaf> predicate) {
-		final FWAPathLeafToTypeLeafTranslator instance = new FWAPathLeafToTypeLeafTranslator();
+public class FWAECLeafToTypeLeafTranslator extends FWATranslator<ECLeaf, TypeLeaf> {
+	public static PredicateWithArguments<TypeLeaf> translate(final PredicateWithArguments<ECLeaf> predicate) {
+		final FWAECLeafToTypeLeafTranslator instance = new FWAECLeafToTypeLeafTranslator();
 		predicate.accept(instance);
 		return (PredicateWithArguments<TypeLeaf>) instance.functionWithArguments;
 	}
 
 	@Override
 	public FWATranslator<ECLeaf, TypeLeaf> of() {
-		return new FWAPathLeafToTypeLeafTranslator();
+		return new FWAECLeafToTypeLeafTranslator();
 	}
 
 	@Override
