@@ -27,6 +27,7 @@ import static org.jamocha.util.Lambdas.negate;
 import static org.jamocha.util.Lambdas.newHashMap;
 import static org.jamocha.util.Lambdas.newHashSet;
 import static org.jamocha.util.Lambdas.newIdentityHashMap;
+import static org.jamocha.util.Lambdas.newIdentityHashSet;
 import static org.jamocha.util.Lambdas.newLinkedHashSet;
 import static org.jamocha.util.Lambdas.newTreeMap;
 
@@ -1347,16 +1348,16 @@ public class ECBlocks {
 			final EquivalenceClass ec = entry.getValue();
 			for (final SingleFactVariable fv : ec.getFactVariables()) {
 				final FactVariableSubSet subSet = factVariablePartition.lookup(fv);
-				fvMapping.computeIfAbsent(subSet, x -> new IdentityHashMap<>()).put(rule, new FactBinding(fv));
+				fvMapping.computeIfAbsent(subSet, newIdentityHashMap()).put(rule, new FactBinding(fv));
 			}
 			for (final SingleSlotVariable sv : ec.getSlotVariables()) {
 				final FactVariableSubSet subSet = factVariablePartition.lookup(sv.getFactVariable());
-				svMapping.computeIfAbsent(subSet, x -> new IdentityHashMap<>())
-						.computeIfAbsent(sv.getSlot(), x -> new IdentityHashMap<>()).put(rule, new SlotBinding(sv));
+				svMapping.computeIfAbsent(subSet, newIdentityHashMap())
+						.computeIfAbsent(sv.getSlot(), newIdentityHashMap()).put(rule, new SlotBinding(sv));
 			}
 			for (final FunctionWithArguments<SymbolLeaf> constant : ec.getConstantExpressions()) {
 				final Object value = constant.evaluate();
-				constantMapping.computeIfAbsent(value, x -> new HashMap<>()).put(rule,
+				constantMapping.computeIfAbsent(value, newHashMap()).put(rule,
 						new ConstantExpression(constant, ec));
 			}
 		}
@@ -1837,7 +1838,7 @@ public class ECBlocks {
 				continue;
 			}
 			final List<ECFilterList> ecFilterLists =
-					Stream.concat(either.left().get().existentialProxies.values().stream().map(p -> Either.right(p)),
+					Stream.concat(either.left().get().existentialProxies.values().stream().map(Either::right),
 							Stream.of(either))
 							.flatMap(
 									e -> ruleToJoinedWith.getOrDefault(e, Collections.emptyMap()).values().stream()
@@ -2060,9 +2061,9 @@ public class ECBlocks {
 			// the taller block than by the theta of the wider block, the blocks are in conflict
 			final Set<EquivalenceClass> m =
 					x.flatFilterInstances.stream().map(FilterInstance::getDirectlyContainedEquivalenceClasses)
-							.flatMap(List::stream).collect(toCollection(() -> Sets.newIdentityHashSet()));
+							.flatMap(List::stream).collect(toCollection(Sets::newIdentityHashSet));
 			m.retainAll(y.flatFilterInstances.stream().map(FilterInstance::getDirectlyContainedEquivalenceClasses)
-					.flatMap(List::stream).collect(toCollection(() -> Sets.newIdentityHashSet())));
+					.flatMap(List::stream).collect(toCollection(Sets::newIdentityHashSet)));
 			for (final EquivalenceClass equivalenceClass : m) {
 				if (!x.theta.reduce(equivalenceClass).containsAll(y.theta.reduce(equivalenceClass))) {
 					return new BlockConflict(replaceBlock, conflictingBlock, cfi);
@@ -2198,7 +2199,7 @@ public class ECBlocks {
 			}
 			if (1 == max) {
 				// every rule contains exactly one fv for the current template
-				subsets.computeIfAbsent(template, x -> Sets.newIdentityHashSet()).add(
+				subsets.computeIfAbsent(template, newIdentityHashSet()).add(
 						Collections.singletonList(new FactVariableSubSet(Maps.transformValues(templateToMap.getValue(),
 								l -> l.get(0)))));
 				continue;
@@ -2234,7 +2235,7 @@ public class ECBlocks {
 				listOfMaps.add(currentList);
 			}
 			final Set<List<FactVariableSubSet>> targetSubSets =
-					subsets.computeIfAbsent(template, x -> Sets.newIdentityHashSet());
+					subsets.computeIfAbsent(template, newIdentityHashSet());
 			for (final List<Map<Either<Rule, ExistentialProxy>, SingleFactVariable>> maps : listOfMaps) {
 				targetSubSets.add(maps.stream().map(FactVariableSubSet::new).collect(toList()));
 			}
