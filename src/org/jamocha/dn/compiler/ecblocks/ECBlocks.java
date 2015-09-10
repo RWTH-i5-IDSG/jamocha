@@ -1254,7 +1254,6 @@ public class ECBlocks {
 		final FilterInstancePartition filterInstancePartition;
 		final FactVariablePartition factVariablePartition;
 		final ElementPartition elementPartition;
-		final Partition<Set<VariableExpression>, SubSet<Set<VariableExpression>>> variableExpressionsPartition;
 
 		public Block(final Set<Either<Rule, ExistentialProxy>> rules, final FactVariablePartition factVariablePartition) {
 			this.theta = new Theta.Reducer();
@@ -1265,7 +1264,6 @@ public class ECBlocks {
 			this.factVariablePartition = factVariablePartition;
 			this.filterInstancePartition = new FilterInstancePartition();
 			this.elementPartition = new ElementPartition();
-			this.variableExpressionsPartition = new Partition<>();
 		}
 
 		public Block(final Block block) {
@@ -1281,7 +1279,6 @@ public class ECBlocks {
 			filterInstancePartition = new FilterInstancePartition(block.filterInstancePartition);
 			factVariablePartition = new FactVariablePartition(block.factVariablePartition);
 			elementPartition = new ElementPartition(block.elementPartition);
-			variableExpressionsPartition = new Partition<>(block.variableExpressionsPartition);
 		}
 
 		@Override
