@@ -48,6 +48,7 @@ import org.jamocha.filter.FWACollector;
 import org.jamocha.filter.SymbolCollector;
 import org.jamocha.filter.SymbolInSymbolLeafsCollector;
 import org.jamocha.function.FunctionNormaliser;
+import org.jamocha.function.fwa.ConstantLeaf;
 import org.jamocha.function.fwa.DefaultFunctionWithArgumentsVisitor;
 import org.jamocha.function.fwa.ECLeaf;
 import org.jamocha.function.fwa.FunctionWithArguments;
@@ -314,7 +315,8 @@ public class CEToECTranslator implements DefaultConditionalElementsVisitor {
 					return equivalenceClasses.computeIfAbsent(fwa, f -> {
 						final Set<VariableSymbol> symbols = SymbolInSymbolLeafsCollector.collect(f);
 						if (symbols.isEmpty()) {
-							return EquivalenceClass.newECFromConstantExpression(scope, f);
+							return EquivalenceClass.newECFromConstantExpression(scope,
+									new ConstantLeaf<SymbolLeaf>(f.evaluate(), f.getReturnType()));
 						}
 						Scope max = scope;
 						for (final VariableSymbol symbol : symbols) {
