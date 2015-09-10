@@ -128,6 +128,7 @@ import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableList.Builder;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -147,8 +148,6 @@ public class ECBlocks {
 		public void visit(final SlotBinding element);
 
 		public void visit(final ConstantExpression element);
-
-		public void visit(final VariableExpression element);
 	}
 
 	/**
@@ -240,21 +239,34 @@ public class ECBlocks {
 	 */
 	@RequiredArgsConstructor
 	@Getter
-	@EqualsAndHashCode(of = { "variable" })
+	@EqualsAndHashCode(of = { "translated" })
 	static class VariableExpression implements Element {
-		final FunctionWithArguments<SymbolLeaf> variable;
-		@Getter(onMethod = @__({ @Override }))
-		final EquivalenceClass equivalenceClass;
+		final FunctionWithArguments<SymbolLeaf> variableExpression;
+		final FunctionWithArguments<ECLeaf> translated;
+		final EquivalenceClass originEquivalenceClass;
+		final List<EquivalenceClass> ecsInTranslated;
+
+		public VariableExpression(final FunctionWithArguments<SymbolLeaf> variableExpression,
+				final FunctionWithArguments<ECLeaf> translated, final EquivalenceClass originEquivalenceClass) {
+			this.variableExpression = variableExpression;
+			this.translated = translated;
+			this.originEquivalenceClass = originEquivalenceClass;
+			this.ecsInTranslated = OrderedECCollector.collect(translated);
+		}
 
 		@Override
-		public SingleFactVariable getFactVariable() {
-			return null;
+		public EquivalenceClass getEquivalenceClass() {
+			return originEquivalenceClass;
 		}
 
 		@Override
 		public <V extends ElementVisitor> V accept(final V visitor) {
-			visitor.visit(this);
-			return visitor;
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public SingleFactVariable getFactVariable() {
+			throw new UnsupportedOperationException();
 		}
 	}
 
@@ -278,12 +290,6 @@ public class ECBlocks {
 		@Override
 		public void visit(final ConstantExpression element) {
 			arg = new ConstantLeaf<TemplateSlotLeaf>(element.constant.evaluate(), element.constant.getReturnType());
-		}
-
-		@Override
-		public void visit(final VariableExpression element) {
-			throw new UnsupportedOperationException(
-					"VariableElements can not to be transformed into TemplateSlotLeaf, but only into TypeLeaf!");
 		}
 	}
 
@@ -310,16 +316,15 @@ public class ECBlocks {
 			return cache.computeIfAbsent(new Filter(predicate), Function.identity());
 		}
 
-		static Filter newEqualityFilter(final Element left, final Element right) {
+		private static Filter newEqualityFilter(final Element left, final Element right) {
 			return newFilter(GenericWithArgumentsComposite.newPredicateInstance(Equals.inClips,
 					left.accept(new ElementToTemplateSlotLeafTranslator()).arg,
 					right.accept(new ElementToTemplateSlotLeafTranslator()).arg));
 		}
 
-		static Filter newEqualityFilter(final FunctionWithArguments<ECLeaf> left,
-				final FunctionWithArguments<ECLeaf> right) {
+		private static Filter newEqualityFilter(final VariableExpression left, final VariableExpression right) {
 			return newFilter(FWAECLeafToTypeLeafTranslator.translate(GenericWithArgumentsComposite
-					.newPredicateInstance(Equals.inClips, left, right)));
+					.newPredicateInstance(Equals.inClips, left.translated, right.translated)));
 		}
 
 		public ExplicitFilterInstance addExplicitInstance(final Either<Rule, ExistentialProxy> ruleOrProxy,
@@ -333,10 +338,16 @@ public class ECBlocks {
 
 		public static ImplicitElementFilterInstance newImplicitElementInstance(
 				final Either<Rule, ExistentialProxy> ruleOrProxy, final Element left, final Element right) {
-			return newEqualityFilter(left, right).addImplicitElementInstance(ruleOrProxy, left, right);
+			final ImplicitElementFilterInstance lrFI =
+					newEqualityFilter(left, right).addImplicitElementInstance(ruleOrProxy, left, right);
+			final ImplicitElementFilterInstance rlFI =
+					newEqualityFilter(right, left).addImplicitElementInstance(ruleOrProxy, right, left);
+			lrFI.setDual(rlFI);
+			rlFI.setDual(lrFI);
+			return lrFI;
 		}
 
-		public ImplicitElementFilterInstance addImplicitElementInstance(
+		private ImplicitElementFilterInstance addImplicitElementInstance(
 				final Either<Rule, ExistentialProxy> ruleOrProxy, final Element left, final Element right) {
 			final ImplicitElementFilterInstance instance = new ImplicitElementFilterInstance(ruleOrProxy, left, right);
 			ruleToImplicitElementInstances.computeIfAbsent(ruleOrProxy, newHashSet()).add(instance);
@@ -345,16 +356,21 @@ public class ECBlocks {
 		}
 
 		public static ImplicitECFilterInstance newImplicitECInstance(final Either<Rule, ExistentialProxy> ruleOrProxy,
-				final FunctionWithArguments<ECLeaf> left, final FunctionWithArguments<ECLeaf> right) {
-			return newEqualityFilter(left, right).addImplicitECInstance(ruleOrProxy, left, right);
+				final VariableExpression left, final VariableExpression right) {
+			final ImplicitECFilterInstance lrFI =
+					newEqualityFilter(left, right).addImplicitECInstance(ruleOrProxy, left, right);
+			final ImplicitECFilterInstance rlFI =
+					newEqualityFilter(right, left).addImplicitECInstance(ruleOrProxy, right, left);
+			lrFI.setDual(rlFI);
+			rlFI.setDual(lrFI);
+			return lrFI;
 		}
 
-		public ImplicitECFilterInstance addImplicitECInstance(final Either<Rule, ExistentialProxy> ruleOrProxy,
-				final FunctionWithArguments<ECLeaf> left, final FunctionWithArguments<ECLeaf> right) {
+		private ImplicitECFilterInstance addImplicitECInstance(final Either<Rule, ExistentialProxy> ruleOrProxy,
+				final VariableExpression left, final VariableExpression right) {
 			final ImplicitECFilterInstance instance =
-					new ImplicitECFilterInstance(ruleOrProxy,
-							ImmutableList.<EquivalenceClass> builder().addAll(OrderedECCollector.collect(left))
-									.addAll(OrderedECCollector.collect(right)).build(), left, right);
+					new ImplicitECFilterInstance(ruleOrProxy, ImmutableList.<EquivalenceClass> builder()
+							.addAll(left.ecsInTranslated).addAll(right.ecsInTranslated).build(), left, right);
 			ruleToImplicitECInstances.computeIfAbsent(ruleOrProxy, newHashSet()).add(instance);
 			ruleToAllInstances.computeIfAbsent(ruleOrProxy, newHashSet()).add(instance);
 			return instance;
@@ -566,6 +582,8 @@ public class ECBlocks {
 		// no EqualsAndHashCode
 		class ImplicitElementFilterInstance extends AbstractFilterInstance implements ImplicitFilterInstance {
 			final Element left, right;
+			@Setter(AccessLevel.PRIVATE)
+			private ImplicitElementFilterInstance dual;
 
 			private ImplicitElementFilterInstance(final Either<Rule, ExistentialProxy> ruleOrProxy, final Element left,
 					final Element right) {
@@ -581,10 +599,7 @@ public class ECBlocks {
 
 			@Override
 			public ImplicitElementFilterInstance getDual() {
-				final Set<ImplicitElementFilterInstance> implicitElementInstances =
-						Filter.newEqualityFilter(right, left).getImplicitElementInstances(ruleOrProxy);
-				assert implicitElementInstances.size() == 1;
-				return implicitElementInstances.iterator().next();
+				return dual;
 			}
 
 			@Override
@@ -641,6 +656,7 @@ public class ECBlocks {
 		/**
 		 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
 		 */
+		@Getter
 		private abstract class ECFilterInstance extends AbstractFilterInstance {
 			final List<EquivalenceClass> parameters;
 
@@ -686,11 +702,13 @@ public class ECBlocks {
 		@Getter
 		// no EqualsAndHashCode
 		class ImplicitECFilterInstance extends ECFilterInstance implements ImplicitFilterInstance {
-			final FunctionWithArguments<ECLeaf> left, right;
+			final VariableExpression left, right;
+			@Setter(AccessLevel.PRIVATE)
+			private ImplicitECFilterInstance dual;
 
 			private ImplicitECFilterInstance(final Either<Rule, ExistentialProxy> ruleOrProxy,
-					final List<EquivalenceClass> parameters, final FunctionWithArguments<ECLeaf> left,
-					final FunctionWithArguments<ECLeaf> right) {
+					final List<EquivalenceClass> parameters, final VariableExpression left,
+					final VariableExpression right) {
 				super(ruleOrProxy, parameters);
 				this.left = left;
 				this.right = right;
@@ -703,10 +721,7 @@ public class ECBlocks {
 
 			@Override
 			public ImplicitECFilterInstance getDual() {
-				final Set<ImplicitECFilterInstance> implicitElementInstances =
-						Filter.newEqualityFilter(right, left).getImplicitECInstances(ruleOrProxy);
-				assert implicitElementInstances.size() == 1;
-				return implicitElementInstances.iterator().next();
+				return dual;
 			}
 
 			@Override
@@ -1233,23 +1248,28 @@ public class ECBlocks {
 		// theta : map the arguments of the filter instances used instead of modifying them
 		// in-place to be able to have the same instance within different blocks
 		final Theta theta;
+		final Theta variableExpressionTheta;
 		final ConflictEdgeFactory edgeFactory;
 		final FilterInstancePartition filterInstancePartition;
 		final FactVariablePartition factVariablePartition;
 		final ElementPartition elementPartition;
+		final Partition<Set<VariableExpression>, SubSet<Set<VariableExpression>>> variableExpressionsPartition;
 
 		public Block(final Set<Either<Rule, ExistentialProxy>> rules, final FactVariablePartition factVariablePartition) {
 			this.theta = new Theta.Reducer();
+			this.variableExpressionTheta = new Theta.Reducer();
 			this.edgeFactory = ConflictEdge.newFactory(theta);
 			this.graph = new SimpleGraph<>(edgeFactory);
 			this.rulesOrProxies = Sets.newHashSet(rules);
 			this.factVariablePartition = factVariablePartition;
 			this.filterInstancePartition = new FilterInstancePartition();
 			this.elementPartition = new ElementPartition();
+			this.variableExpressionsPartition = new Partition<>();
 		}
 
 		public Block(final Block block) {
 			theta = block.theta.copy();
+			variableExpressionTheta = block.variableExpressionTheta.copy();
 			edgeFactory = ConflictEdge.newFactory(theta);
 			graph = block.graph;
 			rulesOrProxies = new HashSet<>(block.rulesOrProxies);
@@ -1258,6 +1278,7 @@ public class ECBlocks {
 			filterInstancePartition = new FilterInstancePartition(block.filterInstancePartition);
 			factVariablePartition = new FactVariablePartition(block.factVariablePartition);
 			elementPartition = new ElementPartition(block.elementPartition);
+			variableExpressionsPartition = new Partition<>(block.variableExpressionsPartition);
 		}
 
 		@Override
@@ -1615,28 +1636,32 @@ public class ECBlocks {
 				equivalenceClass.getSlotVariables().stream().map(SlotBinding::new).forEach(elements::add);
 				equivalenceClass.getConstantExpressions().stream()
 						.map(c -> new ConstantExpression(c, equivalenceClass)).forEach(elements::add);
-				for (final Element left : elements) {
-					for (final Element right : elements) {
-						if (left == right)
-							continue;
+				for (int i = 0; i < elements.size(); i++) {
+					final Element left = elements.get(i);
+					for (int j = i + 1; j < elements.size(); j++) {
+						final Element right = elements.get(j);
 						Filter.newImplicitElementInstance(ruleOrProxy, left, right);
 					}
 				}
-				final List<FunctionWithArguments<ECLeaf>> converted =
-						equivalenceClass.getVariableExpressions().stream().map(FWASymbolToECTranslator::translate)
-								.collect(toList());
-				for (final FunctionWithArguments<ECLeaf> left : converted) {
-					for (final FunctionWithArguments<ECLeaf> right : converted) {
-						if (left == right)
-							continue;
+
+				final List<VariableExpression> converted =
+						equivalenceClass
+								.getVariableExpressions()
+								.stream()
+								.map(v -> new VariableExpression(v, FWASymbolToECTranslator.translate(v),
+										equivalenceClass)).collect(toList());
+				for (int i = 0; i < converted.size(); i++) {
+					final VariableExpression left = converted.get(i);
+					for (int j = i + 1; j < converted.size(); j++) {
+						final VariableExpression right = converted.get(j);
 						Filter.newImplicitECInstance(ruleOrProxy, left, right);
 					}
 				}
 				if (!elements.isEmpty()) {
-					final ECLeaf ecLeaf = new ECLeaf(equivalenceClass);
-					for (final FunctionWithArguments<ECLeaf> fwa : converted) {
+					final VariableExpression ecLeaf =
+							new VariableExpression(null, new ECLeaf(equivalenceClass), equivalenceClass);
+					for (final VariableExpression fwa : converted) {
 						Filter.newImplicitECInstance(ruleOrProxy, ecLeaf, fwa);
-						Filter.newImplicitECInstance(ruleOrProxy, fwa, ecLeaf);
 					}
 				}
 
@@ -2346,8 +2371,8 @@ public class ECBlocks {
 				nTypePartition.getExplicitFilterInstances().stream().collect(groupingBy(FilterInstance::getFilter));
 		final List<ImplicitElementFilterInstance> nRelevantImplicitElementFilterInstances =
 				nTypePartition.getImplicitElementFilterInstances();
-		final Map<Filter, List<ImplicitECFilterInstance>> nRelevantFilterToImplicitECInstances =
-				nTypePartition.getImplicitECFilterInstances().stream().collect(groupingBy(FilterInstance::getFilter));
+		final List<ImplicitECFilterInstance> nRelevantImplicitECFilterInstances =
+				nTypePartition.getImplicitECFilterInstances();
 
 		// divide into filters without multiple instances and filters with multiple instances
 		final List<Filter> nSingleCellFilters, nMultiCellFilters;
@@ -2370,6 +2395,8 @@ public class ECBlocks {
 		// prefer singleCellFilters
 		findMatchingAndIncompatibleExplicitFilters(nRelevantFilterToExplicitInstances, nSingleCellFilters, block,
 				matchingFilters, incompatibleFilters);
+		findMatchingAndIncompatibleImplicitECFilters(nRelevantImplicitECFilterInstances, block, matchingFilters,
+				incompatibleFilters);
 		// if none matched, try multiCellFilters, otherwise defer them
 		if (matchingFilters.isEmpty()) {
 			findMatchingAndIncompatibleExplicitFilters(nRelevantFilterToExplicitInstances, nMultiCellFilters, block,
@@ -2466,29 +2493,8 @@ public class ECBlocks {
 					}
 				}
 
-				// iterate over the block columns
-				for (final FilterInstanceSubSet bFilterInstanceSubSet : bFIPartition.getElements()) {
-					Conflict firstConflict = null;
-					boolean first = true;
-					// iterate over the rows aka the rules
-					for (final Entry<Either<Rule, ExistentialProxy>, FilterInstance> bRuleToFI : bFilterInstanceSubSet
-							.getElements().entrySet()) {
-						final Either<Rule, ExistentialProxy> rule = bRuleToFI.getKey();
-						final FilterInstance nSource = nRuleToCurrentOutsideColumn.get(rule);
-						final FilterInstance bTarget = bRuleToFI.getValue();
-						// determine conflict between inside instance and outside instance
-						final Conflict conflict = nSource.getConflict(bTarget, newBlock.theta, newBlock.theta);
-						// if this is the first loop iteration, just remember the conflict to be
-						// compared later on
-						if (first) {
-							first = false;
-							firstConflict = conflict;
-						}
-						// if the conflicts don't match, continue with next filter
-						else if (!hasEqualConflicts(firstConflict, conflict)) {
-							continue cartesianProductLoop;
-						}
-					}
+				if (!checkForConflictEquivalence(bFIPartition, nRuleToCurrentOutsideColumn, newBlock)) {
+					continue cartesianProductLoop;
 				}
 
 				// conflict identical for all rules
@@ -2500,6 +2506,35 @@ public class ECBlocks {
 				incompatibleFilters.addAll(nFilterToInstances.get(nFilter));
 			}
 		}
+	}
+
+	protected static boolean checkForConflictEquivalence(final FilterInstancePartition bFIPartition,
+			final Map<Either<Rule, ExistentialProxy>, ? extends FilterInstance> nFISubSet, final Block newBlock) {
+		// iterate over the block columns
+		for (final FilterInstanceSubSet bFilterInstanceSubSet : bFIPartition.getElements()) {
+			Conflict firstConflict = null;
+			boolean first = true;
+			// iterate over the rows aka the rules
+			for (final Entry<Either<Rule, ExistentialProxy>, FilterInstance> bRuleToFI : bFilterInstanceSubSet
+					.getElements().entrySet()) {
+				final Either<Rule, ExistentialProxy> rule = bRuleToFI.getKey();
+				final FilterInstance nSource = nFISubSet.get(rule);
+				final FilterInstance bTarget = bRuleToFI.getValue();
+				// determine conflict between inside instance and outside instance
+				final Conflict conflict = nSource.getConflict(bTarget, newBlock.theta, newBlock.theta);
+				// if this is the first loop iteration, just remember the conflict to be
+				// compared later on
+				if (first) {
+					first = false;
+					firstConflict = conflict;
+				}
+				// if the conflicts don't match, continue with next filter
+				else if (!hasEqualConflicts(firstConflict, conflict)) {
+					return false;
+				}
+			}
+		}
+		return true;
 	}
 
 	protected static void findMatchingImplicitElementFilters(
@@ -2590,9 +2625,7 @@ public class ECBlocks {
 			// (same as above)
 			filterInstances.addAll(firstFIColumnDuals.values());
 			// ... which also have to be removed from the workspace
-			for (final ImplicitElementFilterInstance dual : firstFIColumnDuals.values()) {
-				remove.accept(dual);
-			}
+			firstFIColumnDuals.values().forEach(remove);
 
 			// since the list of ElementSubSets is the same for all rules, we can iterate over them
 			// and inside over the rules to get a list of FilterInstanceSubSets
@@ -2628,9 +2661,7 @@ public class ECBlocks {
 				newBlock.addFilterInstanceSubSet(new FilterInstanceSubSet(columnDuals));
 				filterInstances.addAll(columnDuals.values());
 				// ... and remove them from the workspace
-				for (final ImplicitElementFilterInstance dual : columnDuals.values()) {
-					remove.accept(dual);
-				}
+				columnDuals.values().forEach(remove);
 			}
 			matchingFilters.add(Pair.of(newBlock, filterInstances));
 		}
@@ -2668,6 +2699,221 @@ public class ECBlocks {
 			return candidate;
 		}
 		return null;
+	}
+
+	protected static void findMatchingAndIncompatibleImplicitECFilters(
+			final List<ImplicitECFilterInstance> nImplicitECFilterInstances, final Block block,
+			final List<Pair<Block, List<FilterInstance>>> matchingFilters,
+			final List<FilterInstance> incompatibleFilters) {
+		final FactVariablePartition factVariablePartition = block.factVariablePartition;
+		final ElementPartition bElementPartition = block.elementPartition;
+		final Set<Either<Rule, ExistentialProxy>> rules = block.rulesOrProxies;
+		final FilterInstancePartition bFIPartition = block.filterInstancePartition;
+
+		final Set<ImplicitECFilterInstance> workspace = Sets.newIdentityHashSet();
+		workspace.addAll(nImplicitECFilterInstances);
+		final Map<Either<Rule, ExistentialProxy>, Map<Filter, Set<ImplicitECFilterInstance>>> workspaceByRule =
+				workspace.stream().collect(
+						groupingBy(FilterInstance::getRuleOrProxy,
+								groupingBy(FilterInstance::getFilter, toCollection(() -> Sets.newIdentityHashSet()))));
+
+		final Consumer<ImplicitECFilterInstance> remove = (fi) -> {
+			workspace.remove(fi);
+			workspaceByRule.get(fi.getRuleOrProxy()).get(fi.getFilter()).remove(fi);
+		};
+
+		workspaceLoop: while (!workspace.isEmpty()) {
+			final List<Integer> nECPattern;
+			final List<Set<ImplicitECFilterInstance>> filterInstancesWithIdenticalPattern;
+			{
+				final ImplicitECFilterInstance nFirstFI = workspace.iterator().next();
+				final Filter nCurrentFilter = nFirstFI.getFilter();
+				remove.accept(nFirstFI);
+
+				nECPattern = computeECPattern(nFirstFI);
+				filterInstancesWithIdenticalPattern =
+						rules.stream()
+								.map(rule -> workspaceByRule.getOrDefault(rule, Collections.emptyMap())
+										.getOrDefault(nCurrentFilter, Collections.emptySet()).stream()
+										.filter(fi -> Objects.equals(nECPattern, computeECPattern(fi)))
+										.collect(toSet())).collect(toList());
+			}
+			final Set<List<ImplicitECFilterInstance>> cartesianProduct =
+					Sets.cartesianProduct(filterInstancesWithIdenticalPattern);
+			if (cartesianProduct.isEmpty()) {
+				// at least one of the sets was empty, completely incompatible
+				filterInstancesWithIdenticalPattern.forEach(set -> {
+					incompatibleFilters.addAll(set);
+					set.forEach(remove);
+				});
+				continue workspaceLoop;
+			}
+			final Set<Integer> nECIndices = Sets.newHashSet(nECPattern);
+			boolean matchingCombinationFound = false;
+			combinationLoop: for (final List<ImplicitECFilterInstance> nFICombination : cartesianProduct) {
+
+				final ImplicitECFilterInstance nChosenFI = nFICombination.get(0);
+
+				final Function<ImplicitECFilterInstance, VariableExpression> getBElement, getNElement;
+				final BiFunction<VariableExpression, VariableExpression, Filter> bnToFilter;
+				{
+					final VariableExpression left = nChosenFI.getLeft();
+					final VariableExpression right = nChosenFI.getRight();
+					final boolean leftInBlock = block.variableExpressionTheta.isRelevant(left);
+					final boolean rightInBlock = block.variableExpressionTheta.isRelevant(right);
+					if (leftInBlock && rightInBlock) {
+						throw new IllegalStateException(
+								"A test comparing two elements of an equivalence class is to be considered, but both elements already are in the effective equivalence class of the block!");
+					}
+					if (leftInBlock) {
+						// => right is new
+						getBElement = ImplicitECFilterInstance::getLeft;
+						getNElement = ImplicitECFilterInstance::getRight;
+						bnToFilter = (b, n) -> Filter.newEqualityFilter(b, n);
+					} else if (rightInBlock) {
+						// => left is new
+						getBElement = ImplicitECFilterInstance::getRight;
+						getNElement = ImplicitECFilterInstance::getLeft;
+						bnToFilter = (b, n) -> Filter.newEqualityFilter(n, b);
+					} else {
+						// both are new, can't use the test
+						continue combinationLoop;
+					}
+				}
+
+				final Map<Integer, Map<Either<Rule, ExistentialProxy>, EquivalenceClass>> indexToECSubSet =
+						new TreeMap<>();
+				for (final ImplicitECFilterInstance nFI : nFICombination) {
+					final Either<Rule, ExistentialProxy> nFIRule = nFI.getRuleOrProxy();
+					for (final Integer index : nECIndices) {
+						final EquivalenceClass equivalenceClass = nFI.parameters.get(index);
+						indexToECSubSet.computeIfAbsent(index, newIdentityHashMap()).put(nFIRule, equivalenceClass);
+					}
+				}
+				final Partition<EquivalenceClass, SubSet<EquivalenceClass>> ecPartition = new Partition<>();
+				final Block newBlock = new Block(block);
+				for (final Map<Either<Rule, ExistentialProxy>, EquivalenceClass> ecss : indexToECSubSet.values()) {
+					ecPartition.add(new SubSet<>(ecss));
+					if (newBlock.theta.getEquivalenceClasses().contains(ecss))
+						continue;
+					final List<Map<Either<Rule, ExistentialProxy>, ? extends Element>> intersections =
+							determineEquivalenceClassIntersection(ecss, factVariablePartition);
+					if (intersections.isEmpty()) {
+						continue combinationLoop;
+					}
+					intersections.forEach(ess -> newBlock.addElementSubSet(new SubSet<>(ess)));
+				}
+
+				final ImmutableMap<Either<Rule, ExistentialProxy>, ImplicitECFilterInstance> nFirstColumn =
+						Maps.uniqueIndex(nFICombination, FilterInstance::getRuleOrProxy);
+				// check for conflict equivalence between block and nFirstColumn
+				if (!checkForConflictEquivalence(bFIPartition, nFirstColumn, newBlock)) {
+					continue combinationLoop;
+				}
+
+				// add first column to block
+				newBlock.addFilterInstanceSubSet(new FilterInstanceSubSet(nFirstColumn));
+
+				// start collecting new filter instances
+				final List<FilterInstance> filterInstances = new ArrayList<>();
+				filterInstances.addAll(nFICombination);
+				nFICombination.forEach(remove);
+
+				// gather the duals of the first column
+				final Map<Either<Rule, ExistentialProxy>, ImplicitECFilterInstance> nFirstColumnDuals =
+						Maps.transformValues(nFirstColumn, ImplicitECFilterInstance::getDual);
+				// add them to the block
+				newBlock.addFilterInstanceSubSet(new FilterInstanceSubSet(nFirstColumnDuals));
+				// and to the list
+				filterInstances.addAll(nFirstColumnDuals.values());
+				nFirstColumnDuals.values().forEach(remove);
+
+				// since the list of ElementSubSets is the same for all rules, we can iterate over
+				// them and inside over the rules to get a list of FilterInstanceSubSets
+
+				// find the tests for all the other elements in theta(bElement.getEC())
+				final Map<Either<Rule, ExistentialProxy>, VariableExpression> ruleToNElement =
+						Maps.transformValues(nFirstColumn, getNElement::apply);
+				final VariableExpression chosenBElement = getBElement.apply(nChosenFI);
+				final Set<Element> representativesOfTheRest =
+						Sets.difference(block.variableExpressionTheta.reduce(chosenBElement.getEquivalenceClass()),
+								Collections.singleton(chosenBElement));
+				for (final Element representative : representativesOfTheRest) {
+					final Map<Either<Rule, ExistentialProxy>, ImplicitECFilterInstance> column =
+							new IdentityHashMap<>();
+					final SubSet<Element> representativeSubSet = bElementPartition.lookup(representative);
+					for (final Either<Rule, ExistentialProxy> rule : rules) {
+						final VariableExpression currentBElement = (VariableExpression) representativeSubSet.get(rule);
+						final List<EquivalenceClass> currentBECs = currentBElement.getEcsInTranslated();
+						final VariableExpression currentNElement = ruleToNElement.get(rule);
+						final List<EquivalenceClass> currentNECs = currentNElement.getEcsInTranslated();
+						final Filter filter = bnToFilter.apply(currentBElement, currentNElement);
+						final ImplicitECFilterInstance matchingInstance =
+								findMatchingFilterInstanceAccordingToECPartition(workspaceByRule, getBElement,
+										getNElement, ecPartition, rule, currentBECs, currentNECs, filter);
+						if (null == matchingInstance) {
+							throw new IllegalStateException("Inconsistent!");
+						}
+						column.put(rule, matchingInstance);
+						remove.accept(matchingInstance);
+					}
+					// add the newly found filter instances
+					newBlock.addFilterInstanceSubSet(new FilterInstanceSubSet(column));
+					filterInstances.addAll(column.values());
+					// get the corresponding dual filter instances ...
+					final Map<Either<Rule, ExistentialProxy>, ImplicitECFilterInstance> columnDuals =
+							Maps.transformValues(column, ImplicitECFilterInstance::getDual);
+					// ... add them to the new block ...
+					newBlock.addFilterInstanceSubSet(new FilterInstanceSubSet(columnDuals));
+					filterInstances.addAll(columnDuals.values());
+					// ... and remove them from the workspace
+					columnDuals.values().forEach(remove);
+				}
+				matchingFilters.add(Pair.of(newBlock, filterInstances));
+				matchingCombinationFound = true;
+			}
+			if (!matchingCombinationFound) {
+				filterInstancesWithIdenticalPattern.forEach(set -> {
+					incompatibleFilters.addAll(set);
+					set.forEach(remove);
+				});
+				continue workspaceLoop;
+			}
+		}
+	}
+
+	protected static ImplicitECFilterInstance findMatchingFilterInstanceAccordingToECPartition(
+			final Map<Either<Rule, ExistentialProxy>, Map<Filter, Set<ImplicitECFilterInstance>>> workspaceByRule,
+			final Function<ImplicitECFilterInstance, VariableExpression> getBElement,
+			final Function<ImplicitECFilterInstance, VariableExpression> getNElement,
+			final Partition<EquivalenceClass, SubSet<EquivalenceClass>> ecPartition,
+			final Either<Rule, ExistentialProxy> rule, final List<EquivalenceClass> currentBECs,
+			final List<EquivalenceClass> currentNECs, final Filter filter) {
+		final Set<ImplicitECFilterInstance> candidates =
+				workspaceByRule.getOrDefault(rule, Collections.emptyMap()).getOrDefault(filter, Collections.emptySet());
+		for (final ImplicitECFilterInstance candidate : candidates) {
+			if (!checkSameECSubSets(getBElement, ecPartition, currentBECs, candidate)) {
+				continue;
+			}
+			if (!checkSameECSubSets(getNElement, ecPartition, currentNECs, candidate)) {
+				continue;
+			}
+			return candidate;
+		}
+		return null;
+	}
+
+	protected static boolean checkSameECSubSets(
+			final Function<ImplicitECFilterInstance, VariableExpression> getXElement,
+			final Partition<EquivalenceClass, SubSet<EquivalenceClass>> ecPartition,
+			final List<EquivalenceClass> currentXECs, final ImplicitECFilterInstance candidate) {
+		final List<EquivalenceClass> candidateXECs = getXElement.apply(candidate).getEcsInTranslated();
+		for (int i = 0; i < currentXECs.size(); ++i) {
+			if (ecPartition.lookup(currentXECs.get(i)) != ecPartition.lookup(candidateXECs.get(i))) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 	static List<Integer> computeECPattern(final FilterInstance instance) {
