@@ -2844,13 +2844,11 @@ public class ECBlocks {
 					final SubSet<Element> representativeSubSet = bElementPartition.lookup(representative);
 					for (final Either<Rule, ExistentialProxy> rule : rules) {
 						final VariableExpression currentBElement = (VariableExpression) representativeSubSet.get(rule);
-						final List<EquivalenceClass> currentBECs = currentBElement.getEcsInTranslated();
 						final VariableExpression currentNElement = ruleToNElement.get(rule);
-						final List<EquivalenceClass> currentNECs = currentNElement.getEcsInTranslated();
 						final Filter filter = bnToFilter.apply(currentBElement, currentNElement);
 						final ImplicitECFilterInstance matchingInstance =
-								findMatchingFilterInstanceAccordingToECPartition(workspaceByRule, getBElement,
-										getNElement, ecPartition, rule, currentBECs, currentNECs, filter);
+								findMatchingFilterInstanceForVariableExpressions(workspaceByRule, getBElement,
+										currentBElement, getNElement, currentNElement, rule, filter);
 						if (null == matchingInstance) {
 							throw new IllegalStateException("Inconsistent!");
 						}
@@ -2882,38 +2880,22 @@ public class ECBlocks {
 		}
 	}
 
-	protected static ImplicitECFilterInstance findMatchingFilterInstanceAccordingToECPartition(
+	protected static ImplicitECFilterInstance findMatchingFilterInstanceForVariableExpressions(
 			final Map<Either<Rule, ExistentialProxy>, Map<Filter, Set<ImplicitECFilterInstance>>> workspaceByRule,
 			final Function<ImplicitECFilterInstance, VariableExpression> getBElement,
+			final VariableExpression currentBElement,
 			final Function<ImplicitECFilterInstance, VariableExpression> getNElement,
-			final Partition<EquivalenceClass, SubSet<EquivalenceClass>> ecPartition,
-			final Either<Rule, ExistentialProxy> rule, final List<EquivalenceClass> currentBECs,
-			final List<EquivalenceClass> currentNECs, final Filter filter) {
+			final VariableExpression currentNElement, final Either<Rule, ExistentialProxy> rule, final Filter filter) {
 		final Set<ImplicitECFilterInstance> candidates =
 				workspaceByRule.getOrDefault(rule, Collections.emptyMap()).getOrDefault(filter, Collections.emptySet());
 		for (final ImplicitECFilterInstance candidate : candidates) {
-			if (!checkSameECSubSets(getBElement, ecPartition, currentBECs, candidate)) {
+			if (getBElement.apply(candidate) != currentBElement)
 				continue;
-			}
-			if (!checkSameECSubSets(getNElement, ecPartition, currentNECs, candidate)) {
+			if (getNElement.apply(candidate) != currentNElement)
 				continue;
-			}
 			return candidate;
 		}
 		return null;
-	}
-
-	protected static boolean checkSameECSubSets(
-			final Function<ImplicitECFilterInstance, VariableExpression> getXElement,
-			final Partition<EquivalenceClass, SubSet<EquivalenceClass>> ecPartition,
-			final List<EquivalenceClass> currentXECs, final ImplicitECFilterInstance candidate) {
-		final List<EquivalenceClass> candidateXECs = getXElement.apply(candidate).getEcsInTranslated();
-		for (int i = 0; i < currentXECs.size(); ++i) {
-			if (ecPartition.lookup(currentXECs.get(i)) != ecPartition.lookup(candidateXECs.get(i))) {
-				return false;
-			}
-		}
-		return true;
 	}
 
 	static List<Integer> computeECPattern(final FilterInstance instance) {
