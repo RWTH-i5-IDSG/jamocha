@@ -1236,6 +1236,8 @@ public class ECBlocks {
 	public static class Block {
 		// conflict graph
 		UndirectedGraph<FilterInstance, ConflictEdge> graph;
+		int graphModCount = 0;
+		int blockModCount = 0;
 		// rules of the block
 		final Set<Either<Rule, ExistentialProxy>> rulesOrProxies;
 		// abstract filters of the block
@@ -1271,6 +1273,8 @@ public class ECBlocks {
 			variableExpressionTheta = block.variableExpressionTheta.copy();
 			edgeFactory = ConflictEdge.newFactory(theta);
 			graph = block.graph;
+			blockModCount = block.blockModCount;
+			graphModCount = block.graphModCount;
 			rulesOrProxies = new HashSet<>(block.rulesOrProxies);
 			filters.addAll(block.filters);
 			flatFilterInstances.addAll(block.flatFilterInstances);
@@ -1299,6 +1303,7 @@ public class ECBlocks {
 				theta.add(element);
 			}
 			elementPartition.add(newSubSet);
+			++blockModCount;
 		}
 
 		public void addVariableExpressionSubSet(final SubSet<ECBlocks.Element> newSubSet) {
@@ -1307,6 +1312,7 @@ public class ECBlocks {
 				variableExpressionTheta.add(element);
 			}
 			elementPartition.add(newSubSet);
+			++blockModCount;
 		}
 
 		public void addFilterInstanceSubSet(final FilterInstanceSubSet newSubSet) {
@@ -1315,14 +1321,18 @@ public class ECBlocks {
 			filters.add(newSubSet.getFilter());
 			final Collection<FilterInstance> filterInstances = newSubSet.elements.values();
 			flatFilterInstances.addAll(filterInstances);
-		}
-
-		public void refreshConflictGraph() {
-			// FIXME DO IT
-			this.graph = null;
+			++blockModCount;
 		}
 
 		public Set<FilterInstance> getConflictNeighbours() {
+			if (blockModCount != graphModCount) {
+				this.graph =
+						determineConflictGraph(
+								theta,
+								flatFilterInstances.stream().collect(
+										groupingIntoSets(FilterInstance::getRuleOrProxy, toList())));
+				graphModCount = blockModCount;
+			}
 			final SetView<FilterInstance> outside = Sets.difference(graph.vertexSet(), flatFilterInstances);
 			final Set<FilterInstance> neighbours =
 					outside.stream()
