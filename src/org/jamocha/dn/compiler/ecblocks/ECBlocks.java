@@ -2150,10 +2150,10 @@ public class ECBlocks {
 					rules.stream().map(r -> filter.getExplicitInstances(r)).filter(negate(Set::isEmpty))
 							.collect(toSet()), resultBlocks, ECBlocks::explicitVerticalInner);
 			vertical(rules.stream().map(r -> filter.getImplicitElementInstances(r)).filter(negate(Set::isEmpty))
-					.collect(toSet()), resultBlocks, ECBlocks::implicitVerticalInner);
+					.collect(toSet()), resultBlocks, ECBlocks::implicitElementVerticalInner);
 			vertical(
 					rules.stream().map(r -> filter.getImplicitECInstances(r)).filter(negate(Set::isEmpty))
-							.collect(toSet()), resultBlocks, ECBlocks::implicitVerticalInner);
+							.collect(toSet()), resultBlocks, ECBlocks::implicitECVerticalInner);
 		}
 	}
 
@@ -2176,13 +2176,13 @@ public class ECBlocks {
 				.stream().collect(
 						groupingIntoSets(FilterInstance::getFilter,
 								groupingIntoSets(FilterInstance::getRuleOrProxy, toSet())))) {
-			vertical(filterInstancesOfOneFilterGroupedByRule, resultBlocks, ECBlocks::implicitVerticalInner);
+			vertical(filterInstancesOfOneFilterGroupedByRule, resultBlocks, ECBlocks::implicitElementVerticalInner);
 		}
 		for (final Set<Set<ImplicitECFilterInstance>> filterInstancesOfOneFilterGroupedByRule : typePartition.implicitECFilterInstances
 				.stream().collect(
 						groupingIntoSets(FilterInstance::getFilter,
 								groupingIntoSets(FilterInstance::getRuleOrProxy, toSet())))) {
-			vertical(filterInstancesOfOneFilterGroupedByRule, resultBlocks, ECBlocks::implicitVerticalInner);
+			vertical(filterInstancesOfOneFilterGroupedByRule, resultBlocks, ECBlocks::implicitECVerticalInner);
 		}
 		return resultBlocks;
 	}
@@ -2280,19 +2280,65 @@ public class ECBlocks {
 				final List<FactVariablePartition> partitions, final BlockSet resultBlocks);
 	}
 
-	protected static <T extends ImplicitFilterInstance> void implicitVerticalInner(
-			final Set<Either<Rule, ExistentialProxy>> rules, final List<T> filterInstances,
-			final List<FactVariablePartition> partitions, final BlockSet resultBlocks) {
-		final FilterInstanceSubSet subSet =
-				new FilterInstanceSubSet(Maps.newHashMap(Maps.uniqueIndex(filterInstances,
-						ImplicitFilterInstance::getRuleOrProxy)));
-		final FilterInstanceSubSet dualSubSet =
-				new FilterInstanceSubSet(Maps.newHashMap(filterInstances.stream().collect(
-						toMap(FilterInstance::getRuleOrProxy, ImplicitFilterInstance::getDual))));
+	protected static void implicitElementVerticalInner(final Set<Either<Rule, ExistentialProxy>> rules,
+			final List<ImplicitElementFilterInstance> filterInstances, final List<FactVariablePartition> partitions,
+			final BlockSet resultBlocks) {
+		final SubSet<Element> leftESS =
+				new SubSet<>(filterInstances.stream().collect(
+						toMap(FilterInstance::getRuleOrProxy, ImplicitElementFilterInstance::getLeft)));
+		final SubSet<Element> rightESS =
+				new SubSet<>(filterInstances.stream().collect(
+						toMap(FilterInstance::getRuleOrProxy, ImplicitElementFilterInstance::getRight)));
+		final ImmutableMap<Either<Rule, ExistentialProxy>, ImplicitElementFilterInstance> map =
+				Maps.uniqueIndex(filterInstances, ImplicitFilterInstance::getRuleOrProxy);
+		final FilterInstanceSubSet fiSS = new FilterInstanceSubSet(map);
+		final FilterInstanceSubSet fiSSDual =
+				new FilterInstanceSubSet(Maps.transformValues(map, ImplicitFilterInstance::getDual));
 		for (final FactVariablePartition partition : partitions) {
+			if (leftESS.getElements().values().stream().map(Element::getFactVariable)
+					.map(fv -> fv == null ? null : partition.lookup(fv)).count() != 1) {
+				continue;
+			}
+			if (rightESS.getElements().values().stream().map(Element::getFactVariable)
+					.map(fv -> fv == null ? null : partition.lookup(fv)).count() != 1) {
+				continue;
+			}
 			final Block newBlock = new Block(rules, partition);
-			final boolean returnValue = newBlock.addFilterInstanceSubSet(subSet);
-			final boolean returnValue2 = newBlock.addFilterInstanceSubSet(dualSubSet);
+			newBlock.addElementSubSet(leftESS);
+			newBlock.addElementSubSet(rightESS);
+			newBlock.addFilterInstanceSubSet(fiSS);
+			newBlock.addFilterInstanceSubSet(fiSSDual);
+			horizontalRecursion(newBlock, new Stack<>(), resultBlocks);
+		}
+	}
+
+	protected static void implicitECVerticalInner(final Set<Either<Rule, ExistentialProxy>> rules,
+			final List<ImplicitECFilterInstance> filterInstances, final List<FactVariablePartition> partitions,
+			final BlockSet resultBlocks) {
+		final Map<Integer, Map<Either<Rule, ExistentialProxy>, EquivalenceClass>> ecColumns =
+				determineECColumns(filterInstances);
+		if (ecColumns.isEmpty())
+			return;
+		final ImmutableMap<Either<Rule, ExistentialProxy>, ImplicitECFilterInstance> map =
+				Maps.uniqueIndex(filterInstances, ImplicitFilterInstance::getRuleOrProxy);
+		final FilterInstanceSubSet fiSS = new FilterInstanceSubSet(map);
+		final FilterInstanceSubSet fiSSDual =
+				new FilterInstanceSubSet(Maps.transformValues(map, ImplicitFilterInstance::getDual));
+		for (final FactVariablePartition partition : partitions) {
+			final List<List<Map<Either<Rule, ExistentialProxy>, ? extends Element>>> intersections =
+					ecColumns.values().stream().map(ecMap -> determineEquivalenceClassIntersection(ecMap, partition))
+							.collect(toList());
+			if (intersections.stream().anyMatch(List::isEmpty)) {
+				continue;
+			}
+			final Block newBlock = new Block(rules, partition);
+			for (final List<Map<Either<Rule, ExistentialProxy>, ? extends Element>> intersection : intersections) {
+				for (final Map<Either<Rule, ExistentialProxy>, ? extends Element> ess : intersection) {
+					newBlock.addElementSubSet(new SubSet<>(ess));
+				}
+			}
+			newBlock.addFilterInstanceSubSet(fiSS);
+			newBlock.addFilterInstanceSubSet(fiSSDual);
 			horizontalRecursion(newBlock, new Stack<>(), resultBlocks);
 		}
 	}
@@ -2300,14 +2346,48 @@ public class ECBlocks {
 	protected static void explicitVerticalInner(final Set<Either<Rule, ExistentialProxy>> rules,
 			final List<ExplicitFilterInstance> filterInstances, final List<FactVariablePartition> partitions,
 			final BlockSet resultBlocks) {
-		final FilterInstanceSubSet subSet =
-				new FilterInstanceSubSet(Maps.newHashMap(Maps.uniqueIndex(filterInstances,
-						FilterInstance::getRuleOrProxy)));
+		final Map<Integer, Map<Either<Rule, ExistentialProxy>, EquivalenceClass>> ecColumns =
+				determineECColumns(filterInstances);
+		if (ecColumns.isEmpty())
+			return;
+		final FilterInstanceSubSet fiSS =
+				new FilterInstanceSubSet(Maps.uniqueIndex(filterInstances, FilterInstance::getRuleOrProxy));
 		for (final FactVariablePartition partition : partitions) {
+			final List<List<Map<Either<Rule, ExistentialProxy>, ? extends Element>>> intersections =
+					ecColumns.values().stream().map(ecMap -> determineEquivalenceClassIntersection(ecMap, partition))
+							.collect(toList());
+			if (intersections.stream().anyMatch(List::isEmpty)) {
+				continue;
+			}
 			final Block newBlock = new Block(rules, partition);
-			final boolean returnValue = newBlock.addFilterInstanceSubSet(subSet);
+			for (final List<Map<Either<Rule, ExistentialProxy>, ? extends Element>> intersection : intersections) {
+				for (final Map<Either<Rule, ExistentialProxy>, ? extends Element> ess : intersection) {
+					newBlock.addElementSubSet(new SubSet<>(ess));
+				}
+			}
+			newBlock.addFilterInstanceSubSet(fiSS);
 			horizontalRecursion(newBlock, new Stack<>(), resultBlocks);
 		}
+	}
+
+	protected static Map<Integer, Map<Either<Rule, ExistentialProxy>, EquivalenceClass>> determineECColumns(
+			final List<? extends FilterInstance> filterInstances) {
+		final Set<List<Integer>> ecPatterns = filterInstances.stream().map(ECBlocks::computeECPattern).collect(toSet());
+		if (ecPatterns.size() > 1) {
+			return Collections.emptyMap();
+		}
+		final HashSet<Integer> differentECs = Sets.newHashSet(ecPatterns.iterator().next());
+
+		// create the EC columns
+		final Map<Integer, Map<Either<Rule, ExistentialProxy>, EquivalenceClass>> ecColumns = new HashMap<>();
+		for (final FilterInstance filterInstance : filterInstances) {
+			final Either<Rule, ExistentialProxy> rule = filterInstance.getRuleOrProxy();
+			final List<EquivalenceClass> ecs = filterInstance.getDirectlyContainedEquivalenceClasses();
+			for (final Integer i : differentECs) {
+				ecColumns.computeIfAbsent(i, newIdentityHashMap()).put(rule, ecs.get(i));
+			}
+		}
+		return ecColumns;
 	}
 
 	protected static <T extends FilterInstance> void vertical(final Set<Set<T>> filterInstancesGroupedByRule,
@@ -2794,7 +2874,7 @@ public class ECBlocks {
 				final Block newBlock = new Block(block);
 				for (final Map<Either<Rule, ExistentialProxy>, EquivalenceClass> ecss : indexToECSubSet.values()) {
 					ecPartition.add(new SubSet<>(ecss));
-					if (newBlock.theta.getEquivalenceClasses().contains(ecss))
+					if (newBlock.theta.getEquivalenceClasses().contains(ecss.values().iterator().next()))
 						continue;
 					final List<Map<Either<Rule, ExistentialProxy>, ? extends Element>> intersections =
 							determineEquivalenceClassIntersection(ecss, factVariablePartition);
