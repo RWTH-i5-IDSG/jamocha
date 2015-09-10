@@ -254,8 +254,6 @@ public class CEToECTranslator implements DefaultConditionalElementsVisitor {
 		// VariableSymbol.equal
 		// SingleFactVariable.equal
 		// SingleSlotVariable.equal (Set)
-		// FIXME may need to enhance to cover all members of EquivalenceClass and thus all
-		// references
 		private static void replaceEC(final Set<VariableSymbol> symbols,
 				final Map<EquivalenceClass, EquivalenceClass> map) {
 			// VariableSymbol.equal
@@ -464,7 +462,7 @@ public class CEToECTranslator implements DefaultConditionalElementsVisitor {
 			// (this excludes nested existentials) or none of them at all
 			// A filter is mixed if it contains both
 
-			// FIXME nested existentials may contain local fact variables and fact variables bound
+			// TBD nested existentials may contain local fact variables and fact variables bound
 			// in parents (and fact variables bound within the nested existential) and thus be mixed
 
 			// Partition filters according to their category

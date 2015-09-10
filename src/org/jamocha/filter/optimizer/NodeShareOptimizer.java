@@ -74,7 +74,7 @@ public class NodeShareOptimizer implements Optimizer {
 				buildBlock(pathRule, pathFilter);
 			}
 		}
-		// TODO perform actual optimisation
+		// TBD perform actual optimisation
 		return rules;
 	}
 
@@ -130,7 +130,7 @@ public class NodeShareOptimizer implements Optimizer {
 				if (preBlock.contains(filter))
 					continue;
 				for (final Defrule.PathRule otherRule : rule2PathMap.keySet()) {
-					// FIXME hier weiterarbeiten
+					// TBD hier weiterarbeiten
 				}
 			}
 		}

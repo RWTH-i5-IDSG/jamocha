@@ -464,7 +464,7 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 		final Map<Node, List<Path>> nodeToJoinedPaths =
 				regularPaths.stream().collect(groupingBy(Path::getCurrentlyLowestNode));
 		if (nodeToJoinedPaths.keySet().size() > 1) {
-			// FIXME improve by minimizing the intermediate results: easily done when the size of
+			// TBD improve by minimizing the intermediate results: easily done when the size of
 			// the nodes (keySet of the map) is known approximately
 			final PathLeaf[] representatives =
 					toArray(nodeToJoinedPaths

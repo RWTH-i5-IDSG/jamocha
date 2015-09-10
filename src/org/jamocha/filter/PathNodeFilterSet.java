@@ -181,7 +181,7 @@ public abstract class PathNodeFilterSet extends NodeFilterSet<PathLeaf, PathFilt
 
 	public static boolean equals(final PathNodeFilterSet filter1, final PathNodeFilterSet filter2,
 			final Map<Path, Path> pathMap) {
-		// FIXME and other locations to handle all possible path mappings correctly
+		// TBD and other locations to handle all possible path mappings correctly
 		if (filter1.getHashCode() != filter2.getHashCode())
 			return false;
 		final FilterFunctionCompare.PathFilterCompare compare =

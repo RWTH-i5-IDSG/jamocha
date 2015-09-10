@@ -129,7 +129,7 @@ public class FactVariableCollectorTest {
 		final RuleCondition ruleCondition = clipsToCondition(ptn, input);
 		final List<ConditionalElement> conditionalElements = ruleCondition.getConditionalElements();
 		assertEquals(1, conditionalElements.size());
-		// FIXME see above
+		// TBD see above
 		final List<SingleFactVariable> variables =
 				conditionalElements.get(0).accept(new ShallowFactVariableCollector()).getFactVariables();
 		assertEquals(3, variables.size());

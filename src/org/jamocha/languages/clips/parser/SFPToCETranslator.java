@@ -1519,7 +1519,6 @@ public final class SFPToCETranslator implements SelectiveSFPVisitor {
 
 		@Override
 		public Object visit(final SFPActionList node, final Object data) {
-			// FIXME here we start being on the RHS!!!
 			this.actionList =
 					Optional.of(SelectiveSFPVisitor
 							.stream(node, 0)
