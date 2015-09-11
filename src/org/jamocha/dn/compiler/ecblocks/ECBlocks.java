@@ -2512,16 +2512,24 @@ public class ECBlocks {
 		final List<Pair<Block, List<FilterInstance>>> matchingFilters = new ArrayList<>();
 		final List<FilterInstance> incompatibleFilters = new ArrayList<>();
 
-		findMatchingImplicitElementFilters(nRelevantImplicitElementFilterInstances, block, matchingFilters);
+		if (!nRelevantImplicitElementFilterInstances.isEmpty()) {
+			findMatchingImplicitElementFilters(nRelevantImplicitElementFilterInstances, block, matchingFilters);
+		}
 		// prefer singleCellFilters
-		findMatchingAndIncompatibleExplicitFilters(nRelevantFilterToExplicitInstances, nSingleCellFilters, block,
-				matchingFilters, incompatibleFilters);
-		findMatchingAndIncompatibleImplicitECFilters(nRelevantImplicitECFilterInstances, block, matchingFilters,
-				incompatibleFilters);
+		if (!nSingleCellFilters.isEmpty()) {
+			findMatchingAndIncompatibleExplicitFilters(nRelevantFilterToExplicitInstances, nSingleCellFilters, block,
+					matchingFilters, incompatibleFilters);
+		}
+		if (!nRelevantImplicitECFilterInstances.isEmpty()) {
+			findMatchingAndIncompatibleImplicitECFilters(nRelevantImplicitECFilterInstances, block, matchingFilters,
+					incompatibleFilters);
+		}
 		// if none matched, try multiCellFilters, otherwise defer them
 		if (matchingFilters.isEmpty()) {
-			findMatchingAndIncompatibleExplicitFilters(nRelevantFilterToExplicitInstances, nMultiCellFilters, block,
-					matchingFilters, incompatibleFilters);
+			if (!nMultiCellFilters.isEmpty()) {
+				findMatchingAndIncompatibleExplicitFilters(nRelevantFilterToExplicitInstances, nMultiCellFilters,
+						block, matchingFilters, incompatibleFilters);
+			}
 			// if still none matched, the block is maximal, add it to the result blocks
 			if (matchingFilters.isEmpty()) {
 				resultBlocks.addDuringHorizontalRecursion(block);
