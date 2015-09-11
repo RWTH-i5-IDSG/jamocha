@@ -102,7 +102,6 @@ import org.jamocha.function.fwa.ConstantLeaf;
 import org.jamocha.function.fwa.ECLeaf;
 import org.jamocha.function.fwa.FunctionWithArguments;
 import org.jamocha.function.fwa.GenericWithArgumentsComposite;
-import org.jamocha.function.fwa.PredicateWithArguments;
 import org.jamocha.function.fwa.SymbolLeaf;
 import org.jamocha.function.fwa.TemplateSlotLeaf;
 import org.jamocha.function.fwa.TypeLeaf;
@@ -332,6 +331,7 @@ public class ECBlocks {
 			final ExplicitFilterInstance instance = new ExplicitFilterInstance(ruleOrProxy, ecFilter, parameterECs);
 			ruleToExplicitInstances.computeIfAbsent(ruleOrProxy, newHashSet()).add(instance);
 			ruleToAllInstances.computeIfAbsent(ruleOrProxy, newHashSet()).add(instance);
+			getFilters(ruleOrProxy).add(Filter.this);
 			return instance;
 		}
 
@@ -351,6 +351,7 @@ public class ECBlocks {
 			final ImplicitElementFilterInstance instance = new ImplicitElementFilterInstance(ruleOrProxy, left, right);
 			ruleToImplicitElementInstances.computeIfAbsent(ruleOrProxy, newHashSet()).add(instance);
 			ruleToAllInstances.computeIfAbsent(ruleOrProxy, newHashSet()).add(instance);
+			getFilters(ruleOrProxy).add(Filter.this);
 			return instance;
 		}
 
@@ -372,6 +373,7 @@ public class ECBlocks {
 							.addAll(left.ecsInTranslated).addAll(right.ecsInTranslated).build(), left, right);
 			ruleToImplicitECInstances.computeIfAbsent(ruleOrProxy, newHashSet()).add(instance);
 			ruleToAllInstances.computeIfAbsent(ruleOrProxy, newHashSet()).add(instance);
+			getFilters(ruleOrProxy).add(Filter.this);
 			return instance;
 		}
 
@@ -1670,7 +1672,7 @@ public class ECBlocks {
 						Filter.newImplicitECInstance(ruleOrProxy, left, right);
 					}
 				}
-				if (!elements.isEmpty()) {
+				if (!converted.isEmpty() && !elements.isEmpty()) {
 					final VariableExpression ecLeaf =
 							new VariableExpression(null, new ECLeaf(equivalenceClass), equivalenceClass);
 					for (final VariableExpression fwa : converted) {
@@ -1693,15 +1695,8 @@ public class ECBlocks {
 
 		@Override
 		public void visit(final ECFilter ecFilter) {
-			final Filter filter = convertFilter(ecFilter, Filter::newFilter);
-			filter.addExplicitInstance(ruleOrProxy, ecFilter);
-			getFilters(ruleOrProxy).add(filter);
-		}
-
-		protected static <T extends Filter> T convertFilter(final ECFilter ecFilter,
-				final Function<PredicateWithArguments<TypeLeaf>, T> ctor) {
-			final PredicateWithArguments<ECLeaf> predicate = ecFilter.getFunction();
-			return ctor.apply(FWAECLeafToTypeLeafTranslator.translate(predicate));
+			Filter.newFilter(FWAECLeafToTypeLeafTranslator.translate(ecFilter.getFunction())).addExplicitInstance(
+					ruleOrProxy, ecFilter);
 		}
 
 		@Override
@@ -1727,10 +1722,10 @@ public class ECBlocks {
 			// create own row for the pure part
 			rules.add(proxyEither);
 
-			final FilterProxy convertedExCl =
-					convertFilter(existentialClosure, pred -> FilterProxy.newFilterProxy(pred, proxy));
-			getFilters(ruleOrProxy).add(convertedExCl);
-			final FilterInstance filterInstance = convertedExCl.addExplicitInstance(ruleOrProxy, existentialClosure);
+			final FilterInstance filterInstance =
+					FilterProxy.newFilterProxy(
+							FWAECLeafToTypeLeafTranslator.translate(existentialClosure.getFunction()), proxy)
+							.addExplicitInstance(ruleOrProxy, existentialClosure);
 			rule.existentialProxies.put(filterInstance, proxy);
 		}
 	}
