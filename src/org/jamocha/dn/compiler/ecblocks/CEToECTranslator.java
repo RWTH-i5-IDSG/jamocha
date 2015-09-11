@@ -21,6 +21,7 @@ import static org.jamocha.util.ToArray.toArray;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.IdentityHashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -239,7 +240,7 @@ public class CEToECTranslator implements DefaultConditionalElementsVisitor {
 
 			final ECSetRule result =
 					consolidateOnCopiedEquivalenceClasses(initialFactTemplate, rule, ce, shallowTests,
-							equivalenceClasses, Specificity.calculate(ce));
+							equivalenceClasses, new IdentityHashMap<>(oldToNew.inverse()), Specificity.calculate(ce));
 
 			// reset the symbol - equivalence class mapping
 			symbolToECbackup.forEach((vs, ec) -> vs.setEqual(ec));
@@ -414,7 +415,8 @@ public class CEToECTranslator implements DefaultConditionalElementsVisitor {
 		private static ECSetRule consolidateOnCopiedEquivalenceClasses(final Template initialFactTemplate,
 				final Defrule rule, final ConditionalElement ce,
 				final Set<PredicateWithArguments<SymbolLeaf>> shallowTests,
-				final Set<EquivalenceClass> equivalenceClasses, final int specificity) {
+				final Set<EquivalenceClass> equivalenceClasses,
+				final IdentityHashMap<EquivalenceClass, EquivalenceClass> conditionECsToLocalECs, final int specificity) {
 			final Pair<Optional<SingleFactVariable>, Set<SingleFactVariable>> initialFactAndVariables =
 					ShallowFactVariableCollector.collectVariables(initialFactTemplate, ce);
 			final Set<SingleFactVariable> factVariables = initialFactAndVariables.getRight();
@@ -422,7 +424,7 @@ public class CEToECTranslator implements DefaultConditionalElementsVisitor {
 			return rule.newECFilterSetCondition(
 					new NoORsTranslator(initialFactTemplate, initialFactAndVariables.getLeft(), rule.getCondition()
 							.getVariableSymbols(), shallowTests).collect(ce).getFilters(), factVariables,
-					equivalenceClasses, specificity);
+					equivalenceClasses, conditionECsToLocalECs, specificity);
 		}
 
 		private NoORsTranslator collect(final ConditionalElement ce) {

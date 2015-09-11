@@ -22,6 +22,7 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
@@ -91,6 +92,25 @@ public class RuleCondition {
 		protected Scope maximalScope;
 		@Setter
 		SlotType type;
+
+		@Override
+		public String toString() {
+			final StringBuilder sb = new StringBuilder();
+			sb.append(Objects.toString(type));
+			sb.append("-EC: {");
+			if (!factVariables.isEmpty())
+				sb.append(Objects.toString(factVariables));
+			if (!slotVariables.isEmpty())
+				sb.append(Objects.toString(slotVariables));
+			if (!constantExpressions.isEmpty())
+				sb.append(Objects.toString(constantExpressions));
+			if (!variableExpressions.isEmpty())
+				sb.append(Objects.toString(variableExpressions));
+			if (!equalParentEquivalenceClasses.isEmpty())
+				sb.append(Objects.toString(equalParentEquivalenceClasses));
+			sb.append("}");
+			return sb.toString();
+		}
 
 		public static EquivalenceClass newPlainEC(final Scope maximalScope) {
 			return new EquivalenceClass(new LinkedList<>(), new LinkedList<>(), new LinkedList<>(), new LinkedList<>(),

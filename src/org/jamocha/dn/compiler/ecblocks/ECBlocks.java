@@ -164,6 +164,7 @@ public class ECBlocks {
 	@RequiredArgsConstructor
 	@Getter
 	@EqualsAndHashCode
+	@ToString
 	static class FactBinding implements Element {
 		final SingleFactVariable fact;
 
@@ -190,6 +191,7 @@ public class ECBlocks {
 	@RequiredArgsConstructor
 	@Getter
 	@EqualsAndHashCode
+	@ToString
 	static class SlotBinding implements Element {
 		final SingleSlotVariable slot;
 
@@ -216,6 +218,7 @@ public class ECBlocks {
 	@RequiredArgsConstructor
 	@Getter
 	@EqualsAndHashCode(of = { "constant" })
+	@ToString(of = { "constant" })
 	static class ConstantExpression implements Element {
 		final FunctionWithArguments<SymbolLeaf> constant;
 		@Getter(onMethod = @__({ @Override }))
@@ -239,6 +242,7 @@ public class ECBlocks {
 	@RequiredArgsConstructor
 	@Getter
 	@EqualsAndHashCode(of = { "translated" })
+	@ToString(of = "variableExpression")
 	static class VariableExpression implements Element {
 		final FunctionWithArguments<SymbolLeaf> variableExpression;
 		final FunctionWithArguments<ECLeaf> translated;
@@ -246,11 +250,12 @@ public class ECBlocks {
 		final List<EquivalenceClass> ecsInTranslated;
 
 		public VariableExpression(final FunctionWithArguments<SymbolLeaf> variableExpression,
-				final FunctionWithArguments<ECLeaf> translated, final EquivalenceClass originEquivalenceClass) {
+				final FunctionWithArguments<ECLeaf> translated, final EquivalenceClass originEquivalenceClass,
+				final IdentityHashMap<EquivalenceClass, EquivalenceClass> conditionECsToLocalECs) {
 			this.variableExpression = variableExpression;
 			this.translated = translated;
 			this.originEquivalenceClass = originEquivalenceClass;
-			this.ecsInTranslated = OrderedECCollector.collect(translated);
+			this.ecsInTranslated = OrderedECCollector.collect(translated, conditionECsToLocalECs);
 		}
 
 		@Override
@@ -326,8 +331,10 @@ public class ECBlocks {
 		}
 
 		public ExplicitFilterInstance addExplicitInstance(final Either<Rule, ExistentialProxy> ruleOrProxy,
-				final ECFilter ecFilter) {
-			final ArrayList<EquivalenceClass> parameterECs = OrderedECCollector.collect(ecFilter.getFunction());
+				final ECFilter ecFilter,
+				final IdentityHashMap<EquivalenceClass, EquivalenceClass> conditionECsToLocalECs) {
+			final ArrayList<EquivalenceClass> parameterECs =
+					OrderedECCollector.collect(ecFilter.getFunction(), conditionECsToLocalECs);
 			final ExplicitFilterInstance instance = new ExplicitFilterInstance(ruleOrProxy, ecFilter, parameterECs);
 			ruleToExplicitInstances.computeIfAbsent(ruleOrProxy, newHashSet()).add(instance);
 			ruleToAllInstances.computeIfAbsent(ruleOrProxy, newHashSet()).add(instance);
@@ -1328,8 +1335,12 @@ public class ECBlocks {
 				this.graph =
 						determineConflictGraph(
 								theta,
-								flatFilterInstances.stream().collect(
-										groupingIntoSets(FilterInstance::getRuleOrProxy, toList())));
+								rulesOrProxies
+										.stream()
+										.<FilterInstance> flatMap(
+												rule -> ECBlocks.getFilters(rule).stream()
+														.flatMap(f -> f.getAllInstances(rule).stream()))
+										.collect(groupingIntoSets(FilterInstance::getRuleOrProxy, toList())));
 				graphModCount = blockModCount;
 			}
 			final SetView<FilterInstance> outside = Sets.difference(graph.vertexSet(), flatFilterInstances);
@@ -1602,6 +1613,14 @@ public class ECBlocks {
 		final EquivalenceClass original;
 		final Set<Element> elements;
 
+		@Override
+		public String toString() {
+			final StringBuilder sb = new StringBuilder();
+			sb.append("REC: ");
+			sb.append(Objects.toString(elements));
+			return sb.toString();
+		}
+
 		public ReducedEquivalenceClass(final EquivalenceClass original) {
 			this(original, Sets.newHashSet());
 		}
@@ -1639,12 +1658,14 @@ public class ECBlocks {
 	static class RuleConverter implements ECFilterSetVisitor {
 		final List<Either<Rule, ExistentialProxy>> rules;
 		final Either<Rule, ExistentialProxy> ruleOrProxy;
+		final IdentityHashMap<EquivalenceClass, EquivalenceClass> conditionECsToLocalECs;
 
 		public static void convert(final List<Either<Rule, ExistentialProxy>> rules,
 				final Either<Rule, ExistentialProxy> ruleOrProxy, final Collection<ECFilterSet> filters) {
-			final RuleConverter ruleConverter = new RuleConverter(rules, ruleOrProxy);
 			final Rule rule = ruleOrProxy.left().get();
 			final Set<EquivalenceClass> equivalenceClasses = rule.getOriginal().getEquivalenceClasses();
+			final IdentityHashMap<EquivalenceClass, EquivalenceClass> conditionECsToLocalECs =
+					rule.getOriginal().getConditionECsToLocalECs();
 			for (final EquivalenceClass equivalenceClass : equivalenceClasses) {
 				final List<Element> elements = new ArrayList<>();
 				equivalenceClass.getFactVariables().stream().map(FactBinding::new).forEach(elements::add);
@@ -1664,7 +1685,7 @@ public class ECBlocks {
 								.getVariableExpressions()
 								.stream()
 								.map(v -> new VariableExpression(v, FWASymbolToECTranslator.translate(v),
-										equivalenceClass)).collect(toList());
+										equivalenceClass, conditionECsToLocalECs)).collect(toList());
 				for (int i = 0; i < converted.size(); i++) {
 					final VariableExpression left = converted.get(i);
 					for (int j = i + 1; j < converted.size(); j++) {
@@ -1674,7 +1695,8 @@ public class ECBlocks {
 				}
 				if (!converted.isEmpty() && !elements.isEmpty()) {
 					final VariableExpression ecLeaf =
-							new VariableExpression(null, new ECLeaf(equivalenceClass), equivalenceClass);
+							new VariableExpression(null, new ECLeaf(equivalenceClass), equivalenceClass,
+									conditionECsToLocalECs);
 					for (final VariableExpression fwa : converted) {
 						Filter.newImplicitECInstance(ruleOrProxy, ecLeaf, fwa);
 					}
@@ -1688,6 +1710,7 @@ public class ECBlocks {
 				final Set<EquivalenceClass> equalParentEquivalenceClasses =
 						equivalenceClass.getEqualParentEquivalenceClasses();
 			}
+			final RuleConverter ruleConverter = new RuleConverter(rules, ruleOrProxy, conditionECsToLocalECs);
 			for (final ECFilterSet filter : filters) {
 				filter.accept(ruleConverter);
 			}
@@ -1696,7 +1719,7 @@ public class ECBlocks {
 		@Override
 		public void visit(final ECFilter ecFilter) {
 			Filter.newFilter(FWAECLeafToTypeLeafTranslator.translate(ecFilter.getFunction())).addExplicitInstance(
-					ruleOrProxy, ecFilter);
+					ruleOrProxy, ecFilter, conditionECsToLocalECs);
 		}
 
 		@Override
@@ -1713,7 +1736,7 @@ public class ECBlocks {
 
 			final ExistentialProxy proxy = new ExistentialProxy(rule, existentialSet);
 			final Either<Rule, ExistentialProxy> proxyEither = Either.right(proxy);
-			final RuleConverter visitor = new RuleConverter(rules, proxyEither);
+			final RuleConverter visitor = new RuleConverter(rules, proxyEither, conditionECsToLocalECs);
 
 			// insert all pure filters into the proxy
 			for (final ECFilterSet pathFilterSet : purePart) {
@@ -1725,7 +1748,8 @@ public class ECBlocks {
 			final FilterInstance filterInstance =
 					FilterProxy.newFilterProxy(
 							FWAECLeafToTypeLeafTranslator.translate(existentialClosure.getFunction()), proxy)
-							.addExplicitInstance(ruleOrProxy, existentialClosure);
+							.addExplicitInstance(ruleOrProxy, existentialClosure,
+									rule.getOriginal().getConditionECsToLocalECs());
 			rule.existentialProxies.put(filterInstance, proxy);
 		}
 	}

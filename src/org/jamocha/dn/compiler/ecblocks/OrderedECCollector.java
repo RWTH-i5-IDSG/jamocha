@@ -15,6 +15,9 @@
 package org.jamocha.dn.compiler.ecblocks;
 
 import java.util.ArrayList;
+import java.util.IdentityHashMap;
+
+import lombok.RequiredArgsConstructor;
 
 import org.jamocha.function.fwa.ConstantLeaf;
 import org.jamocha.function.fwa.DefaultFunctionWithArgumentsLeafVisitor;
@@ -28,11 +31,14 @@ import org.jamocha.languages.common.RuleCondition.EquivalenceClass;
  *
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
+@RequiredArgsConstructor
 public class OrderedECCollector implements DefaultFunctionWithArgumentsLeafVisitor<ECLeaf> {
 	private final ArrayList<EquivalenceClass> ecs = new ArrayList<>();
+	private final IdentityHashMap<EquivalenceClass, EquivalenceClass> conditionECsToLocalECs;
 
-	public static ArrayList<EquivalenceClass> collect(final FunctionWithArguments<ECLeaf> fwa) {
-		final OrderedECCollector instance = new OrderedECCollector();
+	public static ArrayList<EquivalenceClass> collect(final FunctionWithArguments<ECLeaf> fwa,
+			final IdentityHashMap<EquivalenceClass, EquivalenceClass> conditionECsToLocalECs) {
+		final OrderedECCollector instance = new OrderedECCollector(conditionECsToLocalECs);
 		fwa.accept(instance);
 		return instance.ecs;
 	}
@@ -47,6 +53,6 @@ public class OrderedECCollector implements DefaultFunctionWithArgumentsLeafVisit
 
 	@Override
 	public void visit(final ECLeaf ecLeaf) {
-		ecs.add(ecLeaf.getEc());
+		ecs.add(conditionECsToLocalECs.get(ecLeaf.getEc()));
 	}
 }
