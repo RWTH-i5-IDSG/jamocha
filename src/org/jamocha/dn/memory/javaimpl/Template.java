@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.OptionalInt;
-import java.util.stream.Stream;
+import java.util.Set;
 
 import lombok.Getter;
 import lombok.ToString;
@@ -141,14 +141,14 @@ public class Template implements org.jamocha.dn.memory.Template {
 	@Override
 	public Fact newFact(final Map<org.jamocha.dn.memory.SlotAddress, Object> values) {
 		values.forEach((s, o) -> checkTypeAndConstraints(((SlotAddress) s).index, o));
-		final Stream<Entry<org.jamocha.dn.memory.SlotAddress, Object>> stream = values.entrySet().stream();
-		assert !stream
+		final Set<Entry<org.jamocha.dn.memory.SlotAddress, Object>> entrySet = values.entrySet();
+		assert !entrySet.stream()
 				.filter(e -> !this.slotTypes[((SlotAddress) e.getKey()).index].getJavaClass().isInstance(e.getValue()))
 				.findAny().isPresent();
-		final OptionalInt max = stream.mapToInt(e -> ((SlotAddress) e.getKey()).index).max();
+		final OptionalInt max = entrySet.stream().mapToInt(e -> ((SlotAddress) e.getKey()).index).max();
 		assert max.isPresent();
-		final Object[] args = new Object[max.getAsInt()];
-		stream.forEach(e -> args[((SlotAddress) e.getKey()).index] = e.getValue());
+		final Object[] args = new Object[max.getAsInt() + 1];
+		entrySet.forEach(e -> args[((SlotAddress) e.getKey()).index] = e.getValue());
 		return new Fact(this, args);
 	}
 
