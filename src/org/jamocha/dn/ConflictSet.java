@@ -44,7 +44,7 @@ public class ConflictSet {
 
 	private final SideEffectFunctionToNetwork network;
 	private long activationCounter = 0;
-	private Random random = new Random();
+	private final Random random = new Random();
 	@Getter
 	@Setter
 	private ConflictResolutionStrategy conflictResolutionStrategy;
@@ -145,7 +145,9 @@ public class ConflictSet {
 	 * Deletes all revoked asserts and all retracts.
 	 */
 	synchronized public void deleteRevokedEntries() {
-		for (final Entry<Integer, TreeSet<RuleAndToken>> entry : this.rulesAndTokensBySalience.entrySet()) {
+		for (final Iterator<Entry<Integer, TreeSet<RuleAndToken>>> entryIterator =
+				this.rulesAndTokensBySalience.entrySet().iterator(); entryIterator.hasNext();) {
+			final Entry<Integer, TreeSet<RuleAndToken>> entry = entryIterator.next();
 			final TreeSet<RuleAndToken> rulesAndTokens = entry.getValue();
 			final Iterator<RuleAndToken> iterator = rulesAndTokens.iterator();
 			while (iterator.hasNext()) {
@@ -156,7 +158,7 @@ public class ConflictSet {
 				}
 			}
 			if (rulesAndTokens.isEmpty()) {
-				this.rulesAndTokensBySalience.remove(entry.getKey());
+				entryIterator.remove();
 			}
 		}
 	}
