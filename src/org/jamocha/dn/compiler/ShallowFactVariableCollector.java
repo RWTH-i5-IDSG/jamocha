@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -74,13 +75,15 @@ public class ShallowFactVariableCollector implements DefaultConditionalElementsV
 										})));
 	}
 
-	public static Pair<SingleFactVariable, Set<SingleFactVariable>> collectVariables(
+	public static Pair<Optional<SingleFactVariable>, Set<SingleFactVariable>> collectVariables(
 			final Template initialFactTemplate, final ConditionalElement ce) {
 		// Collect all FactVariables defined in the CEs TemplateCEs and InitialFactCEs
 		final Map<Boolean, Set<SingleFactVariable>> partition =
 				collect(ce).stream().collect(partitioningBy(fv -> fv.getTemplate() == initialFactTemplate, toSet()));
-		assert partition.get(Boolean.TRUE).size() == 1;
-		return Pair.of(partition.get(Boolean.TRUE).iterator().next(), partition.get(Boolean.FALSE));
+		if (partition.get(Boolean.TRUE).size() >= 1) {
+			return Pair.of(Optional.of(partition.get(Boolean.TRUE).iterator().next()), partition.get(Boolean.FALSE));
+		}
+		return Pair.of(Optional.empty(), partition.get(Boolean.FALSE));
 	}
 
 	public static List<SingleFactVariable> collect(final ConditionalElement ce) {
