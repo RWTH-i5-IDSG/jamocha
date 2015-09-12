@@ -2190,14 +2190,24 @@ public class ECBlocks {
 			final BlockSet resultBlocks) {
 		final Set<Filter> filters = rules.stream().flatMap(rule -> getFilters(rule).stream()).collect(toSet());
 		for (final Filter filter : filters) {
-			vertical(
-					rules.stream().map(r -> filter.getExplicitInstances(r)).filter(negate(Set::isEmpty))
-							.collect(toSet()), resultBlocks, ECBlocks::explicitVerticalInner);
 			vertical(rules.stream().map(r -> filter.getImplicitElementInstances(r)).filter(negate(Set::isEmpty))
 					.collect(toSet()), resultBlocks, ECBlocks::implicitElementVerticalInner);
-			vertical(
-					rules.stream().map(r -> filter.getImplicitECInstances(r)).filter(negate(Set::isEmpty))
-							.collect(toSet()), resultBlocks, ECBlocks::implicitECVerticalInner);
+			for (final Set<Set<ExplicitFilterInstance>> sameECPatternFIsGroupedByRule : rules
+					.stream()
+					.flatMap(r -> filter.getExplicitInstances(r).stream())
+					.collect(
+							groupingIntoSets(ECBlocks::computeECPattern,
+									groupingIntoSets(ExplicitFilterInstance::getRuleOrProxy, toSet())))) {
+				vertical(sameECPatternFIsGroupedByRule, resultBlocks, ECBlocks::explicitVerticalInner);
+			}
+			for (final Set<Set<ImplicitECFilterInstance>> sameECPatternFIsGroupedByRule : rules
+					.stream()
+					.flatMap(r -> filter.getImplicitECInstances(r).stream())
+					.collect(
+							groupingIntoSets(ECBlocks::computeECPattern,
+									groupingIntoSets(ImplicitECFilterInstance::getRuleOrProxy, toSet())))) {
+				vertical(sameECPatternFIsGroupedByRule, resultBlocks, ECBlocks::implicitECVerticalInner);
+			}
 		}
 	}
 
@@ -2210,23 +2220,33 @@ public class ECBlocks {
 	protected static BlockSet findAllMaximalBlocksInReducedScope(final Set<FilterInstance> filterInstances,
 			final BlockSet resultBlocks) {
 		final FilterInstanceTypePartitioner typePartition = FilterInstanceTypePartitioner.partition(filterInstances);
-		for (final Set<Set<ExplicitFilterInstance>> filterInstancesOfOneFilterGroupedByRule : typePartition.explicitFilterInstances
-				.stream().collect(
-						groupingIntoSets(FilterInstance::getFilter,
-								groupingIntoSets(FilterInstance::getRuleOrProxy, toSet())))) {
-			vertical(filterInstancesOfOneFilterGroupedByRule, resultBlocks, ECBlocks::explicitVerticalInner);
-		}
 		for (final Set<Set<ImplicitElementFilterInstance>> filterInstancesOfOneFilterGroupedByRule : typePartition.implicitElementFilterInstances
 				.stream().collect(
 						groupingIntoSets(FilterInstance::getFilter,
 								groupingIntoSets(FilterInstance::getRuleOrProxy, toSet())))) {
 			vertical(filterInstancesOfOneFilterGroupedByRule, resultBlocks, ECBlocks::implicitElementVerticalInner);
 		}
-		for (final Set<Set<ImplicitECFilterInstance>> filterInstancesOfOneFilterGroupedByRule : typePartition.implicitECFilterInstances
+		for (final Set<Set<Set<ExplicitFilterInstance>>> filterInstancesOfOneFilterGroupedByECPatternAndRule : typePartition.explicitFilterInstances
 				.stream().collect(
-						groupingIntoSets(FilterInstance::getFilter,
-								groupingIntoSets(FilterInstance::getRuleOrProxy, toSet())))) {
-			vertical(filterInstancesOfOneFilterGroupedByRule, resultBlocks, ECBlocks::implicitECVerticalInner);
+						groupingIntoSets(
+								FilterInstance::getFilter,
+								groupingIntoSets(ECBlocks::computeECPattern,
+										groupingIntoSets(ExplicitFilterInstance::getRuleOrProxy, toSet()))))) {
+			for (final Set<Set<ExplicitFilterInstance>> filterInstancesOfOneFilterAndECPatternGroupedByRule : filterInstancesOfOneFilterGroupedByECPatternAndRule) {
+				vertical(filterInstancesOfOneFilterAndECPatternGroupedByRule, resultBlocks,
+						ECBlocks::explicitVerticalInner);
+			}
+		}
+		for (final Set<Set<Set<ImplicitECFilterInstance>>> filterInstancesOfOneFilterGroupedByECPatternAndRule : typePartition.implicitECFilterInstances
+				.stream().collect(
+						groupingIntoSets(
+								FilterInstance::getFilter,
+								groupingIntoSets(ECBlocks::computeECPattern,
+										groupingIntoSets(ImplicitECFilterInstance::getRuleOrProxy, toSet()))))) {
+			for (final Set<Set<ImplicitECFilterInstance>> filterInstancesOfOneFilterAndECPatternGroupedByRule : filterInstancesOfOneFilterGroupedByECPatternAndRule) {
+				vertical(filterInstancesOfOneFilterAndECPatternGroupedByRule, resultBlocks,
+						ECBlocks::implicitECVerticalInner);
+			}
 		}
 		return resultBlocks;
 	}
