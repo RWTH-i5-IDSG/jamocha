@@ -2748,7 +2748,45 @@ public class ECBlocks {
 					getNElement = ImplicitElementFilterInstance::getLeft;
 					bnToFilter = (b, n) -> Filter.newEqualityFilter(n, b);
 				} else {
-					// both are new, can't use the test
+					final Either<Rule, ExistentialProxy> currentRule = nCurrentFI.getRuleOrProxy();
+					final SetView<Either<Rule, ExistentialProxy>> otherRules =
+							Sets.difference(rules, Collections.singleton(currentRule));
+					final Map<Either<Rule, ExistentialProxy>, ImplicitElementFilterInstance> column =
+							new IdentityHashMap<>();
+					column.put(currentRule, nCurrentFI);
+					for (final Either<Rule, ExistentialProxy> rule : otherRules) {
+						final ImplicitElementFilterInstance matchingInstance =
+								getMatchingFilterInstanceForRuleBothArgsNew(factVariablePartition, workspaceByRule,
+										nCurrentFI, rule);
+						if (null == matchingInstance) {
+							continue workspaceLoop;
+						}
+						column.put(rule, matchingInstance);
+						remove.accept(matchingInstance);
+					}
+					// create a new block
+					final Block newBlock = new Block(block);
+					final List<FilterInstance> filterInstances = new ArrayList<>();
+					// extend the element partition and the theta
+					newBlock.addElementSubSet(new SubSet<>(Maps.transformValues(column,
+							ImplicitElementFilterInstance::getLeft)));
+					newBlock.addElementSubSet(new SubSet<>(Maps.transformValues(column,
+							ImplicitElementFilterInstance::getRight)));
+					// add the first column we already found ...
+					newBlock.addFilterInstanceSubSet(new FilterInstanceSubSet(column));
+					// (also to the list of filter instances)
+					filterInstances.addAll(column.values());
+					// ... and their dual filter instances ...
+					final Map<Either<Rule, ExistentialProxy>, ImplicitElementFilterInstance> columnDuals =
+							Maps.transformValues(column, ImplicitElementFilterInstance::getDual);
+					newBlock.addFilterInstanceSubSet(new FilterInstanceSubSet(columnDuals));
+					// (same as above)
+					filterInstances.addAll(columnDuals.values());
+					// ... which also have to be removed from the workspace
+					columnDuals.values().forEach(remove);
+
+					// add to matching filters list and continue
+					matchingFilters.add(Pair.of(newBlock, filterInstances));
 					continue;
 				}
 			}
@@ -2846,25 +2884,55 @@ public class ECBlocks {
 			if (bElementPartition.lookup(bElement) != bElementPartition.lookup(getBElement.apply(candidate))) {
 				continue;
 			}
-			final Element candidateNElement = getNElement.apply(candidate);
-			final SingleFactVariable candidateNFactVariable = candidateNElement.getFactVariable();
-			if (null == candidateNFactVariable) {
-				// constant binding
-				assert null == nElement.getFactVariable();
-				// equality of constant has been checked by Filter
-				return candidate;
-			}
-			// both are a slot binding to same slot (same TemplateSlotLeaf) or fact
-			// binding to a fact variable of identical template, checked by Filter
-			assert null != nElement.getFactVariable();
-			if (factVariablePartition.lookup(candidateNFactVariable) != factVariablePartition.lookup(nElement
-					.getFactVariable())) {
-				// fact variable partition not the same for the arguments
+			if (!checkSameFactBinding(factVariablePartition, getNElement, nElement, candidate)) {
 				continue;
 			}
 			return candidate;
 		}
 		return null;
+	}
+
+	protected static ImplicitElementFilterInstance getMatchingFilterInstanceForRuleBothArgsNew(
+			final FactVariablePartition factVariablePartition,
+			final Map<Either<Rule, ExistentialProxy>, Map<Filter, Set<ImplicitElementFilterInstance>>> workspaceByRule,
+			final ImplicitElementFilterInstance nCurrentFI, final Either<Rule, ExistentialProxy> rule) {
+		final Set<ImplicitElementFilterInstance> candidates =
+				workspaceByRule.getOrDefault(rule, Collections.emptyMap()).getOrDefault(nCurrentFI.getFilter(),
+						Collections.emptySet());
+		for (final ImplicitElementFilterInstance candidate : candidates) {
+			if (!checkSameFactBinding(factVariablePartition, ImplicitElementFilterInstance::getLeft,
+					nCurrentFI.getLeft(), candidate)) {
+				continue;
+			}
+			if (!checkSameFactBinding(factVariablePartition, ImplicitElementFilterInstance::getRight,
+					nCurrentFI.getRight(), candidate)) {
+				continue;
+			}
+			return candidate;
+		}
+		return null;
+	}
+
+	protected static boolean checkSameFactBinding(final FactVariablePartition factVariablePartition,
+			final Function<ImplicitElementFilterInstance, Element> getXElement, final Element xElement,
+			final ImplicitElementFilterInstance candidate) {
+		final Element candidateXElement = getXElement.apply(candidate);
+		final SingleFactVariable candidateXFactVariable = candidateXElement.getFactVariable();
+		if (null == candidateXFactVariable) {
+			// constant binding
+			assert null == xElement.getFactVariable();
+			// equality of constant has been checked by Filter
+			return true;
+		}
+		// both are a slot binding to same slot (same TemplateSlotLeaf) or fact
+		// binding to a fact variable of identical template, checked by Filter
+		assert null != xElement.getFactVariable();
+		if (factVariablePartition.lookup(candidateXFactVariable) != factVariablePartition.lookup(xElement
+				.getFactVariable())) {
+			// fact variable partition not the same for the arguments
+			return false;
+		}
+		return true;
 	}
 
 	protected static void findMatchingAndIncompatibleImplicitECFilters(
