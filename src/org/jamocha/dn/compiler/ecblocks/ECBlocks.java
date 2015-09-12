@@ -1901,7 +1901,8 @@ public class ECBlocks {
 				continue;
 			}
 			final List<ECFilterList> ecFilterLists =
-					Stream.concat(either.left().get().existentialProxies.values().stream().map(ExistentialProxy::getEither),
+					Stream.concat(
+							either.left().get().existentialProxies.values().stream().map(ExistentialProxy::getEither),
 							Stream.of(either))
 							.flatMap(
 									e -> ruleToJoinedWith.getOrDefault(e, Collections.emptyMap()).values().stream()
@@ -2446,9 +2447,14 @@ public class ECBlocks {
 			final List<? extends FilterInstance> filterInstances) {
 		final Set<List<Integer>> ecPatterns = filterInstances.stream().map(ECBlocks::computeECPattern).collect(toSet());
 		if (ecPatterns.size() > 1) {
+			// different patterns
 			return Collections.emptyMap();
 		}
 		final HashSet<Integer> differentECs = Sets.newHashSet(ecPatterns.iterator().next());
+		if (differentECs.isEmpty()) {
+			// no ECs at all
+			return Collections.emptyMap();
+		}
 
 		// create the EC columns
 		final Map<Integer, Map<Either<Rule, ExistentialProxy>, EquivalenceClass>> ecColumns = new HashMap<>();
