@@ -851,12 +851,10 @@ public class ECBlocks {
 			}
 
 			final List<Set<FilterInstance>> aFilterInstanceSets =
-					aFilters.stream().map(f -> f.getAllInstances(Either.right(aProxy)))
-							.collect(toCollection(ArrayList::new));
+					aFilters.stream().map(f -> f.getAllInstances(aProxy.either)).collect(toCollection(ArrayList::new));
 			aFilterInstanceSets.add(Collections.singleton(aProxy.getExistentialClosure()));
 			final List<Set<FilterInstance>> bFilterInstanceSets =
-					bFilters.stream().map(f -> f.getAllInstances(Either.right(bProxy)))
-							.collect(toCollection(ArrayList::new));
+					bFilters.stream().map(f -> f.getAllInstances(bProxy.either)).collect(toCollection(ArrayList::new));
 			bFilterInstanceSets.add(Collections.singleton(bProxy.getExistentialClosure()));
 
 			final List<FilterInstance> aFlatFilterInstances =
@@ -972,6 +970,12 @@ public class ECBlocks {
 		final ECSetRule original;
 		final Set<Filter> filters = new HashSet<>();
 		final BiMap<FilterInstance, ExistentialProxy> existentialProxies = HashBiMap.create();
+		final Either<Rule, ExistentialProxy> either;
+
+		public Rule(final ECSetRule original) {
+			this.original = original;
+			this.either = Either.left(this);
+		}
 
 		@Override
 		public String toString() {
@@ -989,6 +993,13 @@ public class ECBlocks {
 		final Rule rule;
 		final ECExistentialSet existential;
 		final Set<Filter> filters = new HashSet<>();
+		final Either<Rule, ExistentialProxy> either;
+
+		public ExistentialProxy(final Rule rule, final ECExistentialSet existential) {
+			this.rule = rule;
+			this.existential = existential;
+			this.either = Either.right(this);
+		}
 
 		public FilterInstance getExistentialClosure() {
 			return this.rule.getExistentialProxies().inverse().get(this);
@@ -1563,7 +1574,7 @@ public class ECBlocks {
 		final Rule rule = new Rule(ecFilterSetCondition);
 		// create all filter instances
 		final Set<ECFilterSet> condition = ecFilterSetCondition.getCondition();
-		final Either<Rule, ExistentialProxy> ruleEither = Either.left(rule);
+		final Either<Rule, ExistentialProxy> ruleEither = rule.either;
 		RuleConverter.convert(rules, ruleEither, condition);
 		// from this point on, the rule won't change any more (aka the filters and the existential
 		// proxies have been added) => it can be used as a key in a HashMap
@@ -1735,7 +1746,7 @@ public class ECBlocks {
 			final Set<ECFilterSet> purePart = existentialSet.getPurePart();
 
 			final ExistentialProxy proxy = new ExistentialProxy(rule, existentialSet);
-			final Either<Rule, ExistentialProxy> proxyEither = Either.right(proxy);
+			final Either<Rule, ExistentialProxy> proxyEither = proxy.either;
 			final RuleConverter visitor = new RuleConverter(rules, proxyEither, conditionECsToLocalECs);
 
 			// insert all pure filters into the proxy
@@ -1790,7 +1801,7 @@ public class ECBlocks {
 			// conflicts are identical if they belong to the same filter).
 			final OptionalInt optMax =
 					resultBlockSet.getRuleInstanceToBlocks()
-							.computeIfAbsent(Either.right(existentialProxies.iterator().next()), newHashSet()).stream()
+							.computeIfAbsent(existentialProxies.iterator().next().either, newHashSet()).stream()
 							.mapToInt(composeToInt(characteristicNumber, Integer::intValue)).max();
 			if (!optMax.isPresent())
 				continue;
