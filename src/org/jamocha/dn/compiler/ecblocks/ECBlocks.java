@@ -1901,7 +1901,7 @@ public class ECBlocks {
 				continue;
 			}
 			final List<ECFilterList> ecFilterLists =
-					Stream.concat(either.left().get().existentialProxies.values().stream().map(Either::right),
+					Stream.concat(either.left().get().existentialProxies.values().stream().map(ExistentialProxy::getEither),
 							Stream.of(either))
 							.flatMap(
 									e -> ruleToJoinedWith.getOrDefault(e, Collections.emptyMap()).values().stream()
