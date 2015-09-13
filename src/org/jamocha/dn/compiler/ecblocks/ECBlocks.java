@@ -2985,36 +2985,6 @@ public class ECBlocks {
 			final Set<Integer> nECIndices = Sets.newHashSet(nECPattern);
 			boolean matchingCombinationFound = false;
 			combinationLoop: for (final List<ImplicitECFilterInstance> nFICombination : cartesianProduct) {
-
-				final ImplicitECFilterInstance nChosenFI = nFICombination.get(0);
-
-				final Function<ImplicitECFilterInstance, VariableExpression> getBElement, getNElement;
-				final BiFunction<VariableExpression, VariableExpression, Filter> bnToFilter;
-				{
-					final VariableExpression left = nChosenFI.getLeft();
-					final VariableExpression right = nChosenFI.getRight();
-					final boolean leftInBlock = block.variableExpressionTheta.isRelevant(left);
-					final boolean rightInBlock = block.variableExpressionTheta.isRelevant(right);
-					if (leftInBlock && rightInBlock) {
-						throw new IllegalStateException(
-								"A test comparing two elements of an equivalence class is to be considered, but both elements already are in the effective equivalence class of the block!");
-					}
-					if (leftInBlock) {
-						// => right is new
-						getBElement = ImplicitECFilterInstance::getLeft;
-						getNElement = ImplicitECFilterInstance::getRight;
-						bnToFilter = (b, n) -> Filter.newEqualityFilter(b, n);
-					} else if (rightInBlock) {
-						// => left is new
-						getBElement = ImplicitECFilterInstance::getRight;
-						getNElement = ImplicitECFilterInstance::getLeft;
-						bnToFilter = (b, n) -> Filter.newEqualityFilter(n, b);
-					} else {
-						// both are new, can't use the test
-						continue combinationLoop;
-					}
-				}
-
 				final Map<Integer, Map<Either<Rule, ExistentialProxy>, EquivalenceClass>> indexToECSubSet =
 						new TreeMap<>();
 				for (final ImplicitECFilterInstance nFI : nFICombination) {
@@ -3061,6 +3031,41 @@ public class ECBlocks {
 				// and to the list
 				filterInstances.addAll(nFirstColumnDuals.values());
 				nFirstColumnDuals.values().forEach(remove);
+
+				final ImplicitECFilterInstance nChosenFI = nFICombination.get(0);
+
+				final Function<ImplicitECFilterInstance, VariableExpression> getBElement, getNElement;
+				final BiFunction<VariableExpression, VariableExpression, Filter> bnToFilter;
+				{
+					final VariableExpression left = nChosenFI.getLeft();
+					final VariableExpression right = nChosenFI.getRight();
+					final boolean leftInBlock = block.variableExpressionTheta.isRelevant(left);
+					final boolean rightInBlock = block.variableExpressionTheta.isRelevant(right);
+					if (leftInBlock && rightInBlock) {
+						throw new IllegalStateException(
+								"A test comparing two elements of an equivalence class is to be considered, but both elements already are in the effective equivalence class of the block!");
+					}
+					if (leftInBlock) {
+						// => right is new
+						getBElement = ImplicitECFilterInstance::getLeft;
+						getNElement = ImplicitECFilterInstance::getRight;
+						bnToFilter = (b, n) -> Filter.newEqualityFilter(b, n);
+					} else if (rightInBlock) {
+						// => left is new
+						getBElement = ImplicitECFilterInstance::getRight;
+						getNElement = ImplicitECFilterInstance::getLeft;
+						bnToFilter = (b, n) -> Filter.newEqualityFilter(n, b);
+					} else {
+						// both are new
+						newBlock.addVariableExpressionSubSet(new SubSet<>(Maps.transformValues(nFirstColumn,
+								ImplicitECFilterInstance::getLeft)));
+						newBlock.addVariableExpressionSubSet(new SubSet<>(Maps.transformValues(nFirstColumn,
+								ImplicitECFilterInstance::getRight)));
+						matchingFilters.add(Pair.of(newBlock, filterInstances));
+						matchingCombinationFound = true;
+						continue combinationLoop;
+					}
+				}
 
 				// since the list of ElementSubSets is the same for all rules, we can iterate over
 				// them and inside over the rules to get a list of FilterInstanceSubSets
