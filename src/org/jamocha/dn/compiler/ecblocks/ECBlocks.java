@@ -1422,6 +1422,7 @@ public class ECBlocks {
 								svMapping.values().stream().flatMap(map -> map.values().stream())
 										.filter(map -> map.size() == ruleCount), constantMapping.values().stream()
 										.filter(map -> map.size() == ruleCount))).collect(toList());
+		assert intersection.stream().allMatch(map -> map.size() == ruleCount);
 		return intersection;
 	}
 
@@ -2648,6 +2649,11 @@ public class ECBlocks {
 						}
 						ecColumns.computeIfAbsent(i, newIdentityHashMap()).put(rule, ec);
 					}
+				}
+				if (ecColumns.values().stream()
+						.anyMatch(map -> map.keySet().size() != block.getRulesOrProxies().size())) {
+					// the EC pattern may have been identical, but they differ in being new and old
+					continue cartesianProductLoop;
 				}
 				final List<List<Map<Either<Rule, ExistentialProxy>, ? extends Element>>> intersections =
 						ecColumns.values().stream()
