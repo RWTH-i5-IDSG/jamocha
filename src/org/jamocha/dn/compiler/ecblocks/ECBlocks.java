@@ -2254,6 +2254,14 @@ public class ECBlocks {
 
 	protected static List<FactVariablePartition> enumerateFactVariablePartitions(
 			final Set<Either<Rule, ExistentialProxy>> rules) {
+		if (1 == rules.size()) {
+			final Either<Rule, ExistentialProxy> rule = rules.iterator().next();
+			final FactVariablePartition partition = new FactVariablePartition();
+			getFilters(rule).stream().flatMap(f -> f.getAllInstances(rule).stream())
+					.flatMap(fi -> fi.getDirectlyContainedFactVariables().stream()).distinct()
+					.forEach(fv -> partition.add(new FactVariableSubSet(Collections.singletonMap(rule, fv))));
+			return Collections.singletonList(partition);
+		}
 		final IdentityHashMap<Template, Set<List<FactVariableSubSet>>> subsets = new IdentityHashMap<>();
 		final IdentityHashMap<Template, Map<Either<Rule, ExistentialProxy>, List<SingleFactVariable>>> partitionMap =
 				new IdentityHashMap<>();
