@@ -555,7 +555,7 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 			// Preprocess CEs
 			RuleConditionProcessor.flatten(rule.getCondition());
 		}
-		final Collection<PathRule> rules = RuleCompiler.SIMPLEBLOCKS.compileRules(this.initialFactTemplate, defrules);
+		final Collection<PathRule> rules = RuleCompiler.PATHBLOCKS.compileRules(this.initialFactTemplate, defrules);
 		for (final PathRule rule : rules) {
 			this.terminalNodes.add(buildRule(rule));
 		}

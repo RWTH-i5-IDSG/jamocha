@@ -1439,7 +1439,7 @@ public class ECBlocks {
 	}
 
 	@Getter
-	static class BlockSet {
+	static class ECBlockSet {
 		final HashSet<Block> blocks = new HashSet<>();
 		final TreeMap<Integer, HashSet<Block>> ruleCountToBlocks = new TreeMap<>();
 		final TreeMap<Integer, HashSet<Block>> filterCountToBlocks = new TreeMap<>();
@@ -1784,7 +1784,7 @@ public class ECBlocks {
 			addRule(rule, translatedRules);
 		}
 		// find all maximal blocks
-		final BlockSet resultBlockSet = new BlockSet();
+		final ECBlockSet resultBlockSet = new ECBlockSet();
 		findAllMaximalBlocks(translatedRules, resultBlockSet);
 		// solve the conflicts
 		determineAndSolveConflicts(resultBlockSet);
@@ -1796,7 +1796,7 @@ public class ECBlocks {
 	}
 
 	protected static List<PathRule> createOutput(final List<Either<Rule, ExistentialProxy>> rules,
-			final BlockSet resultBlockSet) {
+			final ECBlockSet resultBlockSet) {
 		final Function<? super Block, ? extends Integer> characteristicNumber =
 				block -> block.getFlatFilterInstances().size() / block.getRulesOrProxies().size();
 		final TreeMap<Integer, CursorableLinkedList<Block>> blockMap =
@@ -1980,9 +1980,9 @@ public class ECBlocks {
 		return (a == b) || (a != null && a.hasEqualConflicts(b));
 	}
 
-	protected static void determineAndSolveConflicts(final BlockSet resultBlocks) {
+	protected static void determineAndSolveConflicts(final ECBlockSet resultBlocks) {
 		// determine conflicts
-		final BlockSet deletedBlocks = new BlockSet();
+		final ECBlockSet deletedBlocks = new ECBlockSet();
 		final DirectedGraph<Block, BlockConflict> blockConflictGraph = new SimpleDirectedGraph<>(BlockConflict::of);
 		for (final Block block : resultBlocks.getBlocks()) {
 			blockConflictGraph.addVertex(block);
@@ -2003,7 +2003,7 @@ public class ECBlocks {
 	}
 
 	protected static void createArcs(final DirectedGraph<Block, BlockConflict> blockConflictGraph,
-			final BlockSet resultBlocks, final Block x) {
+			final ECBlockSet resultBlocks, final Block x) {
 		for (final Either<Rule, ExistentialProxy> rule : x.getRulesOrProxies()) {
 			for (final Block y : resultBlocks.getRuleInstanceToBlocks().get(rule)) {
 				if (x == y || blockConflictGraph.containsEdge(x, y)) {
@@ -2177,8 +2177,8 @@ public class ECBlocks {
 	}
 
 	protected static void solveConflict(final BlockConflict blockConflict,
-			final DirectedGraph<Block, BlockConflict> blockConflictGraph, final BlockSet resultBlocks,
-			final BlockSet deletedBlocks) {
+			final DirectedGraph<Block, BlockConflict> blockConflictGraph, final ECBlockSet resultBlocks,
+			final ECBlockSet deletedBlocks) {
 		final Block replaceBlock = blockConflict.getReplaceBlock();
 		final Set<FilterInstance> xWOcfi =
 				replaceBlock.getFlatFilterInstances().stream().filter(negate(blockConflict.getCfi()::contains))
@@ -2187,7 +2187,7 @@ public class ECBlocks {
 		// remove replaceBlock and update qualities
 		removeArc(blockConflictGraph, blockConflict);
 		// find the horizontally maximal blocks within xWOcfi
-		final BlockSet newBlocks = findAllMaximalBlocksInReducedScope(xWOcfi, new BlockSet());
+		final ECBlockSet newBlocks = findAllMaximalBlocksInReducedScope(xWOcfi, new ECBlockSet());
 		// for every such block,
 		for (final Block block : newBlocks.getBlocks()) {
 			if (!deletedBlocks.isContained(block)) {
@@ -2201,7 +2201,7 @@ public class ECBlocks {
 	}
 
 	protected static void findAllMaximalBlocks(final List<Either<Rule, ExistentialProxy>> rules,
-			final BlockSet resultBlocks) {
+			final ECBlockSet resultBlocks) {
 		final Set<Filter> filters = rules.stream().flatMap(rule -> getFilters(rule).stream()).collect(toSet());
 		for (final Filter filter : filters) {
 			vertical(rules.stream().map(r -> filter.getImplicitElementInstances(r)).filter(negate(Set::isEmpty))
@@ -2231,8 +2231,8 @@ public class ECBlocks {
 		return Collectors.collectingAndThen(groupingBy, map -> new HashSet<D>(map.values()));
 	}
 
-	protected static BlockSet findAllMaximalBlocksInReducedScope(final Set<FilterInstance> filterInstances,
-			final BlockSet resultBlocks) {
+	protected static ECBlockSet findAllMaximalBlocksInReducedScope(final Set<FilterInstance> filterInstances,
+			final ECBlockSet resultBlocks) {
 		final FilterInstanceTypePartitioner typePartition = FilterInstanceTypePartitioner.partition(filterInstances);
 		for (final Set<Set<ImplicitElementFilterInstance>> filterInstancesOfOneFilterGroupedByRule : typePartition.implicitElementFilterInstances
 				.stream().collect(
@@ -2363,12 +2363,12 @@ public class ECBlocks {
 
 	protected static interface VerticalInner<T extends FilterInstance> {
 		public void apply(final Set<Either<Rule, ExistentialProxy>> rules, final List<T> filterInstances,
-				final List<FactVariablePartition> partitions, final BlockSet resultBlocks);
+				final List<FactVariablePartition> partitions, final ECBlockSet resultBlocks);
 	}
 
 	protected static void implicitElementVerticalInner(final Set<Either<Rule, ExistentialProxy>> rules,
 			final List<ImplicitElementFilterInstance> filterInstances, final List<FactVariablePartition> partitions,
-			final BlockSet resultBlocks) {
+			final ECBlockSet resultBlocks) {
 		final SubSet<Element> leftESS =
 				new SubSet<>(filterInstances.stream().collect(
 						toMap(FilterInstance::getRuleOrProxy, ImplicitElementFilterInstance::getLeft)));
@@ -2400,7 +2400,7 @@ public class ECBlocks {
 
 	protected static void implicitECVerticalInner(final Set<Either<Rule, ExistentialProxy>> rules,
 			final List<ImplicitECFilterInstance> filterInstances, final List<FactVariablePartition> partitions,
-			final BlockSet resultBlocks) {
+			final ECBlockSet resultBlocks) {
 		final Map<Integer, Map<Either<Rule, ExistentialProxy>, EquivalenceClass>> ecColumns =
 				determineECColumns(filterInstances);
 		if (ecColumns.isEmpty())
@@ -2439,7 +2439,7 @@ public class ECBlocks {
 
 	protected static void explicitVerticalInner(final Set<Either<Rule, ExistentialProxy>> rules,
 			final List<ExplicitFilterInstance> filterInstances, final List<FactVariablePartition> partitions,
-			final BlockSet resultBlocks) {
+			final ECBlockSet resultBlocks) {
 		final Map<Integer, Map<Either<Rule, ExistentialProxy>, EquivalenceClass>> ecColumns =
 				determineECColumns(filterInstances);
 		if (ecColumns.isEmpty())
@@ -2490,7 +2490,7 @@ public class ECBlocks {
 	}
 
 	protected static <T extends FilterInstance> void vertical(final Set<Set<T>> filterInstancesGroupedByRule,
-			final BlockSet resultBlocks, final VerticalInner<T> verticalInner) {
+			final ECBlockSet resultBlocks, final VerticalInner<T> verticalInner) {
 		final Set<Set<Set<T>>> filterInstancesPowerSet = Sets.powerSet(filterInstancesGroupedByRule);
 		final Iterator<Set<Set<T>>> iterator = filterInstancesPowerSet.iterator();
 		// skip empty set
@@ -2508,7 +2508,7 @@ public class ECBlocks {
 	}
 
 	protected static void horizontalRecursion(final Block block, final Stack<Set<FilterInstance>> exclusionStack,
-			final BlockSet resultBlocks) {
+			final ECBlockSet resultBlocks) {
 		// needed: the filters that are contained in every rule of the block, where for every
 		// filter it is the case that: every rule contains at least one instance not already
 		// excluded by the exclusion stack

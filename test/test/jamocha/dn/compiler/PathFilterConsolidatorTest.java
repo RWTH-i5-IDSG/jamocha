@@ -28,7 +28,7 @@ import java.util.Set;
 
 import org.jamocha.dn.ConstructCache.Defrule;
 import org.jamocha.dn.ConstructCache.Defrule.PathSetBasedRule;
-import org.jamocha.dn.compiler.simpleblocks.PathFilterConsolidator;
+import org.jamocha.dn.compiler.pathblocks.PathFilterConsolidator;
 import org.jamocha.filter.Path;
 import org.jamocha.filter.PathFilterSet;
 import org.jamocha.filter.PathFilterSet.PathExistentialSet;

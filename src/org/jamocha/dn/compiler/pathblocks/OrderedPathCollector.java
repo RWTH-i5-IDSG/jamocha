@@ -12,10 +12,11 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package org.jamocha.dn.compiler.simpleblocks;
+package org.jamocha.dn.compiler.pathblocks;
 
 import java.util.ArrayList;
 
+import org.jamocha.filter.Path;
 import org.jamocha.function.fwa.ConstantLeaf;
 import org.jamocha.function.fwa.DefaultFunctionWithArgumentsLeafVisitor;
 import org.jamocha.function.fwa.FunctionWithArguments;
@@ -27,13 +28,13 @@ import org.jamocha.function.fwa.PathLeaf;
  *
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
-public class PathLeafCollector implements DefaultFunctionWithArgumentsLeafVisitor<PathLeaf> {
-	private final ArrayList<PathLeaf> pathLeafs = new ArrayList<>();
+public class OrderedPathCollector implements DefaultFunctionWithArgumentsLeafVisitor<PathLeaf> {
+	private final ArrayList<Path> paths = new ArrayList<>();
 
-	public static ArrayList<PathLeaf> collect(final FunctionWithArguments<PathLeaf> fwa) {
-		final PathLeafCollector instance = new PathLeafCollector();
+	public static ArrayList<Path> collect(final FunctionWithArguments<PathLeaf> fwa) {
+		final OrderedPathCollector instance = new OrderedPathCollector();
 		fwa.accept(instance);
-		return instance.pathLeafs;
+		return instance.paths;
 	}
 
 	@Override
@@ -46,6 +47,6 @@ public class PathLeafCollector implements DefaultFunctionWithArgumentsLeafVisito
 
 	@Override
 	public void visit(final PathLeaf pathLeaf) {
-		pathLeafs.add(pathLeaf);
+		paths.add(pathLeaf.getPath());
 	}
 }

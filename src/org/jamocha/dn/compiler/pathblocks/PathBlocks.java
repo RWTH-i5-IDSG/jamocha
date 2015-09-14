@@ -12,7 +12,7 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package org.jamocha.dn.compiler.simpleblocks;
+package org.jamocha.dn.compiler.pathblocks;
 
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.partitioningBy;
@@ -65,8 +65,8 @@ import org.apache.commons.collections4.list.CursorableLinkedList;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jamocha.dn.ConstructCache.Defrule.PathRule;
 import org.jamocha.dn.ConstructCache.Defrule.PathSetBasedRule;
-import org.jamocha.dn.compiler.simpleblocks.SimpleBlocks.Filter.FilterInstance;
-import org.jamocha.dn.compiler.simpleblocks.SimpleBlocks.Filter.FilterInstance.Conflict;
+import org.jamocha.dn.compiler.pathblocks.PathBlocks.Filter.FilterInstance;
+import org.jamocha.dn.compiler.pathblocks.PathBlocks.Filter.FilterInstance.Conflict;
 import org.jamocha.filter.Path;
 import org.jamocha.filter.PathFilter;
 import org.jamocha.filter.PathFilterList;
@@ -101,7 +101,7 @@ import com.google.common.collect.Sets.SetView;
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
-public class SimpleBlocks {
+public class PathBlocks {
 
 	/**
 	 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
@@ -630,7 +630,7 @@ public class SimpleBlocks {
 	}
 
 	@Getter
-	static class BlockSet {
+	static class PathBlockSet {
 		final HashSet<Block> blocks = new HashSet<>();
 		final TreeMap<Integer, HashSet<Block>> ruleCountToBlocks = new TreeMap<>();
 		final TreeMap<Integer, HashSet<Block>> filterCountToBlocks = new TreeMap<>();
@@ -899,7 +899,7 @@ public class SimpleBlocks {
 			addRule(rule, translatedRules);
 		}
 		// find all maximal blocks
-		final BlockSet resultBlockSet = new BlockSet();
+		final PathBlockSet resultBlockSet = new PathBlockSet();
 		findAllMaximalBlocks(translatedRules, resultBlockSet);
 		// solve the conflicts
 		determineAndSolveConflicts(resultBlockSet);
@@ -912,7 +912,7 @@ public class SimpleBlocks {
 	}
 
 	protected static List<PathRule> createOutput(final List<Either<Rule, ExistentialProxy>> rules,
-			final BlockSet resultBlockSet) {
+			final PathBlockSet resultBlockSet) {
 		final Function<? super Block, ? extends Integer> characteristicNumber =
 				block -> block.getFlatFilterInstances().size() / block.getRulesOrProxies().size();
 		final TreeMap<Integer, CursorableLinkedList<Block>> blockMap =
@@ -1083,7 +1083,7 @@ public class SimpleBlocks {
 	}
 
 	protected static void findAllMaximalBlocks(final List<Either<Rule, ExistentialProxy>> rules,
-			final BlockSet resultBlocks) {
+			final PathBlockSet resultBlocks) {
 		final UndirectedGraph<FilterInstance, ConflictEdge> conflictGraph = determineConflictGraphForRules(rules);
 		final Set<Filter> filters = rules.stream().flatMap(rule -> getFilters(rule).stream()).collect(toSet());
 		for (final Filter filter : filters) {
@@ -1098,8 +1098,8 @@ public class SimpleBlocks {
 		return Collectors.collectingAndThen(groupingBy, map -> new HashSet<D>(map.values()));
 	}
 
-	protected static BlockSet findAllMaximalBlocksInReducedScope(final Set<FilterInstance> filterInstances,
-			final BlockSet resultBlocks) {
+	protected static PathBlockSet findAllMaximalBlocksInReducedScope(final Set<FilterInstance> filterInstances,
+			final PathBlockSet resultBlocks) {
 		final Iterable<List<FilterInstance>> filterInstancesGroupedByRule =
 				filterInstances.stream().collect(
 						Collectors.collectingAndThen(groupingBy(FilterInstance::getRuleOrProxy), Map::values));
@@ -1115,9 +1115,9 @@ public class SimpleBlocks {
 		return resultBlocks;
 	}
 
-	protected static void determineAndSolveConflicts(final BlockSet resultBlocks) {
+	protected static void determineAndSolveConflicts(final PathBlockSet resultBlocks) {
 		// determine conflicts
-		final BlockSet deletedBlocks = new BlockSet();
+		final PathBlockSet deletedBlocks = new PathBlockSet();
 		final DirectedGraph<Block, BlockConflict> blockConflictGraph = new SimpleDirectedGraph<>(BlockConflict::of);
 		for (final Block block : resultBlocks.getBlocks()) {
 			blockConflictGraph.addVertex(block);
@@ -1138,7 +1138,7 @@ public class SimpleBlocks {
 	}
 
 	protected static void createArcs(final DirectedGraph<Block, BlockConflict> blockConflictGraph,
-			final BlockSet resultBlocks, final Block x) {
+			final PathBlockSet resultBlocks, final Block x) {
 		for (final Either<Rule, ExistentialProxy> rule : x.getRulesOrProxies()) {
 			for (final Block y : resultBlocks.getRuleInstanceToBlocks().get(rule)) {
 				if (x == y || blockConflictGraph.containsEdge(x, y)) {
@@ -1304,8 +1304,8 @@ public class SimpleBlocks {
 	}
 
 	protected static void solveConflict(final BlockConflict blockConflict,
-			final DirectedGraph<Block, BlockConflict> blockConflictGraph, final BlockSet resultBlocks,
-			final BlockSet deletedBlocks) {
+			final DirectedGraph<Block, BlockConflict> blockConflictGraph, final PathBlockSet resultBlocks,
+			final PathBlockSet deletedBlocks) {
 		final Block replaceBlock = blockConflict.getReplaceBlock();
 		final Set<FilterInstance> xWOcfi =
 				replaceBlock.getFlatFilterInstances().stream().filter(negate(blockConflict.getCfi()::contains))
@@ -1314,7 +1314,7 @@ public class SimpleBlocks {
 		// remove replaceBlock and update qualities
 		removeArc(blockConflictGraph, blockConflict);
 		// find the horizontally maximal blocks within xWOcfi
-		final BlockSet newBlocks = findAllMaximalBlocksInReducedScope(xWOcfi, new BlockSet());
+		final PathBlockSet newBlocks = findAllMaximalBlocksInReducedScope(xWOcfi, new PathBlockSet());
 		// for every such block,
 		for (final Block block : newBlocks.getBlocks()) {
 			if (!deletedBlocks.isContained(block)) {
@@ -1327,8 +1327,8 @@ public class SimpleBlocks {
 		deletedBlocks.addDuringConflictResolution(replaceBlock);
 	}
 
-	private static boolean checkContainment(final BlockSet blockSet) {
-		final HashSet<Block> blocks = blockSet.getBlocks();
+	private static boolean checkContainment(final PathBlockSet pathBlockSet) {
+		final HashSet<Block> blocks = pathBlockSet.getBlocks();
 		for (final Block a : blocks) {
 			for (final Block b : blocks) {
 				if (a == b)
@@ -1341,7 +1341,7 @@ public class SimpleBlocks {
 	}
 
 	protected static void vertical(final UndirectedGraph<FilterInstance, ConflictEdge> graph,
-			final Set<Set<FilterInstance>> filterInstancesGroupedByRule, final BlockSet resultBlocks) {
+			final Set<Set<FilterInstance>> filterInstancesGroupedByRule, final PathBlockSet resultBlocks) {
 		final Set<Set<Set<FilterInstance>>> filterInstancesPowerSet = Sets.powerSet(filterInstancesGroupedByRule);
 		final Iterator<Set<Set<FilterInstance>>> iterator = filterInstancesPowerSet.iterator();
 		// skip empty set
@@ -1361,7 +1361,7 @@ public class SimpleBlocks {
 	}
 
 	protected static void horizontalRecursion(final Block block, final Stack<Set<FilterInstance>> exclusionStack,
-			final BlockSet resultBlocks) {
+			final PathBlockSet resultBlocks) {
 		// needed: the filters that are contained in every rule of the block, where for every
 		// filter it is the case that: every rule contains at least one instance not already
 		// excluded by the exclusion stack

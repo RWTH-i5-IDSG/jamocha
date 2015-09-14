@@ -25,8 +25,8 @@ import org.jamocha.dn.ConstructCache.Defrule.PathRule;
 import org.jamocha.dn.ConstructCache.Defrule.PathSetBasedRule;
 import org.jamocha.dn.compiler.ecblocks.CEToECTranslator;
 import org.jamocha.dn.compiler.ecblocks.ECBlocks;
-import org.jamocha.dn.compiler.simpleblocks.PathFilterConsolidator;
-import org.jamocha.dn.compiler.simpleblocks.SimpleBlocks;
+import org.jamocha.dn.compiler.pathblocks.PathBlocks;
+import org.jamocha.dn.compiler.pathblocks.PathFilterConsolidator;
 import org.jamocha.dn.memory.Template;
 import org.jamocha.filter.optimizer.Optimizer;
 import org.jamocha.filter.optimizer.PathFilterOrderOptimizer;
@@ -73,7 +73,7 @@ public enum RuleCompiler {
 			return transformedRules;
 		}
 	},
-	SIMPLEBLOCKS {
+	PATHBLOCKS {
 		@Override
 		public Collection<PathRule> compileRules(final Template initialFactTemplate, final Collection<Defrule> defrules) {
 			final List<PathSetBasedRule> consolidatedRules =
@@ -81,7 +81,7 @@ public enum RuleCompiler {
 							.flatMap(
 									rule -> new PathFilterConsolidator(initialFactTemplate, rule).consolidate()
 											.stream()).collect(toList());
-			Collection<PathRule> transformedRules = SimpleBlocks.transform(consolidatedRules);
+			Collection<PathRule> transformedRules = PathBlocks.transform(consolidatedRules);
 			for (final Optimizer optimizer : ImmutableList.of(
 			/*
 			 * now perform the actual optimization of the filter order

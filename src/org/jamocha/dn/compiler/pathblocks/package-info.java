@@ -15,4 +15,4 @@
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
-package org.jamocha.dn.compiler.simpleblocks;
+package org.jamocha.dn.compiler.pathblocks;
