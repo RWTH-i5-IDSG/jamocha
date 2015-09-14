@@ -42,7 +42,7 @@ import lombok.extern.log4j.Log4j2;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.jamocha.dn.ConstructCache.Defrule;
-import org.jamocha.dn.ConstructCache.Defrule.PathSetBasedRule;
+import org.jamocha.dn.ConstructCache.Defrule.PathSetRule;
 import org.jamocha.dn.compiler.DeepFactVariableCollector;
 import org.jamocha.dn.compiler.ShallowFactVariableCollector;
 import org.jamocha.dn.compiler.Specificity;
@@ -102,9 +102,9 @@ public class PathFilterConsolidator implements DefaultConditionalElementsVisitor
 	private final Template initialFactTemplate;
 	private final Defrule rule;
 	@Getter
-	private List<Defrule.PathSetBasedRule> translateds = null;
+	private List<Defrule.PathSetRule> translateds = null;
 
-	public List<Defrule.PathSetBasedRule> consolidate() {
+	public List<Defrule.PathSetRule> consolidate() {
 		assert rule.getCondition().getConditionalElements().size() == 1;
 		return rule.getCondition().getConditionalElements().get(0).accept(this).translateds;
 	}
@@ -164,7 +164,7 @@ public class PathFilterConsolidator implements DefaultConditionalElementsVisitor
 			this.negated = negated;
 		}
 
-		public static PathSetBasedRule consolidate(final Template initialFactTemplate, final Defrule rule,
+		public static PathSetRule consolidate(final Template initialFactTemplate, final Defrule rule,
 				final ConditionalElement ce, final Map<VariableSymbol, EquivalenceClass> symbolToECbackup) {
 			final Set<VariableSymbol> symbols = symbolToECbackup.keySet();
 			// copy the equivalence classes
@@ -241,7 +241,7 @@ public class PathFilterConsolidator implements DefaultConditionalElementsVisitor
 				}
 			}
 
-			final PathSetBasedRule result =
+			final PathSetRule result =
 					consolidateOnCopiedEquivalenceClasses(initialFactTemplate, rule, ce,
 							symbols.stream().map(VariableSymbol::getEqual).collect(toSet()), Specificity.calculate(ce),
 							oldToNew);
@@ -341,7 +341,7 @@ public class PathFilterConsolidator implements DefaultConditionalElementsVisitor
 			}
 		}
 
-		private static PathSetBasedRule consolidateOnCopiedEquivalenceClasses(final Template initialFactTemplate,
+		private static PathSetRule consolidateOnCopiedEquivalenceClasses(final Template initialFactTemplate,
 				final Defrule rule, final ConditionalElement ce, final Set<EquivalenceClass> equivalenceClasses,
 				final int specificity, final Map<EquivalenceClass, EquivalenceClass> oldToNew) {
 			// get the tests on this level (stopping at existentials)
@@ -369,7 +369,7 @@ public class PathFilterConsolidator implements DefaultConditionalElementsVisitor
 
 			final Map<EquivalenceClass, PathLeaf> originalEC2PathLeaf = new HashMap<>();
 			oldToNew.forEach((k, v) -> originalEC2PathLeaf.put(k, equivalenceClassToPathLeaf.get(v)));
-			return rule.new PathSetBasedRule(filters, allShallowPaths, rule.getActionList(), originalEC2PathLeaf,
+			return rule.new PathSetRule(filters, allShallowPaths, rule.getActionList(), originalEC2PathLeaf,
 					specificity);
 		}
 

@@ -171,7 +171,7 @@ public class ConstructCache {
 
 		@Data
 		@RequiredArgsConstructor
-		public class PathSetBasedRule {
+		public class PathSetRule {
 			final Set<PathFilterSet> condition;
 			final Set<Path> resultPaths;
 			final FunctionWithArguments<SymbolLeaf>[] actionList;

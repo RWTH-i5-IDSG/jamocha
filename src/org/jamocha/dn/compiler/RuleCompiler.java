@@ -22,7 +22,7 @@ import java.util.List;
 import org.jamocha.dn.ConstructCache.Defrule;
 import org.jamocha.dn.ConstructCache.Defrule.ECSetRule;
 import org.jamocha.dn.ConstructCache.Defrule.PathRule;
-import org.jamocha.dn.ConstructCache.Defrule.PathSetBasedRule;
+import org.jamocha.dn.ConstructCache.Defrule.PathSetRule;
 import org.jamocha.dn.compiler.ecblocks.CEToECTranslator;
 import org.jamocha.dn.compiler.ecblocks.ECBlocks;
 import org.jamocha.dn.compiler.pathblocks.PathBlocks;
@@ -43,13 +43,13 @@ public enum RuleCompiler {
 	TRIVIAL {
 		@Override
 		public Collection<PathRule> compileRules(final Template initialFactTemplate, final Collection<Defrule> defrules) {
-			final List<PathSetBasedRule> consolidatedRules =
+			final List<PathSetRule> consolidatedRules =
 					defrules.stream()
 							.flatMap(
 									rule -> new PathFilterConsolidator(initialFactTemplate, rule).consolidate()
 											.stream()).collect(toList());
 			Collection<PathRule> transformedRules =
-					consolidatedRules.stream().map(PathSetBasedRule::trivialToPathRule).collect(toList());
+					consolidatedRules.stream().map(PathSetRule::trivialToPathRule).collect(toList());
 			for (final Optimizer optimizer : ImmutableList.of(
 			/*
 			 * node filter sets using the same paths can be combined
@@ -76,7 +76,7 @@ public enum RuleCompiler {
 	PATHBLOCKS {
 		@Override
 		public Collection<PathRule> compileRules(final Template initialFactTemplate, final Collection<Defrule> defrules) {
-			final List<PathSetBasedRule> consolidatedRules =
+			final List<PathSetRule> consolidatedRules =
 					defrules.stream()
 							.flatMap(
 									rule -> new PathFilterConsolidator(initialFactTemplate, rule).consolidate()

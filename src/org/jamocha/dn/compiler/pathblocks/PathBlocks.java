@@ -64,7 +64,7 @@ import org.apache.commons.collections4.iterators.PermutationIterator;
 import org.apache.commons.collections4.list.CursorableLinkedList;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jamocha.dn.ConstructCache.Defrule.PathRule;
-import org.jamocha.dn.ConstructCache.Defrule.PathSetBasedRule;
+import org.jamocha.dn.ConstructCache.Defrule.PathSetRule;
 import org.jamocha.dn.compiler.pathblocks.PathBlocks.Filter.FilterInstance;
 import org.jamocha.dn.compiler.pathblocks.PathBlocks.Filter.FilterInstance.Conflict;
 import org.jamocha.filter.Path;
@@ -411,7 +411,7 @@ public class PathBlocks {
 	@RequiredArgsConstructor
 	@Getter
 	static class Rule {
-		final PathSetBasedRule original;
+		final PathSetRule original;
 		final Set<Filter> filters = new HashSet<>();
 		final BiMap<FilterInstance, ExistentialProxy> existentialProxies = HashBiMap.create();
 
@@ -774,7 +774,7 @@ public class PathBlocks {
 		return ruleOrProxy.fold(Rule::getFilters, ExistentialProxy::getFilters);
 	}
 
-	protected static void addRule(final PathSetBasedRule pathBasedRule, final List<Either<Rule, ExistentialProxy>> rules) {
+	protected static void addRule(final PathSetRule pathBasedRule, final List<Either<Rule, ExistentialProxy>> rules) {
 		final Rule rule = new Rule(pathBasedRule);
 		// first step: create all filter instances
 		final Set<PathFilterSet> condition = pathBasedRule.getCondition();
@@ -893,9 +893,9 @@ public class PathBlocks {
 		}
 	}
 
-	public static List<PathRule> transform(final List<PathSetBasedRule> rules) {
+	public static List<PathRule> transform(final List<PathSetRule> rules) {
 		final List<Either<Rule, ExistentialProxy>> translatedRules = new ArrayList<>();
-		for (final PathSetBasedRule rule : rules) {
+		for (final PathSetRule rule : rules) {
 			addRule(rule, translatedRules);
 		}
 		// find all maximal blocks
