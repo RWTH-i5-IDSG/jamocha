@@ -43,6 +43,10 @@ public class ConstantLeaf<L extends ExchangeableLeaf<L>> implements FunctionWith
 		this.lazyObject = new LazyObject<>(value);
 	}
 
+	public ConstantLeaf(final FunctionWithArguments<?> fwa) {
+		this(fwa.evaluate(), fwa.getReturnType());
+	}
+
 	@Override
 	public SlotType[] getParamTypes() {
 		return SlotType.empty;

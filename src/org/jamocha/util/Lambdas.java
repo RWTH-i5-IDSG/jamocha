@@ -14,6 +14,8 @@
  */
 package org.jamocha.util;
 
+import static java.util.stream.Collectors.toCollection;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -21,18 +23,29 @@ import java.util.HashSet;
 import java.util.IdentityHashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.ToDoubleFunction;
 import java.util.function.ToIntFunction;
 import java.util.function.ToLongFunction;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 import lombok.experimental.UtilityClass;
+
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
@@ -181,6 +194,50 @@ public class Lambdas {
 	}
 
 	/*
+	 * computeIfAbsentHelpers using the value
+	 */
+
+	public static <A> Function<A, Set<A>> toSingleton() {
+		return x -> Collections.singleton(x);
+	}
+
+	public static <A> Function<A, List<A>> toSingletonList() {
+		return x -> Collections.singletonList(x);
+	}
+
+	public static <A, B> BiFunction<A, B, Map<A, B>> toSingletonMap() {
+		return (a, b) -> Collections.singletonMap(a, b);
+	}
+
+	/*
+	 * collector helpers
+	 */
+
+	public static <A> Collector<A, ?, Set<A>> toIdentityHashSet() {
+		return toCollection(Sets::newIdentityHashSet);
+	}
+
+	public static <A> Collector<A, ?, HashSet<A>> toHashSet() {
+		return toCollection(Sets::newHashSet);
+	}
+
+	public static <A extends Comparable<A>> Collector<A, ?, TreeSet<A>> toTreeSet() {
+		return toCollection(Sets::newTreeSet);
+	}
+
+	public static <A> Collector<A, ?, ArrayList<A>> toArrayList() {
+		return toCollection(Lists::newArrayList);
+	}
+
+	public static <A> Collector<A, ?, ImmutableList<A>> toImmutableList() {
+		return Collectors.collectingAndThen(Collectors.toList(), ImmutableList::copyOf);
+	}
+
+	public static <A> Collector<A, ?, LinkedList<A>> toLinkedList() {
+		return toCollection(Lists::newLinkedList);
+	}
+
+	/*
 	 * iterable to stream
 	 */
 
@@ -193,5 +250,9 @@ public class Lambdas {
 	 */
 	public static <T> Iterable<T> iterable(final Stream<T> stream) {
 		return stream::iterator;
+	}
+
+	public static <T> Optional<T> or(final Optional<T> first, final Optional<T> second) {
+		return first.isPresent() ? first : second;
 	}
 }
