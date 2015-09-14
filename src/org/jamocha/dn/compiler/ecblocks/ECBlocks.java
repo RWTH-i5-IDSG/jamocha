@@ -68,6 +68,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
+import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.collections4.iterators.PermutationIterator;
 import org.apache.commons.collections4.list.CursorableLinkedList;
 import org.apache.commons.lang3.tuple.Pair;
@@ -1843,10 +1844,20 @@ public class ECBlocks {
 				targetList.addAll(toMove);
 			}
 		}
+		// the set of all FIs already constructed
 		final Set<FilterInstance> constructedFIs = new HashSet<>();
-		final Map<Either<Rule, ExistentialProxy>, Map<FilterInstance, Set<FilterInstance>>> ruleToJoinedWith =
-				new HashMap<>();
-		final Map<Set<FilterInstance>, ECFilterList> joinedWithToComponent = new HashMap<>();
+		class RuleInfo {
+			// stores the current equivalence class restriction applied
+			final IdentityHashMap<EquivalenceClass, Set<Element>> ecToSubSet = new IdentityHashMap<>();
+			// stores the keys of the joinedWithToComponentPerRule-Map as values per rule
+			final IdentityHashMap<FilterInstance, Set<FilterInstance>> fiToJoinedWith = new IdentityHashMap<>();
+			// stores the mapping of an already constructed set of filterinstances to the
+			// corresponding ECFilter-thingy
+			final IdentityHashMap<Set<FilterInstance>, ECFilterList> joinedWithToComponentPerRule =
+					new IdentityHashMap<>();
+		}
+		final Map<Either<Rule, ExistentialProxy>, RuleInfo> ruleToInfo = new IdentityHashMap<>();
+
 		// at this point, the network can be constructed
 		for (final CursorableLinkedList<Block> blockList : blockMap.values()) {
 			for (final Block block : blockList) {
@@ -1859,15 +1870,24 @@ public class ECBlocks {
 				final Map<Either<Rule, ExistentialProxy>, ECSharedList> ruleToSharedList =
 						IntStream.range(0, blockRules.size()).boxed()
 								.collect(toMap(blockRules::get, sharedListWrapper.getSharedSiblings()::get));
-				final List<FilterInstanceSubSet> columnsToConstruct, columnsAlreadyConstructed;
-				{
-					final Map<Boolean, List<FilterInstanceSubSet>> partition =
-							filterInstanceColumns.stream().collect(
-									partitioningBy(column -> Collections.disjoint(column.getElements().values(),
-											constructedFIs)));
-					columnsAlreadyConstructed = partition.get(Boolean.FALSE);
-					columnsToConstruct = partition.get(Boolean.TRUE);
-				}
+
+				final Either<Rule, ExistentialProxy> chosenRule = block.getRulesOrProxies().iterator().next();
+				final FilterInstanceTypePartitioner chosenTypePartition =
+						FilterInstanceTypePartitioner.partition(block.getFlatFilterInstances().stream()
+								.filter(fi -> chosenRule == fi.getRuleOrProxy()).collect(toList()));
+				final List<ExplicitFilterInstance> chosenExplicitFilterInstances =
+						ListUtils.removeAll(chosenTypePartition.getExplicitFilterInstances(), constructedFIs);
+				final List<ImplicitElementFilterInstance> chosenImplicitElementFilterInstances =
+						ListUtils.removeAll(chosenTypePartition.getImplicitElementFilterInstances(), constructedFIs);
+				final List<ImplicitECFilterInstance> chosenImplicitECFilterInstances =
+						ListUtils.removeAll(chosenTypePartition.getImplicitECFilterInstances(), constructedFIs);
+
+				// first step: construct everything using only one FV
+				// for explicit and EC FIs this means checking if there is a FV which is used by all
+				// ECs not containing a constant in the reduced version
+
+				// second step: plot a graph with FVs as vertices and edges as join conditions (if
+				// any)
 
 				if (!columnsAlreadyConstructed.isEmpty()) {
 					final Map<ECSharedList, LinkedHashSet<ECFilterList>> sharedPart = new HashMap<>();
