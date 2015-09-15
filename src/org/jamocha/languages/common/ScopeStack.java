@@ -24,7 +24,6 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 import lombok.extern.log4j.Log4j2;
 
 import org.jamocha.dn.memory.SlotAddress;
@@ -131,7 +130,6 @@ public class ScopeStack {
 
 	public static class VariableSymbol extends Symbol {
 		@Getter
-		@Setter
 		EquivalenceClass equal;
 
 		protected VariableSymbol(final Scope scope, final String image, final SlotType type) {
@@ -142,6 +140,10 @@ public class ScopeStack {
 		protected VariableSymbol(final Scope scope, final String image) {
 			super(image);
 			this.equal = EquivalenceClass.newPlainEC(scope);
+		}
+		
+		public void setEqual(final EquivalenceClass equal) {
+			this.equal = equal;
 		}
 
 		public SlotType getType() {

@@ -14,8 +14,10 @@
  */
 package org.jamocha.dn.compiler.ecblocks;
 
+import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
+import static org.jamocha.util.Lambdas.toIdentityHashSet;
 import static org.jamocha.util.ToArray.toArray;
 
 import java.util.ArrayList;
@@ -43,6 +45,7 @@ import org.jamocha.dn.compiler.DeepFactVariableCollector;
 import org.jamocha.dn.compiler.ShallowFactVariableCollector;
 import org.jamocha.dn.compiler.Specificity;
 import org.jamocha.dn.memory.Template;
+import org.jamocha.filter.ECCollector;
 import org.jamocha.filter.ECFilter;
 import org.jamocha.filter.ECFilterSet;
 import org.jamocha.filter.ECFilterSet.ECExistentialSet;
@@ -79,6 +82,7 @@ import org.jamocha.languages.common.errors.VariableNotDeclaredError;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
+import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.google.common.collect.Sets.SetView;
 
@@ -154,8 +158,11 @@ public class CEToECTranslator implements DefaultConditionalElementsVisitor {
 				final ConditionalElement ce, final Map<VariableSymbol, EquivalenceClass> symbolToECbackup) {
 			final Scope scope = rule.getCondition().getScope();
 			final Set<VariableSymbol> symbols = symbolToECbackup.keySet();
+
+			final Set<SingleFactVariable> deepFactVariables = new HashSet<>(DeepFactVariableCollector.collect(ce));
+
 			// copy the equivalence classes
-			final BiMap<EquivalenceClass, EquivalenceClass> oldToNew =
+			final BiMap<EquivalenceClass, EquivalenceClass> oldToNewEC =
 					HashBiMap
 							.create(symbolToECbackup
 									.values()
@@ -163,15 +170,23 @@ public class CEToECTranslator implements DefaultConditionalElementsVisitor {
 									.collect(
 											toMap(Function.identity(),
 													(final EquivalenceClass ec) -> new EquivalenceClass(ec))));
-			replaceEC(symbols, oldToNew);
+			final BiMap<SingleFactVariable, SingleFactVariable> oldToNewFV =
+					HashBiMap.create(Maps.asMap(deepFactVariables, fv -> new SingleFactVariable(fv, oldToNewEC)));
+
+			System.out.println(symbols.stream().map(VariableSymbol::getEqual).collect(toList()));
+			replaceEC(symbols, oldToNewEC);
+			System.out.println(symbols.stream().map(VariableSymbol::getEqual).collect(toList()));
+			replaceFVs(oldToNewEC.values(), oldToNewFV);
+			System.out.println(symbols.stream().map(VariableSymbol::getEqual).collect(toList()));
 
 			final HashSet<FunctionWithArguments<SymbolLeaf>> occurringFWAs =
 					FWACollector.newHashSet().collect(ce).getFwas();
-			final HashSet<SingleFactVariable> occurringFactVariables =
-					new HashSet<>(DeepFactVariableCollector.collect(ce));
+			final Set<SingleFactVariable> occurringFactVariables = oldToNewFV.values();
 			/*
 			 * inspect the equivalence class hierarchy for sections not contained in this rule part
 			 */
+			// FIXME may need fixing - after everything is correctly copied, this might fail the way
+			// it was implemented in the old days
 			// for every symbol in the CE
 			for (final VariableSymbol vs : symbols) {
 				// and thus for every equivalence class
@@ -240,17 +255,27 @@ public class CEToECTranslator implements DefaultConditionalElementsVisitor {
 
 			final ECSetRule result =
 					consolidateOnCopiedEquivalenceClasses(initialFactTemplate, rule, ce, shallowTests,
-							equivalenceClasses, new IdentityHashMap<>(oldToNew.inverse()), Specificity.calculate(ce));
+							equivalenceClasses, new IdentityHashMap<>(oldToNewEC.inverse()), new IdentityHashMap<>(
+									oldToNewFV), Specificity.calculate(ce));
 
 			// reset the symbol - equivalence class mapping
 			symbolToECbackup.forEach((vs, ec) -> vs.setEqual(ec));
-			replaceEC(symbols, oldToNew.inverse());
+			// replaceEC(symbols, oldToNewEC.inverse());
 			// restore the SlotVariable - equivalence class mapping
 			symbolToECbackup.forEach((vs, ec) -> vs.getEqual().getSlotVariables().forEach(sv -> {
 				sv.getEqualSet().clear();
 				sv.getEqualSet().add(ec);
 			}));
 			return result;
+		}
+
+		private static void replaceFVs(final Set<EquivalenceClass> ecs,
+				final BiMap<SingleFactVariable, SingleFactVariable> oldToNewFV) {
+			for (final EquivalenceClass ec : ecs) {
+				ec.getFactVariables().replaceAll(oldToNewFV::get);
+				ec.getSlotVariables().replaceAll(
+						sv -> oldToNewFV.get(sv.getFactVariable()).getSlots().get(sv.getSlot()));
+			}
 		}
 
 		// there are references to EquivalenceClass in:
@@ -260,7 +285,11 @@ public class CEToECTranslator implements DefaultConditionalElementsVisitor {
 		private static void replaceEC(final Set<VariableSymbol> symbols,
 				final Map<EquivalenceClass, EquivalenceClass> map) {
 			// VariableSymbol.equal
-			symbols.forEach(sym -> sym.setEqual(map.getOrDefault(sym.getEqual(), sym.getEqual())));
+			for (final VariableSymbol symbol : symbols) {
+				symbol.setEqual(map.getOrDefault(symbol.getEqual(), symbol.getEqual()));
+			}
+			// symbols.forEach(sym -> sym.setEqual(map.getOrDefault(sym.getEqual(),
+			// sym.getEqual())));
 			for (final Map.Entry<EquivalenceClass, EquivalenceClass> entry : map.entrySet()) {
 				final EquivalenceClass oldEC = entry.getKey();
 				final EquivalenceClass newEC = entry.getValue();
@@ -300,7 +329,7 @@ public class CEToECTranslator implements DefaultConditionalElementsVisitor {
 					return oldEc;
 				}
 				final EquivalenceClass newEc = EquivalenceClass.newECFromType(this.scope, oldEc.getType());
-				for (final FunctionWithArguments<SymbolLeaf> constant : oldEc.getConstantExpressions()) {
+				for (final FunctionWithArguments<ECLeaf> constant : oldEc.getConstantExpressions()) {
 					newEc.add(constant);
 				}
 				EquivalenceClass.addEqualParentEquivalenceClassRelation(newEc, oldEc);
@@ -317,7 +346,7 @@ public class CEToECTranslator implements DefaultConditionalElementsVisitor {
 						final Set<VariableSymbol> symbols = SymbolInSymbolLeafsCollector.collect(f);
 						if (symbols.isEmpty()) {
 							return EquivalenceClass.newECFromConstantExpression(scope,
-									new ConstantLeaf<SymbolLeaf>(f.evaluate(), f.getReturnType()));
+									new ConstantLeaf<ECLeaf>(f.evaluate(), f.getReturnType()));
 						}
 						Scope max = scope;
 						for (final VariableSymbol symbol : symbols) {
@@ -326,7 +355,7 @@ public class CEToECTranslator implements DefaultConditionalElementsVisitor {
 								max = maximalScope;
 							}
 						}
-						return EquivalenceClass.newECFromVariableExpression(max, f);
+						return EquivalenceClass.newECFromVariableExpression(max, FWASymbolToECTranslator.translate(f));
 					});
 				}
 
@@ -416,10 +445,14 @@ public class CEToECTranslator implements DefaultConditionalElementsVisitor {
 				final Defrule rule, final ConditionalElement ce,
 				final Set<PredicateWithArguments<SymbolLeaf>> shallowTests,
 				final Set<EquivalenceClass> equivalenceClasses,
-				final IdentityHashMap<EquivalenceClass, EquivalenceClass> conditionECsToLocalECs, final int specificity) {
+				final IdentityHashMap<EquivalenceClass, EquivalenceClass> conditionECsToLocalECs,
+				final IdentityHashMap<SingleFactVariable, SingleFactVariable> oldToNewFactVariables,
+				final int specificity) {
 			final Pair<Optional<SingleFactVariable>, Set<SingleFactVariable>> initialFactAndVariables =
 					ShallowFactVariableCollector.collectVariables(initialFactTemplate, ce);
-			final Set<SingleFactVariable> factVariables = initialFactAndVariables.getRight();
+			final Set<SingleFactVariable> factVariables =
+					initialFactAndVariables.getRight().stream().map(oldToNewFactVariables::get)
+							.collect(toIdentityHashSet());
 
 			return rule.newECFilterSetCondition(
 					new NoORsTranslator(initialFactTemplate, initialFactAndVariables.getLeft(), rule.getCondition()

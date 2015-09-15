@@ -12,22 +12,17 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package org.jamocha.dn.compiler.ecblocks;
+package org.jamocha.filter;
 
 import java.util.HashSet;
 import java.util.Set;
 
 import lombok.Getter;
 
-import org.jamocha.filter.ECFilter;
-import org.jamocha.filter.ECFilterList;
 import org.jamocha.filter.ECFilterList.ECExistentialList;
 import org.jamocha.filter.ECFilterList.ECNodeFilterSet;
 import org.jamocha.filter.ECFilterList.ECSharedListWrapper.ECSharedList;
-import org.jamocha.filter.ECFilterListVisitor;
-import org.jamocha.filter.ECFilterSet;
 import org.jamocha.filter.ECFilterSet.ECExistentialSet;
-import org.jamocha.filter.ECFilterSetVisitor;
 import org.jamocha.function.fwa.ConstantLeaf;
 import org.jamocha.function.fwa.DefaultFunctionWithArgumentsLeafVisitor;
 import org.jamocha.function.fwa.ECLeaf;
@@ -43,19 +38,19 @@ public class ECCollector implements DefaultFunctionWithArgumentsLeafVisitor<ECLe
 	@Getter
 	final Set<EquivalenceClass> equivalenceClasses = new HashSet<>();
 
-	static Set<EquivalenceClass> collect(final ECFilterList filter) {
+	public static Set<EquivalenceClass> collect(final ECFilterList filter) {
 		return filter.accept(new ECCollector()).equivalenceClasses;
 	}
 
-	static Set<EquivalenceClass> collect(final ECFilterSet set) {
+	public static Set<EquivalenceClass> collect(final ECFilterSet set) {
 		return set.accept(new ECCollector()).equivalenceClasses;
 	}
 
-	static Set<EquivalenceClass> collect(final ECFilter filter) {
+	public static Set<EquivalenceClass> collect(final ECFilter filter) {
 		return collect(filter.getFunction());
 	}
 
-	static Set<EquivalenceClass> collect(final FunctionWithArguments<ECLeaf> fwa) {
+	public static Set<EquivalenceClass> collect(final FunctionWithArguments<ECLeaf> fwa) {
 		return fwa.accept(new ECCollector()).equivalenceClasses;
 	}
 

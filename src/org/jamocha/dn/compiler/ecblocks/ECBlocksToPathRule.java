@@ -80,6 +80,7 @@ import org.jamocha.function.fwa.FunctionWithArguments;
 import org.jamocha.function.fwa.PathLeaf;
 import org.jamocha.function.fwa.PredicateWithArguments;
 import org.jamocha.function.fwa.PredicateWithArgumentsComposite;
+import org.jamocha.function.fwatransformer.FWAECLeafToPathTranslator;
 import org.jamocha.function.impls.predicates.Equals;
 import org.jamocha.languages.common.RuleCondition.EquivalenceClass;
 import org.jamocha.languages.common.SingleFactVariable;
@@ -91,6 +92,7 @@ import org.jgrapht.graph.SimpleWeightedGraph;
 import com.atlassian.fugue.Either;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
@@ -261,26 +263,23 @@ public class ECBlocksToPathRule {
 						exampleFVsToChooseFrom.stream().map(block.factVariablePartition::lookup).collect(toList());
 				for (final Either<Rule, ExistentialProxy> rule : block.getRulesOrProxies()) {
 					final Set<SingleFactVariable> debugFVs = rule.left().get().original.getFactVariables();
-					if (!(debugFVs.containsAll(exampleFVsToChooseFrom) || Collections.disjoint(debugFVs, exampleFVsToChooseFrom))) {
+					if (!(debugFVs.containsAll(exampleFVsToChooseFrom) || Collections.disjoint(debugFVs,
+							exampleFVsToChooseFrom))) {
 						System.out.println("man!");
 					}
-					
+
 					final ExplicitFilterInstance filterInstance =
 							(ExplicitFilterInstance) filterInstanceSubSet.get(rule);
 					final RuleInfo ruleInfo = ruleToInfo.get(rule);
 					final Set<SingleFactVariable> fvsToChooseFrom =
 							factVariableSubSets.stream().map(fvss -> fvss.get(rule)).collect(toIdentityHashSet());
-					final List<FunctionWithArguments<PathLeaf>> pathParameters =
-							filterInstance
-									.getParameters()
-									.stream()
-									.map(param -> getMatchingElement(param, block, blockEC2Constant, ruleInfo,
-											fvsToChooseFrom)).collect(toList());
-					assert !pathParameters.stream().anyMatch(Objects::isNull);
+					final ImmutableMap<EquivalenceClass, FunctionWithArguments<PathLeaf>> map =
+							Maps.toMap(
+									Sets.newHashSet(filterInstance.getParameters()),
+									param -> getMatchingElement(param, block, blockEC2Constant, ruleInfo,
+											fvsToChooseFrom));
 					final PredicateWithArguments<PathLeaf> pwa =
-							PredicateWithArgumentsComposite.newPredicateInstance(Equals.inClips, ToArray
-									.<FunctionWithArguments<PathLeaf>> toArray(pathParameters,
-											FunctionWithArguments[]::new));
+							FWAECLeafToPathTranslator.translate(filterInstance.ecFilter.getFunction(), map);
 					ruleInfo.joinedWithToComponent.setTarget(filterInstance,
 							PathNodeFilterSet.newRegularPathNodeFilterSet(new PathFilter(pwa)));
 				}
@@ -307,6 +306,7 @@ public class ECBlocksToPathRule {
 			final TreeMap<Integer, CursorableLinkedList<Block>> blockMap) {
 		// rule infos
 		final IdentityHashMap<Either<Rule, ExistentialProxy>, RuleInfo> ruleToInfo = new IdentityHashMap<>();
+
 		// the set of all FIs already constructed
 		final Set<FilterInstance> representedFIs = new HashSet<>();
 
@@ -315,6 +315,11 @@ public class ECBlocksToPathRule {
 			for (final Block block : blockList) {
 				final ImmutableList<Either<Rule, ExistentialProxy>> blockRules =
 						ImmutableList.copyOf(block.getRulesOrProxies());
+				// initialize paths
+				for (final Either<Rule, ExistentialProxy> rule : blockRules) {
+					ruleToInfo.computeIfAbsent(rule, x -> new RuleInfo(x, ruleToInfo));
+				}
+
 				// since we are considering blocks, it is either the case that all filter
 				// instances of the column have been constructed or none of them have
 				final ECSharedListWrapper sharedListWrapper = new ECSharedListWrapper(blockRules.size());
@@ -323,8 +328,7 @@ public class ECBlocksToPathRule {
 								.collect(toMap(blockRules::get, sharedListWrapper.getSharedSiblings()::get));
 
 				final Either<Rule, ExistentialProxy> chosenRule = blockRules.get(0);
-				final RuleInfo chosenRuleInfo =
-						ruleToInfo.computeIfAbsent(chosenRule, x -> new RuleInfo(x, ruleToInfo));
+				final RuleInfo chosenRuleInfo = ruleToInfo.get(chosenRule);
 
 				final FilterInstanceTypePartitioner chosenTypePartition =
 						FilterInstanceTypePartitioner.partition(block.getFlatFilterInstances().stream()
@@ -345,6 +349,16 @@ public class ECBlocksToPathRule {
 								.collect(
 										groupingBy(fi -> fi.getLeft().getEquivalenceClass(), IdentityHashMap::new,
 												toArrayList()));
+
+				// initialize all fact variables that are to be joined by this block
+				{
+					final Mergeable<SingleFactVariable> factVariables = chosenRuleInfo.factVariables;
+					if (factVariables.tToJoinedWith.values().isEmpty()) {
+						for (final FactVariableSubSet factVariableSubSet : block.factVariablePartition.getElements()) {
+							factVariables.getSet(factVariableSubSet.get(chosenRule));
+						}
+					}
+				}
 
 				final Set<EquivalenceClass> blockECs =
 						Sets.newHashSet(Sets.union(block.variableExpressionTheta.getEquivalenceClasses(),
@@ -377,13 +391,13 @@ public class ECBlocksToPathRule {
 									block.variableExpressionTheta
 											.reduce(ec)
 											.stream()
-											.filter(e -> ((VariableExpression) e).getEcsInTranslated().stream()
+											.filter(e -> ((VariableExpression) e).getEcsInVE().stream()
 													.allMatch(eec -> blockEC2Constant.containsKey(eec))).findAny();
 							if (optElement.isPresent()) {
 								changed = true;
 								blockEC2Constant.put(ec, Pair.of(optElement.get(), FWAEvaluatorForConstantECs.evaluate(
 										Maps.transformValues(blockEC2Constant, Pair::getRight),
-										((VariableExpression) optElement.get()).translated)));
+										((VariableExpression) optElement.get()).variableExpression)));
 								iterator.remove();
 							}
 						}

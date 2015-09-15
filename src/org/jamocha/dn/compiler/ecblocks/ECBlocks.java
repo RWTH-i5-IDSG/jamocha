@@ -29,6 +29,7 @@ import static org.jamocha.util.Lambdas.newHashSet;
 import static org.jamocha.util.Lambdas.newIdentityHashMap;
 import static org.jamocha.util.Lambdas.newIdentityHashSet;
 import static org.jamocha.util.Lambdas.newTreeMap;
+import static org.jamocha.util.Lambdas.toIdentityHashSet;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -98,11 +99,9 @@ import org.jamocha.function.fwa.ConstantLeaf;
 import org.jamocha.function.fwa.ECLeaf;
 import org.jamocha.function.fwa.FunctionWithArguments;
 import org.jamocha.function.fwa.GenericWithArgumentsComposite;
-import org.jamocha.function.fwa.SymbolLeaf;
 import org.jamocha.function.fwa.TemplateSlotLeaf;
 import org.jamocha.function.fwa.TypeLeaf;
 import org.jamocha.function.fwatransformer.FWAECLeafToTypeLeafTranslator;
-import org.jamocha.function.fwatransformer.FWASymbolToECTranslator;
 import org.jamocha.function.impls.predicates.Equals;
 import org.jamocha.languages.common.RuleCondition.EquivalenceClass;
 import org.jamocha.languages.common.SingleFactVariable;
@@ -116,7 +115,6 @@ import org.jgrapht.alg.VertexCovers;
 import org.jgrapht.graph.SimpleDirectedGraph;
 import org.jgrapht.graph.SimpleGraph;
 import org.paukov.combinatorics.Factory;
-import org.paukov.combinatorics.ICombinatoricsVector;
 
 import com.atlassian.fugue.Either;
 import com.google.common.collect.BiMap;
@@ -217,7 +215,7 @@ public class ECBlocks {
 	@EqualsAndHashCode(of = { "constant" })
 	@ToString(of = { "constant" })
 	static class ConstantExpression implements Element {
-		final FunctionWithArguments<SymbolLeaf> constant;
+		final FunctionWithArguments<ECLeaf> constant;
 		@Getter(onMethod = @__({ @Override }))
 		final EquivalenceClass equivalenceClass;
 
@@ -238,21 +236,18 @@ public class ECBlocks {
 	 */
 	@RequiredArgsConstructor
 	@Getter
-	@EqualsAndHashCode(of = { "translated" })
+	@EqualsAndHashCode(of = { "variableExpression" })
 	@ToString(of = "variableExpression")
 	static class VariableExpression implements Element {
-		final FunctionWithArguments<SymbolLeaf> variableExpression;
-		final FunctionWithArguments<ECLeaf> translated;
+		final FunctionWithArguments<ECLeaf> variableExpression;
 		final EquivalenceClass originEquivalenceClass;
-		final List<EquivalenceClass> ecsInTranslated;
+		final List<EquivalenceClass> ecsInVE;
 
-		public VariableExpression(final FunctionWithArguments<SymbolLeaf> variableExpression,
-				final FunctionWithArguments<ECLeaf> translated, final EquivalenceClass originEquivalenceClass,
-				final IdentityHashMap<EquivalenceClass, EquivalenceClass> conditionECsToLocalECs) {
+		public VariableExpression(final FunctionWithArguments<ECLeaf> variableExpression,
+				final EquivalenceClass originEquivalenceClass) {
 			this.variableExpression = variableExpression;
-			this.translated = translated;
 			this.originEquivalenceClass = originEquivalenceClass;
-			this.ecsInTranslated = OrderedECCollector.collect(translated, conditionECsToLocalECs);
+			this.ecsInVE = OrderedECCollector.collect(variableExpression);
 		}
 
 		@Override
@@ -366,14 +361,12 @@ public class ECBlocks {
 
 		private static Filter newEqualityFilter(final VariableExpression left, final VariableExpression right) {
 			return newFilter(FWAECLeafToTypeLeafTranslator.translate(GenericWithArgumentsComposite
-					.newPredicateInstance(Equals.inClips, left.translated, right.translated)));
+					.newPredicateInstance(Equals.inClips, left.variableExpression, right.variableExpression)));
 		}
 
 		public ExplicitFilterInstance addExplicitInstance(final Either<Rule, ExistentialProxy> ruleOrProxy,
-				final ECFilter ecFilter,
-				final IdentityHashMap<EquivalenceClass, EquivalenceClass> conditionECsToLocalECs) {
-			final ArrayList<EquivalenceClass> parameterECs =
-					OrderedECCollector.collect(ecFilter.getFunction(), conditionECsToLocalECs);
+				final ECFilter ecFilter) {
+			final ArrayList<EquivalenceClass> parameterECs = OrderedECCollector.collect(ecFilter.getFunction());
 			final ExplicitFilterInstance instance = new ExplicitFilterInstance(ruleOrProxy, ecFilter, parameterECs);
 			ruleToExplicitInstances.computeIfAbsent(ruleOrProxy, newHashSet()).add(instance);
 			ruleToAllInstances.computeIfAbsent(ruleOrProxy, newHashSet()).add(instance);
@@ -416,7 +409,7 @@ public class ECBlocks {
 				final VariableExpression left, final VariableExpression right) {
 			final ImplicitECFilterInstance instance =
 					new ImplicitECFilterInstance(ruleOrProxy, ImmutableList.<EquivalenceClass> builder()
-							.addAll(left.ecsInTranslated).addAll(right.ecsInTranslated).build(), left, right);
+							.addAll(left.ecsInVE).addAll(right.ecsInVE).build(), left, right);
 			ruleToImplicitECInstances.computeIfAbsent(ruleOrProxy, newHashSet()).add(instance);
 			ruleToAllInstances.computeIfAbsent(ruleOrProxy, newHashSet()).add(instance);
 			getFilters(ruleOrProxy).add(Filter.this);
@@ -1005,7 +998,7 @@ public class ECBlocks {
 
 		@Override
 		public String toString() {
-			return original.getParent().getName();
+			return original.getParent().getName() + "@" + Integer.toHexString(System.identityHashCode(this));
 		}
 	}
 
@@ -1449,7 +1442,7 @@ public class ECBlocks {
 				svMapping.computeIfAbsent(subSet, newIdentityHashMap())
 						.computeIfAbsent(sv.getSlot(), newIdentityHashMap()).put(rule, new SlotBinding(sv));
 			}
-			for (final FunctionWithArguments<SymbolLeaf> constant : ec.getConstantExpressions()) {
+			for (final FunctionWithArguments<ECLeaf> constant : ec.getConstantExpressions()) {
 				final Object value = constant.evaluate();
 				constantMapping.computeIfAbsent(value, newHashMap()).put(rule, new ConstantExpression(constant, ec));
 			}
@@ -1710,14 +1703,11 @@ public class ECBlocks {
 	static class RuleConverter implements ECFilterSetVisitor {
 		final List<Either<Rule, ExistentialProxy>> rules;
 		final Either<Rule, ExistentialProxy> ruleOrProxy;
-		final IdentityHashMap<EquivalenceClass, EquivalenceClass> conditionECsToLocalECs;
 
 		public static void convert(final List<Either<Rule, ExistentialProxy>> rules,
 				final Either<Rule, ExistentialProxy> ruleOrProxy, final Collection<ECFilterSet> filters) {
 			final Rule rule = ruleOrProxy.left().get();
 			final Set<EquivalenceClass> equivalenceClasses = rule.getOriginal().getEquivalenceClasses();
-			final IdentityHashMap<EquivalenceClass, EquivalenceClass> conditionECsToLocalECs =
-					rule.getOriginal().getConditionECsToLocalECs();
 			for (final EquivalenceClass equivalenceClass : equivalenceClasses) {
 				final List<Element> elements = new ArrayList<>();
 				equivalenceClass.getFactVariables().stream().map(FactBinding::new).forEach(elements::add);
@@ -1733,11 +1723,8 @@ public class ECBlocks {
 				}
 
 				final List<VariableExpression> converted =
-						equivalenceClass
-								.getVariableExpressions()
-								.stream()
-								.map(v -> new VariableExpression(v, FWASymbolToECTranslator.translate(v),
-										equivalenceClass, conditionECsToLocalECs)).collect(toList());
+						equivalenceClass.getVariableExpressions().stream()
+								.map(v -> new VariableExpression(v, equivalenceClass)).collect(toList());
 				for (int i = 0; i < converted.size(); i++) {
 					final VariableExpression left = converted.get(i);
 					for (int j = i + 1; j < converted.size(); j++) {
@@ -1747,8 +1734,7 @@ public class ECBlocks {
 				}
 				if (!converted.isEmpty() && !elements.isEmpty()) {
 					final VariableExpression ecLeaf =
-							new VariableExpression(null, new ECLeaf(equivalenceClass), equivalenceClass,
-									conditionECsToLocalECs);
+							new VariableExpression(new ECLeaf(equivalenceClass), equivalenceClass);
 					for (final VariableExpression fwa : converted) {
 						Filter.newImplicitECInstance(ruleOrProxy, ecLeaf, fwa);
 					}
@@ -1762,7 +1748,7 @@ public class ECBlocks {
 				final Set<EquivalenceClass> equalParentEquivalenceClasses =
 						equivalenceClass.getEqualParentEquivalenceClasses();
 			}
-			final RuleConverter ruleConverter = new RuleConverter(rules, ruleOrProxy, conditionECsToLocalECs);
+			final RuleConverter ruleConverter = new RuleConverter(rules, ruleOrProxy);
 			for (final ECFilterSet filter : filters) {
 				filter.accept(ruleConverter);
 			}
@@ -1771,7 +1757,7 @@ public class ECBlocks {
 		@Override
 		public void visit(final ECFilter ecFilter) {
 			Filter.newFilter(FWAECLeafToTypeLeafTranslator.translate(ecFilter.getFunction())).addExplicitInstance(
-					ruleOrProxy, ecFilter, conditionECsToLocalECs);
+					ruleOrProxy, ecFilter);
 		}
 
 		@Override
@@ -1788,7 +1774,7 @@ public class ECBlocks {
 
 			final ExistentialProxy proxy = new ExistentialProxy(rule, existentialSet);
 			final Either<Rule, ExistentialProxy> proxyEither = proxy.either;
-			final RuleConverter visitor = new RuleConverter(rules, proxyEither, conditionECsToLocalECs);
+			final RuleConverter visitor = new RuleConverter(rules, proxyEither);
 
 			// insert all pure filters into the proxy
 			for (final ECFilterSet pathFilterSet : purePart) {
@@ -1800,8 +1786,7 @@ public class ECBlocks {
 			final FilterInstance filterInstance =
 					FilterProxy.newFilterProxy(
 							FWAECLeafToTypeLeafTranslator.translate(existentialClosure.getFunction()), proxy)
-							.addExplicitInstance(ruleOrProxy, existentialClosure,
-									rule.getOriginal().getConditionECsToLocalECs());
+							.addExplicitInstance(ruleOrProxy, existentialClosure);
 			rule.existentialProxies.put(filterInstance, proxy);
 		}
 	}
@@ -1879,7 +1864,7 @@ public class ECBlocks {
 		return block.variableExpressionTheta
 				.reduce(ec)
 				.stream()
-				.filter(e -> ((VariableExpression) e).getEcsInTranslated().stream()
+				.filter(e -> ((VariableExpression) e).getEcsInVE().stream()
 						.allMatch(eec -> getConstantInEC(block, eec).isPresent())).findAny();
 	}
 
@@ -2264,39 +2249,33 @@ public class ECBlocks {
 								l -> l.get(0)))));
 				continue;
 			}
-			final List<Set<ICombinatoricsVector<SingleFactVariable>>> generators = new ArrayList<>();
-			for (final Entry<Either<Rule, ExistentialProxy>, List<SingleFactVariable>> ruleToFVs : templateToMap
-					.getValue().entrySet()) {
-				final List<SingleFactVariable> fvs = ruleToFVs.getValue();
-				final Set<ICombinatoricsVector<SingleFactVariable>> set = Sets.newIdentityHashSet();
-				set.addAll(Factory.createSimpleCombinationGenerator(Factory.createVector(fvs), min)
-						.generateAllObjects());
-				generators.add(set);
-			}
-			final Set<List<Map<Either<Rule, ExistentialProxy>, SingleFactVariable>>> listOfMaps =
+			final List<Set<ImmutableList<SingleFactVariable>>> generators =
+					templateToMap
+							.getValue()
+							.values()
+							.stream()
+							.map(fvs -> Factory.createSimpleCombinationGenerator(Factory.createVector(fvs), min)
+									.generateAllObjects().stream().map(ImmutableList::copyOf)
+									.collect(toIdentityHashSet())).collect(toList());
+
+			final Set<Map<Integer, Map<Either<Rule, ExistentialProxy>, SingleFactVariable>>> listOfMaps =
 					Sets.newIdentityHashSet();
-			for (final List<ICombinatoricsVector<SingleFactVariable>> list : Sets.cartesianProduct(generators)) {
-				final List<Map<Either<Rule, ExistentialProxy>, SingleFactVariable>> currentList = new ArrayList<>();
+			for (final List<ImmutableList<SingleFactVariable>> list : Sets.cartesianProduct(generators)) {
+				final Map<Integer, Map<Either<Rule, ExistentialProxy>, SingleFactVariable>> currentMaps =
+						new TreeMap<>();
 				// every vector contains $min$ fvs corresponding to the same rule
-				for (final ICombinatoricsVector<SingleFactVariable> vector : list) {
+				for (final List<SingleFactVariable> vector : list) {
 					for (int i = 0; i < min; ++i) {
-						final SingleFactVariable value = vector.getValue(i);
+						final SingleFactVariable value = vector.get(i);
 						final Either<Rule, ExistentialProxy> rule = fvToRule.get(value);
-						if (currentList.size() > min) {
-							currentList.get(i).put(rule, value);
-						} else {
-							final IdentityHashMap<Either<Rule, ExistentialProxy>, SingleFactVariable> newMap =
-									new IdentityHashMap<>();
-							newMap.put(rule, value);
-							currentList.add(newMap);
-						}
+						currentMaps.computeIfAbsent(i, newIdentityHashMap()).put(rule, value);
 					}
 				}
-				listOfMaps.add(currentList);
+				listOfMaps.add(currentMaps);
 			}
 			final Set<List<FactVariableSubSet>> targetSubSets = subsets.computeIfAbsent(template, newIdentityHashSet());
-			for (final List<Map<Either<Rule, ExistentialProxy>, SingleFactVariable>> maps : listOfMaps) {
-				targetSubSets.add(maps.stream().map(FactVariableSubSet::new).collect(toList()));
+			for (final Map<Integer, Map<Either<Rule, ExistentialProxy>, SingleFactVariable>> maps : listOfMaps) {
+				targetSubSets.add(maps.values().stream().map(FactVariableSubSet::new).collect(toList()));
 			}
 		}
 		final List<FactVariablePartition> partitions = new ArrayList<>();

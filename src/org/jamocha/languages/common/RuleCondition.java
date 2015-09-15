@@ -36,11 +36,11 @@ import org.jamocha.dn.memory.SlotAddress;
 import org.jamocha.dn.memory.SlotType;
 import org.jamocha.dn.memory.Template;
 import org.jamocha.dn.memory.Template.Slot;
+import org.jamocha.filter.ECCollector;
 import org.jamocha.filter.Path;
-import org.jamocha.filter.SymbolInSymbolLeafsCollector;
+import org.jamocha.function.fwa.ECLeaf;
 import org.jamocha.function.fwa.FunctionWithArguments;
 import org.jamocha.function.fwa.PathLeaf;
-import org.jamocha.function.fwa.SymbolLeaf;
 import org.jamocha.languages.common.ScopeStack.Scope;
 import org.jamocha.languages.common.ScopeStack.VariableSymbol;
 import org.jamocha.languages.common.SingleFactVariable.SingleSlotVariable;
@@ -85,8 +85,8 @@ public class RuleCondition {
 	public static class EquivalenceClass {
 		final LinkedList<SingleFactVariable> factVariables;
 		final LinkedList<SingleSlotVariable> slotVariables;
-		final LinkedList<FunctionWithArguments<SymbolLeaf>> constantExpressions;
-		final LinkedList<FunctionWithArguments<SymbolLeaf>> variableExpressions;
+		final LinkedList<FunctionWithArguments<ECLeaf>> constantExpressions;
+		final LinkedList<FunctionWithArguments<ECLeaf>> variableExpressions;
 		final Set<EquivalenceClass> equalParentEquivalenceClasses = new HashSet<>();
 		final Set<SingleFactVariable> merged = new HashSet<>();
 		protected Scope maximalScope;
@@ -108,7 +108,8 @@ public class RuleCondition {
 				sb.append(Objects.toString(variableExpressions));
 			if (!equalParentEquivalenceClasses.isEmpty())
 				sb.append(Objects.toString(equalParentEquivalenceClasses));
-			sb.append("}");
+			sb.append("}@");
+			sb.append(Integer.toHexString(System.identityHashCode(this)));
 			return sb.toString();
 		}
 
@@ -133,14 +134,14 @@ public class RuleCondition {
 		}
 
 		public static EquivalenceClass newECFromConstantExpression(final Scope maximalScope,
-				final FunctionWithArguments<SymbolLeaf> constantExpression) {
+				final FunctionWithArguments<ECLeaf> constantExpression) {
 			return new EquivalenceClass(new LinkedList<>(), new LinkedList<>(), new LinkedList<>(
 					Collections.singleton(constantExpression)), new LinkedList<>(), maximalScope,
 					constantExpression.getReturnType());
 		}
 
 		public static EquivalenceClass newECFromVariableExpression(final Scope maximalScope,
-				final FunctionWithArguments<SymbolLeaf> variableExpression) {
+				final FunctionWithArguments<ECLeaf> variableExpression) {
 			return new EquivalenceClass(new LinkedList<>(), new LinkedList<>(), new LinkedList<>(), new LinkedList<>(
 					Collections.singleton(variableExpression)), maximalScope, variableExpression.getReturnType());
 		}
@@ -158,11 +159,7 @@ public class RuleCondition {
 		public Set<SingleFactVariable> getDependentFactVariables() {
 			return Sets.union(Sets.newHashSet(this.getFactVariables()), Sets.union(
 					this.slotVariables.stream().map(SingleSlotVariable::getFactVariable).collect(toSet()),
-					this.variableExpressions
-							.stream()
-							.flatMap(
-									fwa -> SymbolInSymbolLeafsCollector.collect(fwa).stream()
-											.map(VariableSymbol::getEqual)).distinct()
+					this.variableExpressions.stream().flatMap(fwa -> ECCollector.collect(fwa).stream()).distinct()
 							.flatMap(ec -> ec.getFactVariables().stream()).collect(toSet())));
 		}
 
@@ -260,19 +257,18 @@ public class RuleCondition {
 			this.slotVariables.add(sv);
 		}
 
-		public void add(final FunctionWithArguments<SymbolLeaf> fwa) {
+		public void add(final FunctionWithArguments<ECLeaf> fwa) {
 			if (null == type)
 				type = fwa.getReturnType();
 			if (fwa.getReturnType() != type) {
 				throw new IllegalArgumentException("Tried to add a FunctionWithArguments of type "
 						+ fwa.getReturnType() + " to an EquivalenceClass of type " + type + "!");
 			}
-			checkContainmentAndAdd(SymbolInSymbolLeafsCollector.collect(fwa).isEmpty() ? constantExpressions
-					: variableExpressions, fwa);
+			checkContainmentAndAdd(ECCollector.collect(fwa).isEmpty() ? constantExpressions : variableExpressions, fwa);
 		}
 
-		private static void checkContainmentAndAdd(final LinkedList<FunctionWithArguments<SymbolLeaf>> target,
-				final FunctionWithArguments<SymbolLeaf> fwa) {
+		private static void checkContainmentAndAdd(final LinkedList<FunctionWithArguments<ECLeaf>> target,
+				final FunctionWithArguments<ECLeaf> fwa) {
 			if (target.contains(fwa)) {
 				throw new IllegalArgumentException(
 						"Tried to add a FunctionWithArguments to an EquivalenceClass that already contained it!");

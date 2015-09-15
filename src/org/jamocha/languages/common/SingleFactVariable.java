@@ -22,11 +22,9 @@ import java.util.Set;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
-import lombok.ToString;
 
 import org.jamocha.dn.memory.SlotAddress;
 import org.jamocha.dn.memory.SlotType;
@@ -42,8 +40,7 @@ import org.jamocha.languages.common.ScopeStack.VariableSymbol;
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
 @Getter
-@EqualsAndHashCode
-@ToString(of = { "template" })
+// @ToString(of = { "template" })
 public class SingleFactVariable {
 	@NonNull
 	final Template template;
@@ -57,6 +54,23 @@ public class SingleFactVariable {
 		assert null != symbol.equal;
 		this.equal = symbol.equal;
 		this.equal.add(this);
+	}
+
+	public SingleFactVariable(final SingleFactVariable copy, final Map<EquivalenceClass, EquivalenceClass> oldToNew) {
+		this.template = copy.template;
+		this.equal = oldToNew.get(copy.equal);
+		for (final SingleSlotVariable oldSV : copy.slots.values()) {
+			final SingleSlotVariable newSV = new SingleSlotVariable(oldSV.slot);
+			for (final EquivalenceClass oldSVEC : oldSV.equalSet) {
+				newSV.equalSet.add(oldToNew.get(oldSVEC));
+			}
+			this.slots.put(oldSV.slot, newSV);
+		}
+	}
+
+	@Override
+	public String toString() {
+		return "FV(" + template.getName() + ")@" + Integer.toHexString(hashCode());
 	}
 
 	public SingleSlotVariable newSingleSlotVariable(final SlotAddress slot, final VariableSymbol symbol) {
@@ -114,7 +128,8 @@ public class SingleFactVariable {
 
 		@Override
 		public String toString() {
-			return "SingleSlotVariable(" + template.getName() + "::" + template.getSlotName(slot) + ")";
+			return "SV(" + template.getName() + "::" + template.getSlotName(slot) + ")@"
+					+ Integer.toHexString(System.identityHashCode(SingleFactVariable.this));
 		}
 	}
 }
