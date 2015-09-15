@@ -14,7 +14,6 @@
  */
 package org.jamocha.dn.compiler.ecblocks;
 
-import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
 import static org.jamocha.util.Lambdas.toIdentityHashSet;
@@ -173,11 +172,8 @@ public class CEToECTranslator implements DefaultConditionalElementsVisitor {
 			final BiMap<SingleFactVariable, SingleFactVariable> oldToNewFV =
 					HashBiMap.create(Maps.asMap(deepFactVariables, fv -> new SingleFactVariable(fv, oldToNewEC)));
 
-			System.out.println(symbols.stream().map(VariableSymbol::getEqual).collect(toList()));
 			replaceEC(symbols, oldToNewEC);
-			System.out.println(symbols.stream().map(VariableSymbol::getEqual).collect(toList()));
 			replaceFVs(oldToNewEC.values(), oldToNewFV);
-			System.out.println(symbols.stream().map(VariableSymbol::getEqual).collect(toList()));
 
 			final HashSet<FunctionWithArguments<SymbolLeaf>> occurringFWAs =
 					FWACollector.newHashSet().collect(ce).getFwas();
@@ -185,8 +181,6 @@ public class CEToECTranslator implements DefaultConditionalElementsVisitor {
 			/*
 			 * inspect the equivalence class hierarchy for sections not contained in this rule part
 			 */
-			// FIXME may need fixing - after everything is correctly copied, this might fail the way
-			// it was implemented in the old days
 			// for every symbol in the CE
 			for (final VariableSymbol vs : symbols) {
 				// and thus for every equivalence class
@@ -233,6 +227,7 @@ public class CEToECTranslator implements DefaultConditionalElementsVisitor {
 			/* merge fact variables within equivalence classes */
 			symbols.forEach(vs -> vs.getEqual().mergeEquivalenceClassesOfFactVariables());
 
+			// FIXME needs fixing - always returns empty-handed
 			/* check that all variables are bound */
 			final Set<VariableSymbol> symbolsInLeafs = SymbolInSymbolLeafsCollector.collect(ce);
 			for (final VariableSymbol vs : symbols) {
@@ -260,7 +255,6 @@ public class CEToECTranslator implements DefaultConditionalElementsVisitor {
 
 			// reset the symbol - equivalence class mapping
 			symbolToECbackup.forEach((vs, ec) -> vs.setEqual(ec));
-			// replaceEC(symbols, oldToNewEC.inverse());
 			// restore the SlotVariable - equivalence class mapping
 			symbolToECbackup.forEach((vs, ec) -> vs.getEqual().getSlotVariables().forEach(sv -> {
 				sv.getEqualSet().clear();

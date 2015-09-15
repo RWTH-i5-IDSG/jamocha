@@ -24,7 +24,6 @@ import static org.jamocha.util.Lambdas.toSingleton;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.IdentityHashMap;
@@ -258,16 +257,8 @@ public class ECBlocksToPathRule {
 				final FilterInstanceSubSet filterInstanceSubSet =
 						block.filterInstancePartition.lookup(exampleFilterInstance);
 				final Collection<FactVariableSubSet> factVariableSubSets =
-				// Collections2.transform(exampleFVsToChooseFrom,
-				// block.factVariablePartition::lookup);
-						exampleFVsToChooseFrom.stream().map(block.factVariablePartition::lookup).collect(toList());
+						Collections2.transform(exampleFVsToChooseFrom, block.factVariablePartition::lookup);
 				for (final Either<Rule, ExistentialProxy> rule : block.getRulesOrProxies()) {
-					final Set<SingleFactVariable> debugFVs = rule.left().get().original.getFactVariables();
-					if (!(debugFVs.containsAll(exampleFVsToChooseFrom) || Collections.disjoint(debugFVs,
-							exampleFVsToChooseFrom))) {
-						System.out.println("man!");
-					}
-
 					final ExplicitFilterInstance filterInstance =
 							(ExplicitFilterInstance) filterInstanceSubSet.get(rule);
 					final RuleInfo ruleInfo = ruleToInfo.get(rule);
