@@ -1061,6 +1061,8 @@ public class ECBlocks {
 		}
 
 		public void add(final S newSubSet) {
+			assert elements.stream().findAny().map(ss -> ss.getElements().keySet().equals(newSubSet.elements.keySet()))
+					.orElse(true);
 			elements.add(newSubSet);
 			for (final T newElement : newSubSet.elements.values()) {
 				lookup.put(newElement, newSubSet);
