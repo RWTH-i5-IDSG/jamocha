@@ -21,6 +21,7 @@ import lombok.RequiredArgsConstructor;
 import org.jamocha.function.fwa.ConstantLeaf;
 import org.jamocha.function.fwa.ECLeaf;
 import org.jamocha.function.fwa.FunctionWithArguments;
+import org.jamocha.function.fwa.PathLeaf;
 import org.jamocha.function.fwatransformer.FWATranslator;
 import org.jamocha.languages.common.RuleCondition.EquivalenceClass;
 
@@ -28,10 +29,10 @@ import org.jamocha.languages.common.RuleCondition.EquivalenceClass;
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
 @RequiredArgsConstructor
-public class FWAEvaluatorForConstantECs extends FWATranslator<ECLeaf, ECLeaf> {
-	final Map<EquivalenceClass, ConstantLeaf<ECLeaf>> lookup;
+public class FWAEvaluatorForConstantECs extends FWATranslator<ECLeaf, PathLeaf> {
+	final Map<EquivalenceClass, ConstantLeaf<PathLeaf>> lookup;
 
-	public static ConstantLeaf<ECLeaf> evaluate(final Map<EquivalenceClass, ConstantLeaf<ECLeaf>> lookup,
+	public static ConstantLeaf<PathLeaf> evaluate(final Map<EquivalenceClass, ConstantLeaf<PathLeaf>> lookup,
 			final FunctionWithArguments<ECLeaf> expression) {
 		return new ConstantLeaf<>(expression.accept(new FWAEvaluatorForConstantECs(lookup)).functionWithArguments);
 	}
@@ -42,7 +43,7 @@ public class FWAEvaluatorForConstantECs extends FWATranslator<ECLeaf, ECLeaf> {
 	}
 
 	@Override
-	public FWATranslator<ECLeaf, ECLeaf> of() {
+	public FWATranslator<ECLeaf, PathLeaf> of() {
 		return new FWAEvaluatorForConstantECs(lookup);
 	}
 }

@@ -14,7 +14,6 @@
  */
 package org.jamocha.dn.compiler.ecblocks;
 
-import static java.util.stream.Collectors.counting;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.mapping;
 import static java.util.stream.Collectors.partitioningBy;
@@ -30,9 +29,6 @@ import static org.jamocha.util.Lambdas.newHashSet;
 import static org.jamocha.util.Lambdas.newIdentityHashMap;
 import static org.jamocha.util.Lambdas.newIdentityHashSet;
 import static org.jamocha.util.Lambdas.newTreeMap;
-import static org.jamocha.util.Lambdas.toArrayList;
-import static org.jamocha.util.Lambdas.toIdentityHashSet;
-import static org.jamocha.util.Lambdas.toSingleton;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -70,11 +66,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
-import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.collections4.iterators.PermutationIterator;
 import org.apache.commons.collections4.list.CursorableLinkedList;
 import org.apache.commons.lang3.tuple.Pair;
-import org.jamocha.dn.ConstructCache.Defrule.ECListRule;
 import org.jamocha.dn.ConstructCache.Defrule.ECSetRule;
 import org.jamocha.dn.ConstructCache.Defrule.PathRule;
 import org.jamocha.dn.compiler.ecblocks.ECBlocks.ConflictEdge.ConflictEdgeFactory;
@@ -94,7 +88,6 @@ import org.jamocha.filter.ECFilter;
 import org.jamocha.filter.ECFilterList;
 import org.jamocha.filter.ECFilterList.ECExistentialList;
 import org.jamocha.filter.ECFilterList.ECNodeFilterSet;
-import org.jamocha.filter.ECFilterList.ECSharedListWrapper;
 import org.jamocha.filter.ECFilterList.ECSharedListWrapper.ECSharedList;
 import org.jamocha.filter.ECFilterListVisitor;
 import org.jamocha.filter.ECFilterSet;
@@ -120,10 +113,8 @@ import org.jgrapht.DirectedGraph;
 import org.jgrapht.EdgeFactory;
 import org.jgrapht.UndirectedGraph;
 import org.jgrapht.alg.VertexCovers;
-import org.jgrapht.graph.DefaultWeightedEdge;
 import org.jgrapht.graph.SimpleDirectedGraph;
 import org.jgrapht.graph.SimpleGraph;
-import org.jgrapht.graph.SimpleWeightedGraph;
 import org.paukov.combinatorics.Factory;
 import org.paukov.combinatorics.ICombinatoricsVector;
 
@@ -338,6 +329,12 @@ public class ECBlocks {
 		}
 	}
 
+	static interface FilterVisitor extends Visitor {
+		public void visit(final Filter filter);
+
+		public void visit(final FilterProxy filter);
+	}
+
 	/**
 	 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
 	 */
@@ -345,7 +342,7 @@ public class ECBlocks {
 	@Getter
 	@EqualsAndHashCode(of = { "predicate" })
 	@ToString(of = { "predicate" })
-	static class Filter {
+	static class Filter implements Visitable<FilterVisitor> {
 		final FunctionWithArguments<?> predicate;
 		final Map<Either<Rule, ExistentialProxy>, Set<FilterInstance>> ruleToAllInstances = new HashMap<>();
 		final Map<Either<Rule, ExistentialProxy>, Set<ExplicitFilterInstance>> ruleToExplicitInstances =
@@ -443,8 +440,10 @@ public class ECBlocks {
 			return ruleToImplicitECInstances.computeIfAbsent(ruleOrProxy, newHashSet());
 		}
 
-		public ECFilterList convert(final ExplicitFilterInstance instance) {
-			return new ECNodeFilterSet(instance.ecFilter);
+		@Override
+		public <V extends FilterVisitor> V accept(final V visitor) {
+			visitor.visit(this);
+			return visitor;
 		}
 
 		static interface FilterInstanceVisitor extends Visitor {
@@ -701,7 +700,7 @@ public class ECBlocks {
 		 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
 		 */
 		@Getter
-		private abstract class ECFilterInstance extends AbstractFilterInstance {
+		protected abstract class ECFilterInstance extends AbstractFilterInstance {
 			final List<EquivalenceClass> parameters;
 
 			private ECFilterInstance(final Either<Rule, ExistentialProxy> ruleOrProxy,
@@ -805,10 +804,6 @@ public class ECBlocks {
 				return visitor;
 			}
 
-			public ECFilterList convert() {
-				return getFilter().convert(this);
-			}
-
 			@Override
 			public Set<ExplicitFilterInstance> getSiblings() {
 				return getExplicitInstances(ruleOrProxy);
@@ -839,15 +834,10 @@ public class ECBlocks {
 		}
 
 		@Override
-		public ECFilterList convert(final ExplicitFilterInstance instance) {
-			assert instance.getRuleOrProxy().isLeft() : "Nested Existentials Unsupported!";
-			final Rule rule = instance.getRuleOrProxy().left().get();
-			final ExistentialProxy existentialProxy = rule.getExistentialProxies().get(instance);
-			final ECExistentialSet existential = existentialProxy.getExistential();
-			return new ECFilterList.ECExistentialList(existential.isPositive(), existential.getInitialFactVariable(),
-					existential.getExistentialFactVariables(), ECFilterList.toSimpleList(Collections.emptyList()),
-					new ECNodeFilterSet(instance.getEcFilter()));
-		}
+		public <V extends FilterVisitor> V accept(final V visitor) {
+			visitor.visit(this);
+			return visitor;
+		};
 
 		@Override
 		protected boolean canEqual(final Object other) {
@@ -1879,301 +1869,8 @@ public class ECBlocks {
 				targetList.addAll(toMove);
 			}
 		}
-		class Mergeable<T> {
-			final IdentityHashMap<T, Set<T>> tToJoinedWith = new IdentityHashMap<>();
 
-			public Set<T> getSet(final T instance) {
-				return tToJoinedWith.computeIfAbsent(instance, toSingleton());
-			}
-
-			public Set<T> mergeII(final Collection<Set<T>> toMerge) {
-				return merge(toMerge.stream().map(s -> s.iterator().next()).collect(toIdentityHashSet()));
-			}
-
-			public Set<T> merge(final Collection<T> toMerge) {
-				final Set<T> merged =
-						toMerge.stream().flatMap(s -> tToJoinedWith.remove(s).stream()).collect(toIdentityHashSet());
-				merged.forEach(m -> tToJoinedWith.put(m, merged));
-				return merged;
-			}
-
-			public Set<T> merge(final T a, final T b) {
-				final Set<T> merged = Sets.newIdentityHashSet();
-				merged.addAll(tToJoinedWith.remove(a));
-				merged.addAll(tToJoinedWith.remove(b));
-				merged.forEach(m -> tToJoinedWith.put(m, merged));
-				return merged;
-			}
-
-			public boolean isMerged(final Collection<T> check) {
-				final Iterator<T> iterator = check.iterator();
-				final Set<T> first = getSet(iterator.next());
-				while (iterator.hasNext()) {
-					if (first != getSet(iterator.next()))
-						return false;
-				}
-				return true;
-			}
-
-			public boolean isMerged(final T a, final T b) {
-				return getSet(a) == getSet(b);
-			}
-		}
-		class MergeableMapper<T, V> extends Mergeable<T> {
-			final IdentityHashMap<Set<T>, V> setToTarget = new IdentityHashMap<>();
-
-			public void mergeII(final Collection<Set<T>> toMerge, final Function<Set<V>, V> toNewTarget) {
-				final Set<T> merged = mergeII(toMerge);
-				final V newTarget =
-						toNewTarget
-								.apply(toMerge.stream().map(s -> setToTarget.remove(s)).collect(toIdentityHashSet()));
-				setToTarget.put(merged, newTarget);
-			}
-
-			public void merge(final Collection<T> toMerge, final Function<Set<V>, V> toNewTarget) {
-				final Set<T> merged = merge(toMerge);
-				final V newTarget =
-						toNewTarget
-								.apply(toMerge.stream().map(s -> setToTarget.remove(s)).collect(toIdentityHashSet()));
-				setToTarget.put(merged, newTarget);
-			}
-
-			public V getTarget(final T instance) {
-				return setToTarget.get(getSet(instance));
-			}
-
-			public V getTarget(final Set<T> merged) {
-				return setToTarget.get(merged);
-			}
-		}
-		class RuleInfo {
-			// stores the current equivalence class restriction applied
-			final Mergeable<Element> elements = new Mergeable<>();
-			// stores the mapping of an already constructed set of filter instances to the
-			// corresponding ECFilter-thingy
-			final MergeableMapper<FilterInstance, ECFilterList> joinedWithToComponent = new MergeableMapper<>();
-			// stores which fact variables have been joined together
-			final Mergeable<SingleFactVariable> factVariables = new Mergeable<>();
-		}
-		// rule infos
-		final IdentityHashMap<Either<Rule, ExistentialProxy>, RuleInfo> ruleToInfo = new IdentityHashMap<>();
-		// the set of all FIs already constructed
-		final Set<FilterInstance> representedFIs = new HashSet<>();
-
-		// at this point, the network can be constructed
-		for (final CursorableLinkedList<Block> blockList : blockMap.values()) {
-			for (final Block block : blockList) {
-				final ImmutableList<Either<Rule, ExistentialProxy>> blockRules =
-						ImmutableList.copyOf(block.getRulesOrProxies());
-				// since we are considering blocks, it is either the case that all filter
-				// instances of the column have been constructed or none of them have
-				final ECSharedListWrapper sharedListWrapper = new ECSharedListWrapper(blockRules.size());
-				final Map<Either<Rule, ExistentialProxy>, ECSharedList> ruleToSharedList =
-						IntStream.range(0, blockRules.size()).boxed()
-								.collect(toMap(blockRules::get, sharedListWrapper.getSharedSiblings()::get));
-
-				final Either<Rule, ExistentialProxy> chosenRule = blockRules.get(0);
-				final RuleInfo chosenRuleInfo = ruleToInfo.computeIfAbsent(chosenRule, x -> new RuleInfo());
-
-				final FilterInstanceTypePartitioner chosenTypePartition =
-						FilterInstanceTypePartitioner.partition(block.getFlatFilterInstances().stream()
-								.filter(fi -> chosenRule == fi.getRuleOrProxy()).collect(toList()));
-				final List<ExplicitFilterInstance> chosenEFIs =
-						ListUtils.removeAll(chosenTypePartition.getExplicitFilterInstances(), representedFIs);
-				final List<ImplicitElementFilterInstance> chosenIEFIs =
-						ListUtils.removeAll(chosenTypePartition.getImplicitElementFilterInstances(), representedFIs);
-				final List<ImplicitECFilterInstance> chosenIVFIs =
-						ListUtils.removeAll(chosenTypePartition.getImplicitECFilterInstances(), representedFIs);
-
-				final Set<EquivalenceClass> blockECs =
-						Sets.newHashSet(Sets.union(block.variableExpressionTheta.getEquivalenceClasses(),
-								block.theta.getEquivalenceClasses()));
-
-				// first step: construct everything using only one FV
-				// for explicit and EC FIs this means checking if there is a FV which is used by all
-				// ECs not containing a constant in the reduced version
-				final IdentityHashMap<EquivalenceClass, Pair<Element, ConstantLeaf<ECLeaf>>> ec2Constant =
-						new IdentityHashMap<>(blockECs
-								.stream()
-								.map(ec -> ConstantExpressionCollector.findFirst(block.theta.reduce(ec)))
-								.filter(Optional::isPresent)
-								.map(Optional::get)
-								.collect(
-										toMap(Element::getEquivalenceClass,
-												e -> Pair.of(e,
-														new ConstantLeaf<>(((ConstantExpression) e).getConstant())))));
-				{
-					// try to fill as many ECs with constants as possible
-					boolean changed;
-					final HashSet<EquivalenceClass> remainingECs = Sets.newHashSet(blockECs);
-					remainingECs.removeAll(ec2Constant.keySet());
-					do {
-						changed = false;
-						for (final Iterator<EquivalenceClass> iterator = remainingECs.iterator(); iterator.hasNext();) {
-							final EquivalenceClass ec = iterator.next();
-							final Optional<Element> optElement =
-									block.variableExpressionTheta
-											.reduce(ec)
-											.stream()
-											.filter(e -> ((VariableExpression) e).getEcsInTranslated().stream()
-													.allMatch(eec -> ec2Constant.containsKey(eec))).findAny();
-							if (optElement.isPresent()) {
-								changed = true;
-								ec2Constant.put(ec, Pair.of(optElement.get(), FWAEvaluatorForConstantECs.evaluate(
-										Maps.transformValues(ec2Constant, Pair::getRight),
-										((VariableExpression) optElement.get()).translated)));
-								iterator.remove();
-							}
-						}
-					} while (changed);
-				}
-				// at this point ec2Constant contains all the equivalence classes that contain a
-				// constant
-
-				final IdentityHashMap<EquivalenceClass, ArrayList<ImplicitElementFilterInstance>> chosenIEFIsByEC =
-						chosenIEFIs.stream().collect(
-								groupingBy(fi -> fi.getLeft().getEquivalenceClass(), IdentityHashMap::new,
-										toArrayList()));
-				final IdentityHashMap<EquivalenceClass, ArrayList<ImplicitECFilterInstance>> chosenIVFIsByEC =
-						chosenIVFIs.stream().collect(
-								groupingBy(fi -> fi.getLeft().getEquivalenceClass(), IdentityHashMap::new,
-										toArrayList()));
-				for (final Entry<EquivalenceClass, Pair<Element, ConstantLeaf<ECLeaf>>> ecAndConstant : ec2Constant
-						.entrySet()) {
-					final EquivalenceClass ec = ecAndConstant.getKey();
-					final Pair<Element, ConstantLeaf<ECLeaf>> pair = ecAndConstant.getValue();
-					final Element constantElement = pair.getLeft();
-					final ConstantLeaf<ECLeaf> constantValue = pair.getRight();
-
-					final ArrayList<ImplicitElementFilterInstance> toConstruct = chosenIEFIsByEC.get(ec);
-					for (final Iterator<ImplicitElementFilterInstance> iterator = toConstruct.iterator(); iterator
-							.hasNext();) {
-						final ImplicitElementFilterInstance filterInstance = iterator.next();
-						if (filterInstance.left != constantElement && filterInstance.right != constantElement) {
-							continue;
-						}
-						if (chosenRuleInfo.elements.isMerged(filterInstance.left, filterInstance.right)) {
-							continue;
-						}
-						// one of the arguments is the constant element and the arguments of the
-						// filter instance have not been compared already
-						// FIXME create FI using constantValue (to avoid trouble with variable
-						// expressions using only constants)
-						chosenRuleInfo.elements.merge(filterInstance.left, filterInstance.right);
-					}
-				}
-
-				// returns the fact variables / sets of joined fact variables (according to
-				// chosenRuleInfo.factVariables) that the filter instance can be applied to
-				final Function<Filter.ECFilterInstance, List<Set<SingleFactVariable>>> getECIntersections =
-						filterInstance -> {
-							final Set<EquivalenceClass> parameters = Sets.newHashSet(filterInstance.getParameters());
-							parameters.removeIf(ec2Constant::containsKey);
-							final Map<Set<SingleFactVariable>, Long> fvCounter =
-									parameters
-											.stream()
-											.flatMap(
-													param -> param.getDirectlyDependentFactVariables().stream()
-															.map(chosenRuleInfo.factVariables::getSet).distinct())
-											.collect(groupingBy(Function.identity(), counting()));
-							final List<Set<SingleFactVariable>> fvSets =
-									fvCounter.entrySet().stream()
-											.filter(e -> e.getValue().intValue() == parameters.size())
-											.map(Entry::getKey).collect(toList());
-							return fvSets;
-						};
-
-				// iteratively join all FVs and apply all the filter instances that don't need a
-				// join any more
-				do {
-					for (final Entry<EquivalenceClass, ArrayList<ImplicitElementFilterInstance>> entry : chosenIEFIsByEC
-							.entrySet()) {
-						for (final Iterator<ImplicitElementFilterInstance> iterator = entry.getValue().iterator(); iterator
-								.hasNext();) {
-							final ImplicitElementFilterInstance filterInstance = iterator.next();
-							if (chosenRuleInfo.elements.isMerged(filterInstance.getLeft(), filterInstance.getRight())) {
-								// test not necessary anymore
-								iterator.remove();
-							}
-							if (chosenRuleInfo.factVariables.isMerged(filterInstance
-									.getDirectlyContainedFactVariables())) {
-								// same FV in both args or FVs already joined
-								// => apply directly
-
-								chosenRuleInfo.elements.merge(filterInstance.getLeft(), filterInstance.getRight());
-							} else {
-								// different FVs, add to whatever-graph, or just wait?
-							}
-						}
-					}
-					for (final Entry<EquivalenceClass, ArrayList<ImplicitECFilterInstance>> entry : chosenIVFIsByEC
-							.entrySet()) {
-						for (final ImplicitECFilterInstance filterInstance : entry.getValue()) {
-							final List<Set<SingleFactVariable>> fvSets = getECIntersections.apply(filterInstance);
-							for (final Set<SingleFactVariable> set : fvSets) {
-								// construct and choose stuff that belongs to the current set as
-								// representatives for the ECs that don't contain constants
-
-								// chosenRuleInfo.joinedWithToComponent;
-							}
-							// remove filter instance from maps and lists
-						}
-					}
-					for (final ExplicitFilterInstance filterInstance : chosenEFIs) {
-						final List<Set<SingleFactVariable>> fvSets = getECIntersections.apply(filterInstance);
-						for (final Set<SingleFactVariable> set : fvSets) {
-							// construct and choose stuff that belongs to the current set as
-							// representatives for the ECs that don't contain constants
-						}
-						// remove filter instance from maps and lists
-					}
-
-					// second step: plot a graph with FVs as vertices and edges as join conditions
-					// (if any)
-					// goal: choose a pair of FVs to join
-
-					// since its complicated to get only those FVs relevant to the block, we just
-					// put all of them into the graph and afterwards remove the ones without edges.
-					// since a block always results in one "joined component" this works
-
-					final Set<Set<SingleFactVariable>> allFVSets =
-							block.getFactVariablePartition().getElements().stream()
-									.map(ss -> chosenRuleInfo.factVariables.getSet(ss.get(chosenRule)))
-									.collect(toSet());
-					final SimpleWeightedGraph<Set<SingleFactVariable>, DefaultWeightedEdge> graph =
-							new SimpleWeightedGraph<>((s, t) -> new DefaultWeightedEdge());
-					allFVSets.forEach(set -> graph.addVertex(set));
-
-					// chosenRuleInfo.factVariables.getSet(instance);
-					final HashSet<Set<SingleFactVariable>> fvSets =
-							Sets.newHashSet(chosenRuleInfo.factVariables.tToJoinedWith.values());
-
-				} while (true);
-			}
-		}
-		final List<PathRule> ecRules = new ArrayList<>();
-		for (final Either<Rule, ExistentialProxy> either : rules) {
-			if (either.isRight()) {
-				continue;
-			}
-			final Rule rule = either.left().get();
-			final List<ECFilterList> ecFilterLists =
-					Stream.concat(rule.existentialProxies.values().stream().map(ExistentialProxy::getEither),
-							Stream.of(either))
-							.flatMap(
-									e -> Optional.ofNullable(ruleToInfo.get(e))
-											.map(ri -> ri.joinedWithToComponent.setToTarget.values())
-											.orElse(Collections.emptyList()).stream()).collect(toList());
-			final ECSetRule ecSetRule = rule.getOriginal();
-			final ECListRule ecListRule =
-					ecSetRule.toECListRule(
-							ECFilterList.toSimpleList(ecFilterLists),
-							ecFilterLists.size() > 1 ? InitialFactVariablesFinder.gather(ecFilterLists) : Collections
-									.emptySet());
-			final PathRule pathRule = ecSetRule.toPathRule(null, null, null);
-			ecRules.add(pathRule);
-		}
-		return ecRules;
+		return ECBlocksToPathRule.compile(rules, blockMap);
 	}
 
 	protected static Optional<Element> getVEinECwithConstantsAsArgs(final Block block, final EquivalenceClass ec) {

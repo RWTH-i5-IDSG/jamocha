@@ -75,6 +75,10 @@ public class SingleFactVariable {
 		return new PathLeaf(ec2Path.get(equal), (SlotAddress) null);
 	}
 
+	public PathLeaf toPathLeaf(final Map<SingleFactVariable, Path> fv2Path) {
+		return new PathLeaf(fv2Path.get(this), (SlotAddress) null);
+	}
+
 	@Getter
 	@AllArgsConstructor(access = AccessLevel.PRIVATE)
 	public class SingleSlotVariable {
@@ -93,6 +97,11 @@ public class SingleFactVariable {
 
 		public PathLeaf getPathLeaf(final Map<EquivalenceClass, Path> ec2Path) {
 			final Path path = ec2Path.get(getFactVariable().getEqual());
+			return null == path ? null : new PathLeaf(path, slot);
+		}
+
+		public PathLeaf toPathLeaf(final Map<SingleFactVariable, Path> fv2Path) {
+			final Path path = fv2Path.get(getFactVariable());
 			return null == path ? null : new PathLeaf(path, slot);
 		}
 
