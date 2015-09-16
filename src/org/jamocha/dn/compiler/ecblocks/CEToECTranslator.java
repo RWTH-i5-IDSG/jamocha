@@ -525,11 +525,6 @@ public class CEToECTranslator implements DefaultConditionalElementsVisitor {
 			 * merge equals test conditional elements arguments and get the equivalence classes and
 			 * tests
 			 */
-			// FIXME newECforExistentialBla: only change the ECs if the symbols actually occur in
-			// the scopes
-			// and stuff
-			// also: only change them if oldEC is in parent scope
-			// if they are in lower scope, they can't be accessed here and should be left alone
 
 			final Set<VariableSymbol> symbolsInTests = ce.accept(new ShallowSymbolCollector()).getSymbols();
 
@@ -549,8 +544,13 @@ public class CEToECTranslator implements DefaultConditionalElementsVisitor {
 							oldToNewFactVariables).collect(ce).getFilters();
 
 			// Collect all used Equivalence Classes for every Filter
-			final Map<ECFilterSet, Set<EquivalenceClass>> filter2ECs =
-					filters.stream().collect(Collectors.toMap(Function.identity(), ECCollector::collect));
+			final Map<ECFilterSet, Set<SingleFactVariable>> filter2FVs =
+					filters.stream().collect(
+							Collectors.toMap(
+									Function.identity(),
+									filter -> ECCollector.collect(filter).stream()
+											.map(EquivalenceClass::getDirectlyDependentFactVariables)
+											.flatMap(Set::stream).collect(toIdentityHashSet())));
 
 			// Filter categories:
 			// A filter is pure if it either contains only local existential fact variables (ie ECs)
@@ -567,9 +567,9 @@ public class CEToECTranslator implements DefaultConditionalElementsVisitor {
 						filters.stream().collect(
 								Collectors.partitioningBy(
 										filter -> {
-											final Set<EquivalenceClass> ec = filter2ECs.get(filter);
-											return shallowExistentialECs.containsAll(ec)
-													|| Collections.disjoint(shallowExistentialECs, ec);
+											final Set<SingleFactVariable> fvs = filter2FVs.get(filter);
+											return shallowExistentialFVs.containsAll(fvs)
+													|| Collections.disjoint(shallowExistentialFVs, fvs);
 										}, toSet()));
 				pureFilters = tmp.get(Boolean.TRUE);
 				mixedFilters = tmp.get(Boolean.FALSE);
@@ -598,14 +598,15 @@ public class CEToECTranslator implements DefaultConditionalElementsVisitor {
 			} else {
 				Stream<FunctionWithArguments<ECLeaf>> argStream =
 						mixedFilters.stream().map(f -> ((ECFilter) f).getFunction());
-				final ECCollector ecCollector = new ECCollector();
-				mixedFilters.forEach(f -> f.accept(ecCollector));
-				final Set<EquivalenceClass> ecsInMixed = ecCollector.getEquivalenceClasses();
-				if (!ecsInMixed.containsAll(shallowExistentialECs)) {
-					final SetView<EquivalenceClass> missingECs = Sets.difference(shallowExistentialECs, ecsInMixed);
+				final Set<SingleFactVariable> fvsPulledInByMixedFilters =
+						mixedFilters.stream().map(filter2FVs::get).flatMap(Set::stream).collect(toIdentityHashSet());
+				if (!fvsPulledInByMixedFilters.containsAll(shallowExistentialFVs)) {
+					final SetView<SingleFactVariable> missingFVs =
+							Sets.difference(shallowExistentialFVs, fvsPulledInByMixedFilters);
 					argStream =
 							Stream.concat(argStream, Stream.of(new PredicateWithArgumentsComposite<ECLeaf>(
-									DummyPredicate.instance, toArray(missingECs.stream().map(ECLeaf::new),
+									DummyPredicate.instance, toArray(
+											missingFVs.stream().map(SingleFactVariable::getEqual).map(ECLeaf::new),
 											ECLeaf[]::new))));
 				}
 				existentialClosure =

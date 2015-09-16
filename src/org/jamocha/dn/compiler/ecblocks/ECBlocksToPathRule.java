@@ -16,6 +16,7 @@ package org.jamocha.dn.compiler.ecblocks;
 
 import static java.util.stream.Collectors.counting;
 import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.partitioningBy;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
@@ -113,16 +114,16 @@ public class ECBlocksToPathRule {
 	static class Mergeable<T> {
 		final IdentityHashMap<T, Set<T>> tToJoinedWith = new IdentityHashMap<>();
 
-		public Set<T> getSet(final T instance) {
+		Set<T> getSet(final T instance) {
 			assert null != instance;
 			return tToJoinedWith.computeIfAbsent(instance, toSingleton());
 		}
 
-		public Set<T> mergeII(final Collection<Set<T>> toMerge) {
+		Set<T> mergeII(final Collection<Set<T>> toMerge) {
 			return merge(toMerge.stream().map(s -> s.iterator().next()).collect(toIdentityHashSet()));
 		}
 
-		public Set<T> mergeII(final Set<T> a, final Set<T> b) {
+		Set<T> mergeII(final Set<T> a, final Set<T> b) {
 			final Set<T> merged = Sets.newIdentityHashSet();
 			merged.addAll(tToJoinedWith.remove(a.iterator().next()));
 			merged.addAll(tToJoinedWith.remove(b.iterator().next()));
@@ -130,14 +131,14 @@ public class ECBlocksToPathRule {
 			return merged;
 		}
 
-		public Set<T> merge(final Collection<T> toMerge) {
+		Set<T> merge(final Collection<T> toMerge) {
 			final Set<T> merged =
 					toMerge.stream().flatMap(s -> tToJoinedWith.remove(s).stream()).collect(toIdentityHashSet());
 			merged.forEach(m -> tToJoinedWith.put(m, merged));
 			return merged;
 		}
 
-		public Set<T> merge(final T a, final T b) {
+		Set<T> merge(final T a, final T b) {
 			final Set<T> merged = Sets.newIdentityHashSet();
 			merged.addAll(tToJoinedWith.remove(a));
 			merged.addAll(tToJoinedWith.remove(b));
@@ -145,7 +146,7 @@ public class ECBlocksToPathRule {
 			return merged;
 		}
 
-		public boolean isMerged(final Collection<T> check) {
+		boolean isMerged(final Collection<T> check) {
 			final Iterator<T> iterator = check.iterator();
 			final Set<T> first = getSet(iterator.next());
 			while (iterator.hasNext()) {
@@ -155,38 +156,41 @@ public class ECBlocksToPathRule {
 			return true;
 		}
 
-		public boolean isMerged(final T a, final T b) {
+		boolean isMerged(final T a, final T b) {
 			return getSet(a) == getSet(b);
 		}
 	}
 
-	static class MergeableMapper<T, V> extends Mergeable<T> {
+	static class MergeableMapper<T, V> {
 		final IdentityHashMap<Set<T>, V> setToTarget = new IdentityHashMap<>();
+		final Mergeable<T> mergeable = new Mergeable<>();
 
-		public void mergeII(final Collection<Set<T>> toMerge, final Function<Set<V>, V> toNewTarget) {
-			final Set<T> merged = mergeII(toMerge);
-			final V newTarget =
-					toNewTarget.apply(toMerge.stream().map(s -> setToTarget.remove(s)).collect(toIdentityHashSet()));
+		void mergeII(final Collection<Set<T>> toMerge, final V newTarget) {
+			final Set<T> merged = mergeable.mergeII(toMerge);
+			for (final Set<T> set : toMerge) {
+				setToTarget.remove(set);
+			}
 			setToTarget.put(merged, newTarget);
 		}
 
-		public void merge(final Collection<T> toMerge, final Function<Set<V>, V> toNewTarget) {
-			final Set<T> merged = merge(toMerge);
-			final V newTarget =
-					toNewTarget.apply(toMerge.stream().map(s -> setToTarget.remove(s)).collect(toIdentityHashSet()));
+		void merge(final Collection<T> toMerge, final V newTarget) {
+			final Set<T> merged = mergeable.merge(toMerge);
+			for (final T t : toMerge) {
+				setToTarget.remove(mergeable.getSet(t));
+			}
 			setToTarget.put(merged, newTarget);
 		}
 
-		public V getTarget(final T instance) {
-			return setToTarget.get(getSet(instance));
+		V getTarget(final T instance) {
+			return setToTarget.get(mergeable.getSet(instance));
 		}
 
-		public V getTarget(final Set<T> merged) {
+		V getTarget(final Set<T> merged) {
 			return setToTarget.get(merged);
 		}
 
-		public void setTarget(final T instance, final V value) {
-			setToTarget.put(getSet(instance), value);
+		void setTarget(final T instance, final V value) {
+			setToTarget.put(mergeable.getSet(instance), value);
 		}
 	}
 
@@ -264,10 +268,25 @@ public class ECBlocksToPathRule {
 		final IdentityHashMap<Either<Rule, ExistentialProxy>, RuleInfo> ruleToInfo;
 		final IdentityHashMap<EquivalenceClass, Pair<Element, ConstantLeaf<PathLeaf>>> blockEC2Constant;
 		final ExplicitFilterInstance exampleFilterInstance;
-		final List<Set<SingleFactVariable>> listOfExampleFVsToChooseFrom;
+
+		boolean created = false;
+
+		public static boolean create(final Block block,
+				final IdentityHashMap<Either<Rule, ExistentialProxy>, RuleInfo> ruleToInfo,
+				final IdentityHashMap<EquivalenceClass, Pair<Element, ConstantLeaf<PathLeaf>>> blockEC2Constant,
+				final ExplicitFilterInstance exampleFilterInstance) {
+			return exampleFilterInstance.getFilter().accept(
+					new ExplicitFilterCreator(block, ruleToInfo, blockEC2Constant, exampleFilterInstance)).created;
+		}
 
 		@Override
 		public void visit(final Filter filter) {
+			final List<Set<SingleFactVariable>> listOfExampleFVsToChooseFrom =
+					getECIntersections(blockEC2Constant, block.theta,
+							ruleToInfo.get(exampleFilterInstance.getRuleOrProxy()), exampleFilterInstance);
+			if (listOfExampleFVsToChooseFrom.isEmpty()) {
+				return;
+			}
 			for (final Set<SingleFactVariable> exampleFVsToChooseFrom : listOfExampleFVsToChooseFrom) {
 				final FilterInstanceSubSet filterInstanceSubSet =
 						block.filterInstancePartition.lookup(exampleFilterInstance);
@@ -290,15 +309,53 @@ public class ECBlocksToPathRule {
 							PathNodeFilterSet.newRegularPathNodeFilterSet(new PathFilter(pwa)));
 				}
 			}
+			created = true;
 		}
 
 		@Override
 		public void visit(final FilterProxy filter) {
 			assert exampleFilterInstance.getRuleOrProxy().isLeft() : "Nested Existentials Unsupported!";
+			final Set<SingleFactVariable> regularSet;
+			{
+				final Either<Rule, ExistentialProxy> exampleRule = exampleFilterInstance.getRuleOrProxy();
+				final ExistentialProxy existentialProxy =
+						exampleRule.left().get().getExistentialProxies().get(exampleFilterInstance);
+				final ECExistentialSet existential = existentialProxy.getExistential();
+				final RuleInfo ruleInfo = ruleToInfo.get(exampleRule);
+
+				final Set<EquivalenceClass> existentialECs = existential.getEquivalenceClasses();
+				final List<EquivalenceClass> regularParams;
+				{
+					final Set<EquivalenceClass> parameters = Sets.newHashSet(exampleFilterInstance.getParameters());
+					parameters.removeIf(blockEC2Constant::containsKey);
+
+					final Map<Boolean, List<EquivalenceClass>> tmp =
+							parameters.stream().collect(partitioningBy(existentialECs::contains));
+					regularParams = tmp.get(Boolean.FALSE);
+				}
+				{
+					final Map<Set<SingleFactVariable>, Long> regularFVCounter =
+							regularParams
+									.stream()
+									.flatMap(
+											ec -> block.theta.reduce(ec).stream().map(Element::getFactVariable)
+													.filter(Objects::nonNull).map(ruleInfo.factVariables::getSet)
+													.distinct()).collect(groupingBy(Function.identity(), counting()));
+					final Optional<Set<SingleFactVariable>> findAny =
+							regularFVCounter.entrySet().stream()
+									.filter(entry -> entry.getValue().intValue() == regularParams.size())
+									.map(Entry::getKey).findAny();
+					if (!findAny.isPresent()) {
+						return;
+					}
+					regularSet = findAny.get();
+				}
+			}
+
 			final FilterInstanceSubSet filterInstanceSubSet =
 					block.filterInstancePartition.lookup(exampleFilterInstance);
-			final Collection<FactVariableSubSet> factVariableSubSets =
-					Collections2.transform(listOfExampleFVsToChooseFrom.get(0), block.factVariablePartition::lookup);
+			final Collection<FactVariableSubSet> regularFVSubSets =
+					Collections2.transform(regularSet, block.factVariablePartition::lookup);
 
 			for (final Either<Rule, ExistentialProxy> rule : block.getRulesOrProxies()) {
 				final ExplicitFilterInstance filterInstance = (ExplicitFilterInstance) filterInstanceSubSet.get(rule);
@@ -307,14 +364,28 @@ public class ECBlocksToPathRule {
 				final RuleInfo proxyInfo = ruleToInfo.get(existentialProxy.either);
 				final RuleInfo ruleInfo = ruleToInfo.get(rule);
 
-				final Set<SingleFactVariable> fvsToChooseFrom =
-						factVariableSubSets.stream().map(fvss -> fvss.get(rule)).collect(toIdentityHashSet());
+				final Set<SingleFactVariable> regularFVsToChooseFrom =
+						regularFVSubSets.stream().map(fvss -> fvss.get(rule)).collect(toIdentityHashSet());
 
-				final ImmutableMap<EquivalenceClass, FunctionWithArguments<PathLeaf>> map =
-						Maps.toMap(Sets.newHashSet(filterInstance.getParameters()),
-								param -> getMatchingElement(param, block, blockEC2Constant, proxyInfo, fvsToChooseFrom));
+				final Map<EquivalenceClass, FunctionWithArguments<PathLeaf>> fixedArgs = new IdentityHashMap<>();
+				final Set<EquivalenceClass> existentialECs = existential.getEquivalenceClasses();
+				{
+					final Set<EquivalenceClass> parameters = Sets.newHashSet(exampleFilterInstance.getParameters());
+					parameters.removeIf(blockEC2Constant::containsKey);
+					for (final EquivalenceClass parameter : parameters) {
+						if (existentialECs.contains(parameter)) {
+							fixedArgs.put(parameter, createBinding(parameter, proxyInfo.fvToPath));
+						} else {
+							fixedArgs.put(
+									parameter,
+									getMatchingElement(parameter, block, blockEC2Constant, ruleInfo,
+											regularFVsToChooseFrom));
+						}
+					}
+				}
+
 				final PredicateWithArguments<PathLeaf> pwa =
-						FWAECLeafToPathTranslator.translate(filterInstance.ecFilter.getFunction(), map);
+						FWAECLeafToPathTranslator.translate(filterInstance.ecFilter.getFunction(), fixedArgs);
 
 				final Path initialPath = proxyInfo.fvToPath.get(existential.getInitialFactVariable());
 				final Set<Path> existentialPaths =
@@ -327,7 +398,7 @@ public class ECBlocksToPathRule {
 						new PathExistentialList(initialPath, purePart, PathNodeFilterSet
 								.newExistentialPathNodeFilterSet(!existential.isPositive(), existentialPaths,
 										new PathFilter(pwa))));
-				// TODO Auto-generated method stub
+				created = true;
 			}
 		}
 	}
@@ -482,22 +553,18 @@ public class ECBlocksToPathRule {
 							entryIterator.remove();
 						}
 					}
-					for (final Iterator<java.util.Map.Entry<EquivalenceClass, ArrayList<ImplicitECFilterInstance>>> entryIterator =
+					for (final Iterator<Entry<EquivalenceClass, ArrayList<ImplicitECFilterInstance>>> entryIterator =
 							chosenIVFIsByEC.entrySet().iterator(); entryIterator.hasNext();) {
 						final Entry<EquivalenceClass, ArrayList<ImplicitECFilterInstance>> entry = entryIterator.next();
 						final ArrayList<ImplicitECFilterInstance> list = entry.getValue();
 						for (final Iterator<ImplicitECFilterInstance> filterInstanceIterator = list.iterator(); filterInstanceIterator
 								.hasNext();) {
 							final ImplicitECFilterInstance filterInstance = filterInstanceIterator.next();
-							final List<Set<SingleFactVariable>> fvSets =
-									getECIntersections(blockEC2Constant, block.theta, chosenRuleInfo, filterInstance);
-							for (final Set<SingleFactVariable> set : fvSets) {
-								// construct and choose stuff that belongs to the current set as
-								// representatives for the ECs that don't contain constants
-								createImplicitECFilterInstance(block, ruleToInfo, blockEC2Constant, filterInstance, set);
+							if (checkAndCreateImplicitECFilterInstance(ruleToInfo, block, chosenRuleInfo,
+									blockEC2Constant, filterInstance)) {
+								// remove filter instance from maps and lists
+								filterInstanceIterator.remove();
 							}
-							// remove filter instance from maps and lists
-							filterInstanceIterator.remove();
 						}
 						if (list.isEmpty()) {
 							entryIterator.remove();
@@ -506,15 +573,7 @@ public class ECBlocksToPathRule {
 					for (final Iterator<ExplicitFilterInstance> filterInstanceIterator = chosenEFIs.iterator(); filterInstanceIterator
 							.hasNext();) {
 						final ExplicitFilterInstance filterInstance = filterInstanceIterator.next();
-						final List<Set<SingleFactVariable>> fvSets =
-								getECIntersections(blockEC2Constant, block.theta, chosenRuleInfo, filterInstance);
-						if (!fvSets.isEmpty()) {
-							// construct and choose stuff that belongs to the current set as
-							// representatives for the ECs that don't contain constants
-							filterInstance.getFilter().accept(
-									new ExplicitFilterCreator(block, ruleToInfo, blockEC2Constant, filterInstance,
-											fvSets));
-							// remove filter instance from maps and lists
+						if (ExplicitFilterCreator.create(block, ruleToInfo, blockEC2Constant, filterInstance)) {
 							filterInstanceIterator.remove();
 						}
 					}
@@ -618,7 +677,8 @@ public class ECBlocksToPathRule {
 				for (final Entry<Either<Rule, ExistentialProxy>, List<FilterInstance>> entry : block
 						.getFlatFilterInstances().stream().collect(groupingBy(FilterInstance::getRuleOrProxy))
 						.entrySet()) {
-					ruleToInfo.get(entry.getKey()).joinedWithToComponent.merge(entry.getValue());
+					final Either<Rule, ExistentialProxy> key = entry.getKey();
+					ruleToInfo.get(key).joinedWithToComponent.merge(entry.getValue(), ruleToSharedList.get(key));
 				}
 			} // end of block loop
 		} // end of block list loop
@@ -664,6 +724,28 @@ public class ECBlocksToPathRule {
 			pathRules.add(pathRule);
 		}
 		return pathRules;
+	}
+
+	protected static boolean checkAndCreateImplicitECFilterInstance(
+			final IdentityHashMap<Either<Rule, ExistentialProxy>, RuleInfo> ruleToInfo, final Block block,
+			final RuleInfo chosenRuleInfo,
+			final IdentityHashMap<EquivalenceClass, Pair<Element, ConstantLeaf<PathLeaf>>> blockEC2Constant,
+			final ImplicitECFilterInstance filterInstance) {
+		final List<Set<SingleFactVariable>> fvSets =
+				getECIntersections(blockEC2Constant, block.theta, chosenRuleInfo, filterInstance);
+		for (final Set<SingleFactVariable> set : fvSets) {
+			// construct and choose stuff that belongs to the current set as
+			// representatives for the ECs that don't contain constants
+			createImplicitECFilterInstance(block, ruleToInfo, blockEC2Constant, filterInstance, set);
+		}
+		return !fvSets.isEmpty();
+	}
+
+	protected static boolean checkAndCreateExplicitFilterInstance(
+			final IdentityHashMap<Either<Rule, ExistentialProxy>, RuleInfo> ruleToInfo, final Block block,
+			final IdentityHashMap<EquivalenceClass, Pair<Element, ConstantLeaf<PathLeaf>>> blockEC2Constant,
+			final ExplicitFilterInstance filterInstance) {
+		return ExplicitFilterCreator.create(block, ruleToInfo, blockEC2Constant, filterInstance);
 	}
 
 	private static PathLeaf createBinding(final EquivalenceClass ec, final Map<SingleFactVariable, Path> fvToPath) {

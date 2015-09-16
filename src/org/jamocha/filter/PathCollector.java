@@ -61,6 +61,15 @@ public class PathCollector<T extends Collection<Path>> implements PathFilterSetV
 		return this;
 	}
 
+	public PathCollector<T> collectRegularPaths(final PathNodeFilterSet filterSet) {
+		for (final PathFilter filter : filterSet.getFilters()) {
+			collect(filter);
+		}
+		paths.removeAll(filterSet.getPositiveExistentialPaths());
+		paths.removeAll(filterSet.getNegativeExistentialPaths());
+		return this;
+	}
+
 	public PathCollector<T> collectOnlyInFilterLists(final Iterable<PathNodeFilterSet> filterSet) {
 		for (final PathNodeFilterSet filter : filterSet) {
 			collectOnlyInFilterLists(filter);

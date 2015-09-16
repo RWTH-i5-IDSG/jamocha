@@ -56,7 +56,6 @@ public interface PathFilterList extends Visitable<PathFilterListVisitor>, Iterab
 	@Getter
 	@RequiredArgsConstructor
 	public class PathExistentialList implements PathFilterList {
-		@NonNull
 		final Path initialPath;
 		@NonNull
 		final PathFilterList purePart;
