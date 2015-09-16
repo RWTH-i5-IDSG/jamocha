@@ -516,21 +516,19 @@ public class ECBlocks {
 				final SingleFactVariable s1 = source.right.getFactVariable();
 				final SingleFactVariable t0 = target.left.getFactVariable();
 				final SingleFactVariable t1 = target.right.getFactVariable();
-				final boolean tlRelevant = targetTheta.isRelevant(target.left);
-				final boolean trRelevant = targetTheta.isRelevant(target.right);
-				if (null != s0 && sourceTheta.isRelevant(source.left)) {
-					if (s0 == t0 && tlRelevant) {
+				if (null != s0) {
+					if (s0 == t0) {
 						intersectingECsIndices.add(Pair.of(0, 0));
 					}
-					if (s0 == t1 && trRelevant) {
+					if (s0 == t1) {
 						intersectingECsIndices.add(Pair.of(0, 1));
 					}
 				}
-				if (null != s1 && sourceTheta.isRelevant(source.right)) {
-					if (s1 == t0 && tlRelevant) {
+				if (null != s1) {
+					if (s1 == t0) {
 						intersectingECsIndices.add(Pair.of(1, 0));
 					}
-					if (s1 == t1 && trRelevant) {
+					if (s1 == t1) {
 						intersectingECsIndices.add(Pair.of(1, 1));
 					}
 				}
@@ -1371,15 +1369,14 @@ public class ECBlocks {
 
 		public Set<FilterInstance> getConflictNeighbours() {
 			if (blockModCount != graphModCount) {
-				this.graph =
-						determineConflictGraph(
-								theta,
-								rulesOrProxies
-										.stream()
-										.<FilterInstance> flatMap(
-												rule -> ECBlocks.getFilters(rule).stream()
-														.flatMap(f -> f.getAllInstances(rule).stream()))
-										.collect(groupingIntoSets(FilterInstance::getRuleOrProxy, toList())));
+				final Set<List<FilterInstance>> filterInstancesGroupedByRule =
+						rulesOrProxies
+								.stream()
+								.<FilterInstance> flatMap(
+										rule -> ECBlocks.getFilters(rule).stream()
+												.flatMap(f -> f.getAllInstances(rule).stream()))
+								.collect(groupingIntoSets(FilterInstance::getRuleOrProxy, toList()));
+				this.graph = determineConflictGraph(theta, filterInstancesGroupedByRule);
 				graphModCount = blockModCount;
 			}
 			final SetView<FilterInstance> outside = Sets.difference(graph.vertexSet(), flatFilterInstances);
