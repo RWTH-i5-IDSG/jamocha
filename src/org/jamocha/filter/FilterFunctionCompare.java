@@ -628,7 +628,7 @@ public abstract class FilterFunctionCompare<L extends ExchangeableLeaf<L>> {
 				final Optional<Path> optMatchingPath =
 						paths.stream().filter(p -> p.getCurrentlyLowestNode() == edge.getSourceNode()).findFirst();
 				if (!optMatchingPath.isPresent()) {
-					throw new Error("For one edge no paths were found.");
+					return null;
 				}
 				final Path matchingPath = optMatchingPath.get();
 				// map all paths joined with the found one by the current edge
