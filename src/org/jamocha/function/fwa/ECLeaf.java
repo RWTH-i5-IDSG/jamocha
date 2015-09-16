@@ -18,6 +18,7 @@ import java.util.Arrays;
 
 import lombok.Data;
 import lombok.Getter;
+import lombok.ToString;
 
 import org.jamocha.dn.memory.SlotType;
 import org.jamocha.function.Function;
@@ -27,6 +28,7 @@ import org.jamocha.languages.common.RuleCondition.EquivalenceClass;
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
 @Data
+@ToString(of = { "ec" })
 public class ECLeaf implements ExchangeableLeaf<ECLeaf> {
 
 	final EquivalenceClass ec;
