@@ -20,7 +20,6 @@ import static org.jamocha.util.ToArray.toArray;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -54,6 +53,7 @@ import org.jamocha.languages.common.RuleCondition.EquivalenceClass;
 import org.jamocha.languages.common.SingleFactVariable;
 import org.jamocha.logging.MarkerType;
 
+import com.google.common.collect.BiMap;
 import com.google.common.collect.Sets;
 
 /**
@@ -98,10 +98,11 @@ public class ConstructCache {
 			this.activationMarker = MarkerType.ACTIVATIONS.createChild(name);
 		}
 
-		public ECSetRule newECFilterSetCondition(final Set<ECFilterSet> condition,
-				final Set<SingleFactVariable> factVariables, final Set<EquivalenceClass> equivalenceClasses,
-				final IdentityHashMap<EquivalenceClass, EquivalenceClass> conditionECsToLocalECs, final int specificity) {
-			return new ECSetRule(condition, factVariables, equivalenceClasses, conditionECsToLocalECs, actionList,
+		public ECSetRule newECSetRule(final Set<ECFilterSet> condition, final Set<SingleFactVariable> factVariables,
+				final Set<EquivalenceClass> equivalenceClasses,
+				final BiMap<EquivalenceClass, EquivalenceClass> localECsToConditionECs, final int specificity) {
+			assert !factVariables.contains(null);
+			return new ECSetRule(condition, factVariables, equivalenceClasses, localECsToConditionECs, actionList,
 					specificity);
 		}
 
@@ -111,7 +112,7 @@ public class ConstructCache {
 			final Set<ECFilterSet> condition;
 			final Set<SingleFactVariable> factVariables;
 			final Set<EquivalenceClass> equivalenceClasses;
-			final IdentityHashMap<EquivalenceClass, EquivalenceClass> conditionECsToLocalECs;
+			final BiMap<EquivalenceClass, EquivalenceClass> localECsToConditionECs;
 			final FunctionWithArguments<SymbolLeaf>[] actionList;
 			final int specificity;
 
@@ -128,7 +129,7 @@ public class ConstructCache {
 			public ECListRule toECListRule(final ECFilterList condition,
 					final Set<SingleFactVariable> additionalInitialFactVariables) {
 				return new ECListRule(condition, Sets.union(factVariables, additionalInitialFactVariables),
-						equivalenceClasses, conditionECsToLocalECs, actionList, specificity);
+						equivalenceClasses, localECsToConditionECs, actionList, specificity);
 			}
 		}
 
@@ -138,7 +139,7 @@ public class ConstructCache {
 			final ECFilterList condition;
 			final Set<SingleFactVariable> factVariables;
 			final Set<EquivalenceClass> equivalenceClasses;
-			final IdentityHashMap<EquivalenceClass, EquivalenceClass> conditionECsToLocalECs;
+			final BiMap<EquivalenceClass, EquivalenceClass> localECsToConditionECs;
 			final FunctionWithArguments<SymbolLeaf>[] actionList;
 			final int specificity;
 

@@ -22,7 +22,6 @@ import static org.jamocha.util.ToArray.toArray;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.IdentityHashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -65,6 +64,7 @@ import org.jamocha.function.fwatransformer.FWASymbolToECTranslator;
 import org.jamocha.function.impls.predicates.And;
 import org.jamocha.function.impls.predicates.DummyPredicate;
 import org.jamocha.function.impls.predicates.Equals;
+import org.jamocha.function.impls.predicates.Not;
 import org.jamocha.languages.common.ConditionalElement;
 import org.jamocha.languages.common.ConditionalElement.ExistentialConditionalElement;
 import org.jamocha.languages.common.ConditionalElement.NegatedExistentialConditionalElement;
@@ -250,8 +250,7 @@ public class CEToECTranslator implements DefaultConditionalElementsVisitor {
 
 			final ECSetRule result =
 					consolidateOnCopiedEquivalenceClasses(initialFactTemplate, rule, ce, shallowTests,
-							equivalenceClasses, new IdentityHashMap<>(oldToNewEC.inverse()), new IdentityHashMap<>(
-									oldToNewFV), Specificity.calculate(ce));
+							equivalenceClasses, oldToNewEC.inverse(), oldToNewFV, Specificity.calculate(ce));
 
 			// reset the symbol - equivalence class mapping
 			symbolToECbackup.forEach((vs, ec) -> vs.setEqual(ec));
@@ -330,6 +329,11 @@ public class CEToECTranslator implements DefaultConditionalElementsVisitor {
 				return newEc;
 			}
 
+			private void addToShallowTests(final PredicateWithArguments<SymbolLeaf> shallowTest) {
+				this.shallowTests.add(negated ? PredicateWithArgumentsComposite.newPredicateInstance(Not.inClips,
+						shallowTest) : shallowTest);
+			}
+
 			@RequiredArgsConstructor
 			class FWAEquivalenceClassBuilder implements DefaultFunctionWithArgumentsVisitor<SymbolLeaf> {
 				// assumption: all expressions are constant in the sense that subsequent calls to
@@ -356,7 +360,7 @@ public class CEToECTranslator implements DefaultConditionalElementsVisitor {
 				@Override
 				public void visit(final PredicateWithArgumentsComposite<SymbolLeaf> fwa) {
 					if (negated || !fwa.getFunction().inClips().equals(Equals.inClips)) {
-						shallowTests.add(fwa);
+						addToShallowTests(fwa);
 						return;
 					}
 					final LinkedList<FunctionWithArguments<SymbolLeaf>> remainingArguments = new LinkedList<>();
@@ -385,7 +389,7 @@ public class CEToECTranslator implements DefaultConditionalElementsVisitor {
 					if (!remainingArguments.isEmpty()) {
 						if (remainingArguments.size() == args.length - 1) {
 							// test completely preserved
-							shallowTests.add(fwa);
+							addToShallowTests(fwa);
 						} else {
 							// test only partially preserved
 							remainingArguments.addFirst(args[0]);
@@ -439,19 +443,17 @@ public class CEToECTranslator implements DefaultConditionalElementsVisitor {
 				final Defrule rule, final ConditionalElement ce,
 				final Set<PredicateWithArguments<SymbolLeaf>> shallowTests,
 				final Set<EquivalenceClass> equivalenceClasses,
-				final IdentityHashMap<EquivalenceClass, EquivalenceClass> conditionECsToLocalECs,
-				final IdentityHashMap<SingleFactVariable, SingleFactVariable> oldToNewFactVariables,
-				final int specificity) {
+				final BiMap<EquivalenceClass, EquivalenceClass> oldToNewECs,
+				final BiMap<SingleFactVariable, SingleFactVariable> oldToNewFactVariables, final int specificity) {
 			final Pair<Optional<SingleFactVariable>, Set<SingleFactVariable>> initialFactAndVariables =
 					ShallowFactVariableCollector.collectVariables(initialFactTemplate, ce);
 			final Set<SingleFactVariable> factVariables =
 					initialFactAndVariables.getRight().stream().map(oldToNewFactVariables::get)
 							.collect(toIdentityHashSet());
 
-			return rule.newECFilterSetCondition(
-					new NoORsTranslator(initialFactTemplate, initialFactAndVariables.getLeft(), rule.getCondition()
-							.getVariableSymbols(), shallowTests).collect(ce).getFilters(), factVariables,
-					equivalenceClasses, conditionECsToLocalECs, specificity);
+			return rule.newECSetRule(new NoORsTranslator(initialFactTemplate, initialFactAndVariables.getLeft(), rule
+					.getCondition().getVariableSymbols(), shallowTests).collect(ce).getFilters(), factVariables,
+					equivalenceClasses, oldToNewECs, specificity);
 		}
 
 		private NoORsTranslator collect(final ConditionalElement ce) {

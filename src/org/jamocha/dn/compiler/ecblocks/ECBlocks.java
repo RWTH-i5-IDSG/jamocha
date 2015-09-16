@@ -86,11 +86,6 @@ import org.jamocha.dn.compiler.ecblocks.ECBlocks.Partition.SubSet;
 import org.jamocha.dn.memory.SlotAddress;
 import org.jamocha.dn.memory.Template;
 import org.jamocha.filter.ECFilter;
-import org.jamocha.filter.ECFilterList;
-import org.jamocha.filter.ECFilterList.ECExistentialList;
-import org.jamocha.filter.ECFilterList.ECNodeFilterSet;
-import org.jamocha.filter.ECFilterList.ECSharedListWrapper.ECSharedList;
-import org.jamocha.filter.ECFilterListVisitor;
 import org.jamocha.filter.ECFilterSet;
 import org.jamocha.filter.ECFilterSet.ECExistentialSet;
 import org.jamocha.filter.ECFilterSetVisitor;
@@ -1870,50 +1865,6 @@ public class ECBlocks {
 
 	protected static Optional<Element> getConstantInEC(final Block block, final EquivalenceClass ec) {
 		return block.theta.reduce(ec).stream().filter(e -> null == e.getFactVariable()).findAny();
-	}
-
-	static class InitialFactVariablesFinder implements ECFilterListVisitor {
-		final Set<SingleFactVariable> initialFactVariables = Sets.newHashSet();
-
-		static Set<SingleFactVariable> gather(final Iterable<ECFilterList> filters) {
-			final InitialFactVariablesFinder instance = new InitialFactVariablesFinder();
-			for (final ECFilterList filter : filters) {
-				filter.accept(instance);
-			}
-			return instance.initialFactVariables;
-		}
-
-		@Override
-		public void visit(final ECSharedList filter) {
-			final ImmutableList<ECFilterList> elements = filter.getUnmodifiableFilterListCopy();
-			if (1 != elements.size()) {
-				return;
-			}
-			elements.get(0).accept(new InitialFactVariablesFinderHelper());
-		}
-
-		class InitialFactVariablesFinderHelper implements ECFilterListVisitor {
-			@Override
-			public void visit(final ECExistentialList filter) {
-				initialFactVariables.add(filter.getInitialFactVariable());
-			}
-
-			@Override
-			public void visit(final ECNodeFilterSet filter) {
-			}
-
-			@Override
-			public void visit(final ECSharedList filter) {
-			}
-		}
-
-		@Override
-		public void visit(final ECNodeFilterSet filter) {
-		}
-
-		@Override
-		public void visit(final ECExistentialList filter) {
-		}
 	}
 
 	public static boolean hasEqualConflicts(final Conflict a, final Conflict b) {

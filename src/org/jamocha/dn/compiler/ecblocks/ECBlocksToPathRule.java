@@ -18,16 +18,20 @@ import static java.util.stream.Collectors.counting;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
+import static org.jamocha.util.Lambdas.newLinkedHashSet;
 import static org.jamocha.util.Lambdas.toArrayList;
 import static org.jamocha.util.Lambdas.toIdentityHashSet;
 import static org.jamocha.util.Lambdas.toSingleton;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.IdentityHashMap;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -37,6 +41,7 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.function.Function;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import lombok.RequiredArgsConstructor;
 
@@ -68,11 +73,12 @@ import org.jamocha.dn.compiler.ecblocks.ECBlocks.Rule;
 import org.jamocha.dn.compiler.ecblocks.ECBlocks.SlotBinding;
 import org.jamocha.dn.compiler.ecblocks.ECBlocks.Theta;
 import org.jamocha.dn.compiler.ecblocks.ECBlocks.VariableExpression;
-import org.jamocha.filter.ECFilterList.ECSharedListWrapper;
-import org.jamocha.filter.ECFilterList.ECSharedListWrapper.ECSharedList;
+import org.jamocha.dn.compiler.pathblocks.PathBlocks.InitialFactPathsFinder;
 import org.jamocha.filter.Path;
 import org.jamocha.filter.PathFilter;
 import org.jamocha.filter.PathFilterList;
+import org.jamocha.filter.PathFilterList.PathSharedListWrapper;
+import org.jamocha.filter.PathFilterList.PathSharedListWrapper.PathSharedList;
 import org.jamocha.filter.PathNodeFilterSet;
 import org.jamocha.function.fwa.ConstantLeaf;
 import org.jamocha.function.fwa.FunctionWithArguments;
@@ -83,12 +89,14 @@ import org.jamocha.function.fwatransformer.FWAECLeafToPathTranslator;
 import org.jamocha.function.impls.predicates.Equals;
 import org.jamocha.languages.common.RuleCondition.EquivalenceClass;
 import org.jamocha.languages.common.SingleFactVariable;
+import org.jamocha.languages.common.SingleFactVariable.SingleSlotVariable;
 import org.jamocha.util.ToArray;
 import org.jgrapht.Graphs;
 import org.jgrapht.graph.DefaultWeightedEdge;
 import org.jgrapht.graph.SimpleWeightedGraph;
 
 import com.atlassian.fugue.Either;
+import com.google.common.collect.BiMap;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -311,13 +319,6 @@ public class ECBlocksToPathRule {
 					ruleToInfo.computeIfAbsent(rule, x -> new RuleInfo(x, ruleToInfo));
 				}
 
-				// since we are considering blocks, it is either the case that all filter
-				// instances of the column have been constructed or none of them have
-				final ECSharedListWrapper sharedListWrapper = new ECSharedListWrapper(blockRules.size());
-				final Map<Either<Rule, ExistentialProxy>, ECSharedList> ruleToSharedList =
-						IntStream.range(0, blockRules.size()).boxed()
-								.collect(toMap(blockRules::get, sharedListWrapper.getSharedSiblings()::get));
-
 				final Either<Rule, ExistentialProxy> chosenRule = blockRules.get(0);
 				final RuleInfo chosenRuleInfo = ruleToInfo.get(chosenRule);
 
@@ -423,7 +424,7 @@ public class ECBlocksToPathRule {
 
 				// iteratively join all FVs and apply all the filter instances that don't need a
 				// join any more
-				do {
+				JoinLoop: do {
 					for (final Iterator<Entry<EquivalenceClass, ArrayList<ImplicitElementFilterInstance>>> entryIterator =
 							chosenIEFIsByEC.entrySet().iterator(); entryIterator.hasNext();) {
 						final Entry<EquivalenceClass, ArrayList<ImplicitElementFilterInstance>> entry =
@@ -489,24 +490,15 @@ public class ECBlocksToPathRule {
 
 					// if all filter instances have been removed, break the loop
 					if (chosenIEFIsByEC.isEmpty() && chosenEFIs.isEmpty() && chosenIVFIsByEC.isEmpty()) {
-						break;
+						break JoinLoop;
 					}
 
 					// second step: plot a graph with FVs as vertices and edges as join conditions
 					// (if any)
 					// goal: choose a pair of FVs to join
 
-					// since its complicated to get only those FVs relevant to the block, we just
-					// put all of them into the graph and afterwards remove the ones without edges.
-					// since a block always results in one "joined component" this works
-
-					// final Set<Set<SingleFactVariable>> allFVSets =
-					// block.getFactVariablePartition().getElements().stream()
-					// .map(ss -> chosenRuleInfo.factVariables.getSet(ss.get(chosenRule)))
-					// .collect(toSet());
 					final SimpleWeightedGraph<Set<SingleFactVariable>, DefaultWeightedEdge> graph =
 							new SimpleWeightedGraph<>(DefaultWeightedEdge.class);
-					// allFVSets.forEach(set -> graph.addVertex(set));
 
 					for (final ArrayList<ImplicitElementFilterInstance> list : chosenIEFIsByEC.values()) {
 						for (final ImplicitElementFilterInstance filterInstance : list) {
@@ -533,90 +525,121 @@ public class ECBlocksToPathRule {
 						final Set<SingleFactVariable> source = graph.getEdgeSource(defaultWeightedEdge);
 						final Set<SingleFactVariable> target = graph.getEdgeTarget(defaultWeightedEdge);
 						chosenRuleInfo.factVariables.mergeII(source, target);
-					} else {
-						// no more implicit edges suggesting anything
-						// can be improved arbitrarily
-						final Collection<Set<SingleFactVariable>> values =
-								chosenRuleInfo.factVariables.tToJoinedWith.values();
-						final Iterator<Set<SingleFactVariable>> iterator = values.iterator();
-						final Set<SingleFactVariable> source = iterator.next();
-						boolean joined = false;
-						while (iterator.hasNext()) {
-							final Set<SingleFactVariable> target = iterator.next();
-							if (source == target) {
-								continue;
-							}
-							chosenRuleInfo.factVariables.mergeII(source, target);
-							joined = true;
-							break;
-						}
-						if (!joined)
-							throw new IllegalStateException();
+						continue JoinLoop;
 					}
-				} while (true);
+					// no more implicit edges suggesting anything
+					// can be improved arbitrarily
+					for (final ExplicitFilterInstance filterInstance : chosenEFIs) {
+						final Set<Set<SingleFactVariable>> components =
+								filterInstance.getDirectlyContainedFactVariables().stream()
+										.map(chosenRuleInfo.factVariables::getSet).collect(toIdentityHashSet());
+						if (components.size() > 1) {
+							final Iterator<Set<SingleFactVariable>> iterator = components.iterator();
+							final Set<SingleFactVariable> source = iterator.next();
+							final Set<SingleFactVariable> target = iterator.next();
+							chosenRuleInfo.factVariables.mergeII(source, target);
+							continue JoinLoop;
+						}
+					}
+					for (final ArrayList<ImplicitECFilterInstance> filterInstances : chosenIVFIsByEC.values()) {
+						for (final ImplicitECFilterInstance filterInstance : filterInstances) {
+							final Set<Set<SingleFactVariable>> components =
+									filterInstance.getDirectlyContainedFactVariables().stream()
+											.map(chosenRuleInfo.factVariables::getSet).collect(toIdentityHashSet());
+							if (components.size() > 1) {
+								final Iterator<Set<SingleFactVariable>> iterator = components.iterator();
+								final Set<SingleFactVariable> source = iterator.next();
+								final Set<SingleFactVariable> target = iterator.next();
+								chosenRuleInfo.factVariables.mergeII(source, target);
+								continue JoinLoop;
+							}
+						}
+					}
+					throw new IllegalStateException();
+				} while (true); // end of join loop
+
+				// mark all FIs as done
+				representedFIs.addAll(block.getFlatFilterInstances());
 
 				// create the shared list stuff
+				final PathSharedListWrapper sharedListWrapper = new PathSharedListWrapper(blockRules.size());
+				final Map<Either<Rule, ExistentialProxy>, PathSharedList> ruleToSharedList =
+						IntStream.range(0, blockRules.size()).boxed()
+								.collect(toMap(blockRules::get, sharedListWrapper.getSharedSiblings()::get));
 
-				// if (!columnsAlreadyConstructed.isEmpty()) {
-				// final Map<PathSharedList, LinkedHashSet<PathFilterList>> sharedPart = new
-				// HashMap<>();
-				// for (final List<FilterInstance> column : columnsAlreadyConstructed) {
-				// for (final FilterInstance fi : column) {
-				// sharedPart.computeIfAbsent(ruleToSharedList.get(fi.getRuleOrProxy()),
-				// newLinkedHashSet())
-				// .add(joinedWithToComponent.get(ruleToJoinedWith.get(fi.getRuleOrProxy()).get(fi)));
-				// }
-				// }
-				// sharedListWrapper.addSharedColumns(sharedPart);
-				// }
-				//
-				// for (final List<FilterInstance> column : columnsToConstruct) {
-				// sharedListWrapper.addSharedColumn(column.stream().collect(
-				// toMap(fi -> ruleToSharedList.get(fi.getRuleOrProxy()),
-				// FilterInstance::convert)));
-				// }
-				// constructedFIs.addAll(block.getFlatFilterInstances());
-				// for (final Entry<Either<Rule, ExistentialProxy>, Map<Filter,
-				// FilterInstancesSideBySide>> entry : block
-				// .getRuleToFilterToRow().entrySet()) {
-				// final Either<Rule, ExistentialProxy> rule = entry.getKey();
-				// final Set<FilterInstance> joined =
-				// entry.getValue().values().stream().flatMap(sbs -> sbs.getInstances().stream())
-				// .collect(toSet());
-				// final Map<FilterInstance, Set<FilterInstance>> joinedWithMapForThisRule =
-				// ruleToJoinedWith.computeIfAbsent(rule, newHashMap());
-				// joined.forEach(fi -> joinedWithMapForThisRule.put(fi, joined));
-				// joinedWithToComponent.put(joined, ruleToSharedList.get(rule));
-				// }
-			}
-		}
+				final Map<PathSharedList, LinkedHashSet<PathFilterList>> sharedPart = new HashMap<>();
+				for (final FilterInstanceSubSet column : block.getFilterInstancePartition().getElements()) {
+					for (final Entry<Either<Rule, ExistentialProxy>, FilterInstance> row : column.getElements()
+							.entrySet()) {
+						final Either<Rule, ExistentialProxy> rule = row.getKey();
+						final PathFilterList targetOrNull =
+								ruleToInfo.get(rule).joinedWithToComponent.getTarget(row.getValue());
+						if (null == targetOrNull) {
+							continue;
+						}
+						sharedPart.computeIfAbsent(ruleToSharedList.get(rule), newLinkedHashSet()).add(targetOrNull);
+					}
+				}
+				if (!sharedPart.isEmpty()) {
+					sharedListWrapper.addSharedColumns(sharedPart);
+				}
+
+				for (final Entry<Either<Rule, ExistentialProxy>, List<FilterInstance>> entry : block
+						.getFlatFilterInstances().stream().collect(groupingBy(FilterInstance::getRuleOrProxy))
+						.entrySet()) {
+					ruleToInfo.get(entry.getKey()).joinedWithToComponent.merge(entry.getValue());
+				}
+			} // end of block loop
+		} // end of block list loop
 		final List<PathRule> pathRules = new ArrayList<>();
 		for (final Either<Rule, ExistentialProxy> either : rules) {
 			if (either.isRight()) {
 				continue;
 			}
 			final Rule rule = either.left().get();
-			// final List<PathFilterList> ecFilterLists =
-			// Stream.concat(rule.existentialProxies.values().stream().map(ExistentialProxy::getEither),
-			// Stream.of(either))
-			// .flatMap(
-			// e -> Optional.ofNullable(ruleToInfo.get(e))
-			// .map(ri -> ri.joinedWithToComponent.setToTarget.values())
-			// .orElse(Collections.emptyList()).stream()).collect(toList());
-			final ECSetRule ecSetRule = rule.getOriginal();
-			// final ECListRule ecListRule =
-			// ecSetRule.toECListRule(
-			// PathFilterList.toSimpleList(ecFilterLists),
-			// ecFilterLists.size() > 1 ? InitialFactVariablesFinder.gather(ecFilterLists) :
-			// Collections
-			// .emptySet());
-			final PathRule pathRule =
-					ecSetRule.toPathRule((PathFilterList) /* convertedCondition */null, (Set<Path>) /* resultPaths */null,
-							(Map<EquivalenceClass, PathLeaf>) /* equivalenceClassToPathLeaf */null);
+			final List<PathFilterList> pathFilterLists =
+					Stream.concat(rule.existentialProxies.values().stream().map(ExistentialProxy::getEither),
+							Stream.of(either))
+							.flatMap(
+									e -> Optional.ofNullable(ruleToInfo.get(e))
+											.map(ri -> ri.joinedWithToComponent.setToTarget.values())
+											.orElse(Collections.emptyList()).stream()).collect(toList());
+			final ECSetRule original = rule.getOriginal();
+			final RuleInfo ruleInfo = ruleToInfo.get(either);
+			final Set<Path> regularPaths = Sets.newHashSet(ruleInfo.fvToPath.values());
+			final Set<Path> resultPaths =
+					pathFilterLists.size() > 1 ? Sets.union(regularPaths,
+							InitialFactPathsFinder.gather(pathFilterLists)) : regularPaths;
+			final PathFilterList convertedCondition = PathFilterList.toSimpleList(pathFilterLists);
+
+			// use reversely to enable specification of a Map<EquivalenceClass, PathLeaf> for the
+			// actionList
+			final BiMap<EquivalenceClass, EquivalenceClass> localECsToConditionECs =
+					original.getLocalECsToConditionECs();
+			final Map<EquivalenceClass, PathLeaf> ecToPathLeaf =
+					original.getEquivalenceClasses().stream()
+							.collect(toMap(localECsToConditionECs::get, ec -> createBinding(ec, ruleInfo.fvToPath)));
+
+			final PathRule pathRule = original.toPathRule(
+			/* PathFilterList convertedCondition */convertedCondition,
+			/* Set<Path> resultPaths */resultPaths,
+			/* Map<EquivalenceClass, PathLeaf> equivalenceClassToPathLeaf */ecToPathLeaf);
+
 			pathRules.add(pathRule);
 		}
-		throw new UnsupportedOperationException("WIP");
-		// return pathRules;
+		return pathRules;
+	}
+
+	private static PathLeaf createBinding(final EquivalenceClass ec, final Map<SingleFactVariable, Path> fvToPath) {
+		final SingleFactVariable fv = ec.getFactVariables().peek();
+		if (null != fv) {
+			return fv.toPathLeaf(fvToPath);
+		}
+		final SingleSlotVariable sv = ec.getSlotVariables().peek();
+		if (null != sv) {
+			return sv.toPathLeaf(fvToPath);
+		}
+		return null;
 	}
 
 	/**

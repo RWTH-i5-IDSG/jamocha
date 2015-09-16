@@ -1034,10 +1034,10 @@ public class PathBlocks {
 		return pathRules;
 	}
 
-	static class InitialFactPathsFinder implements PathFilterListVisitor {
+	public static class InitialFactPathsFinder implements PathFilterListVisitor {
 		final Set<Path> initialFactPaths = Sets.newHashSet();
 
-		static Set<Path> gather(final Iterable<PathFilterList> filters) {
+		public static Set<Path> gather(final Iterable<PathFilterList> filters) {
 			final InitialFactPathsFinder instance = new InitialFactPathsFinder();
 			for (final PathFilterList filter : filters) {
 				filter.accept(instance);

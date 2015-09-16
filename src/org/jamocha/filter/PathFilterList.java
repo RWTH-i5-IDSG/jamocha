@@ -30,7 +30,6 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 import lombok.AccessLevel;
-import lombok.Data;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -54,7 +53,7 @@ public interface PathFilterList extends Visitable<PathFilterListVisitor>, Iterab
 		return StreamSupport.stream(spliterator(), false);
 	}
 
-	@Data
+	@Getter
 	@RequiredArgsConstructor
 	public class PathExistentialList implements PathFilterList {
 		@NonNull
