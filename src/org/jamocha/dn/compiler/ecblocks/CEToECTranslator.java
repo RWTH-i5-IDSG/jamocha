@@ -344,7 +344,7 @@ public class CEToECTranslator implements DefaultConditionalElementsVisitor {
 				for (final Iterator<SingleFactVariable> iterator = oldEc.getFactVariables().iterator(); iterator
 						.hasNext();) {
 					final SingleFactVariable factVariable = iterator.next();
-					if (!shallowFactVariables.contains(factVariable)) {
+					if (shallowFactVariables.contains(factVariable)) {
 						newEc.add(factVariable);
 						iterator.remove();
 					}
@@ -352,7 +352,7 @@ public class CEToECTranslator implements DefaultConditionalElementsVisitor {
 				for (final Iterator<SingleSlotVariable> iterator = oldEc.getSlotVariables().iterator(); iterator
 						.hasNext();) {
 					final SingleSlotVariable slotVariable = iterator.next();
-					if (!shallowFactVariables.contains(slotVariable.getFactVariable())) {
+					if (shallowFactVariables.contains(slotVariable.getFactVariable())) {
 						newEc.add(slotVariable);
 						iterator.remove();
 					}
