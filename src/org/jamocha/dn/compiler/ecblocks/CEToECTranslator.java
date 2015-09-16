@@ -485,12 +485,12 @@ public class CEToECTranslator implements DefaultConditionalElementsVisitor {
 			final Set<SingleFactVariable> factVariables =
 					initialFactAndVariables.getRight().stream().map(oldToNewFactVariables::get)
 							.collect(toIdentityHashSet());
-			// if (factVariables.isEmpty()) {
-			// factVariables.add(initialFactVariable);
-			// }
+
 			final Set<EquivalenceClass> usedECs = ECCollector.collect(filters);
 			if (usedECs.contains(initialFactVariable.getEqual())) {
 				factVariables.add(initialFactVariable);
+			} else {
+				equivalenceClasses.remove(initialFactVariable.getEqual());
 			}
 			return rule.newECSetRule(filters, factVariables, equivalenceClasses, newToOldECs, specificity);
 		}

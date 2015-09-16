@@ -40,6 +40,7 @@ import java.util.HashSet;
 import java.util.IdentityHashMap;
 import java.util.IntSummaryStatistics;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
@@ -1719,31 +1720,27 @@ public class ECBlocks {
 					}
 				}
 
-				final List<VariableExpression> converted =
-						equivalenceClass.getVariableExpressions().stream()
-								.map(v -> new VariableExpression(v, equivalenceClass)).collect(toList());
-				for (int i = 0; i < converted.size(); i++) {
-					final VariableExpression left = converted.get(i);
-					for (int j = i + 1; j < converted.size(); j++) {
-						final VariableExpression right = converted.get(j);
-						Filter.newImplicitECInstance(ruleOrProxy, left, right);
+				final LinkedList<FunctionWithArguments<ECLeaf>> variableExpressions =
+						equivalenceClass.getVariableExpressions();
+				if (!variableExpressions.isEmpty()) {
+					final List<VariableExpression> converted =
+							variableExpressions.stream().map(v -> new VariableExpression(v, equivalenceClass))
+									.collect(toList());
+					for (int i = 0; i < converted.size(); i++) {
+						final VariableExpression left = converted.get(i);
+						for (int j = i + 1; j < converted.size(); j++) {
+							final VariableExpression right = converted.get(j);
+							Filter.newImplicitECInstance(ruleOrProxy, left, right);
+						}
+					}
+					if (!converted.isEmpty() && !elements.isEmpty()) {
+						final VariableExpression ecLeaf =
+								new VariableExpression(new ECLeaf(equivalenceClass), equivalenceClass);
+						for (final VariableExpression fwa : converted) {
+							Filter.newImplicitECInstance(ruleOrProxy, ecLeaf, fwa);
+						}
 					}
 				}
-				if (!converted.isEmpty() && !elements.isEmpty()) {
-					final VariableExpression ecLeaf =
-							new VariableExpression(new ECLeaf(equivalenceClass), equivalenceClass);
-					for (final VariableExpression fwa : converted) {
-						Filter.newImplicitECInstance(ruleOrProxy, ecLeaf, fwa);
-					}
-				}
-
-				// FIXME equalparentEquivalenceClass checks are to be included somewhere
-				// ignore here, perform additional actions in visit(ECExistentialSet)
-				// 1 : just ignore and check within FilterProxy ::new and ::convert
-				// 2 : add explicitly to FilterProxy
-				// 3 : add explicitly to existentialClosure
-				final Set<EquivalenceClass> equalParentEquivalenceClasses =
-						equivalenceClass.getEqualParentEquivalenceClasses();
 			}
 			final RuleConverter ruleConverter = new RuleConverter(rules, ruleOrProxy);
 			for (final ECFilterSet filter : filters) {

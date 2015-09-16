@@ -442,7 +442,7 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 			final PathCollector<HashSet<Path>> regularPathsCollector = PathCollector.newHashSet();
 			for (final PathNodeFilterSet filter : filters) {
 				allPathsCollector.collectAllInLists(filter);
-				regularPathsCollector.collectOnlyInFilterLists(filter);
+				regularPathsCollector.collectRegularPaths(filter);
 			}
 			allPathsCollector.getPaths().addAll(pathRule.getResultPaths());
 			regularPathsCollector.getPaths().addAll(pathRule.getResultPaths());
