@@ -18,6 +18,7 @@ import java.util.Arrays;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.NonNull;
 
 import org.jamocha.dn.memory.Fact;
 import org.jamocha.dn.memory.SlotAddress;
@@ -43,13 +44,14 @@ import org.jamocha.function.Function;
  */
 @EqualsAndHashCode
 public class PathLeaf implements ExchangeableLeaf<PathLeaf> {
+	@NonNull
 	private final Path path;
 	private final SlotAddress slot;
 	@Getter(lazy = true)
 	private final int hashCode = initHashCode();
 
 	public PathLeaf(final Path path, final SlotAddress slot) {
-		super();
+		assert path != null;
 		this.path = path;
 		this.slot = slot;
 	}

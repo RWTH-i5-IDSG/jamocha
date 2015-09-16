@@ -107,7 +107,7 @@ public class ConstructCache {
 		}
 
 		@Data
-		@RequiredArgsConstructor
+		// @RequiredArgsConstructor
 		public class ECSetRule {
 			final Set<ECFilterSet> condition;
 			final Set<SingleFactVariable> factVariables;
@@ -130,6 +130,19 @@ public class ConstructCache {
 					final Set<SingleFactVariable> additionalInitialFactVariables) {
 				return new ECListRule(condition, Sets.union(factVariables, additionalInitialFactVariables),
 						equivalenceClasses, localECsToConditionECs, actionList, specificity);
+			}
+
+			protected ECSetRule(final Set<ECFilterSet> condition, final Set<SingleFactVariable> factVariables,
+					final Set<EquivalenceClass> equivalenceClasses,
+					final BiMap<EquivalenceClass, EquivalenceClass> localECsToConditionECs,
+					final FunctionWithArguments<SymbolLeaf>[] actionList, final int specificity) {
+				this.condition = condition;
+				assert !factVariables.isEmpty();
+				this.factVariables = factVariables;
+				this.equivalenceClasses = equivalenceClasses;
+				this.localECsToConditionECs = localECsToConditionECs;
+				this.actionList = actionList;
+				this.specificity = specificity;
 			}
 		}
 

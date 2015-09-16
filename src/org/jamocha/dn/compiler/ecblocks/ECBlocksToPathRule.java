@@ -74,7 +74,6 @@ import org.jamocha.dn.compiler.ecblocks.ECBlocks.Rule;
 import org.jamocha.dn.compiler.ecblocks.ECBlocks.SlotBinding;
 import org.jamocha.dn.compiler.ecblocks.ECBlocks.Theta;
 import org.jamocha.dn.compiler.ecblocks.ECBlocks.VariableExpression;
-import org.jamocha.dn.compiler.pathblocks.PathBlocks.InitialFactPathsFinder;
 import org.jamocha.filter.ECFilterSet.ECExistentialSet;
 import org.jamocha.filter.Path;
 import org.jamocha.filter.PathFilter;
@@ -91,6 +90,7 @@ import org.jamocha.function.fwa.PredicateWithArgumentsComposite;
 import org.jamocha.function.fwatransformer.FWAECLeafToPathTranslator;
 import org.jamocha.function.impls.predicates.Equals;
 import org.jamocha.languages.common.RuleCondition.EquivalenceClass;
+import org.jamocha.languages.common.ScopeStack.VariableSymbol;
 import org.jamocha.languages.common.SingleFactVariable;
 import org.jamocha.languages.common.SingleFactVariable.SingleSlotVariable;
 import org.jamocha.util.ToArray;
@@ -212,9 +212,11 @@ public class ECBlocksToPathRule {
 				fvToPath =
 						new IdentityHashMap<>(ruleToInfo.computeIfAbsent(existentialProxy.rule.either,
 								r -> new RuleInfo(r, ruleToInfo)).fvToPath);
-				for (final SingleFactVariable factVariable : Sets.union(
-						existentialProxy.existential.getExistentialFactVariables(),
-						Collections.singleton(existentialProxy.existential.getInitialFactVariable()))) {
+				for (final SingleFactVariable factVariable :
+				// Sets.union(
+				existentialProxy.existential.getExistentialFactVariables()
+				// ,Collections.singleton(existentialProxy.existential.getInitialFactVariable()) )
+				) {
 					fvToPath.put(factVariable, new Path(factVariable.getTemplate()));
 				}
 			}
@@ -310,7 +312,7 @@ public class ECBlocksToPathRule {
 
 				final ImmutableMap<EquivalenceClass, FunctionWithArguments<PathLeaf>> map =
 						Maps.toMap(Sets.newHashSet(filterInstance.getParameters()),
-								param -> getMatchingElement(param, block, blockEC2Constant, ruleInfo, fvsToChooseFrom));
+								param -> getMatchingElement(param, block, blockEC2Constant, proxyInfo, fvsToChooseFrom));
 				final PredicateWithArguments<PathLeaf> pwa =
 						FWAECLeafToPathTranslator.translate(filterInstance.ecFilter.getFunction(), map);
 
@@ -637,17 +639,22 @@ public class ECBlocksToPathRule {
 			final RuleInfo ruleInfo = ruleToInfo.get(either);
 			final Set<Path> regularPaths = Sets.newHashSet(ruleInfo.fvToPath.values());
 			final Set<Path> resultPaths =
-					pathFilterLists.size() > 1 ? Sets.union(regularPaths,
-							InitialFactPathsFinder.gather(pathFilterLists)) : regularPaths;
+			// pathFilterLists.size() > 1 ? Sets.union(regularPaths,
+			// InitialFactPathsFinder.gather(pathFilterLists)) :
+					regularPaths;
 			final PathFilterList convertedCondition = PathFilterList.toSimpleList(pathFilterLists);
 
-			// use reversely to enable specification of a Map<EquivalenceClass, PathLeaf> for the
-			// actionList
-			final BiMap<EquivalenceClass, EquivalenceClass> localECsToConditionECs =
+			final Set<EquivalenceClass> ecsInSymbols =
+					ActionlistSymbolCollector.getUnboundSymbols(original.getActionList()).stream()
+							.map(VariableSymbol::getEqual).collect(toIdentityHashSet());
+
+			final BiMap<EquivalenceClass, EquivalenceClass> conditionECsToLocalECs =
 					original.getLocalECsToConditionECs();
+
 			final Map<EquivalenceClass, PathLeaf> ecToPathLeaf =
-					original.getEquivalenceClasses().stream()
-							.collect(toMap(localECsToConditionECs::get, ec -> createBinding(ec, ruleInfo.fvToPath)));
+					ecsInSymbols.stream().collect(
+							toMap(Function.identity(),
+									ec -> createBinding(conditionECsToLocalECs.inverse().get(ec), ruleInfo.fvToPath)));
 
 			final PathRule pathRule = original.toPathRule(
 			/* PathFilterList convertedCondition */convertedCondition,
