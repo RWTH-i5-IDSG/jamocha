@@ -510,7 +510,7 @@ public class ECBlocks {
 			final Map<FilterInstance, Conflict> conflicts = new HashMap<>();
 
 			protected Conflict newConflict(final ImplicitElementFilterInstance source,
-					final ImplicitElementFilterInstance target, final Theta sourceTheta, final Theta targetTheta) {
+					final ImplicitElementFilterInstance target) {
 				final Set<Pair<Integer, Integer>> intersectingECsIndices = new HashSet<>();
 				final SingleFactVariable s0 = source.left.getFactVariable();
 				final SingleFactVariable s1 = source.right.getFactVariable();
@@ -546,24 +546,20 @@ public class ECBlocks {
 			}
 
 			protected Conflict newConflict(final ECFilterInstance source, final ImplicitElementFilterInstance target,
-					final Theta sourceTheta, final Theta targetTheta, final boolean reverse) {
+					final Theta sourceTheta, @SuppressWarnings("unused") final Theta targetTheta, final boolean reverse) {
 				final Set<Pair<Integer, Integer>> intersectingECsIndices = new HashSet<>();
 				final List<EquivalenceClass> sourceParameters = source.parameters;
 				final SingleFactVariable left = target.left.getFactVariable();
 				final SingleFactVariable right = target.right.getFactVariable();
-				final boolean leftRelevant = targetTheta.isRelevant(target.left);
-				final boolean rightRelevant = targetTheta.isRelevant(target.right);
-				if (leftRelevant || rightRelevant) {
-					final int size = sourceParameters.size();
-					for (int i = 0; i < size; ++i) {
-						final Set<SingleFactVariable> sourceFVs =
-								sourceTheta.getDependentFactVariables(sourceParameters.get(i));
-						if (leftRelevant && sourceFVs.contains(left)) {
-							intersectingECsIndices.add(reverse ? Pair.of(0, i) : Pair.of(i, 0));
-						}
-						if (rightRelevant && sourceFVs.contains(right)) {
-							intersectingECsIndices.add(reverse ? Pair.of(1, i) : Pair.of(i, 1));
-						}
+				final int size = sourceParameters.size();
+				for (int i = 0; i < size; ++i) {
+					final Set<SingleFactVariable> sourceFVs =
+							sourceTheta.getDependentFactVariables(sourceParameters.get(i));
+					if (sourceFVs.contains(left)) {
+						intersectingECsIndices.add(reverse ? Pair.of(0, i) : Pair.of(i, 0));
+					}
+					if (sourceFVs.contains(right)) {
+						intersectingECsIndices.add(reverse ? Pair.of(1, i) : Pair.of(i, 1));
 					}
 				}
 				return new Conflict(intersectingECsIndices, source, target);
@@ -662,7 +658,7 @@ public class ECBlocks {
 			@Override
 			public FilterInstance.Conflict private_forSource(final ImplicitElementFilterInstance source,
 					final Theta sourceTheta, final Theta targetTheta) {
-				return newConflict(source, this, sourceTheta, targetTheta);
+				return newConflict(source, this);
 			}
 
 			@Override
@@ -981,6 +977,7 @@ public class ECBlocks {
 	static class Rule {
 		final ECSetRule original;
 		final Set<Filter> filters = new HashSet<>();
+		final Set<SingleFactVariable> factvariables = Sets.newIdentityHashSet();
 		final BiMap<FilterInstance, ExistentialProxy> existentialProxies = HashBiMap.create();
 		final Either<Rule, ExistentialProxy> either;
 
@@ -1005,6 +1002,7 @@ public class ECBlocks {
 		final Rule rule;
 		final ECExistentialSet existential;
 		final Set<Filter> filters = new HashSet<>();
+		final Set<SingleFactVariable> factvariables = Sets.newIdentityHashSet();
 		final Either<Rule, ExistentialProxy> either;
 
 		public ExistentialProxy(final Rule rule, final ECExistentialSet existential) {
@@ -1023,9 +1021,11 @@ public class ECBlocks {
 	 */
 	@RequiredArgsConstructor
 	@Getter
+	@ToString
 	static class Partition<T, S extends Partition.SubSet<T>> {
 		@RequiredArgsConstructor
 		@Getter
+		@ToString
 		static class SubSet<T> {
 			final IdentityHashMap<Either<Rule, ExistentialProxy>, T> elements;
 
@@ -1596,6 +1596,10 @@ public class ECBlocks {
 		return ruleOrProxy.fold(Rule::getFilters, ExistentialProxy::getFilters);
 	}
 
+	protected static Set<SingleFactVariable> getFactVariables(final Either<Rule, ExistentialProxy> ruleOrProxy) {
+		return ruleOrProxy.fold(Rule::getFactvariables, ExistentialProxy::getFactvariables);
+	}
+
 	protected static void addRule(final ECSetRule ecFilterSetCondition, final List<Either<Rule, ExistentialProxy>> rules) {
 		final Rule rule = new Rule(ecFilterSetCondition);
 		// create all filter instances
@@ -2164,26 +2168,30 @@ public class ECBlocks {
 			return Collections.singletonList(partition);
 		}
 		final IdentityHashMap<Template, Set<List<FactVariableSubSet>>> subsets = new IdentityHashMap<>();
-		final IdentityHashMap<Template, Map<Either<Rule, ExistentialProxy>, List<SingleFactVariable>>> partitionMap =
+		final IdentityHashMap<Template, Map<Either<Rule, ExistentialProxy>, Set<SingleFactVariable>>> partitionMap =
 				new IdentityHashMap<>();
 		final IdentityHashMap<SingleFactVariable, Either<Rule, ExistentialProxy>> fvToRule = new IdentityHashMap<>();
+		// FIXME dont assign the FVs from existentials to the original rule but to the existential
+		// proxy
+		// they are auto-assigned to the original rule when just collected via
+		// FilterInstance::getDirectlyContainedFactVariables
 		for (final Either<Rule, ExistentialProxy> rule : rules) {
-			final Map<Template, List<SingleFactVariable>> template2FVs =
+			final Map<Template, Set<SingleFactVariable>> template2FVs =
 					getFilters(rule).stream().flatMap(f -> f.getAllInstances(rule).stream())
 							.flatMap(fi -> fi.getDirectlyContainedFactVariables().stream())
-							.collect(groupingBy(SingleFactVariable::getTemplate));
-			for (final Entry<Template, List<SingleFactVariable>> entry : template2FVs.entrySet()) {
+							.collect(groupingBy(SingleFactVariable::getTemplate, toIdentityHashSet()));
+			for (final Entry<Template, Set<SingleFactVariable>> entry : template2FVs.entrySet()) {
 				final Template template = entry.getKey();
-				final List<SingleFactVariable> fvs = entry.getValue();
+				final Set<SingleFactVariable> fvs = entry.getValue();
 				partitionMap.computeIfAbsent(template, newHashMap()).put(rule, fvs);
 				fvs.forEach(fv -> fvToRule.put(fv, rule));
 			}
 		}
-		for (final Entry<Template, Map<Either<Rule, ExistentialProxy>, List<SingleFactVariable>>> templateToMap : partitionMap
+		for (final Entry<Template, Map<Either<Rule, ExistentialProxy>, Set<SingleFactVariable>>> templateToMap : partitionMap
 				.entrySet()) {
 			final Template template = templateToMap.getKey();
 			final IntSummaryStatistics summary =
-					templateToMap.getValue().values().stream().mapToInt(List::size).summaryStatistics();
+					templateToMap.getValue().values().stream().mapToInt(Set::size).summaryStatistics();
 			final int min = summary.getMin();
 			final int max = summary.getMax();
 			if (0 == min) {
@@ -2194,7 +2202,7 @@ public class ECBlocks {
 				// every rule contains exactly one fv for the current template
 				subsets.computeIfAbsent(template, newIdentityHashSet()).add(
 						Collections.singletonList(new FactVariableSubSet(Maps.transformValues(templateToMap.getValue(),
-								l -> l.get(0)))));
+								l -> l.iterator().next()))));
 				continue;
 			}
 			final List<Set<ImmutableList<SingleFactVariable>>> generators =
