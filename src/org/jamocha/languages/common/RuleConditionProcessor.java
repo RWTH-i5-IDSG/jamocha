@@ -370,36 +370,38 @@ public class RuleConditionProcessor {
 		}
 	}
 
+	@Getter
+	public static class ShallowSymbolCollector implements DefaultConditionalElementsVisitor,
+			DefaultFunctionWithArgumentsLeafVisitor<SymbolLeaf> {
+		final Set<VariableSymbol> symbols = new HashSet<>();
+
+		@Override
+		public void visit(final TestConditionalElement ce) {
+			ce.getPredicateWithArguments().accept(this);
+		}
+
+		@Override
+		public void defaultAction(final ConditionalElement ce) {
+			ce.children.forEach(c -> c.accept(this));
+		}
+
+		@Override
+		public void visit(final ConstantLeaf<SymbolLeaf> constantLeaf) {
+		}
+
+		@Override
+		public void visit(final GlobalVariableLeaf<SymbolLeaf> globalVariableLeaf) {
+		}
+
+		@Override
+		public void visit(final SymbolLeaf leaf) {
+			symbols.add(leaf.getSymbol());
+		}
+	}
 	private static class ExistentialSplitter implements DefaultConditionalElementsVisitor {
 		private ConditionalElement ce;
 
-		private static class ShallowSymbolCollector implements DefaultConditionalElementsVisitor,
-				DefaultFunctionWithArgumentsLeafVisitor<SymbolLeaf> {
-			final Set<VariableSymbol> symbols = new HashSet<>();
-
-			@Override
-			public void visit(final TestConditionalElement ce) {
-				ce.getPredicateWithArguments().accept(this);
-			}
-
-			@Override
-			public void defaultAction(final ConditionalElement ce) {
-				ce.children.forEach(c -> c.accept(this));
-			}
-
-			@Override
-			public void visit(final ConstantLeaf<SymbolLeaf> constantLeaf) {
-			}
-
-			@Override
-			public void visit(final GlobalVariableLeaf<SymbolLeaf> globalVariableLeaf) {
-			}
-
-			@Override
-			public void visit(final SymbolLeaf leaf) {
-				symbols.add(leaf.getSymbol());
-			}
-		}
+		
 
 		@Override
 		public void visit(final NegatedExistentialConditionalElement ce) {

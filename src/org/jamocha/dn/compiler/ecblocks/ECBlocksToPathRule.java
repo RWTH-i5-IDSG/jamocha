@@ -18,6 +18,7 @@ import static java.util.stream.Collectors.counting;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
+import static java.util.stream.Collectors.toSet;
 import static org.jamocha.util.Lambdas.newLinkedHashSet;
 import static org.jamocha.util.Lambdas.toArrayList;
 import static org.jamocha.util.Lambdas.toIdentityHashSet;
@@ -74,9 +75,11 @@ import org.jamocha.dn.compiler.ecblocks.ECBlocks.SlotBinding;
 import org.jamocha.dn.compiler.ecblocks.ECBlocks.Theta;
 import org.jamocha.dn.compiler.ecblocks.ECBlocks.VariableExpression;
 import org.jamocha.dn.compiler.pathblocks.PathBlocks.InitialFactPathsFinder;
+import org.jamocha.filter.ECFilterSet.ECExistentialSet;
 import org.jamocha.filter.Path;
 import org.jamocha.filter.PathFilter;
 import org.jamocha.filter.PathFilterList;
+import org.jamocha.filter.PathFilterList.PathExistentialList;
 import org.jamocha.filter.PathFilterList.PathSharedListWrapper;
 import org.jamocha.filter.PathFilterList.PathSharedListWrapper.PathSharedList;
 import org.jamocha.filter.PathNodeFilterSet;
@@ -209,7 +212,9 @@ public class ECBlocksToPathRule {
 				fvToPath =
 						new IdentityHashMap<>(ruleToInfo.computeIfAbsent(existentialProxy.rule.either,
 								r -> new RuleInfo(r, ruleToInfo)).fvToPath);
-				for (final SingleFactVariable factVariable : existentialProxy.existential.getExistentialFactVariables()) {
+				for (final SingleFactVariable factVariable : Sets.union(
+						existentialProxy.existential.getExistentialFactVariables(),
+						Collections.singleton(existentialProxy.existential.getInitialFactVariable()))) {
 					fvToPath.put(factVariable, new Path(factVariable.getTemplate()));
 				}
 			}
@@ -287,17 +292,41 @@ public class ECBlocksToPathRule {
 
 		@Override
 		public void visit(final FilterProxy filter) {
-			// TODO Auto-generated method stub
-			// assert filterInstance.getRuleOrProxy().isLeft() : "Nested Existentials Unsupported!";
-			// final Rule rule = filterInstance.getRuleOrProxy().left().get();
-			// final ExistentialProxy existentialProxy =
-			// rule.getExistentialProxies().get(filterInstance);
-			// final ECExistentialSet existential = existentialProxy.getExistential();
-			// result =
-			// new ECFilterList.ECExistentialList(existential.isPositive(),
-			// existential.getInitialFactVariable(),
-			// existential.getExistentialFactVariables(), ECFilterList.toSimpleList(Collections
-			// .emptyList()), new ECNodeFilterSet(instance.getEcFilter()));
+			assert exampleFilterInstance.getRuleOrProxy().isLeft() : "Nested Existentials Unsupported!";
+			final FilterInstanceSubSet filterInstanceSubSet =
+					block.filterInstancePartition.lookup(exampleFilterInstance);
+			final Collection<FactVariableSubSet> factVariableSubSets =
+					Collections2.transform(listOfExampleFVsToChooseFrom.get(0), block.factVariablePartition::lookup);
+
+			for (final Either<Rule, ExistentialProxy> rule : block.getRulesOrProxies()) {
+				final ExplicitFilterInstance filterInstance = (ExplicitFilterInstance) filterInstanceSubSet.get(rule);
+				final ExistentialProxy existentialProxy = rule.left().get().getExistentialProxies().get(filterInstance);
+				final ECExistentialSet existential = existentialProxy.getExistential();
+				final RuleInfo proxyInfo = ruleToInfo.get(existentialProxy.either);
+				final RuleInfo ruleInfo = ruleToInfo.get(rule);
+
+				final Set<SingleFactVariable> fvsToChooseFrom =
+						factVariableSubSets.stream().map(fvss -> fvss.get(rule)).collect(toIdentityHashSet());
+
+				final ImmutableMap<EquivalenceClass, FunctionWithArguments<PathLeaf>> map =
+						Maps.toMap(Sets.newHashSet(filterInstance.getParameters()),
+								param -> getMatchingElement(param, block, blockEC2Constant, ruleInfo, fvsToChooseFrom));
+				final PredicateWithArguments<PathLeaf> pwa =
+						FWAECLeafToPathTranslator.translate(filterInstance.ecFilter.getFunction(), map);
+
+				final Path initialPath = proxyInfo.fvToPath.get(existential.getInitialFactVariable());
+				final Set<Path> existentialPaths =
+						existential.getExistentialFactVariables().stream().map(proxyInfo.fvToPath::get)
+								.collect(toSet());
+
+				final PathFilterList purePart = PathFilterList.toSimpleList(Collections.emptyList());
+				ruleInfo.joinedWithToComponent.setTarget(
+						filterInstance,
+						new PathExistentialList(initialPath, purePart, PathNodeFilterSet
+								.newExistentialPathNodeFilterSet(!existential.isPositive(), existentialPaths,
+										new PathFilter(pwa))));
+				// TODO Auto-generated method stub
+			}
 		}
 	}
 
@@ -305,6 +334,10 @@ public class ECBlocksToPathRule {
 			final TreeMap<Integer, CursorableLinkedList<Block>> blockMap) {
 		// rule infos
 		final IdentityHashMap<Either<Rule, ExistentialProxy>, RuleInfo> ruleToInfo = new IdentityHashMap<>();
+		// initialize paths
+		for (final Either<Rule, ExistentialProxy> rule : rules) {
+			ruleToInfo.computeIfAbsent(rule, x -> new RuleInfo(x, ruleToInfo));
+		}
 
 		// the set of all FIs already constructed
 		final Set<FilterInstance> representedFIs = new HashSet<>();
@@ -314,10 +347,6 @@ public class ECBlocksToPathRule {
 			for (final Block block : blockList) {
 				final ImmutableList<Either<Rule, ExistentialProxy>> blockRules =
 						ImmutableList.copyOf(block.getRulesOrProxies());
-				// initialize paths
-				for (final Either<Rule, ExistentialProxy> rule : blockRules) {
-					ruleToInfo.computeIfAbsent(rule, x -> new RuleInfo(x, ruleToInfo));
-				}
 
 				final Either<Rule, ExistentialProxy> chosenRule = blockRules.get(0);
 				final RuleInfo chosenRuleInfo = ruleToInfo.get(chosenRule);
