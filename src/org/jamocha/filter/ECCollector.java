@@ -14,6 +14,7 @@
  */
 package org.jamocha.filter;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -37,6 +38,14 @@ public class ECCollector implements DefaultFunctionWithArgumentsLeafVisitor<ECLe
 		ECFilterSetVisitor {
 	@Getter
 	final Set<EquivalenceClass> equivalenceClasses = new HashSet<>();
+
+	public static Set<EquivalenceClass> collect(final Collection<ECFilterSet> filterCollection) {
+		final ECCollector instance = new ECCollector();
+		for (final ECFilterSet ecFilterSet : filterCollection) {
+			ecFilterSet.accept(instance);
+		}
+		return instance.equivalenceClasses;
+	}
 
 	public static Set<EquivalenceClass> collect(final ECFilterList filter) {
 		return filter.accept(new ECCollector()).equivalenceClasses;

@@ -26,7 +26,6 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -137,16 +136,15 @@ public class CEToECTranslator implements DefaultConditionalElementsVisitor {
 	static class NoORsTranslator implements DefaultConditionalElementsVisitor {
 
 		private final Template initialFactTemplate;
-		private final Optional<SingleFactVariable> initialFactVariable;
+		private final SingleFactVariable initialFactVariable;
 		private final Set<VariableSymbol> variableSymbols;
 		private final BiMap<SingleFactVariable, SingleFactVariable> oldToNewFactVariables;
 
 		@Getter
 		private final Set<ECFilterSet> filters;
 
-		private NoORsTranslator(final Template initialFactTemplate,
-				final Optional<SingleFactVariable> initialFactVariable, final Set<VariableSymbol> variableSymbols,
-				final Set<PredicateWithArguments<SymbolLeaf>> shallowTests,
+		private NoORsTranslator(final Template initialFactTemplate, final SingleFactVariable initialFactVariable,
+				final Set<VariableSymbol> variableSymbols, final Set<PredicateWithArguments<SymbolLeaf>> shallowTests,
 				final BiMap<SingleFactVariable, SingleFactVariable> oldToNewFactVariables) {
 			this.initialFactTemplate = initialFactTemplate;
 			this.initialFactVariable = initialFactVariable;
@@ -253,9 +251,13 @@ public class CEToECTranslator implements DefaultConditionalElementsVisitor {
 					new HashSet<>(equivalenceClassBuilder.equivalenceClasses.values());
 			final Set<PredicateWithArguments<SymbolLeaf>> shallowTests = equivalenceClassBuilder.shallowTests;
 
+			final SingleFactVariable initialFactVariable =
+					oldToNewFV.get(ShallowFactVariableCollector.collectVariables(initialFactTemplate, ce).getLeft());
+
 			final ECSetRule result =
-					consolidateOnCopiedEquivalenceClasses(initialFactTemplate, rule, ce, shallowTests,
-							equivalenceClasses, oldToNewEC.inverse(), oldToNewFV, Specificity.calculate(ce));
+					consolidateOnCopiedEquivalenceClasses(initialFactTemplate, initialFactVariable, rule, ce,
+							shallowTests, equivalenceClasses, oldToNewEC.inverse(), oldToNewFV,
+							Specificity.calculate(ce));
 
 			// reset the symbol - equivalence class mapping
 			symbolToECbackup.forEach((vs, ec) -> vs.setEqual(ec));
@@ -470,25 +472,27 @@ public class CEToECTranslator implements DefaultConditionalElementsVisitor {
 		}
 
 		private static ECSetRule consolidateOnCopiedEquivalenceClasses(final Template initialFactTemplate,
-				final Defrule rule, final ConditionalElement ce,
+				final SingleFactVariable initialFactVariable, final Defrule rule, final ConditionalElement ce,
 				final Set<PredicateWithArguments<SymbolLeaf>> shallowTests,
 				final Set<EquivalenceClass> equivalenceClasses,
 				final BiMap<EquivalenceClass, EquivalenceClass> newToOldECs,
 				final BiMap<SingleFactVariable, SingleFactVariable> oldToNewFactVariables, final int specificity) {
-			final Pair<Optional<SingleFactVariable>, Set<SingleFactVariable>> initialFactAndVariables =
+			final Set<ECFilterSet> filters =
+					new NoORsTranslator(initialFactTemplate, initialFactVariable, rule.getCondition()
+							.getVariableSymbols(), shallowTests, oldToNewFactVariables).collect(ce).getFilters();
+			final Pair<SingleFactVariable, Set<SingleFactVariable>> initialFactAndVariables =
 					ShallowFactVariableCollector.collectVariables(initialFactTemplate, ce);
 			final Set<SingleFactVariable> factVariables =
 					initialFactAndVariables.getRight().stream().map(oldToNewFactVariables::get)
 							.collect(toIdentityHashSet());
-			final Optional<SingleFactVariable> initialFV =
-					initialFactAndVariables.getLeft().map(oldToNewFactVariables::get);
-			if (factVariables.isEmpty()) {
-				factVariables.add(initialFV.get());
+			// if (factVariables.isEmpty()) {
+			// factVariables.add(initialFactVariable);
+			// }
+			final Set<EquivalenceClass> usedECs = ECCollector.collect(filters);
+			if (usedECs.contains(initialFactVariable.getEqual())) {
+				factVariables.add(initialFactVariable);
 			}
-
-			return rule.newECSetRule(new NoORsTranslator(initialFactTemplate, initialFV, rule.getCondition()
-					.getVariableSymbols(), shallowTests, oldToNewFactVariables).collect(ce).getFilters(),
-					factVariables, equivalenceClasses, newToOldECs, specificity);
+			return rule.newECSetRule(filters, factVariables, equivalenceClasses, newToOldECs, specificity);
 		}
 
 		private NoORsTranslator collect(final ConditionalElement ce) {
@@ -505,12 +509,12 @@ public class CEToECTranslator implements DefaultConditionalElementsVisitor {
 		}
 
 		static ECExistentialSet processExistentialCondition(final Template initialFactTemplate,
-				final Optional<SingleFactVariable> initialFactVariable, final Set<VariableSymbol> variableSymbols,
+				final SingleFactVariable initialFactVariable, final Set<VariableSymbol> variableSymbols,
 				final BiMap<SingleFactVariable, SingleFactVariable> oldToNewFactVariables, final ConditionalElement ce,
 				final Scope scope, final boolean isPositive) {
 			// Collect the existential FactVariables in a shallow manner (not including FVs in
 			// nested existential elements)
-			final Pair<Optional<SingleFactVariable>, Set<SingleFactVariable>> initialFactAndOtherFVs =
+			final Pair<SingleFactVariable, Set<SingleFactVariable>> initialFactAndOtherFVs =
 					ShallowFactVariableCollector.collectVariables(initialFactTemplate, ce);
 			final Set<SingleFactVariable> shallowExistentialFVs =
 					initialFactAndOtherFVs.getRight().stream().map(oldToNewFactVariables::get).collect(toSet());
@@ -541,9 +545,8 @@ public class CEToECTranslator implements DefaultConditionalElementsVisitor {
 
 			// Generate ECFilters from CE (recurse)
 			final Set<ECFilterSet> filters =
-					new NoORsTranslator(initialFactTemplate, initialFactAndOtherFVs.getLeft().map(
-							oldToNewFactVariables::get), variableSymbols, shallowTests, oldToNewFactVariables).collect(
-							ce).getFilters();
+					new NoORsTranslator(initialFactTemplate, initialFactVariable, variableSymbols, shallowTests,
+							oldToNewFactVariables).collect(ce).getFilters();
 
 			// Collect all used Equivalence Classes for every Filter
 			final Map<ECFilterSet, Set<EquivalenceClass>> filter2ECs =
@@ -575,10 +578,9 @@ public class CEToECTranslator implements DefaultConditionalElementsVisitor {
 			final ECFilter existentialClosure;
 			if (mixedFilters.isEmpty()) {
 				existentialClosure =
-						new ECFilter(new PredicateWithArgumentsComposite<ECLeaf>(DummyPredicate.instance, toArray(
-								Stream.concat(shallowExistentialECs.stream(),
-										Stream.of(initialFactVariable.get().getEqual())).map(ECLeaf::new),
-								ECLeaf[]::new)));
+						new ECFilter(new PredicateWithArgumentsComposite<ECLeaf>(DummyPredicate.instance,
+								toArray(Stream.concat(shallowExistentialECs.stream(),
+										Stream.of(initialFactVariable.getEqual())).map(ECLeaf::new), ECLeaf[]::new)));
 			} else if (1 == mixedFilters.size()) {
 				final ECFilter mixed = (ECFilter) mixedFilters.iterator().next();
 				final Set<EquivalenceClass> ecsInMixed = ECCollector.collect(mixed);
@@ -610,8 +612,8 @@ public class CEToECTranslator implements DefaultConditionalElementsVisitor {
 						new ECFilter(GenericWithArgumentsComposite.newPredicateInstance(And.inClips,
 								(FunctionWithArguments<ECLeaf>[]) toArray(argStream, FunctionWithArguments[]::new)));
 			}
-			return new ECFilterSet.ECExistentialSet(isPositive, initialFactVariable.orElse(null),
-					shallowExistentialFVs, equivalenceClasses, pureFilters, existentialClosure);
+			return new ECFilterSet.ECExistentialSet(isPositive, initialFactVariable, shallowExistentialFVs,
+					equivalenceClasses, pureFilters, existentialClosure);
 		}
 
 		@Override

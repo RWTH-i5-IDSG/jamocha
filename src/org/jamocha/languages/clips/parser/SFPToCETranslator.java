@@ -2010,10 +2010,9 @@ public final class SFPToCETranslator implements SelectiveSFPVisitor {
 							salience = visitor.salience;
 						}
 					}
-					if (!existentialStack.templateCEContained) {
-						ces.add(0, new InitialFactConditionalElement(parserToNetwork.getScope()
-								.createDummyFactVariable(parserToNetwork.getInitialFactTemplate(), existentialStack)));
-					}
+					ces.add(0,
+							new InitialFactConditionalElement(parserToNetwork.getScope().createDummyFactVariable(
+									parserToNetwork.getInitialFactTemplate(), existentialStack)));
 					existentialStack.getConditionalElements().addAll(ces);
 					this.defrule = new Defrule(symbol.getImage(), comment, salience, existentialStack, actionList);
 					new SymbolCollector(existentialStack)
