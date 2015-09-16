@@ -2626,8 +2626,9 @@ public class ECBlocks {
 								groupingBy(FilterInstance::getFilter, toCollection(() -> Sets.newIdentityHashSet()))));
 
 		final Consumer<ImplicitElementFilterInstance> remove = (fi) -> {
-			workspace.remove(fi);
-			workspaceByRule.get(fi.getRuleOrProxy()).get(fi.getFilter()).remove(fi);
+			if (workspace.remove(fi)) {
+				workspaceByRule.get(fi.getRuleOrProxy()).get(fi.getFilter()).remove(fi);
+			}
 		};
 
 		workspaceLoop: while (!workspace.isEmpty()) {
@@ -2884,10 +2885,17 @@ public class ECBlocks {
 			final Filter nCurrentFilter, final Function<ImplicitElementFilterInstance, Element> getBElement,
 			final Function<ImplicitElementFilterInstance, Element> getNElement, final Element bElement,
 			final Element nElement, final Either<Rule, ExistentialProxy> rule) {
-		final Set<ImplicitElementFilterInstance> candidates =
-				workspaceByRule.getOrDefault(rule, Collections.emptyMap()).getOrDefault(nCurrentFilter,
-						Collections.emptySet());
-		for (final ImplicitElementFilterInstance candidate : candidates) {
+		for (final ImplicitElementFilterInstance candidate : workspaceByRule.getOrDefault(rule, Collections.emptyMap())
+				.getOrDefault(nCurrentFilter, Collections.emptySet())) {
+			if (bElementPartition.lookup(bElement) != bElementPartition.lookup(getBElement.apply(candidate))) {
+				continue;
+			}
+			if (!checkSameFactBinding(factVariablePartition, getNElement, nElement, candidate)) {
+				continue;
+			}
+			return candidate;
+		}
+		for (final ImplicitElementFilterInstance candidate : nCurrentFilter.getImplicitElementInstances(rule)) {
 			if (bElementPartition.lookup(bElement) != bElementPartition.lookup(getBElement.apply(candidate))) {
 				continue;
 			}
