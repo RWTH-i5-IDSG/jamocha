@@ -112,9 +112,11 @@ import org.jgrapht.alg.VertexCovers;
 import org.jgrapht.graph.SimpleDirectedGraph;
 import org.jgrapht.graph.SimpleGraph;
 import org.paukov.combinatorics.Factory;
+import org.paukov.combinatorics.ICombinatoricsVector;
 
 import com.atlassian.fugue.Either;
 import com.google.common.collect.BiMap;
+import com.google.common.collect.Collections2;
 import com.google.common.collect.HashBiMap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableList.Builder;
@@ -2201,18 +2203,25 @@ public class ECBlocks {
 								l -> l.iterator().next()))));
 				continue;
 			}
-			final List<Set<ImmutableList<SingleFactVariable>>> generators =
+			final List<Set<List<SingleFactVariable>>> generators =
 					templateToMap
 							.getValue()
 							.values()
 							.stream()
-							.map(fvs -> Factory.createSimpleCombinationGenerator(Factory.createVector(fvs), min)
-									.generateAllObjects().stream().map(ImmutableList::copyOf)
-									.collect(toIdentityHashSet())).collect(toList());
+							.map(fvs -> {
+								final List<ICombinatoricsVector<SingleFactVariable>> allChosen =
+										Factory.createSimpleCombinationGenerator(Factory.createVector(fvs), min)
+												.generateAllObjects();
+								final Set<List<SingleFactVariable>> converted =
+										allChosen.stream().map(ImmutableList::copyOf)
+												.flatMap(list -> Collections2.permutations(list).stream())
+												.collect(toIdentityHashSet());
+								return converted;
+							}).collect(toList());
 
 			final Set<Map<Integer, Map<Either<Rule, ExistentialProxy>, SingleFactVariable>>> listOfMaps =
 					Sets.newIdentityHashSet();
-			for (final List<ImmutableList<SingleFactVariable>> list : Sets.cartesianProduct(generators)) {
+			for (final List<List<SingleFactVariable>> list : Sets.cartesianProduct(generators)) {
 				final Map<Integer, Map<Either<Rule, ExistentialProxy>, SingleFactVariable>> currentMaps =
 						new TreeMap<>();
 				// every vector contains $min$ fvs corresponding to the same rule
