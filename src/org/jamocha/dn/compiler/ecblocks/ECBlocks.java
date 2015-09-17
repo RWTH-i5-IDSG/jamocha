@@ -2267,11 +2267,11 @@ public class ECBlocks {
 				new FilterInstanceSubSet(Maps.transformValues(map, ImplicitFilterInstance::getDual));
 		for (final FactVariablePartition partition : partitions) {
 			if (leftESS.getElements().values().stream().map(Element::getFactVariable)
-					.map(fv -> fv == null ? null : partition.lookup(fv)).count() != 1) {
+					.map(fv -> fv == null ? null : partition.lookup(fv)).distinct().count() != 1) {
 				continue;
 			}
 			if (rightESS.getElements().values().stream().map(Element::getFactVariable)
-					.map(fv -> fv == null ? null : partition.lookup(fv)).count() != 1) {
+					.map(fv -> fv == null ? null : partition.lookup(fv)).distinct().count() != 1) {
 				continue;
 			}
 			final Block newBlock = new Block(rules, partition);
