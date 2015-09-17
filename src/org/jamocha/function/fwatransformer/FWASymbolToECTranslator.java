@@ -14,13 +14,17 @@
  */
 package org.jamocha.function.fwatransformer;
 
+import java.util.Map;
+
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
+import org.jamocha.function.fwa.ConstantLeaf;
 import org.jamocha.function.fwa.ECLeaf;
 import org.jamocha.function.fwa.FunctionWithArguments;
 import org.jamocha.function.fwa.PredicateWithArguments;
 import org.jamocha.function.fwa.SymbolLeaf;
+import org.jamocha.languages.common.RuleCondition.EquivalenceClass;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
@@ -28,22 +32,30 @@ import org.jamocha.function.fwa.SymbolLeaf;
 @RequiredArgsConstructor
 @Getter
 public class FWASymbolToECTranslator extends FWATranslator<SymbolLeaf, ECLeaf> {
+	final Map<ConstantLeaf<SymbolLeaf>, EquivalenceClass> constantToEC;
 
-	public static PredicateWithArguments<ECLeaf> translate(final PredicateWithArguments<SymbolLeaf> pwa) {
-		return (PredicateWithArguments<ECLeaf>) translate((FunctionWithArguments<SymbolLeaf>) pwa);
+	public static PredicateWithArguments<ECLeaf> translate(final PredicateWithArguments<SymbolLeaf> pwa,
+			final Map<ConstantLeaf<SymbolLeaf>, EquivalenceClass> constantToEC) {
+		return (PredicateWithArguments<ECLeaf>) translate((FunctionWithArguments<SymbolLeaf>) pwa, constantToEC);
 	}
 
-	public static FunctionWithArguments<ECLeaf> translate(final FunctionWithArguments<SymbolLeaf> pwa) {
-		return pwa.accept(new FWASymbolToECTranslator()).functionWithArguments;
+	public static FunctionWithArguments<ECLeaf> translate(final FunctionWithArguments<SymbolLeaf> pwa,
+			final Map<ConstantLeaf<SymbolLeaf>, EquivalenceClass> constantToEC) {
+		return pwa.accept(new FWASymbolToECTranslator(constantToEC)).functionWithArguments;
 	}
 
 	@Override
 	public FWATranslator<SymbolLeaf, ECLeaf> of() {
-		return new FWASymbolToECTranslator();
+		return new FWASymbolToECTranslator(constantToEC);
 	}
 
 	@Override
 	public void visit(final SymbolLeaf symbolLeaf) {
 		this.functionWithArguments = new ECLeaf(symbolLeaf.getSymbol().getEqual());
+	}
+
+	@Override
+	public void visit(final ConstantLeaf<SymbolLeaf> constantLeaf) {
+		this.functionWithArguments = new ECLeaf(constantToEC.get(constantLeaf));
 	}
 }
