@@ -144,15 +144,13 @@ public class CEToECTranslator implements DefaultConditionalElementsVisitor {
 		private final Set<ECFilterSet> filters;
 
 		private NoORsTranslator(final Template initialFactTemplate, final SingleFactVariable initialFactVariable,
-				final Set<VariableSymbol> variableSymbols, final Set<PredicateWithArguments<SymbolLeaf>> shallowTests,
+				final Set<VariableSymbol> variableSymbols, final Set<PredicateWithArguments<ECLeaf>> shallowTests,
 				final BiMap<SingleFactVariable, SingleFactVariable> oldToNewFactVariables) {
 			this.initialFactTemplate = initialFactTemplate;
 			this.initialFactVariable = initialFactVariable;
 			this.variableSymbols = variableSymbols;
 			this.oldToNewFactVariables = oldToNewFactVariables;
-			this.filters =
-					shallowTests.stream().map(pwa -> new ECFilter(FWASymbolToECTranslator.translate(pwa)))
-							.collect(toSet());
+			this.filters = shallowTests.stream().map(ECFilter::new).collect(toSet());
 		}
 
 		public static ECSetRule consolidate(final Template initialFactTemplate, final Defrule rule,
@@ -249,7 +247,11 @@ public class CEToECTranslator implements DefaultConditionalElementsVisitor {
 							.newHashSet(ShallowFactVariableCollector.collect(ce)), false));
 			final Set<EquivalenceClass> equivalenceClasses =
 					new HashSet<>(equivalenceClassBuilder.equivalenceClasses.values());
-			final Set<PredicateWithArguments<SymbolLeaf>> shallowTests = equivalenceClassBuilder.shallowTests;
+
+			final Set<PredicateWithArguments<ECLeaf>> shallowTests =
+					equivalenceClassBuilder.shallowTests.stream().map(FWASymbolToECTranslator::translate)
+							.collect(toSet());
+			shallowTests.stream().map(ECCollector::collect).forEach(equivalenceClasses::addAll);
 
 			final SingleFactVariable initialFactVariable =
 					oldToNewFV.get(ShallowFactVariableCollector.collectVariables(initialFactTemplate, ce).getLeft());
@@ -473,8 +475,7 @@ public class CEToECTranslator implements DefaultConditionalElementsVisitor {
 
 		private static ECSetRule consolidateOnCopiedEquivalenceClasses(final Template initialFactTemplate,
 				final SingleFactVariable initialFactVariable, final Defrule rule, final ConditionalElement ce,
-				final Set<PredicateWithArguments<SymbolLeaf>> shallowTests,
-				final Set<EquivalenceClass> equivalenceClasses,
+				final Set<PredicateWithArguments<ECLeaf>> shallowTests, final Set<EquivalenceClass> equivalenceClasses,
 				final BiMap<EquivalenceClass, EquivalenceClass> newToOldECs,
 				final BiMap<SingleFactVariable, SingleFactVariable> oldToNewFactVariables, final int specificity) {
 			final Set<ECFilterSet> filters =
@@ -536,7 +537,10 @@ public class CEToECTranslator implements DefaultConditionalElementsVisitor {
 							false));
 			final Set<EquivalenceClass> equivalenceClasses =
 					new HashSet<>(equivalenceClassBuilder.equivalenceClasses.values());
-			final Set<PredicateWithArguments<SymbolLeaf>> shallowTests = equivalenceClassBuilder.shallowTests;
+			final Set<PredicateWithArguments<ECLeaf>> shallowTests =
+					equivalenceClassBuilder.shallowTests.stream().map(FWASymbolToECTranslator::translate)
+							.collect(toSet());
+			shallowTests.stream().map(ECCollector::collect).forEach(equivalenceClasses::addAll);
 
 			// Generate ECFilters from CE (recurse)
 			final Set<ECFilterSet> filters =

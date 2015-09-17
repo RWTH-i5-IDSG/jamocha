@@ -527,8 +527,11 @@ public class ECBlocksToPathRule {
 					final Element constantElement = pair.getLeft();
 					final ConstantLeaf<PathLeaf> constantValue = pair.getRight();
 
-					for (final Iterator<ImplicitElementFilterInstance> iefisToConstructIter =
-							chosenIEFIsByEC.remove(ec).iterator(); iefisToConstructIter.hasNext();) {
+					final ArrayList<ImplicitElementFilterInstance> iefis = chosenIEFIsByEC.remove(ec);
+					if (null == iefis)
+						continue;
+					for (final Iterator<ImplicitElementFilterInstance> iefisToConstructIter = iefis.iterator(); iefisToConstructIter
+							.hasNext();) {
 						final ImplicitElementFilterInstance filterInstance = iefisToConstructIter.next();
 						if (filterInstance.left != constantElement && filterInstance.right != constantElement) {
 							continue;
