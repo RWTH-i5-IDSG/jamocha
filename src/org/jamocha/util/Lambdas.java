@@ -44,6 +44,7 @@ import java.util.stream.StreamSupport;
 import lombok.experimental.UtilityClass;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
@@ -254,5 +255,11 @@ public class Lambdas {
 
 	public static <T> Optional<T> or(final Optional<T> first, final Optional<T> second) {
 		return first.isPresent() ? first : second;
+	}
+
+	public static <T> Set<T> newIdentityHashSet(final Iterable<T> elements) {
+		final Set<T> newIdentityHashSet = Sets.newIdentityHashSet();
+		Iterables.addAll(newIdentityHashSet, elements);
+		return newIdentityHashSet;
 	}
 }
