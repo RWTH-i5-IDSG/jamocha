@@ -83,7 +83,7 @@ public class StatisticsProvider implements org.jamocha.rating.StatisticsProvider
 			final Set<Set<PathFilterList>> regularComponents,
 			final Map<Path, Set<PathFilterList>> pathToPreNetworkComponents) {
 		// TBD implement to get actual data from somewhere (statistic gatherer?)
-		final int joinOrderSize = joinOrder.size();
+		final int joinOrderSize = (int)joinOrder.stream().map(Pair::getLeft).filter(Objects::nonNull).flatMap(List::stream).count();
 		final double jsfPerJoin = Math.pow(standardJSF, 1. / joinOrderSize);
 		
 		double[] result = new double[joinOrderSize];
@@ -97,7 +97,7 @@ public class StatisticsProvider implements org.jamocha.rating.StatisticsProvider
 			final Map<Path, Set<PathFilterList>> pathToPreNetworkComponents) {
 		// TBD implement to get actual data from somewhere (statistic gatherer?)
 		final int joinOrderSize = joinOrder.size();
-		final long numRegularComponents = joinOrder.stream().map(pair -> pair.getLeft()).filter(Objects::nonNull).count();
+		final long numRegularComponents = joinOrder.stream().map(Pair::getLeft).filter(Objects::nonNull).flatMap(List::stream).count();
 		final double jsfPerJoin = Math.pow(standardJSF, 1. / numRegularComponents);
 		
 		double[] result = new double[joinOrderSize];
