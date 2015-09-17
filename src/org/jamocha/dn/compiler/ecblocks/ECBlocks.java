@@ -1023,7 +1023,7 @@ public class ECBlocks {
 	 */
 	@RequiredArgsConstructor
 	@Getter
-	@ToString
+	@ToString(of = { "elements" })
 	static class Partition<T, S extends Partition.SubSet<T>> {
 		@RequiredArgsConstructor
 		@Getter
