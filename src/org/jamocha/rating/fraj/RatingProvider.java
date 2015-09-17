@@ -15,12 +15,17 @@
 package org.jamocha.rating.fraj;
 
 import static java.util.stream.Collectors.toMap;
+import static org.jamocha.util.Lambdas.toHashSet;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.IdentityHashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.DoubleBinaryOperator;
 import java.util.function.Function;
@@ -31,6 +36,10 @@ import java.util.stream.Stream;
 import lombok.AllArgsConstructor;
 
 import org.apache.commons.lang3.tuple.Pair;
+import org.jamocha.dn.SideEffectFunctionToNetwork;
+import org.jamocha.dn.nodes.Edge;
+import org.jamocha.dn.nodes.Node;
+import org.jamocha.dn.nodes.TerminalNode;
 import org.jamocha.filter.Path;
 import org.jamocha.filter.PathCollector;
 import org.jamocha.filter.PathFilter;
@@ -38,6 +47,10 @@ import org.jamocha.filter.PathFilterList;
 import org.jamocha.filter.PathNodeFilterSet;
 import org.jamocha.rating.StatisticsProvider;
 import org.jamocha.rating.StatisticsProvider.Data;
+
+import com.atlassian.fugue.Iterables;
+import com.google.common.collect.Sets;
+import com.google.common.collect.Sets.SetView;
 
 /**
  * Actual implementation of the Rating algorithm.
@@ -146,6 +159,7 @@ public class RatingProvider implements org.jamocha.rating.RatingProvider {
 			final Builder values = DoubleStream.builder();
 			int i = 0;
 			for (final Pair<List<Set<PathFilterList>>, List<PathFilter>> element : joinOrder) {
+				assert i < jsfs.length;
 				final List<Set<PathFilterList>> components = element.getLeft();
 				for (final Set<PathFilterList> component : components) {
 					if (positiveExistentialComponents.contains(component)) {
@@ -498,5 +512,75 @@ public class RatingProvider implements org.jamocha.rating.RatingProvider {
 			++i;
 		}
 		return costs.add(size).build().sum();
+	}
+
+	@Override
+	public double rateNetwork(SideEffectFunctionToNetwork network) {
+		Map<Node, Double> nodeToCost = new IdentityHashMap<Node, Double>();
+		Map<Node, Set<PathFilterList>> preNetwork = new HashMap<Node, Set<PathFilterList>>();
+		Set<Node> nodes =
+				network.getTerminalNodes().stream().map(TerminalNode::getEdge).map(Edge::getSourceNode)
+						.collect(toHashSet());
+		StatisticsProvider statProvider = new org.jamocha.rating.fraj.StatisticsProvider();
+		for (Node node : nodes) {
+			recursiveRateNode(node, nodeToCost, preNetwork, statProvider);
+		}
+		return nodeToCost.values().stream().mapToDouble(Double::doubleValue).sum();
+	}
+
+	private Set<PathFilterList> recursiveRateNode(Node node, Map<Node, Double> nodeToCost,
+			Map<Node, Set<PathFilterList>> preNetwork, StatisticsProvider statProvider) {
+
+		// If node costs have been calculated return pre network filters
+		if (preNetwork.containsKey(node)) {
+			return preNetwork.get(node);
+		}
+		// Else calculate costs and then return pre network filters
+
+		Set<PathFilterList> result = new HashSet<>();
+		// Get the Set PathNodeFilterSets for each edge from the pre-Network by recursively calling
+		// this method for every parent node
+		Set<Set<PathFilterList>> edgeSets = new HashSet<>();
+		for (Edge edge : node.getIncomingEdges()) {
+			final Set<PathFilterList> preNetworkEdge =
+					recursiveRateNode(edge.getSourceNode(), nodeToCost, preNetwork, statProvider);
+			edgeSets.add(preNetworkEdge);
+			result.addAll(preNetworkEdge);
+		}
+		result.add(node.getPathNodeFilterSet());
+		preNetwork.put(node, result);
+		// Create a Map that maps each path to the corresponding Set of PathNodeFilterSets
+		Map<Path, Set<PathFilterList>> emptyPathEdgeMap = new HashMap<Path, Set<PathFilterList>>(0);
+
+		// Create a List of all PathFilters in this node
+		List<PathFilter> pathFilters = new ArrayList<PathFilter>();
+		pathFilters.addAll(node.getPathNodeFilterSet().getFilters());
+		// Create a Map that maps each Set of PathNodeFilterSets to a singletonList with a Pair of a
+		// List of all other PathNodeFilterSetLists and the PathFilter List from this Node
+		Map<Set<PathFilterList>, List<Pair<List<Set<PathFilterList>>, List<PathFilter>>>> pathToComponents =
+				new HashMap<Set<PathFilterList>, List<Pair<List<Set<PathFilterList>>, List<PathFilter>>>>();
+		for (Set<PathFilterList> set : edgeSets) {
+			final SetView<Set<PathFilterList>> difference = Sets.difference(edgeSets, Collections.singleton(set));
+			pathToComponents.put(set, Collections.singletonList(Pair.of(new ArrayList<>(difference), pathFilters)));
+		}
+
+		// Rate the node, depending on the Type of node either Alpha or Beta
+		if (node.getIncomingEdges().length > 1) {
+			nodeToCost.put(node,
+					rateBeta(statProvider, node.getPathNodeFilterSet(), pathToComponents, emptyPathEdgeMap));
+		} else if (!Objects.isNull(node.getMemory())) {
+			nodeToCost.put(
+					node,
+					rateMaterialisedAlpha(statProvider, node.getPathNodeFilterSet(), Iterables.first(edgeSets)
+							.getOrElse(new HashSet<PathFilterList>())));
+		} else {
+			nodeToCost.put(
+					node,
+					rateVirtualAlpha(statProvider, node.getPathNodeFilterSet(),
+							Iterables.first(edgeSets).getOrElse(new HashSet<PathFilterList>())));
+		}
+		// Return the Set of PathNodeFilterSet that represents the pre-network including this
+		// node
+		return result;
 	}
 }

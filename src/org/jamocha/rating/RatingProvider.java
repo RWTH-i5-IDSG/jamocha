@@ -19,6 +19,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang3.tuple.Pair;
+import org.jamocha.dn.SideEffectFunctionToNetwork;
 import org.jamocha.filter.Path;
 import org.jamocha.filter.PathFilter;
 import org.jamocha.filter.PathFilterList;
@@ -28,6 +29,7 @@ import org.jamocha.filter.PathNodeFilterSet;
  * Interface for rating providers.
  * 
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
+ * @author Kai Schwarz <kai.schwarz@rwth-aachen.de>
  */
 public interface RatingProvider {
 	public double rateVirtualAlpha(final StatisticsProvider statisticsProvider, final PathNodeFilterSet toRate,
@@ -41,4 +43,6 @@ public interface RatingProvider {
 			final PathNodeFilterSet toRate,
 			final Map<Set<PathFilterList>, List<Pair<List<Set<PathFilterList>>, List<PathFilter>>>> componentToJoinOrder,
 			final Map<Path, Set<PathFilterList>> pathToPreNetworkComponents);
+	
+	public double rateNetwork(final SideEffectFunctionToNetwork network);
 }
