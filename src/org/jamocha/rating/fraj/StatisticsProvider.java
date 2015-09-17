@@ -14,9 +14,11 @@
  */
 package org.jamocha.rating.fraj;
 
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 import org.apache.commons.lang3.tuple.Pair;
@@ -25,12 +27,14 @@ import org.jamocha.filter.PathFilter;
 import org.jamocha.filter.PathFilterList;
 import org.jamocha.filter.PathFilterListSetFlattener;
 import org.jamocha.filter.PathNodeFilterSet;
+import org.jamocha.function.fwa.PredicateWithArgumentsComposite;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
 public class StatisticsProvider implements org.jamocha.rating.StatisticsProvider {
 
+	private static final double standardJSF = 0.6;
 	private static final double pageSize = 1000;
 
 	@Override
@@ -60,8 +64,9 @@ public class StatisticsProvider implements org.jamocha.rating.StatisticsProvider
 		final Set<PathNodeFilterSet> flattenedPreNetwork = PathFilterListSetFlattener.flatten(preNetwork);
 		if (flattenedPreNetwork.contains(filters))
 			return 1;
-		// TODO Auto-generated method stub
-		return 0;
+		// TBD implement to get actual data from somewhere (statistic gatherer?)
+		int numTests = filters.getFilters().stream().mapToInt(filter -> ((PredicateWithArgumentsComposite<?>)filter.getFunction()).getFunction().getParamTypes().length).sum();
+		return Math.pow(standardJSF, numTests);
 	}
 
 	/*
@@ -77,23 +82,34 @@ public class StatisticsProvider implements org.jamocha.rating.StatisticsProvider
 			final List<Pair<List<Set<PathFilterList>>, List<PathFilter>>> joinOrder,
 			final Set<Set<PathFilterList>> regularComponents,
 			final Map<Path, Set<PathFilterList>> pathToPreNetworkComponents) {
-		// TODO Auto-generated method stub
-		return null;
+		// TBD implement to get actual data from somewhere (statistic gatherer?)
+		final int joinOrderSize = joinOrder.size();
+		final double jsfPerJoin = Math.pow(standardJSF, 1. / joinOrderSize);
+		
+		double[] result = new double[joinOrderSize];
+		Arrays.fill(result,jsfPerJoin);
+		return result;
 	}
 
 	@Override
 	public double[] getAllJSFs(final Set<PathFilterList> inputComponent,
 			final List<Pair<List<Set<PathFilterList>>, List<PathFilter>>> joinOrder,
 			final Map<Path, Set<PathFilterList>> pathToPreNetworkComponents) {
-		// TODO Auto-generated method stub
-		return null;
+		// TBD implement to get actual data from somewhere (statistic gatherer?)
+		final int joinOrderSize = joinOrder.size();
+		final long numRegularComponents = joinOrder.stream().map(pair -> pair.getLeft()).filter(Objects::nonNull).count();
+		final double jsfPerJoin = Math.pow(standardJSF, 1. / numRegularComponents);
+		
+		double[] result = new double[joinOrderSize];
+		Arrays.fill(result, jsfPerJoin);
+		return result;
 	}
 
 	@Override
 	public double getJSF(final Set<Set<PathFilterList>> regularComponents,
 			final Set<PathFilterList> existentialComponent, final PathFilter existentialFilter,
 			final Map<Path, Set<PathFilterList>> pathToPreNetworkComponents) {
-		// TODO Auto-generated method stub
-		return 0;
+		// TBD implement to get actual data from somewhere (statistic gatherer?)
+		return standardJSF;
 	}
 }
