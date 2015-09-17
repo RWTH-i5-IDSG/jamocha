@@ -1,6 +1,8 @@
 package org.jamocha.function.fwatransformer;
 
+import org.jamocha.function.fwa.ConstantLeaf;
 import org.jamocha.function.fwa.ECLeaf;
+import org.jamocha.function.fwa.FunctionWithArguments;
 import org.jamocha.function.fwa.PredicateWithArguments;
 import org.jamocha.function.fwa.TypeLeaf;
 
@@ -18,6 +20,11 @@ public class FWAECLeafToTypeLeafTranslator extends FWATranslator<ECLeaf, TypeLea
 
 	@Override
 	public void visit(final ECLeaf leaf) {
-		this.functionWithArguments = new TypeLeaf(leaf.getReturnType());
+		final FunctionWithArguments<ECLeaf> peek = leaf.getEc().getConstantExpressions().peek();
+		if (null != peek) {
+			this.functionWithArguments = new ConstantLeaf<TypeLeaf>(peek.evaluate(), peek.getReturnType());
+		} else {
+			this.functionWithArguments = new TypeLeaf(leaf.getReturnType());
+		}
 	}
 }

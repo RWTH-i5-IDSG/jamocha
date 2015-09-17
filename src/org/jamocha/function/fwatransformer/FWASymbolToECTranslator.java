@@ -14,8 +14,6 @@
  */
 package org.jamocha.function.fwatransformer;
 
-import java.util.Map;
-
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -32,21 +30,18 @@ import org.jamocha.languages.common.RuleCondition.EquivalenceClass;
 @RequiredArgsConstructor
 @Getter
 public class FWASymbolToECTranslator extends FWATranslator<SymbolLeaf, ECLeaf> {
-	final Map<ConstantLeaf<SymbolLeaf>, EquivalenceClass> constantToEC;
 
-	public static PredicateWithArguments<ECLeaf> translate(final PredicateWithArguments<SymbolLeaf> pwa,
-			final Map<ConstantLeaf<SymbolLeaf>, EquivalenceClass> constantToEC) {
-		return (PredicateWithArguments<ECLeaf>) translate((FunctionWithArguments<SymbolLeaf>) pwa, constantToEC);
+	public static PredicateWithArguments<ECLeaf> translate(final PredicateWithArguments<SymbolLeaf> pwa) {
+		return (PredicateWithArguments<ECLeaf>) translate((FunctionWithArguments<SymbolLeaf>) pwa);
 	}
 
-	public static FunctionWithArguments<ECLeaf> translate(final FunctionWithArguments<SymbolLeaf> pwa,
-			final Map<ConstantLeaf<SymbolLeaf>, EquivalenceClass> constantToEC) {
-		return pwa.accept(new FWASymbolToECTranslator(constantToEC)).functionWithArguments;
+	public static FunctionWithArguments<ECLeaf> translate(final FunctionWithArguments<SymbolLeaf> pwa) {
+		return pwa.accept(new FWASymbolToECTranslator()).functionWithArguments;
 	}
 
 	@Override
 	public FWATranslator<SymbolLeaf, ECLeaf> of() {
-		return new FWASymbolToECTranslator(constantToEC);
+		return new FWASymbolToECTranslator();
 	}
 
 	@Override
@@ -54,8 +49,11 @@ public class FWASymbolToECTranslator extends FWATranslator<SymbolLeaf, ECLeaf> {
 		this.functionWithArguments = new ECLeaf(symbolLeaf.getSymbol().getEqual());
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public void visit(final ConstantLeaf<SymbolLeaf> constantLeaf) {
-		this.functionWithArguments = new ECLeaf(constantToEC.get(constantLeaf));
+		this.functionWithArguments =
+				new ECLeaf(EquivalenceClass.newECFromConstantExpression(null,
+						(ConstantLeaf<ECLeaf>) (ConstantLeaf<?>) constantLeaf));
 	}
 }
