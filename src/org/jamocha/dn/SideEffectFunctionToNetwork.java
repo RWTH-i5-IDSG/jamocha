@@ -21,6 +21,7 @@ import java.util.Set;
 import org.apache.logging.log4j.Logger;
 import org.jamocha.dn.ConstructCache.Deffacts;
 import org.jamocha.dn.ConstructCache.Defrule;
+import org.jamocha.dn.compiler.RuleCompiler;
 import org.jamocha.dn.memory.Fact;
 import org.jamocha.dn.memory.FactIdentifier;
 import org.jamocha.dn.memory.MemoryFact;
@@ -83,4 +84,6 @@ public interface SideEffectFunctionToNetwork {
 	boolean loadFactsFromFile(final String path);
 
 	boolean saveFactsToFile(final String path);
+
+	void setRuleCompiler(final RuleCompiler ruleCompiler);
 }

@@ -95,6 +95,8 @@ public interface FunctionVisitor extends Visitor {
 
 	void visit(final org.jamocha.function.impls.sideeffects.SaveFacts function);
 
+	void visit(final org.jamocha.function.impls.sideeffects.SetRuleCompiler function);
+
 	// waltz
 
 	void visit(final org.jamocha.function.impls.waltz.Make3Junction function);

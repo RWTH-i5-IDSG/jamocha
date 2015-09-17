@@ -37,6 +37,7 @@ import java.util.Set;
 
 import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.Setter;
 
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
@@ -188,6 +189,9 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 
 	@Getter(onMethod = @__(@Override))
 	final EnumMap<SlotType, Object> defaultValues = new EnumMap<>(SlotType.class);
+
+	@Setter(onMethod = @__(@Override))
+	private RuleCompiler ruleCompiler = RuleCompiler.ECBLOCKS;
 
 	boolean haltWasCalled = false;
 
@@ -555,8 +559,13 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 			// Preprocess CEs
 			RuleConditionProcessor.flatten(rule.getCondition());
 		}
-		final Collection<PathRule> rules = RuleCompiler.PATHBLOCKS.compileRules(this.initialFactTemplate, defrules);
+		final Collection<PathRule> rules = ruleCompiler.compileRules(this.initialFactTemplate, defrules);
 		for (final PathRule rule : rules) {
+			System.out.println(rule.getParent().getName());
+			for (final PathNodeFilterSet pathNodeFilterSet : rule.getCondition()) {
+				System.out.println(pathNodeFilterSet.getFilters());
+			}
+			System.out.println();
 			this.terminalNodes.add(buildRule(rule));
 		}
 	}

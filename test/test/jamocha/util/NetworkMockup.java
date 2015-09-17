@@ -33,6 +33,7 @@ import org.jamocha.dn.ConstructCache.Deffacts;
 import org.jamocha.dn.ConstructCache.Defrule;
 import org.jamocha.dn.ParserToNetwork;
 import org.jamocha.dn.SideEffectFunctionToNetwork;
+import org.jamocha.dn.compiler.RuleCompiler;
 import org.jamocha.dn.memory.Fact;
 import org.jamocha.dn.memory.FactIdentifier;
 import org.jamocha.dn.memory.MemoryFact;
@@ -261,5 +262,9 @@ public class NetworkMockup implements ParserToNetwork, SideEffectFunctionToNetwo
 	@Override
 	public boolean saveFactsToFile(final String path) {
 		return false;
+	}
+
+	@Override
+	public void setRuleCompiler(final RuleCompiler ruleCompiler) {
 	}
 }

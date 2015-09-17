@@ -204,6 +204,11 @@ public interface DefaultFunctionVisitor extends FunctionVisitor {
 		defaultAction(function);
 	}
 
+	@Override
+	default void visit(final org.jamocha.function.impls.sideeffects.SetRuleCompiler function) {
+		defaultAction(function);
+	}
+
 	// waltz
 	@Override
 	default void visit(final org.jamocha.function.impls.waltz.Make3Junction function) {
