@@ -656,7 +656,7 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 
 	@Override
 	public boolean saveToFile(final String path) {
-		// TODO Auto-generated method stub
+		// TBD save constructs to file
 		return false;
 	}
 
@@ -680,7 +680,7 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 
 	@Override
 	public boolean saveFactsToFile(final String path) {
-		// TODO Auto-generated method stub
+		// TBD save facts to file
 		return false;
 	}
 
