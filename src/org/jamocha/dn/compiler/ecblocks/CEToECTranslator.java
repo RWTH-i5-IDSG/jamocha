@@ -26,6 +26,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -411,6 +412,15 @@ public class CEToECTranslator implements DefaultConditionalElementsVisitor {
 							left.merge(right);
 							// replace right with left everywhere
 							equivalenceClasses.put(arg, left);
+							// replace all constants in right to point to left
+							if (!right.getConstantExpressions().isEmpty() || !right.getVariableExpressions().isEmpty()) {
+								for (final Entry<FunctionWithArguments<SymbolLeaf>, EquivalenceClass> entry : equivalenceClasses
+										.entrySet()) {
+									if (entry.getValue() == right) {
+										equivalenceClasses.put(entry.getKey(), left);
+									}
+								}
+							}
 							replaceEC(occurringSymbols, Collections.singletonMap(right, left));
 						} else if (leftInCS || rightInCS) {
 							// equal parent scope relation
