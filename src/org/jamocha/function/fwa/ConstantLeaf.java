@@ -30,7 +30,7 @@ import org.jamocha.function.fwa.GenericWithArgumentsComposite.LazyObject;
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
 @Getter
-@EqualsAndHashCode
+@EqualsAndHashCode(of = { "value", "type" })
 public class ConstantLeaf<L extends ExchangeableLeaf<L>> implements FunctionWithArguments<L> {
 	final Object value;
 	final SlotType type;
