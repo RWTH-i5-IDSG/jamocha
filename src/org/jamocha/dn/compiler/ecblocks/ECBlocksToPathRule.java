@@ -125,8 +125,8 @@ public class ECBlocksToPathRule {
 
 		Set<T> mergeII(final Set<T> a, final Set<T> b) {
 			final Set<T> merged = Sets.newIdentityHashSet();
-			merged.addAll(tToJoinedWith.remove(a.iterator().next()));
-			merged.addAll(tToJoinedWith.remove(b.iterator().next()));
+			merged.addAll(remove(a.iterator().next()));
+			merged.addAll(remove(b.iterator().next()));
 			merged.forEach(m -> tToJoinedWith.put(m, merged));
 			return merged;
 		}
@@ -140,8 +140,8 @@ public class ECBlocksToPathRule {
 
 		Set<T> merge(final T a, final T b) {
 			final Set<T> merged = Sets.newIdentityHashSet();
-			merged.addAll(tToJoinedWith.remove(a));
-			merged.addAll(tToJoinedWith.remove(b));
+			merged.addAll(remove(a));
+			merged.addAll(remove(b));
 			merged.forEach(m -> tToJoinedWith.put(m, merged));
 			return merged;
 		}
@@ -158,6 +158,10 @@ public class ECBlocksToPathRule {
 
 		boolean isMerged(final T a, final T b) {
 			return getSet(a) == getSet(b);
+		}
+
+		private Set<T> remove(final T t) {
+			return Optional.ofNullable(tToJoinedWith.remove(t)).orElse(Collections.emptySet());
 		}
 	}
 
