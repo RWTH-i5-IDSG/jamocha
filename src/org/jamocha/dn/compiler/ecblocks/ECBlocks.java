@@ -1050,8 +1050,9 @@ public class ECBlocks {
 		}
 
 		public void add(final S newSubSet) {
-			assert elements.stream().findAny().map(ss -> ss.getElements().keySet().equals(newSubSet.elements.keySet()))
-					.orElse(true);
+			assert elements.stream().allMatch(ss -> ss.getElements().keySet().equals(newSubSet.elements.keySet()));
+			assert elements.stream().allMatch(
+					ss -> Collections.disjoint(ss.getElements().values(), newSubSet.elements.values()));
 			elements.add(newSubSet);
 			for (final T newElement : newSubSet.elements.values()) {
 				lookup.put(newElement, newSubSet);
@@ -2683,8 +2684,10 @@ public class ECBlocks {
 					// create a new block
 					final Block newBlock = new Block(block);
 					final List<FilterInstance> filterInstances = new ArrayList<>();
-					getFirstColumnAndDualsForTwoNewElements(factVariablePartition, rules, workspaceByRule, remove,
-							nCurrentFI, newBlock, filterInstances);
+					if (!getFirstColumnAndDualsForTwoNewElements(factVariablePartition, rules, workspaceByRule, remove,
+							nCurrentFI, newBlock, filterInstances)) {
+						continue;
+					}
 
 					// add to matching filters list and continue
 					matchingFilters.add(Pair.of(newBlock, filterInstances));
