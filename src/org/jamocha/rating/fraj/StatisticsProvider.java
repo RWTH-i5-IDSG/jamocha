@@ -107,14 +107,17 @@ public class StatisticsProvider implements org.jamocha.rating.StatisticsProvider
 			final List<Pair<List<Set<PathFilterList>>, List<PathFilter>>> joinOrder,
 			final Set<Set<PathFilterList>> regularComponents,
 			final Map<Path, Set<PathFilterList>> pathToPreNetworkComponents) {
-		// TBD implement to get actual data from somewhere (statistic gatherer?)
-		final int joinOrderSize =
-				(int) joinOrder.stream().map(Pair::getLeft).filter(Objects::nonNull).flatMap(List::stream).count();
-		final double jsfPerJoin = Math.pow(standardJSF, 1. / joinOrderSize);
+		return new double[] { standardJSF };
 
-		final double[] result = new double[joinOrderSize];
-		Arrays.fill(result, jsfPerJoin);
-		return result;
+		// TBD implement to get actual data from somewhere (statistic gatherer?)
+		// final int joinOrderSize =
+		// (int)
+		// joinOrder.stream().map(Pair::getLeft).filter(Objects::nonNull).flatMap(List::stream).count();
+		// final double jsfPerJoin = Math.pow(standardJSF, 1. / joinOrderSize);
+		//
+		// final double[] result = new double[joinOrderSize];
+		// Arrays.fill(result, jsfPerJoin);
+		// return result;
 	}
 
 	@Override
