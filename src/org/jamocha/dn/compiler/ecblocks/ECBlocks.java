@@ -1407,14 +1407,7 @@ public class ECBlocks {
 			if (otherFISubSets.size() < thisFISubSets.size()) {
 				return false;
 			}
-			SubSetLoop: for (final FilterInstanceSubSet thisFISubSet : thisFISubSets) {
-				final Set<FilterInstanceSubSet> otherFISubSetsOfSameFilter =
-						other.filterInstancePartition.lookupByFilter(thisFISubSet.getFilter());
-				for (final FilterInstanceSubSet otherFISubSet : otherFISubSetsOfSameFilter) {
-					if (otherFISubSet.contains(thisFISubSet)) {
-						continue SubSetLoop;
-					}
-				}
+			if (!other.getFlatFilterInstances().containsAll(this.getFlatFilterInstances())) {
 				return false;
 			}
 			return true;
