@@ -75,14 +75,7 @@ public class RatingProvider implements org.jamocha.rating.RatingProvider {
 
 	private double calculateAlphaInformation(final StatisticsProvider statisticsProvider,
 			final PathNodeFilterSet toRate, final Set<PathFilterList> preNetwork, final int memMulti, final int cpuMulti) {
-		final Data data;
-		if (!preNetwork.isEmpty()) {
-			data = statisticsProvider.getData(preNetwork);
-		} else { // Pre-Network consists of OTN, get OTN data
-			data =
-					statisticsProvider.getData(PathCollector.newHashSet().collectAllInLists(toRate).getPaths()
-							.iterator().next().getTemplate());
-		}
+		final Data data = statisticsProvider.getData(preNetwork);
 		final double selectivity = statisticsProvider.getSelectivity(toRate, preNetwork);
 		final double newRows = selectivity * data.getRowCount();
 		final double newFinsert = selectivity * data.getFinsert();
