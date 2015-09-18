@@ -25,7 +25,9 @@ import java.util.IdentityHashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.DoubleBinaryOperator;
 import java.util.function.Function;
@@ -75,7 +77,14 @@ public class RatingProvider implements org.jamocha.rating.RatingProvider {
 
 	private double calculateAlphaInformation(final StatisticsProvider statisticsProvider,
 			final PathNodeFilterSet toRate, final Set<PathFilterList> preNetwork, final int memMulti, final int cpuMulti) {
-		final Data data = statisticsProvider.getData(preNetwork);
+		final Data data;
+		if (!preNetwork.isEmpty()) {
+			data = statisticsProvider.getData(preNetwork);
+		} else { // Pre-Network consists of OTN, get OTN data
+			data =
+					statisticsProvider.getData(PathCollector.newHashSet().collectAllInLists(toRate).getPaths()
+							.iterator().next().getTemplate());
+		}
 		final double selectivity = statisticsProvider.getSelectivity(toRate, preNetwork);
 		final double newRows = selectivity * data.getRowCount();
 		final double newFinsert = selectivity * data.getFinsert();
@@ -259,8 +268,22 @@ public class RatingProvider implements org.jamocha.rating.RatingProvider {
 			final PathNodeFilterSet toRate,
 			final Map<Set<PathFilterList>, List<Pair<List<Set<PathFilterList>>, List<PathFilter>>>> componentToJoinOrder,
 			final Map<Path, Set<PathFilterList>> pathToPreNetworkComponents) {
-		final Map<Set<PathFilterList>, Data> preNetworkComponentToData =
-				componentToJoinOrder.keySet().stream().collect(toMap(Function.identity(), statisticsProvider::getData));
+		final IdentityHashMap<Set<PathFilterList>, Path> inverse = new IdentityHashMap<>();
+		for (Entry<Path, Set<PathFilterList>> entry : pathToPreNetworkComponents.entrySet()) {
+			inverse.put(entry.getValue(), entry.getKey());
+		}
+
+		final IdentityHashMap<Set<PathFilterList>, Data> preNetworkComponentToData = new IdentityHashMap<>();
+		for (Set<PathFilterList> comp : componentToJoinOrder.keySet()) {
+			if (!comp.isEmpty()) {
+				preNetworkComponentToData.put(comp, statisticsProvider.getData(comp));
+			} else {
+				preNetworkComponentToData.put(
+						comp,
+						statisticsProvider.getData(Optional.ofNullable(inverse.get(comp)).map(Path::getTemplate)
+								.orElse(null)));
+			}
+		}
 		final double tupleSize = preNetworkComponentToData.values().stream().mapToDouble(Data::getTupleSize).sum();
 		final double tuplesPerPage = statisticsProvider.getPageSize() / tupleSize;
 		final double rowCount =
@@ -542,7 +565,7 @@ public class RatingProvider implements org.jamocha.rating.RatingProvider {
 		// this method for every parent node
 		Set<Set<PathFilterList>> edgeSets = new HashSet<>();
 		final Edge[] incomingEdges;
-		try { 
+		try {
 			incomingEdges = node.getIncomingEdges();
 		} catch (UnsupportedOperationException e) {
 			result.clear();

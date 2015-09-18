@@ -15,6 +15,7 @@
 package org.jamocha.rating.fraj;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -22,6 +23,7 @@ import java.util.Objects;
 import java.util.Set;
 
 import org.apache.commons.lang3.tuple.Pair;
+import org.jamocha.dn.memory.Template;
 import org.jamocha.filter.Path;
 import org.jamocha.filter.PathFilter;
 import org.jamocha.filter.PathFilterList;
@@ -51,6 +53,21 @@ public class StatisticsProvider implements org.jamocha.rating.StatisticsProvider
 	public Data getData(final Set<PathFilterList> filters) {
 		return componentToData.get(componentToFlatComponent.computeIfAbsent(filters,
 				PathFilterListSetFlattener::flatten));
+	}
+	
+	// Workaround for evaluation - replace with actual data in OTN memory
+	private static final Map<String, Data> templateToData = new HashMap<>();
+	{
+		templateToData.put("t1", new Data(10, 10, 100, 1));
+		templateToData.put("t2", new Data(10, 10, 100, 1));
+		templateToData.put("t3", new Data(10, 10, 100, 1));
+		templateToData.put("t4", new Data(10, 10, 100, 1));
+	}
+	
+	@Override
+	public Data getData(final Template template) {
+		//workaround - replace with actual data from corresponding OTN
+		return templateToData.get(template.getName());
 	}
 
 	@Override
