@@ -97,6 +97,7 @@ import org.jamocha.logging.LayoutAdapter;
 import org.jamocha.logging.LogFormatter;
 import org.jamocha.logging.OutstreamAppender;
 import org.jamocha.logging.TypedFilter;
+import org.jamocha.rating.fraj.RatingProvider;
 
 /**
  * The Network class encapsulates the central objects for {@link MemoryFactory} and
@@ -568,6 +569,8 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 			System.out.println();
 			this.terminalNodes.add(buildRule(rule));
 		}
+		System.out.println("Network cpu cost: " + new RatingProvider((a, b) -> a).rateNetwork(this));
+		System.out.println("Network mem cost: " + new RatingProvider((a, b) -> b).rateNetwork(this));
 	}
 
 	@Override
