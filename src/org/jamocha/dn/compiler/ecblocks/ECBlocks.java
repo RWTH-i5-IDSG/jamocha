@@ -977,7 +977,7 @@ public class ECBlocks {
 	 */
 	@RequiredArgsConstructor
 	@Getter
-	static class Rule {
+	public static class Rule {
 		final ECSetRule original;
 		final Set<Filter> filters = new HashSet<>();
 		final Set<SingleFactVariable> factvariables;
@@ -1002,7 +1002,7 @@ public class ECBlocks {
 	@RequiredArgsConstructor
 	@Getter
 	@ToString(of = { "rule", "filters" })
-	static class ExistentialProxy {
+	public static class ExistentialProxy {
 		final Rule rule;
 		final ECExistentialSet existential;
 		final Set<Filter> filters = new HashSet<>();
@@ -1452,7 +1452,7 @@ public class ECBlocks {
 	}
 
 	@Getter
-	static class ECBlockSet {
+	public static class ECBlockSet {
 		final HashSet<Block> blocks = new HashSet<>();
 		final TreeMap<Integer, HashSet<Block>> ruleCountToBlocks = new TreeMap<>();
 		final TreeMap<Integer, HashSet<Block>> filterCountToBlocks = new TreeMap<>();
@@ -1784,6 +1784,11 @@ public class ECBlocks {
 	}
 
 	public static List<PathRule> transform(final List<ECSetRule> rules) {
+		final Pair<List<Either<Rule, ExistentialProxy>>, ECBlockSet> compile = compile(rules);
+		return compile(compile.getLeft(), compile.getRight());
+	}
+
+	public static Pair<List<Either<Rule, ExistentialProxy>>, ECBlockSet> compile(final List<ECSetRule> rules) {
 		final List<Either<Rule, ExistentialProxy>> translatedRules = new ArrayList<>();
 		for (final ECSetRule rule : rules) {
 			addRule(rule, translatedRules);
@@ -1793,14 +1798,10 @@ public class ECBlocks {
 		findAllMaximalBlocks(translatedRules, resultBlockSet);
 		// solve the conflicts
 		determineAndSolveConflicts(resultBlockSet);
-		// transform into PathFilterList
-		final List<PathRule> output = createOutput(translatedRules, resultBlockSet);
-		Filter.cache.clear();
-		FilterProxy.cache.clear();
-		return output;
+		return Pair.of(translatedRules, resultBlockSet);
 	}
 
-	protected static List<PathRule> createOutput(final List<Either<Rule, ExistentialProxy>> rules,
+	public static List<PathRule> compile(final List<Either<Rule, ExistentialProxy>> rules,
 			final ECBlockSet resultBlockSet) {
 		final Function<? super Block, ? extends Integer> characteristicNumber =
 				block -> block.getFlatFilterInstances().size() / block.getRulesOrProxies().size();

@@ -406,7 +406,7 @@ public class ECBlocksToPathRule {
 		}
 	}
 
-	static List<PathRule> compile(final List<Either<Rule, ExistentialProxy>> rules,
+	public static List<PathRule> compile(final List<Either<Rule, ExistentialProxy>> rules,
 			final TreeMap<Integer, CursorableLinkedList<Block>> blockMap) {
 		// rule infos
 		final IdentityHashMap<Either<Rule, ExistentialProxy>, RuleInfo> ruleToInfo = new IdentityHashMap<>();
