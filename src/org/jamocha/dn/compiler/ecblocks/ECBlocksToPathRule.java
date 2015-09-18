@@ -702,6 +702,7 @@ public class ECBlocksToPathRule {
 					final IdentityHashMap<FilterInstance, List<PathFilterList>> joinedWithToComponent =
 							ruleToInfo.get(key).joinedWithToComponent;
 					entry.getValue().forEach(fi -> joinedWithToComponent.put(fi, pathSharedList));
+					representedFIsByRule.computeIfAbsent(key, newIdentityHashSet()).addAll(entry.getValue());
 				}
 			} // end of block loop
 		} // end of block list loop
