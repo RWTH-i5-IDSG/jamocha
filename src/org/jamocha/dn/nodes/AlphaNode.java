@@ -125,7 +125,7 @@ public class AlphaNode extends Node {
 	}
 
 	@Override
-	public void shareNode(final Map<Path, FactAddress> map, final Path... paths) {
+	public void shareNode(final PathNodeFilterSet filter, final Map<Path, FactAddress> map, final Path... paths) {
 		assert null != paths;
 		assert 1 == paths.length;
 		final Path path = paths[0];
@@ -135,6 +135,7 @@ public class AlphaNode extends Node {
 		assert map.get(path) == entry.getKey();
 		path.setCurrentlyLowestNode(this);
 		path.setFactAddressInCurrentlyLowestNode(entry.getKey());
+		getPathNodeFilterSets().add(filter);
 	}
 
 	@Override

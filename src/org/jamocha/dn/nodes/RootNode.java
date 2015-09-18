@@ -36,6 +36,11 @@ import org.jamocha.dn.memory.MemoryFact;
 import org.jamocha.dn.memory.MemoryFactory;
 import org.jamocha.dn.memory.Template;
 import org.jamocha.filter.Path;
+import org.jamocha.filter.PathFilter;
+import org.jamocha.filter.PathNodeFilterSet;
+import org.jamocha.function.fwa.PathLeaf;
+import org.jamocha.function.fwa.PredicateWithArgumentsComposite;
+import org.jamocha.function.impls.predicates.DummyPredicate;
 
 /**
  * Root node implementation (not part of the {@link Node} type hierarchy).
@@ -161,7 +166,9 @@ public class RootNode {
 	public void addPaths(final Network network, final Path... paths) {
 		for (final Path path : paths) {
 			this.templateToOTN.computeIfAbsent(path.getTemplate(), t -> new ObjectTypeNode(network, t)).shareNode(
-					Collections.emptyMap(), path);
+					PathNodeFilterSet.newRegularPathNodeFilterSet(new PathFilter(
+							new PredicateWithArgumentsComposite<PathLeaf>(DummyPredicate.instance, new PathLeaf(path,
+									null)))), Collections.emptyMap(), path);
 		}
 	}
 }

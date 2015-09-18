@@ -385,7 +385,7 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 			if (null == map)
 				continue;
 
-			candidate.shareNode(map, paths);
+			candidate.shareNode(filter, map, paths);
 			return true;
 		}
 		return false;

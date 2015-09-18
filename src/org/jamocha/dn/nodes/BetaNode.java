@@ -125,8 +125,9 @@ public class BetaNode extends Node {
 	}
 
 	@Override
-	public void shareNode(final Map<Path, FactAddress> map, final Path... paths) {
+	public void shareNode(final PathNodeFilterSet filter, final Map<Path, FactAddress> map, final Path... paths) {
 		assert 0 < this.incomingEdges.length;
+		getPathNodeFilterSets().add(filter);
 		final Path[] distinctPaths =
 				toArray(Arrays.stream(paths).flatMap(p -> p.getJoinedWith().stream()).distinct(), Path[]::new);
 		for (final Path path : distinctPaths) {

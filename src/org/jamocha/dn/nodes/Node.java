@@ -179,10 +179,10 @@ public abstract class Node implements Visitable<NodeVisitor> {
 	/**
 	 * Returns the Path Node Filter Set.
 	 * 
-	 * @return the Path Node Filter Set 
+	 * @return the Path Node Filter Set
 	 */
 	@Getter
-	final private PathNodeFilterSet pathNodeFilterSet;
+	final private Set<PathNodeFilterSet> pathNodeFilterSets = new HashSet<>();
 
 	public static class TokenQueue implements Runnable {
 		/**
@@ -356,7 +356,6 @@ public abstract class Node implements Visitable<NodeVisitor> {
 	protected Node(final Network network, final Node... parents) {
 		this.network = network;
 		this.tokenQueue = new TokenQueue(network.getScheduler());
-		this.pathNodeFilterSet = PathNodeFilterSet.empty;
 		this.incomingEdges = new Edge[parents.length];
 		final Map<Edge, Set<Path>> edgesAndPaths = new HashMap<>();
 		for (int i = 0; i < parents.length; i++) {
@@ -376,13 +375,12 @@ public abstract class Node implements Visitable<NodeVisitor> {
 		this.incomingEdges = new Edge[0];
 		this.memory = network.getMemoryFactory().newMemoryHandlerMain(template, paths);
 		this.filter = AddressNodeFilterSet.empty;
-		this.pathNodeFilterSet = PathNodeFilterSet.empty;
 	}
 
 	public Node(final Network network, final PathNodeFilterSet filter) {
 		this.network = network;
 		this.tokenQueue = new TokenQueue(network.getScheduler());
-		this.pathNodeFilterSet = filter;
+		this.pathNodeFilterSets.add(filter);
 		final HashSet<Path> paths = PathCollector.newHashSet().collectAllInLists(filter).getPaths();
 		final Map<Edge, Set<Path>> edgesAndPaths = new HashMap<>();
 		final ArrayList<Edge> edges = new ArrayList<>();
@@ -563,7 +561,8 @@ public abstract class Node implements Visitable<NodeVisitor> {
 	 * @param paths
 	 *            {@link Path}s to share the node with
 	 */
-	public abstract void shareNode(final Map<Path, FactAddress> map, final Path... paths);
+	public abstract void shareNode(final PathNodeFilterSet filter, final Map<Path, FactAddress> map,
+			final Path... paths);
 
 	public void activateTokenQueue() {
 		this.tokenQueue.activate();

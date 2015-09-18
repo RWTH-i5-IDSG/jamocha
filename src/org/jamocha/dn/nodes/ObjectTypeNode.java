@@ -29,6 +29,7 @@ import org.jamocha.dn.memory.MemoryHandlerMinusTemp;
 import org.jamocha.dn.memory.MemoryHandlerPlusTemp;
 import org.jamocha.dn.memory.Template;
 import org.jamocha.filter.Path;
+import org.jamocha.filter.PathNodeFilterSet;
 
 /**
  * Object-type {@link Node} implementation.
@@ -105,7 +106,8 @@ public class ObjectTypeNode extends AlphaNode {
 	}
 
 	@Override
-	public void shareNode(final Map<Path, FactAddress> map, final Path... paths) {
+	public void shareNode(final PathNodeFilterSet filter, final Map<Path, FactAddress> map, final Path... paths) {
+		getPathNodeFilterSets().add(filter);
 		for (final Path path : paths) {
 			path.setCurrentlyLowestNode(this);
 			path.setFactAddressInCurrentlyLowestNode(this.factAddress);
@@ -113,7 +115,7 @@ public class ObjectTypeNode extends AlphaNode {
 	}
 
 	@Override
-	public <V extends NodeVisitor> V accept(V visitor) {
+	public <V extends NodeVisitor> V accept(final V visitor) {
 		visitor.visit(this);
 		return visitor;
 	}
