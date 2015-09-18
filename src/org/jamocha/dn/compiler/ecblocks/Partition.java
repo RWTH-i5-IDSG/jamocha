@@ -61,4 +61,10 @@ class Partition<T, S extends Partition.SubSet<T>> {
 	public S lookup(final T element) {
 		return this.lookup.get(element);
 	}
+
+	public void remove(final Either<Rule, ExistentialProxy> rule) {
+		for (final S s : elements) {
+			s.elements.remove(rule);
+		}
+	}
 }
