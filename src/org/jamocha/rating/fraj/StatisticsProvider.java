@@ -20,6 +20,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 
 import org.apache.commons.lang3.tuple.Pair;
@@ -51,22 +52,24 @@ public class StatisticsProvider implements org.jamocha.rating.StatisticsProvider
 
 	@Override
 	public Data getData(final Set<PathFilterList> filters) {
-		return componentToData.get(componentToFlatComponent.computeIfAbsent(filters,
-				PathFilterListSetFlattener::flatten));
+		return Optional.ofNullable(
+				componentToData.get(componentToFlatComponent.computeIfAbsent(filters,
+						PathFilterListSetFlattener::flatten))).orElse(dummyData);
 	}
-	
+
 	// Workaround for evaluation - replace with actual data in OTN memory
 	private static final Map<String, Data> templateToData = new HashMap<>();
+	private static final Data dummyData = new Data(10, 10, 100, 1);
 	{
 		templateToData.put("t1", new Data(10, 10, 100, 1));
 		templateToData.put("t2", new Data(10, 10, 100, 1));
 		templateToData.put("t3", new Data(10, 10, 100, 1));
 		templateToData.put("t4", new Data(10, 10, 100, 1));
 	}
-	
+
 	@Override
 	public Data getData(final Template template) {
-		//workaround - replace with actual data from corresponding OTN
+		// workaround - replace with actual data from corresponding OTN
 		return templateToData.get(template.getName());
 	}
 
@@ -82,7 +85,12 @@ public class StatisticsProvider implements org.jamocha.rating.StatisticsProvider
 		if (flattenedPreNetwork.contains(filters))
 			return 1;
 		// TBD implement to get actual data from somewhere (statistic gatherer?)
-		int numTests = filters.getFilters().stream().mapToInt(filter -> ((PredicateWithArgumentsComposite<?>)filter.getFunction()).getFunction().getParamTypes().length).sum();
+		final int numTests =
+				filters.getFilters()
+						.stream()
+						.mapToInt(
+								filter -> ((PredicateWithArgumentsComposite<?>) filter.getFunction()).getFunction()
+										.getParamTypes().length).sum();
 		return Math.pow(standardJSF, numTests);
 	}
 
@@ -100,11 +108,12 @@ public class StatisticsProvider implements org.jamocha.rating.StatisticsProvider
 			final Set<Set<PathFilterList>> regularComponents,
 			final Map<Path, Set<PathFilterList>> pathToPreNetworkComponents) {
 		// TBD implement to get actual data from somewhere (statistic gatherer?)
-		final int joinOrderSize = (int)joinOrder.stream().map(Pair::getLeft).filter(Objects::nonNull).flatMap(List::stream).count();
+		final int joinOrderSize =
+				(int) joinOrder.stream().map(Pair::getLeft).filter(Objects::nonNull).flatMap(List::stream).count();
 		final double jsfPerJoin = Math.pow(standardJSF, 1. / joinOrderSize);
-		
-		double[] result = new double[joinOrderSize];
-		Arrays.fill(result,jsfPerJoin);
+
+		final double[] result = new double[joinOrderSize];
+		Arrays.fill(result, jsfPerJoin);
 		return result;
 	}
 
@@ -114,10 +123,11 @@ public class StatisticsProvider implements org.jamocha.rating.StatisticsProvider
 			final Map<Path, Set<PathFilterList>> pathToPreNetworkComponents) {
 		// TBD implement to get actual data from somewhere (statistic gatherer?)
 		final int joinOrderSize = joinOrder.size();
-		final long numRegularComponents = joinOrder.stream().map(Pair::getLeft).filter(Objects::nonNull).flatMap(List::stream).count();
+		final long numRegularComponents =
+				joinOrder.stream().map(Pair::getLeft).filter(Objects::nonNull).flatMap(List::stream).count();
 		final double jsfPerJoin = Math.pow(standardJSF, 1. / numRegularComponents);
-		
-		double[] result = new double[joinOrderSize];
+
+		final double[] result = new double[joinOrderSize];
 		Arrays.fill(result, jsfPerJoin);
 		return result;
 	}
