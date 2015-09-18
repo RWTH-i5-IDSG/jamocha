@@ -22,6 +22,8 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.reflect.Array;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -569,8 +571,9 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 			System.out.println();
 			this.terminalNodes.add(buildRule(rule));
 		}
-		System.out.println("Network cpu cost: " + new RatingProvider((a, b) -> a).rateNetwork(this));
-		System.out.println("Network mem cost: " + new RatingProvider((a, b) -> b).rateNetwork(this));
+		final NumberFormat formatter = new DecimalFormat("0.######E0");
+		System.out.println("Network cpu cost: " + formatter.format(new RatingProvider((a, b) -> a).rateNetwork(this)));
+		System.out.println("Network mem cost: " + formatter.format(new RatingProvider((a, b) -> b).rateNetwork(this)));
 	}
 
 	@Override
