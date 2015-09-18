@@ -541,7 +541,14 @@ public class RatingProvider implements org.jamocha.rating.RatingProvider {
 		// Get the Set PathNodeFilterSets for each edge from the pre-Network by recursively calling
 		// this method for every parent node
 		Set<Set<PathFilterList>> edgeSets = new HashSet<>();
-		for (Edge edge : node.getIncomingEdges()) {
+		final Edge[] incomingEdges;
+		try { 
+			incomingEdges = node.getIncomingEdges();
+		} catch (UnsupportedOperationException e) {
+			result.clear();
+			return result;
+		}
+		for (Edge edge : incomingEdges) {
 			final Set<PathFilterList> preNetworkEdge =
 					recursiveRateNode(edge.getSourceNode(), nodeToCost, preNetwork, statProvider);
 			edgeSets.add(preNetworkEdge);
@@ -565,7 +572,7 @@ public class RatingProvider implements org.jamocha.rating.RatingProvider {
 		}
 
 		// Rate the node, depending on the Type of node either Alpha or Beta
-		if (node.getIncomingEdges().length > 1) {
+		if (incomingEdges.length > 1) {
 			nodeToCost.put(node,
 					rateBeta(statProvider, node.getPathNodeFilterSet(), pathToComponents, emptyPathEdgeMap));
 		} else if (!Objects.isNull(node.getMemory())) {
