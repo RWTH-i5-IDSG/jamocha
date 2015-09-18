@@ -1,12 +1,12 @@
 /*
  * Copyright 2002-2015 The Jamocha Team
- *
- *
+ * 
+ * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
- *
+ * 
  * http://www.jamocha.org/
- *
+ * 
  * Unless required by applicable law or agreed to in writing, software distributed under the License
  * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
  * or implied. See the License for the specific language governing permissions and limitations under
@@ -21,6 +21,9 @@ import static java.util.stream.Collectors.toCollection;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
+import static org.jamocha.dn.compiler.ecblocks.Util.getFactVariables;
+import static org.jamocha.dn.compiler.ecblocks.Util.getFilters;
+import static org.jamocha.dn.compiler.ecblocks.Util.hasEqualConflicts;
 import static org.jamocha.util.Lambdas.composeToInt;
 import static org.jamocha.util.Lambdas.iterable;
 import static org.jamocha.util.Lambdas.negate;
@@ -362,118 +365,49 @@ public class ECBlocks {
 	/**
 	 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
 	 */
-	static interface Theta {
-		@RequiredArgsConstructor
-		static class Reducer implements Theta {
-			final Map<EquivalenceClass, ReducedEquivalenceClass> equivalenceClassToReduced = new IdentityHashMap<>();
+	@RequiredArgsConstructor
+	static class Theta {
+		final Map<EquivalenceClass, ReducedEquivalenceClass> equivalenceClassToReduced = new IdentityHashMap<>();
 
-			@Override
-			public boolean isRelevant(final Element element) {
-				final ReducedEquivalenceClass reducedEquivalenceClass =
-						equivalenceClassToReduced.get(element.getEquivalenceClass());
-				return null != reducedEquivalenceClass && reducedEquivalenceClass.isRelevant(element);
-			}
-
-			@Override
-			public boolean isRelevant(final EquivalenceClass equivalenceClass) {
-				return equivalenceClassToReduced.keySet().contains(equivalenceClass);
-			}
-
-			@Override
-			public Set<SingleFactVariable> getDependentFactVariables(final EquivalenceClass equivalenceClass) {
-				final ReducedEquivalenceClass reducedEquivalenceClass = equivalenceClassToReduced.get(equivalenceClass);
-				if (null == reducedEquivalenceClass)
-					return Collections.emptySet();
-				return reducedEquivalenceClass.getDependentFactVariables();
-			}
-
-			@Override
-			public Theta copy() {
-				final Reducer reducer = new Reducer();
-				for (final Entry<EquivalenceClass, ReducedEquivalenceClass> entry : equivalenceClassToReduced
-						.entrySet()) {
-					reducer.equivalenceClassToReduced
-					.put(entry.getKey(), new ReducedEquivalenceClass(entry.getValue()));
-				}
-				return reducer;
-			}
-
-			@Override
-			public void add(final Element element) {
-				equivalenceClassToReduced.computeIfAbsent(element.getEquivalenceClass(), ReducedEquivalenceClass::new)
-				.add(element);
-			}
-
-			@Override
-			public Set<EquivalenceClass> getEquivalenceClasses() {
-				return equivalenceClassToReduced.keySet();
-			}
-
-			@Override
-			public Set<Element> reduce(final EquivalenceClass ec) {
-				final ReducedEquivalenceClass reducedEquivalenceClass = equivalenceClassToReduced.get(ec);
-				if (null == reducedEquivalenceClass)
-					return Collections.emptySet();
-				return reducedEquivalenceClass.elements;
+		public Theta(final Theta copy) {
+			for (final Entry<EquivalenceClass, ReducedEquivalenceClass> entry : copy.equivalenceClassToReduced
+					.entrySet()) {
+				this.equivalenceClassToReduced.put(entry.getKey(), new ReducedEquivalenceClass(entry.getValue()));
 			}
 		}
 
-		static class Identity implements Theta {
-			final Set<EquivalenceClass> equivalenceClasses = Sets.newIdentityHashSet();
-
-			public Identity(final Set<EquivalenceClass> equivalenceClasses) {
-				this.equivalenceClasses.addAll(equivalenceClasses);
-			}
-
-			@Override
-			public boolean isRelevant(final Element element) {
-				return equivalenceClasses.contains(element.getEquivalenceClass());
-			}
-
-			@Override
-			public boolean isRelevant(final EquivalenceClass equivalenceClass) {
-				return equivalenceClasses.contains(equivalenceClass);
-			}
-
-			@Override
-			public Set<SingleFactVariable> getDependentFactVariables(final EquivalenceClass equivalenceClass) {
-				return equivalenceClass.getDependentFactVariables();
-			}
-
-			@Override
-			public Theta copy() {
-				return new Identity(equivalenceClasses);
-			}
-
-			@Override
-			public void add(final Element element) {
-				throw new UnsupportedOperationException();
-			}
-
-			@Override
-			public Set<EquivalenceClass> getEquivalenceClasses() {
-				return equivalenceClasses;
-			}
-
-			@Override
-			public Set<Element> reduce(final EquivalenceClass ec) {
-				throw new UnsupportedOperationException();
-			}
+		public boolean isRelevant(final Element element) {
+			final ReducedEquivalenceClass reducedEquivalenceClass =
+					equivalenceClassToReduced.get(element.getEquivalenceClass());
+			return null != reducedEquivalenceClass && reducedEquivalenceClass.isRelevant(element);
 		}
 
-		public Set<Element> reduce(final EquivalenceClass ec);
+		public boolean isRelevant(final EquivalenceClass equivalenceClass) {
+			return equivalenceClassToReduced.keySet().contains(equivalenceClass);
+		}
 
-		public void add(final Element element);
+		public Set<SingleFactVariable> getDependentFactVariables(final EquivalenceClass equivalenceClass) {
+			final ReducedEquivalenceClass reducedEquivalenceClass = equivalenceClassToReduced.get(equivalenceClass);
+			if (null == reducedEquivalenceClass)
+				return Collections.emptySet();
+			return reducedEquivalenceClass.getDependentFactVariables();
+		}
 
-		public boolean isRelevant(final Element element);
+		public void add(final Element element) {
+			equivalenceClassToReduced.computeIfAbsent(element.getEquivalenceClass(), ReducedEquivalenceClass::new).add(
+					element);
+		}
 
-		public boolean isRelevant(final EquivalenceClass equivalenceClass);
+		public Set<EquivalenceClass> getEquivalenceClasses() {
+			return equivalenceClassToReduced.keySet();
+		}
 
-		public Set<SingleFactVariable> getDependentFactVariables(final EquivalenceClass equivalenceClass);
-
-		public Theta copy();
-
-		public Set<EquivalenceClass> getEquivalenceClasses();
+		public Set<Element> reduce(final EquivalenceClass ec) {
+			final ReducedEquivalenceClass reducedEquivalenceClass = equivalenceClassToReduced.get(ec);
+			if (null == reducedEquivalenceClass)
+				return Collections.emptySet();
+			return reducedEquivalenceClass.elements;
+		}
 	}
 
 	protected static List<Map<Either<Rule, ExistentialProxy>, ? extends Element>> determineEquivalenceClassIntersection(
@@ -494,7 +428,7 @@ public class ECBlocks {
 			for (final SingleSlotVariable sv : ec.getSlotVariables()) {
 				final FactVariableSubSet subSet = factVariablePartition.lookup(sv.getFactVariable());
 				svMapping.computeIfAbsent(subSet, newIdentityHashMap())
-				.computeIfAbsent(sv.getSlot(), newIdentityHashMap()).put(rule, new SlotBinding(sv));
+						.computeIfAbsent(sv.getSlot(), newIdentityHashMap()).put(rule, new SlotBinding(sv));
 			}
 			for (final FunctionWithArguments<ECLeaf> constant : ec.getConstantExpressions()) {
 				final Object value = constant.evaluate();
@@ -507,18 +441,10 @@ public class ECBlocks {
 						fvMapping.values().stream().filter(map -> map.size() == ruleCount),
 						Stream.concat(
 								svMapping.values().stream().flatMap(map -> map.values().stream())
-								.filter(map -> map.size() == ruleCount), constantMapping.values().stream()
-								.filter(map -> map.size() == ruleCount))).collect(toList());
+										.filter(map -> map.size() == ruleCount), constantMapping.values().stream()
+										.filter(map -> map.size() == ruleCount))).collect(toList());
 		assert intersection.stream().allMatch(map -> map.size() == ruleCount);
 		return intersection;
-	}
-
-	protected static Set<Filter> getFilters(final Either<Rule, ExistentialProxy> ruleOrProxy) {
-		return ruleOrProxy.fold(Rule::getFilters, ExistentialProxy::getFilters);
-	}
-
-	protected static Set<SingleFactVariable> getFactVariables(final Either<Rule, ExistentialProxy> ruleOrProxy) {
-		return ruleOrProxy.fold(Rule::getFactvariables, ExistentialProxy::getFactvariables);
 	}
 
 	protected static void addRule(final ECSetRule ecFilterSetCondition, final List<Either<Rule, ExistentialProxy>> rules) {
@@ -539,9 +465,9 @@ public class ECBlocks {
 		return determineConflictGraph(
 				blockTheta,
 				ruleOrProxies
-				.stream()
-				.map(ruleOrProxy -> getFilters(ruleOrProxy).stream()
-						.flatMap(f -> f.getAllInstances(ruleOrProxy).stream()).collect(toList()))
+						.stream()
+						.map(ruleOrProxy -> getFilters(ruleOrProxy).stream()
+								.flatMap(f -> f.getAllInstances(ruleOrProxy).stream()).collect(toList()))
 						.collect(toList()));
 	}
 
@@ -630,7 +556,7 @@ public class ECBlocks {
 				equivalenceClass.getFactVariables().stream().map(FactBinding::new).forEach(elements::add);
 				equivalenceClass.getSlotVariables().stream().map(SlotBinding::new).forEach(elements::add);
 				equivalenceClass.getConstantExpressions().stream()
-				.map(c -> new ConstantExpression(c, equivalenceClass)).forEach(elements::add);
+						.map(c -> new ConstantExpression(c, equivalenceClass)).forEach(elements::add);
 				for (int i = 0; i < elements.size(); i++) {
 					final Element left = elements.get(i);
 					for (int j = i + 1; j < elements.size(); j++) {
@@ -644,7 +570,7 @@ public class ECBlocks {
 				if (!variableExpressions.isEmpty()) {
 					final List<VariableExpression> converted =
 							variableExpressions.stream().map(v -> new VariableExpression(v, equivalenceClass))
-							.collect(toList());
+									.collect(toList());
 					for (int i = 0; i < converted.size(); i++) {
 						final VariableExpression left = converted.get(i);
 						for (int j = i + 1; j < converted.size(); j++) {
@@ -726,52 +652,52 @@ public class ECBlocks {
 			final ECBlockSet resultBlockSet) {
 		final Function<? super Block, ? extends Integer> characteristicNumber =
 				block -> block.getFlatFilterInstances().size() / block.getRulesOrProxies().size();
-				final TreeMap<Integer, CursorableLinkedList<Block>> blockMap =
-						resultBlockSet
+		final TreeMap<Integer, CursorableLinkedList<Block>> blockMap =
+				resultBlockSet
 						.getBlocks()
 						.stream()
 						.collect(
 								groupingBy(characteristicNumber, TreeMap::new, toCollection(CursorableLinkedList::new)));
 
-				// iterate over all the filter proxies ever used
-				for (final FilterProxy filterProxy : FilterProxy.getFilterProxies()) {
-					final Set<ExistentialProxy> existentialProxies = filterProxy.getProxies();
-					// determine the largest characteristic number of the blocks containing filter instances
-					// of one of the existential proxies (choice is arbitrary, since the filters and the
-					// conflicts are identical if they belong to the same filter).
-					final OptionalInt optMax =
-							resultBlockSet.getRuleInstanceToBlocks()
+		// iterate over all the filter proxies ever used
+		for (final FilterProxy filterProxy : FilterProxy.getFilterProxies()) {
+			final Set<ExistentialProxy> existentialProxies = filterProxy.getProxies();
+			// determine the largest characteristic number of the blocks containing filter instances
+			// of one of the existential proxies (choice is arbitrary, since the filters and the
+			// conflicts are identical if they belong to the same filter).
+			final OptionalInt optMax =
+					resultBlockSet.getRuleInstanceToBlocks()
 							.computeIfAbsent(existentialProxies.iterator().next().either, newHashSet()).stream()
 							.mapToInt(composeToInt(characteristicNumber, Integer::intValue)).max();
-					if (!optMax.isPresent())
-						continue;
-					final int eCN = optMax.getAsInt();
-					// get the list to append the blocks using the existential closure filter instance to
-					final CursorableLinkedList<Block> targetList = blockMap.get(eCN);
-					// for every existential part
-					for (final ExistentialProxy existentialProxy : existentialProxies) {
-						final FilterInstance exClosure = existentialProxy.getExistentialClosure();
-						// create a list storing the blocks to move
-						final List<Block> toMove = new ArrayList<>();
-						// scan all lists up to characteristic number eCN
-						for (final CursorableLinkedList<Block> blockList : blockMap.headMap(eCN, true).values()) {
-							// iterate over the blocks in the current list
-							for (final ListIterator<Block> iterator = blockList.listIterator(); iterator.hasNext();) {
-								final Block current = iterator.next();
-								// if the current block uses the current existential closure filter
-								// instance, it has to be moved
-								if (current.getFlatFilterInstances().contains(exClosure)) {
-									iterator.remove();
-									toMove.add(current);
-								}
-							}
+			if (!optMax.isPresent())
+				continue;
+			final int eCN = optMax.getAsInt();
+			// get the list to append the blocks using the existential closure filter instance to
+			final CursorableLinkedList<Block> targetList = blockMap.get(eCN);
+			// for every existential part
+			for (final ExistentialProxy existentialProxy : existentialProxies) {
+				final FilterInstance exClosure = existentialProxy.getExistentialClosure();
+				// create a list storing the blocks to move
+				final List<Block> toMove = new ArrayList<>();
+				// scan all lists up to characteristic number eCN
+				for (final CursorableLinkedList<Block> blockList : blockMap.headMap(eCN, true).values()) {
+					// iterate over the blocks in the current list
+					for (final ListIterator<Block> iterator = blockList.listIterator(); iterator.hasNext();) {
+						final Block current = iterator.next();
+						// if the current block uses the current existential closure filter
+						// instance, it has to be moved
+						if (current.getFlatFilterInstances().contains(exClosure)) {
+							iterator.remove();
+							toMove.add(current);
 						}
-						// append the blocks to be moved (they were only removed so far)
-						targetList.addAll(toMove);
 					}
 				}
+				// append the blocks to be moved (they were only removed so far)
+				targetList.addAll(toMove);
+			}
+		}
 
-				return ECBlocksToPathRule.compile(rules, blockMap);
+		return ECBlocksToPathRule.compile(rules, blockMap);
 	}
 
 	protected static Optional<Element> getVEinECwithConstantsAsArgs(final Block block, final EquivalenceClass ec) {
@@ -784,10 +710,6 @@ public class ECBlocks {
 
 	protected static Optional<Element> getConstantInEC(final Block block, final EquivalenceClass ec) {
 		return block.theta.reduce(ec).stream().filter(e -> null == e.getFactVariable()).findAny();
-	}
-
-	public static boolean hasEqualConflicts(final Conflict a, final Conflict b) {
-		return (a == b) || (a != null && a.hasEqualConflicts(b));
 	}
 
 	protected static void determineAndSolveConflicts(final ECBlockSet resultBlocks) {
@@ -838,10 +760,10 @@ public class ECBlocks {
 		final Set<FilterInstance> yFIs = y.getFlatFilterInstances();
 		arc.quality =
 				oldArcs.stream()
-				.mapToInt(
-						conf -> usefulness(arc, xFIs, conf, conf.getConflictingBlock().getFlatFilterInstances())
-						- (Sets.difference(arc.cfi, yFIs).size() + (Sets.intersection(xFIs, yFIs)
-								.isEmpty() ? 0 : 1))).sum();
+						.mapToInt(
+								conf -> usefulness(arc, xFIs, conf, conf.getConflictingBlock().getFlatFilterInstances())
+										- (Sets.difference(arc.cfi, yFIs).size() + (Sets.intersection(xFIs, yFIs)
+												.isEmpty() ? 0 : 1))).sum();
 		// update quality of all arcs affected
 		for (final BlockConflict conf : oldArcs) {
 			final Set<FilterInstance> bFIs = conf.getConflictingBlock().getFlatFilterInstances();
@@ -895,17 +817,17 @@ public class ECBlocks {
 			// determine if there is a pair of FIs in conflict
 			final Set<FilterInstance> cfi =
 					replaceBlock
-					.getFlatFilterInstances()
-					.stream()
-					.filter(xFI -> conflictingBlock
-							.getFilterInstancePartition()
-							.getElements()
+							.getFlatFilterInstances()
 							.stream()
-							.map(ySS -> ySS.get(xFI.getRuleOrProxy()))
-							.filter(Objects::nonNull)
-							.anyMatch(
-									yFI -> null != yFI.getConflict(xFI, conflictingBlock.theta,
-											replaceBlock.theta))).collect(toSet());
+							.filter(xFI -> conflictingBlock
+									.getFilterInstancePartition()
+									.getElements()
+									.stream()
+									.map(ySS -> ySS.get(xFI.getRuleOrProxy()))
+									.filter(Objects::nonNull)
+									.anyMatch(
+											yFI -> null != yFI.getConflict(xFI, conflictingBlock.theta,
+													replaceBlock.theta))).collect(toSet());
 			if (cfi.isEmpty())
 				return null;
 			// if non-overlapping
@@ -948,7 +870,7 @@ public class ECBlocks {
 			// the taller block than by the theta of the wider block, the blocks are in conflict
 			final Set<EquivalenceClass> m =
 					x.flatFilterInstances.stream().map(FilterInstance::getDirectlyContainedEquivalenceClasses)
-					.flatMap(List::stream).collect(toCollection(Sets::newIdentityHashSet));
+							.flatMap(List::stream).collect(toCollection(Sets::newIdentityHashSet));
 			m.retainAll(y.flatFilterInstances.stream().map(FilterInstance::getDirectlyContainedEquivalenceClasses)
 					.flatMap(List::stream).collect(toCollection(Sets::newIdentityHashSet)));
 			for (final EquivalenceClass equivalenceClass : m) {
@@ -992,7 +914,7 @@ public class ECBlocks {
 		final Block replaceBlock = blockConflict.getReplaceBlock();
 		final Set<FilterInstance> xWOcfi =
 				replaceBlock.getFlatFilterInstances().stream().filter(negate(blockConflict.getCfi()::contains))
-				.collect(toSet());
+						.collect(toSet());
 		resultBlocks.remove(replaceBlock);
 		// remove replaceBlock and update qualities
 		removeArc(blockConflictGraph, blockConflict);
@@ -1105,7 +1027,7 @@ public class ECBlocks {
 			final Map<Either<Rule, ExistentialProxy>, Set<SingleFactVariable>> map = templateToMap.getValue();
 			final IntSummaryStatistics summary =
 					rules.stream().map(rule -> map.getOrDefault(rule, Collections.emptySet())).mapToInt(Set::size)
-					.summaryStatistics();
+							.summaryStatistics();
 			final int min = summary.getMin();
 			final int max = summary.getMax();
 			if (0 == min) {
@@ -1121,19 +1043,19 @@ public class ECBlocks {
 			}
 			final List<Set<List<SingleFactVariable>>> generators =
 					templateToMap
-					.getValue()
-					.values()
-					.stream()
-					.map(fvs -> {
-						final List<ICombinatoricsVector<SingleFactVariable>> allChosen =
-								Factory.createSimpleCombinationGenerator(Factory.createVector(fvs), min)
-								.generateAllObjects();
-						final Set<List<SingleFactVariable>> converted =
-								allChosen.stream().map(ImmutableList::copyOf)
-								.flatMap(list -> Collections2.permutations(list).stream())
-								.collect(toIdentityHashSet());
-						return converted;
-					}).collect(toList());
+							.getValue()
+							.values()
+							.stream()
+							.map(fvs -> {
+								final List<ICombinatoricsVector<SingleFactVariable>> allChosen =
+										Factory.createSimpleCombinationGenerator(Factory.createVector(fvs), min)
+												.generateAllObjects();
+								final Set<List<SingleFactVariable>> converted =
+										allChosen.stream().map(ImmutableList::copyOf)
+												.flatMap(list -> Collections2.permutations(list).stream())
+												.collect(toIdentityHashSet());
+								return converted;
+							}).collect(toList());
 
 			final Set<Map<Integer, Map<Either<Rule, ExistentialProxy>, SingleFactVariable>>> listOfMaps =
 					Sets.newIdentityHashSet();
@@ -1230,7 +1152,7 @@ public class ECBlocks {
 		for (final FactVariablePartition partition : partitions) {
 			final List<List<Map<Either<Rule, ExistentialProxy>, ? extends Element>>> intersections =
 					ecColumns.values().stream().map(ecMap -> determineEquivalenceClassIntersection(ecMap, partition))
-					.collect(toList());
+							.collect(toList());
 			if (intersections.stream().anyMatch(List::isEmpty)) {
 				continue;
 			}
@@ -1260,7 +1182,7 @@ public class ECBlocks {
 		for (final FactVariablePartition partition : partitions) {
 			final List<List<Map<Either<Rule, ExistentialProxy>, ? extends Element>>> intersections =
 					ecColumns.values().stream().map(ecMap -> determineEquivalenceClassIntersection(ecMap, partition))
-					.collect(toList());
+							.collect(toList());
 			if (intersections.stream().anyMatch(List::isEmpty)) {
 				continue;
 			}
@@ -1288,10 +1210,10 @@ public class ECBlocks {
 					final Map<Either<Rule, ExistentialProxy>, ? extends Element> right = intersection.get(j);
 					block.addFilterInstanceSubSet(new FilterInstanceSubSet(Maps.asMap(block.getRulesOrProxies(),
 							rule -> Filter.newEqualityFilter(left.get(rule), right.get(rule))
-							.getImplicitElementInstances(rule).iterator().next())));
+									.getImplicitElementInstances(rule).iterator().next())));
 					block.addFilterInstanceSubSet(new FilterInstanceSubSet(Maps.asMap(block.getRulesOrProxies(),
 							rule -> Filter.newEqualityFilter(right.get(rule), left.get(rule))
-							.getImplicitElementInstances(rule).iterator().next())));
+									.getImplicitElementInstances(rule).iterator().next())));
 				}
 			}
 		} catch (final NoSuchElementException ex) {
@@ -1351,7 +1273,7 @@ public class ECBlocks {
 		// thus: get the non-excluded filter instances
 		final Set<FilterInstance> neighbours =
 				block.getConflictNeighbours().stream()
-				.filter(fi -> !exclusionStack.stream().anyMatch(as -> as.contains(fi))).collect(toSet());
+						.filter(fi -> !exclusionStack.stream().anyMatch(as -> as.contains(fi))).collect(toSet());
 		if (neighbours.isEmpty()) {
 			resultBlocks.addDuringHorizontalRecursion(block);
 			return;
@@ -1364,15 +1286,15 @@ public class ECBlocks {
 		// get a map from filter to all rules containing instances of that filter
 		final Map<Filter, Set<Either<Rule, ExistentialProxy>>> nFilterToRulesContainingIt =
 				nFilterToInstances
-				.entrySet()
-				.stream()
-				.collect(
-						toMap(Entry::getKey, e -> e.getValue().stream().map(FilterInstance::getRuleOrProxy)
-								.collect(toSet())));
+						.entrySet()
+						.stream()
+						.collect(
+								toMap(Entry::getKey, e -> e.getValue().stream().map(FilterInstance::getRuleOrProxy)
+										.collect(toSet())));
 		// get the filters that are contained in every rule
 		final Set<Filter> nRelevantFilters =
 				nFilterToInstances.keySet().stream().filter(f -> nFilterToRulesContainingIt.get(f).containsAll(bRules))
-				.collect(toSet());
+						.collect(toSet());
 		// if no filters are left to add, the block is horizontally maximized, add it
 		if (nRelevantFilters.isEmpty()) {
 			resultBlocks.addDuringHorizontalRecursion(block);
@@ -1394,11 +1316,11 @@ public class ECBlocks {
 		{
 			final Map<Boolean, List<Filter>> partition =
 					nRelevantFilterToExplicitInstances
-					.entrySet()
-					.stream()
-					.collect(
-							partitioningBy(e -> e.getValue().size() > bRules.size(),
-									mapping(Entry::getKey, toList())));
+							.entrySet()
+							.stream()
+							.collect(
+									partitioningBy(e -> e.getValue().size() > bRules.size(),
+											mapping(Entry::getKey, toList())));
 			nSingleCellFilters = partition.get(Boolean.FALSE);
 			nMultiCellFilters = partition.get(Boolean.TRUE);
 		}
@@ -1477,7 +1399,7 @@ public class ECBlocks {
 				// create the EC index pattern
 				final HashSet<List<Integer>> ecPatterns =
 						nCurrentOutsideColumn.stream().map(ECBlocks::computeECPattern)
-						.collect(toCollection(HashSet::new));
+								.collect(toCollection(HashSet::new));
 				// if different patterns, disregard combination
 				if (ecPatterns.size() > 1) {
 					continue cartesianProductLoop;
@@ -1505,8 +1427,8 @@ public class ECBlocks {
 				}
 				final List<List<Map<Either<Rule, ExistentialProxy>, ? extends Element>>> intersections =
 						ecColumns.values().stream()
-						.map(ecMap -> determineEquivalenceClassIntersection(ecMap, bFactVariablePartition))
-						.collect(toList());
+								.map(ecMap -> determineEquivalenceClassIntersection(ecMap, bFactVariablePartition))
+								.collect(toList());
 				// if any intersection is empty, disregard combination
 				if (intersections.stream().anyMatch(List::isEmpty)) {
 					continue cartesianProductLoop;
@@ -1938,10 +1860,10 @@ public class ECBlocks {
 				nECPattern = computeECPattern(nFirstFI);
 				filterInstancesWithIdenticalPattern =
 						rules.stream()
-						.map(rule -> workspaceByRule.getOrDefault(rule, Collections.emptyMap())
-								.getOrDefault(nCurrentFilter, Collections.emptySet()).stream()
-								.filter(fi -> Objects.equals(nECPattern, computeECPattern(fi)))
-								.collect(toSet())).collect(toList());
+								.map(rule -> workspaceByRule.getOrDefault(rule, Collections.emptyMap())
+										.getOrDefault(nCurrentFilter, Collections.emptySet()).stream()
+										.filter(fi -> Objects.equals(nECPattern, computeECPattern(fi)))
+										.collect(toSet())).collect(toList());
 			}
 			final Set<List<ImplicitECFilterInstance>> cartesianProduct =
 					Sets.cartesianProduct(filterInstancesWithIdenticalPattern);
