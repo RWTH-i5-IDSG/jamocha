@@ -1335,7 +1335,8 @@ public class ECBlocks {
 
 		@Override
 		public String toString() {
-			return "Block: " + Objects.toString(filterInstancePartition);
+			return "Block(" + this.getNumberOfColumns() + "x" + this.getNumberOfRows() + "): "
+					+ Objects.toString(filterInstancePartition);
 		}
 
 		public int getNumberOfRows() {
@@ -2023,7 +2024,7 @@ public class ECBlocks {
 			// blocks are in conflict
 			for (final FilterInstanceSubSet column : columns) {
 				if (!x.getFilterInstancePartition().lookupByFilter(column.getFilter()).stream()
-						.anyMatch(xSubSet -> xSubSet.contains(column))) {
+						.anyMatch(xSubSet -> column.contains(xSubSet))) {
 					return new BlockConflict(replaceBlock, conflictingBlock, cfi);
 				}
 			}
