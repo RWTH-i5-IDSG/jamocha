@@ -943,12 +943,12 @@ public class ECBlocks {
 	}
 
 	@Getter
-	static class FilterInstanceTypePartitioner implements FilterInstanceVisitor {
+	public static class FilterInstanceTypePartitioner implements FilterInstanceVisitor {
 		final List<ExplicitFilterInstance> explicitFilterInstances = new ArrayList<>();
 		final List<ImplicitElementFilterInstance> implicitElementFilterInstances = new ArrayList<>();
 		final List<ImplicitECFilterInstance> implicitECFilterInstances = new ArrayList<>();
 
-		static FilterInstanceTypePartitioner partition(final Iterable<FilterInstance> filterInstances) {
+		public static FilterInstanceTypePartitioner partition(final Iterable<FilterInstance> filterInstances) {
 			final FilterInstanceTypePartitioner partitioner = new FilterInstanceTypePartitioner();
 			for (final FilterInstance filterInstance : filterInstances) {
 				filterInstance.accept(partitioner);

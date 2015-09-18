@@ -93,6 +93,7 @@ import org.jamocha.languages.common.RuleCondition.EquivalenceClass;
 import org.jamocha.languages.common.ScopeStack.VariableSymbol;
 import org.jamocha.languages.common.SingleFactVariable;
 import org.jamocha.languages.common.SingleFactVariable.SingleSlotVariable;
+import org.jamocha.util.Lambdas;
 import org.jamocha.util.ToArray;
 import org.jgrapht.Graphs;
 import org.jgrapht.graph.DefaultWeightedEdge;
@@ -706,11 +707,136 @@ public class ECBlocksToPathRule {
 				}
 			} // end of block loop
 		} // end of block list loop
+
+		// every FI not constructed at this point for whatever reason is to be constructed now
+		// without any sharing
+		for (final Either<Rule, ExistentialProxy> rule : rules) {
+			final RuleInfo ruleInfo = ruleToInfo.get(rule);
+			final Set<FilterInstance> allFilterInstances =
+					ECBlocks.getFilters(rule).stream().flatMap(f -> f.getAllInstances(rule).stream())
+							.collect(toIdentityHashSet());
+			final Set<FilterInstance> done = representedFIsByRule.getOrDefault(rule, Collections.emptySet());
+			final FilterInstanceTypePartitioner tbdPartition =
+					FilterInstanceTypePartitioner.partition(Sets.difference(allFilterInstances, done));
+			{
+				final Set<ImplicitElementFilterInstance> tbd =
+						new HashSet<>(tbdPartition.implicitElementFilterInstances);
+				while (!tbd.isEmpty()) {
+					final ImplicitElementFilterInstance implicitEFI = tbd.iterator().next();
+					final PredicateWithArguments<PathLeaf> translated =
+							ElementToPathLeafTranslator.translate(implicitEFI, ruleInfo);
+					final PathNodeFilterSet pathNodeFilterSet =
+							PathNodeFilterSet.newRegularPathNodeFilterSet(new PathFilter(translated));
+					ruleInfo.joinedWithToComponent.get(implicitEFI).add(pathNodeFilterSet);
+					tbd.remove(implicitEFI);
+					tbd.remove(implicitEFI.getDual());
+					final FilterInstanceTypePartitioner partition = FilterInstanceTypePartitioner.partition(done);
+					for (final ImplicitElementFilterInstance doneFI : partition.implicitElementFilterInstances) {
+						final Function<ImplicitElementFilterInstance, Element> hereEQ, otherEQ;
+						if (doneFI.left == implicitEFI.left) {
+							hereEQ = ImplicitElementFilterInstance::getRight;
+							otherEQ = ImplicitElementFilterInstance::getRight;
+						} else if (doneFI.left == implicitEFI.right) {
+							hereEQ = ImplicitElementFilterInstance::getLeft;
+							otherEQ = ImplicitElementFilterInstance::getRight;
+						} else if (doneFI.right == implicitEFI.left) {
+							hereEQ = ImplicitElementFilterInstance::getRight;
+							otherEQ = ImplicitElementFilterInstance::getLeft;
+						} else if (doneFI.right == implicitEFI.right) {
+							hereEQ = ImplicitElementFilterInstance::getLeft;
+							otherEQ = ImplicitElementFilterInstance::getLeft;
+						} else {
+							continue;
+						}
+						for (final Iterator<ImplicitElementFilterInstance> tbdInnerIterator = tbd.iterator(); tbdInnerIterator
+								.hasNext();) {
+							final ImplicitElementFilterInstance tbdFI = tbdInnerIterator.next();
+							if (otherEQ.apply(doneFI) == tbdFI.right && hereEQ.apply(implicitEFI) == tbdFI.left) {
+								tbdInnerIterator.remove();
+								done.add(tbdFI);
+							}
+							if (otherEQ.apply(doneFI) == tbdFI.left && hereEQ.apply(implicitEFI) == tbdFI.right) {
+								tbdInnerIterator.remove();
+								done.add(tbdFI);
+							}
+						}
+					}
+				}
+			}
+			{
+				final Set<ExplicitFilterInstance> tbd = new HashSet<>(tbdPartition.explicitFilterInstances);
+				while (!tbd.isEmpty()) {
+					final ExplicitFilterInstance explicitFI = tbd.iterator().next();
+					final ImmutableMap<EquivalenceClass, FunctionWithArguments<PathLeaf>> map =
+							Maps.toMap(Sets.newHashSet(explicitFI.getParameters()),
+									param -> createBinding(param, ruleInfo.fvToPath));
+					final PredicateWithArguments<PathLeaf> pwa =
+							FWAECLeafToPathTranslator.translate(explicitFI.ecFilter.getFunction(), map);
+					ruleInfo.joinedWithToComponent.computeIfAbsent(explicitFI, Lambdas.newArrayList()).add(
+							PathNodeFilterSet.newRegularPathNodeFilterSet(new PathFilter(pwa)));
+					tbd.remove(explicitFI);
+					done.add(explicitFI);
+				}
+			}
+			{
+				final Set<ImplicitECFilterInstance> tbd = new HashSet<>(tbdPartition.implicitECFilterInstances);
+				while (!tbd.isEmpty()) {
+					final ImplicitECFilterInstance implicitVFI = tbd.iterator().next();
+					final List<FunctionWithArguments<PathLeaf>> pathParameters =
+							implicitVFI.getParameters().stream().map(param -> createBinding(param, ruleInfo.fvToPath))
+									.collect(toList());
+					assert !pathParameters.stream().anyMatch(Objects::isNull);
+					final PredicateWithArguments<PathLeaf> pwa =
+							PredicateWithArgumentsComposite.newPredicateInstance(Equals.inClips, ToArray
+									.<FunctionWithArguments<PathLeaf>> toArray(pathParameters,
+											FunctionWithArguments[]::new));
+					ruleInfo.joinedWithToComponent.get(implicitVFI).add(
+							PathNodeFilterSet.newRegularPathNodeFilterSet(new PathFilter(pwa)));
+					tbd.remove(implicitVFI);
+					tbd.remove(implicitVFI.getDual());
+					final FilterInstanceTypePartitioner partition = FilterInstanceTypePartitioner.partition(done);
+					for (final ImplicitECFilterInstance doneFI : partition.implicitECFilterInstances) {
+						final Function<ImplicitECFilterInstance, Element> hereEQ, otherEQ;
+						if (doneFI.left == implicitVFI.left) {
+							hereEQ = ImplicitECFilterInstance::getRight;
+							otherEQ = ImplicitECFilterInstance::getRight;
+						} else if (doneFI.left == implicitVFI.right) {
+							hereEQ = ImplicitECFilterInstance::getLeft;
+							otherEQ = ImplicitECFilterInstance::getRight;
+						} else if (doneFI.right == implicitVFI.left) {
+							hereEQ = ImplicitECFilterInstance::getRight;
+							otherEQ = ImplicitECFilterInstance::getLeft;
+						} else if (doneFI.right == implicitVFI.right) {
+							hereEQ = ImplicitECFilterInstance::getLeft;
+							otherEQ = ImplicitECFilterInstance::getLeft;
+						} else {
+							continue;
+						}
+						for (final Iterator<ImplicitECFilterInstance> tbdInnerIterator = tbd.iterator(); tbdInnerIterator
+								.hasNext();) {
+							final ImplicitECFilterInstance tbdFI = tbdInnerIterator.next();
+							if (otherEQ.apply(doneFI) == tbdFI.right && hereEQ.apply(implicitVFI) == tbdFI.left) {
+								tbdInnerIterator.remove();
+								done.add(tbdFI);
+							}
+							if (otherEQ.apply(doneFI) == tbdFI.left && hereEQ.apply(implicitVFI) == tbdFI.right) {
+								tbdInnerIterator.remove();
+								done.add(tbdFI);
+							}
+						}
+					}
+					done.add(implicitVFI);
+					done.add(implicitVFI.getDual());
+				}
+			}
+		}
+
 		final List<PathRule> pathRules = new ArrayList<>();
 		for (final Either<Rule, ExistentialProxy> either : rules) {
 			if (either.isRight()) {
 				continue;
 			}
+
 			final Rule rule = either.left().get();
 			final List<PathFilterList> pathFilterLists =
 					Stream.concat(rule.existentialProxies.values().stream().map(ExistentialProxy::getEither),
@@ -721,6 +847,7 @@ public class ECBlocksToPathRule {
 											.map(ri -> newIdentityHashSet(ri.joinedWithToComponent.values()).stream()
 													.<PathFilterList> map(list -> list.get(0))).orElse(Stream.empty()))
 							.collect(toList());
+
 			final ECSetRule original = rule.getOriginal();
 			final RuleInfo ruleInfo = ruleToInfo.get(either);
 			final Set<Path> regularPaths = Sets.newHashSet(ruleInfo.fvToPath.values());
