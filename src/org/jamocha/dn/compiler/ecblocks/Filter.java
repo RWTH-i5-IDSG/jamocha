@@ -81,7 +81,7 @@ class Filter implements Visitable<FilterVisitor> {
 		final ExplicitFilterInstance instance = new ExplicitFilterInstance(ruleOrProxy, ecFilter, parameterECs);
 		this.ruleToExplicitInstances.computeIfAbsent(ruleOrProxy, newHashSet()).add(instance);
 		this.ruleToAllInstances.computeIfAbsent(ruleOrProxy, newHashSet()).add(instance);
-		ECBlocks.getFilters(ruleOrProxy).add(Filter.this);
+		Util.getFilters(ruleOrProxy).add(Filter.this);
 		return instance;
 	}
 
@@ -101,7 +101,7 @@ class Filter implements Visitable<FilterVisitor> {
 		final ImplicitElementFilterInstance instance = new ImplicitElementFilterInstance(ruleOrProxy, left, right);
 		this.ruleToImplicitElementInstances.computeIfAbsent(ruleOrProxy, newHashSet()).add(instance);
 		this.ruleToAllInstances.computeIfAbsent(ruleOrProxy, newHashSet()).add(instance);
-		ECBlocks.getFilters(ruleOrProxy).add(Filter.this);
+		Util.getFilters(ruleOrProxy).add(Filter.this);
 		return instance;
 	}
 
@@ -123,7 +123,7 @@ class Filter implements Visitable<FilterVisitor> {
 						.addAll(left.ecsInVE).addAll(right.ecsInVE).build(), left, right);
 		this.ruleToImplicitECInstances.computeIfAbsent(ruleOrProxy, newHashSet()).add(instance);
 		this.ruleToAllInstances.computeIfAbsent(ruleOrProxy, newHashSet()).add(instance);
-		ECBlocks.getFilters(ruleOrProxy).add(Filter.this);
+		Util.getFilters(ruleOrProxy).add(Filter.this);
 		return instance;
 	}
 
@@ -212,7 +212,7 @@ class Filter implements Visitable<FilterVisitor> {
 					return true;
 				return this.intersectingECsIndices == other.intersectingECsIndices
 						|| (this.intersectingECsIndices != null && this.intersectingECsIndices
-						.equals(other.intersectingECsIndices));
+								.equals(other.intersectingECsIndices));
 			}
 		}
 	}
