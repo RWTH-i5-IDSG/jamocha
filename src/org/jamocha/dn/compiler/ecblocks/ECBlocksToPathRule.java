@@ -468,7 +468,7 @@ public class ECBlocksToPathRule {
 				{
 					final Mergeable<SingleFactVariable> factVariables = chosenRuleInfo.factVariables;
 					if (factVariables.tToJoinedWith.values().isEmpty()) {
-						for (final FactVariableSubSet factVariableSubSet : block.factVariablePartition.getElements()) {
+						for (final FactVariableSubSet factVariableSubSet : block.factVariablePartition.getSubSets()) {
 							factVariables.getSet(factVariableSubSet.get(chosenRule));
 						}
 					}
@@ -682,7 +682,7 @@ public class ECBlocksToPathRule {
 
 				final Map<PathSharedList, List<PathFilterList>> sharedPart = new HashMap<>();
 				final FilterInstanceSubSet someColumn =
-						block.getFilterInstancePartition().getElements().iterator().next();
+						block.getFilterInstancePartition().getSubSets().iterator().next();
 				for (final Either<Rule, ExistentialProxy> rule : blockRules) {
 					final List<PathFilterList> list =
 							ruleToInfo.get(rule).joinedWithToComponent.get(someColumn.getElements().get(rule));

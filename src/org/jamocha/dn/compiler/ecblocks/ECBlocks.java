@@ -779,7 +779,7 @@ public class ECBlocks {
 				+ (Sets.difference(Sets.intersection(xFIs, bFIs), xyArc.cfi).isEmpty() ? 0 : 1);
 	}
 
-	protected static void removeArc(final DirectedGraph<Block, BlockConflict> blockConflictGraph,
+	protected static void removeVertexAndUpdateMissingArc(final DirectedGraph<Block, BlockConflict> blockConflictGraph,
 			final BlockConflict arc) {
 		final Block b = arc.getReplaceBlock();
 		final Set<FilterInstance> bFIs = b.getFlatFilterInstances();
@@ -821,7 +821,7 @@ public class ECBlocks {
 							.stream()
 							.filter(xFI -> conflictingBlock
 									.getFilterInstancePartition()
-									.getElements()
+									.getSubSets()
 									.stream()
 									.map(ySS -> ySS.get(xFI.getRuleOrProxy()))
 									.filter(Objects::nonNull)
@@ -855,7 +855,7 @@ public class ECBlocks {
 				return new BlockConflict(replaceBlock, conflictingBlock, cfi);
 			}
 			// only consider the filters of y (the taller block)
-			final Set<FilterInstanceSubSet> columns = y.getFilterInstancePartition().getElements();
+			final Set<FilterInstanceSubSet> columns = y.getFilterInstancePartition().getSubSets();
 
 			// if one of the columns of the taller block is not present in the wider block, the
 			// blocks are in conflict
@@ -917,7 +917,31 @@ public class ECBlocks {
 						.collect(toSet());
 		resultBlocks.remove(replaceBlock);
 		// remove replaceBlock and update qualities
-		removeArc(blockConflictGraph, blockConflict);
+		removeVertexAndUpdateMissingArc(blockConflictGraph, blockConflict);
+		// find the horizontally maximal blocks within xWOcfi
+		final ECBlockSet newBlocks = findAllMaximalBlocksInReducedScope(xWOcfi, new ECBlockSet());
+		// for every such block,
+		for (final Block block : newBlocks.getBlocks()) {
+			if (!deletedBlocks.isContained(block)) {
+				if (resultBlocks.addDuringConflictResolution(block)) {
+					blockConflictGraph.addVertex(block);
+					createArcs(blockConflictGraph, resultBlocks, block);
+				}
+			}
+		}
+		deletedBlocks.addDuringConflictResolution(replaceBlock);
+	}
+
+	protected static void solveConflictDuringRandomization(final BlockConflict blockConflict,
+			final DirectedGraph<Block, BlockConflict> blockConflictGraph, final ECBlockSet resultBlocks,
+			final ECBlockSet deletedBlocks) {
+		final Block replaceBlock = blockConflict.getReplaceBlock();
+		final Set<FilterInstance> xWOcfi =
+				replaceBlock.getFlatFilterInstances().stream().filter(negate(blockConflict.getCfi()::contains))
+						.collect(toSet());
+		resultBlocks.remove(replaceBlock);
+		// remove replaceBlock and update qualities
+		removeVertexAndUpdateMissingArc(blockConflictGraph, blockConflict);
 		// find the horizontally maximal blocks within xWOcfi
 		final ECBlockSet newBlocks = findAllMaximalBlocksInReducedScope(xWOcfi, new ECBlockSet());
 		// for every such block,
@@ -1461,7 +1485,7 @@ public class ECBlocks {
 	protected static boolean checkForConflictEquivalence(final FilterInstancePartition bFIPartition,
 			final Map<Either<Rule, ExistentialProxy>, ? extends FilterInstance> nFISubSet, final Block newBlock) {
 		// iterate over the block columns
-		for (final FilterInstanceSubSet bFilterInstanceSubSet : bFIPartition.getElements()) {
+		for (final FilterInstanceSubSet bFilterInstanceSubSet : bFIPartition.getSubSets()) {
 			Conflict firstConflict = null;
 			boolean first = true;
 			// iterate over the rows aka the rules

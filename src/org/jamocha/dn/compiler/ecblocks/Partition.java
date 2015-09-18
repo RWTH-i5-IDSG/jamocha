@@ -17,7 +17,7 @@ import com.atlassian.fugue.Either;
  */
 @RequiredArgsConstructor
 @Getter
-@ToString(of = { "elements" })
+@ToString(of = { "subSets" })
 class Partition<T, S extends Partition.SubSet<T>> {
 	@RequiredArgsConstructor
 	@Getter
@@ -34,26 +34,26 @@ class Partition<T, S extends Partition.SubSet<T>> {
 		}
 	}
 
-	final Set<S> elements = new HashSet<>();
+	final Set<S> subSets = new HashSet<>();
 	final IdentityHashMap<T, S> lookup = new IdentityHashMap<>();
 
 	public Partition(final Partition<T, S> copy) {
-		this.elements.addAll(copy.elements);
+		this.subSets.addAll(copy.subSets);
 		this.lookup.putAll(copy.lookup);
 	}
 
 	public void add(final S newSubSet) {
-		assert this.elements.stream().allMatch(ss -> ss.getElements().keySet().equals(newSubSet.elements.keySet()));
-		assert this.elements.stream().allMatch(
+		assert this.subSets.stream().allMatch(ss -> ss.getElements().keySet().equals(newSubSet.elements.keySet()));
+		assert this.subSets.stream().allMatch(
 				ss -> Collections.disjoint(ss.getElements().values(), newSubSet.elements.values()));
-		this.elements.add(newSubSet);
+		this.subSets.add(newSubSet);
 		for (final T newElement : newSubSet.elements.values()) {
 			this.lookup.put(newElement, newSubSet);
 		}
 	}
 
 	public void extend(final Either<Rule, ExistentialProxy> rule, final IdentityHashMap<S, T> extension) {
-		for (final S subset : this.elements) {
+		for (final S subset : this.subSets) {
 			subset.elements.put(rule, extension.get(subset));
 		}
 	}
@@ -63,8 +63,13 @@ class Partition<T, S extends Partition.SubSet<T>> {
 	}
 
 	public void remove(final Either<Rule, ExistentialProxy> rule) {
-		for (final S s : elements) {
+		for (final S s : subSets) {
 			s.elements.remove(rule);
 		}
+	}
+
+	public boolean remove(final S s) {
+		s.elements.keySet().forEach(lookup::remove);
+		return subSets.remove(s);
 	}
 }

@@ -6,6 +6,7 @@ import static java.util.stream.Collectors.toSet;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
 
@@ -13,8 +14,13 @@ import lombok.Getter;
 
 import org.jamocha.dn.compiler.ecblocks.ECBlocks.ConflictEdge;
 import org.jamocha.dn.compiler.ecblocks.ECBlocks.Element;
+import org.jamocha.dn.compiler.ecblocks.ECBlocks.FilterInstanceTypePartitioner;
 import org.jamocha.dn.compiler.ecblocks.ECBlocks.Theta;
+import org.jamocha.dn.compiler.ecblocks.ECBlocks.VariableExpression;
 import org.jamocha.dn.compiler.ecblocks.Filter.FilterInstance;
+import org.jamocha.dn.compiler.ecblocks.Filter.ImplicitECFilterInstance;
+import org.jamocha.dn.compiler.ecblocks.Filter.ImplicitElementFilterInstance;
+import org.jamocha.dn.compiler.ecblocks.FilterInstancePartition.FilterInstanceSubSet;
 import org.jamocha.dn.compiler.ecblocks.Partition.SubSet;
 import org.jamocha.languages.common.RuleCondition.EquivalenceClass;
 import org.jgrapht.UndirectedGraph;
@@ -87,7 +93,7 @@ public class Block {
 	}
 
 	public int getNumberOfColumns() {
-		return this.filterInstancePartition.elements.size();
+		return this.filterInstancePartition.subSets.size();
 	}
 
 	public void addElementSubSet(final Partition.SubSet<ECBlocks.Element> newSubSet) {
@@ -147,9 +153,9 @@ public class Block {
 			return false;
 		}
 		final Set<FilterInstancePartition.FilterInstanceSubSet> otherFISubSets =
-				other.filterInstancePartition.getElements();
+				other.filterInstancePartition.getSubSets();
 		final Set<FilterInstancePartition.FilterInstanceSubSet> thisFISubSets =
-				this.filterInstancePartition.getElements();
+				this.filterInstancePartition.getSubSets();
 		if (otherFISubSets.size() < thisFISubSets.size()) {
 			return false;
 		}
@@ -164,7 +170,7 @@ public class Block {
 			return false;
 		}
 		// remove all ECs of the rule from theta by looking at the elements and using their pointer
-		for (final SubSet<Element> subSet : elementPartition.getElements()) {
+		for (final SubSet<Element> subSet : elementPartition.getSubSets()) {
 			final Element element = subSet.get(rule);
 			final EquivalenceClass ec = element.getEquivalenceClass();
 			theta.equivalenceClassToReduced.remove(ec);
@@ -174,6 +180,107 @@ public class Block {
 		factVariablePartition.remove(rule);
 		filterInstancePartition.remove(rule);
 		flatFilterInstances.removeIf(fi -> fi.getRuleOrProxy() == rule);
+		++blockModCount;
+		return true;
+	}
+
+	public boolean containsColumn(final FilterInstanceSubSet column) {
+		return this.filterInstancePartition.lookupByFilter(column.filter).stream()
+				.anyMatch(ss -> ss.elements.values().equals(column.elements.values()));
+	}
+
+	/**
+	 * Removes the column. If the column is an implicit filter instance column, the right argument
+	 * is removed from the equivalence class of the block.
+	 * 
+	 * @param column
+	 *            column to be removed
+	 * @return true iff the block was changed
+	 */
+	public boolean remove(final FilterInstanceSubSet column) {
+		if (!filterInstancePartition.remove(column))
+			return false;
+		final FilterInstanceTypePartitioner partition =
+				FilterInstanceTypePartitioner.partition(column.elements.values());
+		if (!partition.getExplicitFilterInstances().isEmpty()) {
+			// nothing to do, FIs removed, no fallout
+		} else if (!partition.implicitECFilterInstances.isEmpty()) {
+			final List<ImplicitECFilterInstance> fis = partition.implicitECFilterInstances;
+			final ImplicitECFilterInstance someFI = fis.get(0);
+			// remove dual FIs
+			filterInstancePartition.remove(filterInstancePartition.lookup(someFI.getDual()));
+			// consider element stuff
+			final VariableExpression someElement = someFI.getRight();
+			final SubSet<Element> elementSubSet = elementPartition.lookup(someElement);
+			// remove from element partition
+			elementPartition.remove(elementSubSet);
+			boolean fisremoved = false;
+			for (final Entry<Either<Rule, ExistentialProxy>, Element> entry : elementSubSet.elements.entrySet()) {
+				final Either<Rule, ExistentialProxy> rule = entry.getKey();
+				final VariableExpression element = (VariableExpression) entry.getValue();
+				final EquivalenceClass ec = element.getEquivalenceClass();
+				@SuppressWarnings("unchecked")
+				final Set<VariableExpression> reduced =
+						(Set<VariableExpression>) (Set<?>) variableExpressionTheta.reduce(ec);
+				reduced.remove(element);
+				if (reduced.isEmpty()) {
+					variableExpressionTheta.equivalenceClassToReduced.remove(ec);
+				} else if (!fisremoved) {
+					fisremoved = true;
+					for (final VariableExpression other : reduced) {
+						final Filter filter = Filter.newEqualityFilter(element, other);
+						final ImplicitECFilterInstance next =
+								filter.getImplicitECInstances(rule)
+										.stream()
+										.filter(fi -> (fi.left == element && fi.right == other)
+												|| (fi.left == other && fi.right == element)).iterator().next();
+						filterInstancePartition.remove(filterInstancePartition.lookup(next));
+						filterInstancePartition.remove(filterInstancePartition.lookup(next.getDual()));
+					}
+				}
+			}
+		} else if (!partition.implicitElementFilterInstances.isEmpty()) {
+			final List<ImplicitElementFilterInstance> fis = partition.implicitElementFilterInstances;
+			final ImplicitElementFilterInstance someFI = fis.get(0);
+			// remove dual FIs
+			filterInstancePartition.remove(filterInstancePartition.lookup(someFI.getDual()));
+			// consider element stuff
+			final Element someElement = someFI.getRight();
+			final SubSet<Element> elementSubSet = elementPartition.lookup(someElement);
+			// remove from element partition
+			elementPartition.remove(elementSubSet);
+			boolean fisremoved = false;
+			for (final Entry<Either<Rule, ExistentialProxy>, Element> entry : elementSubSet.elements.entrySet()) {
+				final Either<Rule, ExistentialProxy> rule = entry.getKey();
+				final Element element = entry.getValue();
+				final EquivalenceClass ec = element.getEquivalenceClass();
+				final Set<Element> reduced = theta.reduce(ec);
+				reduced.remove(element);
+				if (reduced.isEmpty()) {
+					theta.equivalenceClassToReduced.remove(ec);
+				} else if (!fisremoved) {
+					fisremoved = true;
+					for (final Element other : reduced) {
+						final Filter filter = Filter.newEqualityFilter(element, other);
+						final ImplicitElementFilterInstance next =
+								filter.getImplicitElementInstances(rule)
+										.stream()
+										.filter(fi -> (fi.left == element && fi.right == other)
+												|| (fi.left == other && fi.right == element)).iterator().next();
+						filterInstancePartition.remove(filterInstancePartition.lookup(next));
+						filterInstancePartition.remove(filterInstancePartition.lookup(next.getDual()));
+					}
+				}
+			}
+		}
+		// filter instances removed from flat filter instances
+		column.elements.values().forEach(flatFilterInstances::remove);
+		// filter removed if last column of the kind
+		if (filterInstancePartition.lookupByFilter(column.filter).isEmpty()) {
+			filters.remove(column.filter);
+		}
+
+		// fact variable partition unchanged
 		++blockModCount;
 		return true;
 	}

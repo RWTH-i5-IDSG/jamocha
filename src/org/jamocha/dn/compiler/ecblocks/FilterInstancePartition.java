@@ -54,4 +54,12 @@ class FilterInstancePartition extends Partition<FilterInstance, FilterInstancePa
 	public Set<FilterInstancePartition.FilterInstanceSubSet> lookupByFilter(final Filter filter) {
 		return this.filterLookup.get(filter);
 	}
+
+	@Override
+	public boolean remove(final FilterInstanceSubSet s) {
+		final boolean removed = super.remove(s);
+		if (removed)
+			filterLookup.get(s.filter).remove(s);
+		return removed;
+	}
 }

@@ -16,7 +16,9 @@ package org.jamocha.dn.compiler.ecblocks;
 
 import static org.jamocha.util.Lambdas.toIdentityHashSet;
 
+import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.Random;
 import java.util.Set;
 import java.util.function.DoubleBinaryOperator;
@@ -107,7 +109,7 @@ public class Randomizer {
 			case 3: {
 				changed =
 						randomizer.tryToRemoveColumn(block,
-								getRandomElement(block.getFilterInstancePartition().getElements(), randomizer.rand));
+								getRandomElement(block.getFilterInstancePartition().getSubSets(), randomizer.rand));
 				break;
 			}
 			}
@@ -165,7 +167,7 @@ public class Randomizer {
 		if (!Util.getFilters(rule).containsAll(block.getFilters())) {
 			return false;
 		}
-
+		// TODO impl
 		return true;
 	}
 
@@ -177,14 +179,44 @@ public class Randomizer {
 			state.addDuringHorizontalRecursion(block);
 		} // else: block vanishes
 		ECBlocks.createArcs(blockConflictGraph, state, block);
+		final ECBlockSet deletedBlocks = new ECBlockSet();
+		while (true) {
+			final Optional<BlockConflict> mostUsefulConflictsFirst =
+					blockConflictGraph.edgeSet().stream().sorted(Comparator.comparingInt(BlockConflict::getQuality))
+							.filter(bc -> bc.replaceBlock != block).findFirst();
+			if (!mostUsefulConflictsFirst.isPresent()) {
+				break;
+			}
+			final BlockConflict blockConflict = mostUsefulConflictsFirst.get();
+			ECBlocks.solveConflictDuringRandomization(blockConflict, blockConflictGraph, state, deletedBlocks);
+		}
 		return true;
 	}
 
 	public boolean tryToAddColumn(final Block block, final FilterInstanceSubSet subset) {
+		// TODO impl
 		return true;
 	}
 
 	public boolean tryToRemoveColumn(final Block block, final FilterInstanceSubSet subset) {
+		state.remove(block);
+		blockConflictGraph.removeVertex(block);
+		if (block.getNumberOfColumns() > 1 || !block.containsColumn(subset)) {
+			block.remove(subset);
+			state.addDuringHorizontalRecursion(block);
+		} // else: block vanishes
+		ECBlocks.createArcs(blockConflictGraph, state, block);
+		final ECBlockSet deletedBlocks = new ECBlockSet();
+		while (true) {
+			final Optional<BlockConflict> mostUsefulConflictsFirst =
+					blockConflictGraph.edgeSet().stream().sorted(Comparator.comparingInt(BlockConflict::getQuality))
+							.filter(bc -> bc.replaceBlock != block).findFirst();
+			if (!mostUsefulConflictsFirst.isPresent()) {
+				break;
+			}
+			final BlockConflict blockConflict = mostUsefulConflictsFirst.get();
+			ECBlocks.solveConflictDuringRandomization(blockConflict, blockConflictGraph, state, deletedBlocks);
+		}
 		return true;
 	}
 }

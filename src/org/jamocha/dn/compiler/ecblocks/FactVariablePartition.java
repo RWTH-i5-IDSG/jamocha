@@ -51,4 +51,12 @@ class FactVariablePartition extends Partition<SingleFactVariable, FactVariablePa
 	public Set<FactVariablePartition.FactVariableSubSet> lookupByTemplate(final Template template) {
 		return this.templateLookup.get(template);
 	}
+
+	@Override
+	public boolean remove(final FactVariableSubSet s) {
+		final boolean removed = super.remove(s);
+		if (removed)
+			templateLookup.get(s.template).remove(s);
+		return removed;
+	}
 }
