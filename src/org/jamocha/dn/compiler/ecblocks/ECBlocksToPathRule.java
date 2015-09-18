@@ -51,29 +51,23 @@ import org.apache.commons.collections4.list.CursorableLinkedList;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jamocha.dn.ConstructCache.Defrule.ECSetRule;
 import org.jamocha.dn.ConstructCache.Defrule.PathRule;
-import org.jamocha.dn.compiler.ecblocks.ECBlocks.Block;
 import org.jamocha.dn.compiler.ecblocks.ECBlocks.ConstantExpression;
 import org.jamocha.dn.compiler.ecblocks.ECBlocks.ConstantExpressionCollector;
 import org.jamocha.dn.compiler.ecblocks.ECBlocks.Element;
 import org.jamocha.dn.compiler.ecblocks.ECBlocks.ElementVisitor;
-import org.jamocha.dn.compiler.ecblocks.ECBlocks.ExistentialProxy;
 import org.jamocha.dn.compiler.ecblocks.ECBlocks.FactBinding;
-import org.jamocha.dn.compiler.ecblocks.ECBlocks.FactVariablePartition.FactVariableSubSet;
-import org.jamocha.dn.compiler.ecblocks.ECBlocks.Filter;
-import org.jamocha.dn.compiler.ecblocks.ECBlocks.Filter.ECFilterInstance;
-import org.jamocha.dn.compiler.ecblocks.ECBlocks.Filter.ExplicitFilterInstance;
-import org.jamocha.dn.compiler.ecblocks.ECBlocks.Filter.FilterInstance;
-import org.jamocha.dn.compiler.ecblocks.ECBlocks.Filter.ImplicitECFilterInstance;
-import org.jamocha.dn.compiler.ecblocks.ECBlocks.Filter.ImplicitElementFilterInstance;
-import org.jamocha.dn.compiler.ecblocks.ECBlocks.FilterInstancePartition.FilterInstanceSubSet;
 import org.jamocha.dn.compiler.ecblocks.ECBlocks.FilterInstanceTypePartitioner;
-import org.jamocha.dn.compiler.ecblocks.ECBlocks.FilterProxy;
-import org.jamocha.dn.compiler.ecblocks.ECBlocks.FilterVisitor;
-import org.jamocha.dn.compiler.ecblocks.ECBlocks.Partition.SubSet;
-import org.jamocha.dn.compiler.ecblocks.ECBlocks.Rule;
 import org.jamocha.dn.compiler.ecblocks.ECBlocks.SlotBinding;
 import org.jamocha.dn.compiler.ecblocks.ECBlocks.Theta;
 import org.jamocha.dn.compiler.ecblocks.ECBlocks.VariableExpression;
+import org.jamocha.dn.compiler.ecblocks.FactVariablePartition.FactVariableSubSet;
+import org.jamocha.dn.compiler.ecblocks.Filter.ECFilterInstance;
+import org.jamocha.dn.compiler.ecblocks.Filter.ExplicitFilterInstance;
+import org.jamocha.dn.compiler.ecblocks.Filter.FilterInstance;
+import org.jamocha.dn.compiler.ecblocks.Filter.ImplicitECFilterInstance;
+import org.jamocha.dn.compiler.ecblocks.Filter.ImplicitElementFilterInstance;
+import org.jamocha.dn.compiler.ecblocks.FilterInstancePartition.FilterInstanceSubSet;
+import org.jamocha.dn.compiler.ecblocks.Partition.SubSet;
 import org.jamocha.filter.ECFilterSet.ECExistentialSet;
 import org.jamocha.filter.Path;
 import org.jamocha.filter.PathFilter;
@@ -84,6 +78,7 @@ import org.jamocha.filter.PathFilterList.PathSharedListWrapper.PathSharedList;
 import org.jamocha.filter.PathNodeFilterSet;
 import org.jamocha.function.fwa.ConstantLeaf;
 import org.jamocha.function.fwa.FunctionWithArguments;
+import org.jamocha.function.fwa.GenericWithArgumentsComposite;
 import org.jamocha.function.fwa.PathLeaf;
 import org.jamocha.function.fwa.PredicateWithArguments;
 import org.jamocha.function.fwa.PredicateWithArgumentsComposite;
@@ -93,6 +88,7 @@ import org.jamocha.languages.common.RuleCondition.EquivalenceClass;
 import org.jamocha.languages.common.ScopeStack.VariableSymbol;
 import org.jamocha.languages.common.SingleFactVariable;
 import org.jamocha.languages.common.SingleFactVariable.SingleSlotVariable;
+import org.jamocha.util.Lambdas;
 import org.jamocha.util.ToArray;
 import org.jgrapht.Graphs;
 import org.jgrapht.graph.DefaultWeightedEdge;
@@ -221,10 +217,10 @@ public class ECBlocksToPathRule {
 						new IdentityHashMap<>(ruleToInfo.computeIfAbsent(existentialProxy.rule.either,
 								r -> new RuleInfo(r, ruleToInfo)).fvToPath);
 				for (final SingleFactVariable factVariable :
-					// Sets.union(
-					existentialProxy.existential.getExistentialFactVariables()
-					// ,Collections.singleton(existentialProxy.existential.getInitialFactVariable()) )
-						) {
+				// Sets.union(
+				existentialProxy.existential.getExistentialFactVariables()
+				// ,Collections.singleton(existentialProxy.existential.getInitialFactVariable()) )
+				) {
 					this.fvToPath.put(factVariable, new Path(factVariable.getTemplate()));
 				}
 			}
@@ -342,15 +338,15 @@ public class ECBlocksToPathRule {
 				{
 					final Map<Set<SingleFactVariable>, Long> regularFVCounter =
 							regularParams
-							.stream()
-							.flatMap(
-									ec -> this.block.theta.reduce(ec).stream().map(Element::getFactVariable)
-									.filter(Objects::nonNull).map(ruleInfo.factVariables::getSet)
-									.distinct()).collect(groupingBy(Function.identity(), counting()));
+									.stream()
+									.flatMap(
+											ec -> this.block.theta.reduce(ec).stream().map(Element::getFactVariable)
+													.filter(Objects::nonNull).map(ruleInfo.factVariables::getSet)
+													.distinct()).collect(groupingBy(Function.identity(), counting()));
 					final Optional<Set<SingleFactVariable>> findAny =
 							regularFVCounter.entrySet().stream()
-							.filter(entry -> entry.getValue().intValue() == regularParams.size())
-							.map(Entry::getKey).findAny();
+									.filter(entry -> entry.getValue().intValue() == regularParams.size())
+									.map(Entry::getKey).findAny();
 					if (!findAny.isPresent()) {
 						return;
 					}
@@ -397,7 +393,7 @@ public class ECBlocksToPathRule {
 				final Path initialPath = proxyInfo.fvToPath.get(existential.getInitialFactVariable());
 				final Set<Path> existentialPaths =
 						existential.getExistentialFactVariables().stream().map(proxyInfo.fvToPath::get)
-						.collect(toSet());
+								.collect(toSet());
 
 				final PathFilterList purePart = PathFilterList.toSimpleList(Collections.emptyList());
 				ruleInfo.joinedWithToComponent.get(filterInstance).add(
@@ -439,7 +435,7 @@ public class ECBlocksToPathRule {
 							ruleToInfo.get(key).joinedWithToComponent;
 					final ArrayList<PathFilterList> combined =
 							fis.stream().map(joinedWithToComponent::get).filter(Objects::nonNull)
-							.collect(toIdentityHashSet()).stream().flatMap(List::stream).collect(toArrayList());
+									.collect(toIdentityHashSet()).stream().flatMap(List::stream).collect(toArrayList());
 					fis.forEach(fi -> joinedWithToComponent.put(fi, combined));
 				}
 
@@ -455,18 +451,18 @@ public class ECBlocksToPathRule {
 						ListUtils.removeAll(chosenTypePartition.getExplicitFilterInstances(), representedFIs);
 				final IdentityHashMap<EquivalenceClass, ArrayList<ImplicitElementFilterInstance>> chosenIEFIsByEC =
 						ListUtils
-						.removeAll(chosenTypePartition.getImplicitElementFilterInstances(), representedFIs)
-						.stream()
-						.collect(
-								groupingBy(fi -> fi.getLeft().getEquivalenceClass(), IdentityHashMap::new,
-										toArrayList()));
+								.removeAll(chosenTypePartition.getImplicitElementFilterInstances(), representedFIs)
+								.stream()
+								.collect(
+										groupingBy(fi -> fi.getLeft().getEquivalenceClass(), IdentityHashMap::new,
+												toArrayList()));
 				final IdentityHashMap<EquivalenceClass, ArrayList<ImplicitECFilterInstance>> chosenIVFIsByEC =
 						ListUtils
-						.removeAll(chosenTypePartition.getImplicitECFilterInstances(), representedFIs)
-						.stream()
-						.collect(
-								groupingBy(fi -> fi.getLeft().getEquivalenceClass(), IdentityHashMap::new,
-										toArrayList()));
+								.removeAll(chosenTypePartition.getImplicitECFilterInstances(), representedFIs)
+								.stream()
+								.collect(
+										groupingBy(fi -> fi.getLeft().getEquivalenceClass(), IdentityHashMap::new,
+												toArrayList()));
 
 				// initialize all fact variables that are to be joined by this block
 				{
@@ -507,10 +503,10 @@ public class ECBlocksToPathRule {
 							final EquivalenceClass ec = iterator.next();
 							final Optional<Element> optElement =
 									block.variableExpressionTheta
-									.reduce(ec)
-									.stream()
-									.filter(e -> ((VariableExpression) e).getEcsInVE().stream()
-											.allMatch(eec -> blockEC2Constant.containsKey(eec))).findAny();
+											.reduce(ec)
+											.stream()
+											.filter(e -> ((VariableExpression) e).getEcsInVE().stream()
+													.allMatch(eec -> blockEC2Constant.containsKey(eec))).findAny();
 							if (optElement.isPresent()) {
 								changed = true;
 								blockEC2Constant.put(ec, Pair.of(optElement.get(), FWAEvaluatorForConstantECs.evaluate(
@@ -649,7 +645,7 @@ public class ECBlocksToPathRule {
 					for (final ExplicitFilterInstance filterInstance : chosenEFIs) {
 						final Set<Set<SingleFactVariable>> components =
 								filterInstance.getDirectlyContainedFactVariables().stream()
-								.map(chosenRuleInfo.factVariables::getSet).collect(toIdentityHashSet());
+										.map(chosenRuleInfo.factVariables::getSet).collect(toIdentityHashSet());
 						if (components.size() > 1) {
 							final Iterator<Set<SingleFactVariable>> iterator = components.iterator();
 							final Set<SingleFactVariable> source = iterator.next();
@@ -662,7 +658,7 @@ public class ECBlocksToPathRule {
 						for (final ImplicitECFilterInstance filterInstance : filterInstances) {
 							final Set<Set<SingleFactVariable>> components =
 									filterInstance.getDirectlyContainedFactVariables().stream()
-									.map(chosenRuleInfo.factVariables::getSet).collect(toIdentityHashSet());
+											.map(chosenRuleInfo.factVariables::getSet).collect(toIdentityHashSet());
 							if (components.size() > 1) {
 								final Iterator<Set<SingleFactVariable>> iterator = components.iterator();
 								final Set<SingleFactVariable> source = iterator.next();
@@ -682,7 +678,7 @@ public class ECBlocksToPathRule {
 				final PathSharedListWrapper sharedListWrapper = new PathSharedListWrapper(blockRules.size());
 				final Map<Either<Rule, ExistentialProxy>, PathSharedList> ruleToSharedList =
 						IntStream.range(0, blockRules.size()).boxed()
-						.collect(toMap(blockRules::get, sharedListWrapper.getSharedSiblings()::get));
+								.collect(toMap(blockRules::get, sharedListWrapper.getSharedSiblings()::get));
 
 				final Map<PathSharedList, List<PathFilterList>> sharedPart = new HashMap<>();
 				final FilterInstanceSubSet someColumn =
@@ -715,7 +711,7 @@ public class ECBlocksToPathRule {
 		for (final Either<Rule, ExistentialProxy> rule : rules) {
 			final RuleInfo ruleInfo = ruleToInfo.get(rule);
 			final Set<FilterInstance> allFilterInstances =
-					ECBlocks.getFilters(rule).stream().flatMap(f -> f.getAllInstances(rule).stream())
+					Util.getFilters(rule).stream().flatMap(f -> f.getAllInstances(rule).stream())
 							.collect(toIdentityHashSet());
 			final Set<FilterInstance> done = representedFIsByRule.getOrDefault(rule, Collections.emptySet());
 			final FilterInstanceTypePartitioner tbdPartition =
@@ -845,22 +841,22 @@ public class ECBlocksToPathRule {
 							Stream.of(either))
 							.flatMap(
 									e -> Optional
-									.ofNullable(ruleToInfo.get(e))
-									.map(ri -> newIdentityHashSet(ri.joinedWithToComponent.values()).stream()
-											.<PathFilterList> map(list -> list.get(0))).orElse(Stream.empty()))
-											.collect(toList());
+											.ofNullable(ruleToInfo.get(e))
+											.map(ri -> newIdentityHashSet(ri.joinedWithToComponent.values()).stream()
+													.<PathFilterList> map(list -> list.get(0))).orElse(Stream.empty()))
+							.collect(toList());
 			final ECSetRule original = rule.getOriginal();
 			final RuleInfo ruleInfo = ruleToInfo.get(either);
 			final Set<Path> regularPaths = Sets.newHashSet(ruleInfo.fvToPath.values());
 			final Set<Path> resultPaths =
-					// pathFilterLists.size() > 1 ? Sets.union(regularPaths,
-					// InitialFactPathsFinder.gather(pathFilterLists)) :
+			// pathFilterLists.size() > 1 ? Sets.union(regularPaths,
+			// InitialFactPathsFinder.gather(pathFilterLists)) :
 					regularPaths;
 			final PathFilterList convertedCondition = PathFilterList.toSimpleList(pathFilterLists);
 
 			final Set<EquivalenceClass> ecsInSymbols =
 					ActionlistSymbolCollector.getUnboundSymbols(original.getActionList()).stream()
-					.map(VariableSymbol::getEqual).collect(toIdentityHashSet());
+							.map(VariableSymbol::getEqual).collect(toIdentityHashSet());
 
 			final BiMap<EquivalenceClass, EquivalenceClass> conditionECsToLocalECs =
 					original.getLocalECsToConditionECs();
@@ -871,9 +867,9 @@ public class ECBlocksToPathRule {
 									ec -> createBinding(conditionECsToLocalECs.inverse().get(ec), ruleInfo.fvToPath)));
 
 			final PathRule pathRule = original.toPathRule(
-					/* PathFilterList convertedCondition */convertedCondition,
-					/* Set<Path> resultPaths */resultPaths,
-					/* Map<EquivalenceClass, PathLeaf> equivalenceClassToPathLeaf */ecToPathLeaf);
+			/* PathFilterList convertedCondition */convertedCondition,
+			/* Set<Path> resultPaths */resultPaths,
+			/* Map<EquivalenceClass, PathLeaf> equivalenceClassToPathLeaf */ecToPathLeaf);
 
 			pathRules.add(pathRule);
 		}
@@ -925,14 +921,14 @@ public class ECBlocksToPathRule {
 		parameters.removeIf(blockEC2Constant::containsKey);
 		final Map<Set<SingleFactVariable>, Long> fvCounter =
 				parameters
-				.stream()
-				.flatMap(
-						ec -> theta.reduce(ec).stream().map(Element::getFactVariable).filter(Objects::nonNull)
-						.map(ruleInfo.factVariables::getSet).distinct())
+						.stream()
+						.flatMap(
+								ec -> theta.reduce(ec).stream().map(Element::getFactVariable).filter(Objects::nonNull)
+										.map(ruleInfo.factVariables::getSet).distinct())
 						.collect(groupingBy(Function.identity(), counting()));
 		final List<Set<SingleFactVariable>> fvSets =
 				fvCounter.entrySet().stream().filter(e -> e.getValue().intValue() == parameters.size())
-				.map(Entry::getKey).collect(toList());
+						.map(Entry::getKey).collect(toList());
 		return fvSets;
 	}
 
@@ -950,10 +946,10 @@ public class ECBlocksToPathRule {
 					factVariableSubSets.stream().map(fvss -> fvss.get(rule)).collect(toIdentityHashSet());
 			final List<FunctionWithArguments<PathLeaf>> pathParameters =
 					filterInstance
-					.getParameters()
-					.stream()
-					.map(param -> getMatchingElement(param, block, blockEC2Constant, ruleInfo, fvsToChooseFrom))
-					.collect(toList());
+							.getParameters()
+							.stream()
+							.map(param -> getMatchingElement(param, block, blockEC2Constant, ruleInfo, fvsToChooseFrom))
+							.collect(toList());
 			assert !pathParameters.stream().anyMatch(Objects::isNull);
 			final PredicateWithArguments<PathLeaf> pwa =
 					GenericWithArgumentsComposite.newPredicateInstance(Equals.inClips, ToArray
@@ -973,8 +969,8 @@ public class ECBlocksToPathRule {
 		final Set<Element> elements = block.theta.reduce(ec);
 		final Optional<Element> optSlotOrFactBinding =
 				elements.stream()
-				.filter(e -> e.getFactVariable() != null && fvsToChooseFrom.contains(e.getFactVariable()))
-				.findAny();
+						.filter(e -> e.getFactVariable() != null && fvsToChooseFrom.contains(e.getFactVariable()))
+						.findAny();
 		if (optSlotOrFactBinding.isPresent()) {
 			return ElementToPathLeafTranslator.translate(optSlotOrFactBinding.get(), ruleInfo);
 		}
