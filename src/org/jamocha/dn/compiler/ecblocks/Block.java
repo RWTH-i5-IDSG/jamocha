@@ -15,6 +15,8 @@ import org.jamocha.dn.compiler.ecblocks.ECBlocks.ConflictEdge;
 import org.jamocha.dn.compiler.ecblocks.ECBlocks.Element;
 import org.jamocha.dn.compiler.ecblocks.ECBlocks.Theta;
 import org.jamocha.dn.compiler.ecblocks.Filter.FilterInstance;
+import org.jamocha.dn.compiler.ecblocks.Partition.SubSet;
+import org.jamocha.languages.common.RuleCondition.EquivalenceClass;
 import org.jgrapht.UndirectedGraph;
 import org.jgrapht.graph.SimpleGraph;
 
@@ -49,8 +51,8 @@ public class Block {
 	final ElementPartition elementPartition;
 
 	public Block(final Set<Either<Rule, ExistentialProxy>> rules, final FactVariablePartition factVariablePartition) {
-		this.theta = new Theta.Reducer();
-		this.variableExpressionTheta = new Theta.Reducer();
+		this.theta = new Theta();
+		this.variableExpressionTheta = new Theta();
 		this.edgeFactory = ConflictEdge.newFactory(this.theta);
 		this.graph = new SimpleGraph<>(this.edgeFactory);
 		this.rulesOrProxies = Sets.newHashSet(rules);
@@ -60,8 +62,8 @@ public class Block {
 	}
 
 	public Block(final Block block) {
-		this.theta = block.theta.copy();
-		this.variableExpressionTheta = block.variableExpressionTheta.copy();
+		this.theta = new Theta(block.theta);
+		this.variableExpressionTheta = new Theta(block.variableExpressionTheta);
 		this.edgeFactory = ConflictEdge.newFactory(this.theta);
 		this.graph = block.graph;
 		this.blockModCount = block.blockModCount;
@@ -119,10 +121,10 @@ public class Block {
 		if (this.blockModCount != this.graphModCount) {
 			final Set<List<Filter.FilterInstance>> filterInstancesGroupedByRule =
 					this.rulesOrProxies
-					.stream()
-					.<Filter.FilterInstance> flatMap(
-							rule -> ECBlocks.getFilters(rule).stream()
-							.flatMap(f -> f.getAllInstances(rule).stream()))
+							.stream()
+							.<Filter.FilterInstance> flatMap(
+									rule -> Util.getFilters(rule).stream()
+											.flatMap(f -> f.getAllInstances(rule).stream()))
 							.collect(ECBlocks.groupingIntoSets(FilterInstance::getRuleOrProxy, toList()));
 			this.graph = ECBlocks.determineConflictGraph(this.theta, filterInstancesGroupedByRule);
 			this.graphModCount = this.blockModCount;
@@ -131,7 +133,7 @@ public class Block {
 				Sets.difference(this.graph.vertexSet(), this.flatFilterInstances);
 		final Set<Filter.FilterInstance> neighbours =
 				outside.stream()
-				.filter(nFI -> this.flatFilterInstances.stream().anyMatch(
+						.filter(nFI -> this.flatFilterInstances.stream().anyMatch(
 								bFI -> this.graph.containsEdge(bFI, nFI))).collect(toSet());
 		return neighbours;
 	}
@@ -154,6 +156,25 @@ public class Block {
 		if (!other.getFlatFilterInstances().containsAll(this.getFlatFilterInstances())) {
 			return false;
 		}
+		return true;
+	}
+
+	public boolean remove(final Either<Rule, ExistentialProxy> rule) {
+		if (!rulesOrProxies.remove(rule)) {
+			return false;
+		}
+		// remove all ECs of the rule from theta by looking at the elements and using their pointer
+		for (final SubSet<Element> subSet : elementPartition.getElements()) {
+			final Element element = subSet.get(rule);
+			final EquivalenceClass ec = element.getEquivalenceClass();
+			theta.equivalenceClassToReduced.remove(ec);
+			variableExpressionTheta.equivalenceClassToReduced.remove(ec);
+		}
+		elementPartition.remove(rule);
+		factVariablePartition.remove(rule);
+		filterInstancePartition.remove(rule);
+		flatFilterInstances.removeIf(fi -> fi.getRuleOrProxy() == rule);
+		++blockModCount;
 		return true;
 	}
 }
