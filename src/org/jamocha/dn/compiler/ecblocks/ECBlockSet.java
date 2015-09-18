@@ -8,15 +8,18 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.NavigableMap;
 import java.util.Set;
 import java.util.TreeMap;
 
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 import com.atlassian.fugue.Either;
 
 @Getter
+@RequiredArgsConstructor
 public class ECBlockSet {
 	final HashSet<Block> blocks = new HashSet<>();
 	final TreeMap<Integer, HashSet<Block>> ruleCountToBlocks = new TreeMap<>();
@@ -24,6 +27,25 @@ public class ECBlockSet {
 	final HashMap<Either<Rule, ExistentialProxy>, HashSet<Block>> ruleInstanceToBlocks = new HashMap<>();
 	final TreeMap<Integer, TreeMap<Integer, HashSet<Block>>> ruleCountToFilterCountToBlocks = new TreeMap<>();
 	final TreeMap<Integer, TreeMap<Integer, HashSet<Block>>> filterCountToRuleCountToBlocks = new TreeMap<>();
+
+	public ECBlockSet(final ECBlockSet copy) {
+		this.blocks.addAll(copy.blocks);
+		copy.ruleCountToBlocks.forEach((i, s) -> this.ruleCountToBlocks.put(i, new HashSet<>(s)));
+		copy.filterCountToBlocks.forEach((i, s) -> this.filterCountToBlocks.put(i, new HashSet<>(s)));
+		copy.ruleInstanceToBlocks.forEach((r, s) -> this.ruleInstanceToBlocks.put(r, new HashSet<>(s)));
+		for (final Entry<Integer, TreeMap<Integer, HashSet<Block>>> entry : copy.ruleCountToFilterCountToBlocks
+				.entrySet()) {
+			final TreeMap<Integer, HashSet<Block>> map = new TreeMap<>();
+			entry.getValue().forEach((i, s) -> map.put(i, new HashSet<>(s)));
+			this.ruleCountToFilterCountToBlocks.put(entry.getKey(), map);
+		}
+		for (final Entry<Integer, TreeMap<Integer, HashSet<Block>>> entry : copy.filterCountToRuleCountToBlocks
+				.entrySet()) {
+			final TreeMap<Integer, HashSet<Block>> map = new TreeMap<>();
+			entry.getValue().forEach((i, s) -> map.put(i, new HashSet<>(s)));
+			this.filterCountToRuleCountToBlocks.put(entry.getKey(), map);
+		}
+	}
 
 	private static int getRuleCount(final Block block) {
 		return block.getRulesOrProxies().size();
@@ -112,9 +134,9 @@ public class ECBlockSet {
 		this.ruleCountToBlocks.computeIfAbsent(ruleCount, newHashSet()).add(block);
 		this.filterCountToBlocks.computeIfAbsent(filterCount, newHashSet()).add(block);
 		this.ruleCountToFilterCountToBlocks.computeIfAbsent(ruleCount, newTreeMap())
-		.computeIfAbsent(filterCount, newHashSet()).add(block);
+				.computeIfAbsent(filterCount, newHashSet()).add(block);
 		this.filterCountToRuleCountToBlocks.computeIfAbsent(filterCount, newTreeMap())
-		.computeIfAbsent(ruleCount, newHashSet()).add(block);
+				.computeIfAbsent(ruleCount, newHashSet()).add(block);
 		block.getRulesOrProxies().forEach(r -> this.ruleInstanceToBlocks.computeIfAbsent(r, newHashSet()).add(block));
 		removeContainedBlocks(block);
 	}
@@ -149,9 +171,9 @@ public class ECBlockSet {
 		this.ruleCountToBlocks.computeIfAbsent(ruleCount, newHashSet()).remove(block);
 		this.filterCountToBlocks.computeIfAbsent(filterCount, newHashSet()).remove(block);
 		this.ruleCountToFilterCountToBlocks.computeIfAbsent(ruleCount, newTreeMap())
-		.computeIfAbsent(filterCount, newHashSet()).remove(block);
+				.computeIfAbsent(filterCount, newHashSet()).remove(block);
 		this.filterCountToRuleCountToBlocks.computeIfAbsent(filterCount, newTreeMap())
-		.computeIfAbsent(ruleCount, newHashSet()).remove(block);
+				.computeIfAbsent(ruleCount, newHashSet()).remove(block);
 		block.getRulesOrProxies()
 				.forEach(r -> this.ruleInstanceToBlocks.computeIfAbsent(r, newHashSet()).remove(block));
 		return true;
