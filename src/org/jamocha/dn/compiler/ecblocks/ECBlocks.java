@@ -113,6 +113,7 @@ import com.atlassian.fugue.Either;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.google.common.collect.Sets.SetView;
@@ -1460,19 +1461,36 @@ public class ECBlocks {
 				// introduce the intersections into the block
 				// create a new block first
 				final Block newBlock = new Block(block);
+				final List<FilterInstance> filterInstances = new ArrayList<>();
+				filterInstances.addAll(nCurrentOutsideColumn);
 				// add everything to the element partition and the theta
 				for (final List<Map<Either<Rule, ExistentialProxy>, ? extends Element>> intersection : intersections) {
 					for (final Map<Either<Rule, ExistentialProxy>, ? extends Element> subset : intersection) {
 						newBlock.addElementSubSet(new SubSet<>(subset));
 					}
+					final Either<Rule, ExistentialProxy> chosenRule = block.getRulesOrProxies().iterator().next();
+					final Set<? extends Element> newElements =
+							intersection.stream().map(map -> map.get(chosenRule)).collect(toIdentityHashSet());
+					if (newElements.size() == 1)
+						continue;
+					final ImplicitElementFilterInstance chosenFI =
+							Filter.newEqualityFilter(Iterables.get(newElements, 0), Iterables.get(newElements, 1))
+									.getImplicitElementInstances(chosenRule).iterator().next();
+					getFirstColumnAndDualsForTwoNewElements(block.getFactVariablePartition(),
+							block.getRulesOrProxies(), (a) -> {
+							}, chosenFI, newBlock, filterInstances);
 				}
 
-				if (!checkForConflictEquivalence(bFIPartition, nRuleToCurrentOutsideColumn, newBlock)) {
+				// get all the implicit filter instances that have to be added to ensure the new
+				// equivalence classes
+
+				if (!checkForConflictEquivalence(bFIPartition, nRuleToCurrentOutsideColumn, newBlock.theta)) {
 					continue cartesianProductLoop;
 				}
 
 				// conflict identical for all rules
 				newBlock.addFilterInstanceSubSet(new FilterInstanceSubSet(Maps.newHashMap(nRuleToCurrentOutsideColumn)));
+				filterInstances.addAll(nCurrentOutsideColumn);
 				matchingFilters.add(Pair.of(newBlock, nCurrentOutsideColumn));
 				matchingConstellationFound = true;
 			}
@@ -1483,7 +1501,7 @@ public class ECBlocks {
 	}
 
 	protected static boolean checkForConflictEquivalence(final FilterInstancePartition bFIPartition,
-			final Map<Either<Rule, ExistentialProxy>, ? extends FilterInstance> nFISubSet, final Block newBlock) {
+			final Map<Either<Rule, ExistentialProxy>, ? extends FilterInstance> nFISubSet, final Theta newBlockTheta) {
 		// iterate over the block columns
 		for (final FilterInstanceSubSet bFilterInstanceSubSet : bFIPartition.getSubSets()) {
 			Conflict firstConflict = null;
@@ -1495,7 +1513,7 @@ public class ECBlocks {
 				final FilterInstance nSource = nFISubSet.get(rule);
 				final FilterInstance bTarget = bRuleToFI.getValue();
 				// determine conflict between inside instance and outside instance
-				final Conflict conflict = nSource.getConflict(bTarget, newBlock.theta, newBlock.theta);
+				final Conflict conflict = nSource.getConflict(bTarget, newBlockTheta, newBlockTheta);
 				// if this is the first loop iteration, just remember the conflict to be
 				// compared later on
 				if (first) {
@@ -1555,8 +1573,8 @@ public class ECBlocks {
 					// create a new block
 					final Block newBlock = new Block(block);
 					final List<FilterInstance> filterInstances = new ArrayList<>();
-					if (!getFirstColumnAndDualsForTwoNewElements(factVariablePartition, rules, workspaceByRule, remove,
-							nCurrentFI, newBlock, filterInstances)) {
+					if (!getFirstColumnAndDualsForTwoNewElements(factVariablePartition, rules, remove, nCurrentFI,
+							newBlock, filterInstances)) {
 						continue;
 					}
 
@@ -1584,8 +1602,8 @@ public class ECBlocks {
 					// create a new block
 					final Block newBlock = new Block(block);
 					final List<FilterInstance> filterInstances = new ArrayList<>();
-					if (!getFirstColumnAndDualsForTwoNewElements(factVariablePartition, rules, workspaceByRule, remove,
-							nCurrentFI, newBlock, filterInstances)) {
+					if (!getFirstColumnAndDualsForTwoNewElements(factVariablePartition, rules, remove, nCurrentFI,
+							newBlock, filterInstances)) {
 						continue workspaceLoop;
 					}
 
@@ -1744,10 +1762,9 @@ public class ECBlocks {
 	}
 
 	private static boolean getFirstColumnAndDualsForTwoNewElements(final FactVariablePartition factVariablePartition,
-			final Set<Either<Rule, ExistentialProxy>> rules,
-			final Map<Either<Rule, ExistentialProxy>, Map<Filter, Set<ImplicitElementFilterInstance>>> workspaceByRule,
-			final Consumer<ImplicitElementFilterInstance> remove, final ImplicitElementFilterInstance nCurrentFI,
-			final Block newBlock, final List<FilterInstance> filterInstances) {
+			final Set<Either<Rule, ExistentialProxy>> rules, final Consumer<ImplicitElementFilterInstance> remove,
+			final ImplicitElementFilterInstance nCurrentFI, final Block newBlock,
+			final List<FilterInstance> filterInstances) {
 		final Either<Rule, ExistentialProxy> currentRule = nCurrentFI.getRuleOrProxy();
 		final SetView<Either<Rule, ExistentialProxy>> otherRules =
 				Sets.difference(rules, Collections.singleton(currentRule));
@@ -1755,8 +1772,7 @@ public class ECBlocks {
 		column.put(currentRule, nCurrentFI);
 		for (final Either<Rule, ExistentialProxy> rule : otherRules) {
 			final ImplicitElementFilterInstance matchingInstance =
-					getMatchingFilterInstanceForRuleBothArgsNew(factVariablePartition, workspaceByRule, nCurrentFI,
-							rule);
+					getMatchingFilterInstanceForRuleBothArgsNew(factVariablePartition, nCurrentFI, rule);
 			if (null == matchingInstance) {
 				return false;
 			}
@@ -1810,12 +1826,9 @@ public class ECBlocks {
 	}
 
 	protected static ImplicitElementFilterInstance getMatchingFilterInstanceForRuleBothArgsNew(
-			final FactVariablePartition factVariablePartition,
-			final Map<Either<Rule, ExistentialProxy>, Map<Filter, Set<ImplicitElementFilterInstance>>> workspaceByRule,
-			final ImplicitElementFilterInstance nCurrentFI, final Either<Rule, ExistentialProxy> rule) {
-		final Set<ImplicitElementFilterInstance> candidates =
-				workspaceByRule.getOrDefault(rule, Collections.emptyMap()).getOrDefault(nCurrentFI.getFilter(),
-						Collections.emptySet());
+			final FactVariablePartition factVariablePartition, final ImplicitElementFilterInstance nCurrentFI,
+			final Either<Rule, ExistentialProxy> rule) {
+		final Set<ImplicitElementFilterInstance> candidates = nCurrentFI.getFilter().getImplicitElementInstances(rule);
 		for (final ImplicitElementFilterInstance candidate : candidates) {
 			if (!checkSameFactBinding(factVariablePartition, ImplicitElementFilterInstance::getLeft,
 					nCurrentFI.getLeft(), candidate)) {
@@ -1928,7 +1941,7 @@ public class ECBlocks {
 				final ImmutableMap<Either<Rule, ExistentialProxy>, ImplicitECFilterInstance> nFirstColumn =
 						Maps.uniqueIndex(nFICombination, FilterInstance::getRuleOrProxy);
 				// check for conflict equivalence between block and nFirstColumn
-				if (!checkForConflictEquivalence(bFIPartition, nFirstColumn, newBlock)) {
+				if (!checkForConflictEquivalence(bFIPartition, nFirstColumn, newBlock.theta)) {
 					continue combinationLoop;
 				}
 
