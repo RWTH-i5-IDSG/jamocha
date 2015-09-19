@@ -713,7 +713,7 @@ public class ECBlocksToPathRule {
 			final Set<FilterInstance> allFilterInstances =
 					Util.getFilters(rule).stream().flatMap(f -> f.getAllInstances(rule).stream())
 							.collect(toIdentityHashSet());
-			final Set<FilterInstance> done = representedFIsByRule.getOrDefault(rule, Collections.emptySet());
+			final Set<FilterInstance> done = representedFIsByRule.getOrDefault(rule, Sets.newIdentityHashSet());
 			final FilterInstanceTypePartitioner tbdPartition =
 					FilterInstanceTypePartitioner.partition(Sets.difference(allFilterInstances, done));
 			{
@@ -725,7 +725,7 @@ public class ECBlocksToPathRule {
 							ElementToPathLeafTranslator.translate(implicitEFI, ruleInfo);
 					final PathNodeFilterSet pathNodeFilterSet =
 							PathNodeFilterSet.newRegularPathNodeFilterSet(new PathFilter(translated));
-					ruleInfo.joinedWithToComponent.get(implicitEFI).add(pathNodeFilterSet);
+					ruleInfo.joinedWithToComponent.computeIfAbsent(implicitEFI, newArrayList()).add(pathNodeFilterSet);
 					tbd.remove(implicitEFI);
 					tbd.remove(implicitEFI.getDual());
 					final FilterInstanceTypePartitioner partition = FilterInstanceTypePartitioner.partition(done);
@@ -788,7 +788,7 @@ public class ECBlocksToPathRule {
 							PredicateWithArgumentsComposite.newPredicateInstance(Equals.inClips, ToArray
 									.<FunctionWithArguments<PathLeaf>> toArray(pathParameters,
 											FunctionWithArguments[]::new));
-					ruleInfo.joinedWithToComponent.get(implicitVFI).add(
+					ruleInfo.joinedWithToComponent.computeIfAbsent(implicitVFI, newArrayList()).add(
 							PathNodeFilterSet.newRegularPathNodeFilterSet(new PathFilter(pwa)));
 					tbd.remove(implicitVFI);
 					tbd.remove(implicitVFI.getDual());
