@@ -568,7 +568,7 @@ public abstract class FilterFunctionCompare<L extends ExchangeableLeaf<L>> {
 	public static Map<Path, FactAddress> equals(final Node targetNode, final PathNodeFilterSet pathFilter) {
 		final Set<Path> collectedPaths =
 				PathCollector.newHashSet().collectAllInLists(pathFilter).getPaths().stream()
-						.map(p -> p.getJoinedWith().iterator().next()).distinct().collect(toSet());
+						.flatMap(p -> p.getJoinedWith().stream()).distinct().collect(toSet());
 		if (targetNode.getMemory().getTemplate().length != collectedPaths.size()) {
 			return null;
 		}
@@ -598,7 +598,9 @@ public abstract class FilterFunctionCompare<L extends ExchangeableLeaf<L>> {
 		{
 			// get representatives for the joined-with-sets (i.e. the edges) and group by nodes
 			final Map<Node, Set<Path>> pathSetByNode =
-					collectedPaths.stream().collect(groupingBy(s -> s.getCurrentlyLowestNode(), toSet()));
+					PathCollector.newHashSet().collectAllInLists(pathFilter).getPaths().stream()
+							.map(p -> p.getJoinedWith().iterator().next()).distinct()
+							.collect(groupingBy(s -> s.getCurrentlyLowestNode(), toSet()));
 			// now we have a set of components consisting of sets of representatives
 			final Collection<Set<Path>> components = pathSetByNode.values();
 			final List<Range> ranges = new ArrayList<>(components.size());
