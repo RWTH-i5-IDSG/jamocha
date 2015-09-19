@@ -183,9 +183,8 @@ public class Randomizer {
 		// 4. decide whether to stop
 
 		// 5. return the best stuff we got
-		
-		return compile(rules, bestState);
-//		return bestCompiledState;
+
+		return bestCompiledState;
 	}
 
 	static <T> T getRandomElement(final Set<T> elements, final Random rand) {
