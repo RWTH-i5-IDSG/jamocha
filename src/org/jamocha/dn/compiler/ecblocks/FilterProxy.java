@@ -36,7 +36,9 @@ class FilterProxy extends Filter {
 	static final Map<FilterProxy, FilterProxy> cache = new HashMap<>();
 
 	static FilterProxy newFilterProxy(final FunctionWithArguments<TypeLeaf> predicate, final ExistentialProxy proxy) {
-		return cache.computeIfAbsent(new FilterProxy(predicate, proxy), Function.identity());
+		final FilterProxy instance = cache.computeIfAbsent(new FilterProxy(predicate, proxy), Function.identity());
+		instance.proxies.add(proxy);
+		return instance;
 	}
 
 	static Set<FilterProxy> getFilterProxies() {
@@ -144,8 +146,8 @@ class FilterProxy extends Filter {
 		result = (result * PRIME) + super.hashCode();
 		result =
 				(result * PRIME)
-				+ (this.proxies == null ? 0 : (this.proxies.iterator().next().filters == null ? 0
-						: this.proxies.iterator().next().filters.hashCode()));
+						+ (this.proxies == null ? 0 : (this.proxies.iterator().next().filters == null ? 0
+								: this.proxies.iterator().next().filters.hashCode()));
 		return result;
 	}
 }
