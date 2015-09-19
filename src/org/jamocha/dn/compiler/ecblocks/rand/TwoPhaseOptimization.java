@@ -14,9 +14,30 @@
  */
 package org.jamocha.dn.compiler.ecblocks.rand;
 
+import java.util.Collection;
+import java.util.function.DoubleUnaryOperator;
+
+import lombok.RequiredArgsConstructor;
+
+import org.jamocha.dn.ConstructCache.Defrule.PathRule;
+import org.jamocha.dn.compiler.ecblocks.Randomizer;
+
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
+@RequiredArgsConstructor
 public class TwoPhaseOptimization {
+	final Randomizer randomizer;
+	final long II_NUMLOCALOPTIMISATIONS;
+	final long II_RLOCALMINIMUM;
+	final DoubleUnaryOperator SA_COOLDOWN;
+	final long SA_INNERLOOPOPTIMIZATIONS;
 
+	public Collection<PathRule> optimize() {
+		new IterativeImprovement(randomizer, II_NUMLOCALOPTIMISATIONS, II_RLOCALMINIMUM).optimize();
+		final double bestCost = randomizer.getBestState().rate();
+		final double sa_initialTemp = bestCost < 20000 ? 0.5 * bestCost : 0.05 * bestCost;
+		new SimulatedAnnealing(randomizer, SA_COOLDOWN, SA_INNERLOOPOPTIMIZATIONS, sa_initialTemp).optimize();
+		return randomizer.getBestState().getCompiledState();
+	}
 }

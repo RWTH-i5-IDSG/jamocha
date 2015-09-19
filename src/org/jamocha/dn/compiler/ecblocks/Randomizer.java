@@ -59,6 +59,7 @@ import org.jamocha.dn.compiler.ecblocks.FilterInstancePartition.FilterInstanceSu
 import org.jamocha.dn.compiler.ecblocks.Partition.SubSet;
 import org.jamocha.dn.compiler.ecblocks.rand.IterativeImprovement;
 import org.jamocha.dn.compiler.ecblocks.rand.SimulatedAnnealing;
+import org.jamocha.dn.compiler.ecblocks.rand.TwoPhaseOptimization;
 import org.jamocha.dn.memory.Template;
 import org.jamocha.dn.nodes.TerminalNode;
 import org.jamocha.filter.optimizer.Optimizer;
@@ -194,6 +195,7 @@ public class Randomizer {
 	public static Collection<PathRule> randomizeII(final List<Either<Rule, ExistentialProxy>> rules,
 			final ECBlockSet blockSet) {
 		final Randomizer randomizer = newRandomizer(rules, blockSet);
+		/* number of nodes in the condition graph */
 		final long localOptimizations = rules.stream().map(Util::getFactVariables).flatMap(Set::stream).count();
 		final long rLocalMinimum = 20;
 		return new IterativeImprovement(randomizer, localOptimizations, rLocalMinimum).optimize();
@@ -212,9 +214,11 @@ public class Randomizer {
 			final ECBlockSet blockSet) {
 		final Randomizer randomizer = newRandomizer(rules, blockSet);
 		final DoubleUnaryOperator cooldown = t -> 0.95 * t;
-		final long innerLoopOpimizations = ; /* number of edges in the condition graph */
-		final double initialTemp = ;
-		return new SimulatedAnnealing(randomizer, null, localOptimizations, rLocalMinimum).optimize();
+		/* Gator uses: number of edges in the condition graph */
+		/* we just use the number of nodes here !? */
+		final long innerLoopOpimizations = rules.stream().map(Util::getFactVariables).flatMap(Set::stream).count();
+		final double initialTemp = 2 * randomizer.getBestState().rate();
+		return new SimulatedAnnealing(randomizer, cooldown, innerLoopOpimizations, initialTemp).optimize();
 	}
 
 	/**
@@ -229,9 +233,14 @@ public class Randomizer {
 	public static Collection<PathRule> randomizeTPO(final List<Either<Rule, ExistentialProxy>> rules,
 			final ECBlockSet blockSet) {
 		final Randomizer randomizer = newRandomizer(rules, blockSet);
-		final long localOptimizations = rules.stream().map(Util::getFactVariables).flatMap(Set::stream).count();
-		final long rLocalMinimum = 20;
-		return new IterativeImprovement(randomizer, localOptimizations, rLocalMinimum).optimize();
+		final long ii_localOptimizations = rules.stream().map(Util::getFactVariables).flatMap(Set::stream).count();
+		final long ii_rLocalMinimum = 20;
+		final DoubleUnaryOperator sa_cooldown = t -> 0.95 * t;
+		/* Gator uses: number of edges in the condition graph */
+		/* we just use the number of nodes here !? */
+		final long sa_innerLoopOpimizations = rules.stream().map(Util::getFactVariables).flatMap(Set::stream).count();
+		return new TwoPhaseOptimization(randomizer, ii_localOptimizations, ii_rLocalMinimum, sa_cooldown,
+				sa_innerLoopOpimizations).optimize();
 	}
 
 	private static Randomizer newRandomizer(final List<Either<Rule, ExistentialProxy>> rules, final ECBlockSet blockSet) {
