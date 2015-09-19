@@ -148,24 +148,8 @@ public enum RuleCompiler {
 			final Pair<List<Either<Rule, ExistentialProxy>>, ECBlockSet> pair = ECBlocks.compile(consolidatedRules);
 			final List<Either<Rule, ExistentialProxy>> rules = pair.getLeft();
 			final ECBlockSet blockSet = pair.getRight();
-			Collection<PathRule> transformedRules = Randomizer.randomize(rules, blockSet);
-			for (final Optimizer optimizer : ImmutableList.of(
-			/*
-			 * node filter sets using the same paths can be combined
-			 */
-			SamePathsNodeFilterSetCombiningOptimizer.instance,
-			/*
-			 * filters using the same paths can be combined
-			 */
-			SamePathsFilterCombiningOptimizer.instance,
-			/*
-			 * node filter sets using only a subset of the paths of their predecessors can be
-			 * combined
-			 */
-			SubsetPathsNodeFilterSetCombiningOptimizer.instance)) {
-				transformedRules = optimizer.optimize(transformedRules);
-			}
-			return transformedRules;
+			final Collection<PathRule> randomized = Randomizer.randomize(rules, blockSet);
+			return randomized;
 		}
 	},
 	;
