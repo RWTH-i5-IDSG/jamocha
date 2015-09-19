@@ -201,7 +201,7 @@ public class Block {
 	 * @return true iff the block was changed
 	 */
 	public boolean remove(final FilterInstanceSubSet column) {
-		if (!filterInstancePartition.remove(column))
+		if (!removeFilterInstanceSubSet(column))
 			return false;
 		final FilterInstanceTypePartitioner partition =
 				FilterInstanceTypePartitioner.partition(column.elements.values());
@@ -210,8 +210,7 @@ public class Block {
 		} else if (!partition.implicitECFilterInstances.isEmpty()) {
 			final List<ImplicitECFilterInstance> fis = partition.implicitECFilterInstances;
 			final ImplicitECFilterInstance someFI = fis.get(0);
-			// remove dual FIs
-			filterInstancePartition.remove(filterInstancePartition.lookup(someFI.getDual()));
+			removeFilterInstanceSubSet(filterInstancePartition.lookup(someFI.getDual()));
 			// consider element stuff
 			final VariableExpression someElement = someFI.getRight();
 			final SubSet<Element> elementSubSet = elementPartition.lookup(someElement);
@@ -237,16 +236,15 @@ public class Block {
 										.stream()
 										.filter(fi -> (fi.left == element && fi.right == other)
 												|| (fi.left == other && fi.right == element)).iterator().next();
-						filterInstancePartition.remove(filterInstancePartition.lookup(next));
-						filterInstancePartition.remove(filterInstancePartition.lookup(next.getDual()));
+						removeFilterInstanceSubSet(filterInstancePartition.lookup(next));
+						removeFilterInstanceSubSet(filterInstancePartition.lookup(next.getDual()));
 					}
 				}
 			}
 		} else if (!partition.implicitElementFilterInstances.isEmpty()) {
 			final List<ImplicitElementFilterInstance> fis = partition.implicitElementFilterInstances;
 			final ImplicitElementFilterInstance someFI = fis.get(0);
-			// remove dual FIs
-			filterInstancePartition.remove(filterInstancePartition.lookup(someFI.getDual()));
+			removeFilterInstanceSubSet(filterInstancePartition.lookup(someFI.getDual()));
 			// consider element stuff
 			final Element someElement = someFI.getRight();
 			final SubSet<Element> elementSubSet = elementPartition.lookup(someElement);
@@ -270,21 +268,26 @@ public class Block {
 										.stream()
 										.filter(fi -> (fi.left == element && fi.right == other)
 												|| (fi.left == other && fi.right == element)).iterator().next();
-						filterInstancePartition.remove(filterInstancePartition.lookup(next));
-						filterInstancePartition.remove(filterInstancePartition.lookup(next.getDual()));
+						removeFilterInstanceSubSet(filterInstancePartition.lookup(next));
+						removeFilterInstanceSubSet(filterInstancePartition.lookup(next.getDual()));
 					}
 				}
 			}
 		}
-		// filter instances removed from flat filter instances
-		column.elements.values().forEach(flatFilterInstances::remove);
-		// filter removed if last column of the kind
-		if (filterInstancePartition.lookupByFilter(column.filter).isEmpty()) {
-			filters.remove(column.filter);
-		}
-
 		// fact variable partition unchanged
 		++blockModCount;
+		return true;
+	}
+
+	private boolean removeFilterInstanceSubSet(final FilterInstanceSubSet subset) {
+		final boolean removed = filterInstancePartition.remove(subset);
+		if (!removed) {
+			return false;
+		}
+		flatFilterInstances.removeAll(subset.elements.values());
+		if (filterInstancePartition.lookupByFilter(subset.filter).isEmpty()) {
+			filters.remove(subset.filter);
+		}
 		return true;
 	}
 
