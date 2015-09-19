@@ -229,25 +229,32 @@ public class Randomizer {
 			elements.remove(element);
 			elExtension.put(subset, element);
 		}
+		// is this element partition extension compatible with the element partition?
+		// this also checks whether the resulting theta is compatible with the current version
 		if (!ElementCompare.compare(elements, block.getFactVariablePartition(), fvExtension)) {
 			return false;
 		}
+		// add it to the theta
 		final Theta thetaExtension = new Theta();
 		elExtension.values().stream().forEach(thetaExtension::add);
 
+		// check identical conflict index sets for an arbitrary row A and the new one R
+		// test for all pairs of filter instance subsets: for every pair a,b in one and the
+		// corresponding pair f,g in the other (of the same rules) have to have identical conflicts
+		// c(a,f) == c(b,g)
 		final Either<Rule, ExistentialProxy> chosenRule = block.rulesOrProxies.iterator().next();
 		for (final FilterInstanceSubSet aSubset : block.getFilterInstancePartition().getSubSets()) {
 			for (final FilterInstanceSubSet bSubset : block.getFilterInstancePartition().getSubSets()) {
 				if (aSubset == bSubset)
 					continue;
 				final FilterInstance a = aSubset.get(chosenRule);
-				final FilterInstance b = bSubset.get(chosenRule);
+				final FilterInstance b = fiExtension.get(aSubset);
 
-				final FilterInstance f = fiExtension.get(aSubset);
+				final FilterInstance f = bSubset.get(chosenRule);
 				final FilterInstance g = fiExtension.get(bSubset);
 
-				if (!Objects.equals(a.getConflict(b, block.theta, block.theta),
-						f.getConflict(g, thetaExtension, thetaExtension))) {
+				if (!Objects.equals(a.getConflict(f, block.theta, block.theta),
+						b.getConflict(g, thetaExtension, thetaExtension))) {
 					return false;
 				}
 			}
