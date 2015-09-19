@@ -37,7 +37,9 @@ import java.util.Optional;
 import java.util.Random;
 import java.util.Set;
 import java.util.function.DoubleBinaryOperator;
+import java.util.function.DoubleUnaryOperator;
 
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 import org.apache.commons.collections4.ListUtils;
@@ -55,6 +57,8 @@ import org.jamocha.dn.compiler.ecblocks.Filter.ImplicitECFilterInstance;
 import org.jamocha.dn.compiler.ecblocks.Filter.ImplicitElementFilterInstance;
 import org.jamocha.dn.compiler.ecblocks.FilterInstancePartition.FilterInstanceSubSet;
 import org.jamocha.dn.compiler.ecblocks.Partition.SubSet;
+import org.jamocha.dn.compiler.ecblocks.rand.IterativeImprovement;
+import org.jamocha.dn.compiler.ecblocks.rand.SimulatedAnnealing;
 import org.jamocha.dn.memory.Template;
 import org.jamocha.dn.nodes.TerminalNode;
 import org.jamocha.filter.optimizer.Optimizer;
@@ -75,11 +79,108 @@ import com.google.common.collect.Iterables;
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
 @RequiredArgsConstructor
+@Getter
 public class Randomizer {
 
 	final static DoubleBinaryOperator cpuCost = (cpu, mem) -> cpu;
 	final static DoubleBinaryOperator memCost = (cpu, mem) -> mem;
 	final static DoubleBinaryOperator mixCost = (cpu, mem) -> Math.log(cpu) + Math.log10(mem);
+
+	@Getter
+	public class State {
+		double rating;
+		ECBlockSet blockSet;
+		Collection<PathRule> compiledState;
+
+		public State(final ECBlockSet blockSet) {
+			this.blockSet = blockSet;
+			clear();
+		}
+
+		public State(final State copy) {
+			this.blockSet = new ECBlockSet(copy.blockSet);
+			this.compiledState = copy.compiledState;
+			this.rating = copy.rating;
+		}
+
+		public double rate() {
+			if (null == compiledState) {
+				this.compiledState = Randomizer.compile(rules, blockSet);
+				this.rating = Randomizer.rate(compiledState);
+			}
+			return this.rating;
+		}
+
+		private void clear() {
+			this.compiledState = null;
+			this.rating = Double.MAX_VALUE;
+		}
+
+		public State move() {
+			final State nextState = new State(this);
+			switch (rand.nextInt(5)) {
+			case 0: { // add a row
+				if (!nextState.blockSet.blocks.isEmpty()) {
+					final Block block = getRandomElement(nextState.blockSet.blocks, rand);
+					final List<Either<Rule, ExistentialProxy>> otherRules =
+							ListUtils.removeAll(rules, block.getRulesOrProxies());
+					if (!otherRules.isEmpty()) {
+						int tries = 100;
+						boolean changed = false;
+						do {
+							changed = tryToAddRow(nextState, block, getRandomElement(otherRules, rand));
+						} while (!changed && --tries > 0);
+					}
+				}
+				break;
+			}
+			case 1: { // remove a row
+				if (!nextState.blockSet.blocks.isEmpty()) {
+					final Block block = getRandomElement(nextState.blockSet.blocks, rand);
+					tryToRemoveRow(nextState, block, getRandomElement(block.getRulesOrProxies(), rand));
+				}
+				break;
+			}
+			case 2: { // add a column
+				if (!nextState.blockSet.blocks.isEmpty()) {
+					final Block block = getRandomElement(nextState.blockSet.blocks, rand);
+					tryToAddARandomColumn(nextState, block);
+				}
+				break;
+			}
+			case 3: { // remove a column
+				if (!nextState.blockSet.blocks.isEmpty()) {
+					final Block block = getRandomElement(nextState.blockSet.blocks, rand);
+
+					tryToRemoveColumn(nextState, block,
+							getRandomElement(block.getFilterInstancePartition().getSubSets(), rand));
+				}
+				break;
+			}
+			case 4: { // create a new block
+				createRandomBlock(nextState, rules);
+				break;
+			}
+			}
+			return nextState;
+		}
+	}
+
+	final List<Either<Rule, ExistentialProxy>> rules;
+	final Random rand = new Random();
+	State currentState, bestState, initialState;
+
+	public void setCurrentState(final State state) {
+		currentState = state;
+	}
+
+	public void reset() {
+		currentState = new State(initialState);
+	}
+
+	public void setCurrentAsBestState() {
+		bestState = new State(currentState);
+	}
 
 	/**
 	 * Takes a set of rules and a conflict-free set of blocks
@@ -90,106 +191,58 @@ public class Randomizer {
 	 *            blocks to consider
 	 * @return a list of PathRule that the randomizer is content with
 	 */
-	public static Collection<PathRule> randomize(final List<Either<Rule, ExistentialProxy>> rules,
+	public static Collection<PathRule> randomizeII(final List<Either<Rule, ExistentialProxy>> rules,
 			final ECBlockSet blockSet) {
-		final Randomizer randomizer = new Randomizer(rules, blockSet);
-
-		Collection<PathRule> compiledState = compile(rules, randomizer.state);
-
-		// 0. initialize "best" rating and state
-		double bestRating = Double.MAX_VALUE;
-		ECBlockSet bestState = randomizer.state;
-		Collection<PathRule> bestCompiledState = null;
-
-		for (int i = 0; i < 100; ++i) {
-
-			// 1. randomly modify state (returns if state was actually changed)
-			// options:
-			// add row
-			// remove row
-			// add column
-			// remove column
-			// new block
-			// delete block?
-			{
-				boolean changed = false;
-				switch (randomizer.rand.nextInt(5)) {
-				case 0: { // add a row
-					if (!randomizer.state.blocks.isEmpty()) {
-						final Block block = getRandomElement(randomizer.state.blocks, randomizer.rand);
-						final List<Either<Rule, ExistentialProxy>> otherRules =
-								ListUtils.removeAll(randomizer.rules, block.getRulesOrProxies());
-						if (!otherRules.isEmpty()) {
-							int tries = 100;
-							do {
-								changed = randomizer.tryToAddRow(block, getRandomElement(otherRules, randomizer.rand));
-							} while (!changed && --tries > 0);
-						}
-					}
-					break;
-				}
-				case 1: { // remove a row
-					if (!randomizer.state.blocks.isEmpty()) {
-						final Block block = getRandomElement(randomizer.state.blocks, randomizer.rand);
-						changed =
-								randomizer.tryToRemoveRow(block,
-										getRandomElement(block.getRulesOrProxies(), randomizer.rand));
-					}
-					break;
-				}
-				case 2: { // add a column
-					if (!randomizer.state.blocks.isEmpty()) {
-						final Block block = getRandomElement(randomizer.state.blocks, randomizer.rand);
-						changed = randomizer.tryToAddARandomColumn(block);
-					}
-					break;
-				}
-				case 3: { // remove a column
-					if (!randomizer.state.blocks.isEmpty()) {
-						final Block block = getRandomElement(randomizer.state.blocks, randomizer.rand);
-						changed =
-								randomizer.tryToRemoveColumn(
-										block,
-										getRandomElement(block.getFilterInstancePartition().getSubSets(),
-												randomizer.rand));
-					}
-					break;
-				}
-				case 4: { // create a new block
-					if (randomizer.createRandomBlock(rules)) {
-						changed = true;
-					}
-					break;
-				}
-				default:
-					changed = false;
-				}
-			}
-			// 2. rate
-			final double stateRating;
-			{
-				compiledState = compile(rules, randomizer.state);
-				// uses CPU cost only
-				stateRating = rate(compiledState);
-			}
-
-			// 3. save if better (smaller is better)
-			if (stateRating < bestRating) {
-				// ...
-				bestRating = stateRating;
-				// do we need this? needed if one wants to continue modifying a previous best state
-				bestState = new ECBlockSet(randomizer.state);
-				bestCompiledState = compiledState;
-			}
-		}
-		// 4. decide whether to stop
-
-		// 5. return the best stuff we got
-
-		return bestCompiledState;
+		final Randomizer randomizer = newRandomizer(rules, blockSet);
+		final long localOptimizations = rules.stream().map(Util::getFactVariables).flatMap(Set::stream).count();
+		final long rLocalMinimum = 20;
+		return new IterativeImprovement(randomizer, localOptimizations, rLocalMinimum).optimize();
 	}
 
-	protected boolean createRandomBlock(final List<Either<Rule, ExistentialProxy>> rules) {
+	/**
+	 * Takes a set of rules and a conflict-free set of blocks
+	 * 
+	 * @param rules
+	 *            rules to consider
+	 * @param blockSet
+	 *            blocks to consider
+	 * @return a list of PathRule that the randomizer is content with
+	 */
+	public static Collection<PathRule> randomizeSA(final List<Either<Rule, ExistentialProxy>> rules,
+			final ECBlockSet blockSet) {
+		final Randomizer randomizer = newRandomizer(rules, blockSet);
+		final DoubleUnaryOperator cooldown = t -> 0.95 * t;
+		final long innerLoopOpimizations = ; /* number of edges in the condition graph */
+		final double initialTemp = ;
+		return new SimulatedAnnealing(randomizer, null, localOptimizations, rLocalMinimum).optimize();
+	}
+
+	/**
+	 * Takes a set of rules and a conflict-free set of blocks
+	 * 
+	 * @param rules
+	 *            rules to consider
+	 * @param blockSet
+	 *            blocks to consider
+	 * @return a list of PathRule that the randomizer is content with
+	 */
+	public static Collection<PathRule> randomizeTPO(final List<Either<Rule, ExistentialProxy>> rules,
+			final ECBlockSet blockSet) {
+		final Randomizer randomizer = newRandomizer(rules, blockSet);
+		final long localOptimizations = rules.stream().map(Util::getFactVariables).flatMap(Set::stream).count();
+		final long rLocalMinimum = 20;
+		return new IterativeImprovement(randomizer, localOptimizations, rLocalMinimum).optimize();
+	}
+
+	private static Randomizer newRandomizer(final List<Either<Rule, ExistentialProxy>> rules, final ECBlockSet blockSet) {
+		final Randomizer randomizer = new Randomizer(rules);
+		randomizer.initialState = randomizer.new State(blockSet);
+		randomizer.bestState = randomizer.new State(randomizer.initialState);
+		randomizer.currentState = randomizer.new State(randomizer.initialState);
+		return randomizer;
+	}
+
+	protected boolean createRandomBlock(final State state, final List<Either<Rule, ExistentialProxy>> rules) {
 		final Either<Rule, ExistentialProxy> rule = getRandomElement(rules, rand);
 		final FilterInstance randomFI = getRandomElement(Util.getFilterInstances(rule), rand);
 		final FactVariablePartition fvPart = new FactVariablePartition();
@@ -208,7 +261,8 @@ public class Randomizer {
 				block.addElementSubSet(new SubSet<Element>(elementSubSet));
 			}
 		}
-		return true;
+		final boolean added = state.blockSet.addDuringHorizontalRecursion(block);
+		return added;
 	}
 
 	static <T> T getRandomElement(final Set<T> elements, final Random rand) {
@@ -219,11 +273,7 @@ public class Randomizer {
 		return elements.get(rand.nextInt(elements.size()));
 	}
 
-	final List<Either<Rule, ExistentialProxy>> rules;
-	final ECBlockSet state;
-	final Random rand = new Random();
-
-	public boolean tryToAddRow(final Block block, final Either<Rule, ExistentialProxy> rule) {
+	public boolean tryToAddRow(final State state, final Block block, final Either<Rule, ExistentialProxy> rule) {
 		final Set<FilterInstance> filterInstances = Util.getFilterInstances(rule);
 		// if the rule doesn't contain enough filter instances, fail
 		if (block.getNumberOfColumns() > filterInstances.size()) {
@@ -303,25 +353,24 @@ public class Randomizer {
 			}
 		}
 
-		state.remove(block);
+		state.blockSet.remove(block);
 		block.addRow(rule, fvExtension, fiExtension, elExtension);
-		state.addDuringHorizontalRecursion(block);
-		solveConflicts(block);
+		state.blockSet.addDuringHorizontalRecursion(block);
+		solveConflicts(state, block);
 		return true;
 	}
 
-	public boolean tryToRemoveRow(final Block block, final Either<Rule, ExistentialProxy> rule) {
-		state.remove(block);
+	public boolean tryToRemoveRow(final State state, final Block block, final Either<Rule, ExistentialProxy> rule) {
+		state.blockSet.remove(block);
 		if (block.getNumberOfRows() > 1) {
 			block.remove(rule);
-			state.addDuringHorizontalRecursion(block);
+			state.blockSet.addDuringHorizontalRecursion(block);
 		} // else: block vanishes
-		solveConflicts(block);
+		solveConflicts(state, block);
 		return true;
 	}
 
-	public boolean tryToAddARandomColumn(final Block block) {
-
+	public boolean tryToAddARandomColumn(final State state, final Block block) {
 		/* pretty much the ordinary procedure to find candidates, just simplified and randomized */
 		final Set<FilterInstance> neighbours = block.getConflictNeighbours();
 		if (neighbours.isEmpty()) {
@@ -409,27 +458,27 @@ public class Randomizer {
 		final Pair<Block, List<FilterInstance>> randomElement = getRandomElement(matchingFilters, rand);
 		final Block newBlock = randomElement.getLeft();
 
-		state.remove(block);
-		state.addDuringHorizontalRecursion(newBlock);
-		solveConflicts(newBlock);
+		state.blockSet.remove(block);
+		state.blockSet.addDuringHorizontalRecursion(newBlock);
+		solveConflicts(state, newBlock);
 		return true;
 	}
 
-	public boolean tryToRemoveColumn(final Block block, final FilterInstanceSubSet subset) {
-		state.remove(block);
+	public boolean tryToRemoveColumn(final State state, final Block block, final FilterInstanceSubSet subset) {
+		state.blockSet.remove(block);
 		block.remove(subset);
 		if (block.getNumberOfColumns() >= 1) {
-			state.addDuringHorizontalRecursion(block);
+			state.blockSet.addDuringHorizontalRecursion(block);
 		} // else: block vanishes
-		solveConflicts(block);
+		solveConflicts(state, block);
 		return true;
 	}
 
-	protected void solveConflicts(final Block block) {
+	protected void solveConflicts(final State state, final Block block) {
 		final DirectedGraph<Block, BlockConflict> blockConflictGraph = new SimpleDirectedGraph<>(BlockConflict::of);
-		state.getBlocks().forEach(blockConflictGraph::addVertex);
+		state.blockSet.blocks.forEach(blockConflictGraph::addVertex);
 		for (final Block x : blockConflictGraph.vertexSet()) {
-			ECBlocks.createArcs(blockConflictGraph, state, x);
+			ECBlocks.createArcs(blockConflictGraph, state.blockSet, x);
 		}
 		final ECBlockSet deletedBlocks = new ECBlockSet();
 		while (true) {
@@ -440,7 +489,7 @@ public class Randomizer {
 				break;
 			}
 			final BlockConflict blockConflict = mostUsefulConflictsFirst.get();
-			ECBlocks.solveConflictDuringRandomization(blockConflict, blockConflictGraph, state, deletedBlocks);
+			ECBlocks.solveConflictDuringRandomization(blockConflict, blockConflictGraph, state.blockSet, deletedBlocks);
 		}
 	}
 
