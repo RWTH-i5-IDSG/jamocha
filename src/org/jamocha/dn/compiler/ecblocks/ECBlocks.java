@@ -113,7 +113,6 @@ import com.atlassian.fugue.Either;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.google.common.collect.Sets.SetView;
@@ -1465,20 +1464,40 @@ public class ECBlocks {
 				filterInstances.addAll(nCurrentOutsideColumn);
 				// add everything to the element partition and the theta
 				for (final List<Map<Either<Rule, ExistentialProxy>, ? extends Element>> intersection : intersections) {
+					// add everything to the element partition and the theta
 					for (final Map<Either<Rule, ExistentialProxy>, ? extends Element> subset : intersection) {
 						newBlock.addElementSubSet(new SubSet<>(subset));
 					}
-					final Either<Rule, ExistentialProxy> chosenRule = block.getRulesOrProxies().iterator().next();
-					final Set<? extends Element> newElements =
-							intersection.stream().map(map -> map.get(chosenRule)).collect(toIdentityHashSet());
-					if (newElements.size() == 1)
+					// if only one element, no implicit filters to add
+					if (intersection.size() == 1) {
 						continue;
-					final ImplicitElementFilterInstance chosenFI =
-							Filter.newEqualityFilter(Iterables.get(newElements, 0), Iterables.get(newElements, 1))
-									.getImplicitElementInstances(chosenRule).iterator().next();
-					getFirstColumnAndDualsForTwoNewElements(block.getFactVariablePartition(),
-							block.getRulesOrProxies(), (a) -> {
-							}, chosenFI, newBlock, filterInstances);
+					}
+					// else add implicit filters for every pair
+					final Either<Rule, ExistentialProxy> chosenRule = block.getRulesOrProxies().iterator().next();
+					final List<? extends Element> newElements =
+							intersection.stream().map(map -> map.get(chosenRule)).collect(toList());
+					for (int i = 0; i < newElements.size(); ++i) {
+						final Element left = newElements.get(i);
+						final SubSet<Element> leftSS = block.getElementPartition().lookup(left);
+						for (int j = i + 1; j < newElements.size(); ++j) {
+							final Element right = newElements.get(j);
+							final SubSet<Element> rightSS = block.getElementPartition().lookup(right);
+							final IdentityHashMap<Either<Rule, ExistentialProxy>, ImplicitElementFilterInstance> fiSS =
+									new IdentityHashMap<>();
+							for (final Either<Rule, ExistentialProxy> rule : block.getRulesOrProxies()) {
+								final Filter filter = Filter.newEqualityFilter(leftSS.get(rule), rightSS.get(rule));
+								final ImplicitElementFilterInstance implicitFI =
+										filter.getImplicitElementInstances(rule).iterator().next();
+								fiSS.put(rule, implicitFI);
+							}
+							block.addFilterInstanceSubSet(new FilterInstanceSubSet(fiSS));
+							final Map<Either<Rule, ExistentialProxy>, ImplicitElementFilterInstance> duals =
+									Maps.transformValues(fiSS, ImplicitElementFilterInstance::getDual);
+							block.addFilterInstanceSubSet(new FilterInstanceSubSet(duals));
+							filterInstances.addAll(fiSS.values());
+							filterInstances.addAll(duals.values());
+						}
+					}
 				}
 
 				// get all the implicit filter instances that have to be added to ensure the new
