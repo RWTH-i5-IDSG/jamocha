@@ -566,6 +566,11 @@ public abstract class FilterFunctionCompare<L extends ExchangeableLeaf<L>> {
 	 *         targetNode
 	 */
 	public static Map<Path, FactAddress> equals(final Node targetNode, final PathNodeFilterSet pathFilter) {
+		final HashSet<Path> collectedPaths = PathCollector.newHashSet().collectAllInLists(pathFilter).getPaths();
+		if (targetNode.getMemory().getTemplate().length != collectedPaths.size()) {
+			return null;
+		}
+
 		if (targetNode.getFilter().getNegativeExistentialAddresses().size() != pathFilter.getNegativeExistentialPaths()
 				.size()
 				|| targetNode.getFilter().getPositiveExistentialAddresses().size() != pathFilter
@@ -591,8 +596,7 @@ public abstract class FilterFunctionCompare<L extends ExchangeableLeaf<L>> {
 		{
 			// get representatives for the joined-with-sets (i.e. the edges) and group by nodes
 			final Map<Node, Set<Path>> pathSetByNode =
-					PathCollector.newHashSet().collectAllInLists(pathFilter).getPaths().stream()
-							.map(p -> p.getJoinedWith().iterator().next()).distinct()
+					collectedPaths.stream().map(p -> p.getJoinedWith().iterator().next()).distinct()
 							.collect(groupingBy(s -> s.getCurrentlyLowestNode(), toSet()));
 			// now we have a set of components consisting of sets of representatives
 			final Collection<Set<Path>> components = pathSetByNode.values();
@@ -628,7 +632,7 @@ public abstract class FilterFunctionCompare<L extends ExchangeableLeaf<L>> {
 				final Optional<Path> optMatchingPath =
 						paths.stream().filter(p -> p.getCurrentlyLowestNode() == edge.getSourceNode()).findFirst();
 				if (!optMatchingPath.isPresent()) {
-					return null;
+					throw new Error("For one edge no paths were found.");
 				}
 				final Path matchingPath = optMatchingPath.get();
 				// map all paths joined with the found one by the current edge
