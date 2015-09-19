@@ -20,6 +20,7 @@ import static java.util.stream.Collectors.partitioningBy;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
+import static org.jamocha.util.Lambdas.newArrayList;
 import static org.jamocha.util.Lambdas.newIdentityHashSet;
 import static org.jamocha.util.Lambdas.toArrayList;
 import static org.jamocha.util.Lambdas.toIdentityHashSet;
@@ -729,6 +730,8 @@ public class ECBlocksToPathRule {
 					tbd.remove(implicitEFI);
 					tbd.remove(implicitEFI.getDual());
 					final FilterInstanceTypePartitioner partition = FilterInstanceTypePartitioner.partition(done);
+					done.add(implicitEFI);
+					done.add(implicitEFI.getDual());
 					for (final ImplicitElementFilterInstance doneFI : partition.implicitElementFilterInstances) {
 						final Function<ImplicitElementFilterInstance, Element> hereEQ, otherEQ;
 						if (doneFI.left == implicitEFI.left) {
@@ -793,6 +796,8 @@ public class ECBlocksToPathRule {
 					tbd.remove(implicitVFI);
 					tbd.remove(implicitVFI.getDual());
 					final FilterInstanceTypePartitioner partition = FilterInstanceTypePartitioner.partition(done);
+					done.add(implicitVFI);
+					done.add(implicitVFI.getDual());
 					for (final ImplicitECFilterInstance doneFI : partition.implicitECFilterInstances) {
 						final Function<ImplicitECFilterInstance, Element> hereEQ, otherEQ;
 						if (doneFI.left == implicitVFI.left) {
@@ -823,8 +828,6 @@ public class ECBlocksToPathRule {
 							}
 						}
 					}
-					done.add(implicitVFI);
-					done.add(implicitVFI.getDual());
 				}
 			}
 		}
