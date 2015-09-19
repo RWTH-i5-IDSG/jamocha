@@ -12,6 +12,7 @@ import org.jamocha.languages.common.SingleFactVariable;
 import com.atlassian.fugue.Either;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
+import com.google.common.collect.Sets;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
@@ -27,7 +28,7 @@ public class Rule {
 
 	public Rule(final ECSetRule original) {
 		this.original = original;
-		this.factvariables = original.getFactVariables();
+		this.factvariables = Sets.newHashSet(original.getFactVariables());
 		this.either = Either.left(this);
 	}
 
