@@ -25,6 +25,7 @@ import static org.jamocha.util.Lambdas.toArrayList;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.IdentityHashMap;
 import java.util.LinkedList;
@@ -36,6 +37,8 @@ import java.util.Optional;
 import java.util.Random;
 import java.util.Set;
 import java.util.function.DoubleBinaryOperator;
+
+import lombok.RequiredArgsConstructor;
 
 import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.tuple.Pair;
@@ -58,6 +61,7 @@ import org.jamocha.filter.optimizer.Optimizer;
 import org.jamocha.filter.optimizer.SamePathsFilterCombiningOptimizer;
 import org.jamocha.filter.optimizer.SamePathsNodeFilterSetCombiningOptimizer;
 import org.jamocha.filter.optimizer.SubsetPathsNodeFilterSetCombiningOptimizer;
+import org.jamocha.languages.common.RuleCondition.EquivalenceClass;
 import org.jamocha.languages.common.SingleFactVariable;
 import org.jamocha.rating.fraj.RatingProvider;
 import org.jgrapht.DirectedGraph;
@@ -70,6 +74,7 @@ import com.google.common.collect.Iterables;
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
+@RequiredArgsConstructor
 public class Randomizer {
 
 	final static DoubleBinaryOperator cpuCost = (cpu, mem) -> cpu;
@@ -108,60 +113,57 @@ public class Randomizer {
 			// delete block?
 			{
 				boolean changed = false;
-				int tries = 100;
-				do {
-					switch (randomizer.rand.nextInt(5)) {
-					case 0: {
-						if (!randomizer.state.blocks.isEmpty()) {
-							final Block block = getRandomElement(randomizer.state.blocks, randomizer.rand);
-							final List<Either<Rule, ExistentialProxy>> otherRules =
-									ListUtils.removeAll(randomizer.rules, block.getRulesOrProxies());
-							if (!otherRules.isEmpty()) {
+				switch (randomizer.rand.nextInt(5)) {
+				case 0: { // add a row
+					if (!randomizer.state.blocks.isEmpty()) {
+						final Block block = getRandomElement(randomizer.state.blocks, randomizer.rand);
+						final List<Either<Rule, ExistentialProxy>> otherRules =
+								ListUtils.removeAll(randomizer.rules, block.getRulesOrProxies());
+						if (!otherRules.isEmpty()) {
+							int tries = 100;
+							do {
 								changed = randomizer.tryToAddRow(block, getRandomElement(otherRules, randomizer.rand));
-							}
+							} while (!changed && --tries > 0);
 						}
-						break;
 					}
-					case 1: {
-						if (!randomizer.state.blocks.isEmpty()) {
-							final Block block = getRandomElement(randomizer.state.blocks, randomizer.rand);
-							changed =
-									randomizer.tryToRemoveRow(block,
-											getRandomElement(block.getRulesOrProxies(), randomizer.rand));
-						}
-						break;
+					break;
+				}
+				case 1: { // remove a row
+					if (!randomizer.state.blocks.isEmpty()) {
+						final Block block = getRandomElement(randomizer.state.blocks, randomizer.rand);
+						changed =
+								randomizer.tryToRemoveRow(block,
+										getRandomElement(block.getRulesOrProxies(), randomizer.rand));
 					}
-					case 2: {
-						if (!randomizer.state.blocks.isEmpty()) {
-							final Block block = getRandomElement(randomizer.state.blocks, randomizer.rand);
-							changed = randomizer.tryToAddARandomColumn(block);
-						}
-						break;
+					break;
+				}
+				case 2: { // add a column
+					if (!randomizer.state.blocks.isEmpty()) {
+						final Block block = getRandomElement(randomizer.state.blocks, randomizer.rand);
+						changed = randomizer.tryToAddARandomColumn(block);
 					}
-					case 3: {
-						if (!randomizer.state.blocks.isEmpty()) {
-							final Block block = getRandomElement(randomizer.state.blocks, randomizer.rand);
-							changed =
-									randomizer.tryToRemoveColumn(
-											block,
-											getRandomElement(block.getFilterInstancePartition().getSubSets(),
-													randomizer.rand));
-						}
-						break;
+					break;
+				}
+				case 3: { // remove a column
+					if (!randomizer.state.blocks.isEmpty()) {
+						final Block block = getRandomElement(randomizer.state.blocks, randomizer.rand);
+						changed =
+								randomizer.tryToRemoveColumn(
+										block,
+										getRandomElement(block.getFilterInstancePartition().getSubSets(),
+												randomizer.rand));
 					}
-					case 4: {
-						// TODO create a new block
-						changed = false;
-						break;
+					break;
+				}
+				case 4: { // create a new block
+					if (randomizer.createRandomBlock(rules)) {
+						changed = true;
 					}
-					default:
-						changed = false;
-					}
-					--tries;
-					if (tries <= 0) {
-						break;
-					}
-				} while (!changed);
+					break;
+				}
+				default:
+					changed = false;
+				}
 			}
 			// 2. rate
 			final double stateRating;
@@ -187,6 +189,28 @@ public class Randomizer {
 		return bestCompiledState;
 	}
 
+	protected boolean createRandomBlock(final List<Either<Rule, ExistentialProxy>> rules) {
+		final Either<Rule, ExistentialProxy> rule = getRandomElement(rules, rand);
+		final FilterInstance randomFI = getRandomElement(Util.getFilterInstances(rule), rand);
+		final FactVariablePartition fvPart = new FactVariablePartition();
+		final Set<SingleFactVariable> factVariables = Util.getFactVariables(rule);
+		for (final SingleFactVariable factVariable : factVariables) {
+			fvPart.add(new FactVariableSubSet(Collections.singletonMap(rule, factVariable)));
+		}
+		final Block block = new Block(Collections.singleton(rule), fvPart);
+		block.addFilterInstanceSubSet(new FilterInstanceSubSet(Collections.singletonMap(rule, randomFI)));
+		final Map<Integer, Map<Either<Rule, ExistentialProxy>, EquivalenceClass>> ecColumns =
+				ECBlocks.determineECColumns(Collections.singletonList(randomFI));
+		for (final Map<Either<Rule, ExistentialProxy>, EquivalenceClass> ecColumn : ecColumns.values()) {
+			final List<Map<Either<Rule, ExistentialProxy>, ? extends Element>> elementSubsets =
+					ECBlocks.determineEquivalenceClassIntersection(ecColumn, fvPart);
+			for (final Map<Either<Rule, ExistentialProxy>, ? extends Element> elementSubSet : elementSubsets) {
+				block.addElementSubSet(new SubSet<Element>(elementSubSet));
+			}
+		}
+		return true;
+	}
+
 	static <T> T getRandomElement(final Set<T> elements, final Random rand) {
 		return Iterables.get(elements, rand.nextInt(elements.size()));
 	}
@@ -198,11 +222,6 @@ public class Randomizer {
 	final List<Either<Rule, ExistentialProxy>> rules;
 	final ECBlockSet state;
 	final Random rand = new Random();
-
-	public Randomizer(final List<Either<Rule, ExistentialProxy>> rules, final ECBlockSet blockSet) {
-		this.rules = rules;
-		this.state = blockSet;
-	}
 
 	public boolean tryToAddRow(final Block block, final Either<Rule, ExistentialProxy> rule) {
 		final Set<FilterInstance> filterInstances = Util.getFilterInstances(rule);
