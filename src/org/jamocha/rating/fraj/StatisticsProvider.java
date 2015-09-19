@@ -14,7 +14,6 @@
  */
 package org.jamocha.rating.fraj;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -30,7 +29,9 @@ import org.jamocha.filter.PathFilter;
 import org.jamocha.filter.PathFilterList;
 import org.jamocha.filter.PathFilterListSetFlattener;
 import org.jamocha.filter.PathNodeFilterSet;
+import org.jamocha.function.Predicate;
 import org.jamocha.function.fwa.PredicateWithArgumentsComposite;
+import org.jamocha.function.impls.predicates.And;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
@@ -84,14 +85,8 @@ public class StatisticsProvider implements org.jamocha.rating.StatisticsProvider
 		final Set<PathNodeFilterSet> flattenedPreNetwork = PathFilterListSetFlattener.flatten(preNetwork);
 		if (flattenedPreNetwork.contains(filters))
 			return 1;
+		return getDummyJSFByTests(filters);
 		// TBD implement to get actual data from somewhere (statistic gatherer?)
-		final int numTests =
-				filters.getFilters()
-						.stream()
-						.mapToInt(
-								filter -> ((PredicateWithArgumentsComposite<?>) filter.getFunction()).getFunction()
-										.getParamTypes().length).sum();
-		return Math.pow(standardJSF, numTests);
 	}
 
 	/*
@@ -107,7 +102,7 @@ public class StatisticsProvider implements org.jamocha.rating.StatisticsProvider
 			final List<Pair<List<Set<PathFilterList>>, List<PathFilter>>> joinOrder,
 			final Set<Set<PathFilterList>> regularComponents,
 			final Map<Path, Set<PathFilterList>> pathToPreNetworkComponents) {
-		return new double[] { standardJSF };
+		return new double[] { getDummyJSFByTests(joinOrder) };
 
 		// TBD implement to get actual data from somewhere (statistic gatherer?)
 		// final int joinOrderSize =
@@ -125,14 +120,38 @@ public class StatisticsProvider implements org.jamocha.rating.StatisticsProvider
 			final List<Pair<List<Set<PathFilterList>>, List<PathFilter>>> joinOrder,
 			final Map<Path, Set<PathFilterList>> pathToPreNetworkComponents) {
 		// TBD implement to get actual data from somewhere (statistic gatherer?)
-		final int joinOrderSize = joinOrder.size();
-		final long numRegularComponents =
-				joinOrder.stream().map(Pair::getLeft).filter(Objects::nonNull).flatMap(List::stream).count();
-		final double jsfPerJoin = Math.pow(standardJSF, 1. / numRegularComponents);
+		return new double[] { getDummyJSFByTests(joinOrder) };
 
-		final double[] result = new double[joinOrderSize];
-		Arrays.fill(result, jsfPerJoin);
-		return result;
+		// final int joinOrderSize = joinOrder.size();
+		// final long numRegularComponents =
+		// joinOrder.stream().map(Pair::getLeft).filter(Objects::nonNull).flatMap(List::stream).count();
+		// final double jsfPerJoin = Math.pow(nodeJSF, 1. / numRegularComponents);
+		//
+		// final double[] result = new double[joinOrderSize];
+		// Arrays.fill(result, jsfPerJoin);
+		// return result;
+	}
+
+	private double getDummyJSFByTests(final List<Pair<List<Set<PathFilterList>>, List<PathFilter>>> joinOrder) {
+		return getDummyJSFByTests(joinOrder.stream().map(Pair::getRight).flatMap(List::stream)::iterator);
+	}
+
+	private double getDummyJSFByTests(final PathNodeFilterSet filters) {
+		return getDummyJSFByTests(filters.getFilters());
+	}
+
+	private double getDummyJSFByTests(final Iterable<PathFilter> filters) {
+		int numTests = 0;
+		for (final PathFilter pathFilter : filters) {
+			final Predicate predicate = ((PredicateWithArgumentsComposite<?>) pathFilter.getFunction()).getFunction();
+			if (Objects.equals(predicate.inClips(), And.inClips)) {
+				numTests += predicate.getParamTypes().length;
+			} else {
+				++numTests;
+			}
+		}
+		final double nodeJSF = Math.pow(standardJSF, numTests);
+		return nodeJSF;
 	}
 
 	@Override
