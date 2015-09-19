@@ -236,7 +236,7 @@ public class Randomizer {
 		final IdentityHashMap<FactVariableSubSet, SingleFactVariable> fvExtension = new IdentityHashMap<>();
 		for (final Template template : block.getFactVariablePartition().templateLookup.keySet()) {
 			final Set<FactVariableSubSet> subsets = block.getFactVariablePartition().lookupByTemplate(template);
-			final ArrayList<SingleFactVariable> fvs = fvsByTemplate.get(template);
+			final ArrayList<SingleFactVariable> fvs = fvsByTemplate.getOrDefault(template, new ArrayList<>());
 			if (fvs.size() < subsets.size()) {
 				return false;
 			}
