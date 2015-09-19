@@ -5,6 +5,7 @@ import static java.util.stream.Collectors.toSet;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Objects;
@@ -17,12 +18,14 @@ import org.jamocha.dn.compiler.ecblocks.ECBlocks.Element;
 import org.jamocha.dn.compiler.ecblocks.ECBlocks.FilterInstanceTypePartitioner;
 import org.jamocha.dn.compiler.ecblocks.ECBlocks.Theta;
 import org.jamocha.dn.compiler.ecblocks.ECBlocks.VariableExpression;
+import org.jamocha.dn.compiler.ecblocks.FactVariablePartition.FactVariableSubSet;
 import org.jamocha.dn.compiler.ecblocks.Filter.FilterInstance;
 import org.jamocha.dn.compiler.ecblocks.Filter.ImplicitECFilterInstance;
 import org.jamocha.dn.compiler.ecblocks.Filter.ImplicitElementFilterInstance;
 import org.jamocha.dn.compiler.ecblocks.FilterInstancePartition.FilterInstanceSubSet;
 import org.jamocha.dn.compiler.ecblocks.Partition.SubSet;
 import org.jamocha.languages.common.RuleCondition.EquivalenceClass;
+import org.jamocha.languages.common.SingleFactVariable;
 import org.jgrapht.UndirectedGraph;
 import org.jgrapht.graph.SimpleGraph;
 
@@ -283,5 +286,19 @@ public class Block {
 		// fact variable partition unchanged
 		++blockModCount;
 		return true;
+	}
+
+	public void addRow(final Either<Rule, ExistentialProxy> extendRule,
+			final IdentityHashMap<FactVariableSubSet, SingleFactVariable> fvExtension,
+			final IdentityHashMap<FilterInstanceSubSet, FilterInstance> fiExtension,
+			final IdentityHashMap<SubSet<Element>, Element> elExtension) {
+		// TODO variableExpressionTheta
+		elExtension.values().forEach(theta::add);
+		elementPartition.extend(extendRule, elExtension);
+		factVariablePartition.extend(extendRule, fvExtension);
+		filterInstancePartition.extend(extendRule, fiExtension);
+		flatFilterInstances.addAll(fiExtension.values());
+		rulesOrProxies.add(extendRule);
+		++blockModCount;
 	}
 }

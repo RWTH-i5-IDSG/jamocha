@@ -366,7 +366,7 @@ public class ECBlocks {
 	 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
 	 */
 	@RequiredArgsConstructor
-	static class Theta {
+	public static class Theta {
 		final Map<EquivalenceClass, ReducedEquivalenceClass> equivalenceClassToReduced = new IdentityHashMap<>();
 
 		public Theta(final Theta copy) {
