@@ -559,8 +559,9 @@ public class ECBlocks {
 
 		public static void convert(final List<Either<Rule, ExistentialProxy>> rules,
 				final Either<Rule, ExistentialProxy> ruleOrProxy, final Collection<ECFilterSet> filters) {
-			final Rule rule = ruleOrProxy.left().get();
-			final Set<EquivalenceClass> equivalenceClasses = rule.getOriginal().getEquivalenceClasses();
+			final Set<EquivalenceClass> equivalenceClasses =
+					ruleOrProxy.fold(rule -> rule.original.getEquivalenceClasses(),
+							existential -> existential.existential.getEquivalenceClasses());
 			for (final EquivalenceClass equivalenceClass : equivalenceClasses) {
 				final List<Element> elements = new ArrayList<>();
 				equivalenceClass.getFactVariables().stream().map(FactBinding::new).forEach(elements::add);
@@ -623,12 +624,10 @@ public class ECBlocks {
 
 			final ExistentialProxy proxy = new ExistentialProxy(rule, existentialSet);
 			final Either<Rule, ExistentialProxy> proxyEither = proxy.either;
-			final RuleConverter visitor = new RuleConverter(this.rules, proxyEither);
 
 			// insert all pure filters into the proxy
-			for (final ECFilterSet pathFilterSet : purePart) {
-				pathFilterSet.accept(visitor);
-			}
+			RuleConverter.convert(this.rules, proxyEither, purePart);
+
 			// create own row for the pure part
 			this.rules.add(proxyEither);
 
