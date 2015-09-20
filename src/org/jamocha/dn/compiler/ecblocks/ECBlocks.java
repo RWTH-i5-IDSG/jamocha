@@ -408,6 +408,16 @@ public class ECBlocks {
 				return Collections.emptySet();
 			return reducedEquivalenceClass.elements;
 		}
+
+		// TODO use this function!
+		public void remove(final Element element) {
+			final ReducedEquivalenceClass reducedEquivalenceClass =
+					equivalenceClassToReduced.get(element.getEquivalenceClass());
+			reducedEquivalenceClass.remove(element);
+			if (reducedEquivalenceClass.elements.isEmpty()) {
+				equivalenceClassToReduced.remove(element.getEquivalenceClass());
+			}
+		}
 	}
 
 	protected static List<Map<Either<Rule, ExistentialProxy>, ? extends Element>> determineEquivalenceClassIntersection(
@@ -1583,8 +1593,13 @@ public class ECBlocks {
 				final boolean ecInBlock = block.theta.isRelevant(left.getEquivalenceClass());
 
 				if (leftElementInBlock && rightElementInBlock) {
+					final boolean containedInFlat = block.flatFilterInstances.contains(nCurrentFI);
+					final boolean containedInPartition = null != block.filterInstancePartition.lookup(nCurrentFI);
 					throw new IllegalStateException(
-							"A test comparing two elements of an equivalence class is to be considered, but both elements already are in the effective equivalence class of the block!");
+							"A test comparing two elements of an equivalence class is to be considered, but both elements already are in the effective equivalence class of the block! Filter is already contained in "
+									+ (containedInFlat ? "" : "not ")
+									+ "the flat filter instances and "
+									+ (containedInPartition ? "" : "not ") + "the filter instance partition");
 				}
 				if (!ecInBlock) {
 					// add left = right and right = left for every rule => done
