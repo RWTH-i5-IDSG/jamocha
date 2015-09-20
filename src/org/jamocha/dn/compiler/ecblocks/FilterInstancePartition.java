@@ -61,7 +61,9 @@ class FilterInstancePartition extends Partition<FilterInstance, FilterInstancePa
 
 	public FilterInstancePartition(final FilterInstancePartition copy) {
 		super(copy, FilterInstanceSubSet::new);
-		this.filterLookup.putAll(copy.filterLookup);
+		for (final FilterInstanceSubSet subSet : this.subSets) {
+			this.filterLookup.computeIfAbsent(subSet.filter, newHashSet()).add(subSet);
+		}
 	}
 
 	@Override

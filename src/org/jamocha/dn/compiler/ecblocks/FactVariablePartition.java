@@ -58,7 +58,9 @@ class FactVariablePartition extends Partition<SingleFactVariable, FactVariablePa
 
 	public FactVariablePartition(final FactVariablePartition copy) {
 		super(copy, FactVariableSubSet::new);
-		this.templateLookup.putAll(copy.templateLookup);
+		for (final FactVariableSubSet subSet : this.subSets) {
+			this.templateLookup.computeIfAbsent(subSet.template, newHashSet()).add(subSet);
+		}
 	}
 
 	@Override
