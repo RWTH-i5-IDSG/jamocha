@@ -260,19 +260,24 @@ public class Randomizer {
 		for (final SingleFactVariable factVariable : factVariables) {
 			fvPart.add(new FactVariableSubSet(Collections.singletonMap(rule, factVariable)));
 		}
+
 		final Block block = new Block(Collections.singleton(rule), fvPart);
 		block.addFilterInstanceSubSet(new FilterInstanceSubSet(Collections.singletonMap(rule, randomFI)));
 		if (randomFI instanceof ImplicitFilterInstance) {
+			final ImplicitFilterInstance implicitFilterInstance = (ImplicitFilterInstance) randomFI;
 			block.addFilterInstanceSubSet(new FilterInstanceSubSet(Collections.singletonMap(rule,
-					((ImplicitFilterInstance) randomFI).getDual())));
-		}
-		final Map<Integer, Map<Either<Rule, ExistentialProxy>, EquivalenceClass>> ecColumns =
-				ECBlocks.determineECColumns(Collections.singletonList(randomFI));
-		for (final Map<Either<Rule, ExistentialProxy>, EquivalenceClass> ecColumn : ecColumns.values()) {
-			final List<Map<Either<Rule, ExistentialProxy>, ? extends Element>> elementSubsets =
-					ECBlocks.determineEquivalenceClassIntersection(ecColumn, fvPart);
-			for (final Map<Either<Rule, ExistentialProxy>, ? extends Element> elementSubSet : elementSubsets) {
-				block.addElementSubSet(new SubSet<Element>(elementSubSet));
+					implicitFilterInstance.getDual())));
+			block.addElementSubSet(new SubSet<>(Collections.singletonMap(rule, implicitFilterInstance.getLeft())));
+			block.addElementSubSet(new SubSet<>(Collections.singletonMap(rule, implicitFilterInstance.getRight())));
+		} else {
+			final Map<Integer, Map<Either<Rule, ExistentialProxy>, EquivalenceClass>> ecColumns =
+					ECBlocks.determineECColumns(Collections.singletonList(randomFI));
+			for (final Map<Either<Rule, ExistentialProxy>, EquivalenceClass> ecColumn : ecColumns.values()) {
+				final List<Map<Either<Rule, ExistentialProxy>, ? extends Element>> ecIntersection =
+						ECBlocks.determineEquivalenceClassIntersection(ecColumn, fvPart);
+				final Map<Either<Rule, ExistentialProxy>, ? extends Element> elementSubSet =
+						getRandomElement(ecIntersection, rand);
+				block.addElementSubSet(new SubSet<>(elementSubSet));
 			}
 		}
 		final boolean added = state.blockSet.addDuringHorizontalRecursion(block);
