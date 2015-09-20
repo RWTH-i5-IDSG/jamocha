@@ -562,7 +562,7 @@ public class CEToECTranslator implements DefaultConditionalElementsVisitor {
 			final Set<PredicateWithArguments<ECLeaf>> shallowTests =
 					equivalenceClassBuilder.shallowTests.stream().map(FWASymbolToECTranslator::translate)
 							.collect(toSet());
-			shallowTests.stream().map(ECCollector::collect).forEach(equivalenceClasses::addAll);
+			// shallowTests.stream().map(ECCollector::collect).forEach(equivalenceClasses::addAll);
 
 			// Generate ECFilters from CE (recurse)
 			final Set<ECFilterSet> filters =
