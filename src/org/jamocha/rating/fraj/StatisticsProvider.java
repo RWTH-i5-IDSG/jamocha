@@ -78,6 +78,16 @@ public class StatisticsProvider implements org.jamocha.rating.StatisticsProvider
 		final Set<PathNodeFilterSet> flattenedPreNetwork = PathFilterListSetFlattener.flatten(preNetwork);
 		if (flattenedPreNetwork.contains(filters))
 			return 1;
+		
+		for (final PathNodeFilterSet pathNodeFilterSet : flattenedPreNetwork) {
+			for (final PathFilter pathFilter : pathNodeFilterSet.getFilters()) {
+				final String string = pathFilter.toString();
+				if (string.matches("Filter\\(function='='\\(Path\\d+ \\[edge::label\\], nil\\)\\)")) {
+					return 0.25;
+				}
+			}
+		}
+		
 		return getDummyJSFByTests(filters);
 		// TBD implement to get actual data from somewhere (statistic gatherer?)
 	}
