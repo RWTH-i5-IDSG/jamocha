@@ -76,6 +76,7 @@ import org.jgrapht.graph.SimpleDirectedGraph;
 import com.atlassian.fugue.Either;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Sets;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
@@ -317,7 +318,7 @@ public class Randomizer {
 		}
 		// got a filter instance for every filter instance subset
 		// => go get a fact variable partition
-		final Set<SingleFactVariable> factVariables = Util.getFactVariables(rule);
+		final Set<SingleFactVariable> factVariables = Sets.newHashSet(Util.getFactVariables(rule));
 		final Map<Template, ArrayList<SingleFactVariable>> fvsByTemplate =
 				factVariables.stream().collect(groupingBy(SingleFactVariable::getTemplate, toArrayList()));
 		final IdentityHashMap<FactVariableSubSet, SingleFactVariable> fvExtension = new IdentityHashMap<>();
@@ -328,8 +329,7 @@ public class Randomizer {
 				return false;
 			}
 			for (final FactVariableSubSet fvSubSet : subsets) {
-				final SingleFactVariable singleFactVariable =
-						Iterables.get(factVariables, rand.nextInt(factVariables.size()));
+				final SingleFactVariable singleFactVariable = getRandomElement(factVariables, rand);
 				factVariables.remove(singleFactVariable);
 				fvExtension.put(fvSubSet, singleFactVariable);
 			}
