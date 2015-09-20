@@ -152,9 +152,10 @@ public class Randomizer {
 			case 3: { // remove a column
 				if (!nextState.blockSet.blocks.isEmpty()) {
 					final Block block = getRandomElement(nextState.blockSet.blocks, rand);
-
-					tryToRemoveColumn(nextState, block,
-							getRandomElement(block.getFilterInstancePartition().getSubSets(), rand));
+					final Set<FilterInstanceSubSet> subSets = block.getFilterInstancePartition().getSubSets();
+					if (!subSets.isEmpty()) {
+						tryToRemoveColumn(nextState, block, getRandomElement(subSets, rand));
+					}
 				}
 				break;
 			}
@@ -168,7 +169,7 @@ public class Randomizer {
 	}
 
 	final List<Either<Rule, ExistentialProxy>> rules;
-	final Random rand = new Random();
+	final Random rand = new Random(0);
 	State currentState, bestState, initialState;
 
 	public void setCurrentState(final State state) {
