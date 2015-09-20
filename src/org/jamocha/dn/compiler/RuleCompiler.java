@@ -148,7 +148,7 @@ public enum RuleCompiler {
 			final Pair<List<Either<Rule, ExistentialProxy>>, ECBlockSet> pair = ECBlocks.compile(consolidatedRules);
 			final List<Either<Rule, ExistentialProxy>> rules = pair.getLeft();
 			final ECBlockSet blockSet = pair.getRight();
-			final Collection<PathRule> randomized = Randomizer.randomizeII(rules, blockSet); 
+			final Collection<PathRule> randomized = Randomizer.randomizeTPO(rules, blockSet); 
 			return randomized;
 		}
 	},
