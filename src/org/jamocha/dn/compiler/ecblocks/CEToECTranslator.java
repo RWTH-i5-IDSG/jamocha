@@ -552,7 +552,8 @@ public class CEToECTranslator implements DefaultConditionalElementsVisitor {
 			final Set<VariableSymbol> symbolsInTests = ce.accept(new ShallowSymbolCollector()).getSymbols();
 
 			final Set<VariableSymbol> symbolsAtThisLevel =
-					Sets.filter(variableSymbols, s -> relevant(symbolsInTests, shallowExistentialFVs, s));
+					Sets.newHashSet(Sets.filter(variableSymbols,
+							s -> relevant(symbolsInTests, shallowExistentialFVs, s)));
 
 			final ShallowCEEquivalenceClassBuilder equivalenceClassBuilder =
 					ce.accept(new ShallowCEEquivalenceClassBuilder(scope, symbolsAtThisLevel, shallowExistentialFVs,
