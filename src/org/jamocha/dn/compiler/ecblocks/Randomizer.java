@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.IdentityHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -63,6 +64,9 @@ import org.jamocha.dn.compiler.ecblocks.rand.SimulatedAnnealing;
 import org.jamocha.dn.compiler.ecblocks.rand.TwoPhaseOptimization;
 import org.jamocha.dn.memory.Template;
 import org.jamocha.dn.nodes.TerminalNode;
+import org.jamocha.filter.Path;
+import org.jamocha.filter.PathCollector;
+import org.jamocha.filter.PathFilterList;
 import org.jamocha.filter.optimizer.Optimizer;
 import org.jamocha.filter.optimizer.SamePathsFilterCombiningOptimizer;
 import org.jamocha.filter.optimizer.SamePathsNodeFilterSetCombiningOptimizer;
@@ -200,7 +204,7 @@ public class Randomizer {
 		/* number of nodes in the condition graph */
 		final long localOptimizations = rules.stream().map(Util::getFactVariables).flatMap(Set::stream).count();
 		final long rLocalMinimum = 20;
-		return new IterativeImprovement(randomizer, localOptimizations, rLocalMinimum).optimize();
+		return resetPaths(new IterativeImprovement(randomizer, localOptimizations, rLocalMinimum).optimize());
 	}
 
 	/**
@@ -220,7 +224,7 @@ public class Randomizer {
 		/* we just use the number of nodes here !? */
 		final long innerLoopOpimizations = rules.stream().map(Util::getFactVariables).flatMap(Set::stream).count();
 		final double initialTemp = 2 * randomizer.getBestState().rate();
-		return new SimulatedAnnealing(randomizer, cooldown, innerLoopOpimizations, initialTemp).optimize();
+		return resetPaths(new SimulatedAnnealing(randomizer, cooldown, innerLoopOpimizations, initialTemp).optimize());
 	}
 
 	/**
@@ -241,8 +245,20 @@ public class Randomizer {
 		/* Gator uses: number of edges in the condition graph */
 		/* we just use the number of nodes here !? */
 		final long sa_innerLoopOpimizations = rules.stream().map(Util::getFactVariables).flatMap(Set::stream).count();
-		return new TwoPhaseOptimization(randomizer, ii_localOptimizations, ii_rLocalMinimum, sa_cooldown,
-				sa_innerLoopOpimizations).optimize();
+		return resetPaths(new TwoPhaseOptimization(randomizer, ii_localOptimizations, ii_rLocalMinimum, sa_cooldown,
+				sa_innerLoopOpimizations).optimize());
+	}
+
+	private static Collection<PathRule> resetPaths(final Collection<PathRule> optimized) {
+		for (final PathRule pathRule : optimized) {
+			final PathFilterList condition = pathRule.getCondition();
+			final HashSet<Path> paths = PathCollector.newHashSet().collectAllInLists(condition).getPaths();
+			for (final Path path : paths) {
+				path.setFactAddressInCurrentlyLowestNode(null);
+				path.setJoinedWith(Collections.emptySet());
+			}
+		}
+		return optimized;
 	}
 
 	private static Randomizer newRandomizer(final List<Either<Rule, ExistentialProxy>> rules, final ECBlockSet blockSet) {
