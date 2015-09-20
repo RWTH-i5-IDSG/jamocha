@@ -1562,7 +1562,6 @@ public class ECBlocks {
 			final List<ImplicitElementFilterInstance> nImplicitElementFilterInstances, final Block block,
 			final List<Pair<Block, List<FilterInstance>>> matchingFilters) {
 		final FactVariablePartition factVariablePartition = block.factVariablePartition;
-		final ElementPartition bElementPartition = block.elementPartition;
 		final Set<Either<Rule, ExistentialProxy>> rules = block.rulesOrProxies;
 
 		final Set<ImplicitElementFilterInstance> workspace = Sets.newIdentityHashSet();
@@ -1572,18 +1571,15 @@ public class ECBlocks {
 						groupingBy(FilterInstance::getRuleOrProxy,
 								groupingBy(FilterInstance::getFilter, toCollection(() -> Sets.newIdentityHashSet()))));
 
-		final Consumer<ImplicitElementFilterInstance> remove = (fi) -> {
+		final Consumer<FilterInstance> remove = (fi) -> {
 			if (workspace.remove(fi)) {
 				workspaceByRule.get(fi.getRuleOrProxy()).get(fi.getFilter()).remove(fi);
 			}
 		};
 
-		workspaceLoop: while (!workspace.isEmpty()) {
+		while (!workspace.isEmpty()) {
 			final ImplicitElementFilterInstance nCurrentFI = workspace.iterator().next();
-			final Filter nCurrentFilter = nCurrentFI.getFilter();
 			remove.accept(nCurrentFI);
-			final Function<ImplicitElementFilterInstance, Element> getBElement, getNElement;
-			final BiFunction<Element, Element, Filter> bnToFilter;
 			{
 				final Element left = nCurrentFI.getLeft();
 				final Element right = nCurrentFI.getRight();
@@ -1618,185 +1614,60 @@ public class ECBlocks {
 				}
 				// ec already in block
 
+				// create a new block
+				final Block newBlock = new Block(block);
+				final List<FilterInstance> filterInstances = new ArrayList<>();
 				if (leftElementInBlock) {
 					// => right is new
-					getBElement = ImplicitElementFilterInstance::getLeft;
-					getNElement = ImplicitElementFilterInstance::getRight;
-					bnToFilter = (b, n) -> Filter.newEqualityFilter(b, n);
+					addElementToReducedEquivalenceClass(newBlock, filterInstances, right, remove);
 				} else if (rightElementInBlock) {
 					// => left is new
-					getBElement = ImplicitElementFilterInstance::getRight;
-					getNElement = ImplicitElementFilterInstance::getLeft;
-					bnToFilter = (b, n) -> Filter.newEqualityFilter(n, b);
+					addElementToReducedEquivalenceClass(newBlock, filterInstances, left, remove);
 				} else {
 					// ec already in the block but none of the arguments is in the element partition
 					// => add all tests comparing old = left and old = right and left = old and
 					// right = old for every old and every rule
-
-					// create a new block
-					final Block newBlock = new Block(block);
-					final List<FilterInstance> filterInstances = new ArrayList<>();
-					if (!getFirstColumnAndDualsForTwoNewElements(factVariablePartition, rules, remove, nCurrentFI,
-							newBlock, filterInstances)) {
-						continue workspaceLoop;
-					}
-
-					final Map<Either<Rule, ExistentialProxy>, Element> leftColumn, rightColumn;
-					{
-						final IdentityHashMap<Either<Rule, ExistentialProxy>, FilterInstance> column =
-								newBlock.filterInstancePartition.lookup(nCurrentFI).getElements();
-						leftColumn = Maps.transformValues(column, fi -> ((ImplicitElementFilterInstance) fi).getLeft());
-						rightColumn =
-								Maps.transformValues(column, fi -> ((ImplicitElementFilterInstance) fi).getRight());
-					}
-
-					// find the tests for all the other elements in theta(bElement.getEC())
-					final Set<Element> representativesOfTheOld = block.theta.reduce(left.getEquivalenceClass());
-					for (final Element representative : representativesOfTheOld) {
-						final Map<Either<Rule, ExistentialProxy>, ImplicitElementFilterInstance> columnForLeft =
-								new IdentityHashMap<>();
-						final Map<Either<Rule, ExistentialProxy>, ImplicitElementFilterInstance> columnForRight =
-								new IdentityHashMap<>();
-						final SubSet<Element> representativeSubSet = bElementPartition.lookup(representative);
-						for (final Either<Rule, ExistentialProxy> rule : rules) {
-							final Element currentOElement = representativeSubSet.get(rule);
-							{
-								final Element currentLElement = leftColumn.get(rule);
-								final Filter leftFilter = Filter.newEqualityFilter(currentOElement, currentLElement);
-								final ImplicitElementFilterInstance matchingLeftInstance =
-										getMatchingFilterInstanceForRule(factVariablePartition, bElementPartition,
-												workspaceByRule, leftFilter, ImplicitElementFilterInstance::getLeft,
-												ImplicitElementFilterInstance::getRight, currentOElement,
-												currentLElement, rule);
-								if (null == matchingLeftInstance) {
-									throw new IllegalStateException("Inconsistent!");
-								}
-								columnForLeft.put(rule, matchingLeftInstance);
-								remove.accept(matchingLeftInstance);
-							}
-							{
-								final Element currentRElement = rightColumn.get(rule);
-								final Filter rightFilter = Filter.newEqualityFilter(currentOElement, currentRElement);
-								final ImplicitElementFilterInstance matchingRightInstance =
-										getMatchingFilterInstanceForRule(factVariablePartition, bElementPartition,
-												workspaceByRule, rightFilter, ImplicitElementFilterInstance::getLeft,
-												ImplicitElementFilterInstance::getRight, currentOElement,
-												currentRElement, rule);
-								if (null == matchingRightInstance) {
-									throw new IllegalStateException("Inconsistent!");
-								}
-								columnForRight.put(rule, matchingRightInstance);
-								remove.accept(matchingRightInstance);
-							}
-						}
-						// add the newly found filter instances
-						newBlock.addFilterInstanceSubSet(new FilterInstanceSubSet(columnForLeft));
-						newBlock.addFilterInstanceSubSet(new FilterInstanceSubSet(columnForRight));
-						filterInstances.addAll(columnForLeft.values());
-						filterInstances.addAll(columnForRight.values());
-						// get the corresponding dual filter instances ...
-						final Map<Either<Rule, ExistentialProxy>, ImplicitElementFilterInstance> columnForLeftDuals =
-								Maps.transformValues(columnForLeft, ImplicitElementFilterInstance::getDual);
-						final Map<Either<Rule, ExistentialProxy>, ImplicitElementFilterInstance> columnForRightDuals =
-								Maps.transformValues(columnForRight, ImplicitElementFilterInstance::getDual);
-						// ... add them to the new block ...
-						newBlock.addFilterInstanceSubSet(new FilterInstanceSubSet(columnForLeftDuals));
-						newBlock.addFilterInstanceSubSet(new FilterInstanceSubSet(columnForRightDuals));
-						filterInstances.addAll(columnForLeftDuals.values());
-						filterInstances.addAll(columnForRightDuals.values());
-						// ... and remove them from the workspace
-						columnForLeftDuals.values().forEach(remove);
-						columnForRightDuals.values().forEach(remove);
-					}
-
-					// add to matching filters list and continue
-					matchingFilters.add(Pair.of(newBlock, filterInstances));
-					continue;
+					addElementToReducedEquivalenceClass(newBlock, filterInstances, left, remove);
+					addElementToReducedEquivalenceClass(newBlock, filterInstances, right, remove);
 				}
+				// add to matching filters list and continue
+				matchingFilters.add(Pair.of(newBlock, filterInstances));
 			}
-
-			final Element firstNElement = getNElement.apply(nCurrentFI);
-			final Element firstBElement = getBElement.apply(nCurrentFI);
-			final Either<Rule, ExistentialProxy> currentRule = nCurrentFI.getRuleOrProxy();
-			final SetView<Either<Rule, ExistentialProxy>> otherRules =
-					Sets.difference(rules, Collections.singleton(currentRule));
-			final Map<Either<Rule, ExistentialProxy>, ImplicitElementFilterInstance> firstFIColumn =
-					new IdentityHashMap<>();
-			firstFIColumn.put(currentRule, nCurrentFI);
-			for (final Either<Rule, ExistentialProxy> rule : otherRules) {
-				final ImplicitElementFilterInstance matchingInstance =
-						getMatchingFilterInstanceForRule(factVariablePartition, bElementPartition, workspaceByRule,
-								nCurrentFilter, getBElement, getNElement, firstBElement, firstNElement, rule);
-				if (null == matchingInstance) {
-					continue workspaceLoop;
-				}
-				firstFIColumn.put(rule, matchingInstance);
-				remove.accept(matchingInstance);
-			}
-			// now we know there is an equivalent filter instance for every rule
-			final Map<Either<Rule, ExistentialProxy>, Element> ruleToNElement =
-					Maps.transformValues(firstFIColumn, getNElement::apply);
-
-			// create a new block
-			final Block newBlock = new Block(block);
-			final List<FilterInstance> filterInstances = new ArrayList<>();
-			// extend the element partition and the theta
-			newBlock.addElementSubSet(new SubSet<>(ruleToNElement));
-			// add the first column we already found ...
-			newBlock.addFilterInstanceSubSet(new FilterInstanceSubSet(firstFIColumn));
-			// (also to the list of filter instances)
-			filterInstances.addAll(firstFIColumn.values());
-			// ... and their dual filter instances ...
-			final Map<Either<Rule, ExistentialProxy>, ImplicitElementFilterInstance> firstFIColumnDuals =
-					Maps.transformValues(firstFIColumn, ImplicitElementFilterInstance::getDual);
-			newBlock.addFilterInstanceSubSet(new FilterInstanceSubSet(firstFIColumnDuals));
-			// (same as above)
-			filterInstances.addAll(firstFIColumnDuals.values());
-			// ... which also have to be removed from the workspace
-			firstFIColumnDuals.values().forEach(remove);
-
-			// since the list of ElementSubSets is the same for all rules, we can iterate over them
-			// and inside over the rules to get a list of FilterInstanceSubSets
-
-			// find the tests for all the other elements in theta(bElement.getEC())
-			final Set<Element> representativesOfTheRest =
-					Sets.difference(block.theta.reduce(firstBElement.getEquivalenceClass()),
-							Collections.singleton(firstBElement));
-			for (final Element representative : representativesOfTheRest) {
-				final Map<Either<Rule, ExistentialProxy>, ImplicitElementFilterInstance> column =
-						new IdentityHashMap<>();
-				final SubSet<Element> representativeSubSet = bElementPartition.lookup(representative);
-				for (final Either<Rule, ExistentialProxy> rule : rules) {
-					final Element currentBElement = representativeSubSet.get(rule);
-					final Element currentNElement = ruleToNElement.get(rule);
-					final Filter filter = bnToFilter.apply(currentBElement, currentNElement);
-					final ImplicitElementFilterInstance matchingInstance =
-							getMatchingFilterInstanceForRule(factVariablePartition, bElementPartition, workspaceByRule,
-									filter, getBElement, getNElement, currentBElement, currentNElement, rule);
-					if (null == matchingInstance) {
-						throw new IllegalStateException("Inconsistent!");
-					}
-					column.put(rule, matchingInstance);
-					remove.accept(matchingInstance);
-				}
-				// add the newly found filter instances
-				newBlock.addFilterInstanceSubSet(new FilterInstanceSubSet(column));
-				filterInstances.addAll(column.values());
-				// get the corresponding dual filter instances ...
-				final Map<Either<Rule, ExistentialProxy>, ImplicitElementFilterInstance> columnDuals =
-						Maps.transformValues(column, ImplicitElementFilterInstance::getDual);
-				// ... add them to the new block ...
-				newBlock.addFilterInstanceSubSet(new FilterInstanceSubSet(columnDuals));
-				filterInstances.addAll(columnDuals.values());
-				// ... and remove them from the workspace
-				columnDuals.values().forEach(remove);
-			}
-			matchingFilters.add(Pair.of(newBlock, filterInstances));
 		}
 	}
 
+	private static void addElementToReducedEquivalenceClass(final Block newBlock,
+			final List<FilterInstance> filterInstances, final Element newElement, final Consumer<FilterInstance> remove) {
+		final Set<Element> bReducedEC = newBlock.theta.reduce(newElement.getEquivalenceClass());
+		assert null != bReducedEC;
+		final IdentityHashMap<Either<Rule, ExistentialProxy>, Element> newElementColumn = new IdentityHashMap<>();
+		for (final Element bRepresentative : bReducedEC) {
+			final Filter filter = Filter.newEqualityFilter(newElement, bRepresentative);
+			final IdentityHashMap<Either<Rule, ExistentialProxy>, ImplicitElementFilterInstance> fiColumn =
+					new IdentityHashMap<>();
+			final IdentityHashMap<Either<Rule, ExistentialProxy>, ImplicitElementFilterInstance> fiDualColumn =
+					new IdentityHashMap<>();
+			for (final Either<Rule, ExistentialProxy> rule : newBlock.getRulesOrProxies()) {
+				final ImplicitElementFilterInstance matchingFilterInstanceForRule =
+						getMatchingFilterInstanceForRule(newBlock.getFactVariablePartition(),
+								newBlock.getElementPartition(), filter, bRepresentative, newElement, rule);
+				assert null != matchingFilterInstanceForRule : "Implicit filter instance missing!";
+				fiColumn.put(rule, matchingFilterInstanceForRule);
+				fiDualColumn.put(rule, matchingFilterInstanceForRule.getDual());
+				filterInstances.add(matchingFilterInstanceForRule);
+				filterInstances.add(matchingFilterInstanceForRule.getDual());
+				remove.accept(matchingFilterInstanceForRule);
+				remove.accept(matchingFilterInstanceForRule.getDual());
+				newElementColumn.put(rule, matchingFilterInstanceForRule.getLeft());
+			}
+			newBlock.addFilterInstanceSubSet(new FilterInstanceSubSet(fiColumn));
+			newBlock.addFilterInstanceSubSet(new FilterInstanceSubSet(fiDualColumn));
+		}
+		newBlock.addElementSubSet(new SubSet<>(newElementColumn));
+	}
+
 	private static boolean getFirstColumnAndDualsForTwoNewElements(final FactVariablePartition factVariablePartition,
-			final Set<Either<Rule, ExistentialProxy>> rules, final Consumer<ImplicitElementFilterInstance> remove,
+			final Set<Either<Rule, ExistentialProxy>> rules, final Consumer<FilterInstance> remove,
 			final ImplicitElementFilterInstance nCurrentFI, final Block newBlock,
 			final List<FilterInstance> filterInstances) {
 		final Either<Rule, ExistentialProxy> currentRule = nCurrentFI.getRuleOrProxy();
@@ -1833,25 +1704,15 @@ public class ECBlocks {
 
 	protected static ImplicitElementFilterInstance getMatchingFilterInstanceForRule(
 			final FactVariablePartition factVariablePartition, final ElementPartition bElementPartition,
-			final Map<Either<Rule, ExistentialProxy>, Map<Filter, Set<ImplicitElementFilterInstance>>> workspaceByRule,
-			final Filter nCurrentFilter, final Function<ImplicitElementFilterInstance, Element> getBElement,
-			final Function<ImplicitElementFilterInstance, Element> getNElement, final Element bElement,
-			final Element nElement, final Either<Rule, ExistentialProxy> rule) {
-		for (final ImplicitElementFilterInstance candidate : workspaceByRule.getOrDefault(rule, Collections.emptyMap())
-				.getOrDefault(nCurrentFilter, Collections.emptySet())) {
-			if (bElementPartition.lookup(bElement) != bElementPartition.lookup(getBElement.apply(candidate))) {
+			final Filter nCurrentFilterWithBlockRightNewLeft, final Element bElement, final Element nElement,
+			final Either<Rule, ExistentialProxy> rule) {
+		for (final ImplicitElementFilterInstance candidate : nCurrentFilterWithBlockRightNewLeft
+				.getImplicitElementInstances(rule)) {
+			if (bElementPartition.lookup(bElement) != bElementPartition.lookup(candidate.getRight())) {
 				continue;
 			}
-			if (!checkSameFactBinding(factVariablePartition, getNElement, nElement, candidate)) {
-				continue;
-			}
-			return candidate;
-		}
-		for (final ImplicitElementFilterInstance candidate : nCurrentFilter.getImplicitElementInstances(rule)) {
-			if (bElementPartition.lookup(bElement) != bElementPartition.lookup(getBElement.apply(candidate))) {
-				continue;
-			}
-			if (!checkSameFactBinding(factVariablePartition, getNElement, nElement, candidate)) {
+			if (!checkSameFactBinding(factVariablePartition, ImplicitElementFilterInstance::getLeft, nElement,
+					candidate)) {
 				continue;
 			}
 			return candidate;
