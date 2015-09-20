@@ -601,45 +601,55 @@ public class CEToECTranslator implements DefaultConditionalElementsVisitor {
 				pureFilters = tmp.get(Boolean.TRUE);
 				mixedFilters = tmp.get(Boolean.FALSE);
 			}
+
 			// FIXME is this creation of the existential closure correct?
-			final ECFilter existentialClosure;
+			final List<FunctionWithArguments<ECLeaf>> predicates = new ArrayList<>();
+			// // identify the equivalence classes that contain local bindings and an equal parent
+			// for (final EquivalenceClass ec : equivalenceClasses) {
+			// final Set<EquivalenceClass> equalParents = ec.getEqualParentEquivalenceClasses();
+			// if (equalParents.isEmpty())
+			// continue;
+			// if (ec.getFactVariables().isEmpty() && ec.getSlotVariables().isEmpty()
+			// && ec.getConstantExpressions().isEmpty() && ec.getVariableExpressions().isEmpty())
+			// continue;
+			// for (final EquivalenceClass equalParent : equalParents) {
+			// predicates.add(PredicateWithArgumentsComposite.newPredicateInstance(Equals.inClips,
+			// new ECLeaf(ec),
+			// new ECLeaf(equalParent)));
+			// }
+			// }
+
 			if (mixedFilters.isEmpty()) {
-				existentialClosure =
-						new ECFilter(new PredicateWithArgumentsComposite<ECLeaf>(DummyPredicate.instance,
-								toArray(Stream.concat(shallowExistentialECs.stream(),
-										Stream.of(initialFactVariable.getEqual())).map(ECLeaf::new), ECLeaf[]::new)));
+				predicates.add(new PredicateWithArgumentsComposite<ECLeaf>(DummyPredicate.instance, toArray(
+						Stream.concat(shallowExistentialECs.stream(), Stream.of(initialFactVariable.getEqual())).map(
+								ECLeaf::new), ECLeaf[]::new)));
 			} else if (1 == mixedFilters.size()) {
 				final ECFilter mixed = (ECFilter) mixedFilters.iterator().next();
+				predicates.add(mixed.getFunction());
 				final Set<EquivalenceClass> ecsInMixed = ECCollector.collect(mixed);
-				if (ecsInMixed.containsAll(shallowExistentialECs)) {
-					existentialClosure = mixed;
-				} else {
+				if (!ecsInMixed.containsAll(shallowExistentialECs)) {
 					final SetView<EquivalenceClass> missingECs = Sets.difference(shallowExistentialECs, ecsInMixed);
-					existentialClosure =
-							new ECFilter(GenericWithArgumentsComposite.newPredicateInstance(
-									And.inClips,
-									mixed.getFunction(),
-									new PredicateWithArgumentsComposite<ECLeaf>(DummyPredicate.instance, toArray(
-											missingECs.stream().map(ECLeaf::new), ECLeaf[]::new))));
+					predicates.add(GenericWithArgumentsComposite.newPredicateInstance(
+							And.inClips,
+							mixed.getFunction(),
+							new PredicateWithArgumentsComposite<ECLeaf>(DummyPredicate.instance, toArray(missingECs
+									.stream().map(ECLeaf::new), ECLeaf[]::new))));
 				}
 			} else {
-				Stream<FunctionWithArguments<ECLeaf>> argStream =
-						mixedFilters.stream().map(f -> ((ECFilter) f).getFunction());
+				mixedFilters.stream().map(f -> ((ECFilter) f).getFunction()).forEach(predicates::add);
 				final Set<SingleFactVariable> fvsPulledInByMixedFilters =
 						mixedFilters.stream().map(filter2FVs::get).flatMap(Set::stream).collect(toIdentityHashSet());
 				if (!fvsPulledInByMixedFilters.containsAll(shallowExistentialFVs)) {
 					final SetView<SingleFactVariable> missingFVs =
 							Sets.difference(shallowExistentialFVs, fvsPulledInByMixedFilters);
-					argStream =
-							Stream.concat(argStream, Stream.of(new PredicateWithArgumentsComposite<ECLeaf>(
-									DummyPredicate.instance, toArray(
-											missingFVs.stream().map(SingleFactVariable::getEqual).map(ECLeaf::new),
-											ECLeaf[]::new))));
+					predicates.add(new PredicateWithArgumentsComposite<ECLeaf>(DummyPredicate.instance, toArray(
+							missingFVs.stream().map(SingleFactVariable::getEqual).map(ECLeaf::new), ECLeaf[]::new)));
 				}
-				existentialClosure =
-						new ECFilter(GenericWithArgumentsComposite.newPredicateInstance(And.inClips, ToArray
-								.<FunctionWithArguments<ECLeaf>> toArray(argStream, FunctionWithArguments[]::new)));
 			}
+			final ECFilter existentialClosure =
+					new ECFilter(predicates.size() == 1 ? (PredicateWithArguments<ECLeaf>) predicates.get(0)
+							: PredicateWithArgumentsComposite.newPredicateInstance(Equals.inClips, ToArray
+									.<FunctionWithArguments<ECLeaf>> toArray(predicates, FunctionWithArguments[]::new)));
 			return new ECFilterSet.ECExistentialSet(isPositive, initialFactVariable, shallowExistentialFVs,
 					equivalenceClasses, pureFilters, existentialClosure);
 		}
