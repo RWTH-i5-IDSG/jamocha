@@ -153,9 +153,8 @@ public class Randomizer {
 				if (!nextState.blockSet.blocks.isEmpty()) {
 					final Block block = getRandomElement(nextState.blockSet.blocks, rand);
 					final Set<FilterInstanceSubSet> subSets = block.getFilterInstancePartition().getSubSets();
-					if (!subSets.isEmpty()) {
-						tryToRemoveColumn(nextState, block, getRandomElement(subSets, rand));
-					}
+					assert !subSets.isEmpty();
+					tryToRemoveColumn(nextState, block, getRandomElement(subSets, rand));
 				}
 				break;
 			}
@@ -364,19 +363,21 @@ public class Randomizer {
 		}
 
 		state.blockSet.remove(block);
-		block.addRow(rule, fvExtension, fiExtension, elExtension);
-		state.blockSet.addDuringHorizontalRecursion(block);
-		solveConflicts(state, block);
+		final Block newBlock = new Block(block);
+		newBlock.addRow(rule, fvExtension, fiExtension, elExtension);
+		state.blockSet.addDuringHorizontalRecursion(newBlock);
+		solveConflicts(state, newBlock);
 		return true;
 	}
 
 	public boolean tryToRemoveRow(final State state, final Block block, final Either<Rule, ExistentialProxy> rule) {
 		state.blockSet.remove(block);
-		if (block.getNumberOfRows() > 1) {
-			block.remove(rule);
-			state.blockSet.addDuringHorizontalRecursion(block);
+		final Block newBlock = new Block(block);
+		if (newBlock.getNumberOfRows() > 1) {
+			newBlock.remove(rule);
+			state.blockSet.addDuringHorizontalRecursion(newBlock);
 		} // else: block vanishes
-		solveConflicts(state, block);
+		solveConflicts(state, newBlock);
 		return true;
 	}
 
@@ -467,7 +468,6 @@ public class Randomizer {
 
 		final Pair<Block, List<FilterInstance>> randomElement = getRandomElement(matchingFilters, rand);
 		final Block newBlock = randomElement.getLeft();
-
 		state.blockSet.remove(block);
 		state.blockSet.addDuringHorizontalRecursion(newBlock);
 		solveConflicts(state, newBlock);
@@ -476,11 +476,12 @@ public class Randomizer {
 
 	public boolean tryToRemoveColumn(final State state, final Block block, final FilterInstanceSubSet subset) {
 		state.blockSet.remove(block);
-		block.remove(subset);
-		if (block.getNumberOfColumns() >= 1) {
-			state.blockSet.addDuringHorizontalRecursion(block);
+		final Block newBlock = new Block(block);
+		newBlock.remove(subset);
+		if (newBlock.getNumberOfColumns() >= 1) {
+			state.blockSet.addDuringHorizontalRecursion(newBlock);
+			solveConflicts(state, newBlock);
 		} // else: block vanishes
-		solveConflicts(state, block);
 		return true;
 	}
 
