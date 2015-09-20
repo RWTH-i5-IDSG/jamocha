@@ -523,10 +523,12 @@ public class CEToECTranslator implements DefaultConditionalElementsVisitor {
 		private static boolean relevant(final Set<VariableSymbol> symbolsInTests,
 				final Set<SingleFactVariable> shallowExistentialFVs, final VariableSymbol s) {
 			final boolean contains = symbolsInTests.contains(s);
+			if (contains)
+				return true;
 			final Set<SingleFactVariable> directlyDependentFactVariables =
 					s.getEqual().getDirectlyDependentFactVariables();
 			final boolean disjoint = Collections.disjoint(shallowExistentialFVs, directlyDependentFactVariables);
-			return contains || !disjoint;
+			return !disjoint;
 		}
 
 		static ECExistentialSet processExistentialCondition(final Template initialFactTemplate,
