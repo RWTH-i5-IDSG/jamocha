@@ -21,7 +21,6 @@ import java.util.Set;
 import lombok.Value;
 
 import org.apache.commons.lang3.tuple.Pair;
-import org.jamocha.dn.memory.Template;
 import org.jamocha.filter.Path;
 import org.jamocha.filter.PathFilter;
 import org.jamocha.filter.PathFilterList;
@@ -52,8 +51,6 @@ public interface StatisticsProvider {
 	}
 
 	public Data getData(final Set<PathFilterList> filters);
-	
-	public Data getData(final Template otn);
 
 	public void setData(final Set<PathFilterList> filters, final Data data);
 

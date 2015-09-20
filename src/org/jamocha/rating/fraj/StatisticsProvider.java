@@ -23,7 +23,6 @@ import java.util.Optional;
 import java.util.Set;
 
 import org.apache.commons.lang3.tuple.Pair;
-import org.jamocha.dn.memory.Template;
 import org.jamocha.filter.Path;
 import org.jamocha.filter.PathFilter;
 import org.jamocha.filter.PathFilterList;
@@ -66,12 +65,6 @@ public class StatisticsProvider implements org.jamocha.rating.StatisticsProvider
 		templateToData.put("t2", new Data(10, 10, 100, 1));
 		templateToData.put("t3", new Data(10, 10, 100, 1));
 		templateToData.put("t4", new Data(10, 10, 100, 1));
-	}
-
-	@Override
-	public Data getData(final Template template) {
-		// workaround - replace with actual data from corresponding OTN
-		return templateToData.get(template.getName());
 	}
 
 	@Override
