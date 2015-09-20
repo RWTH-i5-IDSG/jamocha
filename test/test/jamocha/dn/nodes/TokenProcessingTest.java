@@ -17,6 +17,7 @@ package test.jamocha.dn.nodes;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static test.jamocha.util.AssertsAndRetracts.countAssertsAndRetractsInConflictSet;
+import static test.jamocha.util.ShareNode.shareOTN;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -684,7 +685,7 @@ public class TokenProcessingTest {
 		final RootNode rootNode = network.getRootNode();
 		// create OTN
 		final ObjectTypeNode otn = new ObjectTypeNode(network, t1);
-		otn.shareNode(Collections.emptyMap(), p1);
+		shareOTN(otn, Collections.emptyMap(), p1);
 		// append to root node
 		rootNode.putOTN(otn);
 		// create & append alpha
@@ -758,7 +759,7 @@ public class TokenProcessingTest {
 		final RootNode rootNode = network.getRootNode();
 		// create OTN
 		final ObjectTypeNode otn = new ObjectTypeNode(network, t1);
-		otn.shareNode(Collections.emptyMap(), p1);
+		shareOTN(otn, Collections.emptyMap(), p1);
 		// append to root node
 		rootNode.putOTN(otn);
 		// create & append alpha

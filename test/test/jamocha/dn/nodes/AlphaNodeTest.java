@@ -20,6 +20,7 @@ import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
+import static test.jamocha.util.ShareNode.shareOTN;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -89,7 +90,7 @@ public class AlphaNodeTest {
 	public void testAlphaNode() {
 		final Path p1 = new Path(Slots.STRING);
 		final ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK, Slots.STRING);
-		otn.shareNode(Collections.emptyMap(), p1);
+		shareOTN(otn, Collections.emptyMap(), p1);
 		new AlphaNode(Network.DEFAULTNETWORK, new FilterMockup(false, new PathAndSlotAddress(p1, s1)));
 	}
 
@@ -101,10 +102,10 @@ public class AlphaNodeTest {
 		final Path p1 = new Path(Slots.BOOLEAN);
 		final Path p2 = new Path(Slots.BOOLEAN);
 		final ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK, Slots.BOOLEAN);
-		otn.shareNode(Collections.emptyMap(), p1, p2);
-		final AlphaNode alpha =
-				new AlphaNode(Network.DEFAULTNETWORK, new FilterMockup(true, new PathAndSlotAddress(p1, s1)));
-		alpha.shareNode(Collections.singletonMap(p2, p1.getFactAddressInCurrentlyLowestNode()), p2);
+		shareOTN(otn, Collections.emptyMap(), p1, p2);
+		final FilterMockup filter = new FilterMockup(true, new PathAndSlotAddress(p1, s1));
+		final AlphaNode alpha = new AlphaNode(Network.DEFAULTNETWORK, filter);
+		alpha.shareNode(filter, Collections.singletonMap(p2, p1.getFactAddressInCurrentlyLowestNode()), p2);
 		Collection<? extends Edge> children = alpha.getOutgoingEdges();
 		assertNotNull(children);
 		assertEquals(0, children.size());
@@ -130,7 +131,7 @@ public class AlphaNodeTest {
 	public void testGetMemory() {
 		final Path p1 = new Path(Slots.BOOLEAN);
 		final ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK, Slots.BOOLEAN);
-		otn.shareNode(Collections.emptyMap(), p1);
+		shareOTN(otn, Collections.emptyMap(), p1);
 		final AlphaNode alpha =
 				new AlphaNode(Network.DEFAULTNETWORK, new FilterMockup(true, new PathAndSlotAddress(p1, s1)));
 		final MemoryHandlerMain memory = alpha.getMemory();
@@ -148,19 +149,17 @@ public class AlphaNodeTest {
 		final Path p1 = new Path(Slots.BOOLEAN);
 		final Path p2 = new Path(Slots.BOOLEAN);
 		final ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK, Slots.BOOLEAN);
-		otn.shareNode(Collections.emptyMap(), p1, p2);
-		final AlphaNode alpha =
-				new AlphaNode(Network.DEFAULTNETWORK, new FilterMockup(true, new PathAndSlotAddress(p1, s1)));
+		shareOTN(otn, Collections.emptyMap(), p1, p2);
+		final FilterMockup filter = new FilterMockup(true, new PathAndSlotAddress(p1, s1));
+		final AlphaNode alpha = new AlphaNode(Network.DEFAULTNETWORK, filter);
 		assertEquals(0, alpha.getNumberOfOutgoingEdges());
-		alpha.shareNode(Collections.singletonMap(p2, p1.getFactAddressInCurrentlyLowestNode()), p2);
+		alpha.shareNode(filter, Collections.singletonMap(p2, p1.getFactAddressInCurrentlyLowestNode()), p2);
 		assertEquals(0, alpha.getNumberOfOutgoingEdges());
-		@SuppressWarnings("unused")
-		final AlphaNode alphaB1 =
-				new AlphaNode(Network.DEFAULTNETWORK, new FilterMockup(true, new PathAndSlotAddress(p1, s1)));
+		// final AlphaNode alphaB1 =
+		new AlphaNode(Network.DEFAULTNETWORK, new FilterMockup(true, new PathAndSlotAddress(p1, s1)));
 		assertEquals(1, alpha.getNumberOfOutgoingEdges());
-		@SuppressWarnings("unused")
-		final AlphaNode alphaB2 =
-				new AlphaNode(Network.DEFAULTNETWORK, new FilterMockup(true, new PathAndSlotAddress(p2, s1)));
+		// final AlphaNode alphaB2 =
+		new AlphaNode(Network.DEFAULTNETWORK, new FilterMockup(true, new PathAndSlotAddress(p2, s1)));
 		assertEquals(2, alpha.getNumberOfOutgoingEdges());
 	}
 
@@ -173,13 +172,13 @@ public class AlphaNodeTest {
 		final Path p1 = new Path(Slots.BOOLEAN);
 		final Path p2 = new Path(Slots.BOOLEAN);
 		final ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK, Slots.BOOLEAN);
-		otn.shareNode(Collections.emptyMap(), p1, p2);
+		shareOTN(otn, Collections.emptyMap(), p1, p2);
 		final FactAddress fa1 = p1.getFactAddressInCurrentlyLowestNode();
-		final AlphaNode alpha =
-				new AlphaNode(Network.DEFAULTNETWORK, new FilterMockup(true, new PathAndSlotAddress(p1, s1)));
+		final FilterMockup filter = new FilterMockup(true, new PathAndSlotAddress(p1, s1));
+		final AlphaNode alpha = new AlphaNode(Network.DEFAULTNETWORK, filter);
 		assertNotSame(fa1, p1.getFactAddressInCurrentlyLowestNode());
 		alpha.delocalizeAddress(p1.getFactAddressInCurrentlyLowestNode());
-		alpha.shareNode(Collections.singletonMap(p2, p1.getFactAddressInCurrentlyLowestNode()), p2);
+		alpha.shareNode(filter, Collections.singletonMap(p2, p1.getFactAddressInCurrentlyLowestNode()), p2);
 		assertNotSame(fa1, p2.getFactAddressInCurrentlyLowestNode());
 		assertSame(p1.getFactAddressInCurrentlyLowestNode(), p2.getFactAddressInCurrentlyLowestNode());
 	}
@@ -193,13 +192,13 @@ public class AlphaNodeTest {
 		final Path p1 = new Path(Slots.BOOLEAN);
 		final Path p2 = new Path(Slots.BOOLEAN);
 		final ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK, Slots.BOOLEAN);
-		otn.shareNode(Collections.emptyMap(), p1, p2);
-		final AlphaNode alpha =
-				new AlphaNode(Network.DEFAULTNETWORK, new FilterMockup(true, new PathAndSlotAddress(p1, s1)));
+		shareOTN(otn, Collections.emptyMap(), p1, p2);
+		final FilterMockup filter = new FilterMockup(true, new PathAndSlotAddress(p1, s1));
+		final AlphaNode alpha = new AlphaNode(Network.DEFAULTNETWORK, filter);
 		Edge[] incomingEdges = alpha.getIncomingEdges();
 		assertEquals(1, incomingEdges.length);
 		assertEquals(otn.getOutgoingEdges().iterator().next(), incomingEdges[0]);
-		alpha.shareNode(Collections.singletonMap(p2, p1.getFactAddressInCurrentlyLowestNode()), p2);
+		alpha.shareNode(filter, Collections.singletonMap(p2, p1.getFactAddressInCurrentlyLowestNode()), p2);
 		incomingEdges = alpha.getIncomingEdges();
 		assertEquals(1, incomingEdges.length);
 		assertEquals(otn.getOutgoingEdges().iterator().next(), incomingEdges[0]);
@@ -211,9 +210,8 @@ public class AlphaNodeTest {
 		incomingEdges = alphaB1.getIncomingEdges();
 		assertEquals(1, incomingEdges.length);
 		assertEquals(alpha.getOutgoingEdges().iterator().next(), incomingEdges[0]);
-		@SuppressWarnings("unused")
-		final AlphaNode alphaB2 =
-				new AlphaNode(Network.DEFAULTNETWORK, new FilterMockup(true, new PathAndSlotAddress(p2, s1)));
+		// final AlphaNode alphaB2 =
+		new AlphaNode(Network.DEFAULTNETWORK, new FilterMockup(true, new PathAndSlotAddress(p2, s1)));
 		incomingEdges = alphaB1.getIncomingEdges();
 		assertEquals(1, incomingEdges.length);
 		assertEquals(alpha.getOutgoingEdges().iterator().next(), incomingEdges[0]);

@@ -48,6 +48,7 @@ import org.jamocha.filter.AddressNodeFilterSet.AddressFilter;
 import org.jamocha.filter.AddressNodeFilterSet.AddressMatchingConfiguration;
 import org.jamocha.filter.AddressNodeFilterSet.NormalAddressNodeFilterSet;
 import org.jamocha.filter.Path;
+import org.jamocha.filter.PathNodeFilterSet;
 import org.jamocha.filter.PathNodeFilterSetToAddressNodeFilterSetTranslator;
 import org.jamocha.function.FunctionDictionary;
 import org.jamocha.function.Predicate;
@@ -180,11 +181,11 @@ public class MemoryHandlerTempTest {
 		}
 
 		@Override
-		public void shareNode(final Map<Path, FactAddress> map, final Path... paths) {
+		public void shareNode(final PathNodeFilterSet filter, final Map<Path, FactAddress> map, final Path... paths) {
 		}
 
 		@Override
-		public <V extends NodeVisitor> V accept(V visitor) {
+		public <V extends NodeVisitor> V accept(final V visitor) {
 			return visitor;
 		}
 
