@@ -28,6 +28,8 @@ import org.jamocha.dn.memory.SlotType;
 import org.jamocha.dn.memory.Template;
 import org.jamocha.dn.nodes.Node;
 
+import com.google.common.collect.Sets;
+
 /**
  * A Path describes an element of a condition part of a rule. It "traces" its position in the
  * network during construction time.
@@ -130,7 +132,7 @@ public class Path {
 		this.template = template;
 		this.currentlyLowestNode = currentlyLowestNode;
 		this.factAddressInCurrentlyLowestNode = factAddressInCurrentlyLowestNode;
-		this.joinedWith = new HashSet<>(joinedWith.length);
+		this.joinedWith = Sets.newHashSetWithExpectedSize(joinedWith.length);
 		this.joinedWith.add(this);
 		for (final Path path : joinedWith) {
 			this.joinedWith.add(path);

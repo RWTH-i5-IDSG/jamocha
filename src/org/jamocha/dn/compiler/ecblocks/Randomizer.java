@@ -255,7 +255,7 @@ public class Randomizer {
 			final HashSet<Path> paths = PathCollector.newHashSet().collectAllInLists(condition).getPaths();
 			for (final Path path : paths) {
 				path.setFactAddressInCurrentlyLowestNode(null);
-				path.setJoinedWith(Collections.emptySet());
+				path.setJoinedWith(Sets.newHashSet(path));
 			}
 		}
 		return optimized;
