@@ -1,12 +1,12 @@
 /*
  * Copyright 2002-2015 The Jamocha Team
- *
- *
+ * 
+ * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
- *
+ * 
  * http://www.jamocha.org/
- *
+ * 
  * Unless required by applicable law or agreed to in writing, software distributed under the License
  * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
  * or implied. See the License for the specific language governing permissions and limitations under
@@ -19,6 +19,7 @@ import java.util.HashSet;
 import java.util.IdentityHashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -39,6 +40,10 @@ class Partition<T, S extends Partition.SubSet<T>> {
 	static class SubSet<T> {
 		final IdentityHashMap<Either<Rule, ExistentialProxy>, T> elements;
 
+		public SubSet(final SubSet<T> copy) {
+			this(new IdentityHashMap<>(copy.elements));
+		}
+
 		public SubSet(final Map<Either<Rule, ExistentialProxy>, ? extends T> elements) {
 			this(new IdentityHashMap<>(elements));
 		}
@@ -51,9 +56,13 @@ class Partition<T, S extends Partition.SubSet<T>> {
 	final Set<S> subSets = new HashSet<>();
 	final IdentityHashMap<T, S> lookup = new IdentityHashMap<>();
 
-	public Partition(final Partition<T, S> copy) {
-		this.subSets.addAll(copy.subSets);
-		this.lookup.putAll(copy.lookup);
+	public Partition(final Partition<T, S> copy, final Function<S, S> copyCtor) {
+		copy.subSets.stream().map(copyCtor).forEach(this.subSets::add);
+		for (final S s : this.subSets) {
+			for (final T t : s.elements.values()) {
+				lookup.put(t, s);
+			}
+		}
 	}
 
 	public void add(final S newSubSet) {

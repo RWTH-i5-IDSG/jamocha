@@ -46,13 +46,18 @@ class FactVariablePartition extends Partition<SingleFactVariable, FactVariablePa
 		public FactVariableSubSet(final Map<Either<Rule, ExistentialProxy>, SingleFactVariable> elements) {
 			this(new IdentityHashMap<>(elements));
 		}
+
+		public FactVariableSubSet(final FactVariableSubSet copy) {
+			super(copy);
+			this.template = copy.template;
+		}
 	}
 
 	final IdentityHashMap<Template, Set<FactVariablePartition.FactVariableSubSet>> templateLookup =
 			new IdentityHashMap<>();
 
 	public FactVariablePartition(final FactVariablePartition copy) {
-		super(copy);
+		super(copy, FactVariableSubSet::new);
 		this.templateLookup.putAll(copy.templateLookup);
 	}
 

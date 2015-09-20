@@ -46,6 +46,11 @@ class FilterInstancePartition extends Partition<FilterInstance, FilterInstancePa
 			this(new IdentityHashMap<>(elements));
 		}
 
+		public FilterInstanceSubSet(final FilterInstanceSubSet copy) {
+			super(copy);
+			this.filter = copy.filter;
+		}
+
 		public boolean contains(final FilterInstancePartition.FilterInstanceSubSet other) {
 			return this.elements.entrySet().containsAll(other.elements.entrySet());
 		}
@@ -55,7 +60,7 @@ class FilterInstancePartition extends Partition<FilterInstance, FilterInstancePa
 			new IdentityHashMap<>();
 
 	public FilterInstancePartition(final FilterInstancePartition copy) {
-		super(copy);
+		super(copy, FilterInstanceSubSet::new);
 		this.filterLookup.putAll(copy.filterLookup);
 	}
 
