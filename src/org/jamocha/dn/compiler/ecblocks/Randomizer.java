@@ -55,6 +55,7 @@ import org.jamocha.dn.compiler.ecblocks.Filter.ExplicitFilterInstance;
 import org.jamocha.dn.compiler.ecblocks.Filter.FilterInstance;
 import org.jamocha.dn.compiler.ecblocks.Filter.ImplicitECFilterInstance;
 import org.jamocha.dn.compiler.ecblocks.Filter.ImplicitElementFilterInstance;
+import org.jamocha.dn.compiler.ecblocks.Filter.ImplicitFilterInstance;
 import org.jamocha.dn.compiler.ecblocks.FilterInstancePartition.FilterInstanceSubSet;
 import org.jamocha.dn.compiler.ecblocks.Partition.SubSet;
 import org.jamocha.dn.compiler.ecblocks.rand.IterativeImprovement;
@@ -261,6 +262,10 @@ public class Randomizer {
 		}
 		final Block block = new Block(Collections.singleton(rule), fvPart);
 		block.addFilterInstanceSubSet(new FilterInstanceSubSet(Collections.singletonMap(rule, randomFI)));
+		if (randomFI instanceof ImplicitFilterInstance) {
+			block.addFilterInstanceSubSet(new FilterInstanceSubSet(Collections.singletonMap(rule,
+					((ImplicitFilterInstance) randomFI).getDual())));
+		}
 		final Map<Integer, Map<Either<Rule, ExistentialProxy>, EquivalenceClass>> ecColumns =
 				ECBlocks.determineECColumns(Collections.singletonList(randomFI));
 		for (final Map<Either<Rule, ExistentialProxy>, EquivalenceClass> ecColumn : ecColumns.values()) {
