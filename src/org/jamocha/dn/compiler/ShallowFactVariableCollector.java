@@ -55,8 +55,6 @@ public class ShallowFactVariableCollector implements DefaultConditionalElementsV
 		final List<SingleFactVariable> factVariables = ce.accept(instance).getFactVariables();
 		// if there is an initial fact, the path to be used may not be null
 		final Path initialFactPath = new Path(initialFactTemplate);
-		assert !factVariables.stream().anyMatch(sfv -> sfv.getTemplate() == initialFactTemplate)
-				|| null != initialFactPath;
 		return Pair.of(
 				initialFactPath,
 				factVariables
