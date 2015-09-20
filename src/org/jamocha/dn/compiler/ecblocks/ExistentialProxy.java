@@ -40,6 +40,7 @@ public class ExistentialProxy {
 	final Either<Rule, ExistentialProxy> either;
 
 	public ExistentialProxy(final Rule rule, final ECExistentialSet existential) {
+		assert !existential.getExistentialFactVariables().isEmpty();
 		this.rule = rule;
 		this.existential = existential;
 		this.factvariables = existential.getExistentialFactVariables();

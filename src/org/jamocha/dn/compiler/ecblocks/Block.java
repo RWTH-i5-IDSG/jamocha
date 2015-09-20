@@ -74,6 +74,7 @@ public class Block {
 	final ElementPartition elementPartition;
 
 	public Block(final Set<Either<Rule, ExistentialProxy>> rules, final FactVariablePartition factVariablePartition) {
+		assert !factVariablePartition.subSets.isEmpty();
 		this.theta = new Theta();
 		this.variableExpressionTheta = new Theta();
 		this.edgeFactory = ConflictEdge.newFactory(this.theta);
