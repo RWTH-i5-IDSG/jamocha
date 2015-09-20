@@ -350,6 +350,7 @@ public class PathFilterConsolidator implements DefaultConditionalElementsVisitor
 
 			final Pair<Path, Map<EquivalenceClass, Path>> initialFactAndEc2Path =
 					ShallowFactVariableCollector.generatePaths(initialFactTemplate, ce);
+			final Path initialFactPath = initialFactAndEc2Path.getLeft();
 			final Map<EquivalenceClass, Path> ec2Path = initialFactAndEc2Path.getRight();
 			final Set<Path> allShallowPaths = new HashSet<>(ec2Path.values());
 
@@ -360,8 +361,8 @@ public class PathFilterConsolidator implements DefaultConditionalElementsVisitor
 
 			// recursion: get the filters nested within existentials
 			final NoORsPFC instance =
-					new NoORsPFC(initialFactTemplate, initialFactAndEc2Path.getLeft(), ec2Path,
-							equivalenceClassToPathLeaf, shallowTests, false).collect(ce);
+					new NoORsPFC(initialFactTemplate, initialFactPath, ec2Path, equivalenceClassToPathLeaf,
+							shallowTests, false).collect(ce);
 			final Set<PathFilterSet> filters = instance.getFilters();
 
 			// add the tests for the equivalence classes of this scope
@@ -369,6 +370,13 @@ public class PathFilterConsolidator implements DefaultConditionalElementsVisitor
 
 			final Map<EquivalenceClass, PathLeaf> originalEC2PathLeaf = new HashMap<>();
 			oldToNew.forEach((k, v) -> originalEC2PathLeaf.put(k, equivalenceClassToPathLeaf.get(v)));
+
+			// remove initial fact path (that is always added, if it was not used
+			final HashSet<Path> paths = PathCollector.newHashSet().collectAllInSets(filters).getPaths();
+			if (!paths.contains(initialFactPath)) {
+				allShallowPaths.remove(initialFactPath);
+			}
+
 			return rule.new PathSetRule(filters, allShallowPaths, rule.getActionList(), originalEC2PathLeaf,
 					specificity);
 		}
@@ -493,8 +501,8 @@ public class PathFilterConsolidator implements DefaultConditionalElementsVisitor
 
 			// Generate PathFilters from CE (recurse)
 			final Set<PathFilterSet> filters =
-					new NoORsPFC(initialFactTemplate, initialFactAndPathMap.getLeft(), ec2Path,
-							equivalenceClassToPathLeaf, shallowTests, false).collect(ce).getFilters();
+					new NoORsPFC(initialFactTemplate, initialFactPath, ec2Path, equivalenceClassToPathLeaf,
+							shallowTests, false).collect(ce).getFilters();
 
 			{
 				final Set<SingleFactVariable> shallowExistentialFVs =
