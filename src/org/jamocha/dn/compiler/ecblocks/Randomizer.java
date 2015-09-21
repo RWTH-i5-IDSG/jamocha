@@ -42,6 +42,7 @@ import java.util.function.DoubleUnaryOperator;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 
 import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.tuple.Pair;
@@ -85,6 +86,7 @@ import com.google.common.collect.Sets;
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
+@Log4j2
 @RequiredArgsConstructor
 @Getter
 public class Randomizer {
@@ -125,6 +127,7 @@ public class Randomizer {
 			final State nextState = new State(this);
 			switch (rand.nextInt(5)) {
 			case 0: { // add a row
+				log.debug("MOVE: add a row");
 				if (!nextState.blockSet.blocks.isEmpty()) {
 					final Block block = getRandomElement(nextState.blockSet.blocks, rand);
 					final List<Either<Rule, ExistentialProxy>> otherRules =
@@ -140,6 +143,7 @@ public class Randomizer {
 				break;
 			}
 			case 1: { // remove a row
+				log.debug("MOVE: remove a row");
 				if (!nextState.blockSet.blocks.isEmpty()) {
 					final Block block = getRandomElement(nextState.blockSet.blocks, rand);
 					tryToRemoveRow(nextState, block, getRandomElement(block.getRulesOrProxies(), rand));
@@ -147,6 +151,7 @@ public class Randomizer {
 				break;
 			}
 			case 2: { // add a column
+				log.debug("MOVE: add a column");
 				if (!nextState.blockSet.blocks.isEmpty()) {
 					final Block block = getRandomElement(nextState.blockSet.blocks, rand);
 					tryToAddARandomColumn(nextState, block);
@@ -154,6 +159,7 @@ public class Randomizer {
 				break;
 			}
 			case 3: { // remove a column
+				log.debug("MOVE: remove a column");
 				if (!nextState.blockSet.blocks.isEmpty()) {
 					final Block block = getRandomElement(nextState.blockSet.blocks, rand);
 					final Set<FilterInstanceSubSet> subSets = block.getFilterInstancePartition().getSubSets();
@@ -163,6 +169,7 @@ public class Randomizer {
 				break;
 			}
 			case 4: { // create a new block
+				log.debug("MOVE: create a new block");
 				createRandomBlock(nextState, rules);
 				break;
 			}
@@ -270,8 +277,10 @@ public class Randomizer {
 	protected boolean createRandomBlock(final State state, final List<Either<Rule, ExistentialProxy>> rules) {
 		final Either<Rule, ExistentialProxy> rule = getRandomElement(rules, rand);
 		final Set<FilterInstance> filterInstances = Util.getFilterInstances(rule);
-		if (filterInstances.isEmpty())
+		if (filterInstances.isEmpty()) {
+			log.debug("no filter instances for rule {}", rule);
 			return false;
+		}
 		final FilterInstance randomFI = getRandomElement(filterInstances, rand);
 		final FactVariablePartition fvPart = new FactVariablePartition();
 		final Set<SingleFactVariable> factVariables = Util.getFactVariables(rule);
@@ -299,6 +308,7 @@ public class Randomizer {
 			}
 		}
 		final boolean added = state.blockSet.addDuringHorizontalRecursion(block);
+		log.debug("added? ({}) new block {}", added, block);
 		return added;
 	}
 
@@ -394,21 +404,27 @@ public class Randomizer {
 		newBlock.addRow(rule, fvExtension, fiExtension, elExtension);
 		state.blockSet.addDuringHorizontalRecursion(newBlock);
 		solveConflicts(state, newBlock);
+		log.debug("rule added!");
 		return true;
 	}
 
 	public boolean tryToRemoveRow(final State state, final Block block, final Either<Rule, ExistentialProxy> rule) {
+		log.debug("removing rule {} from block {}", rule, block);
 		state.blockSet.remove(block);
 		final Block newBlock = new Block(block);
 		if (newBlock.getNumberOfRows() > 1) {
 			newBlock.remove(rule);
 			state.blockSet.addDuringHorizontalRecursion(newBlock);
 		} // else: block vanishes
+		else {
+			log.debug("block vanished");
+		}
 		solveConflicts(state, newBlock);
 		return true;
 	}
 
 	public boolean tryToAddARandomColumn(final State state, final Block block) {
+		log.debug("trying to a random column to block {}", block);
 		/* pretty much the ordinary procedure to find candidates, just simplified and randomized */
 		final Set<FilterInstance> neighbours = block.getConflictNeighbours();
 		if (neighbours.isEmpty()) {
@@ -433,6 +449,7 @@ public class Randomizer {
 						.collect(toSet());
 		// if no filters are left to add, the block is horizontally maximized, add it
 		if (nRelevantFilters.isEmpty()) {
+			log.debug("no filters in conflict found");
 			return false;
 		}
 
@@ -465,24 +482,28 @@ public class Randomizer {
 
 		switch (this.rand.nextInt(4)) {
 		case 0:
+			log.debug("chose to add an implicit element column");
 			if (!nRelevantImplicitElementFilterInstances.isEmpty()) {
 				ECBlocks.findMatchingImplicitElementFilters(nRelevantImplicitElementFilterInstances, block,
 						matchingFilters);
 			}
 			break;
 		case 1:
+			log.debug("chose to add an explicit single column");
 			if (!nSingleCellFilters.isEmpty()) {
 				ECBlocks.findMatchingAndIncompatibleExplicitFilters(nRelevantFilterToExplicitInstances,
 						nSingleCellFilters, block, matchingFilters, incompatibleFilters);
 			}
 			break;
 		case 2:
+			log.debug("chose to add an implicit EC column");
 			if (!nRelevantImplicitECFilterInstances.isEmpty()) {
 				ECBlocks.findMatchingAndIncompatibleImplicitECFilters(nRelevantImplicitECFilterInstances, block,
 						matchingFilters, incompatibleFilters);
 			}
 			break;
 		case 3:
+			log.debug("chose to add an explicit multi column");
 			if (!nMultiCellFilters.isEmpty()) {
 				ECBlocks.findMatchingAndIncompatibleExplicitFilters(nRelevantFilterToExplicitInstances,
 						nMultiCellFilters, block, matchingFilters, incompatibleFilters);
@@ -490,11 +511,13 @@ public class Randomizer {
 			break;
 		}
 		if (matchingFilters.isEmpty()) {
+			log.debug("no matching filters found");
 			return false;
 		}
 
 		final Pair<Block, List<FilterInstance>> randomElement = getRandomElement(matchingFilters, rand);
 		final Block newBlock = randomElement.getLeft();
+		log.debug("chose the new block {}", newBlock);
 		state.blockSet.remove(block);
 		state.blockSet.addDuringHorizontalRecursion(newBlock);
 		solveConflicts(state, newBlock);
@@ -502,6 +525,7 @@ public class Randomizer {
 	}
 
 	public boolean tryToRemoveColumn(final State state, final Block block, final FilterInstanceSubSet subset) {
+		log.debug("removing column {} from block {}", subset, block);
 		state.blockSet.remove(block);
 		final Block newBlock = new Block(block);
 		newBlock.remove(subset);
@@ -509,6 +533,9 @@ public class Randomizer {
 			state.blockSet.addDuringHorizontalRecursion(newBlock);
 			solveConflicts(state, newBlock);
 		} // else: block vanishes
+		else {
+			log.debug("block vanished");
+		}
 		return true;
 	}
 

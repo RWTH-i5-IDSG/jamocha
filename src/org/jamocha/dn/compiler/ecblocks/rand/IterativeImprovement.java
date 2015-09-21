@@ -17,6 +17,7 @@ package org.jamocha.dn.compiler.ecblocks.rand;
 import java.util.Collection;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 
 import org.jamocha.dn.ConstructCache.Defrule.PathRule;
 import org.jamocha.dn.compiler.ecblocks.Randomizer;
@@ -25,6 +26,7 @@ import org.jamocha.dn.compiler.ecblocks.Randomizer.State;
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
+@Log4j2
 @RequiredArgsConstructor
 public class IterativeImprovement {
 	final Randomizer randomizer;
@@ -32,6 +34,7 @@ public class IterativeImprovement {
 	final long NUMLOCALOPTIMISATIONS;
 
 	public Collection<PathRule> optimize() {
+		log.entry(RLOCALMINIMUM, NUMLOCALOPTIMISATIONS);
 		long numLocalOptimisations = 0;
 		while (numLocalOptimisations < NUMLOCALOPTIMISATIONS) {
 			// set "random" state
@@ -41,17 +44,22 @@ public class IterativeImprovement {
 			while (noImprovementsCounter < RLOCALMINIMUM) {
 				final State nextState = randomizer.getCurrentState().move();
 				if (nextState.rate() < randomizer.getCurrentState().rate()) {
+					log.debug("downhill move ({})", nextState.rate());
 					randomizer.setCurrentState(nextState);
 					noImprovementsCounter = 0;
 				} else {
+					log.debug("would be an uphill move ({}), skipping", nextState.rate());
 					++noImprovementsCounter;
 				}
 			}
+			log.debug("local minimum reached");
 			if (randomizer.getCurrentState().rate() < randomizer.getBestState().rate()) {
+				log.debug("local minimum better than previous best ({})", randomizer.getCurrentState().rate());
 				randomizer.setCurrentAsBestState();
 			}
 			++numLocalOptimisations;
 		}
+		log.exit(randomizer.getBestState().rate());
 		return randomizer.getBestState().getCompiledState();
 	}
 }
