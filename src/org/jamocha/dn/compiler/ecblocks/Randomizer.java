@@ -106,8 +106,6 @@ public class Randomizer {
 
 		public State(final State copy) {
 			this.blockSet = new ECBlockSet(copy.blockSet);
-			this.compiledState = copy.compiledState;
-			this.rating = copy.rating;
 		}
 
 		public double rate() {
@@ -182,11 +180,11 @@ public class Randomizer {
 	}
 
 	public void reset() {
-		currentState = new State(initialState);
+		currentState = initialState;
 	}
 
 	public void setCurrentAsBestState() {
-		bestState = new State(currentState);
+		bestState = currentState;
 	}
 
 	/**
