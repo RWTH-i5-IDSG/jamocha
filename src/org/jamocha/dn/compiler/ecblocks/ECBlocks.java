@@ -1482,27 +1482,27 @@ public class ECBlocks {
 						continue;
 					}
 					// else add implicit filters for every pair
-					final Either<Rule, ExistentialProxy> chosenRule = block.getRulesOrProxies().iterator().next();
+					final Either<Rule, ExistentialProxy> chosenRule = newBlock.getRulesOrProxies().iterator().next();
 					final List<? extends Element> newElements =
 							intersection.stream().map(map -> map.get(chosenRule)).collect(toList());
 					for (int i = 0; i < newElements.size(); ++i) {
 						final Element left = newElements.get(i);
-						final SubSet<Element> leftSS = block.getElementPartition().lookup(left);
+						final SubSet<Element> leftSS = newBlock.getElementPartition().lookup(left);
 						for (int j = i + 1; j < newElements.size(); ++j) {
 							final Element right = newElements.get(j);
-							final SubSet<Element> rightSS = block.getElementPartition().lookup(right);
+							final SubSet<Element> rightSS = newBlock.getElementPartition().lookup(right);
 							final IdentityHashMap<Either<Rule, ExistentialProxy>, ImplicitElementFilterInstance> fiSS =
 									new IdentityHashMap<>();
-							for (final Either<Rule, ExistentialProxy> rule : block.getRulesOrProxies()) {
+							for (final Either<Rule, ExistentialProxy> rule : newBlock.getRulesOrProxies()) {
 								final Filter filter = Filter.newEqualityFilter(leftSS.get(rule), rightSS.get(rule));
 								final ImplicitElementFilterInstance implicitFI =
 										filter.getImplicitElementInstances(rule).iterator().next();
 								fiSS.put(rule, implicitFI);
 							}
-							block.addFilterInstanceSubSet(new FilterInstanceSubSet(fiSS));
+							newBlock.addFilterInstanceSubSet(new FilterInstanceSubSet(fiSS));
 							final Map<Either<Rule, ExistentialProxy>, ImplicitElementFilterInstance> duals =
 									Maps.transformValues(fiSS, ImplicitElementFilterInstance::getDual);
-							block.addFilterInstanceSubSet(new FilterInstanceSubSet(duals));
+							newBlock.addFilterInstanceSubSet(new FilterInstanceSubSet(duals));
 							filterInstances.addAll(fiSS.values());
 							filterInstances.addAll(duals.values());
 						}
