@@ -50,6 +50,7 @@ import org.jamocha.filter.ECFilterSet.ECExistentialSet;
 import org.jamocha.filter.FWACollector;
 import org.jamocha.filter.SymbolCollector;
 import org.jamocha.filter.SymbolInSymbolLeafsCollector;
+import org.jamocha.filter.UniformFunctionTranslator;
 import org.jamocha.function.FunctionNormaliser;
 import org.jamocha.function.fwa.ConstantLeaf;
 import org.jamocha.function.fwa.DefaultFunctionWithArgumentsVisitor;
@@ -400,7 +401,7 @@ public class CEToECTranslator implements DefaultConditionalElementsVisitor {
 				public void visit(final PredicateWithArgumentsComposite<SymbolLeaf> fwa) {
 					if (ShallowCEEquivalenceClassBuilder.this.negated
 							|| !fwa.getFunction().inClips().equals(Equals.inClips)) {
-						addToShallowTests(fwa);
+						addToShallowTests(UniformFunctionTranslator.translate(fwa));
 						return;
 					}
 					final LinkedList<FunctionWithArguments<SymbolLeaf>> remainingArguments = new LinkedList<>();
