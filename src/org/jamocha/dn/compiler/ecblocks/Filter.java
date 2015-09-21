@@ -49,8 +49,6 @@ import org.jamocha.function.fwatransformer.FWAECLeafToTypeLeafTranslator;
 import org.jamocha.function.impls.predicates.Equals;
 import org.jamocha.languages.common.RuleCondition.EquivalenceClass;
 import org.jamocha.languages.common.SingleFactVariable;
-import org.jamocha.visitor.Visitable;
-import org.jamocha.visitor.Visitor;
 
 import com.atlassian.fugue.Either;
 import com.google.common.collect.ImmutableList;
@@ -63,7 +61,7 @@ import com.google.common.collect.ImmutableList.Builder;
 @Getter
 @EqualsAndHashCode(of = { "predicate" })
 @ToString(of = { "predicate" })
-class Filter implements Visitable<FilterVisitor> {
+class Filter implements org.jamocha.visitor.Visitable<FilterVisitor> {
 	final FunctionWithArguments<?> predicate;
 	final Map<Either<Rule, ExistentialProxy>, Set<Filter.FilterInstance>> ruleToAllInstances = new HashMap<>();
 	final Map<Either<Rule, ExistentialProxy>, Set<ExplicitFilterInstance>> ruleToExplicitInstances = new HashMap<>();
@@ -164,7 +162,7 @@ class Filter implements Visitable<FilterVisitor> {
 		return visitor;
 	}
 
-	static interface FilterInstanceVisitor extends Visitor {
+	static interface FilterInstanceVisitor extends org.jamocha.visitor.Visitor {
 		public void visit(final ExplicitFilterInstance filterInstance);
 
 		public void visit(final ImplicitElementFilterInstance filterInstance);
@@ -172,7 +170,7 @@ class Filter implements Visitable<FilterVisitor> {
 		public void visit(final ImplicitECFilterInstance filterInstance);
 	}
 
-	static interface FilterInstance extends Visitable<Filter.FilterInstanceVisitor> {
+	static interface FilterInstance extends org.jamocha.visitor.Visitable<Filter.FilterInstanceVisitor> {
 		public Filter getFilter();
 
 		public Either<Rule, ExistentialProxy> getRuleOrProxy();
