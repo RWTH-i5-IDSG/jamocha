@@ -47,7 +47,6 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.OptionalInt;
@@ -1220,38 +1219,22 @@ public class ECBlocks {
 				continue;
 			}
 			final Block newBlock = new Block(rules, partition);
+
 			for (final List<Map<Either<Rule, ExistentialProxy>, ? extends Element>> intersection : intersections) {
-				if (intersection.size() > 1) {
+				final Iterator<Map<Either<Rule, ExistentialProxy>, ? extends Element>> iterator =
+						intersection.iterator();
+				final Map<Either<Rule, ExistentialProxy>, ? extends Element> first = iterator.next();
+				newBlock.addElementSubSet(new SubSet<>(first));
+				while (iterator.hasNext()) {
+					final Map<Either<Rule, ExistentialProxy>, ? extends Element> next = iterator.next();
 					// determine the implicit filters for each intersection
-					addImplicitFiltersForIntersections(newBlock, intersection);
-				}
-				for (final Map<Either<Rule, ExistentialProxy>, ? extends Element> ess : intersection) {
-					newBlock.addElementSubSet(new SubSet<>(ess));
+					addElementToReducedEquivalenceClass(newBlock, new ArrayList<FilterInstance>(), next.values()
+							.iterator().next(), (a) -> {
+					});
 				}
 			}
 			newBlock.addFilterInstanceSubSet(fiSS);
 			horizontalRecursion(newBlock, new Stack<>(), resultBlocks);
-		}
-	}
-
-	private static void addImplicitFiltersForIntersections(final Block block,
-			final List<Map<Either<Rule, ExistentialProxy>, ? extends Element>> intersection) {
-		try {
-			for (int i = 0; i < intersection.size(); ++i) {
-				final Map<Either<Rule, ExistentialProxy>, ? extends Element> left = intersection.get(i);
-				for (int j = i + 1; j < intersection.size(); ++j) {
-					final Map<Either<Rule, ExistentialProxy>, ? extends Element> right = intersection.get(j);
-					block.addFilterInstanceSubSet(new FilterInstanceSubSet(Maps.asMap(block.getRulesOrProxies(),
-							rule -> Filter.newEqualityFilter(left.get(rule), right.get(rule))
-									.getImplicitElementInstances(rule).iterator().next())));
-					block.addFilterInstanceSubSet(new FilterInstanceSubSet(Maps.asMap(block.getRulesOrProxies(),
-							rule -> Filter.newEqualityFilter(right.get(rule), left.get(rule))
-									.getImplicitElementInstances(rule).iterator().next())));
-				}
-			}
-		} catch (final NoSuchElementException ex) {
-			throw new IllegalStateException(
-					"The intersections promised elements that were not found in the implicit filters!");
 		}
 	}
 
