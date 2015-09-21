@@ -271,7 +271,10 @@ public class Randomizer {
 
 	protected boolean createRandomBlock(final State state, final List<Either<Rule, ExistentialProxy>> rules) {
 		final Either<Rule, ExistentialProxy> rule = getRandomElement(rules, rand);
-		final FilterInstance randomFI = getRandomElement(Util.getFilterInstances(rule), rand);
+		final Set<FilterInstance> filterInstances = Util.getFilterInstances(rule);
+		if (filterInstances.isEmpty())
+			return false;
+		final FilterInstance randomFI = getRandomElement(filterInstances, rand);
 		final FactVariablePartition fvPart = new FactVariablePartition();
 		final Set<SingleFactVariable> factVariables = Util.getFactVariables(rule);
 		for (final SingleFactVariable factVariable : factVariables) {
