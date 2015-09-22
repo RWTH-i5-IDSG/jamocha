@@ -47,9 +47,7 @@ public class SimulatedAnnealing {
 				final State nextState = randomizer.getCurrentState().move();
 				log.debug("next state with cost {}", nextState.rate());
 				final double delta = nextState.rate() - randomizer.getCurrentState().rate();
-				if (delta == 0)
-					continue;
-				if (delta < 0) {
+				if (delta <= 0) {
 					log.debug("downhill move ({})", nextState.rate());
 					randomizer.setCurrentState(nextState);
 					if (randomizer.getCurrentState().rate() < randomizer.getBestState().rate()) {
