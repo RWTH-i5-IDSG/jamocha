@@ -121,7 +121,7 @@ public class ConstructCache {
 			}
 
 			public PathRule toPathRule(final PathFilterList convertedCondition, final Set<Path> resultPaths,
-					final Map<EquivalenceClass, PathLeaf> equivalenceClassToPathLeaf) {
+					final Map<EquivalenceClass, FunctionWithArguments<PathLeaf>> equivalenceClassToPathLeaf) {
 				return new PathRule(convertedCondition, resultPaths, actionList, equivalenceClassToPathLeaf,
 						specificity);
 			}
@@ -161,25 +161,26 @@ public class ConstructCache {
 			}
 
 			public PathRule toPathRule(final PathFilterList convertedCondition, final Set<Path> resultPaths,
-					final Map<EquivalenceClass, PathLeaf> equivalenceClassToPathLeaf) {
+					final Map<EquivalenceClass, FunctionWithArguments<PathLeaf>> equivalenceClassToPathLeaf) {
 				return new PathRule(convertedCondition, resultPaths, actionList, equivalenceClassToPathLeaf,
 						specificity);
 			}
 		}
 
 		public PathRule newTranslated(final PathFilterList condition, final Set<Path> resultPaths,
-				final Map<EquivalenceClass, PathLeaf> equivalenceClassToPathLeaf, final int specificity) {
+				final Map<EquivalenceClass, FunctionWithArguments<PathLeaf>> equivalenceClassToPathLeaf,
+				final int specificity) {
 			return new PathRule(condition, resultPaths, actionList, equivalenceClassToPathLeaf, specificity);
 		}
 
 		public PathRule newTranslated(final PathFilterList condition,
-				final Map<EquivalenceClass, PathLeaf> equivalenceClassToPathLeaf) {
+				final Map<EquivalenceClass, FunctionWithArguments<PathLeaf>> equivalenceClassToPathLeaf) {
 			return newTranslated(condition, PathCollector.newHashSet().collectOnlyInFilterLists(condition).getPaths(),
 					equivalenceClassToPathLeaf, (int) StreamSupport.stream(condition.spliterator(), false).count());
 		}
 
 		public PathRule newTranslated(final List<PathFilterList> condition,
-				final Map<EquivalenceClass, PathLeaf> equivalenceClassToPathLeaf) {
+				final Map<EquivalenceClass, FunctionWithArguments<PathLeaf>> equivalenceClassToPathLeaf) {
 			return newTranslated(PathFilterList.toSimpleList(condition), equivalenceClassToPathLeaf);
 		}
 
@@ -189,7 +190,7 @@ public class ConstructCache {
 			final Set<PathFilterSet> condition;
 			final Set<Path> resultPaths;
 			final FunctionWithArguments<SymbolLeaf>[] actionList;
-			final Map<EquivalenceClass, PathLeaf> equivalenceClassToPathLeaf;
+			final Map<EquivalenceClass, FunctionWithArguments<PathLeaf>> equivalenceClassToPathLeaf;
 			final int specificity;
 
 			public Defrule getParent() {
@@ -214,7 +215,7 @@ public class ConstructCache {
 			final PathFilterList condition;
 			final Set<Path> resultPaths;
 			final FunctionWithArguments<SymbolLeaf>[] actionList;
-			final Map<EquivalenceClass, PathLeaf> equivalenceClassToPathLeaf;
+			final Map<EquivalenceClass, FunctionWithArguments<PathLeaf>> equivalenceClassToPathLeaf;
 			final int specificity;
 
 			public Defrule getParent() {

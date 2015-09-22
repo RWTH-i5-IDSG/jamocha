@@ -42,6 +42,7 @@ import org.jamocha.filter.PathNodeFilterSet;
 import org.jamocha.function.Function;
 import org.jamocha.function.FunctionDictionary;
 import org.jamocha.function.Predicate;
+import org.jamocha.function.fwa.FunctionWithArguments;
 import org.jamocha.function.fwa.PathLeaf;
 import org.jamocha.function.impls.predicates.Greater;
 import org.jamocha.function.impls.predicates.Less;
@@ -129,7 +130,7 @@ public class NetworkTest {
 								.addPath(pathThree, slotStringTwo).addPath(pathThree, slotStringOne).buildFilter()) };
 
 		network.buildRule(new Defrule("dummyrule", "", 0, (RuleCondition) null, new ArrayList<>()).newTranslated(
-				filterOne, (Map<EquivalenceClass, PathLeaf>) null));
+				filterOne, (Map<EquivalenceClass, FunctionWithArguments<PathLeaf>>) null));
 
 		{
 			final HashSet<Path> allPaths = new HashSet<>();
@@ -198,7 +199,7 @@ public class NetworkTest {
 								.addPath(pathTwoA, slotStringOne).addPath(pathTwoB, slotStringTwo).buildFilter()) };
 
 		network.buildRule(new Defrule("dummyrule", "", 0, (RuleCondition) null, new ArrayList<>()).newTranslated(
-				filterOne, (Map<EquivalenceClass, PathLeaf>) null));
+				filterOne, (Map<EquivalenceClass, FunctionWithArguments<PathLeaf>>) null));
 
 		{
 			final HashSet<Path> allPaths = new HashSet<>();
@@ -253,7 +254,7 @@ public class NetworkTest {
 								.addPath(pathTwoA, slotStringOne).addPath(pathTwoB, slotStringTwo).buildFilter()) };
 
 		network.buildRule(new Defrule("dummyrule", "", 0, (RuleCondition) null, new ArrayList<>()).newTranslated(
-				filterOne, (Map<EquivalenceClass, PathLeaf>) null));
+				filterOne, (Map<EquivalenceClass, FunctionWithArguments<PathLeaf>>) null));
 
 		{
 			final HashSet<Path> allPaths = new HashSet<>();
@@ -322,7 +323,7 @@ public class NetworkTest {
 						PathNodeFilterSet.newRegularPathNodeFilterSet(new PredicateBuilder(eqStrStr)
 								.addPath(youngStudent2, studentSG).addPath(matchingProf2, profSG).buildFilter()) };
 		network.buildRule(new Defrule("dummyrule", "", 0, (RuleCondition) null, new ArrayList<>()).newTranslated(
-				filterOne, (Map<EquivalenceClass, PathLeaf>) null));
+				filterOne, (Map<EquivalenceClass, FunctionWithArguments<PathLeaf>>) null));
 
 		{
 			final HashSet<Path> allPaths = new HashSet<>();
@@ -386,11 +387,11 @@ public class NetworkTest {
 								.addPath(pathThree, slotStringTwo).addPath(pathThree, slotStringOne).buildFilter()));
 
 		network.buildRule(new Defrule("rule1", "", 0, (RuleCondition) null, new ArrayList<>()).newTranslated(filterOne,
-				(Map<EquivalenceClass, PathLeaf>) null));
+				(Map<EquivalenceClass, FunctionWithArguments<PathLeaf>>) null));
 		network.buildRule(new Defrule("rule2", "", 0, (RuleCondition) null, new ArrayList<>()).newTranslated(filterTwo,
-				(Map<EquivalenceClass, PathLeaf>) null));
+				(Map<EquivalenceClass, FunctionWithArguments<PathLeaf>>) null));
 		network.buildRule(new Defrule("rule3", "", 0, (RuleCondition) null, new ArrayList<>()).newTranslated(
-				filterThree, (Map<EquivalenceClass, PathLeaf>) null));
+				filterThree, (Map<EquivalenceClass, FunctionWithArguments<PathLeaf>>) null));
 
 		assertEquals(pathOne.getCurrentlyLowestNode(),
 				pathTwo.getCurrentlyLowestNode().getIncomingEdges()[0].getSourceNode());
@@ -434,9 +435,9 @@ public class NetworkTest {
 								.addPath(pathTwoA, slotStringOne).addPath(pathTwoB, slotStringTwo).buildFilter()));
 
 		network.buildRule(new Defrule("rule1", "", 0, (RuleCondition) null, new ArrayList<>()).newTranslated(filterOne,
-				(Map<EquivalenceClass, PathLeaf>) null));
+				(Map<EquivalenceClass, FunctionWithArguments<PathLeaf>>) null));
 		network.buildRule(new Defrule("rule2", "", 0, (RuleCondition) null, new ArrayList<>()).newTranslated(filterTwo,
-				(Map<EquivalenceClass, PathLeaf>) null));
+				(Map<EquivalenceClass, FunctionWithArguments<PathLeaf>>) null));
 
 		assertEquals(pathOneA.getCurrentlyLowestNode(),
 				pathTwoA.getCurrentlyLowestNode().getIncomingEdges()[0].getSourceNode());
@@ -478,9 +479,9 @@ public class NetworkTest {
 								.addPath(pathTwoA, slotStringOne).addPath(pathTwoB, slotStringTwo).buildFilter()));
 
 		network.buildRule(new Defrule("rule1", "", 0, (RuleCondition) null, new ArrayList<>()).newTranslated(filterOne,
-				(Map<EquivalenceClass, PathLeaf>) null));
+				(Map<EquivalenceClass, FunctionWithArguments<PathLeaf>>) null));
 		network.buildRule(new Defrule("rule2", "", 0, (RuleCondition) null, new ArrayList<>()).newTranslated(filterTwo,
-				(Map<EquivalenceClass, PathLeaf>) null));
+				(Map<EquivalenceClass, FunctionWithArguments<PathLeaf>>) null));
 
 		assertEquals(pathOneA.getCurrentlyLowestNode(),
 				pathTwoA.getCurrentlyLowestNode().getIncomingEdges()[0].getSourceNode());
@@ -536,9 +537,9 @@ public class NetworkTest {
 						PathNodeFilterSet.newRegularPathNodeFilterSet(new PredicateBuilder(eqStrStr)
 								.addPath(youngStudent2, studentSG).addPath(matchingProf2, profSG).buildFilter()));
 		network.buildRule(new Defrule("rule1", "", 0, (RuleCondition) null, new ArrayList<>()).newTranslated(filterOne,
-				(Map<EquivalenceClass, PathLeaf>) null));
+				(Map<EquivalenceClass, FunctionWithArguments<PathLeaf>>) null));
 		network.buildRule(new Defrule("rule2", "", 0, (RuleCondition) null, new ArrayList<>()).newTranslated(filterTwo,
-				(Map<EquivalenceClass, PathLeaf>) null));
+				(Map<EquivalenceClass, FunctionWithArguments<PathLeaf>>) null));
 
 		assertEquals(oldStudent1.getCurrentlyLowestNode(), oldStudent2.getCurrentlyLowestNode());
 		assertEquals(oldStudent1.getFactAddressInCurrentlyLowestNode(),
@@ -576,9 +577,9 @@ public class NetworkTest {
 				Arrays.asList(PathNodeFilterSet.newRegularPathNodeFilterSet(new PredicateBuilder(lessLongLong)
 						.addPath(youngStudent2, studentSem).addPath(oldStudent2, studentSem).buildFilter()));
 		network.buildRule(new Defrule("rule1", "", 0, (RuleCondition) null, new ArrayList<>()).newTranslated(filterOne,
-				(Map<EquivalenceClass, PathLeaf>) null));
+				(Map<EquivalenceClass, FunctionWithArguments<PathLeaf>>) null));
 		network.buildRule(new Defrule("rule2", "", 0, (RuleCondition) null, new ArrayList<>()).newTranslated(filterTwo,
-				(Map<EquivalenceClass, PathLeaf>) null));
+				(Map<EquivalenceClass, FunctionWithArguments<PathLeaf>>) null));
 
 		assertEquals(oldStudent1.getCurrentlyLowestNode(), youngStudent1.getCurrentlyLowestNode());
 		assertEquals(oldStudent1.getCurrentlyLowestNode(), oldStudent2.getCurrentlyLowestNode());
@@ -617,7 +618,7 @@ public class NetworkTest {
 										.build()).addPath(path2A, slotLongOne).buildFilter()) };
 
 		network.buildRule(new Defrule("dummyrule", "", 0, (RuleCondition) null, new ArrayList<>()).newTranslated(
-				filterOne, (Map<EquivalenceClass, PathLeaf>) null));
+				filterOne, (Map<EquivalenceClass, FunctionWithArguments<PathLeaf>>) null));
 
 		{
 			final HashSet<Path> allPaths = new HashSet<>();
@@ -666,7 +667,7 @@ public class NetworkTest {
 										.build()).addPath(path2B, slotLongOne).buildFilter()) };
 
 		network.buildRule(new Defrule("dummyrule", "", 0, (RuleCondition) null, new ArrayList<>()).newTranslated(
-				filterOne, (Map<EquivalenceClass, PathLeaf>) null));
+				filterOne, (Map<EquivalenceClass, FunctionWithArguments<PathLeaf>>) null));
 
 		{
 			final HashSet<Path> allPaths = new HashSet<>();

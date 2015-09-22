@@ -24,6 +24,8 @@ import org.jamocha.dn.memory.MemoryHandlerTerminal.AssertOrRetract;
 import org.jamocha.dn.nodes.SlotInFactAddress;
 import org.jamocha.languages.common.ScopeStack.Symbol;
 
+import com.atlassian.fugue.Either;
+
 /**
  * This class stores the values of local variables.
  * 
@@ -32,7 +34,7 @@ import org.jamocha.languages.common.ScopeStack.Symbol;
 @RequiredArgsConstructor
 public class VariableValueContext {
 	final Map<Symbol, Object> variableValues = new HashMap<>();
-	final Map<Symbol, SlotInFactAddress> initializers = new HashMap<>();
+	final Map<Symbol, Either<SlotInFactAddress, Object>> initializers = new HashMap<>();
 
 	/**
 	 * Returns the value of the given variable.
@@ -66,7 +68,19 @@ public class VariableValueContext {
 	 *            address used to initialize the variable
 	 */
 	public void addInitializer(final Symbol key, final SlotInFactAddress slotInFactAddress) {
-		initializers.put(key, slotInFactAddress);
+		initializers.put(key, Either.left(slotInFactAddress));
+	}
+
+	/**
+	 * Registers an initializer for a left hand side variable.
+	 * 
+	 * @param key
+	 *            symbol of the variable
+	 * @param slotInFactAddress
+	 *            address used to initialize the variable
+	 */
+	public void addInitializer(final Symbol key, final Object value) {
+		initializers.put(key, Either.right(value));
 	}
 
 	/**
@@ -78,10 +92,11 @@ public class VariableValueContext {
 	 */
 	public void initialize(final AssertOrRetract<?> token) {
 		variableValues.clear();
-		for (final Entry<Symbol, SlotInFactAddress> entry : initializers.entrySet()) {
-			final SlotInFactAddress address = entry.getValue();
+		for (final Entry<Symbol, Either<SlotInFactAddress, Object>> entry : initializers.entrySet()) {
+			final Either<SlotInFactAddress, Object> either = entry.getValue();
 			final Symbol key = entry.getKey();
-			variableValues.put(key, token.getValue(address.getFactAddress(), address.getSlotAddress()));
+			variableValues.put(key, either.fold(
+					address -> token.getValue(address.getFactAddress(), address.getSlotAddress()), value -> value));
 		}
 	}
 }

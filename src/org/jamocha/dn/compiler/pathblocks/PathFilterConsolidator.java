@@ -368,7 +368,7 @@ public class PathFilterConsolidator implements DefaultConditionalElementsVisitor
 			// add the tests for the equivalence classes of this scope
 			createEquivalenceClassTests(equivalenceClasses, ec2Path, equivalenceClassToPathLeaf, filters);
 
-			final Map<EquivalenceClass, PathLeaf> originalEC2PathLeaf = new HashMap<>();
+			final Map<EquivalenceClass, FunctionWithArguments<PathLeaf>> originalEC2PathLeaf = new HashMap<>();
 			oldToNew.forEach((k, v) -> originalEC2PathLeaf.put(k, equivalenceClassToPathLeaf.get(v)));
 
 			// remove initial fact path (that is always added, if it was not used

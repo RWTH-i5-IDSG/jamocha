@@ -81,6 +81,7 @@ import org.jamocha.filter.PathFilterList.PathSharedListWrapper.PathSharedList;
 import org.jamocha.filter.PathNodeFilterSet;
 import org.jamocha.function.Predicate;
 import org.jamocha.function.fwa.ConstantLeaf;
+import org.jamocha.function.fwa.ECLeaf;
 import org.jamocha.function.fwa.FunctionWithArguments;
 import org.jamocha.function.fwa.GenericWithArgumentsComposite;
 import org.jamocha.function.fwa.PathLeaf;
@@ -838,7 +839,7 @@ public class ECBlocksToPathRule {
 			final BiMap<EquivalenceClass, EquivalenceClass> conditionECsToLocalECs =
 					original.getLocalECsToConditionECs();
 
-			final Map<EquivalenceClass, PathLeaf> ecToPathLeaf =
+			final Map<EquivalenceClass, FunctionWithArguments<PathLeaf>> ecToPathLeaf =
 					ecsInSymbols.stream().collect(
 							toMap(Function.identity(),
 									ec -> createRandomUnrestrictedBinding(conditionECsToLocalECs.inverse().get(ec),
@@ -876,7 +877,12 @@ public class ECBlocksToPathRule {
 		return ExplicitFilterCreator.create(block, ruleToInfo, blockEC2Constant, filterInstance);
 	}
 
-	private static PathLeaf createRandomUnrestrictedBinding(final EquivalenceClass ec, final RuleInfo ruleInfo) {
+	private static FunctionWithArguments<PathLeaf> createRandomUnrestrictedBinding(final EquivalenceClass ec,
+			final RuleInfo ruleInfo) {
+		final FunctionWithArguments<ECLeaf> constant = ec.getConstantExpressions().peek();
+		if (null != constant) {
+			return new ConstantLeaf<>(constant);
+		}
 		final SingleFactVariable fv = ec.getFactVariables().peek();
 		if (null != fv) {
 			return new PathLeaf(ruleInfo.getPath(fv), null);

@@ -23,6 +23,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 import org.jamocha.dn.nodes.SlotInFactAddress;
+import org.jamocha.function.fwa.ConstantLeaf;
 import org.jamocha.function.fwa.FunctionWithArguments;
 import org.jamocha.function.fwa.PathLeaf;
 import org.jamocha.function.fwa.RHSVariableLeaf;
@@ -37,7 +38,7 @@ import org.jamocha.languages.common.ScopeStack.VariableSymbol;
 @RequiredArgsConstructor
 @Getter
 public class FWASymbolToRHSVariableLeafTranslator extends FWATranslator<SymbolLeaf, RHSVariableLeaf> {
-	final Map<EquivalenceClass, PathLeaf> ec2PathLeaf;
+	final Map<EquivalenceClass, FunctionWithArguments<PathLeaf>> ec2PathLeaf;
 	final VariableValueContext context;
 
 	@Override
@@ -47,7 +48,8 @@ public class FWASymbolToRHSVariableLeafTranslator extends FWATranslator<SymbolLe
 
 	@SafeVarargs
 	@SuppressWarnings("unchecked")
-	public static FunctionWithArguments<RHSVariableLeaf>[] translate(final Map<EquivalenceClass, PathLeaf> ec2PathLeaf,
+	public static FunctionWithArguments<RHSVariableLeaf>[] translate(
+			final Map<EquivalenceClass, FunctionWithArguments<PathLeaf>> ec2PathLeaf,
 			final VariableValueContext context, final FunctionWithArguments<SymbolLeaf>... actions) {
 		final FWASymbolToRHSVariableLeafTranslator instance =
 				new FWASymbolToRHSVariableLeafTranslator(ec2PathLeaf, context);
@@ -58,12 +60,14 @@ public class FWASymbolToRHSVariableLeafTranslator extends FWATranslator<SymbolLe
 	@Override
 	public void visit(final SymbolLeaf symbolLeaf) {
 		final VariableSymbol symbol = symbolLeaf.getSymbol();
-		final PathLeaf pathLeaf = ec2PathLeaf.get(symbol.getEqual());
+		final FunctionWithArguments<PathLeaf> pathLeaf = ec2PathLeaf.get(symbol.getEqual());
 		if (pathLeaf != null) {
-			// variable is bound on the LHS, add initializer
-			final SlotInFactAddress slotInFactAddress =
-					new SlotInFactAddress(pathLeaf.getPath().getFactAddressInCurrentlyLowestNode(), pathLeaf.getSlot());
-			context.addInitializer(symbol, slotInFactAddress);
+			if (pathLeaf instanceof PathLeaf) {
+				context.addInitializer(symbol, new SlotInFactAddress(((PathLeaf) pathLeaf).getPath()
+						.getFactAddressInCurrentlyLowestNode(), ((PathLeaf) pathLeaf).getSlot()));
+			} else if (pathLeaf instanceof ConstantLeaf) {
+				context.addInitializer(symbol, pathLeaf.evaluate());
+			}
 		}
 		this.functionWithArguments = new RHSVariableLeaf(context, symbol, symbolLeaf.getReturnType());
 	}

@@ -49,6 +49,7 @@ import org.jamocha.filter.PathFilterList;
 import org.jamocha.filter.PathNodeFilterSet;
 import org.jamocha.function.FunctionDictionary;
 import org.jamocha.function.Predicate;
+import org.jamocha.function.fwa.FunctionWithArguments;
 import org.jamocha.function.fwa.PathLeaf;
 import org.jamocha.function.impls.predicates.And;
 import org.jamocha.languages.common.RuleCondition;
@@ -147,7 +148,7 @@ public class TokenProcessingTest {
 
 		final TerminalNode terminal =
 				network.buildRule(new Defrule("dummyrule", "", 0, (RuleCondition) null, new ArrayList<>())
-						.newTranslated(filter, (Map<EquivalenceClass, PathLeaf>) null));
+						.newTranslated(filter, (Map<EquivalenceClass, FunctionWithArguments<PathLeaf>>) null));
 
 		final RootNode rootNode = network.getRootNode();
 
@@ -243,7 +244,7 @@ public class TokenProcessingTest {
 
 		final TerminalNode terminal =
 				network.buildRule(new Defrule("dummyrule", "", 0, (RuleCondition) null, new ArrayList<>())
-						.newTranslated(filter, (Map<EquivalenceClass, PathLeaf>) null));
+						.newTranslated(filter, (Map<EquivalenceClass, FunctionWithArguments<PathLeaf>>) null));
 		final RootNode rootNode = network.getRootNode();
 		final ConflictSet conflictSet = network.getConflictSet();
 
@@ -318,7 +319,7 @@ public class TokenProcessingTest {
 
 		final TerminalNode terminal =
 				network.buildRule(new Defrule("dummyrule", "", 0, (RuleCondition) null, new ArrayList<>())
-						.newTranslated(filter, (Map<EquivalenceClass, PathLeaf>) null));
+						.newTranslated(filter, (Map<EquivalenceClass, FunctionWithArguments<PathLeaf>>) null));
 		final RootNode rootNode = network.getRootNode();
 		final ConflictSet conflictSet = network.getConflictSet();
 
@@ -392,7 +393,7 @@ public class TokenProcessingTest {
 								.buildFilter()));
 
 		network.buildRule(new Defrule("dummyrule", "", 0, (RuleCondition) null, new ArrayList<>()).newTranslated(
-				filter, (Map<EquivalenceClass, PathLeaf>) null));
+				filter, (Map<EquivalenceClass, FunctionWithArguments<PathLeaf>>) null));
 		final RootNode rootNode = network.getRootNode();
 		final ConflictSet conflictSet = network.getConflictSet();
 
@@ -461,7 +462,7 @@ public class TokenProcessingTest {
 								.addPath(youngStudent, studentSG).addPath(matchingProf, profSG).buildFilter()));
 
 		network.buildRule(new Defrule("dummyrule", "", 0, (RuleCondition) null, new ArrayList<>()).newTranslated(
-				filter, (Map<EquivalenceClass, PathLeaf>) null));
+				filter, (Map<EquivalenceClass, FunctionWithArguments<PathLeaf>>) null));
 		final RootNode rootNode = network.getRootNode();
 		final ConflictSet conflictSet = network.getConflictSet();
 
@@ -539,7 +540,7 @@ public class TokenProcessingTest {
 								.addPath(youngStudent, studentSG).addPath(matchingProf, profSG).buildFilter()));
 
 		network.buildRule(new Defrule("dummyrule", "", 0, (RuleCondition) null, new ArrayList<>()).newTranslated(
-				filter, (Map<EquivalenceClass, PathLeaf>) null));
+				filter, (Map<EquivalenceClass, FunctionWithArguments<PathLeaf>>) null));
 		final RootNode rootNode = network.getRootNode();
 		final ConflictSet conflictSet = network.getConflictSet();
 
@@ -594,7 +595,7 @@ public class TokenProcessingTest {
 				Arrays.asList(PathNodeFilterSet.newRegularPathNodeFilterSet(new PredicateBuilder(eqStrStr)
 						.addPath(p1, slotStr).addPath(p2, slotStr).buildFilter()));
 		network.buildRule(new Defrule("dummyrule", "", 0, (RuleCondition) null, new ArrayList<>()).newTranslated(
-				filter, (Map<EquivalenceClass, PathLeaf>) null));
+				filter, (Map<EquivalenceClass, FunctionWithArguments<PathLeaf>>) null));
 		final RootNode rootNode = network.getRootNode();
 
 		rootNode.assertFacts(t1.newFact(12L, "Micky"));
@@ -644,7 +645,7 @@ public class TokenProcessingTest {
 										.build()).buildFilter()));
 
 		network.buildRule(new Defrule("dummyrule", "", 0, (RuleCondition) null, new ArrayList<>()).newTranslated(
-				filter, (Map<EquivalenceClass, PathLeaf>) null));
+				filter, (Map<EquivalenceClass, FunctionWithArguments<PathLeaf>>) null));
 
 		// false == 5 < 3
 		network.getRootNode().assertFacts(t1.newFact(5L, "5L&FALSE", false));
@@ -693,7 +694,7 @@ public class TokenProcessingTest {
 		// create & append terminal
 		new TerminalNode(network, alphaNode,
 				new Defrule("dummyrule", "", 0, (RuleCondition) null, new ArrayList<>()).newTranslated(
-						Arrays.asList(filter), (Map<EquivalenceClass, PathLeaf>) null));
+						Arrays.asList(filter), (Map<EquivalenceClass, FunctionWithArguments<PathLeaf>>) null));
 
 		otn.activateTokenQueue();
 		alphaNode.activateTokenQueue();
@@ -767,7 +768,7 @@ public class TokenProcessingTest {
 		// create & append terminal
 		new TerminalNode(network, alphaNode,
 				new Defrule("dummyrule", "", 0, (RuleCondition) null, new ArrayList<>()).newTranslated(
-						Arrays.asList(filter), (Map<EquivalenceClass, PathLeaf>) null));
+						Arrays.asList(filter), (Map<EquivalenceClass, FunctionWithArguments<PathLeaf>>) null));
 		otn.activateTokenQueue();
 		alphaNode.activateTokenQueue();
 
@@ -814,7 +815,7 @@ public class TokenProcessingTest {
 										.build()).buildFilter());
 
 		network.buildRule(new Defrule("dummyrule", "", 0, (RuleCondition) null, new ArrayList<>()).newTranslated(
-				Arrays.asList(filter), (Map<EquivalenceClass, PathLeaf>) null));
+				Arrays.asList(filter), (Map<EquivalenceClass, FunctionWithArguments<PathLeaf>>) null));
 		final RootNode rootNode = network.getRootNode();
 
 		// false == 5 < 3
