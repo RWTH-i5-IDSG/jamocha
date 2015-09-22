@@ -384,7 +384,9 @@ public class ECBlocksToPathRule {
 		final IdentityHashMap<Either<Rule, ExistentialProxy>, RuleInfo> ruleToInfo = new IdentityHashMap<>();
 		// initialize paths
 		for (final Either<Rule, ExistentialProxy> rule : rules) {
-			ruleToInfo.computeIfAbsent(rule, x -> new RuleInfo(x, ruleToInfo));
+			final RuleInfo ruleInfo = ruleToInfo.computeIfAbsent(rule, x -> new RuleInfo(x, ruleToInfo));
+			// initialize all fact variables
+			ruleInfo.initializeFactVariables(Util.getFactVariables(rule));
 		}
 
 		// the set of all FIs already constructed
@@ -432,9 +434,6 @@ public class ECBlocksToPathRule {
 								.collect(
 										groupingBy(fi -> fi.getLeft().getEquivalenceClass(), IdentityHashMap::new,
 												toArrayList()));
-
-				// initialize all fact variables that are to be joined by this block
-				chosenRuleInfo.initializeFactVariables(chosenRule, block.factVariablePartition.getSubSets());
 
 				final Set<EquivalenceClass> blockECs =
 						Sets.newHashSet(Sets.union(block.variableExpressionTheta.getEquivalenceClasses(),
@@ -613,7 +612,7 @@ public class ECBlocksToPathRule {
 							final DefaultWeightedEdge defaultWeightedEdge = max.get();
 							final Set<SingleFactVariable> source = graph.getEdgeSource(defaultWeightedEdge);
 							final Set<SingleFactVariable> target = graph.getEdgeTarget(defaultWeightedEdge);
-							chosenRuleInfo.fvsMergeII(source, target);
+							RuleInfo.fvsMergeII(block, ruleToInfo, source, target);
 							continue JoinLoop;
 						}
 					}
@@ -627,7 +626,7 @@ public class ECBlocksToPathRule {
 							final Iterator<Set<SingleFactVariable>> iterator = components.iterator();
 							final Set<SingleFactVariable> source = iterator.next();
 							final Set<SingleFactVariable> target = iterator.next();
-							chosenRuleInfo.fvsMergeII(source, target);
+							RuleInfo.fvsMergeII(block, ruleToInfo, source, target);
 							continue JoinLoop;
 						}
 					}
@@ -640,7 +639,7 @@ public class ECBlocksToPathRule {
 								final Iterator<Set<SingleFactVariable>> iterator = components.iterator();
 								final Set<SingleFactVariable> source = iterator.next();
 								final Set<SingleFactVariable> target = iterator.next();
-								chosenRuleInfo.fvsMergeII(source, target);
+								RuleInfo.fvsMergeII(block, ruleToInfo, source, target);
 								continue JoinLoop;
 							}
 						}
@@ -1063,13 +1062,9 @@ class RuleInfo {
 		return this.factVariables.getSet(fv);
 	}
 
-	public void initializeFactVariables(final Either<Rule, ExistentialProxy> rule,
-			final Collection<FactVariableSubSet> subsets) {
-		if (!this.factVariables.tToJoinedWith.isEmpty()) {
-			return;
-		}
-		for (final FactVariableSubSet factVariableSubSet : subsets) {
-			this.factVariables.getSet(factVariableSubSet.get(rule));
+	public void initializeFactVariables(final Collection<SingleFactVariable> fvs) {
+		for (final SingleFactVariable factVariable : fvs) {
+			this.factVariables.getSet(factVariable);
 		}
 	}
 
@@ -1085,29 +1080,38 @@ class RuleInfo {
 		return this.factVariables.isMerged(check);
 	}
 
-	public void fvsMergeII(final Set<SingleFactVariable> left, final Set<SingleFactVariable> right) {
-		this.factVariables.mergeII(left, right);
+	public static void fvsMergeII(final Block block,
+			final IdentityHashMap<Either<Rule, ExistentialProxy>, RuleInfo> ruleToInfo,
+			final Set<SingleFactVariable> left, final Set<SingleFactVariable> right) {
+		final FactVariableSubSet leftLookup = block.getFactVariablePartition().lookup(left.iterator().next());
+		final FactVariableSubSet rightLookup = block.getFactVariablePartition().lookup(right.iterator().next());
+		for (final Either<Rule, ExistentialProxy> rule : block.getRulesOrProxies()) {
+			final RuleInfo ruleInfo = ruleToInfo.get(rule);
+			final Set<SingleFactVariable> l = ruleInfo.getFVComponent(leftLookup.get(rule));
+			final Set<SingleFactVariable> r = ruleInfo.getFVComponent(rightLookup.get(rule));
+			ruleInfo.factVariables.mergeII(l, r);
+		}
 	}
 
 	public IdentityHashMap<Set<SingleFactVariable>, Long> calculateFVSetToFICount() {
 		final Set<List<PathFilterList>> allPathFilterLists = getAllPathFilterLists();
 		final IdentityHashMap<Set<SingleFactVariable>, Long> fvSetToFICount = new IdentityHashMap<>();
 		for (final List<PathFilterList> list : allPathFilterLists) {
-			// one list corresponds to one block
 			for (final PathFilterList pathFilterList : list) {
-				final PathCollector<HashSet<Path>> collector = PathCollector.newHashSet();
-				pathFilterList.forEach(collector::collectAllInLists);
-				final HashSet<Path> paths = collector.getPaths();
-				final Set<Set<SingleFactVariable>> fvs =
-						paths.stream().map(fvToPath.inverse()::get).distinct().map(this.factVariables::getSet)
-								.collect(toIdentityHashSet());
-				if (fvs.size() != 1) {
-					throw new IllegalStateException(
-							"There should only be one fact variable component for one PathFilterList!");
-				}
-				final Set<SingleFactVariable> fvSet = Iterables.getOnlyElement(fvs);
-				long numTests = 0;
 				for (final PathNodeFilterSet pathNodeFilterSet : pathFilterList) {
+					final HashSet<Path> paths =
+							PathCollector.newHashSet().collectAllInLists(pathNodeFilterSet).getPaths();
+					final Set<Set<SingleFactVariable>> fvs =
+							paths.stream().map(fvToPath.inverse()::get).distinct().map(this.factVariables::getSet)
+									.collect(toIdentityHashSet());
+					if (fvs.size() == 0)
+						continue;
+					if (fvs.size() != 1) {
+						throw new IllegalStateException(
+								"There should only be one fact variable component for one PathNodeFilterSet!");
+					}
+					final Set<SingleFactVariable> fvSet = Iterables.getOnlyElement(fvs);
+					long numTests = 0;
 					for (final PathFilter pathFilter : pathNodeFilterSet.getFilters()) {
 						final Predicate predicate =
 								((PredicateWithArgumentsComposite<?>) pathFilter.getFunction()).getFunction();
@@ -1117,8 +1121,8 @@ class RuleInfo {
 							++numTests;
 						}
 					}
+					fvSetToFICount.merge(fvSet, numTests, Math::addExact);
 				}
-				fvSetToFICount.merge(fvSet, numTests, Math::addExact);
 			}
 		}
 		return fvSetToFICount;
