@@ -258,7 +258,9 @@ public class Randomizer {
 		for (final PathRule pathRule : optimized) {
 			final PathFilterList condition = pathRule.getCondition();
 			final HashSet<Path> paths = PathCollector.newHashSet().collectAllInLists(condition).getPaths();
+			paths.addAll(pathRule.getResultPaths());
 			for (final Path path : paths) {
+				path.setCurrentlyLowestNode(null);
 				path.setFactAddressInCurrentlyLowestNode(null);
 				path.setJoinedWith(Sets.newHashSet(path));
 			}
