@@ -940,30 +940,6 @@ public class ECBlocks {
 		deletedBlocks.addDuringConflictResolution(replaceBlock);
 	}
 
-	protected static void solveConflictDuringRandomization(final BlockConflict blockConflict,
-			final DirectedGraph<Block, BlockConflict> blockConflictGraph, final ECBlockSet resultBlocks,
-			final ECBlockSet deletedBlocks) {
-		final Block replaceBlock = blockConflict.getReplaceBlock();
-		final Set<FilterInstance> xWOcfi =
-				replaceBlock.getFlatFilterInstances().stream().filter(negate(blockConflict.getCfi()::contains))
-						.collect(toSet());
-		resultBlocks.remove(replaceBlock);
-		// remove replaceBlock and update qualities
-		removeVertexAndUpdateMissingArc(blockConflictGraph, blockConflict);
-		// find the horizontally maximal blocks within xWOcfi
-		final ECBlockSet newBlocks = findAllMaximalBlocksInReducedScope(xWOcfi, new ECBlockSet());
-		// for every such block,
-		for (final Block block : newBlocks.getBlocks()) {
-			if (!deletedBlocks.isContained(block)) {
-				if (resultBlocks.addDuringConflictResolution(block)) {
-					blockConflictGraph.addVertex(block);
-					createArcs(blockConflictGraph, resultBlocks, block);
-				}
-			}
-		}
-		deletedBlocks.addDuringConflictResolution(replaceBlock);
-	}
-
 	protected static void findAllMaximalBlocks(final List<Either<Rule, ExistentialProxy>> rules,
 			final ECBlockSet resultBlocks) {
 		final Set<Filter> filters = rules.stream().flatMap(rule -> getFilters(rule).stream()).collect(toSet());
