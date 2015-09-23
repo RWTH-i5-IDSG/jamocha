@@ -77,6 +77,7 @@ public class ClipsLogFormatter implements LogFormatter {
 				.sorted((a, b) -> a.getKey().compareTo(b.getKey()))
 				.forEachOrdered(
 						e -> network.getLogFormatter().messageFactDetails(network, e.getKey().getId(), e.getValue()));
+		network.getInteractiveEventsLogger().info("For a total of {} facts.", network.getMemoryFacts().size());
 	}
 
 	@Override
