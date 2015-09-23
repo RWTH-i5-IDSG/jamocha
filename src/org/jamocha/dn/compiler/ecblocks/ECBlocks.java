@@ -1252,7 +1252,9 @@ public class ECBlocks {
 			final List<FactVariablePartition> partitions = enumerateFactVariablePartitions(rules);
 			final Set<List<T>> cartesianProduct = Sets.cartesianProduct(powerSetElement);
 			for (final List<T> filterInstances : cartesianProduct) {
-				verticalInner.apply(rules, filterInstances, partitions, resultBlocks);
+				verticalInner.apply(rules, filterInstances,
+						partitions.size() > rules.size() * 10 ? partitions.subList(0, rules.size() * 10) : partitions,
+						resultBlocks);
 			}
 		}
 	}
