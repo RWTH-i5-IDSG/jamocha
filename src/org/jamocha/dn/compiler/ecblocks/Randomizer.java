@@ -310,6 +310,7 @@ public class Randomizer {
 			}
 		}
 		final boolean added = state.blockSet.addDuringHorizontalRecursion(block);
+		if (added) solveConflicts(state, block);
 		log.debug("added? ({}) new block {}", added, block);
 		return added;
 	}
