@@ -2,7 +2,7 @@
 (unwatch compilations)
 (watch statistics)
 (set-strategy depth)
-(loadclipsfiles/waltz/ waltz.clp)
+(load clipsfiles/waltz/waltz.clp)
 (reset)
 (load-facts clipsfiles/waltz/waltz25.fct)
 (run)
