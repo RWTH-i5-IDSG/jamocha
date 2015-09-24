@@ -69,6 +69,7 @@ import org.jamocha.filter.Path;
 import org.jamocha.filter.PathCollector;
 import org.jamocha.filter.PathFilterList;
 import org.jamocha.filter.optimizer.Optimizer;
+import org.jamocha.filter.optimizer.PathFilterOrderOptimizer;
 import org.jamocha.filter.optimizer.SamePathsFilterCombiningOptimizer;
 import org.jamocha.filter.optimizer.SamePathsNodeFilterSetCombiningOptimizer;
 import org.jamocha.filter.optimizer.SubsetPathsNodeFilterSetCombiningOptimizer;
@@ -566,6 +567,10 @@ public class Randomizer {
 		Collection<PathRule> transformedRules = ECBlocks.compile(rules, blockSet);
 		for (final Optimizer optimizer : ImmutableList.of(
 		/*
+		 * now perform the actual optimization of the filter order
+		 */
+		PathFilterOrderOptimizer.instance,
+		/*
 		 * node filter sets using the same paths can be combined
 		 */
 		SamePathsNodeFilterSetCombiningOptimizer.instance,
@@ -574,7 +579,8 @@ public class Randomizer {
 		 */
 		SamePathsFilterCombiningOptimizer.instance,
 		/*
-		 * node filter sets using only a subset of the paths of their predecessors can be combined
+		 * now that the order of the node filter sets is fixed, we can combine node filter sets
+		 * using only a subset of the paths of their predecessors
 		 */
 		SubsetPathsNodeFilterSetCombiningOptimizer.instance)) {
 			transformedRules = optimizer.optimize(transformedRules);
