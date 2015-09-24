@@ -117,6 +117,8 @@ public class StatisticsProvider implements org.jamocha.rating.StatisticsProvider
 			return 1.0;
 		} else if (string.matches("'='\\(Path\\d+ \\[edge::joined\\], false\\)")) {
 			return 0.75;
+		} else if (string.matches("'='\\(Path\\d+ \\[edge::joined\\], Path\\d+ \\[edge::joined\\]\\)")) {
+			return 0.90;
 		} else if (string.matches("'='\\(Path\\d+ \\[edge::p1\\], Path\\d+ \\[edge::p1\\]\\)")) {
 			return 0.05;
 		} else if (string.matches("'='\\(Path\\d+ \\[edge::p1\\], Path\\d+ \\[junction::base_point\\]\\)")) {
