@@ -60,7 +60,7 @@ public class OutstreamAppender extends AbstractOutputStreamAppender<OutputStream
 
 	private static class MyOutputStreamManager extends OutputStreamManager {
 		protected MyOutputStreamManager(final OutputStream os, final String streamName, final Layout<?> layout) {
-			super(os, streamName, layout);
+			super(os, streamName, layout, true);
 		}
 	}
 
