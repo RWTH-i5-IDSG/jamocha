@@ -106,6 +106,9 @@ public class RatingProvider implements org.jamocha.rating.RatingProvider {
 	private double cardenas(final double m, final double k) {
 		if (k <= 1)
 			return k;
+		if (m == 0) {
+			return 0;
+		}
 		return m * (1 - Math.pow((1 - 1 / m), k));
 	}
 
