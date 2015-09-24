@@ -532,7 +532,8 @@ public class RatingProvider implements org.jamocha.rating.RatingProvider {
 		for (final Node node : nodes) {
 			recursiveRateNode(node, nodeToCost, preNetwork, statProvider);
 		}
-		return nodeToCost.values().stream().mapToDouble(Double::doubleValue).sum();
+		final double cost = nodeToCost.values().stream().mapToDouble(Double::doubleValue).sum();
+		return cost;
 	}
 
 	private void recursiveRateNode(final Node node, final Map<Node, Double> nodeToCost,
@@ -566,8 +567,10 @@ public class RatingProvider implements org.jamocha.rating.RatingProvider {
 		PathNodeFilterSet chosenPnfs = null;
 		Pair<Set<Path>, Set<PathFilterList>> chosenPair = null;
 		Set<Set<PathFilterList>> chosenEdgeSet = null;
+		Map<Path, Set<PathFilterList>> chosenPathToComponent = null;
 		for (final PathNodeFilterSet localPnfs : node.getPathNodeFilterSets()) {
 			chosenEdgeSet = new HashSet<>();
+			chosenPathToComponent = new HashMap<>();
 			final Set<Path> localPaths =
 					Lambdas.newIdentityHashSet(PathCollector.newHashSet().collectAllInLists(localPnfs).getPaths());
 			final Set<Path> resultPaths = new HashSet<Path>();
@@ -585,6 +588,9 @@ public class RatingProvider implements org.jamocha.rating.RatingProvider {
 						resultFilters.addAll(filters);
 						resultPaths.addAll(paths);
 						chosenEdgeSet.add(filters);
+						for (final Path path : paths) {
+							chosenPathToComponent.put(path, filters);
+						}
 					}
 				}
 			}
@@ -597,9 +603,7 @@ public class RatingProvider implements org.jamocha.rating.RatingProvider {
 		assert null != chosenPnfs;
 		assert null != chosenPair;
 		assert null != chosenEdgeSet;
-
-		// Create a Map that maps each path to the corresponding Set of PathNodeFilterSets
-		final Map<Path, Set<PathFilterList>> emptyPathEdgeMap = new HashMap<Path, Set<PathFilterList>>(0);
+		assert null != chosenPathToComponent;
 
 		// Create a List of all PathFilters in this node
 		final List<PathFilter> pathFilters = new ArrayList<>(chosenPnfs.getFilters());
@@ -613,19 +617,20 @@ public class RatingProvider implements org.jamocha.rating.RatingProvider {
 		}
 
 		// Rate the node, depending on the Type of node either Alpha or Beta
+		final double cost;
 		if (incomingEdges.length > 1) {
-			nodeToCost.put(node, rateBeta(statProvider, chosenPnfs, pathToComponents, emptyPathEdgeMap));
+			// Create a Map that maps each path to the corresponding Set of PathNodeFilterSets
+			cost = rateBeta(statProvider, chosenPnfs, pathToComponents, chosenPathToComponent);
 		} else if (!Objects.isNull(node.getMemory())) {
-			nodeToCost.put(
-					node,
+			cost =
 					rateMaterialisedAlpha(statProvider, chosenPnfs,
-							Iterables.first(chosenEdgeSet).getOrElse(new HashSet<PathFilterList>())));
+							Iterables.first(chosenEdgeSet).getOrElse(new HashSet<PathFilterList>()));
 		} else {
-			nodeToCost.put(
-					node,
+			cost =
 					rateVirtualAlpha(statProvider, chosenPnfs,
-							Iterables.first(chosenEdgeSet).getOrElse(new HashSet<PathFilterList>())));
+							Iterables.first(chosenEdgeSet).getOrElse(new HashSet<PathFilterList>()));
 		}
+		nodeToCost.put(node, cost);
 		// Return the Set of PathNodeFilterSet that represents the pre-network including this
 		// node
 	}
