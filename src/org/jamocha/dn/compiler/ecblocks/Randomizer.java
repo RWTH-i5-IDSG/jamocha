@@ -558,7 +558,7 @@ public class Randomizer {
 				break;
 			}
 			final BlockConflict blockConflict = mostUsefulConflictsFirst.get();
-			ECBlocks.solveConflict(blockConflict, blockConflictGraph, state.blockSet, deletedBlocks);
+			ECBlocks.solveConflictWithoutRecreation(blockConflict, blockConflictGraph, state.blockSet, deletedBlocks);
 		}
 	}
 

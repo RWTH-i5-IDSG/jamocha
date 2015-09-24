@@ -940,6 +940,17 @@ public class ECBlocks {
 		deletedBlocks.addDuringConflictResolution(replaceBlock);
 	}
 
+	protected static void solveConflictWithoutRecreation(final BlockConflict blockConflict,
+			final DirectedGraph<Block, BlockConflict> blockConflictGraph, final ECBlockSet resultBlocks,
+			final ECBlockSet deletedBlocks) {
+		final Block replaceBlock = blockConflict.getReplaceBlock();
+		resultBlocks.remove(replaceBlock);
+		// remove replaceBlock and update qualities
+		removeVertexAndUpdateMissingArc(blockConflictGraph, blockConflict);
+		// for every such block,
+		deletedBlocks.addDuringConflictResolution(replaceBlock);
+	}
+
 	protected static void findAllMaximalBlocks(final List<Either<Rule, ExistentialProxy>> rules,
 			final ECBlockSet resultBlocks) {
 		final Set<Filter> filters = rules.stream().flatMap(rule -> getFilters(rule).stream()).collect(toSet());
