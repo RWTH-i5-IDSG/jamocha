@@ -1,0 +1,26 @@
+trivial			1:25
+make-3_junction	2:25
+match_edge		1:50
+label_L			1:20
+label_tee_A		1:30
+label_tee_B		1:25
+label_fork-1	1:55
+label_fork-2	1:55
+label_fork-3	:
+label_fork-4	:
+label_arrow-1A	:
+label_arrow-1B	1:35
+label_arrow-2A	1:30
+label_arrow-2B	1:35
+label_arrow-3A	1:30
+label_arrow-3B	1:25
+label_arrow-4A	1:40
+label_arrow-4B	1:30
+label_arrow-5A	1:50
+label_arrow-5B	1:25
+done_labeling	1:30
+plot_remaining	1:25
+plot_boundaries	1:25
+
+label_forks1-4	2:00
+
