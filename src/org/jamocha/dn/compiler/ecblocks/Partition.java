@@ -15,6 +15,7 @@
 package org.jamocha.dn.compiler.ecblocks;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.IdentityHashMap;
 import java.util.Map;
@@ -54,7 +55,7 @@ class Partition<T, S extends Partition.SubSet<T>> {
 	}
 
 	final Set<S> subSets = new HashSet<>();
-	final IdentityHashMap<T, S> lookup = new IdentityHashMap<>();
+	final HashMap<T, S> lookup = new HashMap<>();
 
 	public Partition(final Partition<T, S> copy, final Function<S, S> copyCtor) {
 		copy.subSets.stream().map(copyCtor).forEach(this.subSets::add);
