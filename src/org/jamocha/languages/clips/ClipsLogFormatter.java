@@ -23,6 +23,7 @@ import java.util.Objects;
 
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.Marker;
+import org.jamocha.dn.ConstructCache.Defrule;
 import org.jamocha.dn.ConstructCache.Defrule.Translated;
 import org.jamocha.dn.SideEffectFunctionToNetwork;
 import org.jamocha.dn.memory.Fact;
@@ -92,6 +93,15 @@ public class ClipsLogFormatter implements LogFormatter {
 			network.getInteractiveEventsLogger().info(template.getName());
 		}
 		network.getInteractiveEventsLogger().info("For a total of {} deftemplates.", templates.size());
+	}
+
+	@Override
+	public void messageRuleList(final SideEffectFunctionToNetwork network) {
+		final Collection<Defrule> rules = network.getRules();
+		for (final Defrule rule : rules) {
+			network.getInteractiveEventsLogger().info(rule.getName());
+		}
+		network.getInteractiveEventsLogger().info("For a total of {} defrules.", rules.size());
 	}
 
 	@Override

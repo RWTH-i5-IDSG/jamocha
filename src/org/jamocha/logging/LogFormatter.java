@@ -37,6 +37,8 @@ public interface LogFormatter {
 
 	void messageTemplateList(final SideEffectFunctionToNetwork network);
 
+	void messageRuleList(final SideEffectFunctionToNetwork network);
+
 	void messageFactAssertions(final SideEffectFunctionToNetwork network, final FactIdentifier[] assertedFacts);
 
 	void messageFactRetractions(final SideEffectFunctionToNetwork network, final FactIdentifier[] factsToRetract);
