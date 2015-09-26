@@ -368,7 +368,10 @@ public class Randomizer {
 		final IdentityHashMap<SubSet<Element>, Element> elExtension = new IdentityHashMap<>();
 		final Set<Element> elements = ElementCollector.getElements(filterInstances);
 		for (final SubSet<Element> subset : block.getElementPartition().getSubSets()) {
-			final Element element = Iterables.get(elements, rand.nextInt(elements.size()));
+			if (elements.isEmpty()) {
+				return false;
+			}
+			final Element element = getRandomElement(elements, rand);
 			elements.remove(element);
 			elExtension.put(subset, element);
 		}
