@@ -84,7 +84,7 @@ public class StatisticsProvider implements org.jamocha.rating.StatisticsProvider
 
 	// Workaround for evaluation - replace with actual data in OTN memory
 	private static final Map<String, Data> templateToData = new HashMap<>();
-	private static final Data dummyData = new Data(10, 10, 100, 1);
+	private static final Data dummyData = new Data(10, 10, 1000, 1);
 	{
 		templateToData.put("stage", new Data(10, 10, 1, 1));
 		templateToData.put("line", new Data(20, 20, 1000, 1));
@@ -131,6 +131,12 @@ public class StatisticsProvider implements org.jamocha.rating.StatisticsProvider
 			return 0.95;
 		} else if (string.matches("'='\\(Path\\d+ \\[junction::jtype\\], .+\\)")) {
 			return 0.3;
+		} else if (string.matches("'='\\(Path\\d+ \\[[ABCD]::[abc]\\], Path\\d+ \\[[ABCD]::[abc]\\]\\)")) {
+			return 0.01;
+		} else if (string.matches("'<'\\(Path\\d+ \\[.+\\], 5\\)")) {
+			return 0.04;
+		} else if (string.matches("'<'\\(Path\\d+ \\[.+\\], .+\\)")) {
+			return 0.16;
 		}
 		return standardJSF;
 	}
