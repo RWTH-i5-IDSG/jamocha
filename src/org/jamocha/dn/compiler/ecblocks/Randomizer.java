@@ -325,20 +325,21 @@ public class Randomizer {
 	}
 
 	public boolean tryToAddRow(final State state, final Block block, final Either<Rule, ExistentialProxy> rule) {
+		final Block newBlock = new Block(block);
 		final Set<FilterInstance> filterInstances = Util.getFilterInstances(rule);
 		// if the rule doesn't contain enough filter instances, fail
-		if (block.getNumberOfColumns() > filterInstances.size()) {
+		if (newBlock.getNumberOfColumns() > filterInstances.size()) {
 			return false;
 		}
 		// if the rule doesn't provide the right filters, fail
 		final Set<Filter> filters = Util.getFilters(rule);
-		if (!filters.containsAll(block.getFilters())) {
+		if (!filters.containsAll(newBlock.getFilters())) {
 			return false;
 		}
 		// rule could actually end up working, so lets try
 		final IdentityHashMap<FilterInstanceSubSet, FilterInstance> fiExtension = new IdentityHashMap<>();
-		for (final Filter filter : block.getFilters()) {
-			final Set<FilterInstanceSubSet> subsets = block.getFilterInstancePartition().lookupByFilter(filter);
+		for (final Filter filter : newBlock.getFilters()) {
+			final Set<FilterInstanceSubSet> subsets = newBlock.getFilterInstancePartition().lookupByFilter(filter);
 			final LinkedList<FilterInstance> allInstances = new LinkedList<>(filter.getAllInstances(rule));
 			if (allInstances.size() < subsets.size()) {
 				return false;
@@ -353,8 +354,8 @@ public class Randomizer {
 		final Map<Template, ArrayList<SingleFactVariable>> fvsByTemplate =
 				factVariables.stream().collect(groupingBy(SingleFactVariable::getTemplate, toArrayList()));
 		final IdentityHashMap<FactVariableSubSet, SingleFactVariable> fvExtension = new IdentityHashMap<>();
-		for (final Template template : block.getFactVariablePartition().templateLookup.keySet()) {
-			final Set<FactVariableSubSet> subsets = block.getFactVariablePartition().lookupByTemplate(template);
+		for (final Template template : newBlock.getFactVariablePartition().templateLookup.keySet()) {
+			final Set<FactVariableSubSet> subsets = newBlock.getFactVariablePartition().lookupByTemplate(template);
 			final ArrayList<SingleFactVariable> fvs = fvsByTemplate.getOrDefault(template, new ArrayList<>());
 			if (fvs.size() < subsets.size()) {
 				return false;
@@ -366,8 +367,8 @@ public class Randomizer {
 			}
 		}
 		final IdentityHashMap<SubSet<Element>, Element> elExtension = new IdentityHashMap<>();
-		final Set<Element> elements = ElementCollector.getElements(filterInstances);
-		for (final SubSet<Element> subset : block.getElementPartition().getSubSets()) {
+		final Set<Element> elements = ElementCollector.getElements(fiExtension.values());
+		for (final SubSet<Element> subset : newBlock.getElementPartition().getSubSets()) {
 			if (elements.isEmpty()) {
 				return false;
 			}
@@ -377,7 +378,7 @@ public class Randomizer {
 		}
 		// is this element partition extension compatible with the element partition?
 		// this also checks whether the resulting theta is compatible with the current version
-		if (!ElementCompare.compare(elements, block.getFactVariablePartition(), fvExtension)) {
+		if (!ElementCompare.compare(elements, newBlock.getFactVariablePartition(), fvExtension)) {
 			return false;
 		}
 		// add it to the theta
@@ -388,9 +389,9 @@ public class Randomizer {
 		// test for all pairs of filter instance subsets: for every pair a,b in one and the
 		// corresponding pair f,g in the other (of the same rules) have to have identical conflicts
 		// c(a,f) == c(b,g)
-		final Either<Rule, ExistentialProxy> chosenRule = block.rulesOrProxies.iterator().next();
-		for (final FilterInstanceSubSet aSubset : block.getFilterInstancePartition().getSubSets()) {
-			for (final FilterInstanceSubSet bSubset : block.getFilterInstancePartition().getSubSets()) {
+		final Either<Rule, ExistentialProxy> chosenRule = newBlock.rulesOrProxies.iterator().next();
+		for (final FilterInstanceSubSet aSubset : newBlock.getFilterInstancePartition().getSubSets()) {
+			for (final FilterInstanceSubSet bSubset : newBlock.getFilterInstancePartition().getSubSets()) {
 				if (aSubset == bSubset)
 					continue;
 				final FilterInstance a = aSubset.get(chosenRule);
@@ -399,15 +400,16 @@ public class Randomizer {
 				final FilterInstance f = bSubset.get(chosenRule);
 				final FilterInstance g = fiExtension.get(bSubset);
 
-				if (!Objects.equals(a.getConflict(f, block.theta, block.theta),
+				if (!Objects.equals(a.getConflict(f, newBlock.theta, newBlock.theta),
 						b.getConflict(g, thetaExtension, thetaExtension))) {
 					return false;
 				}
 			}
 		}
 
+		assert !newBlock.elementPartition.getSubSets().stream().anyMatch(subset -> null == elExtension.get(subset));
+
 		state.blockSet.remove(block);
-		final Block newBlock = new Block(block);
 		newBlock.addRow(rule, fvExtension, fiExtension, elExtension);
 		state.blockSet.addDuringHorizontalRecursion(newBlock);
 		solveConflicts(state, newBlock);
