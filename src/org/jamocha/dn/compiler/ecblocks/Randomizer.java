@@ -69,7 +69,6 @@ import org.jamocha.filter.Path;
 import org.jamocha.filter.PathCollector;
 import org.jamocha.filter.PathFilterList;
 import org.jamocha.filter.optimizer.Optimizer;
-import org.jamocha.filter.optimizer.PathFilterOrderOptimizer;
 import org.jamocha.filter.optimizer.SamePathsFilterCombiningOptimizer;
 import org.jamocha.filter.optimizer.SamePathsNodeFilterSetCombiningOptimizer;
 import org.jamocha.filter.optimizer.SubsetPathsNodeFilterSetCombiningOptimizer;
@@ -311,7 +310,8 @@ public class Randomizer {
 			}
 		}
 		final boolean added = state.blockSet.addDuringHorizontalRecursion(block);
-		if (added) solveConflicts(state, block);
+		if (added)
+			solveConflicts(state, block);
 		log.debug("added? ({}) new block {}", added, block);
 		return added;
 	}
@@ -569,7 +569,7 @@ public class Randomizer {
 		/*
 		 * now perform the actual optimization of the filter order
 		 */
-		PathFilterOrderOptimizer.instance,
+		// PathFilterOrderOptimizer.instance,
 		/*
 		 * node filter sets using the same paths can be combined
 		 */
