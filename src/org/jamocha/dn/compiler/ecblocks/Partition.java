@@ -39,7 +39,7 @@ class Partition<T, S extends Partition.SubSet<T>> {
 	@Getter
 	@ToString
 	static class SubSet<T> {
-		final IdentityHashMap<Either<Rule, ExistentialProxy>, T> elements;
+		final protected IdentityHashMap<Either<Rule, ExistentialProxy>, T> elements;
 
 		public SubSet(final SubSet<T> copy) {
 			this(new IdentityHashMap<>(copy.elements));
@@ -67,6 +67,7 @@ class Partition<T, S extends Partition.SubSet<T>> {
 	}
 
 	public void add(final S newSubSet) {
+		assert !newSubSet.elements.values().contains(null);
 		assert this.subSets.stream().allMatch(ss -> ss.getElements().keySet().equals(newSubSet.elements.keySet()));
 		assert this.subSets.stream().allMatch(
 				ss -> Collections.disjoint(ss.getElements().values(), newSubSet.elements.values()));
@@ -77,8 +78,11 @@ class Partition<T, S extends Partition.SubSet<T>> {
 	}
 
 	public void extend(final Either<Rule, ExistentialProxy> rule, final IdentityHashMap<S, T> extension) {
+		assert !extension.containsValue(null);
 		for (final S subset : this.subSets) {
-			subset.elements.put(rule, extension.get(subset));
+			final T newElement = extension.get(subset);
+			assert null != newElement;
+			subset.elements.put(rule, newElement);
 		}
 	}
 
