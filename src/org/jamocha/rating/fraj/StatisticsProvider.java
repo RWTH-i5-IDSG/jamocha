@@ -90,6 +90,10 @@ public class StatisticsProvider implements org.jamocha.rating.StatisticsProvider
 		templateToData.put("line", new Data(20, 20, 1000, 1));
 		templateToData.put("edge", new Data(100, 100, 2000, 1));
 		templateToData.put("junction", new Data(30, 30, 800, 1));
+		templateToData.put("A", new Data(10, 10, 100000, 1));
+		templateToData.put("B", new Data(10, 10, 100000, 1));
+		templateToData.put("C", new Data(10, 10, 100000, 1));
+		templateToData.put("D", new Data(10, 10, 100000, 1));
 	}
 
 	@Override
