@@ -64,7 +64,6 @@ import org.jamocha.dn.compiler.ecblocks.rand.IterativeImprovement;
 import org.jamocha.dn.compiler.ecblocks.rand.SimulatedAnnealing;
 import org.jamocha.dn.compiler.ecblocks.rand.TwoPhaseOptimization;
 import org.jamocha.dn.memory.Template;
-import org.jamocha.dn.nodes.TerminalNode;
 import org.jamocha.filter.Path;
 import org.jamocha.filter.PathCollector;
 import org.jamocha.filter.PathFilterList;
@@ -596,8 +595,7 @@ public class Randomizer {
 	protected static double rate(final Collection<PathRule> compiledState) {
 		final Network network = new Network();
 		for (final PathRule pathRule : compiledState) {
-			final TerminalNode terminalNode = network.buildRule(pathRule);
-			network.getTerminalNodes().add(terminalNode);
+			network.buildRule(pathRule);
 		}
 		// uses CPU cost only
 		final double rating = new RatingProvider(cpuCost).rateNetwork(network);

@@ -491,6 +491,7 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 		for (final Node node : nodes) {
 			node.activateTokenQueue();
 		}
+		this.terminalNodes.add(terminalNode);
 		return terminalNode;
 	}
 
@@ -569,7 +570,7 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 				System.out.println(pathNodeFilterSet.getFilters());
 			}
 			System.out.println();
-			this.terminalNodes.add(buildRule(rule));
+			buildRule(rule);
 		}
 		final NumberFormat formatter = new DecimalFormat("0.######E0");
 		System.out.println("Network cpu cost: " + formatter.format(new RatingProvider((a, b) -> a).rateNetwork(this)));
