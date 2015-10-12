@@ -232,7 +232,6 @@ public class CEToECTranslator implements DefaultConditionalElementsVisitor {
 			/* merge fact variables within equivalence classes */
 			symbols.forEach(vs -> vs.getEqual().mergeEquivalenceClassesOfFactVariables());
 
-			// FIXME needs fixing - always returns empty-handed
 			/* check that all variables are bound */
 			final Set<VariableSymbol> symbolsInLeafs = SymbolInSymbolLeafsCollector.collect(ce);
 			for (final VariableSymbol vs : symbols) {

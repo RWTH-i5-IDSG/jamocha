@@ -26,6 +26,7 @@ import org.jamocha.function.fwa.GlobalVariableLeaf;
 import org.jamocha.function.fwa.SymbolLeaf;
 import org.jamocha.languages.common.ConditionalElement;
 import org.jamocha.languages.common.DefaultConditionalElementsVisitor;
+import org.jamocha.languages.common.ConditionalElement.TestConditionalElement;
 import org.jamocha.languages.common.ScopeStack.VariableSymbol;
 
 /**
@@ -44,6 +45,11 @@ public class SymbolInSymbolLeafsCollector implements DefaultConditionalElementsV
 
 	public static Set<VariableSymbol> collect(final FunctionWithArguments<SymbolLeaf> fwa) {
 		return fwa.accept(new SymbolInSymbolLeafsCollector()).symbols;
+	}
+	
+	@Override
+	public void visit(TestConditionalElement ce) {
+		ce.getPredicateWithArguments().accept(this);
 	}
 
 	@Override
