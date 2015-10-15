@@ -101,6 +101,10 @@
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>findbugs-maven-plugin</artifactId>
 				<version>3.0.1</version>
+				<configuration>
+					<failOnError>false</failOnError>
+					<onlyAnalyze>org.jamocha.-</onlyAnalyze>
+				</configuration>
 				<executions>
 					<execution>
 						<goals>
@@ -109,7 +113,7 @@
 					</execution>
 				</executions>
 			</plugin>
-			<plugin>
+			<!-- <plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-checkstyle-plugin</artifactId>
 				<version>2.15</version>
@@ -126,7 +130,7 @@
 						</goals>
 					</execution>
 				</executions>
-			</plugin>
+			</plugin> -->
 			<!-- END STATIC ANALYSIS PLUGINS SECTION -->
 		</plugins>
 		<pluginManagement>
