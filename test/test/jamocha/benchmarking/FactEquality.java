@@ -16,7 +16,6 @@ package test.jamocha.benchmarking;
 
 import java.util.Date;
 
-import org.apache.commons.io.IOUtils;
 import org.jamocha.dn.ConstructCache.Defrule.PathRule;
 import org.jamocha.dn.Network;
 import org.jamocha.dn.memory.SlotType;
@@ -30,10 +29,7 @@ import org.jamocha.function.Predicate;
 import org.jamocha.function.impls.functions.Plus;
 import org.jamocha.function.impls.predicates.Equals;
 import org.jamocha.function.impls.predicates.Less;
-import org.jamocha.languages.clips.parser.SFPToCETranslator;
 import org.jamocha.languages.clips.parser.generated.ParseException;
-import org.jamocha.languages.clips.parser.generated.SFPParser;
-import org.jamocha.languages.clips.parser.generated.SFPStart;
 
 import test.jamocha.util.FunctionBuilder;
 import test.jamocha.util.PathRuleBuilder;
@@ -51,10 +47,7 @@ public class FactEquality {
 		// testDuplicateF1(network);
 		// testDuplicateF2(network);
 		testFactEqualityNode(network);
-		final SFPToCETranslator sfpToCETranslator = new SFPToCETranslator(network, network);
-		final SFPParser sfpParser = new SFPParser(IOUtils.toInputStream("(load-facts abc.fct)\n"));
-		final SFPStart start = sfpParser.Start();
-		start.jjtAccept(sfpToCETranslator, null);
+		network.loadFactsFromFile("abc.fct");
 		network.getInteractiveEventsLogger().info("  done   at " + new Date());
 		System.exit(0);
 	}
