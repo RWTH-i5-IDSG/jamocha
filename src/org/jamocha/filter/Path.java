@@ -105,7 +105,7 @@ public class Path {
 	 * @return the {@link SlotType} of the Slot corresponding to the parameter given
 	 */
 	public SlotType getTemplateSlotType(final SlotAddress addr) {
-		return addr.getSlotType(this.template);
+		return null == addr ? SlotType.FACTADDRESS : addr.getSlotType(this.template);
 	}
 
 	/**
