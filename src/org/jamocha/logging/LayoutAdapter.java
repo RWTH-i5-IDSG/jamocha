@@ -17,6 +17,7 @@ package org.jamocha.logging;
 import org.apache.commons.io.Charsets;
 import org.apache.logging.log4j.core.config.Configuration;
 import org.apache.logging.log4j.core.layout.PatternLayout;
+import org.apache.logging.log4j.core.layout.PatternSelector;
 import org.apache.logging.log4j.core.pattern.RegexReplacement;
 
 /**
@@ -25,8 +26,8 @@ import org.apache.logging.log4j.core.pattern.RegexReplacement;
 public class LayoutAdapter {
 	public static PatternLayout createLayout(final Configuration config, final boolean plain) {
 		return PatternLayout.createLayout(plain ? PatternLayout.DEFAULT_CONVERSION_PATTERN
-				: PatternLayout.SIMPLE_CONVERSION_PATTERN, config, (RegexReplacement) null, Charsets.UTF_8, true, true,
-				"", "");
+				: PatternLayout.SIMPLE_CONVERSION_PATTERN, (PatternSelector) null, config, (RegexReplacement) null,
+				Charsets.UTF_8, true, true, "", "");
 	}
 
 	public static PatternLayout createLayout(final Configuration config) {
