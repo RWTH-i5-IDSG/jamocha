@@ -13,6 +13,12 @@ public class FWAECLeafToTypeLeafTranslator extends FWATranslator<ECLeaf, TypeLea
 		return (PredicateWithArguments<TypeLeaf>) instance.functionWithArguments;
 	}
 
+	public static FunctionWithArguments<TypeLeaf> translate(final FunctionWithArguments<ECLeaf> function) {
+		final FWAECLeafToTypeLeafTranslator instance = new FWAECLeafToTypeLeafTranslator();
+		function.accept(instance);
+		return instance.functionWithArguments;
+	}
+
 	@Override
 	public FWATranslator<ECLeaf, TypeLeaf> of() {
 		return new FWAECLeafToTypeLeafTranslator();

@@ -21,9 +21,6 @@ import static java.util.stream.Collectors.toCollection;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
-import static org.jamocha.dn.compiler.ecblocks.Util.getFactVariables;
-import static org.jamocha.dn.compiler.ecblocks.Util.getFilters;
-import static org.jamocha.dn.compiler.ecblocks.Util.hasEqualConflicts;
 import static org.jamocha.util.Lambdas.composeToInt;
 import static org.jamocha.util.Lambdas.iterable;
 import static org.jamocha.util.Lambdas.negate;
@@ -42,7 +39,6 @@ import java.util.HashSet;
 import java.util.IdentityHashMap;
 import java.util.IntSummaryStatistics;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
@@ -63,16 +59,15 @@ import java.util.stream.Stream;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
-import lombok.ToString;
 
 import org.apache.commons.collections4.list.CursorableLinkedList;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jamocha.dn.ConstructCache.Defrule.ECSetRule;
 import org.jamocha.dn.ConstructCache.Defrule.PathRule;
+import org.jamocha.dn.compiler.ecblocks.ElementPartition.ElementSubSet;
 import org.jamocha.dn.compiler.ecblocks.FactVariablePartition.FactVariableSubSet;
 import org.jamocha.dn.compiler.ecblocks.Filter.ExplicitFilterInstance;
 import org.jamocha.dn.compiler.ecblocks.Filter.FilterInstance;
@@ -81,28 +76,28 @@ import org.jamocha.dn.compiler.ecblocks.Filter.FilterInstanceVisitor;
 import org.jamocha.dn.compiler.ecblocks.Filter.ImplicitECFilterInstance;
 import org.jamocha.dn.compiler.ecblocks.Filter.ImplicitElementFilterInstance;
 import org.jamocha.dn.compiler.ecblocks.Filter.ImplicitFilterInstance;
-import org.jamocha.dn.compiler.ecblocks.FilterInstancePartition.FilterInstanceSubSet;
 import org.jamocha.dn.compiler.ecblocks.Partition.SubSet;
+import org.jamocha.dn.compiler.ecblocks.conflictgraph.ConflictGraph;
+import org.jamocha.dn.compiler.ecblocks.element.ConstantExpression;
+import org.jamocha.dn.compiler.ecblocks.element.Element;
+import org.jamocha.dn.compiler.ecblocks.element.FactBinding;
+import org.jamocha.dn.compiler.ecblocks.element.SlotBinding;
+import org.jamocha.dn.compiler.ecblocks.element.VariableExpression;
 import org.jamocha.dn.memory.SlotAddress;
 import org.jamocha.dn.memory.Template;
 import org.jamocha.filter.ECFilter;
 import org.jamocha.filter.ECFilterSet;
 import org.jamocha.filter.ECFilterSet.ECExistentialSet;
 import org.jamocha.filter.ECFilterSetVisitor;
-import org.jamocha.function.fwa.ConstantLeaf;
 import org.jamocha.function.fwa.ECLeaf;
 import org.jamocha.function.fwa.FunctionWithArguments;
-import org.jamocha.function.fwa.TemplateSlotLeaf;
-import org.jamocha.function.fwatransformer.FWAECLeafToTypeLeafTranslator;
 import org.jamocha.languages.common.RuleCondition.EquivalenceClass;
 import org.jamocha.languages.common.SingleFactVariable;
 import org.jamocha.languages.common.SingleFactVariable.SingleSlotVariable;
-import org.jamocha.visitor.Visitable;
-import org.jamocha.visitor.Visitor;
 import org.jgrapht.DirectedGraph;
-import org.jgrapht.EdgeFactory;
 import org.jgrapht.UndirectedGraph;
 import org.jgrapht.alg.VertexCovers;
+import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.SimpleDirectedGraph;
 import org.jgrapht.graph.SimpleGraph;
 import org.paukov.combinatorics.Factory;
@@ -120,200 +115,6 @@ import com.google.common.collect.Sets.SetView;
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
 public class ECBlocks {
-
-	/**
-	 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
-	 */
-	static interface ElementVisitor extends Visitor {
-		public void visit(final FactBinding element);
-
-		public void visit(final SlotBinding element);
-
-		public void visit(final ConstantExpression element);
-
-		public void visit(final VariableExpression element);
-	}
-
-	/**
-	 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
-	 */
-	static interface Element extends Visitable<ElementVisitor> {
-		public EquivalenceClass getEquivalenceClass();
-
-		public SingleFactVariable getFactVariable();
-	}
-
-	/**
-	 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
-	 */
-	@RequiredArgsConstructor
-	@Getter
-	@EqualsAndHashCode
-	@ToString
-	static class FactBinding implements Element {
-		final SingleFactVariable fact;
-
-		@Override
-		public EquivalenceClass getEquivalenceClass() {
-			return this.fact.getEqual();
-		}
-
-		@Override
-		public SingleFactVariable getFactVariable() {
-			return this.fact;
-		}
-
-		@Override
-		public <V extends ElementVisitor> V accept(final V visitor) {
-			visitor.visit(this);
-			return visitor;
-		}
-	}
-
-	/**
-	 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
-	 */
-	@RequiredArgsConstructor
-	@Getter
-	@EqualsAndHashCode
-	@ToString
-	static class SlotBinding implements Element {
-		final SingleSlotVariable slot;
-
-		@Override
-		public EquivalenceClass getEquivalenceClass() {
-			return this.slot.getEqual();
-		}
-
-		@Override
-		public SingleFactVariable getFactVariable() {
-			return this.slot.getFactVariable();
-		}
-
-		@Override
-		public <V extends ElementVisitor> V accept(final V visitor) {
-			visitor.visit(this);
-			return visitor;
-		}
-	}
-
-	/**
-	 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
-	 */
-	@RequiredArgsConstructor
-	@Getter
-	@EqualsAndHashCode(of = { "constant" })
-	@ToString(of = { "constant" })
-	static class ConstantExpression implements Element {
-		final FunctionWithArguments<ECLeaf> constant;
-		@Getter(onMethod = @__({ @Override }))
-		final EquivalenceClass equivalenceClass;
-
-		@Override
-		public SingleFactVariable getFactVariable() {
-			return null;
-		}
-
-		@Override
-		public <V extends ElementVisitor> V accept(final V visitor) {
-			visitor.visit(this);
-			return visitor;
-		}
-	}
-
-	/**
-	 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
-	 */
-	@RequiredArgsConstructor
-	@Getter
-	@EqualsAndHashCode(of = { "variableExpression" })
-	@ToString(of = "variableExpression")
-	static class VariableExpression implements Element {
-		final FunctionWithArguments<ECLeaf> variableExpression;
-		final EquivalenceClass originEquivalenceClass;
-		final List<EquivalenceClass> ecsInVE;
-
-		public VariableExpression(final FunctionWithArguments<ECLeaf> variableExpression,
-				final EquivalenceClass originEquivalenceClass) {
-			this.variableExpression = variableExpression;
-			this.originEquivalenceClass = originEquivalenceClass;
-			this.ecsInVE = OrderedECCollector.collect(variableExpression);
-		}
-
-		@Override
-		public EquivalenceClass getEquivalenceClass() {
-			return this.originEquivalenceClass;
-		}
-
-		@Override
-		public <V extends ElementVisitor> V accept(final V visitor) {
-			throw new UnsupportedOperationException();
-		}
-
-		@Override
-		public SingleFactVariable getFactVariable() {
-			throw new UnsupportedOperationException();
-		}
-	}
-
-	/**
-	 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
-	 */
-	static class ElementToTemplateSlotLeafTranslator implements ElementVisitor {
-		FunctionWithArguments<TemplateSlotLeaf> arg;
-
-		@Override
-		public void visit(final FactBinding element) {
-			this.arg = new TemplateSlotLeaf(element.getFact().getTemplate(), null);
-		}
-
-		@Override
-		public void visit(final SlotBinding element) {
-			this.arg = new TemplateSlotLeaf(element.getFactVariable().getTemplate(), element.getSlot().getSlot());
-		}
-
-		@Override
-		public void visit(final ConstantExpression element) {
-			this.arg =
-					new ConstantLeaf<TemplateSlotLeaf>(element.constant.evaluate(), element.constant.getReturnType());
-		}
-
-		@Override
-		public void visit(final VariableExpression element) {
-			throw new UnsupportedOperationException();
-		}
-	}
-
-	static class ConstantExpressionCollector implements ElementVisitor {
-		Optional<ConstantExpression> constant = Optional.empty();
-
-		static Optional<ConstantExpression> findFirst(final Collection<Element> elements) {
-			final ConstantExpressionCollector instance = new ConstantExpressionCollector();
-			for (final Element element : elements) {
-				element.accept(instance);
-				if (instance.constant.isPresent())
-					return instance.constant;
-			}
-			return instance.constant;
-		}
-
-		@Override
-		public void visit(final FactBinding element) {
-		}
-
-		@Override
-		public void visit(final SlotBinding element) {
-		}
-
-		@Override
-		public void visit(final ConstantExpression element) {
-			this.constant = Optional.of(element);
-		}
-
-		@Override
-		public void visit(final VariableExpression element) {
-		}
-	}
 
 	protected static Set<Pair<Integer, Integer>> getECIndexSet(final FilterInstance source, final FilterInstance target) {
 		final Set<Pair<Integer, Integer>> intersectingECsIndices = new HashSet<>();
@@ -334,8 +135,7 @@ public class ECBlocks {
 	@Getter
 	public static class FilterInstanceTypePartitioner implements FilterInstanceVisitor {
 		final List<ExplicitFilterInstance> explicitFilterInstances = new ArrayList<>();
-		final List<ImplicitElementFilterInstance> implicitElementFilterInstances = new ArrayList<>();
-		final List<ImplicitECFilterInstance> implicitECFilterInstances = new ArrayList<>();
+		final List<ImplicitFilterInstance> implicitFilterInstances = new ArrayList<>();
 
 		public static FilterInstanceTypePartitioner partition(final Iterable<FilterInstance> filterInstances) {
 			final FilterInstanceTypePartitioner partitioner = new FilterInstanceTypePartitioner();
@@ -351,13 +151,8 @@ public class ECBlocks {
 		}
 
 		@Override
-		public void visit(final ImplicitECFilterInstance filterInstance) {
-			this.implicitECFilterInstances.add(filterInstance);
-		}
-
-		@Override
-		public void visit(final ImplicitElementFilterInstance filterInstance) {
-			this.implicitElementFilterInstances.add(filterInstance);
+		public void visit(final ImplicitFilterInstance filterInstance) {
+			this.implicitFilterInstances.add(filterInstance);
 		}
 	}
 
@@ -469,21 +264,15 @@ public class ECBlocks {
 		rules.add(ruleEither);
 	}
 
-	protected static UndirectedGraph<FilterInstance, ConflictEdge> determineConflictGraphForRules(
-			final Theta blockTheta, final List<Either<Rule, ExistentialProxy>> ruleOrProxies) {
-		return determineConflictGraph(
-				blockTheta,
-				ruleOrProxies
-						.stream()
-						.map(ruleOrProxy -> getFilters(ruleOrProxy).stream()
-								.flatMap(f -> f.getAllInstances(ruleOrProxy).stream()).collect(toList()))
-						.collect(toList()));
-	}
+	protected static UndirectedGraph<FilterInstance, DefaultEdge> determineConflictGraph(
+			final List<Either<Rule, ExistentialProxy>> ruleOrProxies) {
+		final UndirectedGraph<FilterInstance, DefaultEdge> graph = new SimpleGraph<>(DefaultEdge.class);
+		for (final Either<Rule, ExistentialProxy> ruleOrProxy : ruleOrProxies) {
+			final Set<Filter> filters = Util.getFilters(ruleOrProxy);
+			for (final Filter filter : filters) {
 
-	protected static UndirectedGraph<FilterInstance, ConflictEdge> determineConflictGraph(final Theta blockTheta,
-			final Iterable<? extends List<FilterInstance>> filterInstancesGroupedByRule) {
-		final UndirectedGraph<FilterInstance, ConflictEdge> graph =
-				new SimpleGraph<>(ConflictEdge.newFactory(blockTheta));
+			}
+		}
 		for (final List<FilterInstance> instances : filterInstancesGroupedByRule) {
 			for (final FilterInstance filterInstance : instances) {
 				assert null != filterInstance;
@@ -495,10 +284,8 @@ public class ECBlocks {
 				final FilterInstance fi1 = instances.get(i);
 				for (int j = i + 1; j < numInstances; j++) {
 					final FilterInstance fi2 = instances.get(j);
-					final ConflictEdge edge = ConflictEdge.of(fi1, fi2, blockTheta, blockTheta);
-					if (null == edge)
-						continue;
-					graph.addEdge(fi1, fi2, edge);
+
+					graph.addEdge(fi1, fi2);
 				}
 			}
 		}
@@ -553,51 +340,16 @@ public class ECBlocks {
 
 	@AllArgsConstructor
 	static class RuleConverter implements ECFilterSetVisitor {
+		final ConflictGraph graph;
 		final List<Either<Rule, ExistentialProxy>> rules;
 		final Either<Rule, ExistentialProxy> ruleOrProxy;
 
-		public static void convert(final List<Either<Rule, ExistentialProxy>> rules,
-				final Either<Rule, ExistentialProxy> ruleOrProxy, final Collection<ECFilterSet> filters) {
-			final Set<EquivalenceClass> equivalenceClasses =
-					ruleOrProxy.fold(rule -> rule.original.getEquivalenceClasses(),
-							existential -> existential.existential.getEquivalenceClasses());
-			for (final EquivalenceClass equivalenceClass : equivalenceClasses) {
-				final List<Element> elements = new ArrayList<>();
-				equivalenceClass.getFactVariables().stream().map(FactBinding::new).forEach(elements::add);
-				equivalenceClass.getSlotVariables().stream().map(SlotBinding::new).forEach(elements::add);
-				equivalenceClass.getConstantExpressions().stream()
-						.map(c -> new ConstantExpression(c, equivalenceClass)).forEach(elements::add);
-				for (int i = 0; i < elements.size(); i++) {
-					final Element left = elements.get(i);
-					for (int j = i + 1; j < elements.size(); j++) {
-						final Element right = elements.get(j);
-						Filter.newImplicitElementInstance(ruleOrProxy, left, right);
-					}
-				}
-
-				final LinkedList<FunctionWithArguments<ECLeaf>> variableExpressions =
-						equivalenceClass.getVariableExpressions();
-				if (!variableExpressions.isEmpty()) {
-					final List<VariableExpression> converted =
-							variableExpressions.stream().map(v -> new VariableExpression(v, equivalenceClass))
-									.collect(toList());
-					for (int i = 0; i < converted.size(); i++) {
-						final VariableExpression left = converted.get(i);
-						for (int j = i + 1; j < converted.size(); j++) {
-							final VariableExpression right = converted.get(j);
-							Filter.newImplicitECInstance(ruleOrProxy, left, right);
-						}
-					}
-					if (!converted.isEmpty() && !elements.isEmpty()) {
-						final VariableExpression ecLeaf =
-								new VariableExpression(new ECLeaf(equivalenceClass), equivalenceClass);
-						for (final VariableExpression fwa : converted) {
-							Filter.newImplicitECInstance(ruleOrProxy, ecLeaf, fwa);
-						}
-					}
-				}
-			}
-			final RuleConverter ruleConverter = new RuleConverter(rules, ruleOrProxy);
+		public static void convert(final ConflictGraph builder,
+				final List<Either<Rule, ExistentialProxy>> rules, final Either<Rule, ExistentialProxy> ruleOrProxy,
+				final Collection<ECFilterSet> filters) {
+			builder.addECs(ruleOrProxy, ruleOrProxy.fold(rule -> rule.original.getEquivalenceClasses(),
+					existential -> existential.existential.getEquivalenceClasses()));
+			final RuleConverter ruleConverter = new RuleConverter(builder, rules, ruleOrProxy);
 			for (final ECFilterSet filter : filters) {
 				filter.accept(ruleConverter);
 			}
@@ -605,8 +357,7 @@ public class ECBlocks {
 
 		@Override
 		public void visit(final ECFilter ecFilter) {
-			Filter.newFilter(FWAECLeafToTypeLeafTranslator.translate(ecFilter.getFunction())).addExplicitInstance(
-					this.ruleOrProxy, ecFilter);
+			graph.addFilter(ruleOrProxy, ecFilter);
 		}
 
 		@Override
@@ -625,16 +376,14 @@ public class ECBlocks {
 			final Either<Rule, ExistentialProxy> proxyEither = proxy.either;
 
 			// insert all pure filters into the proxy
-			RuleConverter.convert(this.rules, proxyEither, purePart);
+			RuleConverter.convert(this.graph, this.rules, proxyEither, purePart);
 
 			// create own row for the pure part
 			this.rules.add(proxyEither);
 
-			final FilterInstance filterInstance =
-					FilterProxy.newFilterProxy(
-							FWAECLeafToTypeLeafTranslator.translate(existentialClosure.getFunction()), proxy)
-							.addExplicitInstance(this.ruleOrProxy, existentialClosure);
-			rule.existentialProxies.put(filterInstance, proxy);
+			graph.addFilter(ruleOrProxy, existentialClosure);
+
+			rule.existentialProxies.put(existentialClosure, proxy);
 		}
 	}
 
@@ -658,8 +407,9 @@ public class ECBlocks {
 
 	public static List<PathRule> compile(final List<Either<Rule, ExistentialProxy>> rules,
 			final ECBlockSet resultBlockSet) {
-		final Function<? super Block, ? extends Integer> characteristicNumber =
-				block -> block.getFlatFilterInstances().size() / block.getRulesOrProxies().size();
+		final Function<? super Block, ? extends Integer> characteristicNumber = Block::getNumberOfColumns;
+		// block -> block.getNumberOfColumns();
+		// block.getFlatFilterInstances().size() / block.getRulesOrProxies().size();
 		final TreeMap<Integer, CursorableLinkedList<Block>> blockMap =
 				resultBlockSet
 						.getBlocks()
@@ -1263,8 +1013,9 @@ public class ECBlocks {
 			final List<FactVariablePartition> partitions = enumerateFactVariablePartitions(rules);
 			final Set<List<T>> cartesianProduct = Sets.cartesianProduct(powerSetElement);
 			for (final List<T> filterInstances : cartesianProduct) {
-				verticalInner.apply(rules, filterInstances,
-						partitions.size() > rules.size() * 10 ? partitions.subList(0, rules.size() * 10) : partitions,
+				verticalInner.apply(rules, filterInstances, partitions,
+				// partitions.size() > rules.size() * 10 ? partitions.subList(0, rules.size() * 10)
+				// : partitions,
 						resultBlocks);
 			}
 		}
@@ -1425,12 +1176,11 @@ public class ECBlocks {
 						ecColumns.computeIfAbsent(i, newIdentityHashMap()).put(rule, ec);
 					}
 				}
-				if (ecColumns.values().stream()
-						.anyMatch(map -> map.keySet().size() != block.getRulesOrProxies().size())) {
+				if (ecColumns.values().stream().anyMatch(map -> map.keySet().size() != block.getRows().size())) {
 					// the EC pattern may have been identical, but they differ in being new and old
 					continue cartesianProductLoop;
 				}
-				final List<List<Map<Either<Rule, ExistentialProxy>, ? extends Element>>> intersections =
+				final List<List<Map<RowIdentifier, ? extends Element>>> intersections =
 						ecColumns.values().stream()
 								.map(ecMap -> determineEquivalenceClassIntersection(ecMap, bFactVariablePartition))
 								.collect(toList());
@@ -1444,10 +1194,10 @@ public class ECBlocks {
 				final List<FilterInstance> filterInstances = new ArrayList<>();
 				filterInstances.addAll(nCurrentOutsideColumn);
 				// add everything to the element partition and the theta
-				for (final List<Map<Either<Rule, ExistentialProxy>, ? extends Element>> intersection : intersections) {
+				for (final List<Map<RowIdentifier, ? extends Element>> intersection : intersections) {
 					// add everything to the element partition and the theta
-					for (final Map<Either<Rule, ExistentialProxy>, ? extends Element> subset : intersection) {
-						newBlock.addElementSubSet(new SubSet<>(subset));
+					for (final Map<RowIdentifier, ? extends Element> subset : intersection) {
+						newBlock.addElementSubSet(new ElementSubSet(subset));
 					}
 					// if only one element, no implicit filters to add
 					if (intersection.size() == 1) {
@@ -1530,14 +1280,14 @@ public class ECBlocks {
 	}
 
 	protected static void findMatchingImplicitElementFilters(
-			final List<ImplicitElementFilterInstance> nImplicitElementFilterInstances, final Block block,
+			final List<ImplicitFilterInstance> nImplicitElementFilterInstances, final Block block,
 			final List<Pair<Block, List<FilterInstance>>> matchingFilters) {
 		final FactVariablePartition factVariablePartition = block.factVariablePartition;
 		final Set<Either<Rule, ExistentialProxy>> rules = block.rulesOrProxies;
 
-		final Set<ImplicitElementFilterInstance> workspace = Sets.newIdentityHashSet();
+		final Set<ImplicitFilterInstance> workspace = Sets.newIdentityHashSet();
 		workspace.addAll(nImplicitElementFilterInstances);
-		final Map<Either<Rule, ExistentialProxy>, Map<Filter, Set<ImplicitElementFilterInstance>>> workspaceByRule =
+		final Map<Either<Rule, ExistentialProxy>, Map<Filter, Set<ImplicitFilterInstance>>> workspaceByRule =
 				workspace.stream().collect(
 						groupingBy(FilterInstance::getRuleOrProxy,
 								groupingBy(FilterInstance::getFilter, toCollection(() -> Sets.newIdentityHashSet()))));
@@ -1549,7 +1299,7 @@ public class ECBlocks {
 		};
 
 		while (!workspace.isEmpty()) {
-			final ImplicitElementFilterInstance nCurrentFI = workspace.iterator().next();
+			final ImplicitFilterInstance nCurrentFI = workspace.iterator().next();
 			remove.accept(nCurrentFI);
 			{
 				final Element left = nCurrentFI.getLeft();
@@ -1614,12 +1364,10 @@ public class ECBlocks {
 		final IdentityHashMap<Either<Rule, ExistentialProxy>, Element> newElementColumn = new IdentityHashMap<>();
 		for (final Element bRepresentative : bReducedEC) {
 			final Filter filter = Filter.newEqualityFilter(newElement, bRepresentative);
-			final IdentityHashMap<Either<Rule, ExistentialProxy>, ImplicitElementFilterInstance> fiColumn =
-					new IdentityHashMap<>();
-			final IdentityHashMap<Either<Rule, ExistentialProxy>, ImplicitElementFilterInstance> fiDualColumn =
-					new IdentityHashMap<>();
-			for (final Either<Rule, ExistentialProxy> rule : newBlock.getRulesOrProxies()) {
-				final ImplicitElementFilterInstance matchingFilterInstanceForRule =
+			final IdentityHashMap<RowIdentifier, ImplicitFilterInstance> fiColumn = new IdentityHashMap<>();
+			final IdentityHashMap<RowIdentifier, ImplicitFilterInstance> fiDualColumn = new IdentityHashMap<>();
+			for (final RowIdentifier rule : newBlock.getRows()) {
+				final ImplicitFilterInstance matchingFilterInstanceForRule =
 						getMatchingFilterInstanceForRule(newBlock.getFactVariablePartition(),
 								newBlock.getElementPartition(), filter, bRepresentative, newElement, rule);
 				assert null != matchingFilterInstanceForRule : "Implicit filter instance missing!";
@@ -1945,50 +1693,6 @@ public class ECBlocks {
 			result.add(first);
 		}
 		return result;
-	}
-
-	@Getter
-	@Setter
-	// no @EqualsAndHashCode so equals will not prevent new edges
-	static class ConflictEdge {
-		final Conflict a, b;
-
-		public ConflictEdge(final Conflict a, final Conflict b) {
-			this.a = a;
-			this.b = b;
-		}
-
-		public Conflict getForSource(final FilterInstance sourceFilterInstance) {
-			assert this.a.getSource() == sourceFilterInstance || this.b.getSource() == sourceFilterInstance;
-			return this.a.getSource() == sourceFilterInstance ? this.a : this.b;
-		}
-
-		public Conflict getForTarget(final FilterInstance targetFilterInstance) {
-			assert this.a.getTarget() == targetFilterInstance || this.b.getTarget() == targetFilterInstance;
-			return this.a.getTarget() == targetFilterInstance ? this.a : this.b;
-		}
-
-		public static ConflictEdge of(final FilterInstance x, final FilterInstance y, final Theta xTheta,
-				final Theta yTheta) {
-			final Conflict a = x.getConflict(y, xTheta, yTheta);
-			if (null == a)
-				return null;
-			return new ConflictEdge(a, y.getConflict(x, yTheta, xTheta));
-		}
-
-		@RequiredArgsConstructor
-		static class ConflictEdgeFactory implements EdgeFactory<FilterInstance, ConflictEdge> {
-			final Theta blockTheta;
-
-			@Override
-			public ConflictEdge createEdge(final FilterInstance sourceVertex, final FilterInstance targetVertex) {
-				return ConflictEdge.of(sourceVertex, targetVertex, this.blockTheta, this.blockTheta);
-			}
-		}
-
-		public static ConflictEdgeFactory newFactory(final Theta blockTheta) {
-			return new ConflictEdgeFactory(blockTheta);
-		}
 	}
 
 	protected static SetView<FilterInstance> getStableSet(final UndirectedGraph<FilterInstance, ConflictEdge> graph) {

@@ -19,7 +19,6 @@ import static java.util.stream.Collectors.toSet;
 import java.util.Set;
 
 import org.jamocha.dn.compiler.ecblocks.Filter.FilterInstance;
-import org.jamocha.dn.compiler.ecblocks.Filter.FilterInstance.Conflict;
 import org.jamocha.languages.common.SingleFactVariable;
 
 import com.atlassian.fugue.Either;
@@ -29,16 +28,20 @@ import com.atlassian.fugue.Either;
  *
  */
 public class Util {
-	public static boolean hasEqualConflicts(final Conflict a, final Conflict b) {
-		return (a == b) || (a != null && a.hasEqualConflicts(b));
-	}
-
 	protected static Set<Filter> getFilters(final Either<Rule, ExistentialProxy> ruleOrProxy) {
 		return ruleOrProxy.fold(Rule::getFilters, ExistentialProxy::getFilters);
 	}
 
+	protected static Set<Filter> getFilters(final RowIdentifier row) {
+		return getFilters(row.getRuleOrProxy());
+	}
+
 	protected static Set<SingleFactVariable> getFactVariables(final Either<Rule, ExistentialProxy> ruleOrProxy) {
 		return ruleOrProxy.fold(Rule::getFactvariables, ExistentialProxy::getFactvariables);
+	}
+
+	protected static Set<SingleFactVariable> getFactVariables(final RowIdentifier row) {
+		return getFactVariables(row.getRuleOrProxy());
 	}
 
 	protected static Set<FilterInstance> getFilterInstances(final Either<Rule, ExistentialProxy> ruleOrProxy) {

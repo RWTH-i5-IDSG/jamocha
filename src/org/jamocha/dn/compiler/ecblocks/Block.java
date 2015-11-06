@@ -27,21 +27,20 @@ import java.util.Set;
 
 import lombok.Getter;
 
-import org.jamocha.dn.compiler.ecblocks.ECBlocks.ConflictEdge;
-import org.jamocha.dn.compiler.ecblocks.ECBlocks.Element;
 import org.jamocha.dn.compiler.ecblocks.ECBlocks.FilterInstanceTypePartitioner;
 import org.jamocha.dn.compiler.ecblocks.ECBlocks.Theta;
-import org.jamocha.dn.compiler.ecblocks.ECBlocks.VariableExpression;
+import org.jamocha.dn.compiler.ecblocks.ElementPartition.ElementSubSet;
 import org.jamocha.dn.compiler.ecblocks.FactVariablePartition.FactVariableSubSet;
 import org.jamocha.dn.compiler.ecblocks.Filter.FilterInstance;
 import org.jamocha.dn.compiler.ecblocks.Filter.ImplicitECFilterInstance;
 import org.jamocha.dn.compiler.ecblocks.Filter.ImplicitElementFilterInstance;
-import org.jamocha.dn.compiler.ecblocks.FilterInstancePartition.FilterInstanceSubSet;
 import org.jamocha.dn.compiler.ecblocks.Partition.SubSet;
+import org.jamocha.dn.compiler.ecblocks.conflictgraph.ConflictGraph;
+import org.jamocha.dn.compiler.ecblocks.conflictgraph.ConflictGraph.OccurrenceToBindingEdge;
+import org.jamocha.dn.compiler.ecblocks.element.Element;
+import org.jamocha.dn.compiler.ecblocks.element.VariableExpression;
 import org.jamocha.languages.common.RuleCondition.EquivalenceClass;
 import org.jamocha.languages.common.SingleFactVariable;
-import org.jgrapht.UndirectedGraph;
-import org.jgrapht.graph.SimpleGraph;
 
 import com.atlassian.fugue.Either;
 import com.google.common.collect.Sets;
@@ -53,49 +52,42 @@ import com.google.common.collect.Sets.SetView;
 @Getter
 public class Block {
 	// conflict graph
-	UndirectedGraph<Filter.FilterInstance, ConflictEdge> graph;
-	int graphModCount = 0;
-	int blockModCount = 0;
+	final ConflictGraph graph;
 	// rules of the block
-	final Set<Either<Rule, ExistentialProxy>> rulesOrProxies;
+	final Set<RowIdentifier> rows;
 	// abstract filters of the block
 	final Set<Filter> filters = new HashSet<>();
 	// contains the filterInstances without the correct arrangement, just to avoid having to
 	// flat map the filterInstances every time
-	final Set<Filter.FilterInstance> flatFilterInstances = new HashSet<>();
+	final Set<OccurrenceToBindingEdge> flatEdges = new HashSet<>();
 
 	// theta : map the arguments of the filter instances used instead of modifying them
 	// in-place to be able to have the same instance within different blocks
 	final Theta theta;
 	final Theta variableExpressionTheta;
-	final ConflictEdge.ConflictEdgeFactory edgeFactory;
-	final FilterInstancePartition filterInstancePartition;
+	final EdgePartition edgePartition;
 	final FactVariablePartition factVariablePartition;
 	final ElementPartition elementPartition;
 
-	public Block(final Set<Either<Rule, ExistentialProxy>> rules, final FactVariablePartition factVariablePartition) {
+	public Block(final ConflictGraph graph) {
 		assert !factVariablePartition.subSets.isEmpty();
 		this.theta = new Theta();
 		this.variableExpressionTheta = new Theta();
-		this.edgeFactory = ConflictEdge.newFactory(this.theta);
-		this.graph = new SimpleGraph<>(this.edgeFactory);
-		this.rulesOrProxies = Sets.newHashSet(rules);
-		this.factVariablePartition = factVariablePartition;
-		this.filterInstancePartition = new FilterInstancePartition();
+		this.graph = graph;
+		this.rows = new HashSet<>();
+		this.factVariablePartition = new FactVariablePartition();
+		this.edgePartition = new EdgePartition();
 		this.elementPartition = new ElementPartition();
 	}
 
 	public Block(final Block block) {
 		this.theta = new Theta(block.theta);
 		this.variableExpressionTheta = new Theta(block.variableExpressionTheta);
-		this.edgeFactory = ConflictEdge.newFactory(this.theta);
 		this.graph = block.graph;
-		this.blockModCount = block.blockModCount;
-		this.graphModCount = block.graphModCount;
-		this.rulesOrProxies = new HashSet<>(block.rulesOrProxies);
+		this.rows = Sets.newHashSet(block.rows);
 		this.filters.addAll(block.filters);
-		this.flatFilterInstances.addAll(block.flatFilterInstances);
-		this.filterInstancePartition = new FilterInstancePartition(block.filterInstancePartition);
+		this.flatEdges.addAll(block.flatEdges);
+		this.edgePartition = new EdgePartition(block.edgePartition);
 		this.factVariablePartition = new FactVariablePartition(block.factVariablePartition);
 		this.elementPartition = new ElementPartition(block.elementPartition);
 	}
@@ -103,48 +95,45 @@ public class Block {
 	@Override
 	public String toString() {
 		return "Block(" + this.getNumberOfColumns() + "x" + this.getNumberOfRows() + "): "
-				+ Objects.toString(this.filterInstancePartition);
+				+ Objects.toString(this.edgePartition);
 	}
 
 	public int getNumberOfRows() {
-		return this.rulesOrProxies.size();
+		return this.rows.size();
 	}
 
 	public int getNumberOfColumns() {
-		return this.filterInstancePartition.subSets.size();
+		return this.edgePartition.subSets.size();
 	}
 
-	public void addElementSubSet(final Partition.SubSet<ECBlocks.Element> newSubSet) {
-		assert this.rulesOrProxies.stream().allMatch(newSubSet.elements.keySet()::contains);
+	public void addElementSubSet(final ElementSubSet newSubSet) {
+		assert this.rows.stream().allMatch(newSubSet.elements.keySet()::contains);
 		for (final Element element : newSubSet.elements.values()) {
 			this.theta.add(element);
 		}
 		this.elementPartition.add(newSubSet);
-		++this.blockModCount;
 	}
 
-	public void addVariableExpressionSubSet(final Partition.SubSet<ECBlocks.Element> newSubSet) {
-		assert this.rulesOrProxies.stream().allMatch(newSubSet.elements.keySet()::contains);
+	public void addVariableExpressionSubSet(final ElementSubSet newSubSet) {
+		assert this.rows.stream().allMatch(newSubSet.elements.keySet()::contains);
 		for (final Element element : newSubSet.elements.values()) {
 			this.variableExpressionTheta.add(element);
 		}
 		this.elementPartition.add(newSubSet);
-		++this.blockModCount;
 	}
 
-	public void addFilterInstanceSubSet(final FilterInstancePartition.FilterInstanceSubSet newSubSet) {
-		assert this.rulesOrProxies.stream().allMatch(newSubSet.elements.keySet()::contains);
-		this.filterInstancePartition.add(newSubSet);
+	public void addEdgeSubSet(final EdgePartition.EdgeSubSet newSubSet) {
+		assert this.rows.stream().allMatch(newSubSet.elements.keySet()::contains);
+		this.edgePartition.add(newSubSet);
 		this.filters.add(newSubSet.getFilter());
-		final Collection<Filter.FilterInstance> filterInstances = newSubSet.elements.values();
-		this.flatFilterInstances.addAll(filterInstances);
-		++this.blockModCount;
+		final Collection<OccurrenceToBindingEdge> edges = newSubSet.elements.values();
+		this.flatEdges.addAll(edges);
 	}
 
 	public Set<Filter.FilterInstance> getConflictNeighbours() {
 		if (this.blockModCount != this.graphModCount) {
 			final Set<List<Filter.FilterInstance>> filterInstancesGroupedByRule =
-					this.rulesOrProxies
+					this.rows
 							.stream()
 							.<Filter.FilterInstance> flatMap(
 									rule -> Util.getFilters(rule).stream()
@@ -163,8 +152,7 @@ public class Block {
 	}
 
 	public boolean containedIn(final Block other) {
-		if (other.rulesOrProxies.size() < this.rulesOrProxies.size()
-				|| !other.rulesOrProxies.containsAll(this.rulesOrProxies)) {
+		if (other.rows.size() < this.rows.size() || !other.rulesOrProxies.containsAll(this.rulesOrProxies)) {
 			return false;
 		}
 		if (other.filters.size() < this.filters.size() || !other.filters.containsAll(this.filters)) {
@@ -183,13 +171,13 @@ public class Block {
 		return true;
 	}
 
-	public boolean remove(final Either<Rule, ExistentialProxy> rule) {
-		if (!rulesOrProxies.remove(rule)) {
+	public boolean remove(final RowIdentifier row) {
+		if (!rows.remove(row)) {
 			return false;
 		}
 		// remove all ECs of the rule from theta by looking at the elements and using their pointer
 		for (final SubSet<Element> subSet : elementPartition.getSubSets()) {
-			final Element element = subSet.get(rule);
+			final Element element = subSet.get(row);
 			final EquivalenceClass ec = element.getEquivalenceClass();
 			theta.equivalenceClassToReduced.remove(ec);
 			variableExpressionTheta.equivalenceClassToReduced.remove(ec);

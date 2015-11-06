@@ -21,6 +21,9 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 import org.jamocha.dn.ConstructCache.Defrule.ECSetRule;
+import org.jamocha.filter.ECFilter;
+import org.jamocha.function.fwa.FunctionWithArguments;
+import org.jamocha.function.fwa.TypeLeaf;
 import org.jamocha.languages.common.SingleFactVariable;
 
 import com.atlassian.fugue.Either;
@@ -35,9 +38,9 @@ import com.google.common.collect.ImmutableSet;
 @Getter
 public class Rule {
 	final ECSetRule original;
-	final Set<Filter> filters = new HashSet<>();
+	final Set<FunctionWithArguments<TypeLeaf>> filters = new HashSet<>();
 	final Set<SingleFactVariable> factvariables;
-	final BiMap<Filter.FilterInstance, ExistentialProxy> existentialProxies = HashBiMap.create();
+	final BiMap<ECFilter, ExistentialProxy> existentialProxies = HashBiMap.create();
 	final Either<Rule, ExistentialProxy> either;
 
 	public Rule(final ECSetRule original) {

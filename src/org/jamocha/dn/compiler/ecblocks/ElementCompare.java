@@ -18,20 +18,18 @@ import java.util.IdentityHashMap;
 
 import lombok.RequiredArgsConstructor;
 
-import org.jamocha.dn.compiler.ecblocks.ECBlocks.ConstantExpression;
-import org.jamocha.dn.compiler.ecblocks.ECBlocks.Element;
-import org.jamocha.dn.compiler.ecblocks.ECBlocks.ElementVisitor;
-import org.jamocha.dn.compiler.ecblocks.ECBlocks.FactBinding;
-import org.jamocha.dn.compiler.ecblocks.ECBlocks.SlotBinding;
-import org.jamocha.dn.compiler.ecblocks.ECBlocks.VariableExpression;
 import org.jamocha.dn.compiler.ecblocks.FactVariablePartition.FactVariableSubSet;
+import org.jamocha.dn.compiler.ecblocks.element.ConstantExpression;
+import org.jamocha.dn.compiler.ecblocks.element.Element;
+import org.jamocha.dn.compiler.ecblocks.element.ElementVisitor;
+import org.jamocha.dn.compiler.ecblocks.element.FactBinding;
+import org.jamocha.dn.compiler.ecblocks.element.SlotBinding;
 import org.jamocha.languages.common.SingleFactVariable;
 
 import com.google.common.base.Objects;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
- *
  */
 @RequiredArgsConstructor
 public class ElementCompare implements ElementVisitor {
@@ -64,11 +62,6 @@ public class ElementCompare implements ElementVisitor {
 		this.equal = element.accept(new ConstantCompare(element)).equal;
 	}
 
-	@Override
-	public void visit(final VariableExpression element) {
-		this.equal = element.accept(new VariableCompare(element)).equal;
-	}
-
 	abstract class OtherElementIdentifier implements ElementVisitor {
 		boolean equal = false;
 
@@ -83,11 +76,6 @@ public class ElementCompare implements ElementVisitor {
 		@Override
 		public void visit(final SlotBinding element) {
 		}
-
-		@Override
-		public void visit(final VariableExpression element) {
-		}
-
 	}
 
 	@RequiredArgsConstructor
@@ -123,19 +111,9 @@ public class ElementCompare implements ElementVisitor {
 
 		@Override
 		public void visit(final ConstantExpression element) {
-			if (Objects.equal(blockElement.constant.evaluate(), element.constant.evaluate())) {
+			if (Objects.equal(blockElement.getConstant().evaluate(), element.getConstant().evaluate())) {
 				equal = true;
 			}
-		}
-	}
-
-	@RequiredArgsConstructor
-	class VariableCompare extends OtherElementIdentifier {
-		final VariableExpression blockElement;
-
-		@Override
-		public void visit(final VariableExpression element) {
-			throw new UnsupportedOperationException();
 		}
 	}
 }

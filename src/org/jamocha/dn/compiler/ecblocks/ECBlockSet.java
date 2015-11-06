@@ -1,12 +1,12 @@
 /*
  * Copyright 2002-2015 The Jamocha Team
- *
- *
+ * 
+ * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
- *
+ * 
  * http://www.jamocha.org/
- *
+ * 
  * Unless required by applicable law or agreed to in writing, software distributed under the License
  * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
  * or implied. See the License for the specific language governing permissions and limitations under
@@ -61,8 +61,8 @@ public class ECBlockSet {
 		}
 	}
 
-	private static int getRuleCount(final Block block) {
-		return block.getRulesOrProxies().size();
+	private static int getRowCount(final Block block) {
+		return block.getNumberOfRows();
 	}
 
 	private static int getFilterCount(final Block block) {
@@ -70,12 +70,12 @@ public class ECBlockSet {
 	}
 
 	boolean addDuringHorizontalRecursion(final Block block) {
-		final Integer ruleCount = getRuleCount(block);
+		final Integer rowCount = getRowCount(block);
 		final Integer filterCount = getFilterCount(block);
 		// first check if there is a block of the same height with more filter instances
 		{
 			final NavigableMap<Integer, HashSet<Block>> fixedRuleCountFilters =
-					this.ruleCountToFilterCountToBlocks.computeIfAbsent(ruleCount, newTreeMap()).tailMap(filterCount,
+					this.ruleCountToFilterCountToBlocks.computeIfAbsent(rowCount, newTreeMap()).tailMap(filterCount,
 							true);
 			for (final Set<Block> fixedFilterCountRule : fixedRuleCountFilters.values()) {
 				for (final Block candidate : fixedFilterCountRule) {
@@ -88,7 +88,7 @@ public class ECBlockSet {
 		// then check if there is a block of the same width with more rules
 		{
 			final NavigableMap<Integer, HashSet<Block>> fixedFilterCountRules =
-					this.filterCountToRuleCountToBlocks.computeIfAbsent(filterCount, newTreeMap()).tailMap(ruleCount,
+					this.filterCountToRuleCountToBlocks.computeIfAbsent(filterCount, newTreeMap()).tailMap(rowCount,
 							true);
 			for (final Set<Block> fixedFilterCountRule : fixedFilterCountRules.values()) {
 				for (final Block candidate : fixedFilterCountRule) {
@@ -102,7 +102,7 @@ public class ECBlockSet {
 		{
 			for (final TreeMap<Integer, HashSet<Block>> fixedFilterCountMap : this.filterCountToRuleCountToBlocks
 					.tailMap(filterCount, false).values()) {
-				for (final HashSet<Block> candidates : fixedFilterCountMap.tailMap(ruleCount, false).values()) {
+				for (final HashSet<Block> candidates : fixedFilterCountMap.tailMap(rowCount, false).values()) {
 					for (final Block candidate : candidates) {
 						if (block.containedIn(candidate)) {
 							return false;
@@ -116,13 +116,13 @@ public class ECBlockSet {
 	}
 
 	private void removeContainedBlocks(final Block block) {
-		final Integer ruleCount = getRuleCount(block);
+		final Integer rowCount = getRowCount(block);
 		final Integer filterCount = getFilterCount(block);
 
 		final List<Block> toRemove = new ArrayList<>();
 
 		final Collection<TreeMap<Integer, HashSet<Block>>> filterCountToBlocksRuleCountHead =
-				this.ruleCountToFilterCountToBlocks.headMap(ruleCount, true).values();
+				this.ruleCountToFilterCountToBlocks.headMap(rowCount, true).values();
 		for (final TreeMap<Integer, HashSet<Block>> filterCountToBlocksFixedRuleCount : filterCountToBlocksRuleCountHead) {
 			final Collection<HashSet<Block>> blocksFixedRuleCountFilterCountHead =
 					filterCountToBlocksFixedRuleCount.headMap(filterCount, true).values();
@@ -143,7 +143,7 @@ public class ECBlockSet {
 
 	private void actuallyInsertBlockIntoAllCaches(final Block block) {
 		this.blocks.add(block);
-		final Integer ruleCount = getRuleCount(block);
+		final Integer ruleCount = getRowCount(block);
 		final Integer filterCount = getFilterCount(block);
 		this.ruleCountToBlocks.computeIfAbsent(ruleCount, newHashSet()).add(block);
 		this.filterCountToBlocks.computeIfAbsent(filterCount, newHashSet()).add(block);
@@ -151,12 +151,13 @@ public class ECBlockSet {
 				.computeIfAbsent(filterCount, newHashSet()).add(block);
 		this.filterCountToRuleCountToBlocks.computeIfAbsent(filterCount, newTreeMap())
 				.computeIfAbsent(ruleCount, newHashSet()).add(block);
-		block.getRulesOrProxies().forEach(r -> this.ruleInstanceToBlocks.computeIfAbsent(r, newHashSet()).add(block));
+		block.getRows().forEach(
+				r -> this.ruleInstanceToBlocks.computeIfAbsent(r.getRuleOrProxy(), newHashSet()).add(block));
 		removeContainedBlocks(block);
 	}
 
 	public boolean isContained(final Block block) {
-		final Integer ruleCount = getRuleCount(block);
+		final Integer ruleCount = getRowCount(block);
 		final Integer filterCount = getFilterCount(block);
 		for (final TreeMap<Integer, HashSet<Block>> treeMap : this.filterCountToRuleCountToBlocks.tailMap(filterCount)
 				.values()) {
@@ -180,7 +181,7 @@ public class ECBlockSet {
 	public boolean remove(final Block block) {
 		if (!this.blocks.remove(block))
 			return false;
-		final Integer ruleCount = getRuleCount(block);
+		final Integer ruleCount = getRowCount(block);
 		final Integer filterCount = getFilterCount(block);
 		this.ruleCountToBlocks.computeIfAbsent(ruleCount, newHashSet()).remove(block);
 		this.filterCountToBlocks.computeIfAbsent(filterCount, newHashSet()).remove(block);
@@ -188,8 +189,8 @@ public class ECBlockSet {
 				.computeIfAbsent(filterCount, newHashSet()).remove(block);
 		this.filterCountToRuleCountToBlocks.computeIfAbsent(filterCount, newTreeMap())
 				.computeIfAbsent(ruleCount, newHashSet()).remove(block);
-		block.getRulesOrProxies()
-				.forEach(r -> this.ruleInstanceToBlocks.computeIfAbsent(r, newHashSet()).remove(block));
+		block.getRows().forEach(
+				r -> this.ruleInstanceToBlocks.computeIfAbsent(r.getRuleOrProxy(), newHashSet()).remove(block));
 		return true;
 	}
 }

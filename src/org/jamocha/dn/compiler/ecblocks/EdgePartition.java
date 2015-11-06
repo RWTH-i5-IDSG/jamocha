@@ -20,31 +20,34 @@ import java.util.Map;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
-import org.jamocha.dn.compiler.ecblocks.ElementPartition.ElementSubSet;
-import org.jamocha.dn.compiler.ecblocks.element.Element;
+import org.jamocha.dn.compiler.ecblocks.conflictgraph.ConflictGraph.OccurrenceToBindingEdge;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
 @RequiredArgsConstructor
 @Getter
-public class ElementPartition extends Partition<Element, ElementSubSet> {
+public class EdgePartition extends Partition<OccurrenceToBindingEdge, EdgePartition.EdgeSubSet> {
 	@Getter
-	public static class ElementSubSet extends Partition.SubSet<Element> {
-		public ElementSubSet(final IdentityHashMap<RowIdentifier, Element> elements) {
+	public static class EdgeSubSet extends Partition.SubSet<OccurrenceToBindingEdge> {
+		public EdgeSubSet(final IdentityHashMap<RowIdentifier, OccurrenceToBindingEdge> elements) {
 			super(elements);
 		}
 
-		public ElementSubSet(final Map<RowIdentifier, ? extends Element> elements) {
+		public EdgeSubSet(final Map<RowIdentifier, ? extends OccurrenceToBindingEdge> elements) {
 			this(new IdentityHashMap<>(elements));
 		}
 
-		public ElementSubSet(final ElementSubSet copy) {
+		public EdgeSubSet(final EdgeSubSet copy) {
 			super(copy);
+		}
+
+		public boolean contains(final EdgePartition.EdgeSubSet other) {
+			return this.elements.entrySet().containsAll(other.elements.entrySet());
 		}
 	}
 
-	public ElementPartition(final Partition<Element, ElementSubSet> copy) {
-		super(copy, ElementSubSet::new);
+	public EdgePartition(final EdgePartition copy) {
+		super(copy, EdgeSubSet::new);
 	}
 }

@@ -26,8 +26,6 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
-import com.atlassian.fugue.Either;
-
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
@@ -39,17 +37,17 @@ class Partition<T, S extends Partition.SubSet<T>> {
 	@Getter
 	@ToString
 	static class SubSet<T> {
-		final protected IdentityHashMap<Either<Rule, ExistentialProxy>, T> elements;
+		final protected IdentityHashMap<RowIdentifier, T> elements;
 
 		public SubSet(final SubSet<T> copy) {
 			this(new IdentityHashMap<>(copy.elements));
 		}
 
-		public SubSet(final Map<Either<Rule, ExistentialProxy>, ? extends T> elements) {
+		public SubSet(final Map<RowIdentifier, ? extends T> elements) {
 			this(new IdentityHashMap<>(elements));
 		}
 
-		public T get(final Either<Rule, ExistentialProxy> rule) {
+		public T get(final RowIdentifier rule) {
 			return this.elements.get(rule);
 		}
 	}
@@ -77,12 +75,12 @@ class Partition<T, S extends Partition.SubSet<T>> {
 		}
 	}
 
-	public void extend(final Either<Rule, ExistentialProxy> rule, final IdentityHashMap<S, T> extension) {
+	public void extend(final RowIdentifier row, final IdentityHashMap<S, T> extension) {
 		assert !extension.containsValue(null);
 		for (final S subset : this.subSets) {
 			final T newElement = extension.get(subset);
 			assert null != newElement;
-			subset.elements.put(rule, newElement);
+			subset.elements.put(row, newElement);
 		}
 	}
 
@@ -90,9 +88,9 @@ class Partition<T, S extends Partition.SubSet<T>> {
 		return this.lookup.get(element);
 	}
 
-	public void remove(final Either<Rule, ExistentialProxy> rule) {
+	public void remove(final RowIdentifier row) {
 		for (final S s : subSets) {
-			s.elements.remove(rule);
+			s.elements.remove(row);
 		}
 	}
 

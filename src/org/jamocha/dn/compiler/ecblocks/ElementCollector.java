@@ -18,12 +18,10 @@ import java.util.Set;
 
 import lombok.Getter;
 
-import org.jamocha.dn.compiler.ecblocks.ECBlocks.Element;
 import org.jamocha.dn.compiler.ecblocks.Filter.ExplicitFilterInstance;
 import org.jamocha.dn.compiler.ecblocks.Filter.FilterInstance;
 import org.jamocha.dn.compiler.ecblocks.Filter.FilterInstanceVisitor;
-import org.jamocha.dn.compiler.ecblocks.Filter.ImplicitECFilterInstance;
-import org.jamocha.dn.compiler.ecblocks.Filter.ImplicitElementFilterInstance;
+import org.jamocha.dn.compiler.ecblocks.element.Element;
 
 import com.google.common.collect.Sets;
 

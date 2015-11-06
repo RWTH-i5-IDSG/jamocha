@@ -12,31 +12,33 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package org.jamocha.function.fwa;
+package org.jamocha.dn.compiler.ecblocks;
 
 import java.util.Objects;
 
-import lombok.Data;
 import lombok.Getter;
-import lombok.ToString;
+import lombok.RequiredArgsConstructor;
 
 import org.jamocha.dn.memory.SlotType;
 import org.jamocha.function.Function;
-import org.jamocha.languages.common.RuleCondition.EquivalenceClass;
+import org.jamocha.function.fwa.ExchangeableLeaf;
+import org.jamocha.function.fwa.FunctionWithArguments;
+import org.jamocha.function.fwa.FunctionWithArgumentsVisitor;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
-@Data
-@ToString(of = { "ec" })
-public class ECLeaf implements ExchangeableLeaf<ECLeaf> {
+@Getter
+@RequiredArgsConstructor
+public class ECOccurrenceLeaf implements ExchangeableLeaf<ECOccurrenceLeaf> {
 
-	final EquivalenceClass ec;
+	private final ECOccurrence ecOccurrence;
+
 	@Getter(lazy = true)
 	private final int hashCode = initHashCode();
 
 	private int initHashCode() {
-		return FunctionWithArguments.hash(new int[] { Objects.hashCode(this.ec) },
+		return FunctionWithArguments.hash(new int[] { Objects.hashCode(this.ecOccurrence.getEc()) },
 				FunctionWithArguments.positionIsIrrelevant);
 	}
 
@@ -47,17 +49,17 @@ public class ECLeaf implements ExchangeableLeaf<ECLeaf> {
 
 	@Override
 	public SlotType getReturnType() {
-		return ec.getType();
+		return ecOccurrence.getEc().getType();
 	}
 
 	@Override
 	public Function<?> lazyEvaluate(final Function<?>... params) {
-		throw new UnsupportedOperationException("Evaluate not allowed for ECLeafs!");
+		throw new UnsupportedOperationException("Evaluate not allowed for ECOccurrenceLeafs!");
 	}
 
 	@Override
 	public Object evaluate(final Object... params) {
-		throw new UnsupportedOperationException("Evaluate not allowed for ECLeafs!");
+		throw new UnsupportedOperationException("Evaluate not allowed for ECOccurrenceLeafs!");
 	}
 
 	@Override
@@ -66,14 +68,13 @@ public class ECLeaf implements ExchangeableLeaf<ECLeaf> {
 	}
 
 	@Override
-	public <V extends FunctionWithArgumentsVisitor<ECLeaf>> V accept(final V visitor) {
+	public <V extends FunctionWithArgumentsVisitor<ECOccurrenceLeaf>> V accept(final V visitor) {
 		visitor.visit(this);
 		return visitor;
 	}
 
 	@Override
-	public ExchangeableLeaf<ECLeaf> copy() {
-		return new ECLeaf(ec);
+	public ExchangeableLeaf<ECOccurrenceLeaf> copy() {
+		return new ECOccurrenceLeaf(ecOccurrence);
 	}
-
 }

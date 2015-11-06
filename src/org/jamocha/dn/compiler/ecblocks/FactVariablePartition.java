@@ -26,8 +26,6 @@ import lombok.RequiredArgsConstructor;
 import org.jamocha.dn.memory.Template;
 import org.jamocha.languages.common.SingleFactVariable;
 
-import com.atlassian.fugue.Either;
-
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
@@ -38,12 +36,12 @@ class FactVariablePartition extends Partition<SingleFactVariable, FactVariablePa
 	static class FactVariableSubSet extends Partition.SubSet<SingleFactVariable> {
 		final Template template;
 
-		public FactVariableSubSet(final IdentityHashMap<Either<Rule, ExistentialProxy>, SingleFactVariable> elements) {
+		public FactVariableSubSet(final IdentityHashMap<RowIdentifier, SingleFactVariable> elements) {
 			super(elements);
 			this.template = elements.values().iterator().next().getTemplate();
 		}
 
-		public FactVariableSubSet(final Map<Either<Rule, ExistentialProxy>, SingleFactVariable> elements) {
+		public FactVariableSubSet(final Map<RowIdentifier, SingleFactVariable> elements) {
 			this(new IdentityHashMap<>(elements));
 		}
 
