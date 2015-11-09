@@ -69,18 +69,28 @@ public class ConflictGraph {
 		return new OccurrenceToBindingEdge();
 	};
 
+	// the actual graph
 	final SimpleGraph<ConflictGraphNode, OccurrenceToBindingEdge> graph = new SimpleGraph<>(assertingEdgeFactory);
+	// cached bindings for the corresponding equivalence classes
 	final IdentityHashMap<EquivalenceClass, List<BindingNode>> ecToElements = new IdentityHashMap<>();
 
+	// explicit filter instance node groups:
+	// lookup map from abstract typed FWA to rule to the set of matching filters
 	final HashMap<FunctionWithArguments<TypeLeaf>, IdentityHashMap<Either<Rule, ExistentialProxy>, Set<ECFilter>>> typedFilterToInstances =
 			new HashMap<>();
+	// lookup map from filter (unique for rule) to parameter index to node
 	final IdentityHashMap<ECFilter, TreeMap<Integer, ExplicitFINode>> filterNodeGroups = new IdentityHashMap<>();
 
+	// variable expression node groups:
+	// lookup map from abstract typed FWA to rule to set of matching indirect bindings
 	final HashMap<FunctionWithArguments<TypeLeaf>, IdentityHashMap<Either<Rule, ExistentialProxy>, Set<IndirectBindingNode>>> typedVEToInstances =
 			new HashMap<>();
+	// lookup map from indirect binding to parameter index to node
 	final IdentityHashMap<IndirectBindingNode, TreeMap<Integer, VariableExpressionNode>> variableExpressionNodeGroups =
 			new IdentityHashMap<>();
 
+	// direct bindings (can't use Leaf directly since constants are contained, too)
+	// lookup map from abstract 'templated' FWA to rule to set of matching direct binding nodes
 	final HashMap<FunctionWithArguments<TemplateSlotLeaf>, IdentityHashMap<Either<Rule, ExistentialProxy>, Set<DirectBindingNode>>> directBindingNodes =
 			new HashMap<>();
 
