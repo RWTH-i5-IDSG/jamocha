@@ -19,8 +19,8 @@ import org.jamocha.dn.compiler.ecblocks.ECOccurrence;
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
-public class ImplicitFINode extends ECOccurrenceNode {
-	public ImplicitFINode(final ECOccurrence occcurrence) {
+public class ImplicitDBNode extends ECOccurrenceNode {
+	public ImplicitDBNode(final ECOccurrence occcurrence) {
 		super(occcurrence);
 	}
 }

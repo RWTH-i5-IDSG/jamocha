@@ -59,15 +59,34 @@ import com.atlassian.fugue.Either;
 @Getter
 public class ConflictGraph {
 	public static class OccurrenceToBindingEdge {
+		public ECOccurrenceNode getOccurrence(final ConflictGraph graph) {
+			return getOccurrence(graph.graph);
+		}
+
+		public ECOccurrenceNode getOccurrence(final SimpleGraph<ConflictGraphNode, OccurrenceToBindingEdge> graph) {
+			return (ECOccurrenceNode) graph.getEdgeSource(this);
+		}
+
+		public BindingNode getBinding(final ConflictGraph graph) {
+			return getBinding(graph.graph);
+		}
+
+		public BindingNode getBinding(final SimpleGraph<ConflictGraphNode, OccurrenceToBindingEdge> graph) {
+			return (BindingNode) graph.getEdgeTarget(this);
+		}
 	};
 
-	static EdgeFactory<ConflictGraphNode, OccurrenceToBindingEdge> assertingEdgeFactory = (
+	private static EdgeFactory<ConflictGraphNode, OccurrenceToBindingEdge> assertingEdgeFactory = (
 			final ConflictGraphNode source, final ConflictGraphNode target) -> {
 		if (!(source instanceof ECOccurrenceNode && target instanceof BindingNode)) {
 			throw new IllegalArgumentException("Edges always go from occurrence to binding!");
 		}
 		return new OccurrenceToBindingEdge();
 	};
+
+	private void addEdge(final ECOccurrenceNode source, final BindingNode target) {
+		graph.addEdge(source, target);
+	}
 
 	// the actual graph
 	final SimpleGraph<ConflictGraphNode, OccurrenceToBindingEdge> graph = new SimpleGraph<>(assertingEdgeFactory);
@@ -116,13 +135,12 @@ public class ConflictGraph {
 							// add it to the elements
 							elements.add(node);
 						});
-			// for every element, create an implicit node and connect it to all EC element nodes
-			for (@SuppressWarnings("unused")
-			final BindingNode x : elements) {
-				final ImplicitFINode implicitFINode = new ImplicitFINode(new ECOccurrence(ec));
-				graph.addVertex(implicitFINode);
+			// create an implicit node and connect it to all EC element nodes
+			{
+				final ImplicitDBNode implicitDBNode = new ImplicitDBNode(new ECOccurrence(ec));
+				graph.addVertex(implicitDBNode);
 				for (final BindingNode bindingNode : elements) {
-					graph.addEdge(implicitFINode, bindingNode);
+					addEdge(implicitDBNode, bindingNode);
 				}
 			}
 			// for every variable expression, create an indirect binding node and store it
@@ -145,6 +163,18 @@ public class ConflictGraph {
 										.computeIfAbsent(ruleOrProxy, newHashSet()).add(indirectBindingNode);
 								return indirectBindingNode;
 							}).collect(toList());
+			// for every variable expression create an additional implicit VE node and connect it to
+			// all indirect and direct bindings
+			for (final IndirectBindingNode indirectBindingNode : varExprNodes) {
+				final ImplicitVENode source = new ImplicitVENode(new ECOccurrence(ec), indirectBindingNode);
+				graph.addVertex(source);
+				for (final IndirectBindingNode target : varExprNodes) {
+					addEdge(source, target);
+				}
+				for (final BindingNode target : elements) {
+					addEdge(source, target);
+				}
+			}
 			// save the element and variable expressions lists
 			ecToElements.put(ec, elements);
 			if (!varExprNodes.isEmpty()) {
@@ -187,7 +217,7 @@ public class ConflictGraph {
 			graph.addVertex(node);
 			// and add the edges to the corresponding bindings
 			for (final BindingNode bindingNode : ecToElements.get(occurrence.getEc())) {
-				graph.addEdge(node, bindingNode);
+				addEdge(node, bindingNode);
 			}
 		}
 	}
@@ -205,13 +235,5 @@ public class ConflictGraph {
 				filterNodeGroups.computeIfAbsent(filter, newTreeMap()).put(index, node);
 				return node;
 			});
-	}
-
-	public ECOccurrenceNode getOccurrence(final OccurrenceToBindingEdge edge) {
-		return (ECOccurrenceNode) graph.getEdgeSource(edge);
-	}
-
-	public BindingNode getBinding(final OccurrenceToBindingEdge edge) {
-		return (BindingNode) graph.getEdgeTarget(edge);
 	}
 }
