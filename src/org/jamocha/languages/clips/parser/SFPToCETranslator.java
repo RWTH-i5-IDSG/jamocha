@@ -857,8 +857,9 @@ public final class SFPToCETranslator implements SelectiveSFPVisitor {
 
 	@FunctionalInterface
 	static interface SFPConstraintVisitorSupplier<T extends SelectiveSFPVisitor> {
-		T create(final SFPConditionalElementVisitor parent, final Consumer<ConditionalElement> constraintAdder,
-				final Template template, final SlotAddressCreator slotCreator, final boolean bindingsAllowed,
+		T create(final SFPConditionalElementVisitor parent,
+				final Consumer<ConditionalElement<SymbolLeaf>> constraintAdder, final Template template,
+				final SlotAddressCreator slotCreator, final boolean bindingsAllowed,
 				final Optional<VariableSymbol> constraintVariable);
 	}
 
@@ -895,7 +896,7 @@ public final class SFPToCETranslator implements SelectiveSFPVisitor {
 		@AllArgsConstructor
 		class SFPTermElementsVisitor implements SelectiveSFPVisitor {
 			final SFPConditionalElementVisitor parent;
-			final Consumer<ConditionalElement> constraintAdder;
+			final Consumer<ConditionalElement<SymbolLeaf>> constraintAdder;
 			final Template template;
 			final SlotAddressCreator slotCreator;
 			final boolean negated;
@@ -918,7 +919,7 @@ public final class SFPToCETranslator implements SelectiveSFPVisitor {
 			private void handleVariable(final VariableSymbol symbol, final SlotAddress slot) {
 				if (negated) {
 					final VariableSymbol csv = createConstraintVariable(slot);
-					constraintAdder.accept(new TestConditionalElement(
+					constraintAdder.accept(new TestConditionalElement<>(
 							GenericWithArgumentsComposite.newPredicateInstance(!negated, Equals.inClips,
 									new SymbolLeaf(csv), new SymbolLeaf(symbol))));
 				} else {
@@ -926,7 +927,7 @@ public final class SFPToCETranslator implements SelectiveSFPVisitor {
 						parent.factVariable.newSingleSlotVariable(slot, symbol);
 					} else {
 						final VariableSymbol csv = createConstraintVariable(slot);
-						constraintAdder.accept(new TestConditionalElement(GenericWithArgumentsComposite
+						constraintAdder.accept(new TestConditionalElement<>(GenericWithArgumentsComposite
 								.newPredicateInstance(Equals.inClips, new SymbolLeaf(csv), new SymbolLeaf(symbol))));
 					}
 				}
@@ -950,8 +951,8 @@ public final class SFPToCETranslator implements SelectiveSFPVisitor {
 				return data;
 			}
 
-			private ConditionalElement negate(final ConditionalElement child) {
-				return (negated ? new NotFunctionConditionalElement(Arrays.asList(child)) : child);
+			private ConditionalElement<SymbolLeaf> negate(final ConditionalElement<SymbolLeaf> child) {
+				return (negated ? new NotFunctionConditionalElement<>(ImmutableList.of(child)) : child);
 			}
 
 			@Override
@@ -962,7 +963,7 @@ public final class SFPToCETranslator implements SelectiveSFPVisitor {
 				final SlotAddress slot = slotCreator.getSlotAddress(true);
 				final VariableSymbol csv = createConstraintVariable(slot);
 				// create equals test
-				constraintAdder.accept(negate(new TestConditionalElement(GenericWithArgumentsComposite
+				constraintAdder.accept(negate(new TestConditionalElement<>(GenericWithArgumentsComposite
 						.newPredicateInstance(Equals.inClips, new SymbolLeaf(csv), new ConstantLeaf<>(
 								constantVisitor.value, constantVisitor.type)))));
 				return data;
@@ -976,7 +977,7 @@ public final class SFPToCETranslator implements SelectiveSFPVisitor {
 						SelectiveSFPVisitor.sendVisitor(new SFPFunctionCallElementsVisitor(parent.contextStack,
 								SymbolToFunctionWithArguments.bySymbol(), false), node.jjtGetChild(0), data).expression;
 				assert SlotType.BOOLEAN == functionCall.getReturnType();
-				constraintAdder.accept(negate(new TestConditionalElement(
+				constraintAdder.accept(negate(new TestConditionalElement<>(
 						(PredicateWithArguments<SymbolLeaf>) functionCall)));
 				return data;
 			}
@@ -992,7 +993,7 @@ public final class SFPToCETranslator implements SelectiveSFPVisitor {
 				final SlotAddress slot = slotCreator.getSlotAddress(!functionCall.getReturnType().isArrayType());
 				final VariableSymbol csv = createConstraintVariable(slot);
 				// create equals test
-				constraintAdder.accept(negate(new TestConditionalElement(GenericWithArgumentsComposite
+				constraintAdder.accept(negate(new TestConditionalElement<>(GenericWithArgumentsComposite
 						.newPredicateInstance(Equals.inClips, new SymbolLeaf(csv), functionCall))));
 				return data;
 			}
@@ -1000,7 +1001,7 @@ public final class SFPToCETranslator implements SelectiveSFPVisitor {
 
 		class SFPTermVisitor extends SFPConstraintBase {
 			public SFPTermVisitor(final SFPConditionalElementVisitor parent,
-					final Consumer<ConditionalElement> constraintAdder, final Template template,
+					final Consumer<ConditionalElement<SymbolLeaf>> constraintAdder, final Template template,
 					final SlotAddressCreator slotCreator, final boolean bindingsAllowed,
 					final Optional<VariableSymbol> constraintVariable) {
 				super(parent, constraintAdder, template, slotCreator, bindingsAllowed, constraintVariable);
@@ -1027,7 +1028,7 @@ public final class SFPToCETranslator implements SelectiveSFPVisitor {
 
 		class SFPAmpersandConnectedConstraintVisitor extends SFPConstraintBase {
 			public SFPAmpersandConnectedConstraintVisitor(final SFPConditionalElementVisitor parent,
-					final Consumer<ConditionalElement> constraintAdder, final Template template,
+					final Consumer<ConditionalElement<SymbolLeaf>> constraintAdder, final Template template,
 					final SlotAddressCreator slotCreator, final boolean bindingsAllowed,
 					final Optional<VariableSymbol> constraintVariable) {
 				super(parent, constraintAdder, template, slotCreator, bindingsAllowed, constraintVariable);
@@ -1045,7 +1046,7 @@ public final class SFPToCETranslator implements SelectiveSFPVisitor {
 
 		class SFPConnectedConstraintElementsVisitor extends SFPConstraintBase {
 			public SFPConnectedConstraintElementsVisitor(final SFPConditionalElementVisitor parent,
-					final Consumer<ConditionalElement> constraintAdder, final Template template,
+					final Consumer<ConditionalElement<SymbolLeaf>> constraintAdder, final Template template,
 					final SlotAddressCreator slotCreator, final boolean bindingsAllowed,
 					final Optional<VariableSymbol> constraintVariable) {
 				super(parent, constraintAdder, template, slotCreator, bindingsAllowed, constraintVariable);
@@ -1086,7 +1087,7 @@ public final class SFPToCETranslator implements SelectiveSFPVisitor {
 
 		class SFPConstraintElementsVisitor extends SFPConstraintBase {
 			public SFPConstraintElementsVisitor(final SFPConditionalElementVisitor parent,
-					final Consumer<ConditionalElement> constraintAdder, final Template template,
+					final Consumer<ConditionalElement<SymbolLeaf>> constraintAdder, final Template template,
 					final SlotAddressCreator slotCreator, final boolean bindingsAllowed) {
 				super(parent, constraintAdder, template, slotCreator, bindingsAllowed, Optional.empty());
 			}
@@ -1134,15 +1135,17 @@ public final class SFPToCETranslator implements SelectiveSFPVisitor {
 		@AllArgsConstructor
 		class SFPConstraintBase implements SelectiveSFPVisitor {
 			final SFPConditionalElementVisitor parent;
-			final Consumer<ConditionalElement> constraintAdder;
+			final Consumer<ConditionalElement<SymbolLeaf>> constraintAdder;
 			final Template template;
 			final SlotAddressCreator slotCreator;
 			final boolean bindingsAllowed;
 			Optional<VariableSymbol> constraintVariable;
 
-			Object handleConnectedConstraint(final SimpleNode node, final Object data,
+			Object handleConnectedConstraint(
+					final SimpleNode node,
+					final Object data,
 					final SFPConstraintVisitorSupplier<? extends SFPConstraintBase> visitorSupplier,
-					final java.util.function.Function<List<ConditionalElement>, ConditionalElement> connector) {
+					final java.util.function.Function<List<ConditionalElement<SymbolLeaf>>, ConditionalElement<SymbolLeaf>> connector) {
 				assert node.jjtGetNumChildren() > 0;
 				final boolean terminal = 1 == node.jjtGetNumChildren();
 				if (terminal) {
@@ -1150,7 +1153,7 @@ public final class SFPToCETranslator implements SelectiveSFPVisitor {
 							SelectiveSFPVisitor.sendVisitor(visitorSupplier.create(parent, constraintAdder, template,
 									slotCreator, bindingsAllowed, constraintVariable), node.jjtGetChild(0), data).constraintVariable;
 				} else {
-					final ArrayList<ConditionalElement> constraints = new ArrayList<>();
+					final ArrayList<ConditionalElement<SymbolLeaf>> constraints = new ArrayList<>();
 					final SFPConstraintBase visitor =
 							visitorSupplier.create(parent, constraints::add, template, slotCreator, bindingsAllowed,
 									constraintVariable);
@@ -1167,7 +1170,7 @@ public final class SFPToCETranslator implements SelectiveSFPVisitor {
 		@RequiredArgsConstructor
 		class SFPUnorderedLHSFactBodyElementsVisitor implements SelectiveSFPVisitor {
 			final SFPConditionalElementVisitor parent;
-			final Consumer<ConditionalElement> constraintAdder;
+			final Consumer<ConditionalElement<SymbolLeaf>> constraintAdder;
 			final Template template;
 
 			// currently:
@@ -1205,7 +1208,7 @@ public final class SFPToCETranslator implements SelectiveSFPVisitor {
 		@RequiredArgsConstructor
 		class SFPTemplatePatternCEElementsVisitor implements SelectiveSFPVisitor {
 			final SFPConditionalElementVisitor parent;
-			final Consumer<ConditionalElement> constraintAdder;
+			final Consumer<ConditionalElement<SymbolLeaf>> constraintAdder;
 			final Template template;
 
 			// currently:
@@ -1234,7 +1237,7 @@ public final class SFPToCETranslator implements SelectiveSFPVisitor {
 		boolean containsTemplateCE;
 		SingleFactVariable factVariable = null;
 		@NonNull
-		Optional<ConditionalElement> resultCE = Optional.empty();
+		Optional<ConditionalElement<SymbolLeaf>> resultCE = Optional.empty();
 
 		// <conditional-element> ::= <pattern-CE> | <assigned-pattern-CE> | <not-CE> | <and-CE> |
 		// <or-CE> | <logical-CE> | <test-CE> | <exists-CE> | <forall-CE>
@@ -1295,10 +1298,10 @@ public final class SFPToCETranslator implements SelectiveSFPVisitor {
 			this.factVariable =
 					(null != possibleFactVariable) ? new SingleFactVariable(template, possibleFactVariable)
 							: parserToNetwork.getScope().createDummyFactVariable(template, contextStack);
-			final ConditionalElement templCE =
-					parserToNetwork.getInitialFactTemplate() == template ? new InitialFactConditionalElement(
-							this.factVariable) : new TemplatePatternConditionalElement(this.factVariable);
-			final ArrayList<ConditionalElement> constraints = new ArrayList<>();
+			final ConditionalElement<SymbolLeaf> templCE =
+					parserToNetwork.getInitialFactTemplate() == template ? new InitialFactConditionalElement<>(
+							this.factVariable) : new TemplatePatternConditionalElement<>(this.factVariable);
+			final ArrayList<ConditionalElement<SymbolLeaf>> constraints = new ArrayList<>();
 			constraints.add(templCE);
 			SelectiveSFPVisitor.stream(node, 1).forEach(
 					n -> SelectiveSFPVisitor.sendVisitor(new SFPTemplatePatternCEElementsVisitor(this,
@@ -1307,7 +1310,7 @@ public final class SFPToCETranslator implements SelectiveSFPVisitor {
 				this.resultCE = Optional.of(templCE);
 			} else {
 				assert parserToNetwork.getInitialFactTemplate() != template;
-				this.resultCE = Optional.of(new AndFunctionConditionalElement(constraints));
+				this.resultCE = Optional.of(new AndFunctionConditionalElement<>(constraints));
 			}
 			return data;
 		}
@@ -1324,7 +1327,7 @@ public final class SFPToCETranslator implements SelectiveSFPVisitor {
 			// `(not (not (and (TemplatePatternCE)+)))`, and needs to support TemplatePatternCE
 			// children, too. These will not be added to the Predicate <and>
 			assert node.jjtGetNumChildren() > 0;
-			final List<ConditionalElement> elements =
+			final List<ConditionalElement<SymbolLeaf>> elements =
 					SelectiveSFPVisitor
 							.stream(node, 0)
 							.map(n -> SelectiveSFPVisitor.sendVisitor(new SFPConditionalElementVisitor(contextStack,
@@ -1334,7 +1337,7 @@ public final class SFPToCETranslator implements SelectiveSFPVisitor {
 			if (size == 1) {
 				this.resultCE = Optional.of(elements.get(0));
 			} else if (size > 1) {
-				this.resultCE = Optional.of(new AndFunctionConditionalElement(elements));
+				this.resultCE = Optional.of(new AndFunctionConditionalElement<>(elements));
 			}
 			return data;
 		}
@@ -1344,7 +1347,7 @@ public final class SFPToCETranslator implements SelectiveSFPVisitor {
 		@Override
 		public Object visit(final SFPOrFunction node, final Object data) {
 			assert node.jjtGetNumChildren() > 0;
-			final List<ConditionalElement> elements =
+			final List<ConditionalElement<SymbolLeaf>> elements =
 					SelectiveSFPVisitor
 							.stream(node, 0)
 							.map(n -> SelectiveSFPVisitor.sendVisitor(new SFPConditionalElementVisitor(contextStack,
@@ -1354,7 +1357,7 @@ public final class SFPToCETranslator implements SelectiveSFPVisitor {
 			if (size == 1) {
 				this.resultCE = Optional.of(elements.get(0));
 			} else if (size > 1) {
-				this.resultCE = Optional.of(new OrFunctionConditionalElement(elements));
+				this.resultCE = Optional.of(new OrFunctionConditionalElement<>(elements));
 			}
 			return data;
 		}
@@ -1373,13 +1376,13 @@ public final class SFPToCETranslator implements SelectiveSFPVisitor {
 								(VariableSymbol) null), node.jjtGetChild(0), data);
 				if (this.containsTemplateCE) {
 					this.resultCE =
-							Optional.of(new NegatedExistentialConditionalElement(scopeCloser.getCurrentScope(),
-									visitor.resultCE.map(
-											ce -> (List<ConditionalElement>) new ArrayList<ConditionalElement>(
-													Collections.singletonList(ce))).orElse(Collections.emptyList())));
+							Optional.of(new NegatedExistentialConditionalElement<>(scopeCloser.getCurrentScope(),
+									new AndFunctionConditionalElement<>(visitor.resultCE.map(
+											ce -> (List<ConditionalElement<SymbolLeaf>>) new ArrayList<>(Collections
+													.singletonList(ce))).orElse(Collections.emptyList()))));
 				} else {
 					this.resultCE =
-							Optional.of(new NotFunctionConditionalElement(Arrays.asList(visitor.resultCE.get())));
+							Optional.of(new NotFunctionConditionalElement<>(Arrays.asList(visitor.resultCE.get())));
 				}
 			}
 			return data;
@@ -1393,7 +1396,8 @@ public final class SFPToCETranslator implements SelectiveSFPVisitor {
 			final FunctionWithArguments<SymbolLeaf> functionCall =
 					SelectiveSFPVisitor.sendVisitor(new SFPFunctionCallElementsVisitor(contextStack,
 							SymbolToFunctionWithArguments.bySymbol(), false), node.jjtGetChild(0), data).expression;
-			this.resultCE = Optional.of(new TestConditionalElement((PredicateWithArguments<SymbolLeaf>) functionCall));
+			this.resultCE =
+					Optional.of(new TestConditionalElement<>((PredicateWithArguments<SymbolLeaf>) functionCall));
 			return data;
 		}
 
@@ -1405,14 +1409,16 @@ public final class SFPToCETranslator implements SelectiveSFPVisitor {
 			try (final ScopeCloser scopeCloser = new ScopeCloser(SFPToCETranslator.this.parserToNetwork.getScope());
 					final ScopedExistentialStack scopedExistentialStack =
 							new ScopedExistentialStack(contextStack, this, ExistentialState.EXISTENTIAL)) {
-				final List<ConditionalElement> elements =
+				final List<ConditionalElement<SymbolLeaf>> elements =
 						SelectiveSFPVisitor
 								.stream(node, 0)
 								.map(n -> SelectiveSFPVisitor.sendVisitor(new SFPConditionalElementVisitor(
 										contextStack, null), n, data).resultCE).filter(Optional::isPresent)
 								.map(Optional::get).collect(Collectors.toList());
 				assert this.containsTemplateCE;
-				this.resultCE = Optional.of(new ExistentialConditionalElement(scopeCloser.getCurrentScope(), elements));
+				this.resultCE =
+						Optional.of(new ExistentialConditionalElement<>(scopeCloser.getCurrentScope(),
+								new AndFunctionConditionalElement<>(elements)));
 			}
 			return data;
 		}
@@ -1992,7 +1998,7 @@ public final class SFPToCETranslator implements SelectiveSFPVisitor {
 					final ExistentialStack existentialStack = new ExistentialStack(scopeCloser.getCurrentScope());
 					String comment = null;
 					int salience = 0;
-					final ArrayList<ConditionalElement> ces = new ArrayList<>();
+					final ArrayList<ConditionalElement<SymbolLeaf>> ces = new ArrayList<>();
 					ArrayList<FunctionWithArguments<SymbolLeaf>> actionList = null;
 					for (int i = 1; i < node.jjtGetNumChildren(); ++i) {
 						final SFPDefruleConstructElementVisitor visitor =
@@ -2011,7 +2017,7 @@ public final class SFPToCETranslator implements SelectiveSFPVisitor {
 						}
 					}
 					ces.add(0,
-							new InitialFactConditionalElement(parserToNetwork.getScope().createDummyFactVariable(
+							new InitialFactConditionalElement<>(parserToNetwork.getScope().createDummyFactVariable(
 									parserToNetwork.getInitialFactTemplate(), existentialStack)));
 					existentialStack.getConditionalElements().addAll(ces);
 					this.defrule = new Defrule(symbol.getImage(), comment, salience, existentialStack, actionList);

@@ -22,38 +22,55 @@ import java.util.Objects;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
+import org.jamocha.function.fwa.ExchangeableLeaf;
 import org.jamocha.function.fwa.PredicateWithArguments;
-import org.jamocha.function.fwa.SymbolLeaf;
 import org.jamocha.languages.common.ScopeStack.Scope;
 import org.jamocha.visitor.Visitable;
+
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
 @RequiredArgsConstructor
-public abstract class ConditionalElement implements Visitable<ConditionalElementsVisitor> {
+public abstract class ConditionalElement<L extends ExchangeableLeaf<L>> implements
+		Visitable<ConditionalElementsVisitor<L>> {
 
 	@Getter
-	final List<ConditionalElement> children;
+	final List<ConditionalElement<L>> children;
 
-	private static abstract class PositiveOrNegativeExistentialConditionalElement extends ConditionalElement {
+	private static abstract class PositiveOrNegativeExistentialConditionalElement<L extends ExchangeableLeaf<L>>
+			extends ConditionalElement<L> {
 		@Getter
 		final Scope scope;
 
 		public PositiveOrNegativeExistentialConditionalElement(final Scope scope,
-				final List<ConditionalElement> children) {
+				final AndFunctionConditionalElement<L> child) {
+			this(scope, Lists.newArrayList(ImmutableList.of(child)));
+		}
+
+		private PositiveOrNegativeExistentialConditionalElement(final Scope scope,
+				final List<ConditionalElement<L>> children) {
 			super(children);
 			this.scope = scope;
 		}
+
+		abstract public PositiveOrNegativeExistentialConditionalElement<L> negate();
 	}
 
-	public static class ExistentialConditionalElement extends PositiveOrNegativeExistentialConditionalElement {
-		public ExistentialConditionalElement(final Scope scope, final List<ConditionalElement> children) {
+	public static class ExistentialConditionalElement<L extends ExchangeableLeaf<L>> extends
+			PositiveOrNegativeExistentialConditionalElement<L> {
+		public ExistentialConditionalElement(final Scope scope, final AndFunctionConditionalElement<L> child) {
+			super(scope, child);
+		}
+
+		public ExistentialConditionalElement(final Scope scope, final List<ConditionalElement<L>> children) {
 			super(scope, children);
 		}
 
 		@Override
-		public <V extends ConditionalElementsVisitor> V accept(final V visitor) {
+		public <V extends ConditionalElementsVisitor<L>> V accept(final V visitor) {
 			visitor.visit(this);
 			return visitor;
 		}
@@ -62,15 +79,25 @@ public abstract class ConditionalElement implements Visitable<ConditionalElement
 		public String toString() {
 			return "ExistentialCE " + Objects.toString(children);
 		}
+
+		@Override
+		public NegatedExistentialConditionalElement<L> negate() {
+			return new NegatedExistentialConditionalElement<>(scope, children);
+		}
 	}
 
-	public static class NegatedExistentialConditionalElement extends PositiveOrNegativeExistentialConditionalElement {
-		public NegatedExistentialConditionalElement(final Scope scope, final List<ConditionalElement> children) {
+	public static class NegatedExistentialConditionalElement<L extends ExchangeableLeaf<L>> extends
+			PositiveOrNegativeExistentialConditionalElement<L> {
+		public NegatedExistentialConditionalElement(final Scope scope, final AndFunctionConditionalElement<L> child) {
+			super(scope, child);
+		}
+
+		private NegatedExistentialConditionalElement(final Scope scope, final List<ConditionalElement<L>> children) {
 			super(scope, children);
 		}
 
 		@Override
-		public <V extends ConditionalElementsVisitor> V accept(final V visitor) {
+		public <V extends ConditionalElementsVisitor<L>> V accept(final V visitor) {
 			visitor.visit(this);
 			return visitor;
 		}
@@ -79,19 +106,24 @@ public abstract class ConditionalElement implements Visitable<ConditionalElement
 		public String toString() {
 			return "NegatedExistentialCE " + Objects.toString(children);
 		}
+
+		@Override
+		public ExistentialConditionalElement<L> negate() {
+			return new ExistentialConditionalElement<>(scope, children);
+		}
 	}
 
-	public static class TestConditionalElement extends ConditionalElement {
+	public static class TestConditionalElement<L extends ExchangeableLeaf<L>> extends ConditionalElement<L> {
 		@Getter
-		final PredicateWithArguments<SymbolLeaf> predicateWithArguments;
+		final PredicateWithArguments<L> predicateWithArguments;
 
-		public TestConditionalElement(final PredicateWithArguments<SymbolLeaf> predicateWithArguments) {
+		public TestConditionalElement(final PredicateWithArguments<L> predicateWithArguments) {
 			super(new ArrayList<>());
 			this.predicateWithArguments = predicateWithArguments;
 		}
 
 		@Override
-		public <V extends ConditionalElementsVisitor> V accept(final V visitor) {
+		public <V extends ConditionalElementsVisitor<L>> V accept(final V visitor) {
 			visitor.visit(this);
 			return visitor;
 		}
@@ -102,13 +134,13 @@ public abstract class ConditionalElement implements Visitable<ConditionalElement
 		}
 	}
 
-	public static class OrFunctionConditionalElement extends ConditionalElement {
-		public OrFunctionConditionalElement(final List<ConditionalElement> children) {
+	public static class OrFunctionConditionalElement<L extends ExchangeableLeaf<L>> extends ConditionalElement<L> {
+		public OrFunctionConditionalElement(final List<ConditionalElement<L>> children) {
 			super(children);
 		}
 
 		@Override
-		public <V extends ConditionalElementsVisitor> V accept(final V visitor) {
+		public <V extends ConditionalElementsVisitor<L>> V accept(final V visitor) {
 			visitor.visit(this);
 			return visitor;
 		}
@@ -119,13 +151,13 @@ public abstract class ConditionalElement implements Visitable<ConditionalElement
 		}
 	}
 
-	public static class AndFunctionConditionalElement extends ConditionalElement {
-		public AndFunctionConditionalElement(final List<ConditionalElement> children) {
+	public static class AndFunctionConditionalElement<L extends ExchangeableLeaf<L>> extends ConditionalElement<L> {
+		public AndFunctionConditionalElement(final List<ConditionalElement<L>> children) {
 			super(children);
 		}
 
 		@Override
-		public <V extends ConditionalElementsVisitor> V accept(final V visitor) {
+		public <V extends ConditionalElementsVisitor<L>> V accept(final V visitor) {
 			visitor.visit(this);
 			return visitor;
 		}
@@ -136,13 +168,13 @@ public abstract class ConditionalElement implements Visitable<ConditionalElement
 		}
 	}
 
-	public static class NotFunctionConditionalElement extends ConditionalElement {
-		public NotFunctionConditionalElement(final List<ConditionalElement> children) {
+	public static class NotFunctionConditionalElement<L extends ExchangeableLeaf<L>> extends ConditionalElement<L> {
+		public NotFunctionConditionalElement(final List<ConditionalElement<L>> children) {
 			super(children);
 		}
 
 		@Override
-		public <V extends ConditionalElementsVisitor> V accept(final V visitor) {
+		public <V extends ConditionalElementsVisitor<L>> V accept(final V visitor) {
 			visitor.visit(this);
 			return visitor;
 		}
@@ -159,7 +191,7 @@ public abstract class ConditionalElement implements Visitable<ConditionalElement
 	 *
 	 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
 	 */
-	public static class InitialFactConditionalElement extends ConditionalElement {
+	public static class InitialFactConditionalElement<L extends ExchangeableLeaf<L>> extends ConditionalElement<L> {
 		@Getter
 		final SingleFactVariable initialFactVariable;
 
@@ -169,7 +201,7 @@ public abstract class ConditionalElement implements Visitable<ConditionalElement
 		}
 
 		@Override
-		public <V extends ConditionalElementsVisitor> V accept(final V visitor) {
+		public <V extends ConditionalElementsVisitor<L>> V accept(final V visitor) {
 			visitor.visit(this);
 			return visitor;
 		}
@@ -183,7 +215,7 @@ public abstract class ConditionalElement implements Visitable<ConditionalElement
 	/**
 	 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
 	 */
-	public static class TemplatePatternConditionalElement extends ConditionalElement {
+	public static class TemplatePatternConditionalElement<L extends ExchangeableLeaf<L>> extends ConditionalElement<L> {
 		@Getter
 		final SingleFactVariable factVariable;
 
@@ -193,7 +225,7 @@ public abstract class ConditionalElement implements Visitable<ConditionalElement
 		}
 
 		@Override
-		public <V extends ConditionalElementsVisitor> V accept(final V visitor) {
+		public <V extends ConditionalElementsVisitor<L>> V accept(final V visitor) {
 			visitor.visit(this);
 			return visitor;
 		}

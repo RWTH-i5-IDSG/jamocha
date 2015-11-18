@@ -97,7 +97,7 @@ import com.google.common.collect.Sets.SetView;
  */
 @Log4j2
 @RequiredArgsConstructor
-public class CEToECTranslator implements DefaultConditionalElementsVisitor {
+public class CEToECTranslator implements DefaultConditionalElementsVisitor<ECLeaf> {
 
 	private final Template initialFactTemplate;
 	private final Defrule rule;
@@ -110,7 +110,7 @@ public class CEToECTranslator implements DefaultConditionalElementsVisitor {
 	}
 
 	@Override
-	public void defaultAction(final ConditionalElement ce) {
+	public void defaultAction(final ConditionalElement<ECLeaf> ce) {
 		// If there is no OrFunctionConditionalElement just proceed with the CE as it were
 		// the only child of an OrFunctionConditionalElement.
 		final Map<VariableSymbol, EquivalenceClass> symbolToEC =
@@ -122,7 +122,7 @@ public class CEToECTranslator implements DefaultConditionalElementsVisitor {
 	}
 
 	@Override
-	public void visit(final OrFunctionConditionalElement ce) {
+	public void visit(final OrFunctionConditionalElement<ECLeaf> ce) {
 		final Map<VariableSymbol, EquivalenceClass> symbolToEC =
 				new SymbolCollector(this.rule.getCondition()).getSymbols().stream()
 						.collect(toMap(Function.identity(), VariableSymbol::getEqual));
@@ -138,7 +138,7 @@ public class CEToECTranslator implements DefaultConditionalElementsVisitor {
 	 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
 	 * @author Christoph Terwelp <christoph.terwelp@rwth-aachen.de>
 	 */
-	static class NoORsTranslator implements DefaultConditionalElementsVisitor {
+	static class NoORsTranslator implements DefaultConditionalElementsVisitor<ECLeaf> {
 
 		private final Template initialFactTemplate;
 		private final SingleFactVariable initialFactVariable;
@@ -159,7 +159,7 @@ public class CEToECTranslator implements DefaultConditionalElementsVisitor {
 		}
 
 		public static ECSetRule consolidate(final Template initialFactTemplate, final Defrule rule,
-				final ConditionalElement ce, final Map<VariableSymbol, EquivalenceClass> symbolToECbackup) {
+				final ConditionalElement<ECLeaf> ce, final Map<VariableSymbol, EquivalenceClass> symbolToECbackup) {
 			final Scope scope = rule.getCondition().getScope();
 			final Set<VariableSymbol> symbols = symbolToECbackup.keySet();
 
@@ -312,7 +312,7 @@ public class CEToECTranslator implements DefaultConditionalElementsVisitor {
 			}
 		}
 
-		static class ShallowCEEquivalenceClassBuilder implements DefaultConditionalElementsVisitor {
+		static class ShallowCEEquivalenceClassBuilder implements DefaultConditionalElementsVisitor<ECLeaf> {
 			final Scope scope;
 			final Set<VariableSymbol> occurringSymbols;
 			final Set<SingleFactVariable> shallowFactVariables;
@@ -466,27 +466,27 @@ public class CEToECTranslator implements DefaultConditionalElementsVisitor {
 			}
 
 			@Override
-			public void defaultAction(final ConditionalElement ce) {
+			public void defaultAction(final ConditionalElement<ECLeaf> ce) {
 				ce.getChildren().forEach(c -> c.accept(this));
 			}
 
 			@Override
-			public void visit(final ExistentialConditionalElement ce) {
+			public void visit(final ExistentialConditionalElement<ECLeaf> ce) {
 				// stop
 			}
 
 			@Override
-			public void visit(final NegatedExistentialConditionalElement ce) {
+			public void visit(final NegatedExistentialConditionalElement<ECLeaf> ce) {
 				// stop
 			}
 
 			@Override
-			public void visit(final TestConditionalElement ce) {
+			public void visit(final TestConditionalElement<ECLeaf> ce) {
 				ce.getPredicateWithArguments().accept(this.fwaBuilder);
 			}
 
 			@Override
-			public void visit(final NotFunctionConditionalElement ce) {
+			public void visit(final NotFunctionConditionalElement<ECLeaf> ce) {
 				this.negated = !this.negated;
 				defaultAction(ce);
 				this.negated = !this.negated;
@@ -494,7 +494,7 @@ public class CEToECTranslator implements DefaultConditionalElementsVisitor {
 		}
 
 		private static ECSetRule consolidateOnCopiedEquivalenceClasses(final Template initialFactTemplate,
-				final SingleFactVariable initialFactVariable, final Defrule rule, final ConditionalElement ce,
+				final SingleFactVariable initialFactVariable, final Defrule rule, final ConditionalElement<ECLeaf> ce,
 				final Set<PredicateWithArguments<ECLeaf>> shallowTests, final Set<EquivalenceClass> equivalenceClasses,
 				final BiMap<EquivalenceClass, EquivalenceClass> newToOldECs,
 				final BiMap<SingleFactVariable, SingleFactVariable> oldToNewFactVariables, final int specificity) {
@@ -516,7 +516,7 @@ public class CEToECTranslator implements DefaultConditionalElementsVisitor {
 			return rule.newECSetRule(filters, factVariables, equivalenceClasses, newToOldECs, specificity);
 		}
 
-		private NoORsTranslator collect(final ConditionalElement ce) {
+		private NoORsTranslator collect(final ConditionalElement<ECLeaf> ce) {
 			return ce.accept(this);
 		}
 
@@ -533,8 +533,8 @@ public class CEToECTranslator implements DefaultConditionalElementsVisitor {
 
 		static ECExistentialSet processExistentialCondition(final Template initialFactTemplate,
 				final SingleFactVariable initialFactVariable, final Set<VariableSymbol> variableSymbols,
-				final BiMap<SingleFactVariable, SingleFactVariable> oldToNewFactVariables, final ConditionalElement ce,
-				final Scope scope, final boolean isPositive) {
+				final BiMap<SingleFactVariable, SingleFactVariable> oldToNewFactVariables,
+				final ConditionalElement<ECLeaf> ce, final Scope scope, final boolean isPositive) {
 			// Collect the existential FactVariables in a shallow manner (not including FVs in
 			// nested existential elements)
 			final Pair<SingleFactVariable, Set<SingleFactVariable>> initialFactAndOtherFVs =
@@ -655,25 +655,25 @@ public class CEToECTranslator implements DefaultConditionalElementsVisitor {
 		}
 
 		@Override
-		public void defaultAction(final ConditionalElement ce) {
+		public void defaultAction(final ConditionalElement<ECLeaf> ce) {
 			// just traverse the tree to find the existential CEs
 			ce.getChildren().forEach(c -> c.accept(this));
 		}
 
 		@Override
-		public void visit(final OrFunctionConditionalElement ce) {
+		public void visit(final OrFunctionConditionalElement<ECLeaf> ce) {
 			throw new Error("There should not be any OrFunctionCEs at this level.");
 		}
 
 		@Override
-		public void visit(final ExistentialConditionalElement ce) {
+		public void visit(final ExistentialConditionalElement<ECLeaf> ce) {
 			assert ce.getChildren().size() == 1;
 			this.filters.add(processExistentialCondition(this.initialFactTemplate, this.initialFactVariable,
 					this.variableSymbols, this.oldToNewFactVariables, ce.getChildren().get(0), ce.getScope(), true));
 		}
 
 		@Override
-		public void visit(final NegatedExistentialConditionalElement ce) {
+		public void visit(final NegatedExistentialConditionalElement<ECLeaf> ce) {
 			assert ce.getChildren().size() == 1;
 			this.filters.add(processExistentialCondition(this.initialFactTemplate, this.initialFactVariable,
 					this.variableSymbols, this.oldToNewFactVariables, ce.getChildren().get(0), ce.getScope(), false));

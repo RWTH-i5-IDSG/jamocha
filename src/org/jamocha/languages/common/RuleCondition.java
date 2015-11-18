@@ -41,6 +41,7 @@ import org.jamocha.filter.Path;
 import org.jamocha.function.fwa.ECLeaf;
 import org.jamocha.function.fwa.FunctionWithArguments;
 import org.jamocha.function.fwa.PathLeaf;
+import org.jamocha.function.fwa.SymbolLeaf;
 import org.jamocha.languages.common.ScopeStack.Scope;
 import org.jamocha.languages.common.ScopeStack.VariableSymbol;
 import org.jamocha.languages.common.SingleFactVariable.SingleSlotVariable;
@@ -64,7 +65,7 @@ public class RuleCondition {
 
 	private final Scope scope;
 	private final List<MatchingConfiguration> matchings = new ArrayList<>();
-	private final List<ConditionalElement> conditionalElements = new ArrayList<>();
+	private final List<ConditionalElement<SymbolLeaf>> conditionalElements = new ArrayList<>();
 	private final Set<VariableSymbol> variableSymbols = new HashSet<>();
 
 	public void addSymbol(final VariableSymbol symbol) {
@@ -287,12 +288,12 @@ public class RuleCondition {
 			}
 		}
 
-		public void addEqualParentEquivalenceClass(final EquivalenceClass ec) {
-			if (!ec.maximalScope.isParentOf(this.maximalScope)) {
+		public void addEqualParentEquivalenceClass(final EquivalenceClass parent) {
+			if (!parent.maximalScope.isParentOf(this.maximalScope)) {
 				throw new IllegalArgumentException(
 						"Given equivalence class is not part of a parenting scope w.r.t. this equivalence class!");
 			}
-			this.equalParentEquivalenceClasses.add(ec);
+			this.equalParentEquivalenceClasses.add(parent);
 		}
 
 		public PathLeaf getPathLeaf(final Map<EquivalenceClass, Path> ec2Path, final SingleSlotVariable sv) {

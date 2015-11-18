@@ -18,28 +18,40 @@ import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.partitioningBy;
 import static java.util.stream.Collectors.toCollection;
 import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toSet;
+import static java.util.stream.Collectors.toMap;
+import static org.jamocha.util.Lambdas.newIdentityHashSet;
+import static org.jamocha.util.Lambdas.toIdentityHashSet;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.stream.Stream;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.Value;
+import lombok.extern.log4j.Log4j2;
 
+import org.jamocha.dn.compiler.DeepFactVariableCollector;
 import org.jamocha.dn.compiler.ShallowFactVariableCollector;
 import org.jamocha.function.fwa.ConstantLeaf;
 import org.jamocha.function.fwa.DefaultFunctionWithArgumentsLeafVisitor;
+import org.jamocha.function.fwa.ECLeaf;
+import org.jamocha.function.fwa.ExchangeableLeaf;
 import org.jamocha.function.fwa.GlobalVariableLeaf;
+import org.jamocha.function.fwa.PredicateWithArguments;
 import org.jamocha.function.fwa.SymbolLeaf;
+import org.jamocha.function.fwatransformer.FWASymbolToECTranslator;
+import org.jamocha.function.fwatransformer.FWATranslator;
 import org.jamocha.languages.common.ConditionalElement.AndFunctionConditionalElement;
 import org.jamocha.languages.common.ConditionalElement.ExistentialConditionalElement;
 import org.jamocha.languages.common.ConditionalElement.InitialFactConditionalElement;
@@ -48,147 +60,167 @@ import org.jamocha.languages.common.ConditionalElement.NotFunctionConditionalEle
 import org.jamocha.languages.common.ConditionalElement.OrFunctionConditionalElement;
 import org.jamocha.languages.common.ConditionalElement.TemplatePatternConditionalElement;
 import org.jamocha.languages.common.ConditionalElement.TestConditionalElement;
+import org.jamocha.languages.common.RuleCondition.EquivalenceClass;
+import org.jamocha.languages.common.ScopeStack.Scope;
 import org.jamocha.languages.common.ScopeStack.VariableSymbol;
+import org.jamocha.languages.common.SingleFactVariable.SingleSlotVariable;
 
+import com.google.common.collect.HashBiMap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  * @author Christoph Terwelp <christoph.terwelp@rwth-aachen.de>
  */
+@Log4j2
 public class RuleConditionProcessor {
 
-	private static ConditionalElement combine(final List<ConditionalElement> conditionalElements,
-			final Function<List<ConditionalElement>, ConditionalElement> combiner) {
+	private static <L extends ExchangeableLeaf<L>> ConditionalElement<L> combine(
+			final List<? extends ConditionalElement<L>> conditionalElements,
+			final Function<List<? extends ConditionalElement<L>>, ConditionalElement<L>> combiner) {
 		if (conditionalElements.size() > 1) {
 			return combiner.apply(conditionalElements);
 		}
 		return conditionalElements.get(0);
 	}
 
-	public static ConditionalElement combineViaAnd(final List<ConditionalElement> conditionalElements) {
-		return combine(conditionalElements, AndFunctionConditionalElement::new);
+	public static <L extends ExchangeableLeaf<L>> ConditionalElement<L> combineViaAnd(
+			final List<? extends ConditionalElement<L>> conditionalElements) {
+		return combine(conditionalElements, list -> new AndFunctionConditionalElement<>(Lists.newArrayList(list)));
 	}
 
-	public static ConditionalElement combineViaOr(final List<ConditionalElement> conditionalElements) {
-		return combine(conditionalElements, OrFunctionConditionalElement::new);
+	public static <L extends ExchangeableLeaf<L>> ConditionalElement<L> combineViaOr(
+			final List<? extends ConditionalElement<L>> conditionalElements) {
+		return combine(conditionalElements, list -> new OrFunctionConditionalElement<>(Lists.newArrayList(list)));
 	}
 
-	public static void flatten(final RuleCondition condition) {
-		flatten(condition.getConditionalElements());
+	public static <L extends ExchangeableLeaf<L>> AndFunctionConditionalElement<L> and(final ConditionalElement<L> ce) {
+		return new AndFunctionConditionalElement<>(Lists.newArrayList(ImmutableList.of(ce)));
 	}
 
-	public static void flatten(final List<ConditionalElement> conditionalElements) {
-		// add surrounding (and ), if more than one CE
-		final ConditionalElement ce = combineViaAnd(new ArrayList<ConditionalElement>(conditionalElements));
-		conditionalElements.clear();
-		conditionalElements.add(flatten(ce));
-	}
-
-	public static ConditionalElement flatten(final ConditionalElement conditionalElement) {
-		ConditionalElement ce = conditionalElement;
-
-		// move (not )s down to the lowest possible nodes
-		ce = RuleConditionProcessor.moveNots(ce);
-
-		// combine nested ands and ors
-		RuleConditionProcessor.combineNested(ce);
-
-		// expand ors
-		ce = RuleConditionProcessor.expandOrs(ce);
-
-		// split existential CEs into their atomic groups
-		ce = ce.accept(new ExistentialSplitter()).ce;
-
-		// replace NegatedExistentialConditionalElement by NotFunctionConditionalElement if no TPCE
-		// is contained (this may occur if the previous step performed changes)
-		ce = ce.accept(new NotExistsReplacer()).ce;
-
-		// perform the initial transformation again in case the previous two steps performed changes
-
-		// move (not )s down to the lowest possible nodes
-		ce = RuleConditionProcessor.moveNots(ce);
-
-		// combine nested ands and ors
-		RuleConditionProcessor.combineNested(ce);
-
-		// expand ors
-		ce = RuleConditionProcessor.expandOrs(ce);
-
+	public static <L extends ExchangeableLeaf<L>> ConditionalElement<L> getRootOfChildren(final ConditionalElement<L> ce) {
+		final List<ConditionalElement<L>> children = ce.getChildren();
+		if (children.size() == 1) {
+			final ConditionalElement<L> firstChild = children.get(0);
+			if (firstChild instanceof AndFunctionConditionalElement) {
+				return firstChild;
+			}
+		}
 		return ce;
 	}
 
-	public static ConditionalElement moveNots(final ConditionalElement ce) {
-		return ce.accept(new NotFunctionConditionalElementSeep()).getCe();
+	public static ConditionalElement<ECLeaf> flatten(final RuleCondition condition) {
+		ConditionalElement<SymbolLeaf> symbolCE =
+				new AndFunctionConditionalElement<>(condition.getConditionalElements());
+
+		// move (not )s down to the lowest possible nodes
+		symbolCE = RuleConditionProcessor.moveNots(symbolCE);
+
+		// combine nested ands and ors
+		RuleConditionProcessor.combineNested(symbolCE);
+
+		// expand ors
+		symbolCE = RuleConditionProcessor.expandOrs(symbolCE);
+
+		// simply translate SymbolLeafs to ECLeafs by calling getEC
+		ConditionalElement<ECLeaf> ecCE = symbolCE.accept(new CESymbolToECTranslator()).getResult();
+
+		// copy the whole condition using different sets of fact variables (and equivalence classes)
+		// for the disjuncts
+		final List<EquivalenceClass> allECs =
+				condition.getVariableSymbols().stream().map(VariableSymbol::getEqual).collect(toList());
+		ecCE.getChildren().replaceAll(
+				(final ConditionalElement<ECLeaf> child) -> copyDeeplyUsingNewECsAndFactVariables(allECs, child));
+
+		// split up the equivalence classes on the existential thresholds
+		ecCE.getChildren().replaceAll(child -> ExistentialECSplitter.split(condition.getScope(), child));
+
+		// move functions not using any existential EC(-part)s out of the existential part
+		// (producing (or)s in case of negated existential conditions)
+		// FIXME impl
+		ecCE = ecCE.accept(new CEExistentialTransformer()).ce;
+
+		// perform the initial transformation again in case the previous steps performed changes
+		ecCE = RuleConditionProcessor.moveNots(ecCE);
+		RuleConditionProcessor.combineNested(ecCE);
+		ecCE = RuleConditionProcessor.expandOrs(ecCE);
+
+		return ecCE;
 	}
 
-	public static void combineNested(final ConditionalElement ce) {
-		ce.accept(new CombineNested());
-	}
+	private static ConditionalElement<ECLeaf> copyDeeplyUsingNewECsAndFactVariables(
+			final List<EquivalenceClass> allECs, final ConditionalElement<ECLeaf> child) {
+		// copy all equivalence classes
+		final HashBiMap<EquivalenceClass, EquivalenceClass> oldToNewEC =
+				HashBiMap.create(allECs.stream().collect(toMap(Function.identity(), EquivalenceClass::new)));
 
-	public static ConditionalElement expandOrs(final ConditionalElement ce) {
-		return combineViaOr(ce.accept(new ExpandOrs()).ces);
-	}
+		// collect all fact variables contained in this child
+		final List<SingleFactVariable> deepFactVariables = DeepFactVariableCollector.collect(child);
 
-	private static class ExpandOrs implements DefaultConditionalElementsVisitor {
+		// copy all fact variables contained in this child while making them point at the
+		// newly created equivalence classes
+		final HashBiMap<SingleFactVariable, SingleFactVariable> oldToNewFV =
+				HashBiMap.create(deepFactVariables.stream().collect(
+						toMap(Function.identity(), (final SingleFactVariable fv) -> new SingleFactVariable(fv,
+								oldToNewEC))));
 
-		public ExpandOrs() {
+		// replace the old FVs in the new ECs by the new FVs
+		for (final EquivalenceClass newEC : oldToNewEC.values()) {
+			newEC.getFactVariables().replaceAll(oldToNewFV::get);
+			newEC.getSlotVariables()
+					.replaceAll(sv -> oldToNewFV.get(sv.getFactVariable()).getSlots().get(sv.getSlot()));
 		}
 
-		@Getter
-		private List<ConditionalElement> ces;
+		return child.accept(new CEECReplacer(oldToNewEC)).getResult();
+	}
 
-		private void expand(final ConditionalElement ce) {
+	public static <L extends ExchangeableLeaf<L>> ConditionalElement<L> moveNots(final ConditionalElement<L> ce) {
+		return ce.accept(new NotFunctionConditionalElementSeep<L>()).getCe();
+	}
+
+	public static <L extends ExchangeableLeaf<L>> void combineNested(final ConditionalElement<L> ce) {
+		ce.accept(new CombineNested<L>());
+	}
+
+	public static <L extends ExchangeableLeaf<L>> ConditionalElement<L> expandOrs(final ConditionalElement<L> ce) {
+		return new OrFunctionConditionalElement<L>(Lists.newArrayList(ce.accept(new ExpandOrs<L>()).ces));
+	}
+
+	private static class ExpandOrs<L extends ExchangeableLeaf<L>> implements DefaultConditionalElementsVisitor<L> {
+		@Getter
+		private List<AndFunctionConditionalElement<L>> ces;
+
+		private void expand(final ConditionalElement<L> ce) {
 			// recurse on children, partition to find the children that had an (or ) on top level
 			// (will have more than one element)
-			final Map<Boolean, List<List<ConditionalElement>>> partition =
-					ce.getChildren().stream().map(el -> el.accept(new ExpandOrs()).getCes())
+			final Map<Boolean, List<List<AndFunctionConditionalElement<L>>>> partition =
+					ce.getChildren().stream().map(el -> el.accept(new ExpandOrs<L>()).getCes())
 							.collect(partitioningBy(el -> el.size() == 1));
-			final List<ConditionalElement> singletonLists =
-					partition.get(Boolean.TRUE).stream().map(l -> l.get(0)).collect(toList());
-			final List<List<ConditionalElement>> orLists = partition.get(Boolean.FALSE);
-			final int numOrs = orLists.size();
-			if (0 == numOrs) {
-				// no (or )s, nothing to do
-				this.ces = Lists.newArrayList(ce);
-				return;
-			}
-			if (1 == numOrs) {
-				if (singletonLists.isEmpty()) {
-					// only one or, no other children
-					// pull up the list
-					this.ces = orLists.get(0);
-					return;
-				}
-				// combine the part without the (or )s with (and )s
-				final ConditionalElement andPart = combineViaAnd(singletonLists);
-				// only one (or ), no need to share the elements of the (or )
-				// combine shared part with each of the (or )-elements
+			final List<List<AndFunctionConditionalElement<L>>> orLists = partition.get(Boolean.FALSE);
+			final List<List<AndFunctionConditionalElement<L>>> singletonLists = partition.get(Boolean.TRUE);
+			if (!singletonLists.isEmpty()) {
 				this.ces =
-						orLists.get(0).stream().map(orPart -> combineViaAnd(Lists.newArrayList(andPart, orPart)))
-								.collect(toList());
-				return;
+						Lists.newArrayList(ImmutableList.of(new AndFunctionConditionalElement<L>(singletonLists
+								.stream().flatMap(l -> l.get(0).getChildren().stream()).collect(toList()))));
+			} else {
+				this.ces = orLists.remove(0);
 			}
 			// gradually blow up the CEs
 			// the elements of CEs will always be AndFunctionConditionalElements acting as a list
 			// while the construction of CEs is incomplete, thus we start by adding the shared part
-			if (singletonLists.isEmpty()) {
-				// no (or )-free part available, wrap the first or-parts into shared wrappers
-				this.ces = orLists.remove(0);
-			} else {
-				this.ces = singletonLists;
-			}
 			// for every (or ) occurrence we need to duplicate the list of CEs and combine them with
 			// the (or ) elements
-			for (final List<ConditionalElement> orList : orLists) {
-				final List<ConditionalElement> newCEs = new ArrayList<>(orList.size() * this.ces.size());
-				for (final ConditionalElement orPart : orList) {
+			for (final List<AndFunctionConditionalElement<L>> orList : orLists) {
+				final List<AndFunctionConditionalElement<L>> newCEs = new ArrayList<>(orList.size() * this.ces.size());
+				for (final AndFunctionConditionalElement<L> newPart : orList) {
 					// copy the old part and add the shared part, add combination of them to newCEs
-					for (final ConditionalElement oldPart : this.ces) {
-						final ArrayList<ConditionalElement> children = new ArrayList<>(oldPart.getChildren());
-						children.add(orPart);
-						newCEs.add(combineViaAnd(children));
+					for (final AndFunctionConditionalElement<L> oldPart : this.ces) {
+						final ArrayList<ConditionalElement<L>> children =
+								Lists.newArrayList(new ArrayList<>(oldPart.getChildren()));
+						children.addAll(newPart.getChildren());
+						newCEs.add(new AndFunctionConditionalElement<>(children));
 					}
 				}
 				this.ces = newCEs;
@@ -196,192 +228,191 @@ public class RuleConditionProcessor {
 		}
 
 		@Override
-		public void visit(final AndFunctionConditionalElement ce) {
+		public void visit(final AndFunctionConditionalElement<L> ce) {
 			expand(ce);
 		}
 
 		@Override
-		public void visit(final ExistentialConditionalElement ce) {
+		public void visit(final ExistentialConditionalElement<L> ce) {
 			expand(ce);
-			if (this.ces.size() == 1 && this.ces.get(0) == ce) {
-				return;
-			}
 			this.ces =
-					this.ces.stream().map(c -> new ExistentialConditionalElement(ce.scope, Lists.newArrayList(c)))
+					this.ces.stream().map(and -> and(new ExistentialConditionalElement<>(ce.scope, and)))
 							.collect(toList());
 		}
 
 		@Override
-		public void visit(final NegatedExistentialConditionalElement ce) {
+		public void visit(final NegatedExistentialConditionalElement<L> ce) {
 			expand(ce);
-			if (this.ces.size() == 1 && this.ces.get(0) == ce) {
-				return;
-			}
 			this.ces =
-					Lists.newArrayList(combineViaAnd(this.ces.stream()
-							.map(c -> new NegatedExistentialConditionalElement(ce.scope, Lists.newArrayList(c)))
-							.collect(toList())));
+					this.ces.stream().map(and -> and(new NegatedExistentialConditionalElement<>(ce.scope, and)))
+							.collect(toList());
 		}
 
 		@Override
-		public void defaultAction(final ConditionalElement ce) {
-			this.ces = Lists.newArrayList(ce);
+		public void defaultAction(final ConditionalElement<L> ce) {
+			this.ces = Lists.newArrayList(ImmutableList.of(and(ce)));
 		}
 
 		@Override
-		public void visit(final OrFunctionConditionalElement ce) {
+		public void visit(final OrFunctionConditionalElement<L> ce) {
 			this.ces =
-					ce.getChildren().stream().flatMap(el -> el.accept(new ExpandOrs()).getCes().stream())
+					ce.getChildren().stream().flatMap(el -> el.accept(new ExpandOrs<L>()).getCes().stream())
 							.collect(toList());
 		}
 	}
 
-	private static class CombineNested implements DefaultConditionalElementsVisitor {
+	private static class CombineNested<L extends ExchangeableLeaf<L>> implements DefaultConditionalElementsVisitor<L> {
 
-		private void combineNested(final ConditionalElement ce, final Supplier<Stripping> supplier) {
-			final List<ConditionalElement> oldChildrenList = ImmutableList.copyOf(ce.getChildren());
-			final List<ConditionalElement> childrenList = ce.getChildren();
+		private void combineNested(final ConditionalElement<L> ce, final Supplier<Stripping<L>> supplier) {
+			final List<ConditionalElement<L>> oldChildrenList = ImmutableList.copyOf(ce.getChildren());
+			final List<ConditionalElement<L>> childrenList = ce.getChildren();
 			childrenList.clear();
-			for (final ConditionalElement conditionalElement : oldChildrenList) {
+			for (final ConditionalElement<L> conditionalElement : oldChildrenList) {
 				childrenList.addAll(conditionalElement.accept(supplier.get()).getCes());
 			}
 		}
 
 		@Override
-		public void visit(final AndFunctionConditionalElement ce) {
+		public void visit(final AndFunctionConditionalElement<L> ce) {
 			defaultAction(ce);
 			combineNested(ce, StripAnds::new);
 		}
 
 		@Override
-		public void visit(final OrFunctionConditionalElement ce) {
+		public void visit(final OrFunctionConditionalElement<L> ce) {
 			defaultAction(ce);
 			combineNested(ce, StripOrs::new);
 		}
 
 		@Override
-		public void defaultAction(final ConditionalElement ce) {
+		public void defaultAction(final ConditionalElement<L> ce) {
 			ce.getChildren().forEach(child -> child.accept(this));
 		}
 	}
 
 	@RequiredArgsConstructor
-	private static class NotFunctionConditionalElementSeep implements ConditionalElementsVisitor {
+	private static class NotFunctionConditionalElementSeep<L extends ExchangeableLeaf<L>> implements
+			ConditionalElementsVisitor<L> {
 
 		final private boolean negated;
 		@Getter
-		private ConditionalElement ce = null;
+		private ConditionalElement<L> ce = null;
 
 		public NotFunctionConditionalElementSeep() {
 			negated = false;
 		}
 
-		private void processChildren(final ConditionalElement ce, final boolean nextNegated) {
-			ce.getChildren().replaceAll(
-					(final ConditionalElement x) -> x.accept(new NotFunctionConditionalElementSeep(nextNegated)).ce);
+		private void processChildren(final ConditionalElement<L> ce, final boolean nextNegated) {
+			ce.getChildren()
+					.replaceAll(
+							(final ConditionalElement<L> x) -> x.accept(new NotFunctionConditionalElementSeep<L>(
+									nextNegated)).ce);
 		}
 
-		private static ConditionalElement applySkippingIfNegated(final ConditionalElement ce, final boolean negated,
-				final Function<List<ConditionalElement>, ConditionalElement> ctor) {
+		private static <L extends ExchangeableLeaf<L>> ConditionalElement<L> applySkippingIfNegated(
+				final ConditionalElement<L> ce, final boolean negated,
+				final Function<List<ConditionalElement<L>>, ConditionalElement<L>> ctor) {
 			return negated ? ctor.apply(ce.getChildren()) : ce;
 		}
 
 		@Override
-		public void visit(final NotFunctionConditionalElement ce) {
+		public void visit(final NotFunctionConditionalElement<L> ce) {
 			assert 1 == ce.getChildren().size();
-			this.ce = ce.getChildren().get(0).accept(new NotFunctionConditionalElementSeep(!negated)).ce;
+			this.ce = ce.getChildren().get(0).accept(new NotFunctionConditionalElementSeep<L>(!negated)).ce;
 		}
 
 		@Override
-		public void visit(final OrFunctionConditionalElement ce) {
+		public void visit(final OrFunctionConditionalElement<L> ce) {
 			this.ce = applySkippingIfNegated(ce, negated, RuleConditionProcessor::combineViaAnd);
 			processChildren(this.ce, negated);
 		}
 
 		@Override
-		public void visit(final AndFunctionConditionalElement ce) {
+		public void visit(final AndFunctionConditionalElement<L> ce) {
 			this.ce = applySkippingIfNegated(ce, negated, RuleConditionProcessor::combineViaOr);
 			processChildren(this.ce, negated);
 		}
 
 		@Override
-		public void visit(final ExistentialConditionalElement ce) {
-			this.ce = negated ? new NegatedExistentialConditionalElement(ce.scope, ce.children) : ce;
+		public void visit(final ExistentialConditionalElement<L> ce) {
+			this.ce = negated ? ce.negate() : ce;
 			processChildren(this.ce, false);
 		}
 
 		@Override
-		public void visit(final NegatedExistentialConditionalElement ce) {
-			this.ce = negated ? new ExistentialConditionalElement(ce.scope, ce.children) : ce;
+		public void visit(final NegatedExistentialConditionalElement<L> ce) {
+			this.ce = negated ? ce.negate() : ce;
 			processChildren(this.ce, false);
 		}
 
-		private void visitLeaf(final ConditionalElement ce) {
-			this.ce = negated ? new NotFunctionConditionalElement(Lists.newArrayList(ce)) : ce;
+		private void visitLeaf(final ConditionalElement<L> ce) {
+			this.ce = negated ? new NotFunctionConditionalElement<L>(Lists.newArrayList(ImmutableList.of(ce))) : ce;
 		}
 
 		@Override
-		public void visit(final InitialFactConditionalElement ce) {
+		public void visit(final InitialFactConditionalElement<L> ce) {
 			visitLeaf(ce);
 		}
 
 		@Override
-		public void visit(final TestConditionalElement ce) {
+		public void visit(final TestConditionalElement<L> ce) {
 			visitLeaf(ce);
 		}
 
 		@Override
-		public void visit(final TemplatePatternConditionalElement ce) {
+		public void visit(final TemplatePatternConditionalElement<L> ce) {
 			visitLeaf(ce);
 		}
 	}
 
-	private static interface Stripping extends ConditionalElementsVisitor {
-		List<ConditionalElement> getCes();
+	private static interface Stripping<L extends ExchangeableLeaf<L>> extends ConditionalElementsVisitor<L> {
+		List<ConditionalElement<L>> getCes();
 	}
 
-	private static class StripAnds implements DefaultConditionalElementsVisitor, Stripping {
+	private static class StripAnds<L extends ExchangeableLeaf<L>> implements DefaultConditionalElementsVisitor<L>,
+			Stripping<L> {
 		@Getter(onMethod = @__({ @Override }))
-		private List<ConditionalElement> ces;
+		private List<ConditionalElement<L>> ces;
 
 		@Override
-		public void defaultAction(final ConditionalElement ce) {
-			this.ces = Lists.newArrayList(ce);
+		public void defaultAction(final ConditionalElement<L> ce) {
+			this.ces = Lists.newArrayList(ImmutableList.of(ce));
 		}
 
 		@Override
-		public void visit(final AndFunctionConditionalElement ce) {
+		public void visit(final AndFunctionConditionalElement<L> ce) {
 			this.ces = ce.getChildren();
 		}
 	}
 
-	private static class StripOrs implements DefaultConditionalElementsVisitor, Stripping {
+	private static class StripOrs<L extends ExchangeableLeaf<L>> implements DefaultConditionalElementsVisitor<L>,
+			Stripping<L> {
 		@Getter(onMethod = @__({ @Override }))
-		private List<ConditionalElement> ces;
+		private List<ConditionalElement<L>> ces;
 
 		@Override
-		public void defaultAction(final ConditionalElement ce) {
-			this.ces = Lists.newArrayList(ce);
+		public void defaultAction(final ConditionalElement<L> ce) {
+			this.ces = Lists.newArrayList(ImmutableList.of(ce));
 		}
 
 		@Override
-		public void visit(final OrFunctionConditionalElement ce) {
+		public void visit(final OrFunctionConditionalElement<L> ce) {
 			this.ces = ce.getChildren();
 		}
 	}
 
 	@Getter
-	public static class ShallowSymbolCollector implements DefaultConditionalElementsVisitor,
+	public static class ShallowSymbolCollector implements DefaultConditionalElementsVisitor<SymbolLeaf>,
 			DefaultFunctionWithArgumentsLeafVisitor<SymbolLeaf> {
 		final Set<VariableSymbol> symbols = new HashSet<>();
 
 		@Override
-		public void visit(final TestConditionalElement ce) {
+		public void visit(final TestConditionalElement<SymbolLeaf> ce) {
 			ce.getPredicateWithArguments().accept(this);
 		}
 
 		@Override
-		public void defaultAction(final ConditionalElement ce) {
+		public void defaultAction(final ConditionalElement<SymbolLeaf> ce) {
 			ce.children.forEach(c -> c.accept(this));
 		}
 
@@ -398,59 +429,229 @@ public class RuleConditionProcessor {
 			symbols.add(leaf.getSymbol());
 		}
 	}
-	private static class ExistentialSplitter implements DefaultConditionalElementsVisitor {
-		private ConditionalElement ce;
 
-		
+	@Getter
+	private static class ExistentialECSplitter extends CETranslator<ECLeaf, ECLeaf> {
+		@Value
+		class State {
+			final Scope scope;
+			final Set<SingleFactVariable> shallowFactVariables;
+			final Map<EquivalenceClass, EquivalenceClass> oldToNew;
+		}
 
-		@Override
-		public void visit(final NegatedExistentialConditionalElement ce) {
-			this.ce =
-					combineViaOr(determinePartitions(ce).stream()
-							.map(group -> new NegatedExistentialConditionalElement(ce.scope, group)).collect(toList()));
+		final State state;
+		private ConditionalElement<ECLeaf> result;
+
+		public ExistentialECSplitter(final Scope scope, final Set<SingleFactVariable> shallowFactVariables) {
+			this.state = new State(scope, shallowFactVariables, split(scope, shallowFactVariables));
+		}
+
+		public ExistentialECSplitter(final State state) {
+			this.state = state;
+		}
+
+		public static ConditionalElement<ECLeaf> split(final Scope scope, final ConditionalElement<ECLeaf> child) {
+			return child.accept(
+					new ExistentialECSplitter(scope, newIdentityHashSet(ShallowFactVariableCollector.collect(child))))
+					.getResult();
 		}
 
 		@Override
-		public void visit(final ExistentialConditionalElement ce) {
-			this.ce =
-					combineViaAnd(determinePartitions(ce).stream()
-							.map(group -> new ExistentialConditionalElement(ce.scope, group)).collect(toList()));
+		public ExistentialECSplitter of() {
+			return new ExistentialECSplitter(state);
 		}
 
-		private Collection<List<ConditionalElement>> determinePartitions(final ConditionalElement ce) {
-			final Map<SingleFactVariable, Set<SingleFactVariable>> occurringWith = new HashMap<>();
-			final Map<ConditionalElement, SingleFactVariable> childToRepresentative = new HashMap<>();
-			for (final ConditionalElement child : ce.getChildren()) {
-				final Set<VariableSymbol> childSymbols = child.accept(new ShallowSymbolCollector()).symbols;
-				for (final VariableSymbol childSymbol : childSymbols) {
-					final Set<SingleFactVariable> factVariables =
-							childSymbol.equal.slotVariables.stream().map(ssv -> ssv.getFactVariable()).collect(toSet());
-					factVariables.addAll(childSymbol.equal.factVariables);
-					if (!factVariables.isEmpty()) {
-						childToRepresentative.put(child, factVariables.iterator().next());
-					}
-					merge(occurringWith, factVariables);
-				}
-				final List<SingleFactVariable> childFVs = ShallowFactVariableCollector.collect(child);
-				if (!childFVs.isEmpty()) {
-					childToRepresentative.put(child, childFVs.get(0));
-					merge(occurringWith, childFVs);
+		@Override
+		public void visit(final OrFunctionConditionalElement<ECLeaf> ce) {
+			throw new IllegalStateException("No ORs are allowed at this point!");
+		}
+
+		private static Map<EquivalenceClass, EquivalenceClass> split(final Scope scope,
+				final Set<SingleFactVariable> shallowFactVariables) {
+			final Set<EquivalenceClass> ecs =
+					Stream.concat(
+							shallowFactVariables.stream().map(SingleFactVariable::getEqual),
+							shallowFactVariables.stream().flatMap(fv -> fv.getSlotVariables().stream())
+									.flatMap(sv -> sv.getEqualSet().stream())).collect(toIdentityHashSet());
+			final Map<EquivalenceClass, EquivalenceClass> oldToNew = HashBiMap.create();
+			for (final EquivalenceClass oldEC : ecs) {
+				oldToNew.put(oldEC, splitEC(scope, shallowFactVariables, oldEC));
+			}
+			return oldToNew;
+		}
+
+		private static EquivalenceClass splitEC(final Scope scope, final Set<SingleFactVariable> shallowFactVariables,
+				final EquivalenceClass oldEC) throws IllegalStateException {
+			assert oldEC.getConstantExpressions().isEmpty() && oldEC.getVariableExpressions().isEmpty() : "This method assumes that the parser leaves the equality tests involving constants and variable expressions explicitly.";
+			if (scope == oldEC.getMaximalScope()) {
+				// EC belongs to this scope, nothing to do
+				return oldEC;
+			}
+			if (scope.isParentOf(oldEC.getMaximalScope())) {
+				// can not be accessed in the current scope!
+				throw new IllegalStateException();
+			}
+			// oldEC scope is parent scope of this scope
+			// => modify when it reappears in current scope
+			final EquivalenceClass newEC = EquivalenceClass.newECFromType(scope, oldEC.getType());
+			// move fact bindings
+			for (final Iterator<SingleFactVariable> iterator = oldEC.getFactVariables().iterator(); iterator.hasNext();) {
+				final SingleFactVariable factVariable = iterator.next();
+				if (shallowFactVariables.contains(factVariable)) {
+					// add to new EC
+					newEC.add(factVariable);
+					// remove from old EC
+					iterator.remove();
+					// replace pointer in fact binding
+					factVariable.setEqual(newEC);
 				}
 			}
-			final Map<Set<SingleFactVariable>, List<ConditionalElement>> partition =
+			// move slot bindings
+			for (final Iterator<SingleSlotVariable> iterator = oldEC.getSlotVariables().iterator(); iterator.hasNext();) {
+				final SingleSlotVariable slotVariable = iterator.next();
+				if (shallowFactVariables.contains(slotVariable.getFactVariable())) {
+					// add to new EC
+					newEC.add(slotVariable);
+					// remove from old EC
+					iterator.remove();
+					// replace pointer in fact binding
+					slotVariable.getEqualSet().remove(oldEC);
+					slotVariable.getEqualSet().add(newEC);
+				}
+			}
+			// add equal parent relationship
+			newEC.addEqualParentEquivalenceClass(oldEC);
+			// if there are no bindings at the current level, use the old EC
+			if (newEC.getSlotVariables().isEmpty() && newEC.getFactVariables().isEmpty()) {
+				return oldEC;
+			}
+			return newEC;
+		}
+
+		@Override
+		public void visit(final TestConditionalElement<ECLeaf> ce) {
+			this.result =
+					new TestConditionalElement<>((PredicateWithArguments<ECLeaf>) ce.getPredicateWithArguments()
+							.accept(new FWAECReplacer(key -> state.oldToNew.getOrDefault(key, key)))
+							.getFunctionWithArguments());
+		}
+
+		@Override
+		public void visit(final ExistentialConditionalElement<ECLeaf> ce) {
+			assert ce.getChildren().size() == 1;
+			this.result =
+					ce.accept(new ExistentialECSplitter(ce.scope, newIdentityHashSet(ShallowFactVariableCollector
+							.collect(ce.getChildren().get(0))))).result;
+		}
+
+		@Override
+		public void visit(final NegatedExistentialConditionalElement<ECLeaf> ce) {
+			assert ce.getChildren().size() == 1;
+			this.result =
+					ce.accept(new ExistentialECSplitter(ce.scope, newIdentityHashSet(ShallowFactVariableCollector
+							.collect(ce.getChildren().get(0))))).result;
+		}
+	}
+
+	private static class CESymbolToECTranslator extends CETranslator<SymbolLeaf, ECLeaf> {
+		@Override
+		public CETranslator<SymbolLeaf, ECLeaf> of() {
+			return new CESymbolToECTranslator();
+		}
+
+		@Override
+		public void visit(final TestConditionalElement<SymbolLeaf> ce) {
+			this.result =
+					new TestConditionalElement<>(FWASymbolToECTranslator.translate(ce.getPredicateWithArguments()));
+		}
+	}
+
+	/**
+	 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
+	 */
+	private static class CEExistentialTransformer implements DefaultConditionalElementsVisitor<ECLeaf> {
+		private ConditionalElement<ECLeaf> ce;
+
+		@Override
+		public void defaultAction(final ConditionalElement<ECLeaf> ce) {
+			ce.children.replaceAll(c -> c.accept(new CEExistentialTransformer()).ce);
+			this.ce = ce;
+		}
+
+		@Override
+		public void visit(final NegatedExistentialConditionalElement<ECLeaf> ce) {
+			assert ce.getChildren().size() == 1;
+			final Scope scope = ce.getScope();
+
+			final ConditionalElement<ECLeaf> andCE = ce.getChildren().get(0);
+			final Set<ConditionalElement<ECLeaf>> fvCEs = andCE.accept(new ShallowTPAndIFCECollector()).fvCEs;
+			final Set<ConditionalElement<ECLeaf>> testCEs = andCE.accept(new ShallowTestCECollector()).testCEs;
+			final List<SingleFactVariable> shallowFVs = ShallowFactVariableCollector.collect(andCE);
+
+			final Map<Boolean, List<ConditionalElement<ECLeaf>>> shallowTestsMap =
+					testCEs.stream().collect(
+							partitioningBy(t -> t.accept(new ShallowECCollector()).getEquivalenceClasses().stream()
+									.anyMatch(ec -> ec.getMaximalScope() == scope)));
+			final List<ConditionalElement<ECLeaf>> innerTests = shallowTestsMap.get(Boolean.TRUE);
+			final List<ConditionalElement<ECLeaf>> outerTests = shallowTestsMap.get(Boolean.FALSE);
+
+			final Map<Set<SingleFactVariable>, List<ConditionalElement<ECLeaf>>> partition = determinePartition(andCE);
+
+			final ArrayList<ConditionalElement<ECLeaf>> conjuncts = Lists.newArrayList();
+			final List<ConditionalElement<ECLeaf>> usingNoFVs = partition.remove(Collections.emptySet());
+			for (final ConditionalElement<ECLeaf> conditionalElement : usingNoFVs) {
+
+			}
+			for (final List<ConditionalElement<ECLeaf>> list : partition.values()) {
+
+			}
+			this.ce = new AndFunctionConditionalElement<>(conjuncts);
+		}
+
+		@Override
+		public void visit(final ExistentialConditionalElement<ECLeaf> ce) {
+			assert ce.getChildren().size() == 1;
+			final Scope scope = ce.getScope();
+			final ConditionalElement<ECLeaf> andCE = ce.getChildren().get(0);
+			final Map<Set<SingleFactVariable>, List<ConditionalElement<ECLeaf>>> partition = determinePartition(andCE);
+			final ArrayList<ConditionalElement<ECLeaf>> conjuncts = Lists.newArrayList();
+			for (final ConditionalElement<ECLeaf> conditionalElement : partition.remove(Collections.emptySet())) {
+				// here we don't need the existential, since the CE doesn't use any FVs
+				conjuncts.add(conditionalElement);
+			}
+			for (final List<ConditionalElement<ECLeaf>> list : partition.values()) {
+				conjuncts.add(new ExistentialConditionalElement<>(scope, new AndFunctionConditionalElement<>(list)));
+			}
+			this.ce = new AndFunctionConditionalElement<>(conjuncts);
+		}
+
+		private Map<Set<SingleFactVariable>, List<ConditionalElement<ECLeaf>>> determinePartition(
+				final ConditionalElement<ECLeaf> ce) {
+			final Map<SingleFactVariable, Set<SingleFactVariable>> occurringWith = new HashMap<>();
+			final Map<ConditionalElement<ECLeaf>, SingleFactVariable> childToRepresentative = new HashMap<>();
+			for (final ConditionalElement<ECLeaf> child : ce.getChildren()) {
+				// for every child, look at the ECs used within tests and the FVs occurring in
+				// InitialFact- and TemplatePatternCEs
+				final Set<EquivalenceClass> childECs = child.accept(new ShallowECCollector()).equivalenceClasses;
+				final Set<SingleFactVariable> fvs =
+						Stream.concat(
+								childECs.stream().map(EquivalenceClass::getDirectlyDependentFactVariables)
+										.flatMap(Set::stream), ShallowFactVariableCollector.collect(child).stream())
+								.collect(toIdentityHashSet());
+				// should be empty in rare cases only
+				// e.g. when only a test like (< 2 3) is contained
+				if (!fvs.isEmpty()) {
+					childToRepresentative.put(child, fvs.iterator().next());
+					merge(occurringWith, fvs);
+				}
+			}
+			final Map<Set<SingleFactVariable>, List<ConditionalElement<ECLeaf>>> partition =
 					ce.getChildren()
 							.stream()
 							.collect(
 									groupingBy(c -> Optional.ofNullable(childToRepresentative.get(c))
 											.map(occurringWith::get).orElse(Collections.emptySet())));
-			final List<ConditionalElement> empty = partition.get(Collections.emptySet());
-			if (null == empty || empty.isEmpty())
-				return partition.values();
-			final List<List<ConditionalElement>> groups =
-					partition.keySet().stream().filter(k -> k != Collections.<SingleFactVariable> emptySet())
-							.map(partition::get).collect(toList());
-			empty.forEach(c -> groups.add(Lists.newArrayList(c)));
-			return groups;
+			return partition;
 		}
 
 		protected void merge(final Map<SingleFactVariable, Set<SingleFactVariable>> occurringWith,
@@ -462,47 +663,120 @@ public class RuleConditionProcessor {
 			combinedFVs.addAll(factVariables);
 			combinedFVs.forEach(fv -> occurringWith.put(fv, combinedFVs));
 		}
+	}
+
+	private static class ShallowTPAndIFCECollector implements DefaultShallowConditionalElementsLeafVisitor<ECLeaf> {
+		final Set<ConditionalElement<ECLeaf>> fvCEs = Sets.newIdentityHashSet();
 
 		@Override
-		public void defaultAction(final ConditionalElement ce) {
-			this.ce = ce;
-			ce.children.replaceAll(c -> c.accept(new ExistentialSplitter()).ce);
+		public void visit(final InitialFactConditionalElement<ECLeaf> ce) {
+			fvCEs.add(ce);
+		}
+
+		@Override
+		public void visit(final TemplatePatternConditionalElement<ECLeaf> ce) {
+			fvCEs.add(ce);
+		}
+
+		@Override
+		public void visit(final TestConditionalElement<ECLeaf> ce) {
 		}
 	}
 
-	private static class NotExistsReplacer implements DefaultConditionalElementsVisitor {
-		private ConditionalElement ce;
+	private static class ShallowTestCECollector implements DefaultShallowConditionalElementsLeafVisitor<ECLeaf> {
+		final Set<ConditionalElement<ECLeaf>> testCEs = Sets.newIdentityHashSet();
 
-		private static class TPCEFinder implements DefaultConditionalElementsVisitor {
-			boolean tpceContained = false;
-
-			@Override
-			public void defaultAction(final ConditionalElement ce) {
-				for (final ConditionalElement child : ce.getChildren()) {
-					child.accept(this);
-					if (tpceContained)
-						return;
-				}
-			}
-
-			@Override
-			public void visit(final TemplatePatternConditionalElement ce) {
-				this.tpceContained = true;
-			}
+		@Override
+		public void visit(final InitialFactConditionalElement<ECLeaf> ce) {
 		}
 
 		@Override
-		public void visit(final NegatedExistentialConditionalElement ce) {
-			defaultAction(ce);
-			if (!ce.accept(new TPCEFinder()).tpceContained) {
-				this.ce = new NotFunctionConditionalElement(ce.getChildren());
-			}
+		public void visit(final TemplatePatternConditionalElement<ECLeaf> ce) {
 		}
 
 		@Override
-		public void defaultAction(final ConditionalElement ce) {
-			this.ce = ce;
-			ce.getChildren().replaceAll(c -> c.accept(new NotExistsReplacer()).ce);
+		public void visit(final TestConditionalElement<ECLeaf> ce) {
+			testCEs.add(ce);
+		}
+
+		@Override
+		public void visit(final NotFunctionConditionalElement<ECLeaf> ce) {
+			testCEs.add(ce);
+		}
+	}
+
+	/**
+	 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
+	 */
+	private static class ShallowECCollector implements DefaultShallowConditionalElementsLeafVisitor<ECLeaf>,
+			DefaultFunctionWithArgumentsLeafVisitor<ECLeaf> {
+		@Getter
+		final Set<EquivalenceClass> equivalenceClasses = new HashSet<>();
+
+		@Override
+		public void visit(final InitialFactConditionalElement<ECLeaf> ce) {
+			// nothing to do
+		}
+
+		@Override
+		public void visit(final TemplatePatternConditionalElement<ECLeaf> ce) {
+			// nothing to do
+		}
+
+		@Override
+		public void visit(final TestConditionalElement<ECLeaf> ce) {
+			ce.getPredicateWithArguments().accept(this);
+		}
+
+		@Override
+		public void visit(final ECLeaf leaf) {
+			this.equivalenceClasses.add(leaf.getEc());
+		}
+
+		@Override
+		public void visit(final ConstantLeaf<ECLeaf> constantLeaf) {
+		}
+
+		@Override
+		public void visit(final GlobalVariableLeaf<ECLeaf> globalVariableLeaf) {
+		}
+	}
+
+	/**
+	 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
+	 */
+	@RequiredArgsConstructor
+	private static class CEECReplacer extends CETranslator<ECLeaf, ECLeaf> {
+		final Map<EquivalenceClass, EquivalenceClass> oldToNew;
+
+		@Override
+		public void visit(final TestConditionalElement<ECLeaf> ce) {
+			this.result =
+					new TestConditionalElement<ECLeaf>((PredicateWithArguments<ECLeaf>) ce.getPredicateWithArguments()
+							.accept(new FWAECReplacer(oldToNew::get)).getFunctionWithArguments());
+		}
+
+		@Override
+		public CEECReplacer of() {
+			return new CEECReplacer(oldToNew);
+		}
+	}
+
+	/**
+	 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
+	 */
+	@RequiredArgsConstructor
+	private static class FWAECReplacer extends FWATranslator<ECLeaf, ECLeaf> {
+		final Function<EquivalenceClass, EquivalenceClass> oldToNew;
+
+		@Override
+		public void visit(final ECLeaf leaf) {
+			this.functionWithArguments = new ECLeaf(oldToNew.apply(leaf.getEc()));
+		}
+
+		@Override
+		public FWAECReplacer of() {
+			return new FWAECReplacer(oldToNew);
 		}
 	}
 }

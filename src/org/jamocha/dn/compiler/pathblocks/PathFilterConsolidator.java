@@ -97,7 +97,7 @@ import com.google.common.collect.Sets.SetView;
  */
 @Log4j2
 @RequiredArgsConstructor
-public class PathFilterConsolidator implements DefaultConditionalElementsVisitor {
+public class PathFilterConsolidator implements DefaultConditionalElementsVisitor<SymbolLeaf> {
 
 	private final Template initialFactTemplate;
 	private final Defrule rule;
@@ -110,7 +110,7 @@ public class PathFilterConsolidator implements DefaultConditionalElementsVisitor
 	}
 
 	@Override
-	public void defaultAction(final ConditionalElement ce) {
+	public void defaultAction(final ConditionalElement<SymbolLeaf> ce) {
 		// If there is no OrFunctionConditionalElement just proceed with the CE as it were
 		// the only child of an OrFunctionConditionalElement.
 		final Map<VariableSymbol, EquivalenceClass> symbolToEC =
@@ -120,7 +120,7 @@ public class PathFilterConsolidator implements DefaultConditionalElementsVisitor
 	}
 
 	@Override
-	public void visit(final OrFunctionConditionalElement ce) {
+	public void visit(final OrFunctionConditionalElement<SymbolLeaf> ce) {
 		final Map<VariableSymbol, EquivalenceClass> symbolToEC =
 				rule.getCondition().getVariableSymbols().stream()
 						.collect(toMap(Function.identity(), VariableSymbol::getEqual));
@@ -137,7 +137,7 @@ public class PathFilterConsolidator implements DefaultConditionalElementsVisitor
 	 * @author Christoph Terwelp <christoph.terwelp@rwth-aachen.de>
 	 */
 	@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-	static class NoORsPFC implements DefaultConditionalElementsVisitor {
+	static class NoORsPFC implements DefaultConditionalElementsVisitor<SymbolLeaf> {
 
 		private final Template initialFactTemplate;
 		private final Path initialFactPath;
@@ -165,7 +165,7 @@ public class PathFilterConsolidator implements DefaultConditionalElementsVisitor
 		}
 
 		public static PathSetRule consolidate(final Template initialFactTemplate, final Defrule rule,
-				final ConditionalElement ce, final Map<VariableSymbol, EquivalenceClass> symbolToECbackup) {
+				final ConditionalElement<SymbolLeaf> ce, final Map<VariableSymbol, EquivalenceClass> symbolToECbackup) {
 			final Set<VariableSymbol> symbols = symbolToECbackup.keySet();
 			// copy the equivalence classes
 			final BiMap<EquivalenceClass, EquivalenceClass> oldToNew =
@@ -282,7 +282,7 @@ public class PathFilterConsolidator implements DefaultConditionalElementsVisitor
 		}
 
 		@RequiredArgsConstructor
-		static class ECShallowTestsCollector implements DefaultConditionalElementsVisitor {
+		static class ECShallowTestsCollector implements DefaultConditionalElementsVisitor<SymbolLeaf> {
 			final FWAShallowTestsCollector fwaBuilder = new FWAShallowTestsCollector();
 			final Set<PredicateWithArguments<SymbolLeaf>> shallowTests = new HashSet<>();
 			boolean negated = false;
@@ -314,27 +314,27 @@ public class PathFilterConsolidator implements DefaultConditionalElementsVisitor
 			}
 
 			@Override
-			public void defaultAction(final ConditionalElement ce) {
+			public void defaultAction(final ConditionalElement<SymbolLeaf> ce) {
 				ce.getChildren().forEach(c -> c.accept(this));
 			}
 
 			@Override
-			public void visit(final ExistentialConditionalElement ce) {
+			public void visit(final ExistentialConditionalElement<SymbolLeaf> ce) {
 				// stop
 			}
 
 			@Override
-			public void visit(final NegatedExistentialConditionalElement ce) {
+			public void visit(final NegatedExistentialConditionalElement<SymbolLeaf> ce) {
 				// stop
 			}
 
 			@Override
-			public void visit(final TestConditionalElement ce) {
+			public void visit(final TestConditionalElement<SymbolLeaf> ce) {
 				ce.getPredicateWithArguments().accept(fwaBuilder);
 			}
 
 			@Override
-			public void visit(final NotFunctionConditionalElement ce) {
+			public void visit(final NotFunctionConditionalElement<SymbolLeaf> ce) {
 				negated = !negated;
 				defaultAction(ce);
 				negated = !negated;
@@ -342,8 +342,9 @@ public class PathFilterConsolidator implements DefaultConditionalElementsVisitor
 		}
 
 		private static PathSetRule consolidateOnCopiedEquivalenceClasses(final Template initialFactTemplate,
-				final Defrule rule, final ConditionalElement ce, final Set<EquivalenceClass> equivalenceClasses,
-				final int specificity, final Map<EquivalenceClass, EquivalenceClass> oldToNew) {
+				final Defrule rule, final ConditionalElement<SymbolLeaf> ce,
+				final Set<EquivalenceClass> equivalenceClasses, final int specificity,
+				final Map<EquivalenceClass, EquivalenceClass> oldToNew) {
 			// get the tests on this level (stopping at existentials)
 			final Set<PredicateWithArguments<SymbolLeaf>> shallowTests =
 					ce.accept(new ECShallowTestsCollector()).shallowTests;
@@ -440,7 +441,7 @@ public class PathFilterConsolidator implements DefaultConditionalElementsVisitor
 			equiv.getFactVariables().removeIf(fv -> equalPathLeafs.contains(fv.getPathLeaf(ec2Path)));
 		}
 
-		private <T extends ConditionalElement> NoORsPFC collect(final T ce) {
+		private <T extends ConditionalElement<SymbolLeaf>> NoORsPFC collect(final T ce) {
 			return ce.accept(this);
 		}
 
@@ -477,7 +478,8 @@ public class PathFilterConsolidator implements DefaultConditionalElementsVisitor
 		}
 
 		static Set<PathFilterSet> processExistentialCondition(final Template initialFactTemplate,
-				final Path initialFactPath, final ConditionalElement ce, final Map<EquivalenceClass, Path> ec2Path,
+				final Path initialFactPath, final ConditionalElement<SymbolLeaf> ce,
+				final Map<EquivalenceClass, Path> ec2Path,
 				final Map<EquivalenceClass, PathLeaf> equivalenceClassToPathLeaf, final boolean isPositive) {
 			// Collect the existential FactVariables and corresponding paths from the existentialCE
 			final Pair<Path, Map<EquivalenceClass, Path>> initialFactAndPathMap =
@@ -702,14 +704,14 @@ public class PathFilterConsolidator implements DefaultConditionalElementsVisitor
 		}
 
 		@Override
-		public void defaultAction(final ConditionalElement ce) {
+		public void defaultAction(final ConditionalElement<SymbolLeaf> ce) {
 			// Just ignore. InitialFactCEs and TemplateCEs already did their job during
 			// FactVariable collection
 			// Test CEs are handled by ShallowTestCollector
 		}
 
 		@Override
-		public void visit(final AndFunctionConditionalElement ce) {
+		public void visit(final AndFunctionConditionalElement<SymbolLeaf> ce) {
 			this.filters.addAll(ce
 					.getChildren()
 					.stream()
@@ -722,26 +724,26 @@ public class PathFilterConsolidator implements DefaultConditionalElementsVisitor
 		}
 
 		@Override
-		public void visit(final OrFunctionConditionalElement ce) {
+		public void visit(final OrFunctionConditionalElement<SymbolLeaf> ce) {
 			throw new Error("There should not be any OrFunctionCEs at this level.");
 		}
 
 		@Override
-		public void visit(final ExistentialConditionalElement ce) {
+		public void visit(final ExistentialConditionalElement<SymbolLeaf> ce) {
 			assert ce.getChildren().size() == 1;
 			this.filters.addAll(processExistentialCondition(initialFactTemplate, initialFactPath,
 					ce.getChildren().get(0), ec2Path, equivalenceClassToPathLeaf, true));
 		}
 
 		@Override
-		public void visit(final NegatedExistentialConditionalElement ce) {
+		public void visit(final NegatedExistentialConditionalElement<SymbolLeaf> ce) {
 			assert ce.getChildren().size() == 1;
 			this.filters.addAll(processExistentialCondition(initialFactTemplate, initialFactPath,
 					ce.getChildren().get(0), ec2Path, equivalenceClassToPathLeaf, false));
 		}
 
 		@Override
-		public void visit(final NotFunctionConditionalElement ce) {
+		public void visit(final NotFunctionConditionalElement<SymbolLeaf> ce) {
 			assert ce.getChildren().size() == 1;
 			// Call a PathFilterCollector for the child of the NotFunctionCE with toggled negated
 			// flag.

@@ -14,26 +14,27 @@
  */
 package org.jamocha.languages.common;
 
+import org.jamocha.function.fwa.ExchangeableLeaf;
 import org.jamocha.visitor.Visitor;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  *
  */
-public interface ConditionalElementsVisitor extends Visitor {
-	public void visit(final ConditionalElement.AndFunctionConditionalElement ce);
+public interface ConditionalElementsVisitor<L extends ExchangeableLeaf<L>> extends Visitor {
+	public void visit(final ConditionalElement.AndFunctionConditionalElement<L> ce);
 
-	public void visit(final ConditionalElement.ExistentialConditionalElement ce);
+	public void visit(final ConditionalElement.ExistentialConditionalElement<L> ce);
 
-	public void visit(final ConditionalElement.InitialFactConditionalElement ce);
+	public void visit(final ConditionalElement.InitialFactConditionalElement<L> ce);
 
-	public void visit(final ConditionalElement.NegatedExistentialConditionalElement ce);
+	public void visit(final ConditionalElement.NegatedExistentialConditionalElement<L> ce);
 
-	public void visit(final ConditionalElement.NotFunctionConditionalElement ce);
+	public void visit(final ConditionalElement.NotFunctionConditionalElement<L> ce);
 
-	public void visit(final ConditionalElement.OrFunctionConditionalElement ce);
+	public void visit(final ConditionalElement.OrFunctionConditionalElement<L> ce);
 
-	public void visit(final ConditionalElement.TestConditionalElement ce);
+	public void visit(final ConditionalElement.TestConditionalElement<L> ce);
 
-	public void visit(final ConditionalElement.TemplatePatternConditionalElement ce);
+	public void visit(final ConditionalElement.TemplatePatternConditionalElement<L> ce);
 }

@@ -20,6 +20,7 @@ import java.util.Map;
 import lombok.AllArgsConstructor;
 
 import org.apache.commons.lang3.tuple.Pair;
+import org.jamocha.function.fwa.SymbolLeaf;
 import org.jamocha.languages.common.ConditionalElement;
 import org.jamocha.languages.common.ConditionalElement.AndFunctionConditionalElement;
 import org.jamocha.languages.common.ConditionalElement.ExistentialConditionalElement;
@@ -40,16 +41,16 @@ import org.jamocha.languages.common.SingleFactVariable.SingleSlotVariable;
  * @author "Christoph Terwelp <christoph.terwelp@rwth-aachen.de>"
  */
 @AllArgsConstructor
-public class ConditionalElementFormatter implements Formatter<ConditionalElement> {
+public class ConditionalElementFormatter implements Formatter<ConditionalElement<SymbolLeaf>> {
 
 	final Map<SingleFactVariable, Pair<VariableSymbol, List<Pair<VariableSymbol, SingleSlotVariable>>>> slotVariablesByTemplate;
 
 	@Override
-	public String format(final ConditionalElement ce) {
+	public String format(final ConditionalElement<SymbolLeaf> ce) {
 		return ce.accept(new ConditionalElementFormatterVisitor()).getString();
 	}
 
-	private class ConditionalElementFormatterVisitor implements ConditionalElementsVisitor {
+	private class ConditionalElementFormatterVisitor implements ConditionalElementsVisitor<SymbolLeaf> {
 
 		final private StringBuilder sb = new StringBuilder();
 
@@ -57,7 +58,7 @@ public class ConditionalElementFormatter implements Formatter<ConditionalElement
 			return sb.toString();
 		}
 
-		private void prettyPrint(final String name, final ConditionalElement ce) {
+		private void prettyPrint(final String name, final ConditionalElement<SymbolLeaf> ce) {
 			sb.append("(" + name);
 			ce.getChildren().forEach((x) -> {
 				sb.append(" ");
@@ -67,44 +68,44 @@ public class ConditionalElementFormatter implements Formatter<ConditionalElement
 		}
 
 		@Override
-		public void visit(final AndFunctionConditionalElement ce) {
+		public void visit(final AndFunctionConditionalElement<SymbolLeaf> ce) {
 			prettyPrint("and", ce);
 		}
 
 		@Override
-		public void visit(final ExistentialConditionalElement ce) {
+		public void visit(final ExistentialConditionalElement<SymbolLeaf> ce) {
 			prettyPrint("exists", ce);
 		}
 
 		@Override
-		public void visit(final InitialFactConditionalElement ce) {
+		public void visit(final InitialFactConditionalElement<SymbolLeaf> ce) {
 			sb.append("(initialFact)");
 		}
 
 		@Override
-		public void visit(final NegatedExistentialConditionalElement ce) {
+		public void visit(final NegatedExistentialConditionalElement<SymbolLeaf> ce) {
 			prettyPrint("not exists", ce);
 		}
 
 		@Override
-		public void visit(final NotFunctionConditionalElement ce) {
+		public void visit(final NotFunctionConditionalElement<SymbolLeaf> ce) {
 			prettyPrint("not", ce);
 		}
 
 		@Override
-		public void visit(final OrFunctionConditionalElement ce) {
+		public void visit(final OrFunctionConditionalElement<SymbolLeaf> ce) {
 			prettyPrint("or", ce);
 		}
 
 		@Override
-		public void visit(final TestConditionalElement ce) {
+		public void visit(final TestConditionalElement<SymbolLeaf> ce) {
 			sb.append("(test ");
 			sb.append(FunctionWithArgumentsFormatter.formatFwa(ce.getPredicateWithArguments()));
 			sb.append(")");
 		}
 
 		@Override
-		public void visit(final TemplatePatternConditionalElement ce) {
+		public void visit(final TemplatePatternConditionalElement<SymbolLeaf> ce) {
 			sb.append("(template ");
 			final SingleFactVariable factVariable = ce.getFactVariable();
 			sb.append(factVariable.getTemplate().getName());

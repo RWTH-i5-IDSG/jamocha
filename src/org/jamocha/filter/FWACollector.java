@@ -42,7 +42,7 @@ import org.jamocha.languages.common.RuleCondition;
  *            collection type to use while collecting the {@link FunctionWithArguments}
  */
 public class FWACollector<T extends Collection<FunctionWithArguments<SymbolLeaf>>> implements
-		DefaultConditionalElementsVisitor, DefaultFunctionWithArgumentsVisitor<SymbolLeaf> {
+		DefaultConditionalElementsVisitor<SymbolLeaf>, DefaultFunctionWithArgumentsVisitor<SymbolLeaf> {
 	@Getter
 	private final T fwas;
 
@@ -50,7 +50,7 @@ public class FWACollector<T extends Collection<FunctionWithArguments<SymbolLeaf>
 		this.fwas = symbols;
 	}
 
-	public FWACollector<T> collect(final ConditionalElement ce) {
+	public FWACollector<T> collect(final ConditionalElement<SymbolLeaf> ce) {
 		ce.accept(this);
 		return this;
 	}
@@ -59,7 +59,7 @@ public class FWACollector<T extends Collection<FunctionWithArguments<SymbolLeaf>
 		return collect(rc.getConditionalElements());
 	}
 
-	public FWACollector<T> collect(final List<ConditionalElement> ces) {
+	public FWACollector<T> collect(final List<ConditionalElement<SymbolLeaf>> ces) {
 		ces.forEach(this::collect);
 		return this;
 	}
@@ -81,12 +81,12 @@ public class FWACollector<T extends Collection<FunctionWithArguments<SymbolLeaf>
 	}
 
 	@Override
-	public void defaultAction(final ConditionalElement ce) {
+	public void defaultAction(final ConditionalElement<SymbolLeaf> ce) {
 		ce.getChildren().forEach(c -> c.accept(this));
 	}
 
 	@Override
-	public void visit(final TestConditionalElement ce) {
+	public void visit(final TestConditionalElement<SymbolLeaf> ce) {
 		ce.getPredicateWithArguments().accept(this);
 	}
 

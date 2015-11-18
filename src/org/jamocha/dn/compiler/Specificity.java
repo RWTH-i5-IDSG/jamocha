@@ -23,11 +23,11 @@ import lombok.RequiredArgsConstructor;
 
 import org.jamocha.function.fwa.ConstantLeaf;
 import org.jamocha.function.fwa.DefaultFunctionWithArgumentsLeafVisitor;
+import org.jamocha.function.fwa.ExchangeableLeaf;
 import org.jamocha.function.fwa.FunctionWithArguments;
 import org.jamocha.function.fwa.FunctionWithArgumentsComposite;
 import org.jamocha.function.fwa.GlobalVariableLeaf;
 import org.jamocha.function.fwa.PredicateWithArgumentsComposite;
-import org.jamocha.function.fwa.SymbolLeaf;
 import org.jamocha.function.impls.predicates.And;
 import org.jamocha.function.impls.predicates.Equals;
 import org.jamocha.function.impls.predicates.Not;
@@ -42,12 +42,12 @@ import org.jamocha.languages.common.DefaultConditionalElementsVisitor;
  */
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 @Getter
-public class Specificity implements DefaultFunctionWithArgumentsLeafVisitor<SymbolLeaf>,
-		DefaultConditionalElementsVisitor {
+public class Specificity<L extends ExchangeableLeaf<L>> implements DefaultFunctionWithArgumentsLeafVisitor<L>,
+		DefaultConditionalElementsVisitor<L> {
 	int specificity = 0;
 
-	public static int calculate(final ConditionalElement ce) {
-		final Specificity instance = new Specificity();
+	public static <L extends ExchangeableLeaf<L>> int calculate(final ConditionalElement<L> ce) {
+		final Specificity<L> instance = new Specificity<>();
 		ce.accept(instance);
 		instance.specificity +=
 				DeepFactVariableCollector
@@ -64,38 +64,38 @@ public class Specificity implements DefaultFunctionWithArgumentsLeafVisitor<Symb
 	}
 
 	@Override
-	public void defaultAction(final ConditionalElement ce) {
+	public void defaultAction(final ConditionalElement<L> ce) {
 		ce.getChildren().forEach(child -> child.accept(this));
 	}
 
 	@Override
-	public void visit(final TemplatePatternConditionalElement ce) {
+	public void visit(final TemplatePatternConditionalElement<L> ce) {
 		++specificity;
 	}
 
 	@Override
-	public void visit(final ConstantLeaf<SymbolLeaf> constantLeaf) {
+	public void visit(final ConstantLeaf<L> constantLeaf) {
 	}
 
 	@Override
-	public void visit(final GlobalVariableLeaf<SymbolLeaf> globalVariableLeaf) {
+	public void visit(final GlobalVariableLeaf<L> globalVariableLeaf) {
 	}
 
 	@Override
-	public void visit(final SymbolLeaf leaf) {
+	public void visit(final L leaf) {
 	};
 
 	@Override
-	public void visit(final TestConditionalElement ce) {
+	public void visit(final TestConditionalElement<L> ce) {
 		ce.getPredicateWithArguments().accept(this);
 	}
 
 	@Override
-	public void visit(final PredicateWithArgumentsComposite<SymbolLeaf> fwa) {
+	public void visit(final PredicateWithArgumentsComposite<L> fwa) {
 		if (fwa.getFunction().inClips().equals(Equals.inClips)) {
 			// ignore
 		} else if (Arrays.asList(And.inClips, Or.inClips, Not.inClips).contains(fwa.getFunction().inClips())) {
-			for (final FunctionWithArguments<SymbolLeaf> arg : fwa.getArgs()) {
+			for (final FunctionWithArguments<L> arg : fwa.getArgs()) {
 				arg.accept(this);
 			}
 		} else {
@@ -104,7 +104,7 @@ public class Specificity implements DefaultFunctionWithArgumentsLeafVisitor<Symb
 	}
 
 	@Override
-	public void visit(final FunctionWithArgumentsComposite<SymbolLeaf> fwa) {
+	public void visit(final FunctionWithArgumentsComposite<L> fwa) {
 		++specificity;
 	}
 }

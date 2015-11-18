@@ -4,6 +4,7 @@ import java.text.CharacterIterator;
 import java.text.StringCharacterIterator;
 
 import org.jamocha.filter.SymbolCollector;
+import org.jamocha.function.fwa.SymbolLeaf;
 import org.jamocha.languages.common.ConditionalElement;
 import org.jamocha.languages.common.RuleCondition;
 
@@ -74,7 +75,7 @@ public class RuleConditionFormatter implements Formatter<RuleCondition> {
 		sb.append("(");
 		final ConditionalElementFormatter cef =
 				new ConditionalElementFormatter(new SymbolCollector(re).toSlotVariablesByFactVariable());
-		for (final ConditionalElement ce : re.getConditionalElements()) {
+		for (final ConditionalElement<SymbolLeaf> ce : re.getConditionalElements()) {
 			sb.append(" ");
 			sb.append(cef.format(ce));
 		}

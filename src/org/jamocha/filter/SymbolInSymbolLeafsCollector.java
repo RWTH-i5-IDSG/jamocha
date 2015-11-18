@@ -25,8 +25,8 @@ import org.jamocha.function.fwa.FunctionWithArguments;
 import org.jamocha.function.fwa.GlobalVariableLeaf;
 import org.jamocha.function.fwa.SymbolLeaf;
 import org.jamocha.languages.common.ConditionalElement;
-import org.jamocha.languages.common.DefaultConditionalElementsVisitor;
 import org.jamocha.languages.common.ConditionalElement.TestConditionalElement;
+import org.jamocha.languages.common.DefaultConditionalElementsVisitor;
 import org.jamocha.languages.common.ScopeStack.VariableSymbol;
 
 /**
@@ -34,27 +34,27 @@ import org.jamocha.languages.common.ScopeStack.VariableSymbol;
  * 
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
-public class SymbolInSymbolLeafsCollector implements DefaultConditionalElementsVisitor,
+public class SymbolInSymbolLeafsCollector implements DefaultConditionalElementsVisitor<SymbolLeaf>,
 		DefaultFunctionWithArgumentsLeafVisitor<SymbolLeaf> {
 	@Getter
 	private Set<VariableSymbol> symbols = new HashSet<>();
 
-	public static Set<VariableSymbol> collect(final ConditionalElement ce) {
+	public static Set<VariableSymbol> collect(final ConditionalElement<SymbolLeaf> ce) {
 		return ce.accept(new SymbolInSymbolLeafsCollector()).symbols;
 	}
 
 	public static Set<VariableSymbol> collect(final FunctionWithArguments<SymbolLeaf> fwa) {
 		return fwa.accept(new SymbolInSymbolLeafsCollector()).symbols;
 	}
-	
+
 	@Override
-	public void visit(TestConditionalElement ce) {
+	public void visit(final TestConditionalElement<SymbolLeaf> ce) {
 		ce.getPredicateWithArguments().accept(this);
 	}
 
 	@Override
-	public void defaultAction(final ConditionalElement ce) {
-		for (ConditionalElement child : ce.getChildren()) {
+	public void defaultAction(final ConditionalElement<SymbolLeaf> ce) {
+		for (final ConditionalElement<SymbolLeaf> child : ce.getChildren()) {
 			child.accept(this);
 		}
 	}

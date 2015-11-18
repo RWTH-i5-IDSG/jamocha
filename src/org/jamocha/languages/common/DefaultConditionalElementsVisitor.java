@@ -14,51 +14,53 @@
  */
 package org.jamocha.languages.common;
 
+import org.jamocha.function.fwa.ExchangeableLeaf;
+
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  *
  */
-public interface DefaultConditionalElementsVisitor extends ConditionalElementsVisitor {
+public interface DefaultConditionalElementsVisitor<L extends ExchangeableLeaf<L>> extends ConditionalElementsVisitor<L> {
 
-	public void defaultAction(final ConditionalElement ce);
+	public void defaultAction(final ConditionalElement<L> ce);
 
 	@Override
-	public default void visit(final ConditionalElement.AndFunctionConditionalElement ce) {
+	public default void visit(final ConditionalElement.AndFunctionConditionalElement<L> ce) {
 		defaultAction(ce);
 	}
 
 	@Override
-	public default void visit(final ConditionalElement.ExistentialConditionalElement ce) {
+	public default void visit(final ConditionalElement.ExistentialConditionalElement<L> ce) {
 		defaultAction(ce);
 	}
 
 	@Override
-	public default void visit(final ConditionalElement.InitialFactConditionalElement ce) {
+	public default void visit(final ConditionalElement.InitialFactConditionalElement<L> ce) {
 		defaultAction(ce);
 	}
 
 	@Override
-	public default void visit(final ConditionalElement.NegatedExistentialConditionalElement ce) {
+	public default void visit(final ConditionalElement.NegatedExistentialConditionalElement<L> ce) {
 		defaultAction(ce);
 	}
 
 	@Override
-	public default void visit(final ConditionalElement.NotFunctionConditionalElement ce) {
+	public default void visit(final ConditionalElement.NotFunctionConditionalElement<L> ce) {
 		defaultAction(ce);
 	}
 
 	@Override
-	public default void visit(final ConditionalElement.OrFunctionConditionalElement ce) {
+	public default void visit(final ConditionalElement.OrFunctionConditionalElement<L> ce) {
 		defaultAction(ce);
 	}
 
 	@Override
-	public default void visit(final ConditionalElement.TestConditionalElement ce) {
+	public default void visit(final ConditionalElement.TestConditionalElement<L> ce) {
 		defaultAction(ce);
 	}
 
 	@Override
-	public default void visit(final ConditionalElement.TemplatePatternConditionalElement ce) {
+	public default void visit(final ConditionalElement.TemplatePatternConditionalElement<L> ce) {
 		defaultAction(ce);
 	}
 }
