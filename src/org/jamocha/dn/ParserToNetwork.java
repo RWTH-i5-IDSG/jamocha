@@ -14,10 +14,6 @@
  */
 package org.jamocha.dn;
 
-import java.util.Collection;
-import java.util.EnumMap;
-import java.util.List;
-
 import org.jamocha.dn.ConstructCache.Deffacts;
 import org.jamocha.dn.ConstructCache.Defrule;
 import org.jamocha.dn.memory.SlotType;
@@ -26,6 +22,10 @@ import org.jamocha.dn.memory.Template.Slot;
 import org.jamocha.function.fwa.Assert;
 import org.jamocha.function.fwa.ParameterLeaf;
 import org.jamocha.languages.common.ScopeStack;
+
+import java.util.Collection;
+import java.util.EnumMap;
+import java.util.List;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>

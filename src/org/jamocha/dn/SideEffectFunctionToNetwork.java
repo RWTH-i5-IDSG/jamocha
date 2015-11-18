@@ -14,10 +14,6 @@
  */
 package org.jamocha.dn;
 
-import java.util.Collection;
-import java.util.Map;
-import java.util.Set;
-
 import org.apache.logging.log4j.Logger;
 import org.jamocha.dn.ConstructCache.Deffacts;
 import org.jamocha.dn.ConstructCache.Defrule;
@@ -30,6 +26,10 @@ import org.jamocha.dn.nodes.TerminalNode;
 import org.jamocha.languages.common.ScopeStack.Symbol;
 import org.jamocha.logging.LogFormatter;
 import org.jamocha.logging.TypedFilter;
+
+import java.util.Collection;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>

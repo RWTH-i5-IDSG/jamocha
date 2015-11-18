@@ -16,7 +16,6 @@ package org.jamocha.dn;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-
 import org.jamocha.dn.memory.MemoryHandlerPlusTemp;
 import org.jamocha.dn.memory.MemoryHandlerTemp;
 import org.jamocha.dn.nodes.CouldNotAcquireLockException;
@@ -24,9 +23,9 @@ import org.jamocha.dn.nodes.Edge;
 import org.jamocha.dn.nodes.Node;
 
 /**
- * This class contains a {@link MemoryHandlerPlusTemp} and the {@linkplain Edge edge} it has to be
- * processed by. The processing is triggered by a {@link #run()} call.
- * 
+ * This class contains a {@link MemoryHandlerPlusTemp} and the {@linkplain Edge edge} it has to be processed by. The
+ * processing is triggered by a {@link #run()} call.
+ *
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  * @author Christoph Terwelp <christoph.terwelp@rwth-aachen.de>
  */
@@ -38,16 +37,15 @@ public abstract class Token {
 
 	/**
 	 * Triggers the {@linkplain Edge edge} to process the contained {@link MemoryHandlerPlusTemp}.
-	 * 
+	 *
 	 * @throws CouldNotAcquireLockException
-	 *             iff a required lock could not be acquired
+	 * 		iff a required lock could not be acquired
 	 */
 	public abstract void run() throws CouldNotAcquireLockException;
 
 	/**
-	 * {@link Token} containing a {@link MemoryHandlerPlusTemp} which should be added to the
-	 * {@link Node node}.
-	 * 
+	 * {@link Token} containing a {@link MemoryHandlerPlusTemp} which should be added to the {@link Node node}.
+	 *
 	 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
 	 * @author Christoph Terwelp <christoph.terwelp@rwth-aachen.de>
 	 */
@@ -66,9 +64,8 @@ public abstract class Token {
 	}
 
 	/**
-	 * {@link Token} containing a {@link MemoryHandlerPlusTemp} which should be removed from the
-	 * {@link Node node}.
-	 * 
+	 * {@link Token} containing a {@link MemoryHandlerPlusTemp} which should be removed from the {@link Node node}.
+	 *
 	 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
 	 * @author Christoph Terwelp <christoph.terwelp@rwth-aachen.de>
 	 */

@@ -14,14 +14,13 @@
  */
 package org.jamocha.filter;
 
-import java.util.Set;
-
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-
 import org.jamocha.languages.common.RuleCondition.EquivalenceClass;
 import org.jamocha.languages.common.SingleFactVariable;
 import org.jamocha.visitor.Visitable;
+
+import java.util.Set;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>

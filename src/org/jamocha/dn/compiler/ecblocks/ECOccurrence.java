@@ -16,7 +16,6 @@ package org.jamocha.dn.compiler.ecblocks;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-
 import org.jamocha.languages.common.RuleCondition.EquivalenceClass;
 
 /**

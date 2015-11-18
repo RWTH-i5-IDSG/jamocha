@@ -14,47 +14,28 @@
  */
 package org.jamocha.dn;
 
-import static java.util.stream.Collectors.toList;
-import static org.jamocha.util.ToArray.toArray;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.StreamSupport;
-
+import com.google.common.collect.BiMap;
+import com.google.common.collect.Sets;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.Value;
-
 import org.apache.logging.log4j.Marker;
 import org.jamocha.dn.memory.MemoryHandlerTerminal.AssertOrRetract;
 import org.jamocha.dn.memory.Template;
-import org.jamocha.filter.ECFilterList;
-import org.jamocha.filter.ECFilterSet;
-import org.jamocha.filter.Path;
-import org.jamocha.filter.PathCollector;
-import org.jamocha.filter.PathFilterList;
-import org.jamocha.filter.PathFilterSet;
-import org.jamocha.filter.TrivialPathSetToPathListConverter;
+import org.jamocha.filter.*;
 import org.jamocha.function.Function;
-import org.jamocha.function.fwa.Assert;
-import org.jamocha.function.fwa.FunctionWithArguments;
-import org.jamocha.function.fwa.ParameterLeaf;
-import org.jamocha.function.fwa.PathLeaf;
-import org.jamocha.function.fwa.RHSVariableLeaf;
-import org.jamocha.function.fwa.SymbolLeaf;
-import org.jamocha.function.fwa.VariableValueContext;
+import org.jamocha.function.fwa.*;
 import org.jamocha.function.fwatransformer.FWASymbolToRHSVariableLeafTranslator;
 import org.jamocha.languages.common.RuleCondition;
 import org.jamocha.languages.common.RuleCondition.EquivalenceClass;
 import org.jamocha.languages.common.SingleFactVariable;
 import org.jamocha.logging.MarkerType;
 
-import com.google.common.collect.BiMap;
-import com.google.common.collect.Sets;
+import java.util.*;
+import java.util.stream.StreamSupport;
+
+import static java.util.stream.Collectors.toList;
+import static org.jamocha.util.ToArray.toArray;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
@@ -198,12 +179,13 @@ public class ConstructCache {
 			}
 
 			public PathRule trivialToPathRule() {
-				return new PathRule(PathFilterList.toSimpleList(condition.stream()
-						.map(TrivialPathSetToPathListConverter::convert).collect(toList())), resultPaths, actionList,
-						equivalenceClassToPathLeaf, specificity);
+				return new PathRule(PathFilterList.toSimpleList(
+						condition.stream().map(TrivialPathSetToPathListConverter::convert).collect(toList())),
+						resultPaths, actionList, equivalenceClassToPathLeaf, specificity);
 			}
 
-			public PathRule toPathRule(final PathFilterList convertedCondition, final Set<Path> additionalInitialPaths) {
+			public PathRule toPathRule(final PathFilterList convertedCondition,
+					final Set<Path> additionalInitialPaths) {
 				return new PathRule(convertedCondition, Sets.union(resultPaths, additionalInitialPaths), actionList,
 						equivalenceClassToPathLeaf, specificity);
 			}
@@ -224,9 +206,8 @@ public class ConstructCache {
 
 			public Translated translatePathToAddress() {
 				final VariableValueContext context = new VariableValueContext();
-				return new Translated(condition,
-						new AddressesActionList(context, FWASymbolToRHSVariableLeafTranslator.translate(
-								equivalenceClassToPathLeaf, context, actionList)), specificity);
+				return new Translated(condition, new AddressesActionList(context, FWASymbolToRHSVariableLeafTranslator
+						.translate(equivalenceClassToPathLeaf, context, actionList)), specificity);
 			}
 		}
 

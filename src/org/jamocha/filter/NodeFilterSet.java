@@ -14,15 +14,10 @@
  */
 package org.jamocha.filter;
 
-import java.util.Set;
-
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-import lombok.ToString;
-
+import lombok.*;
 import org.jamocha.function.fwa.ExchangeableLeaf;
+
+import java.util.Set;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>

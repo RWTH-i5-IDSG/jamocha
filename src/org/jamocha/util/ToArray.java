@@ -14,11 +14,11 @@
  */
 package org.jamocha.util;
 
+import lombok.experimental.UtilityClass;
+
 import java.util.Collection;
 import java.util.function.IntFunction;
 import java.util.stream.Stream;
-
-import lombok.experimental.UtilityClass;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>

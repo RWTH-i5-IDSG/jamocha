@@ -14,15 +14,7 @@
  */
 package org.jamocha.filter;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.LinkedList;
-import java.util.List;
-
 import lombok.Getter;
-
 import org.jamocha.function.fwa.DefaultFunctionWithArgumentsVisitor;
 import org.jamocha.function.fwa.FunctionWithArguments;
 import org.jamocha.function.fwa.PredicateWithArgumentsComposite;
@@ -33,16 +25,17 @@ import org.jamocha.languages.common.ConditionalElement.TestConditionalElement;
 import org.jamocha.languages.common.DefaultConditionalElementsVisitor;
 import org.jamocha.languages.common.RuleCondition;
 
+import java.util.*;
+
 /**
  * Collects all {@link FunctionWithArguments} in the CE splitting up equal fwas into its arguments.
- * 
- * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
- * 
+ *
  * @param <T>
- *            collection type to use while collecting the {@link FunctionWithArguments}
+ * 		collection type to use while collecting the {@link FunctionWithArguments}
+ * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
-public class FWACollector<T extends Collection<FunctionWithArguments<SymbolLeaf>>> implements
-		DefaultConditionalElementsVisitor<SymbolLeaf>, DefaultFunctionWithArgumentsVisitor<SymbolLeaf> {
+public class FWACollector<T extends Collection<FunctionWithArguments<SymbolLeaf>>>
+		implements DefaultConditionalElementsVisitor<SymbolLeaf>, DefaultFunctionWithArgumentsVisitor<SymbolLeaf> {
 	@Getter
 	private final T fwas;
 

@@ -14,19 +14,9 @@
  */
 package org.jamocha.dn;
 
-import static org.jamocha.util.ToArray.toArray;
-
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.Map.Entry;
-import java.util.Random;
-import java.util.TreeMap;
-import java.util.TreeSet;
-
 import lombok.Getter;
 import lombok.Setter;
 import lombok.Value;
-
 import org.apache.commons.lang3.ArrayUtils;
 import org.jamocha.dn.ConstructCache.Defrule;
 import org.jamocha.dn.ConstructCache.Defrule.Translated;
@@ -35,9 +25,14 @@ import org.jamocha.dn.memory.MemoryHandlerTerminal.AssertOrRetract;
 import org.jamocha.dn.memory.MemoryHandlerTerminal.Retract;
 import org.jamocha.dn.nodes.TerminalNode;
 
+import java.util.*;
+import java.util.Map.Entry;
+
+import static org.jamocha.util.ToArray.toArray;
+
 /**
  * Simple conflict set implementation.
- * 
+ *
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
 public class ConflictSet {
@@ -57,7 +52,7 @@ public class ConflictSet {
 
 	/**
 	 * Combination of {@link TerminalNode} and {@link AssertOrRetract}.
-	 * 
+	 *
 	 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
 	 */
 	@Value
@@ -84,15 +79,13 @@ public class ConflictSet {
 	private final TreeMap<Integer, TreeSet<RuleAndToken>> rulesAndTokensBySalience = new TreeMap<>();
 
 	private TreeSet<RuleAndToken> getRATSet(final Integer salience) {
-		final TreeSet<RuleAndToken> ratSet =
-				this.rulesAndTokensBySalience.computeIfAbsent(salience, x -> new TreeSet<>(
-						this.conflictResolutionStrategy));
+		final TreeSet<RuleAndToken> ratSet = this.rulesAndTokensBySalience
+				.computeIfAbsent(salience, x -> new TreeSet<>(this.conflictResolutionStrategy));
 		return correctStrategy(salience, ratSet);
 	}
 
 	private TreeSet<RuleAndToken> correctStrategy(final Integer salience, final TreeSet<RuleAndToken> ratSet) {
-		if (conflictResolutionStrategy == ratSet.comparator())
-			return ratSet;
+		if (conflictResolutionStrategy == ratSet.comparator()) return ratSet;
 		// if wrong comparator was used, create new set and copy the values
 		final TreeSet<RuleAndToken> newRatSet = new TreeSet<>(this.conflictResolutionStrategy);
 		newRatSet.addAll(ratSet);
@@ -102,36 +95,34 @@ public class ConflictSet {
 
 	/**
 	 * Adds an {@link Assert} belonging to {@link TerminalNode}.
-	 * 
+	 *
 	 * @param terminal
-	 *            {@link TerminalNode} the {@link Assert} belongs to
+	 * 		{@link TerminalNode} the {@link Assert} belongs to
 	 * @param plus
-	 *            {@link Assert} to add
+	 * 		{@link Assert} to add
 	 */
 	synchronized public void addAssert(final TerminalNode terminal, final Assert plus) {
-		if (plus.getMem().size() <= 0)
-			return;
+		if (plus.getMem().size() <= 0) return;
 		final Translated rule = terminal.getRule();
 		network.getLogFormatter().messageRuleActivation(network, rule, plus);
-		getRATSet(rule.getParent().getSalience()).add(
-				new RuleAndToken(rule, plus, ++activationCounter, random.nextInt()));
+		getRATSet(rule.getParent().getSalience())
+				.add(new RuleAndToken(rule, plus, ++activationCounter, random.nextInt()));
 	}
 
 	/**
 	 * Adds a {@link Retract} belonging to {@link TerminalNode}.
-	 * 
+	 *
 	 * @param terminal
-	 *            {@link TerminalNode} the {@link Retract} belongs to
+	 * 		{@link TerminalNode} the {@link Retract} belongs to
 	 * @param minus
-	 *            {@link Retract} to add
+	 * 		{@link Retract} to add
 	 */
 	synchronized public void addRetract(final TerminalNode terminal, final Retract minus) {
-		if (minus.getMem().size() <= 0)
-			return;
+		if (minus.getMem().size() <= 0) return;
 		final Translated rule = terminal.getRule();
 		network.getLogFormatter().messageRuleDeactivation(network, rule, minus);
-		getRATSet(rule.getParent().getSalience()).add(
-				new RuleAndToken(rule, minus, ++activationCounter, random.nextInt()));
+		getRATSet(rule.getParent().getSalience())
+				.add(new RuleAndToken(rule, minus, ++activationCounter, random.nextInt()));
 	}
 
 	/**
@@ -146,7 +137,7 @@ public class ConflictSet {
 	 */
 	synchronized public void deleteRevokedEntries() {
 		for (final Iterator<Entry<Integer, TreeSet<RuleAndToken>>> entryIterator =
-				this.rulesAndTokensBySalience.entrySet().iterator(); entryIterator.hasNext();) {
+				this.rulesAndTokensBySalience.entrySet().iterator(); entryIterator.hasNext(); ) {
 			final Entry<Integer, TreeSet<RuleAndToken>> entry = entryIterator.next();
 			final TreeSet<RuleAndToken> rulesAndTokens = entry.getValue();
 			final Iterator<RuleAndToken> iterator = rulesAndTokens.iterator();
@@ -168,8 +159,7 @@ public class ConflictSet {
 	}
 
 	synchronized public TreeSet<RuleAndToken> getConflictingRulesAndTokensForMaxSalience() {
-		if (this.rulesAndTokensBySalience.isEmpty())
-			return null;
+		if (this.rulesAndTokensBySalience.isEmpty()) return null;
 		final Entry<Integer, TreeSet<RuleAndToken>> lastEntry = this.rulesAndTokensBySalience.lastEntry();
 		return correctStrategy(lastEntry.getKey(), lastEntry.getValue());
 	}
@@ -185,8 +175,7 @@ public class ConflictSet {
 	synchronized public boolean remove(final RuleAndToken ruleAndToken) {
 		final Integer salience = ruleAndToken.rule.getParent().getSalience();
 		final TreeSet<RuleAndToken> ratSet = this.rulesAndTokensBySalience.get(salience);
-		if (null == ratSet)
-			return false;
+		if (null == ratSet) return false;
 		final boolean removed = ratSet.remove(ruleAndToken);
 		if (ratSet.isEmpty()) {
 			this.rulesAndTokensBySalience.remove(salience);

@@ -14,28 +14,23 @@
  */
 package org.jamocha.filter;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
-
 import lombok.Getter;
-
 import org.jamocha.filter.ECFilterList.ECExistentialList;
 import org.jamocha.filter.ECFilterList.ECNodeFilterSet;
 import org.jamocha.filter.ECFilterList.ECSharedListWrapper.ECSharedList;
 import org.jamocha.filter.ECFilterSet.ECExistentialSet;
-import org.jamocha.function.fwa.ConstantLeaf;
-import org.jamocha.function.fwa.DefaultFunctionWithArgumentsLeafVisitor;
-import org.jamocha.function.fwa.ECLeaf;
-import org.jamocha.function.fwa.FunctionWithArguments;
-import org.jamocha.function.fwa.GlobalVariableLeaf;
+import org.jamocha.function.fwa.*;
 import org.jamocha.languages.common.RuleCondition.EquivalenceClass;
+
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
-public class ECCollector implements DefaultFunctionWithArgumentsLeafVisitor<ECLeaf>, ECFilterListVisitor,
-		ECFilterSetVisitor {
+public class ECCollector
+		implements DefaultFunctionWithArgumentsLeafVisitor<ECLeaf>, ECFilterListVisitor, ECFilterSetVisitor {
 	@Getter
 	final Set<EquivalenceClass> equivalenceClasses = new HashSet<>();
 

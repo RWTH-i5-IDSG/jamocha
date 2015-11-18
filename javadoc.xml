@@ -1,41 +1,46 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <project default="javadoc">
-	<target name="javadoc">
-		<taskdef classname="lombok.delombok.ant.DelombokTask" name="delombok">
-			<classpath>
-				<pathelement path="${classpath}" />
-				<fileset dir="lib">
-					<include name="**/*.jar" />
-				</fileset>
-			</classpath>
-		</taskdef>
-		<mkdir dir="delomboked/src" />
-		<mkdir dir="delomboked/test" />
-		<delombok verbose="true" encoding="UTF-8" to="delomboked/src" from="src" sourcepath="generated">
-			<classpath>
-				<pathelement path="${classpath}" />
-				<fileset dir="lib">
-					<include name="**/*.jar" />
-				</fileset>
-			</classpath>
-		</delombok>
-		<delombok verbose="true" encoding="UTF-8" to="delomboked/test" from="test" sourcepath="delomboked/src:generated">
-			<classpath>
-				<pathelement path="${classpath}" />
-				<fileset dir="lib">
-					<include name="**/*.jar" />
-				</fileset>
-			</classpath>
-		</delombok>
-		<javadoc access="public" author="true" destdir="javadoc" nodeprecated="false" nodeprecatedlist="false" noindex="false" nonavbar="false" notree="false" packagenames="org.jamocha, org.jamocha.*, test.jamocha, test.jamocha.*" source="1.8" sourcepath="delomboked/src:delomboked/test:generated" splitindex="true" use="true" version="true" excludepackagenames="org.jamocha.languages.clips.parser.generated">
-			<classpath>
-				<pathelement path="${classpath}" />
-				<fileset dir="lib">
-					<include name="**/*.jar" />
-				</fileset>
-			</classpath>
-		</javadoc>
-		<delete dir="delomboked/src" />
-		<delete dir="delomboked/test" />
-	</target>
+    <target name="javadoc">
+        <taskdef classname="lombok.delombok.ant.DelombokTask" name="delombok">
+            <classpath>
+                <pathelement path="${classpath}"/>
+                <fileset dir="lib">
+                    <include name="**/*.jar"/>
+                </fileset>
+            </classpath>
+        </taskdef>
+        <mkdir dir="delomboked/src"/>
+        <mkdir dir="delomboked/test"/>
+        <delombok verbose="true" encoding="UTF-8" to="delomboked/src" from="src" sourcepath="generated">
+            <classpath>
+                <pathelement path="${classpath}"/>
+                <fileset dir="lib">
+                    <include name="**/*.jar"/>
+                </fileset>
+            </classpath>
+        </delombok>
+        <delombok verbose="true" encoding="UTF-8" to="delomboked/test" from="test"
+                  sourcepath="delomboked/src:generated">
+            <classpath>
+                <pathelement path="${classpath}"/>
+                <fileset dir="lib">
+                    <include name="**/*.jar"/>
+                </fileset>
+            </classpath>
+        </delombok>
+        <javadoc access="public" author="true" destdir="javadoc" nodeprecated="false" nodeprecatedlist="false"
+                 noindex="false" nonavbar="false" notree="false"
+                 packagenames="org.jamocha, org.jamocha.*, test.jamocha, test.jamocha.*" source="1.8"
+                 sourcepath="delomboked/src:delomboked/test:generated" splitindex="true" use="true" version="true"
+                 excludepackagenames="org.jamocha.languages.clips.parser.generated">
+            <classpath>
+                <pathelement path="${classpath}"/>
+                <fileset dir="lib">
+                    <include name="**/*.jar"/>
+                </fileset>
+            </classpath>
+        </javadoc>
+        <delete dir="delomboked/src"/>
+        <delete dir="delomboked/test"/>
+    </target>
 </project>

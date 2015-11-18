@@ -14,13 +14,12 @@
  */
 package org.jamocha.filter;
 
-import java.util.Set;
-
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
-
 import org.jamocha.visitor.Visitable;
+
+import java.util.Set;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>

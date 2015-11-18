@@ -14,17 +14,6 @@
  */
 package org.jamocha.gui;
 
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.PrintStream;
-import java.util.Arrays;
-import java.util.Queue;
-import java.util.prefs.Preferences;
-
 import javafx.application.Application;
 import javafx.geometry.Side;
 import javafx.scene.Scene;
@@ -36,16 +25,19 @@ import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Stage;
 import lombok.AllArgsConstructor;
-
 import org.apache.commons.lang3.tuple.Pair;
 import org.jamocha.Jamocha;
 import org.jamocha.gui.network.NetworkVisualisation;
 import org.jamocha.languages.clips.parser.generated.ParseException;
 import org.jamocha.languages.common.Warning;
 
+import java.io.*;
+import java.util.Arrays;
+import java.util.Queue;
+import java.util.prefs.Preferences;
+
 /**
  * @author Christoph Terwelp <christoph.terwelp@rwth-aachen.de>
- *
  */
 public class JamochaGui extends Application {
 
@@ -121,8 +113,7 @@ public class JamochaGui extends Application {
 				wis.mark(1000);
 				Pair<Queue<Warning>, String> parserResult = jamocha.parse();
 				networkVisualisation.update();
-				if (null == parserResult)
-					return;
+				if (null == parserResult) return;
 				System.out.println(wis.getStringSinceLastMark());
 			}
 		} catch (IOException | ParseException e) {

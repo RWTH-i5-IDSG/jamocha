@@ -14,6 +14,5 @@
  */
 /**
  * @author Christoph Terwelp <christoph.terwelp@rwth-aachen.de>
- *
  */
 package org.jamocha.gui;

@@ -14,35 +14,23 @@
  */
 package org.jamocha.filter;
 
-import static java.util.stream.Collectors.toList;
+import com.google.common.collect.*;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+import org.jamocha.filter.PathFilterList.PathSharedListWrapper.PathSharedList;
+import org.jamocha.util.Lambdas;
+import org.jamocha.visitor.Visitable;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-
-import org.jamocha.filter.PathFilterList.PathSharedListWrapper.PathSharedList;
-import org.jamocha.util.Lambdas;
-import org.jamocha.visitor.Visitable;
-
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
+import static java.util.stream.Collectors.toList;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
@@ -75,8 +63,7 @@ public interface PathFilterList extends Visitable<PathFilterListVisitor>, Iterab
 	}
 
 	public static PathFilterList toSimpleList(final List<PathFilterList> list) {
-		if (list.size() == 1)
-			return list.get(0);
+		if (list.size() == 1) return list.get(0);
 		final PathSharedListWrapper pathSharedListWrapper = new PathSharedListWrapper(1);
 		final PathSharedList pathSharedList = pathSharedListWrapper.sharedSiblings.get(0);
 		pathSharedListWrapper.addSharedColumns(Collections.singletonMap(pathSharedList, list));
@@ -88,9 +75,8 @@ public interface PathFilterList extends Visitable<PathFilterListVisitor>, Iterab
 		final ImmutableList<PathSharedList> sharedSiblings;
 
 		public PathSharedListWrapper(final int ruleCount) {
-			this.sharedSiblings =
-					IntStream.range(0, ruleCount).mapToObj(i -> new PathSharedList(new LinkedList<>()))
-							.collect(Collectors.collectingAndThen(Collectors.toList(), ImmutableList::copyOf));
+			this.sharedSiblings = IntStream.range(0, ruleCount).mapToObj(i -> new PathSharedList(new LinkedList<>()))
+					.collect(Collectors.collectingAndThen(Collectors.toList(), ImmutableList::copyOf));
 		}
 
 		public void addSharedColumn(final Map<PathSharedList, PathFilterList> filters) {
@@ -144,14 +130,15 @@ public interface PathFilterList extends Visitable<PathFilterListVisitor>, Iterab
 			}
 
 			private abstract class Proxy {
-				final ImmutableMap<PathSharedList, ImmutableList<PathFilterList>> siblingToFilters = Maps.toMap(
-						sharedSiblings, PathSharedList::getUnmodifiableFilterListCopy);
+				final ImmutableMap<PathSharedList, ImmutableList<PathFilterList>> siblingToFilters =
+						Maps.toMap(sharedSiblings, PathSharedList::getUnmodifiableFilterListCopy);
 				final ImmutableMap<PathFilterList, Integer> chosenElementToIndex;
 
 				private Proxy() {
 					final ImmutableList<PathFilterList> chosenElements = siblingToFilters.get(PathSharedList.this);
 					chosenElementToIndex =
-							Maps.uniqueIndex(IntStream.range(0, chosenElements.size()).iterator(), chosenElements::get);
+							Maps.uniqueIndex(IntStream.range(0, chosenElements.size()).iterator(),
+									chosenElements::get);
 				}
 			}
 
@@ -190,27 +177,24 @@ public interface PathFilterList extends Visitable<PathFilterListVisitor>, Iterab
 					final List<Integer> indices =
 							Lambdas.stream(oldFilters).map(chosenElementToIndex::get).collect(toList());
 					final Map<PathSharedList, List<PathFilterList>> newFilterMap =
-							Maps.toMap(
-									sharedSiblings,
-									(final PathSharedList sibling) -> {
-										boolean inserted = false;
-										final ImmutableList<PathFilterList> siblingFilters =
-												siblingToFilters.get(sibling);
-										final Iterable<PathFilterList> changingFilters =
-												Iterables.transform(indices, siblingFilters::get);
-										final List<PathFilterList> newFilterList = new ArrayList<>();
-										for (final PathFilterList filter : siblingFilters) {
-											if (!oldFilterSet.contains(filter)) {
-												newFilterList.add(filter);
-												continue;
-											}
-											if (!inserted) {
-												newFilterList.add(transformer.apply(changingFilters));
-											}
-											inserted = true;
-										}
-										return newFilterList;
-									});
+							Maps.toMap(sharedSiblings, (final PathSharedList sibling) -> {
+								boolean inserted = false;
+								final ImmutableList<PathFilterList> siblingFilters = siblingToFilters.get(sibling);
+								final Iterable<PathFilterList> changingFilters =
+										Iterables.transform(indices, siblingFilters::get);
+								final List<PathFilterList> newFilterList = new ArrayList<>();
+								for (final PathFilterList filter : siblingFilters) {
+									if (!oldFilterSet.contains(filter)) {
+										newFilterList.add(filter);
+										continue;
+									}
+									if (!inserted) {
+										newFilterList.add(transformer.apply(changingFilters));
+									}
+									inserted = true;
+								}
+								return newFilterList;
+							});
 					PathSharedListWrapper.this.clear();
 					PathSharedListWrapper.this.addSharedColumns(newFilterMap);
 				}

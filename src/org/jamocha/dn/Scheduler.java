@@ -14,13 +14,13 @@
  */
 package org.jamocha.dn;
 
-import java.util.List;
-
 import org.jamocha.dn.nodes.Node.TokenQueue;
 
+import java.util.List;
+
 /**
- * This interface declares a scheduler usable by any {@link Network network}. It should take
- * {@link Runnable Runnables} and {@link Runnable#run() run} them (optional in separate threads).
+ * This interface declares a scheduler usable by any {@link Network network}. It should take {@link Runnable Runnables}
+ * and {@link Runnable#run() run} them (optional in separate threads).
  *
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  * @author Christoph Terwelp <christoph.terwelp@rwth-aachen.de>
@@ -32,7 +32,7 @@ public interface Scheduler {
 	 * Add a {@link Runnable} to be processed by the scheduler.
 	 *
 	 * @param runnable
-	 *            the {@link Runnable} to add to the schedulers queue
+	 * 		the {@link Runnable} to add to the schedulers queue
 	 */
 	public void enqueue(final TokenQueue runnable);
 
@@ -42,8 +42,9 @@ public interface Scheduler {
 	public void activate();
 
 	/**
-	 * Deactivate scheduler. In inactive state the scheduler may not process any {@link TokenQueue
-	 * TokenQueues). Running TokenQueues are finished before method returns.
+	 * Deactivate scheduler. In inactive state the scheduler may not process any {@link TokenQueue TokenQueues).
+	 * Running
+	 * TokenQueues are finished before method returns.
 	 */
 	public void deactivate();
 
@@ -53,8 +54,7 @@ public interface Scheduler {
 	public void waitForNoUnfinishedJobs();
 
 	/**
-	 * Initiate shutdown of the scheduler. All enqueued jobs can still be processed. No new jobs are
-	 * enqueued.
+	 * Initiate shutdown of the scheduler. All enqueued jobs can still be processed. No new jobs are enqueued.
 	 */
 	public void shutdown();
 

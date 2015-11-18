@@ -14,24 +14,20 @@
  */
 package org.jamocha.filter;
 
-import static org.jamocha.util.ToArray.toArray;
+import org.jamocha.filter.PathFilterSet.PathExistentialSet;
+import org.jamocha.function.fwa.*;
 
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 
-import org.jamocha.filter.PathFilterSet.PathExistentialSet;
-import org.jamocha.function.fwa.ConstantLeaf;
-import org.jamocha.function.fwa.DefaultFunctionWithArgumentsLeafVisitor;
-import org.jamocha.function.fwa.FunctionWithArguments;
-import org.jamocha.function.fwa.GlobalVariableLeaf;
-import org.jamocha.function.fwa.PathLeaf;
+import static org.jamocha.util.ToArray.toArray;
 
 /**
  * Collects all paths used within the filter.
  *
  * @param <T>
- *            collection type to use while collecting the paths
+ * 		collection type to use while collecting the paths
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
 public class PathCollector<T extends Collection<Path>> implements PathFilterSetVisitor {

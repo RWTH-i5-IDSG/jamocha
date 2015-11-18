@@ -1,42 +1,17 @@
 package org.jamocha.dn;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-
 import org.apache.commons.lang3.StringUtils;
 import org.jamocha.dn.memory.FactAddress;
 import org.jamocha.dn.memory.Template;
-import org.jamocha.dn.nodes.AlphaNode;
-import org.jamocha.dn.nodes.BetaNode;
-import org.jamocha.dn.nodes.Edge;
-import org.jamocha.dn.nodes.Node;
-import org.jamocha.dn.nodes.NodeVisitor;
-import org.jamocha.dn.nodes.ObjectTypeNode;
-import org.jamocha.dn.nodes.SlotInFactAddress;
-import org.jamocha.dn.nodes.TerminalNode;
+import org.jamocha.dn.nodes.*;
 import org.jamocha.filter.AddressNodeFilterSet.AddressFilter;
-import org.jamocha.function.fwa.Assert;
+import org.jamocha.function.fwa.*;
 import org.jamocha.function.fwa.Assert.TemplateContainer;
-import org.jamocha.function.fwa.Bind;
-import org.jamocha.function.fwa.ConstantLeaf;
-import org.jamocha.function.fwa.FunctionWithArguments;
-import org.jamocha.function.fwa.FunctionWithArgumentsComposite;
-import org.jamocha.function.fwa.FunctionWithArgumentsVisitor;
-import org.jamocha.function.fwa.GenericWithArgumentsComposite;
-import org.jamocha.function.fwa.GlobalVariableLeaf;
-import org.jamocha.function.fwa.Modify;
 import org.jamocha.function.fwa.Modify.SlotAndValue;
-import org.jamocha.function.fwa.ParameterLeaf;
-import org.jamocha.function.fwa.PredicateWithArgumentsComposite;
-import org.jamocha.function.fwa.Retract;
+
+import java.util.*;
 
 public class NetworkToDot {
 
@@ -146,8 +121,7 @@ public class NetworkToDot {
 
 		String getNodeName(final Node node) {
 			final String name = nodeNames.get(node);
-			if (null != name)
-				return name;
+			if (null != name) return name;
 			final String newName = node.accept(this).lastName;
 			nodeNames.put(node, newName);
 			return newName;
@@ -184,12 +158,9 @@ public class NetworkToDot {
 				final FactAddress factAddress = slotInFactAddress.getFactAddress();
 				for (int j = 0; j < addresses.size(); j++) {
 					final FactAddress address = addresses.get(j);
-					if (address != factAddress)
-						continue;
-					fullNames[i] =
-							names.get(j)
-									+ (slotInFactAddress.getSlotAddress() == null ? "" : "."
-											+ templates.get(j).getSlotName(slotInFactAddress.getSlotAddress()));
+					if (address != factAddress) continue;
+					fullNames[i] = names.get(j) + (slotInFactAddress.getSlotAddress() == null ? "" :
+							"." + templates.get(j).getSlotName(slotInFactAddress.getSlotAddress()));
 					break;
 				}
 			}
@@ -222,10 +193,8 @@ public class NetworkToDot {
 				final String[] fullNames = translateAddresses2Names(addressFilterElement.getAddressesInTarget());
 				String formatted =
 						addressFilterElement.getFunction().accept(new FWAFormatter(fullNames)).getSb().toString();
-				if (formatted.equals("(TRUE)"))
-					formatted = String.join(" x ", fullNames);
-				if (targetNodeLabel.length() != 0)
-					targetNodeLabel.append("<br/>");
+				if (formatted.equals("(TRUE)")) formatted = String.join(" x ", fullNames);
+				if (targetNodeLabel.length() != 0) targetNodeLabel.append("<br/>");
 				targetNodeLabel.append(formatted);
 			}
 			alphaNodes.put(node, '"' + targetNodeName + "\" [label=<" + targetNodeLabel.toString() + ">]");
@@ -261,10 +230,8 @@ public class NetworkToDot {
 				final String[] fullNames = translateAddresses2Names(addressFilterElement.getAddressesInTarget());
 				String formatted =
 						addressFilterElement.getFunction().accept(new FWAFormatter(fullNames)).getSb().toString();
-				if (formatted.equals("(TRUE)"))
-					formatted = String.join(" x ", fullNames);
-				if (targetNodeLabel.length() != 0)
-					targetNodeLabel.append("<br/>");
+				if (formatted.equals("(TRUE)")) formatted = String.join(" x ", fullNames);
+				if (targetNodeLabel.length() != 0) targetNodeLabel.append("<br/>");
 				targetNodeLabel.append(formatted);
 			}
 			pos = 0;

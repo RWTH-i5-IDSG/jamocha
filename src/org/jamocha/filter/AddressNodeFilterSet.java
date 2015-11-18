@@ -14,21 +14,15 @@
  */
 package org.jamocha.filter;
 
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
-
 import lombok.Data;
 import lombok.Getter;
-
 import org.jamocha.dn.memory.CounterColumn;
 import org.jamocha.dn.memory.FactAddress;
 import org.jamocha.dn.nodes.SlotInFactAddress;
 import org.jamocha.function.fwa.ParameterLeaf;
 import org.jamocha.function.fwa.PredicateWithArguments;
+
+import java.util.*;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
@@ -49,8 +43,9 @@ public class AddressNodeFilterSet extends NodeFilterSet<ParameterLeaf, AddressNo
 		}
 	}
 
-	public static AddressNodeFilterSet empty = new NormalAddressNodeFilterSet(new HashSet<FactAddress>(),
-			new HashSet<FactAddress>(), new LinkedHashSet<AddressFilter>(), Collections.emptyList());
+	public static AddressNodeFilterSet empty =
+			new NormalAddressNodeFilterSet(new HashSet<FactAddress>(), new HashSet<FactAddress>(),
+					new LinkedHashSet<AddressFilter>(), Collections.emptyList());
 
 	public static class NormalAddressNodeFilterSet extends AddressNodeFilterSet {
 		public NormalAddressNodeFilterSet(final Set<FactAddress> positiveExistentialAddresses,
@@ -71,16 +66,16 @@ public class AddressNodeFilterSet extends NodeFilterSet<ParameterLeaf, AddressNo
 	private final List<AddressMatchingConfiguration> matchingConfigurations;
 
 	/**
-	 * Checks whether the FactAddress is existential by calling the contains method on both sets
-	 * (positive and negative).
-	 * 
+	 * Checks whether the FactAddress is existential by calling the contains method on both sets (positive and
+	 * negative).
+	 *
 	 * @param factAddress
-	 *            the fact address to check
-	 * @return true iff the fact address passed is contained in one of the existential fact address
-	 *         sets
+	 * 		the fact address to check
+	 * @return true iff the fact address passed is contained in one of the existential fact address sets
 	 */
 	public boolean isExistential(final FactAddress factAddress) {
-		return positiveExistentialAddresses.contains(factAddress) || negativeExistentialAddresses.contains(factAddress);
+		return positiveExistentialAddresses.contains(factAddress) || negativeExistentialAddresses.contains
+				(factAddress);
 	}
 
 	public AddressNodeFilterSet(final Set<FactAddress> positiveExistentialAddresses,
@@ -119,7 +114,7 @@ public class AddressNodeFilterSet extends NodeFilterSet<ParameterLeaf, AddressNo
 	}
 
 	public static class ExistentialAddressFilter extends AddressFilter {
-		@Getter(onMethod = @__({ @Override }))
+		@Getter(onMethod = @__({@Override}))
 		protected final CounterColumn counterColumn;
 
 		public ExistentialAddressFilter(final PredicateWithArguments<ParameterLeaf> function,

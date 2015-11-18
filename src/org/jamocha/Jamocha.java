@@ -14,13 +14,8 @@
  */
 package org.jamocha;
 
-import java.io.InputStream;
-import java.util.Objects;
-import java.util.Queue;
-
 import lombok.Getter;
 import lombok.extern.log4j.Log4j2;
-
 import org.apache.commons.lang3.tuple.Pair;
 import org.jamocha.dn.Network;
 import org.jamocha.languages.clips.parser.SFPToCETranslator;
@@ -29,9 +24,12 @@ import org.jamocha.languages.clips.parser.generated.SFPParser;
 import org.jamocha.languages.clips.parser.generated.SFPStart;
 import org.jamocha.languages.common.Warning;
 
+import java.io.InputStream;
+import java.util.Objects;
+import java.util.Queue;
+
 /**
  * @author Christoph Terwelp <christoph.terwelp@rwth-aachen.de>
- *
  */
 @Log4j2
 public class Jamocha {
@@ -53,8 +51,7 @@ public class Jamocha {
 
 	public Pair<Queue<Warning>, String> parse() throws ParseException {
 		final SFPStart n = parser.Start();
-		if (null == n)
-			return null;
+		if (null == n) return null;
 		final String value = Objects.toString(n.jjtAccept(visitor, null));
 		return Pair.of(visitor.getWarnings(), value);
 	}
@@ -71,8 +68,7 @@ public class Jamocha {
 			try {
 				System.out.print("SFP> ");
 				final Pair<Queue<Warning>, String> parserReturn = jamocha.parse();
-				if (null == parserReturn)
-					System.exit(0);
+				if (null == parserReturn) System.exit(0);
 				final String expression = parserReturn.getRight();
 				if (null != expression) {
 					log.info(expression);

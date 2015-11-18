@@ -14,14 +14,14 @@
  */
 package org.jamocha.dn;
 
+import org.jamocha.dn.nodes.Node.TokenQueue;
+
 import java.util.LinkedList;
 import java.util.List;
 
-import org.jamocha.dn.nodes.Node.TokenQueue;
-
 /**
- * {@link Scheduler} to process {@linkplain Runnable runnables} in order of arrival in only one
- * {@link Thread thread}. The Scheduler has to be started by calling {@link #run()}.
+ * {@link Scheduler} to process {@linkplain Runnable runnables} in order of arrival in only one {@link Thread thread}.
+ * The Scheduler has to be started by calling {@link #run()}.
  *
  * @author Christoph Terwelp <christoph.terwelp@rwth-aachen.de>
  */
@@ -83,8 +83,7 @@ public class PlainScheduler implements Scheduler {
 	}
 
 	/**
-	 * Processes all enqueued {@link Runnable Runnables} in order of arrival and return when queue
-	 * is empty.
+	 * Processes all enqueued {@link Runnable Runnables} in order of arrival and return when queue is empty.
 	 */
 	public void run() {
 		state.run();
@@ -102,14 +101,12 @@ public class PlainScheduler implements Scheduler {
 	}
 
 	/**
-	 * If there is a {@link Runnable} in the queue, process the first and return true, otherwise
-	 * return false.
+	 * If there is a {@link Runnable} in the queue, process the first and return true, otherwise return false.
 	 *
 	 * @return true iff a {@link Runnable} was processed
 	 */
 	public boolean runOneJob() {
-		if (this.workQueue.isEmpty())
-			return false;
+		if (this.workQueue.isEmpty()) return false;
 		this.workQueue.poll().run();
 		return true;
 	}

@@ -14,25 +14,17 @@
  */
 package org.jamocha.filter;
 
-import static java.util.stream.Collectors.toCollection;
-import static java.util.stream.Collectors.toSet;
-
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.Map;
-import java.util.Set;
-
+import com.google.common.collect.Sets;
 import lombok.Getter;
-
 import org.apache.commons.collections4.IteratorUtils;
 import org.jamocha.function.FunctionNormaliser;
 import org.jamocha.function.fwa.PathLeaf;
 import org.jamocha.function.fwa.PredicateWithArguments;
 
-import com.google.common.collect.Sets;
+import java.util.*;
+
+import static java.util.stream.Collectors.toCollection;
+import static java.util.stream.Collectors.toSet;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
@@ -87,11 +79,10 @@ public abstract class PathNodeFilterSet extends NodeFilterSet<PathLeaf, PathFilt
 	}
 
 	public static PathNodeFilterSet merge(final PathNodeFilterSet a, final PathNodeFilterSet b) {
-		if (a.containsExistentials() || b.containsExistentials())
-			return newExistentialPathNodeFilterSet(
-					Sets.union(a.getPositiveExistentialPaths(), b.getPositiveExistentialPaths()),
-					Sets.union(a.getNegativeExistentialPaths(), b.getNegativeExistentialPaths()),
-					Sets.union(a.getFilters(), b.getFilters()));
+		if (a.containsExistentials() || b.containsExistentials()) return newExistentialPathNodeFilterSet(
+				Sets.union(a.getPositiveExistentialPaths(), b.getPositiveExistentialPaths()),
+				Sets.union(a.getNegativeExistentialPaths(), b.getNegativeExistentialPaths()),
+				Sets.union(a.getFilters(), b.getFilters()));
 		return newRegularPathNodeFilterSet(Sets.union(a.getFilters(), b.getFilters()));
 	}
 
@@ -149,30 +140,27 @@ public abstract class PathNodeFilterSet extends NodeFilterSet<PathLeaf, PathFilt
 	 * Constructs the filter using the given filter elements.
 	 *
 	 * @param filters
-	 *            filter elements to be used in the filter
+	 * 		filter elements to be used in the filter
 	 */
 	protected PathNodeFilterSet(final Set<PathFilter> filters) {
 		super(filters);
 	}
 
 	public PathNodeFilterSet normalise() {
-		return duplicate(filters
-				.stream()
-				.map(filter -> {
-					final PredicateWithArguments<PathLeaf> functionToNormalise = filter.function;
-					// step one: transform to uniform function symbols
-					final PredicateWithArguments<PathLeaf> uniformFunction =
-							UniformFunctionTranslator.translate(functionToNormalise);
-					// step two: sort arguments
-					final PredicateWithArguments<PathLeaf> normalFunction =
-							FunctionNormaliser.normalise(uniformFunction);
-					return new PathFilter(normalFunction);
-				}).sorted().collect(toCollection(LinkedHashSet::new)));
+		return duplicate(filters.stream().map(filter -> {
+			final PredicateWithArguments<PathLeaf> functionToNormalise = filter.function;
+			// step one: transform to uniform function symbols
+			final PredicateWithArguments<PathLeaf> uniformFunction =
+					UniformFunctionTranslator.translate(functionToNormalise);
+			// step two: sort arguments
+			final PredicateWithArguments<PathLeaf> normalFunction = FunctionNormaliser.normalise(uniformFunction);
+			return new PathFilter(normalFunction);
+		}).sorted().collect(toCollection(LinkedHashSet::new)));
 	}
 
 	private int generateHashCode() {
-		return Arrays.hashCode(getNormalizedPathFilter().getFilters().stream().mapToInt(f -> f.getFunction().hash())
-				.toArray());
+		return Arrays.hashCode(
+				getNormalizedPathFilter().getFilters().stream().mapToInt(f -> f.getFunction().hash()).toArray());
 	}
 
 	public static boolean equals(final PathNodeFilterSet filter1, final PathNodeFilterSet filter2) {
@@ -182,18 +170,14 @@ public abstract class PathNodeFilterSet extends NodeFilterSet<PathLeaf, PathFilt
 	public static boolean equals(final PathNodeFilterSet filter1, final PathNodeFilterSet filter2,
 			final Map<Path, Path> pathMap) {
 		// TBD and other locations to handle all possible path mappings correctly
-		if (filter1.getHashCode() != filter2.getHashCode())
-			return false;
+		if (filter1.getHashCode() != filter2.getHashCode()) return false;
 		final FilterFunctionCompare.PathFilterCompare compare =
 				new FilterFunctionCompare.PathFilterCompare(filter1, filter2, pathMap);
-		if (!compare.isEqual())
-			return false;
+		if (!compare.isEqual()) return false;
 		if (!filter1.getNegativeExistentialPaths().stream().map(p -> pathMap.get(p)).collect(toSet())
-				.equals(filter2.getNegativeExistentialPaths()))
-			return false;
+				.equals(filter2.getNegativeExistentialPaths())) return false;
 		if (!filter1.getPositiveExistentialPaths().stream().map(p -> pathMap.get(p)).collect(toSet())
-				.equals(filter2.getPositiveExistentialPaths()))
-			return false;
+				.equals(filter2.getPositiveExistentialPaths())) return false;
 		return true;
 	}
 

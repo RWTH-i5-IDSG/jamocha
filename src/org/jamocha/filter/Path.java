@@ -14,26 +14,24 @@
  */
 package org.jamocha.filter;
 
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
-
+import com.google.common.collect.Sets;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.Value;
-
 import org.jamocha.dn.memory.FactAddress;
 import org.jamocha.dn.memory.SlotAddress;
 import org.jamocha.dn.memory.SlotType;
 import org.jamocha.dn.memory.Template;
 import org.jamocha.dn.nodes.Node;
 
-import com.google.common.collect.Sets;
+import java.util.HashSet;
+import java.util.Optional;
+import java.util.Set;
 
 /**
- * A Path describes an element of a condition part of a rule. It "traces" its position in the
- * network during construction time.
- * 
+ * A Path describes an element of a condition part of a rule. It "traces" its position in the network during
+ * construction time.
+ *
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  * @author Christoph Terwelp <christoph.terwelp@rwth-aachen.de>
  */
@@ -41,7 +39,7 @@ public class Path {
 
 	/**
 	 * {@link Template} of the path
-	 * 
+	 *
 	 * @return {@link Template template} of the path
 	 */
 	@Getter
@@ -49,9 +47,8 @@ public class Path {
 
 	/**
 	 * {@link Node}, the path is currently produced by
-	 * 
-	 * @param currentlyLowestNode
-	 *            {@link Node node}, the path is currently produced by
+	 *
+	 * @param currentlyLowestNode {@link Node node}, the path is currently produced by
 	 * @return {@link Node node}, the path is currently produced by
 	 */
 	@Getter
@@ -60,12 +57,10 @@ public class Path {
 
 	/**
 	 * {@link FactAddress} identifying the fact in the current {@link Node node}
-	 * 
-	 * @param factAddressInCurrentlyLowestNode
-	 *            {@link FactAddress fact address} identifying the fact in the current {@link Node
-	 *            node}
-	 * @return {@link FactAddress fact address} identifying the fact in the current {@link Node
-	 *         node}
+	 *
+	 * @param factAddressInCurrentlyLowestNode {@link FactAddress fact address} identifying the fact in the current
+	 * {@link Node node}
+	 * @return {@link FactAddress fact address} identifying the fact in the current {@link Node node}
 	 */
 	@Getter
 	@Setter
@@ -73,9 +68,8 @@ public class Path {
 
 	/**
 	 * Set of paths this path has been joined with (including itself)
-	 * 
-	 * @param joinedWith
-	 *            set of paths this path has been joined with (including itself)
+	 *
+	 * @param joinedWith set of paths this path has been joined with (including itself)
 	 * @return set of paths this path has been joined with (including itself)
 	 */
 	@Getter
@@ -99,9 +93,9 @@ public class Path {
 
 	/**
 	 * Extracts the {@link SlotType} of the Slot corresponding to {@link SlotAddress addr}.
-	 * 
+	 *
 	 * @param addr
-	 *            {@link SlotAddress slot address} of the Slot one is interested in
+	 * 		{@link SlotAddress slot address} of the Slot one is interested in
 	 * @return the {@link SlotType} of the Slot corresponding to the parameter given
 	 */
 	public SlotType getTemplateSlotType(final SlotAddress addr) {
@@ -109,12 +103,13 @@ public class Path {
 	}
 
 	/**
-	 * For all {@link Path paths} passed, this method sets their sets of joined {@link Path paths}
-	 * to contain all {@link Path paths} passed.
-	 * 
+	 * For all {@link Path paths} passed, this method sets their sets of joined {@link Path paths} to contain all
+	 * {@link
+	 * Path paths} passed.
+	 *
 	 * @param joined
-	 *            list of {@link Path paths} to set their set of joined {@link Path paths} to
-	 *            contain all {@link Path paths} passed
+	 * 		list of {@link Path paths} to set their set of joined {@link Path paths} to contain all {@link Path paths}
+	 * 		passed
 	 */
 	public static void setJoinedWithForAll(final Path... joined) {
 		final Set<Path> paths = new HashSet<>();
@@ -149,8 +144,7 @@ public class Path {
 	}
 
 	public String toString(final SlotAddress slot) {
-		if (null == slot)
-			return toString();
+		if (null == slot) return toString();
 		return getPathString() + " [" + template.getName() + "::" + template.getSlotName(slot) + "]";
 	}
 

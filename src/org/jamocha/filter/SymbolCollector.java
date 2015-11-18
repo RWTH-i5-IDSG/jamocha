@@ -14,19 +14,7 @@
  */
 package org.jamocha.filter;
 
-import static java.util.stream.Collectors.groupingBy;
-import static java.util.stream.Collectors.toSet;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
-
 import lombok.Getter;
-
 import org.apache.commons.lang3.tuple.Pair;
 import org.jamocha.languages.common.RuleCondition;
 import org.jamocha.languages.common.ScopeStack.Symbol;
@@ -34,13 +22,19 @@ import org.jamocha.languages.common.ScopeStack.VariableSymbol;
 import org.jamocha.languages.common.SingleFactVariable;
 import org.jamocha.languages.common.SingleFactVariable.SingleSlotVariable;
 
+import java.util.*;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
+
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.toSet;
+
 /**
  * Provides ease-of-use-methods for symbols used within the RuleCondition.
- * 
- * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
- * 
+ *
  * @param <T>
- *            collection type to use while collecting the paths
+ * 		collection type to use while collecting the paths
+ * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
 public class SymbolCollector {
 	@Getter
@@ -60,11 +54,12 @@ public class SymbolCollector {
 
 	private Stream<Pair<VariableSymbol, SingleSlotVariable>> getSlotVariableStream() {
 		return this.symbols.stream().flatMap(
-				symbol -> StreamSupport.stream(symbol.getEqual().getSlotVariables().spliterator(), true).map(
-						sv -> Pair.of(symbol, sv)));
+				symbol -> StreamSupport.stream(symbol.getEqual().getSlotVariables().spliterator(), true)
+						.map(sv -> Pair.of(symbol, sv)));
 	}
 
-	public Map<SingleFactVariable, Pair<VariableSymbol, List<Pair<VariableSymbol, SingleSlotVariable>>>> toSlotVariablesByFactVariable() {
+	public Map<SingleFactVariable, Pair<VariableSymbol, List<Pair<VariableSymbol, SingleSlotVariable>>>>
+	toSlotVariablesByFactVariable() {
 		final Map<SingleFactVariable, List<Pair<VariableSymbol, SingleSlotVariable>>> fvToSv =
 				getSlotVariableStream().collect(groupingBy(pvs -> pvs.getRight().getFactVariable()));
 		final Map<SingleFactVariable, Pair<VariableSymbol, List<Pair<VariableSymbol, SingleSlotVariable>>>> map =

@@ -14,21 +14,16 @@
  */
 package org.jamocha.filter;
 
-import static org.jamocha.util.ToArray.toArray;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.LinkedList;
-
 import org.jamocha.dn.memory.FactAddress;
 import org.jamocha.dn.nodes.SlotInFactAddress;
 import org.jamocha.filter.AddressNodeFilterSet.AddressFilter;
 
+import java.util.*;
+
+import static org.jamocha.util.ToArray.toArray;
+
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
- * 
  */
 public class FactAddressCollector<T extends Collection<FactAddress>> {
 

@@ -14,29 +14,11 @@
  */
 package org.jamocha.filter;
 
-import static java.util.stream.Collectors.groupingBy;
-import static java.util.stream.Collectors.toSet;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-
+import com.google.common.base.Objects;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Value;
-
 import org.apache.commons.lang3.ArrayUtils;
 import org.jamocha.dn.memory.FactAddress;
 import org.jamocha.dn.nodes.Edge;
@@ -45,18 +27,14 @@ import org.jamocha.dn.nodes.SlotInFactAddress;
 import org.jamocha.filter.AddressNodeFilterSet.AddressFilter;
 import org.jamocha.function.CommutativeFunction;
 import org.jamocha.function.FunctionNormaliser;
-import org.jamocha.function.fwa.ConstantLeaf;
-import org.jamocha.function.fwa.DefaultFunctionWithArgumentsVisitor;
-import org.jamocha.function.fwa.ExchangeableLeaf;
-import org.jamocha.function.fwa.FunctionWithArguments;
-import org.jamocha.function.fwa.FunctionWithArgumentsComposite;
-import org.jamocha.function.fwa.GenericWithArgumentsComposite;
-import org.jamocha.function.fwa.ParameterLeaf;
-import org.jamocha.function.fwa.PathLeaf;
-import org.jamocha.function.fwa.PredicateWithArguments;
-import org.jamocha.function.fwa.PredicateWithArgumentsComposite;
+import org.jamocha.function.fwa.*;
 
-import com.google.common.base.Objects;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.toSet;
 
 /**
  * Compares the Filters.
@@ -83,9 +61,12 @@ public abstract class FilterFunctionCompare<L extends ExchangeableLeaf<L>> {
 		FunctionTypeIdentificationVisitor<ParameterLeaf> newFunctionTypeIdentificationVisitor(
 				final FilterFunctionCompare<ParameterLeaf> context, final FunctionWithArguments<ParameterLeaf> fwa) {
 			return new AddressFunctionTypeIdentificationVisitor(context, fwa);
-		};
+		}
 
-		private class AddressFunctionTypeIdentificationVisitor extends FunctionTypeIdentificationVisitor<ParameterLeaf> {
+		;
+
+		private class AddressFunctionTypeIdentificationVisitor
+				extends FunctionTypeIdentificationVisitor<ParameterLeaf> {
 
 			private AddressFunctionTypeIdentificationVisitor(final FilterFunctionCompare<ParameterLeaf> context,
 					final FunctionWithArguments<ParameterLeaf> fwa) {
@@ -124,7 +105,9 @@ public abstract class FilterFunctionCompare<L extends ExchangeableLeaf<L>> {
 					invalidate();
 				}
 			}
-		};
+		}
+
+		;
 	}
 
 	public static class PathFilterCompare {
@@ -170,14 +153,14 @@ public abstract class FilterFunctionCompare<L extends ExchangeableLeaf<L>> {
 				equal = false;
 				return;
 			}
-			if (!comparePEP.stream().map(pathMap::get).collect(toSet()).containsAll(targetPEP)
-					|| !compareNEP.stream().map(pathMap::get).collect(toSet()).containsAll(targetNEP)) {
+			if (!comparePEP.stream().map(pathMap::get).collect(toSet()).containsAll(targetPEP) ||
+					!compareNEP.stream().map(pathMap::get).collect(toSet()).containsAll(targetNEP)) {
 				equal = false;
 				return;
 			}
 			// TODO handle hash collisions
 			for (final Iterator<PathFilter> targetIterator = targetFilters.iterator(), compareIterator =
-					compareFilters.iterator(); targetIterator.hasNext() && compareIterator.hasNext();) {
+					compareFilters.iterator(); targetIterator.hasNext() && compareIterator.hasNext(); ) {
 				final PathFilter target = targetIterator.next();
 				final PathFilter compare = compareIterator.next();
 				if (!new PathFilterFunctionCompare(target, compare).equal) {
@@ -192,15 +175,17 @@ public abstract class FilterFunctionCompare<L extends ExchangeableLeaf<L>> {
 			private PathFilterFunctionCompare(final PathFilter targetFilterElement,
 					final PathFilter compareFilterElement) {
 				super();
-				targetFilterElement.getFunction().accept(
-						newFunctionTypeIdentificationVisitor(this, compareFilterElement.getFunction()));
+				targetFilterElement.getFunction()
+						.accept(newFunctionTypeIdentificationVisitor(this, compareFilterElement.getFunction()));
 			}
 
 			@Override
 			FunctionTypeIdentificationVisitor<PathLeaf> newFunctionTypeIdentificationVisitor(
 					final FilterFunctionCompare<PathLeaf> context, final FunctionWithArguments<PathLeaf> fwa) {
 				return new PathFunctionTypeIdentificationVisitor(context, fwa);
-			};
+			}
+
+			;
 
 			private class PathFunctionTypeIdentificationVisitor extends FunctionTypeIdentificationVisitor<PathLeaf> {
 				private PathFunctionTypeIdentificationVisitor(final FilterFunctionCompare<PathLeaf> context,
@@ -228,10 +213,11 @@ public abstract class FilterFunctionCompare<L extends ExchangeableLeaf<L>> {
 						invalidate();
 						return;
 					}
-					if (!comparePaths(comparePathLeaf.getPath(), targetPathLeaf.getPath()))
-						invalidate();
+					if (!comparePaths(comparePathLeaf.getPath(), targetPathLeaf.getPath())) invalidate();
 				}
-			};
+			}
+
+			;
 		}
 
 	}
@@ -257,8 +243,8 @@ public abstract class FilterFunctionCompare<L extends ExchangeableLeaf<L>> {
 	}
 
 	@RequiredArgsConstructor
-	private static abstract class InvalidatingFWAVisitor<A extends ExchangeableLeaf<A>> implements
-			DefaultFunctionWithArgumentsVisitor<A> {
+	private static abstract class InvalidatingFWAVisitor<A extends ExchangeableLeaf<A>>
+			implements DefaultFunctionWithArgumentsVisitor<A> {
 		final FilterFunctionCompare<A> context;
 
 		@Override
@@ -267,8 +253,8 @@ public abstract class FilterFunctionCompare<L extends ExchangeableLeaf<L>> {
 		}
 	}
 
-	private static abstract class FunctionTypeIdentificationVisitor<A extends ExchangeableLeaf<A>> extends
-			InvalidatingFWAVisitor<A> {
+	private static abstract class FunctionTypeIdentificationVisitor<A extends ExchangeableLeaf<A>>
+			extends InvalidatingFWAVisitor<A> {
 		final FunctionWithArguments<A> fwa;
 
 		protected FunctionTypeIdentificationVisitor(final FilterFunctionCompare<A> context,
@@ -291,7 +277,9 @@ public abstract class FilterFunctionCompare<L extends ExchangeableLeaf<L>> {
 		public void visit(final ConstantLeaf<A> constantLeaf) {
 			this.fwa.accept(new ConstantLeafVisitor<A>(context, constantLeaf));
 		}
-	};
+	}
+
+	;
 
 	private static class ConstantLeafVisitor<A extends ExchangeableLeaf<A>> extends InvalidatingFWAVisitor<A> {
 		final ConstantLeaf<A> constantLeaf;
@@ -307,7 +295,9 @@ public abstract class FilterFunctionCompare<L extends ExchangeableLeaf<L>> {
 				context.invalidate();
 			}
 		}
-	};
+	}
+
+	;
 
 	private static class CompositeVisitor<A extends ExchangeableLeaf<A>> extends InvalidatingFWAVisitor<A> {
 		final GenericWithArgumentsComposite<?, ?, A> composite;
@@ -324,8 +314,8 @@ public abstract class FilterFunctionCompare<L extends ExchangeableLeaf<L>> {
 		}
 
 		private void generic(final GenericWithArgumentsComposite<?, ?, A> genericWithArgumentsComposite) {
-			if (!Objects.equal(genericWithArgumentsComposite.getFunction().inClips(), this.composite.getFunction()
-					.inClips())) {
+			if (!Objects.equal(genericWithArgumentsComposite.getFunction().inClips(),
+					this.composite.getFunction().inClips())) {
 				context.invalidate();
 				return;
 			}
@@ -338,8 +328,7 @@ public abstract class FilterFunctionCompare<L extends ExchangeableLeaf<L>> {
 			// compare args normally
 			compareArguments(addressArgs, pathArgs);
 			// just matches
-			if (context.isValid())
-				return;
+			if (context.isValid()) return;
 			// doesn't match, only has a chance if function is commutative
 			if (!(genericWithArgumentsComposite.getFunction() instanceof CommutativeFunction<?>)) {
 				return;
@@ -351,43 +340,37 @@ public abstract class FilterFunctionCompare<L extends ExchangeableLeaf<L>> {
 				return;
 			}
 			final int lcm = duplicates.values().stream().mapToInt(a -> a.size()).reduce(1, (a, b) -> lcm(a, b));
-			final HashMap<FunctionWithArguments<A>, Integer> indices =
-					IntStream.range(0, pathArgs.length).collect(
-							HashMap::new,
-							(final HashMap<FunctionWithArguments<A>, Integer> m, final int i) -> {
+			final HashMap<FunctionWithArguments<A>, Integer> indices = IntStream.range(0, pathArgs.length)
+					.collect(HashMap::new, (final HashMap<FunctionWithArguments<A>, Integer> m, final int i) -> {
 								m.put(pathArgs[i], Integer.valueOf(i));
 							},
-							(final HashMap<FunctionWithArguments<A>, Integer> m,
-									final HashMap<FunctionWithArguments<A>, Integer> n) -> {
+							(final HashMap<FunctionWithArguments<A>, Integer> m, final
+							HashMap<FunctionWithArguments<A>, Integer> n) -> {
 								m.putAll(n);
 							});
 			final Bool bool = new Bool(false);
 			for (int i = 0; i < lcm; ++i) {
 				final int permutation = i;
-				duplicates
-						.values()
-						.stream()
-						.filter(v -> v.size() > 1)
-						.forEach(
-								(final List<FunctionWithArguments<A>> v) -> {
-									final int size = v.size();
-									for (int j = 0; j < size; ++j) {
-										pathArgs[indices.get(v.get(j))] =
-												pathArgs[indices.get(v.get((j + permutation) % size))];
-										if (!bool.equal) {
-											// equality not yet found to be true
-											compareArguments(addressArgs, pathArgs);
-										}
-										// else just permute back to original order
-										if (context.isValid()) {
-											// is actually equal
-											bool.equal = true;
-										} else {
-											// lets try again
-											context.equal = true;
-										}
-									}
-								});
+				duplicates.values().stream().filter(v -> v.size() > 1)
+						.forEach((final List<FunctionWithArguments<A>> v) -> {
+							final int size = v.size();
+							for (int j = 0; j < size; ++j) {
+								pathArgs[indices.get(v.get(j))] =
+										pathArgs[indices.get(v.get((j + permutation) % size))];
+								if (!bool.equal) {
+									// equality not yet found to be true
+									compareArguments(addressArgs, pathArgs);
+								}
+								// else just permute back to original order
+								if (context.isValid()) {
+									// is actually equal
+									bool.equal = true;
+								} else {
+									// lets try again
+									context.equal = true;
+								}
+							}
+						});
 			}
 			if (!bool.equal) {
 				context.invalidate();
@@ -400,8 +383,7 @@ public abstract class FilterFunctionCompare<L extends ExchangeableLeaf<L>> {
 				final FunctionWithArguments<A> addressFWA = addressArgs[i];
 				final FunctionWithArguments<A> pathFWA = pathArgs[i];
 				pathFWA.accept(context.newFunctionTypeIdentificationVisitor(context, addressFWA));
-				if (!context.isValid())
-					return;
+				if (!context.isValid()) return;
 			}
 		}
 
@@ -434,7 +416,9 @@ public abstract class FilterFunctionCompare<L extends ExchangeableLeaf<L>> {
 		public void visit(final PredicateWithArgumentsComposite<A> predicateWithArgumentsComposite) {
 			generic(predicateWithArgumentsComposite);
 		}
-	};
+	}
+
+	;
 
 	public static boolean equals(final AddressFilter targetFilter, final AddressFilter compareFilter) {
 		return new AddressFilterFunctionCompare(targetFilter, compareFilter).equal;
@@ -449,10 +433,9 @@ public abstract class FilterFunctionCompare<L extends ExchangeableLeaf<L>> {
 	/**
 	 * Permutes a list in place
 	 *
-	 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
-	 *
 	 * @param <T>
-	 *            element type
+	 * 		element type
+	 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
 	 */
 	static class Permutation<T> {
 		final List<T> list;
@@ -472,8 +455,7 @@ public abstract class FilterFunctionCompare<L extends ExchangeableLeaf<L>> {
 		 * @return false if the initial permutation is reached again
 		 */
 		public boolean nextPermutation() {
-			if (length < 2)
-				return false;
+			if (length < 2) return false;
 			int i = length - 1;
 			while (true) {
 				final int ii = i--;
@@ -515,10 +497,9 @@ public abstract class FilterFunctionCompare<L extends ExchangeableLeaf<L>> {
 	/**
 	 * Permutes a List of Permutations at once
 	 *
-	 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
-	 *
 	 * @param <T>
-	 *            element type
+	 * 		element type
+	 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
 	 */
 	static class ComponentwisePermutation<T> {
 		final List<Permutation<T>> permutators;
@@ -539,12 +520,10 @@ public abstract class FilterFunctionCompare<L extends ExchangeableLeaf<L>> {
 			if (this.permutators.isEmpty()) {
 				return false;
 			}
-			for (final Iterator<Permutation<T>> iter = permutators.iterator(); iter.hasNext();) {
+			for (final Iterator<Permutation<T>> iter = permutators.iterator(); iter.hasNext(); ) {
 				final Permutation<T> element = iter.next();
-				if (element.nextPermutation())
-					return true;
-				if (!iter.hasNext())
-					return false;
+				if (element.nextPermutation()) return true;
+				if (!iter.hasNext()) return false;
 			}
 			return true;
 		}
@@ -559,34 +538,31 @@ public abstract class FilterFunctionCompare<L extends ExchangeableLeaf<L>> {
 	 * Checks if a {@link PathNodeFilterSet} is compatible with an existing {@link Node}.
 	 *
 	 * @param targetNode
-	 *            Node candidate
+	 * 		Node candidate
 	 * @param pathFilter
-	 *            PathFilter to compare
-	 * @return null if not compatible otherwise Map from Paths in pathFilter to FactAddresses in
-	 *         targetNode
+	 * 		PathFilter to compare
+	 * @return null if not compatible otherwise Map from Paths in pathFilter to FactAddresses in targetNode
 	 */
 	public static Map<Path, FactAddress> equals(final Node targetNode, final PathNodeFilterSet pathFilter) {
-		final Set<Path> collectedPaths =
-				PathCollector.newHashSet().collectAllInLists(pathFilter).getPaths().stream()
-						.flatMap(p -> p.getJoinedWith().stream()).distinct().collect(toSet());
+		final Set<Path> collectedPaths = PathCollector.newHashSet().collectAllInLists(pathFilter).getPaths().stream()
+				.flatMap(p -> p.getJoinedWith().stream()).distinct().collect(toSet());
 		if (targetNode.getMemory().getTemplate().length != collectedPaths.size()) {
 			return null;
 		}
 
-		if (targetNode.getFilter().getNegativeExistentialAddresses().size() != pathFilter.getNegativeExistentialPaths()
-				.size()
-				|| targetNode.getFilter().getPositiveExistentialAddresses().size() != pathFilter
-						.getPositiveExistentialPaths().size()) {
+		if (targetNode.getFilter().getNegativeExistentialAddresses().size() !=
+				pathFilter.getNegativeExistentialPaths().size() ||
+				targetNode.getFilter().getPositiveExistentialAddresses().size() !=
+						pathFilter.getPositiveExistentialPaths().size()) {
 			return null;
 		}
 
 		if (targetNode.getFilter().getFilters().size() == 1 && pathFilter.getFilters().size() == 1) {
-			final PredicateWithArguments<ParameterLeaf> targetPredicate =
-					FunctionNormaliser.normalise(UniformFunctionTranslator.translate(targetNode.getFilter()
-							.getFilters().iterator().next().getFunction()));
-			final PredicateWithArguments<PathLeaf> comparePredicate =
-					FunctionNormaliser.normalise(UniformFunctionTranslator.translate(pathFilter.getFilters().iterator()
-							.next().getFunction()));
+			final PredicateWithArguments<ParameterLeaf> targetPredicate = FunctionNormaliser.normalise(
+					UniformFunctionTranslator
+							.translate(targetNode.getFilter().getFilters().iterator().next().getFunction()));
+			final PredicateWithArguments<PathLeaf> comparePredicate = FunctionNormaliser.normalise(
+					UniformFunctionTranslator.translate(pathFilter.getFilters().iterator().next().getFunction()));
 			if (!Arrays.equals(targetPredicate.getParamTypes(), comparePredicate.getParamTypes())) {
 				return null;
 			}
@@ -667,11 +643,10 @@ public abstract class FilterFunctionCompare<L extends ExchangeableLeaf<L>> {
 			final AddressNodeFilterSet translatedNodeFilterSet) {
 		final Set<AddressFilter> targetFilters = targetNodeFilterSet.getNormalisedVersion().getFilters();
 		final Set<AddressFilter> translatedFilters = translatedNodeFilterSet.getNormalisedVersion().getFilters();
-		if (targetFilters.size() != translatedFilters.size())
-			return false;
+		if (targetFilters.size() != translatedFilters.size()) return false;
 		// TODO handle hash collisions
 		for (final Iterator<AddressFilter> targetIterator = targetFilters.iterator(), compareIterator =
-				translatedFilters.iterator(); targetIterator.hasNext() && compareIterator.hasNext();) {
+				translatedFilters.iterator(); targetIterator.hasNext() && compareIterator.hasNext(); ) {
 			if (!equals(targetIterator.next(), compareIterator.next())) {
 				return false;
 			}
