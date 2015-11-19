@@ -87,10 +87,12 @@ public class RuleConditionProcessor {
 
 		// copy the whole condition using different sets of fact variables (and equivalence classes)
 		// for the disjuncts
-		final List<EquivalenceClass> allECs =
-				condition.getVariableSymbols().stream().map(VariableSymbol::getEqual).collect(toList());
-		ecCE.getChildren().replaceAll(
-				(final ConditionalElement<ECLeaf> child) -> copyDeeplyUsingNewECsAndFactVariables(allECs, child));
+		{
+			final List<EquivalenceClass> allECs =
+					condition.getVariableSymbols().stream().map(VariableSymbol::getEqual).collect(toList());
+			ecCE.getChildren().replaceAll(
+					(final ConditionalElement<ECLeaf> child) -> copyDeeplyUsingNewECsAndFactVariables(allECs, child));
+		}
 
 		// remove the bindings not present in the corresponding or-part
 		removeMissingBindings(ecCE);
@@ -106,6 +108,9 @@ public class RuleConditionProcessor {
 		ecCE = RuleConditionProcessor.moveNots(ecCE);
 		RuleConditionProcessor.combineNested(ecCE);
 		ecCE = RuleConditionProcessor.expandOrs(ecCE);
+		ecCE.getChildren().replaceAll((final ConditionalElement<ECLeaf> child) ->
+				copyDeeplyUsingNewECsAndFactVariables(
+				child.accept(new DeepECCollector()).getEquivalenceClasses(), child));
 		removeMissingBindings(ecCE);
 
 		return ecCE;
@@ -123,9 +128,8 @@ public class RuleConditionProcessor {
 		}
 	}
 
-	private static ConditionalElement<ECLeaf> copyDeeplyUsingNewECsAndFactVariables(final List<EquivalenceClass>
-			allECs,
-			final ConditionalElement<ECLeaf> child) {
+	private static ConditionalElement<ECLeaf> copyDeeplyUsingNewECsAndFactVariables(
+			final Collection<EquivalenceClass> allECs, final ConditionalElement<ECLeaf> child) {
 		// copy all equivalence classes
 		final HashBiMap<EquivalenceClass, EquivalenceClass> oldToNewEC =
 				HashBiMap.create(allECs.stream().collect(toMap(Function.identity(), EquivalenceClass::new)));
