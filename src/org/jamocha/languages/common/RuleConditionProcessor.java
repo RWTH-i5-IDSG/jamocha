@@ -36,8 +36,7 @@ import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.*;
-import static org.jamocha.util.Lambdas.newIdentityHashSet;
-import static org.jamocha.util.Lambdas.toIdentityHashSet;
+import static org.jamocha.util.Lambdas.*;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
@@ -93,6 +92,9 @@ public class RuleConditionProcessor {
 		ecCE.getChildren().replaceAll(
 				(final ConditionalElement<ECLeaf> child) -> copyDeeplyUsingNewECsAndFactVariables(allECs, child));
 
+		// remove the bindings not present in the corresponding or-part
+		removeMissingBindings(ecCE);
+
 		// split up the equivalence classes on the existential thresholds
 		ecCE.getChildren().replaceAll(child -> ExistentialECSplitter.split(condition.getScope(), child));
 
@@ -104,8 +106,21 @@ public class RuleConditionProcessor {
 		ecCE = RuleConditionProcessor.moveNots(ecCE);
 		RuleConditionProcessor.combineNested(ecCE);
 		ecCE = RuleConditionProcessor.expandOrs(ecCE);
+		removeMissingBindings(ecCE);
 
 		return ecCE;
+	}
+
+	private static void removeMissingBindings(final ConditionalElement<ECLeaf> ecCE) {
+		for (final ConditionalElement<ECLeaf> child : ecCE.getChildren()) {
+			final List<SingleFactVariable> fvs = DeepFactVariableCollector.collect(child);
+			final Set<EquivalenceClass> equivalenceClasses =
+					child.accept(new DeepECCollector()).getEquivalenceClasses();
+			for (final EquivalenceClass equivalenceClass : equivalenceClasses) {
+				equivalenceClass.getFactVariables().removeIf(negate(fvs::contains));
+				equivalenceClass.getSlotVariables().removeIf(sv -> !fvs.contains(sv.getFactVariable()));
+			}
+		}
 	}
 
 	private static ConditionalElement<ECLeaf> copyDeeplyUsingNewECsAndFactVariables(final List<EquivalenceClass>
@@ -590,7 +605,8 @@ public class RuleConditionProcessor {
 			final ConditionalElement<ECLeaf> andCE = ce.getChildren().get(0);
 			final Map<Set<SingleFactVariable>, List<ConditionalElement<ECLeaf>>> partition = determinePartition(andCE);
 			final ArrayList<ConditionalElement<ECLeaf>> conjuncts = Lists.newArrayList();
-			for (final ConditionalElement<ECLeaf> conditionalElement : partition.remove(Collections.<SingleFactVariable>emptySet())) {
+			for (final ConditionalElement<ECLeaf> conditionalElement : partition
+					.remove(Collections.<SingleFactVariable>emptySet())) {
 				// here we don't need the existential, since the CE doesn't use any FVs
 				conjuncts.add(conditionalElement);
 			}
@@ -782,9 +798,8 @@ public class RuleConditionProcessor {
 
 		@Override
 		public void visit(final TestConditionalElement<ECLeaf> ce) {
-			this.result = new TestConditionalElement<>(
-					(PredicateWithArguments<ECLeaf>) ce.getPredicateWithArguments()
-							.accept(new FWAECReplacer(oldToNew::get)).getFunctionWithArguments());
+			this.result = new TestConditionalElement<>((PredicateWithArguments<ECLeaf>) ce.getPredicateWithArguments()
+					.accept(new FWAECReplacer(oldToNew::get)).getFunctionWithArguments());
 		}
 
 		@Override
