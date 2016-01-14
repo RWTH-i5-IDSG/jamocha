@@ -14,19 +14,10 @@
  */
 package org.jamocha.dn.compiler.ecblocks;
 
-import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toSet;
-
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.IdentityHashMap;
-import java.util.List;
-import java.util.Map.Entry;
-import java.util.Objects;
-import java.util.Set;
-
+import com.atlassian.fugue.Either;
+import com.google.common.collect.Sets;
+import com.google.common.collect.Sets.SetView;
 import lombok.Getter;
-
 import org.jamocha.dn.compiler.ecblocks.ECBlocks.FilterInstanceTypePartitioner;
 import org.jamocha.dn.compiler.ecblocks.ECBlocks.Theta;
 import org.jamocha.dn.compiler.ecblocks.ElementPartition.ElementSubSet;
@@ -35,24 +26,84 @@ import org.jamocha.dn.compiler.ecblocks.Filter.FilterInstance;
 import org.jamocha.dn.compiler.ecblocks.Filter.ImplicitECFilterInstance;
 import org.jamocha.dn.compiler.ecblocks.Filter.ImplicitElementFilterInstance;
 import org.jamocha.dn.compiler.ecblocks.Partition.SubSet;
-import org.jamocha.dn.compiler.ecblocks.conflictgraph.ConflictGraph;
-import org.jamocha.dn.compiler.ecblocks.conflictgraph.ConflictGraph.OccurrenceToBindingEdge;
+import org.jamocha.dn.compiler.ecblocks.assignmentgraph.AssignmentGraph;
+import org.jamocha.dn.compiler.ecblocks.assignmentgraph.AssignmentGraph.OccurrenceToBindingEdge;
+import org.jamocha.dn.compiler.ecblocks.assignmentgraph.AssignmentGraphNode;
+import org.jamocha.dn.compiler.ecblocks.assignmentgraph.node.binding.BindingType;
+import org.jamocha.dn.compiler.ecblocks.assignmentgraph.node.occurrence.OccurrenceType;
 import org.jamocha.dn.compiler.ecblocks.element.Element;
-import org.jamocha.dn.compiler.ecblocks.element.VariableExpression;
+import org.jamocha.dn.compiler.ecblocks.element.FunctionalExpression;
 import org.jamocha.languages.common.RuleCondition.EquivalenceClass;
 import org.jamocha.languages.common.SingleFactVariable;
+import org.jgrapht.Graph;
+import org.jgrapht.Graphs;
+import org.jgrapht.graph.SimpleGraph;
+import org.jgrapht.graph.Subgraph;
 
-import com.atlassian.fugue.Either;
-import com.google.common.collect.Sets;
-import com.google.common.collect.Sets.SetView;
+import java.util.*;
+import java.util.Map.Entry;
+
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toSet;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
 @Getter
 public class Block {
-	// conflict graph
-	final ConflictGraph graph;
+
+	private class BlockRows {
+		final Graph<AssignmentGraphNode, OccurrenceToBindingEdge> assignmentGraph;
+		final Graph<AssignmentGraphNode, OccurrenceToBindingEdge> subgraph;
+
+		public BlockRows(final Graph<AssignmentGraphNode, OccurrenceToBindingEdge> assignmentGraph, final Set<AssignmentGraphNode> nodes) {
+			this.assignmentGraph = assignmentGraph;
+			this.subgraph = new Subgraph<>(assignmentGraph, nodes);
+		}
+
+		public boolean addEdge(final OccurrenceToBindingEdge occurrenceToBindingEdge) {
+			return Graphs.addEdgeWithVertices(subgraph, assignmentGraph, occurrenceToBindingEdge);
+		}
+
+		public boolean addEdge(final AssignmentGraphNode sourceVertex, final AssignmentGraphNode targetVertex,
+				final OccurrenceToBindingEdge occurrenceToBindingEdge) {
+			return subgraph.addEdge(sourceVertex,targetVertex, occurrenceToBindingEdge);
+		}
+	}
+
+	private class BlockColumn {
+		final OccurrenceType occurrenceType;
+		final BindingType bindingType;
+		final Set<OccurrenceToBindingEdge> edges;
+
+		public BlockColumn(final SimpleGraph<AssignmentGraphNode, OccurrenceToBindingEdge> graph,
+				final Set<OccurrenceToBindingEdge> edges) {
+			assert !edges.isEmpty();
+			this.edges = edges;
+			final OccurrenceToBindingEdge edge = edges.iterator().next();
+			this.occurrenceType = edge.getOccurrence(graph).getOccurrenceType();
+			assert edges.stream().allMatch(e -> this.occurrenceType == e.getOccurrence(graph).getOccurrenceType());
+			this.bindingType = edge.getBinding(graph).getBindingType();
+			assert edges.stream().allMatch(e -> this.bindingType == e.getBinding(graph).getBindingType());
+		}
+	}
+
+	public Set<AssignmentGraphNode> getNodesOfType(
+			final SimpleGraph<AssignmentGraphNode, OccurrenceToBindingEdge> graph, final BindingType type) {
+		return columns.stream().filter(c -> type == c.bindingType)
+				.flatMap(c -> c.edges.stream().map(e -> e.getBinding(graph))).collect(toSet());
+	}
+
+	public Set<AssignmentGraphNode> getNodesOfType(
+			final SimpleGraph<AssignmentGraphNode, OccurrenceToBindingEdge> graph, final OccurrenceType type) {
+		return columns.stream().filter(c -> type == c.occurrenceType)
+				.flatMap(c -> c.edges.stream().map(e -> e.getOccurrence(graph))).collect(toSet());
+	}
+
+
+	final BlockRows rows = new BlockRow();
+	final Set<BlockColumn> columns = new HashSet<>();
+
 	// rules of the block
 	final Set<RowIdentifier> rows;
 	// abstract filters of the block
@@ -69,7 +120,7 @@ public class Block {
 	final FactVariablePartition factVariablePartition;
 	final ElementPartition elementPartition;
 
-	public Block(final ConflictGraph graph) {
+	public Block(final AssignmentGraph graph) {
 		assert !factVariablePartition.subSets.isEmpty();
 		this.theta = new Theta();
 		this.variableExpressionTheta = new Theta();
@@ -94,8 +145,8 @@ public class Block {
 
 	@Override
 	public String toString() {
-		return "Block(" + this.getNumberOfColumns() + "x" + this.getNumberOfRows() + "): "
-				+ Objects.toString(this.edgePartition);
+		return "Block(" + this.getNumberOfColumns() + "x" + this.getNumberOfRows() + "): " +
+				Objects.toString(this.edgePartition);
 	}
 
 	public int getNumberOfRows() {
@@ -133,21 +184,17 @@ public class Block {
 	public Set<Filter.FilterInstance> getConflictNeighbours() {
 		if (this.blockModCount != this.graphModCount) {
 			final Set<List<Filter.FilterInstance>> filterInstancesGroupedByRule =
-					this.rows
-							.stream()
-							.<Filter.FilterInstance> flatMap(
-									rule -> Util.getFilters(rule).stream()
-											.flatMap(f -> f.getAllInstances(rule).stream()))
+					this.rows.stream().<Filter.FilterInstance>flatMap(
+							rule -> Util.getFilters(rule).stream().flatMap(f -> f.getAllInstances(rule).stream()))
 							.collect(ECBlocks.groupingIntoSets(FilterInstance::getRuleOrProxy, toList()));
 			this.graph = ECBlocks.determineConflictGraph(this.theta, filterInstancesGroupedByRule);
 			this.graphModCount = this.blockModCount;
 		}
 		final SetView<Filter.FilterInstance> outside =
 				Sets.difference(this.graph.vertexSet(), this.flatFilterInstances);
-		final Set<Filter.FilterInstance> neighbours =
-				outside.stream()
-						.filter(nFI -> this.flatFilterInstances.stream().anyMatch(
-								bFI -> this.graph.containsEdge(bFI, nFI))).collect(toSet());
+		final Set<Filter.FilterInstance> neighbours = outside.stream()
+				.filter(nFI -> this.flatFilterInstances.stream().anyMatch(bFI -> this.graph.containsEdge(bFI, nFI)))
+				.collect(toSet());
 		return neighbours;
 	}
 
@@ -196,16 +243,15 @@ public class Block {
 	}
 
 	/**
-	 * Removes the column. If the column is an implicit filter instance column, the right argument
-	 * is removed from the equivalence class of the block.
-	 * 
+	 * Removes the column. If the column is an implicit filter instance column, the right argument is removed from the
+	 * equivalence class of the block.
+	 *
 	 * @param column
-	 *            column to be removed
+	 * 		column to be removed
 	 * @return true iff the block was changed
 	 */
 	public boolean remove(final FilterInstanceSubSet column) {
-		if (!removeFilterInstanceSubSet(column))
-			return false;
+		if (!removeFilterInstanceSubSet(column)) return false;
 		final FilterInstanceTypePartitioner partition =
 				FilterInstanceTypePartitioner.partition(column.elements.values());
 		if (!partition.getExplicitFilterInstances().isEmpty()) {
@@ -215,30 +261,28 @@ public class Block {
 			final ImplicitECFilterInstance someFI = fis.get(0);
 			removeFilterInstanceSubSet(filterInstancePartition.lookup(someFI.getDual()));
 			// consider element stuff
-			final VariableExpression someElement = someFI.getRight();
+			final FunctionalExpression someElement = someFI.getRight();
 			final SubSet<Element> elementSubSet = elementPartition.lookup(someElement);
 			// remove from element partition
 			elementPartition.remove(elementSubSet);
 			boolean fisremoved = false;
 			for (final Entry<Either<Rule, ExistentialProxy>, Element> entry : elementSubSet.elements.entrySet()) {
 				final Either<Rule, ExistentialProxy> rule = entry.getKey();
-				final VariableExpression element = (VariableExpression) entry.getValue();
+				final FunctionalExpression element = (FunctionalExpression) entry.getValue();
 				final EquivalenceClass ec = element.getEquivalenceClass();
 				@SuppressWarnings("unchecked")
-				final Set<VariableExpression> reduced =
-						(Set<VariableExpression>) (Set<?>) variableExpressionTheta.reduce(ec);
+				final Set<FunctionalExpression> reduced =
+						(Set<FunctionalExpression>) (Set<?>) variableExpressionTheta.reduce(ec);
 				reduced.remove(element);
 				if (reduced.isEmpty()) {
 					variableExpressionTheta.equivalenceClassToReduced.remove(ec);
 				} else if (!fisremoved) {
 					fisremoved = true;
-					for (final VariableExpression other : reduced) {
+					for (final FunctionalExpression other : reduced) {
 						final Filter filter = Filter.newEqualityFilter(element, other);
-						final ImplicitECFilterInstance next =
-								filter.getImplicitECInstances(rule)
-										.stream()
-										.filter(fi -> (fi.left == element && fi.right == other)
-												|| (fi.left == other && fi.right == element)).iterator().next();
+						final ImplicitECFilterInstance next = filter.getImplicitECInstances(rule).stream()
+								.filter(fi -> (fi.left == element && fi.right == other) ||
+										(fi.left == other && fi.right == element)).iterator().next();
 						removeFilterInstanceSubSet(filterInstancePartition.lookup(next));
 						removeFilterInstanceSubSet(filterInstancePartition.lookup(next.getDual()));
 					}
@@ -266,11 +310,9 @@ public class Block {
 					fisremoved = true;
 					for (final Element other : reduced) {
 						final Filter filter = Filter.newEqualityFilter(element, other);
-						final ImplicitElementFilterInstance next =
-								filter.getImplicitElementInstances(rule)
-										.stream()
-										.filter(fi -> (fi.left == element && fi.right == other)
-												|| (fi.left == other && fi.right == element)).iterator().next();
+						final ImplicitElementFilterInstance next = filter.getImplicitElementInstances(rule).stream()
+								.filter(fi -> (fi.left == element && fi.right == other) ||
+										(fi.left == other && fi.right == element)).iterator().next();
 						removeFilterInstanceSubSet(filterInstancePartition.lookup(next));
 						removeFilterInstanceSubSet(filterInstancePartition.lookup(next.getDual()));
 					}

@@ -210,7 +210,7 @@ public class CEToECTranslator implements DefaultConditionalElementsVisitor<ECLea
 				}
 				// for every FWA, check whether the FWA occurs in the CE
 				ec.getConstantExpressions().removeIf(fwa -> !occurringFWAs.contains(fwa));
-				ec.getVariableExpressions().removeIf(fwa -> !occurringFWAs.contains(fwa));
+				ec.getFunctionalExpressions().removeIf(fwa -> !occurringFWAs.contains(fwa));
 			}
 
 			/* merge (bind)s and overlapping SlotVariables */
@@ -419,7 +419,7 @@ public class CEToECTranslator implements DefaultConditionalElementsVisitor<ECLea
 							// replace right with left everywhere
 							ShallowCEEquivalenceClassBuilder.this.equivalenceClasses.put(arg, left);
 							// replace all constants in right to point to left
-							if (!right.getConstantExpressions().isEmpty() || !right.getVariableExpressions().isEmpty()) {
+							if (!right.getConstantExpressions().isEmpty() || !right.getFunctionalExpressions().isEmpty()) {
 								for (final Entry<FunctionWithArguments<SymbolLeaf>, EquivalenceClass> entry : ShallowCEEquivalenceClassBuilder.this.equivalenceClasses
 										.entrySet()) {
 									if (entry.getValue() == right) {
@@ -610,7 +610,7 @@ public class CEToECTranslator implements DefaultConditionalElementsVisitor<ECLea
 			// if (equalParents.isEmpty())
 			// continue;
 			// if (ec.getFactVariables().isEmpty() && ec.getSlotVariables().isEmpty()
-			// && ec.getConstantExpressions().isEmpty() && ec.getVariableExpressions().isEmpty())
+			// && ec.getConstantExpressions().isEmpty() && ec.getFunctionalExpressions().isEmpty())
 			// continue;
 			// for (final EquivalenceClass equalParent : equalParents) {
 			// predicates.add(PredicateWithArgumentsComposite.newPredicateInstance(Equals.inClips,

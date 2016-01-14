@@ -452,7 +452,7 @@ public class RuleConditionProcessor {
 
 		private static EquivalenceClass splitEC(final Scope scope, final Set<SingleFactVariable> shallowFactVariables,
 				final EquivalenceClass oldEC) throws IllegalStateException {
-			assert oldEC.getConstantExpressions().isEmpty() && oldEC.getVariableExpressions().isEmpty() :
+			assert oldEC.getConstantExpressions().isEmpty() && oldEC.getFunctionalExpressions().isEmpty() :
 					"This method assumes that the parser leaves the equality tests involving constants and variable " +
 							"expressions explicitly.";
 			if (scope == oldEC.getMaximalScope()) {

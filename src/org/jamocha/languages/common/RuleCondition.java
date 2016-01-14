@@ -87,7 +87,7 @@ public class RuleCondition {
 		final LinkedList<SingleFactVariable> factVariables;
 		final LinkedList<SingleSlotVariable> slotVariables;
 		final LinkedList<FunctionWithArguments<ECLeaf>> constantExpressions;
-		final LinkedList<FunctionWithArguments<ECLeaf>> variableExpressions;
+		final LinkedList<FunctionWithArguments<ECLeaf>> functionalExpressions;
 		final Set<EquivalenceClass> equalParentEquivalenceClasses = new HashSet<>();
 		final Set<SingleFactVariable> merged = new HashSet<>();
 		protected Scope maximalScope;
@@ -105,8 +105,8 @@ public class RuleCondition {
 				sb.append(Objects.toString(slotVariables));
 			if (!constantExpressions.isEmpty())
 				sb.append(Objects.toString(constantExpressions));
-			if (!variableExpressions.isEmpty())
-				sb.append(Objects.toString(variableExpressions));
+			if (!functionalExpressions.isEmpty())
+				sb.append(Objects.toString(functionalExpressions));
 			if (!equalParentEquivalenceClasses.isEmpty())
 				sb.append(Objects.toString(equalParentEquivalenceClasses));
 			sb.append("}@");
@@ -149,7 +149,7 @@ public class RuleCondition {
 
 		public EquivalenceClass(final EquivalenceClass copy) {
 			this(new LinkedList<>(copy.factVariables), new LinkedList<>(copy.slotVariables), new LinkedList<>(
-					copy.constantExpressions), new LinkedList<>(copy.variableExpressions), copy.maximalScope, copy.type);
+					copy.constantExpressions), new LinkedList<>(copy.functionalExpressions), copy.maximalScope, copy.type);
 		}
 
 		public Set<SingleFactVariable> getDirectlyDependentFactVariables() {
@@ -160,7 +160,7 @@ public class RuleCondition {
 		public Set<SingleFactVariable> getDependentFactVariables() {
 			return Sets.union(Sets.newHashSet(this.getFactVariables()), Sets.union(
 					this.slotVariables.stream().map(SingleSlotVariable::getFactVariable).collect(toSet()),
-					this.variableExpressions.stream().flatMap(fwa -> ECCollector.collect(fwa).stream()).distinct()
+					this.functionalExpressions.stream().flatMap(fwa -> ECCollector.collect(fwa).stream()).distinct()
 							.flatMap(ec -> ec.getFactVariables().stream()).collect(toSet())));
 		}
 
@@ -265,7 +265,7 @@ public class RuleCondition {
 				throw new IllegalArgumentException("Tried to add a FunctionWithArguments of type "
 						+ fwa.getReturnType() + " to an EquivalenceClass of type " + type + "!");
 			}
-			checkContainmentAndAdd(ECCollector.collect(fwa).isEmpty() ? constantExpressions : variableExpressions, fwa);
+			checkContainmentAndAdd(ECCollector.collect(fwa).isEmpty() ? constantExpressions : functionalExpressions, fwa);
 		}
 
 		private static void checkContainmentAndAdd(final LinkedList<FunctionWithArguments<ECLeaf>> target,
@@ -311,7 +311,7 @@ public class RuleCondition {
 		public boolean isNonTrivial() {
 			return (this.factVariables.isEmpty() ? 0 : 1) + this.slotVariables.size()
 					+ this.equalParentEquivalenceClasses.size() + this.constantExpressions.size()
-					+ this.variableExpressions.size() > 1;
+					+ this.functionalExpressions.size() > 1;
 		}
 	}
 }

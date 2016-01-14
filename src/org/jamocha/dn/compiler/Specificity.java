@@ -57,7 +57,7 @@ public class Specificity<L extends ExchangeableLeaf<L>> implements DefaultFuncti
 						.map(sv -> sv.getEqual())
 						.distinct()
 						.mapToInt(
-								ec -> ec.getConstantExpressions().size() + ec.getVariableExpressions().size()
+								ec -> ec.getConstantExpressions().size() + ec.getFunctionalExpressions().size()
 										+ ec.getSlotVariables().size() + (ec.getFactVariables().isEmpty() ? 0 : 1) - 1)
 						.filter(i -> i > 0).sum();
 		return instance.specificity;

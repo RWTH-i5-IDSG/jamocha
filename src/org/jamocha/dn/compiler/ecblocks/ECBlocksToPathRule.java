@@ -66,7 +66,7 @@ import org.jamocha.dn.compiler.ecblocks.element.Element;
 import org.jamocha.dn.compiler.ecblocks.element.ElementVisitor;
 import org.jamocha.dn.compiler.ecblocks.element.FactBinding;
 import org.jamocha.dn.compiler.ecblocks.element.SlotBinding;
-import org.jamocha.dn.compiler.ecblocks.element.VariableExpression;
+import org.jamocha.dn.compiler.ecblocks.element.FunctionalExpression;
 import org.jamocha.filter.ECFilterSet.ECExistentialSet;
 import org.jamocha.filter.Path;
 import org.jamocha.filter.PathCollector;
@@ -229,7 +229,7 @@ public class ECBlocksToPathRule {
 		}
 
 		@Override
-		public void visit(final VariableExpression element) {
+		public void visit(final FunctionalExpression element) {
 		}
 	}
 
@@ -464,13 +464,13 @@ public class ECBlocksToPathRule {
 									block.variableExpressionTheta
 											.reduce(ec)
 											.stream()
-											.filter(e -> ((VariableExpression) e).getEcsInVE().stream()
+											.filter(e -> ((FunctionalExpression) e).getEcsInVE().stream()
 													.allMatch(eec -> blockEC2Constant.containsKey(eec))).findAny();
 							if (optElement.isPresent()) {
 								changed = true;
 								blockEC2Constant.put(ec, Pair.of(optElement.get(), FWAEvaluatorForConstantECs.evaluate(
 										Maps.transformValues(blockEC2Constant, Pair::getRight),
-										((VariableExpression) optElement.get()).variableExpression)));
+										((FunctionalExpression) optElement.get()).variableExpression)));
 								iterator.remove();
 							}
 						}

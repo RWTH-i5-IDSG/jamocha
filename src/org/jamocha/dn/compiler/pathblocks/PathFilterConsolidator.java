@@ -208,7 +208,7 @@ public class PathFilterConsolidator implements DefaultConditionalElementsVisitor
 				// there should not be any constant or variable expressions within the equivalence
 				// classes -- all tests are left explicitly
 				assert ec.getConstantExpressions().isEmpty();
-				assert ec.getVariableExpressions().isEmpty();
+				assert ec.getFunctionalExpressions().isEmpty();
 			}
 
 			/* merge (bind)s and overlapping SlotVariables */

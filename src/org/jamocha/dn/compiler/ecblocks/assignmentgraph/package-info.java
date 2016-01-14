@@ -12,26 +12,7 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package org.jamocha.dn.compiler.ecblocks.conflictgraph;
-
-import lombok.Getter;
-
-import org.jamocha.dn.compiler.ecblocks.ECOccurrence;
-import org.jamocha.dn.compiler.ecblocks.element.VariableExpression;
-
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
-@Getter
-public class VariableExpressionNode extends ECOccurrenceNode {
-	final IndirectBindingNode groupingIndirectBinding;
-
-	public VariableExpressionNode(final ECOccurrence occcurrence, final IndirectBindingNode groupingIndirectBinding) {
-		super(occcurrence);
-		this.groupingIndirectBinding = groupingIndirectBinding;
-	}
-
-	public VariableExpression getVariableExpression() {
-		return this.groupingIndirectBinding.getCorrespondingVE();
-	}
-}
+package org.jamocha.dn.compiler.ecblocks.assignmentgraph;

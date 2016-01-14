@@ -12,15 +12,12 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package org.jamocha.dn.compiler.ecblocks.conflictgraph;
+package org.jamocha.dn.compiler.ecblocks.assignmentgraph;
 
-import org.jamocha.dn.compiler.ecblocks.ECOccurrence;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
-public class ImplicitDBNode extends ECOccurrenceNode {
-	public ImplicitDBNode(final ECOccurrence occcurrence) {
-		super(occcurrence);
-	}
+public interface AssignmentGraphNode {
+
 }

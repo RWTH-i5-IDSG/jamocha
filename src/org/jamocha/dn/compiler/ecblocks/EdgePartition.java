@@ -20,7 +20,7 @@ import java.util.Map;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
-import org.jamocha.dn.compiler.ecblocks.conflictgraph.ConflictGraph.OccurrenceToBindingEdge;
+import org.jamocha.dn.compiler.ecblocks.assignmentgraph.AssignmentGraph.OccurrenceToBindingEdge;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>

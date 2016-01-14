@@ -77,12 +77,12 @@ import org.jamocha.dn.compiler.ecblocks.Filter.ImplicitECFilterInstance;
 import org.jamocha.dn.compiler.ecblocks.Filter.ImplicitElementFilterInstance;
 import org.jamocha.dn.compiler.ecblocks.Filter.ImplicitFilterInstance;
 import org.jamocha.dn.compiler.ecblocks.Partition.SubSet;
-import org.jamocha.dn.compiler.ecblocks.conflictgraph.ConflictGraph;
+import org.jamocha.dn.compiler.ecblocks.assignmentgraph.AssignmentGraph;
 import org.jamocha.dn.compiler.ecblocks.element.ConstantExpression;
 import org.jamocha.dn.compiler.ecblocks.element.Element;
 import org.jamocha.dn.compiler.ecblocks.element.FactBinding;
 import org.jamocha.dn.compiler.ecblocks.element.SlotBinding;
-import org.jamocha.dn.compiler.ecblocks.element.VariableExpression;
+import org.jamocha.dn.compiler.ecblocks.element.FunctionalExpression;
 import org.jamocha.dn.memory.SlotAddress;
 import org.jamocha.dn.memory.Template;
 import org.jamocha.filter.ECFilter;
@@ -340,11 +340,11 @@ public class ECBlocks {
 
 	@AllArgsConstructor
 	static class RuleConverter implements ECFilterSetVisitor {
-		final ConflictGraph graph;
+		final AssignmentGraph graph;
 		final List<Either<Rule, ExistentialProxy>> rules;
 		final Either<Rule, ExistentialProxy> ruleOrProxy;
 
-		public static void convert(final ConflictGraph builder,
+		public static void convert(final AssignmentGraph builder,
 				final List<Either<Rule, ExistentialProxy>> rules, final Either<Rule, ExistentialProxy> ruleOrProxy,
 				final Collection<ECFilterSet> filters) {
 			builder.addECs(ruleOrProxy, ruleOrProxy.fold(rule -> rule.original.getEquivalenceClasses(),
@@ -462,7 +462,7 @@ public class ECBlocks {
 		return block.variableExpressionTheta
 				.reduce(ec)
 				.stream()
-				.filter(e -> ((VariableExpression) e).getEcsInVE().stream()
+				.filter(e -> ((FunctionalExpression) e).getEcsInVE().stream()
 						.allMatch(eec -> getConstantInEC(block, eec).isPresent())).findAny();
 	}
 
@@ -1578,11 +1578,11 @@ public class ECBlocks {
 
 				final ImplicitECFilterInstance nChosenFI = nFICombination.get(0);
 
-				final Function<ImplicitECFilterInstance, VariableExpression> getBElement, getNElement;
-				final BiFunction<VariableExpression, VariableExpression, Filter> bnToFilter;
+				final Function<ImplicitECFilterInstance, FunctionalExpression> getBElement, getNElement;
+				final BiFunction<FunctionalExpression, FunctionalExpression, Filter> bnToFilter;
 				{
-					final VariableExpression left = nChosenFI.getLeft();
-					final VariableExpression right = nChosenFI.getRight();
+					final FunctionalExpression left = nChosenFI.getLeft();
+					final FunctionalExpression right = nChosenFI.getRight();
 					final boolean leftInBlock = block.variableExpressionTheta.isRelevant(left);
 					final boolean rightInBlock = block.variableExpressionTheta.isRelevant(right);
 					if (leftInBlock && rightInBlock) {
@@ -1615,9 +1615,9 @@ public class ECBlocks {
 				// them and inside over the rules to get a list of FilterInstanceSubSets
 
 				// find the tests for all the other elements in theta(bElement.getEC())
-				final Map<Either<Rule, ExistentialProxy>, VariableExpression> ruleToNElement =
+				final Map<Either<Rule, ExistentialProxy>, FunctionalExpression> ruleToNElement =
 						Maps.transformValues(nFirstColumn, getNElement::apply);
-				final VariableExpression chosenBElement = getBElement.apply(nChosenFI);
+				final FunctionalExpression chosenBElement = getBElement.apply(nChosenFI);
 				final Set<Element> representativesOfTheRest =
 						Sets.difference(block.variableExpressionTheta.reduce(chosenBElement.getEquivalenceClass()),
 								Collections.singleton(chosenBElement));
@@ -1626,8 +1626,8 @@ public class ECBlocks {
 							new IdentityHashMap<>();
 					final SubSet<Element> representativeSubSet = bElementPartition.lookup(representative);
 					for (final Either<Rule, ExistentialProxy> rule : rules) {
-						final VariableExpression currentBElement = (VariableExpression) representativeSubSet.get(rule);
-						final VariableExpression currentNElement = ruleToNElement.get(rule);
+						final FunctionalExpression currentBElement = (FunctionalExpression) representativeSubSet.get(rule);
+						final FunctionalExpression currentNElement = ruleToNElement.get(rule);
 						final Filter filter = bnToFilter.apply(currentBElement, currentNElement);
 						final ImplicitECFilterInstance matchingInstance =
 								findMatchingFilterInstanceForVariableExpressions(workspaceByRule, getBElement,
@@ -1666,10 +1666,10 @@ public class ECBlocks {
 
 	protected static ImplicitECFilterInstance findMatchingFilterInstanceForVariableExpressions(
 			final Map<Either<Rule, ExistentialProxy>, Map<Filter, Set<ImplicitECFilterInstance>>> workspaceByRule,
-			final Function<ImplicitECFilterInstance, VariableExpression> getBElement,
-			final VariableExpression currentBElement,
-			final Function<ImplicitECFilterInstance, VariableExpression> getNElement,
-			final VariableExpression currentNElement, final Either<Rule, ExistentialProxy> rule, final Filter filter) {
+			final Function<ImplicitECFilterInstance, FunctionalExpression> getBElement,
+			final FunctionalExpression currentBElement,
+			final Function<ImplicitECFilterInstance, FunctionalExpression> getNElement,
+			final FunctionalExpression currentNElement, final Either<Rule, ExistentialProxy> rule, final Filter filter) {
 		final Set<ImplicitECFilterInstance> candidates =
 				workspaceByRule.getOrDefault(rule, Collections.emptyMap()).getOrDefault(filter, Collections.emptySet());
 		for (final ImplicitECFilterInstance candidate : candidates) {

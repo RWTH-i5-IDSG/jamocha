@@ -16,17 +16,17 @@ import org.jamocha.languages.common.RuleCondition.EquivalenceClass;
  */
 @RequiredArgsConstructor
 @Getter
-@EqualsAndHashCode(of = { "variableExpression" })
-@ToString(of = "variableExpression")
-public class VariableExpression {
-	final FunctionWithArguments<ECOccurrenceLeaf> variableExpression;
+@EqualsAndHashCode(of = { "functionalExpression" })
+@ToString(of = "functionalExpression")
+public class FunctionalExpression {
+	final FunctionWithArguments<ECOccurrenceLeaf> functionalExpression;
 	final FunctionWithArguments<TypeLeaf> lookupKey;
 	final EquivalenceClass originEquivalenceClass;
 
-	public VariableExpression(final FunctionWithArguments<ECOccurrenceLeaf> variableExpression,
+	public FunctionalExpression(final FunctionWithArguments<ECOccurrenceLeaf> functionalExpression,
 			final EquivalenceClass originEquivalenceClass) {
-		this.variableExpression = variableExpression;
-		this.lookupKey = FWAECOccurrenceLeafToTypeLeafTranslator.translate(variableExpression);
+		this.functionalExpression = functionalExpression;
+		this.lookupKey = FWAECOccurrenceLeafToTypeLeafTranslator.translate(functionalExpression);
 		this.originEquivalenceClass = originEquivalenceClass;
 	}
 
