@@ -15,10 +15,11 @@ package org.jamocha.dn.compiler.ecblocks.assignmentgraph.node.occurrence;
 import lombok.RequiredArgsConstructor;
 import org.jamocha.dn.compiler.ecblocks.ECOccurrence;
 import org.jamocha.dn.compiler.ecblocks.assignmentgraph.AssignmentGraphNode;
+import org.jamocha.dn.compiler.ecblocks.assignmentgraph.NodeType;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
-public enum OccurrenceType {
+public enum OccurrenceType implements NodeType {
 	IMPLICIT_OCCURRENCE, FILTER_OCCURRENCE, FUNCTIONAL_OCCURRENCE;
 }

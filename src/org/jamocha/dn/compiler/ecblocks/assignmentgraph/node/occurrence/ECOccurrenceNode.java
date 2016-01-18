@@ -23,8 +23,6 @@ import org.jamocha.dn.compiler.ecblocks.assignmentgraph.AssignmentGraphNode;
  */
 @Getter
 @RequiredArgsConstructor
-public abstract class ECOccurrenceNode implements AssignmentGraphNode {
+public abstract class ECOccurrenceNode implements AssignmentGraphNode<OccurrenceType> {
 	final ECOccurrence occurrence;
-
-	public abstract OccurrenceType getOccurrenceType();
 }

@@ -21,8 +21,6 @@ import org.jamocha.languages.common.RuleCondition;
  */
 @Getter
 @RequiredArgsConstructor
-public abstract class BindingNode implements AssignmentGraphNode {
+public abstract class BindingNode implements AssignmentGraphNode<BindingType> {
 	final RuleCondition.EquivalenceClass equivalenceClass;
-
-	public abstract BindingType getBindingType();
 }

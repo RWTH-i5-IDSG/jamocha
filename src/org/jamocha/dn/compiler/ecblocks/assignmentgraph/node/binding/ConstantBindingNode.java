@@ -31,7 +31,7 @@ public class ConstantBindingNode extends BindingNode {
 	}
 
 	@Override
-	public BindingType getBindingType() {
+	public BindingType getNodeType() {
 		return BindingType.CONSTANT_EXPRESSION;
 	}
 }

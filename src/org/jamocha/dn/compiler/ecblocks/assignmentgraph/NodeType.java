@@ -12,14 +12,11 @@
  * the specific language governing permissions and limitations under
  * the License.
  */
+package org.jamocha.dn.compiler.ecblocks.assignmentgraph;
 
-package org.jamocha.dn.compiler.ecblocks.assignmentgraph.node.binding;
-
-import org.jamocha.dn.compiler.ecblocks.assignmentgraph.NodeType;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
-public enum BindingType implements NodeType {
-	FACT_BINDING, SLOT_BINDING, CONSTANT_EXPRESSION, FUNCTIONAL_EXPRESSION;
+public interface NodeType{
 }

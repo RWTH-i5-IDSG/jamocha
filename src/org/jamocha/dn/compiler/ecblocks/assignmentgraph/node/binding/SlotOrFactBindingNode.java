@@ -12,28 +12,19 @@
  * the specific language governing permissions and limitations under
  * the License.
  */
+
 package org.jamocha.dn.compiler.ecblocks.assignmentgraph.node.binding;
 
-import lombok.Getter;
-import org.jamocha.dn.compiler.ecblocks.ECOccurrenceLeaf;
-import org.jamocha.function.fwa.FunctionWithArguments;
 import org.jamocha.languages.common.RuleCondition;
+import org.jamocha.languages.common.SingleFactVariable;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
-@Getter
-public class FunctionalExpressionBindingNode extends BindingNode {
-	final FunctionWithArguments<ECOccurrenceLeaf> functionalExpression;
-
-	public FunctionalExpressionBindingNode(final RuleCondition.EquivalenceClass equivalenceClass,
-			final FunctionWithArguments<ECOccurrenceLeaf> functionalExpression) {
+public abstract class SlotOrFactBindingNode extends BindingNode {
+	public SlotOrFactBindingNode(final RuleCondition.EquivalenceClass equivalenceClass) {
 		super(equivalenceClass);
-		this.functionalExpression = functionalExpression;
 	}
 
-	@Override
-	public BindingType getNodeType() {
-		return BindingType.FUNCTIONAL_EXPRESSION;
-	}
+	public abstract SingleFactVariable getGroupingFactVariable();
 }

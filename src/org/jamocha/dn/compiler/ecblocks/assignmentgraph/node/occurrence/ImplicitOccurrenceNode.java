@@ -27,7 +27,7 @@ public class ImplicitOccurrenceNode extends ECOccurrenceNode {
 	}
 
 	@Override
-	public OccurrenceType getOccurrenceType() {
+	public OccurrenceType getNodeType() {
 		return OccurrenceType.IMPLICIT_OCCURRENCE;
 	}
 }

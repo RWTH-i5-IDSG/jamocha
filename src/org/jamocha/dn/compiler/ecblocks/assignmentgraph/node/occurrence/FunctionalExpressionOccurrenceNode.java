@@ -39,7 +39,7 @@ public class FunctionalExpressionOccurrenceNode extends ECOccurrenceNode {
 	}
 
 	@Override
-	public OccurrenceType getOccurrenceType() {
+	public OccurrenceType getNodeType() {
 		return OccurrenceType.FUNCTIONAL_OCCURRENCE;
 	}
 }

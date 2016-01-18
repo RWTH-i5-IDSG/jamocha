@@ -14,6 +14,7 @@
  */
 package org.jamocha.dn.compiler.ecblocks.assignmentgraph;
 
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Value;
@@ -29,12 +30,12 @@ import org.jamocha.function.fwa.*;
 import org.jamocha.function.fwatransformer.FWAECLeafToTypeLeafTranslator;
 import org.jamocha.languages.common.RuleCondition.EquivalenceClass;
 import org.jamocha.languages.common.SingleFactVariable;
+import org.jgrapht.DirectedGraph;
 import org.jgrapht.EdgeFactory;
-import org.jgrapht.graph.SimpleGraph;
+import org.jgrapht.graph.SimpleDirectedGraph;
 
 import java.util.*;
 
-import static org.jamocha.util.Lambdas.newIdentityHashMap;
 import static org.jamocha.util.Lambdas.newIdentityHashSet;
 
 /**
@@ -47,7 +48,8 @@ public class AssignmentGraph {
 			return getOccurrence(graph.graph);
 		}
 
-		public ECOccurrenceNode getOccurrence(final SimpleGraph<AssignmentGraphNode, OccurrenceToBindingEdge> graph) {
+		public ECOccurrenceNode getOccurrence(final DirectedGraph<AssignmentGraphNode, OccurrenceToBindingEdge>
+				graph) {
 			return (ECOccurrenceNode) graph.getEdgeSource(this);
 		}
 
@@ -55,7 +57,7 @@ public class AssignmentGraph {
 			return getBinding(graph.graph);
 		}
 
-		public BindingNode getBinding(final SimpleGraph<AssignmentGraphNode, OccurrenceToBindingEdge> graph) {
+		public BindingNode getBinding(final DirectedGraph<AssignmentGraphNode, OccurrenceToBindingEdge> graph) {
 			return (BindingNode) graph.getEdgeTarget(this);
 		}
 	}
@@ -73,74 +75,10 @@ public class AssignmentGraph {
 	}
 
 	// the actual graph
-	final SimpleGraph<AssignmentGraphNode, OccurrenceToBindingEdge> graph = new SimpleGraph<>(assertingEdgeFactory);
+	final SimpleDirectedGraph<AssignmentGraphNode, OccurrenceToBindingEdge> graph =
+			new SimpleDirectedGraph<>(assertingEdgeFactory);
 	// cached bindings for the corresponding equivalence classes
 	final IdentityHashMap<EquivalenceClass, List<BindingNode>> ecToElements = new IdentityHashMap<>();
-
-
-	static interface ExistentialInfo {
-		public boolean isExistential();
-
-		public boolean isPositive();
-
-		public int[] getExistentialArguments();
-	}
-
-	static final ExistentialInfo REGULAR = new ExistentialInfo() {
-		@Override
-		public boolean isExistential() {
-			return false;
-		}
-
-		@Override
-		public boolean isPositive() {
-			throw new UnsupportedOperationException();
-		}
-
-		@Override
-		public int[] getExistentialArguments() {
-			throw new UnsupportedOperationException();
-		}
-	};
-
-	@RequiredArgsConstructor
-	static class PositiveExistentialInfo implements ExistentialInfo {
-		@Getter(onMethod = @__({@Override}))
-		final int[] existentialArguments;
-
-		@Override
-		public boolean isPositive() {
-			return true;
-		}
-
-		@Override
-		public boolean isExistential() {
-			return true;
-		}
-	}
-
-	@RequiredArgsConstructor
-	static class NegatedExistentialInfo implements ExistentialInfo {
-		@Getter(onMethod = @__({@Override}))
-		final int[] existentialArguments;
-
-		@Override
-		public boolean isPositive() {
-			return false;
-		}
-
-		@Override
-		public boolean isExistential() {
-			return true;
-		}
-	}
-
-	@Value
-	static class FunctionWithExistentialInfo {
-		FunctionWithArguments<TypeLeaf> function;
-		ExistentialInfo existentialInfo;
-	}
-
 
 	// needed for block consistency checks:
 	// lookup map from filter/functional expression to corresponding occurrence nodes (existential stuff marked)
@@ -148,20 +86,29 @@ public class AssignmentGraph {
 
 	// explicit filter instance node groups:
 	// lookup map from abstract typed FWA to rule to the set of matching filters
-	final HashMap<FunctionWithExistentialInfo, IdentityHashMap<ECFilter, TreeMap<Integer, FilterOccurrenceNode>>>
-			predicateToFilterToOccurrenceNodes = new HashMap<>();
+	final HashMap<ExistentialInfo.FunctionWithExistentialInfo, Set<ECFilter>> predicateToFilters = new HashMap<>();
+	final IdentityHashMap<ECFilter, TreeMap<Integer, FilterOccurrenceNode>> filterToOccurrenceNodes =
+			new IdentityHashMap<>();
 
 	// lookup from template to template instances to the corresponding binding nodes
-	final IdentityHashMap<Template, IdentityHashMap<SingleFactVariable, Set<BindingNode>>>
-			templateToInstancesToBindingNodes = new IdentityHashMap<>();
+	final IdentityHashMap<Template, Set<SingleFactVariable>> templateToInstances = new IdentityHashMap<>();
+	final IdentityHashMap<SingleFactVariable, Set<SlotOrFactBindingNode>> templateInstanceToBindingNodes =
+			new IdentityHashMap<>();
 
 	// direct bindings (can't use Leaf directly since constants are contained, too)
 	// lookup map from abstract 'templated' FWA to set of matching binding nodes
 	final HashMap<FunctionWithArguments<TemplateSlotLeaf>, Set<BindingNode>> directBindingNodes = new HashMap<>();
 
-	final IdentityHashMap<FunctionWithArguments<TypeLeaf>, IdentityHashMap<FunctionalExpressionBindingNode,
-			TreeMap<Integer, FunctionalExpressionOccurrenceNode>>>
-			functionalExpressionToBindingToOccurrenceNodes = new IdentityHashMap<>();
+	final HashMap<FunctionWithArguments<TypeLeaf>, Set<FunctionalExpressionBindingNode>>
+			functionalExpressionToBindings = new HashMap<>();
+	final IdentityHashMap<FunctionalExpressionBindingNode, TreeMap<Integer, FunctionalExpressionOccurrenceNode>>
+			functionalExpressionBindingToOccurrenceNodes = new IdentityHashMap<>();
+
+
+	// lookup map to get the implicit occurrence node for a binding node (other direction is stored within implicit
+	// occurrence node)
+	final IdentityHashMap<BindingNode, ImplicitOccurrenceNode> bindingNodeToImplicitOccurrence =
+			new IdentityHashMap<>();
 
 
 	public void addECs(final Rule rule, final Iterable<EquivalenceClass> ecs) {
@@ -178,9 +125,11 @@ public class AssignmentGraph {
 			for (final SingleFactVariable factVariable : factVariables) {
 				final FactBindingNode factBindingNode = new FactBindingNode(ec, factVariable);
 				bindingNodes.add(factBindingNode);
-				// add to template lookup map
-				templateToInstancesToBindingNodes.computeIfAbsent(factVariable.getTemplate(), newIdentityHashMap())
-						.computeIfAbsent(factVariable, newIdentityHashSet()).add(factBindingNode);
+				// add to template lookup maps
+				templateToInstances.computeIfAbsent(factVariable.getTemplate(), newIdentityHashSet()).add
+						(factVariable);
+				templateInstanceToBindingNodes.computeIfAbsent(factVariable, newIdentityHashSet()).add
+						(factBindingNode);
 				// add to binding lookup map
 				directBindingNodes
 						.computeIfAbsent(new TemplateSlotLeaf(factVariable.getTemplate(), null), newIdentityHashSet())
@@ -191,13 +140,15 @@ public class AssignmentGraph {
 				final SlotBindingNode slotBindingNode = new SlotBindingNode(ec, slotVariable);
 				bindingNodes.add(slotBindingNode);
 				// add to template lookup map
-				templateToInstancesToBindingNodes
-						.computeIfAbsent(slotVariable.getFactVariable().getTemplate(), newIdentityHashMap())
-						.computeIfAbsent(slotVariable.getFactVariable(), newIdentityHashSet()).add(slotBindingNode);
+				final SingleFactVariable factVariable = slotVariable.getFactVariable();
+				templateToInstances.computeIfAbsent(factVariable.getTemplate(), newIdentityHashSet()).add
+						(factVariable);
+				templateInstanceToBindingNodes.computeIfAbsent(factVariable, newIdentityHashSet()).add
+						(slotBindingNode);
 				// add to binding lookup map
-				directBindingNodes.computeIfAbsent(
-						new TemplateSlotLeaf(slotVariable.getFactVariable().getTemplate(), slotVariable.getSlot()),
-						newIdentityHashSet()).add(slotBindingNode);
+				directBindingNodes
+						.computeIfAbsent(new TemplateSlotLeaf(factVariable.getTemplate(), slotVariable.getSlot()),
+								newIdentityHashSet()).add(slotBindingNode);
 			}
 			final LinkedList<FunctionWithArguments<ECLeaf>> constantExpressions = ec.getConstantExpressions();
 			for (final FunctionWithArguments<ECLeaf> constantExpression : constantExpressions) {
@@ -216,19 +167,20 @@ public class AssignmentGraph {
 						new FunctionalExpressionBindingNode(ec, occurrenceBasedFunctionalExpression);
 				bindingNodes.add(functionalExpressionBindingNode);
 				// add to template lookup map and create occurrences
-				final TreeMap<Integer, FunctionalExpressionOccurrenceNode> arguments =
-						functionalExpressionToBindingToOccurrenceNodes
-								.computeIfAbsent(FWAECLeafToTypeLeafTranslator.translate(functionalExpression),
-										newIdentityHashMap()).put(functionalExpressionBindingNode, new TreeMap<>());
+				functionalExpressionToBindings
+						.computeIfAbsent(FWAECLeafToTypeLeafTranslator.translate(functionalExpression),
+								newIdentityHashSet()).add(functionalExpressionBindingNode);
 				final ArrayList<ECOccurrenceLeaf> occurrences =
 						ECOccurrenceLeafCollector.collect(occurrenceBasedFunctionalExpression);
+				final TreeMap<Integer, FunctionalExpressionOccurrenceNode> arguments = new TreeMap<>();
 				for (int i = 0; i < occurrences.size(); i++) {
 					arguments.put(i, new FunctionalExpressionOccurrenceNode(occurrences.get(i).getEcOccurrence(),
 							functionalExpressionBindingNode));
 				}
+				functionalExpressionBindingToOccurrenceNodes.put(functionalExpressionBindingNode, arguments);
 			}
 
-			// create occurrence nodes for the bindings
+			// create implicit occurrence nodes for the bindings
 			final List<ImplicitOccurrenceNode> implicitOccurrenceNodes = new ArrayList<>(bindingNodes.size());
 			for (final BindingNode bindingNode : bindingNodes) {
 				final ImplicitOccurrenceNode implicitOccurrenceNode =
@@ -237,6 +189,7 @@ public class AssignmentGraph {
 				// add the binding node and the corresponding implicit occurrence node to the graph
 				graph.addVertex(bindingNode);
 				graph.addVertex(implicitOccurrenceNode);
+				bindingNodeToImplicitOccurrence.put(bindingNode, implicitOccurrenceNode);
 			}
 			// create edges between all implicit occurrence and binding nodes of the EC
 			for (final ImplicitOccurrenceNode implicitOccurrenceNode : implicitOccurrenceNodes) {
@@ -248,21 +201,16 @@ public class AssignmentGraph {
 
 		// now that all direct bindings are created for all ECs, add the edges from the occurrences in functional
 		// expressions to their bindings (and the occurrence nodes themselves) to the graph
-		for (final IdentityHashMap<FunctionalExpressionBindingNode, TreeMap<Integer,
-				FunctionalExpressionOccurrenceNode>> bindingToOccurrenceNodes :
-				functionalExpressionToBindingToOccurrenceNodes
+		for (final TreeMap<Integer, FunctionalExpressionOccurrenceNode> occurrenceNodes :
+				functionalExpressionBindingToOccurrenceNodes
 				.values()) {
-			for (final TreeMap<Integer, FunctionalExpressionOccurrenceNode> occurrenceNodes : bindingToOccurrenceNodes
+			for (final FunctionalExpressionOccurrenceNode functionalExpressionOccurrenceNode : occurrenceNodes
 					.values()) {
-				for (final FunctionalExpressionOccurrenceNode functionalExpressionOccurrenceNode : occurrenceNodes
-						.values()) {
-					final EquivalenceClass equivalenceClass =
-							functionalExpressionOccurrenceNode.getOccurrence().getEc();
-					final List<BindingNode> bindingNodes = ecToElements.get(equivalenceClass);
-					graph.addVertex(functionalExpressionOccurrenceNode);
-					for (final BindingNode bindingNode : bindingNodes) {
-						addEdge(functionalExpressionOccurrenceNode, bindingNode);
-					}
+				final EquivalenceClass equivalenceClass = functionalExpressionOccurrenceNode.getOccurrence().getEc();
+				final List<BindingNode> bindingNodes = ecToElements.get(equivalenceClass);
+				graph.addVertex(functionalExpressionOccurrenceNode);
+				for (final BindingNode bindingNode : bindingNodes) {
+					addEdge(functionalExpressionOccurrenceNode, bindingNode);
 				}
 			}
 		}
@@ -275,16 +223,17 @@ public class AssignmentGraph {
 		final PredicateWithArguments<TypeLeaf> typeLeafBasedPredicate =
 				FWAECLeafToTypeLeafTranslator.translate(filter.getFunction());
 		// store the grouping filter in the lookup map
+		final ExistentialInfo.FunctionWithExistentialInfo functionWithExistentialInfo =
+				new ExistentialInfo.FunctionWithExistentialInfo(typeLeafBasedPredicate, existentialInfo);
+		predicateToFilters.computeIfAbsent(functionWithExistentialInfo, newIdentityHashSet()).add(filter);
 		final TreeMap<Integer, FilterOccurrenceNode> parameters = new TreeMap<>();
-		predicateToFilterToOccurrenceNodes
-				.computeIfAbsent(new FunctionWithExistentialInfo(typeLeafBasedPredicate, existentialInfo),
-						newIdentityHashMap()).put(filter, parameters);
 		final FunctionWithArguments<ECOccurrenceLeaf> occurrenceBasedPredicate =
 				ECLeafToECOccurrenceLeafTranslator.translateUsingNewOccurrences(filter.getFunction());
 		final ArrayList<ECOccurrenceLeaf> occurrences = ECOccurrenceLeafCollector.collect(occurrenceBasedPredicate);
 		for (int i = 0; i < occurrences.size(); i++) {
 			final ECOccurrence occurrence = occurrences.get(i).getEcOccurrence();
-			final FilterOccurrenceNode filterOccurrenceNode = new FilterOccurrenceNode(occurrence, filter);
+			final FilterOccurrenceNode filterOccurrenceNode =
+					new FilterOccurrenceNode(occurrence, functionWithExistentialInfo, filter);
 			parameters.put(i, filterOccurrenceNode);
 			graph.addVertex(filterOccurrenceNode);
 			final List<BindingNode> bindingNodes = ecToElements.get(occurrence.getEc());
@@ -292,5 +241,6 @@ public class AssignmentGraph {
 				addEdge(filterOccurrenceNode, bindingNode);
 			}
 		}
+		filterToOccurrenceNodes.put(filter, parameters);
 	}
 }

@@ -18,6 +18,6 @@ package org.jamocha.dn.compiler.ecblocks.assignmentgraph;
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
-public interface AssignmentGraphNode {
-
+public interface AssignmentGraphNode<T extends NodeType> {
+	public T getNodeType();
 }
