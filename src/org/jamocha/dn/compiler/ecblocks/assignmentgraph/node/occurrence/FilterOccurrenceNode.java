@@ -18,6 +18,7 @@ package org.jamocha.dn.compiler.ecblocks.assignmentgraph.node.occurrence;
 import lombok.Getter;
 import org.jamocha.dn.compiler.ecblocks.ECOccurrence;
 import org.jamocha.dn.compiler.ecblocks.ExistentialInfo;
+import org.jamocha.dn.compiler.ecblocks.assignmentgraph.AssignmentGraphNodeVisitor;
 import org.jamocha.filter.ECFilter;
 
 /**
@@ -38,5 +39,11 @@ public class FilterOccurrenceNode extends ECOccurrenceNode {
 	@Override
 	public OccurrenceType getNodeType() {
 		return OccurrenceType.FILTER_OCCURRENCE;
+	}
+
+	@Override
+	public <V extends AssignmentGraphNodeVisitor> V accept(final V visitor) {
+		visitor.visit(this);
+		return visitor;
 	}
 }

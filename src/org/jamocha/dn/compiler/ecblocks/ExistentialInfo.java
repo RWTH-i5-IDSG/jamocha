@@ -25,13 +25,13 @@ import org.jamocha.function.fwa.TypeLeaf;
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
 public interface ExistentialInfo {
-	public boolean isExistential();
+	boolean isExistential();
 
-	public boolean isPositive();
+	boolean isPositive();
 
-	public int[] getExistentialArguments();
+	int[] getExistentialArguments();
 
-	public static final ExistentialInfo REGULAR = new ExistentialInfo() {
+	ExistentialInfo REGULAR = new ExistentialInfo() {
 		@Override
 		public boolean isExistential() {
 			return false;
@@ -49,7 +49,7 @@ public interface ExistentialInfo {
 	};
 
 	@RequiredArgsConstructor
-	public static class PositiveExistentialInfo implements ExistentialInfo {
+	class PositiveExistentialInfo implements ExistentialInfo {
 		@Getter(onMethod = @__({@Override}))
 		final int[] existentialArguments;
 
@@ -65,7 +65,7 @@ public interface ExistentialInfo {
 	}
 
 	@RequiredArgsConstructor
-	public static class NegatedExistentialInfo implements ExistentialInfo {
+	class NegatedExistentialInfo implements ExistentialInfo {
 		@Getter(onMethod = @__({@Override}))
 		final int[] existentialArguments;
 
@@ -81,7 +81,7 @@ public interface ExistentialInfo {
 	}
 
 	@Value
-	public static class FunctionWithExistentialInfo {
+	class FunctionWithExistentialInfo {
 		FunctionWithArguments<TypeLeaf> function;
 		ExistentialInfo existentialInfo;
 	}

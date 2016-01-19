@@ -14,10 +14,11 @@
  */
 package org.jamocha.dn.compiler.ecblocks.assignmentgraph;
 
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Sets;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import lombok.Value;
 import org.jamocha.dn.compiler.ecblocks.*;
 import org.jamocha.dn.compiler.ecblocks.assignmentgraph.node.binding.*;
 import org.jamocha.dn.compiler.ecblocks.assignmentgraph.node.occurrence.ECOccurrenceNode;
@@ -30,11 +31,9 @@ import org.jamocha.function.fwa.*;
 import org.jamocha.function.fwatransformer.FWAECLeafToTypeLeafTranslator;
 import org.jamocha.languages.common.RuleCondition.EquivalenceClass;
 import org.jamocha.languages.common.SingleFactVariable;
-import org.jgrapht.DirectedGraph;
-import org.jgrapht.EdgeFactory;
-import org.jgrapht.graph.SimpleDirectedGraph;
 
 import java.util.*;
+import java.util.function.BiFunction;
 
 import static org.jamocha.util.Lambdas.newIdentityHashSet;
 
@@ -43,40 +42,8 @@ import static org.jamocha.util.Lambdas.newIdentityHashSet;
  */
 @Getter
 public class AssignmentGraph {
-	public static class OccurrenceToBindingEdge {
-		public ECOccurrenceNode getOccurrence(final AssignmentGraph graph) {
-			return getOccurrence(graph.graph);
-		}
-
-		public ECOccurrenceNode getOccurrence(final DirectedGraph<AssignmentGraphNode, OccurrenceToBindingEdge>
-				graph) {
-			return (ECOccurrenceNode) graph.getEdgeSource(this);
-		}
-
-		public BindingNode getBinding(final AssignmentGraph graph) {
-			return getBinding(graph.graph);
-		}
-
-		public BindingNode getBinding(final DirectedGraph<AssignmentGraphNode, OccurrenceToBindingEdge> graph) {
-			return (BindingNode) graph.getEdgeTarget(this);
-		}
-	}
-
-	private static EdgeFactory<AssignmentGraphNode, OccurrenceToBindingEdge> assertingEdgeFactory =
-			(final AssignmentGraphNode source, final AssignmentGraphNode target) -> {
-				if (!(source instanceof ECOccurrenceNode && target instanceof BindingNode)) {
-					throw new IllegalArgumentException("Edges always go from occurrence to binding!");
-				}
-				return new OccurrenceToBindingEdge();
-			};
-
-	private void addEdge(final ECOccurrenceNode source, final BindingNode target) {
-		graph.addEdge(source, target);
-	}
-
 	// the actual graph
-	final SimpleDirectedGraph<AssignmentGraphNode, OccurrenceToBindingEdge> graph =
-			new SimpleDirectedGraph<>(assertingEdgeFactory);
+	final UnrestrictedGraph graph = new UnrestrictedGraph();
 	// cached bindings for the corresponding equivalence classes
 	final IdentityHashMap<EquivalenceClass, List<BindingNode>> ecToElements = new IdentityHashMap<>();
 
@@ -111,27 +78,163 @@ public class AssignmentGraph {
 			new IdentityHashMap<>();
 
 
-	public void addECs(final Rule rule, final Iterable<EquivalenceClass> ecs) {
-		final IdentityHashMap<EquivalenceClass, List<FunctionalExpressionBindingNode>> ecToFunctionalExprs =
-				new IdentityHashMap<>();
+	@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+	@Getter
+	public static class Edge {
+		final ECOccurrenceNode source;
+		final BindingNode target;
+	}
+
+	public class UnrestrictedGraph {
+		final IdentityHashMap<ECOccurrenceNode, Set<Edge>> outgoingEdges = new IdentityHashMap<>();
+		final IdentityHashMap<BindingNode, Set<Edge>> incomingEdges = new IdentityHashMap<>();
+		final Set<Edge> edgeSet = Sets.newIdentityHashSet();
+
+		public boolean addEdge(final ECOccurrenceNode source, final BindingNode target) {
+			final Set<Edge> outEdges = this.outgoingEdges.computeIfAbsent(source, newIdentityHashSet());
+			if (outEdges.stream().anyMatch(e -> e.getTarget() == target)) {
+				return false;
+			}
+			final Edge edge = new Edge(source, target);
+			outEdges.add(edge);
+			this.incomingEdges.computeIfAbsent(target, newIdentityHashSet()).add(edge);
+			this.edgeSet.add(edge);
+			return true;
+		}
+
+		private Set<Edge> getIncomingEdges(final BindingNode target) {
+			final Set<Edge> edges = this.incomingEdges.get(target);
+			return null != edges ? edges : ImmutableSet.of();
+		}
+
+		public Set<Edge> incomingEdgesOf(final BindingNode target) {
+			return ImmutableSet.copyOf(getIncomingEdges(target));
+		}
+
+		public int inDegreeOf(final BindingNode target) {
+			return getIncomingEdges(target).size();
+		}
+
+		private Set<Edge> getOutgoingEdges(final ECOccurrenceNode source) {
+			final Set<Edge> edges = this.outgoingEdges.get(source);
+			return null != edges ? edges : ImmutableSet.of();
+		}
+
+		public Set<Edge> outgoingEdgesOf(final ECOccurrenceNode source) {
+			return ImmutableSet.copyOf(getOutgoingEdges(source));
+		}
+
+		public int outDegreeOf(final ECOccurrenceNode source) {
+			return getOutgoingEdges(source).size();
+		}
+
+		public SubGraph newSubGraph() {
+			return new SubGraph();
+		}
+
+		@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+		public class SubGraph {
+			final IdentityHashMap<ECOccurrenceNode, Set<Edge>> outgoingEdges = new IdentityHashMap<>();
+			final IdentityHashMap<BindingNode, Set<Edge>> incomingEdges = new IdentityHashMap<>();
+			final Set<Edge> edgeSet = Sets.newIdentityHashSet();
+
+			public SubGraph(final SubGraph other) {
+				this.outgoingEdges.putAll(other.outgoingEdges);
+				this.incomingEdges.putAll(other.incomingEdges);
+				this.edgeSet.addAll(other.edgeSet);
+			}
+
+			public boolean addEdge(final Edge edge) {
+				assert UnrestrictedGraph.this.edgeSet.contains(edge);
+				final boolean added = this.edgeSet.add(edge);
+				if (!added) return false;
+				this.outgoingEdges.computeIfAbsent(edge.getSource(), newIdentityHashSet()).add(edge);
+				this.incomingEdges.computeIfAbsent(edge.getTarget(), newIdentityHashSet()).add(edge);
+				return true;
+			}
+
+			public boolean containsEdge(final Edge edge) {
+				return this.edgeSet.contains(edge);
+			}
+
+			public boolean containsEdge(final ECOccurrenceNode source, final BindingNode target) {
+				return null != getEdge(source, target);
+			}
+
+			public Edge getEdge(final ECOccurrenceNode source, final BindingNode target) {
+				return this.outgoingEdges.get(source).stream().filter(e -> e.getTarget() == target).findAny()
+						.orElse(null);
+			}
+
+			public boolean removeEdge(final Edge edge) {
+				assert UnrestrictedGraph.this.edgeSet.contains(edge);
+				final boolean removed = this.edgeSet.remove(edge);
+				if (!removed) return false;
+				final BiFunction<AssignmentGraphNode, Set<Edge>, Set<Edge>> edgeRemover = (k, set) -> {
+					set.remove(edge);
+					return set.isEmpty() ? null : set;
+				};
+				this.outgoingEdges.compute(edge.getSource(), edgeRemover);
+				this.incomingEdges.compute(edge.getTarget(), edgeRemover);
+				return true;
+			}
+
+			private Set<Edge> getIncomingEdges(final BindingNode target) {
+				final Set<Edge> edges = this.incomingEdges.get(target);
+				return null != edges ? edges : ImmutableSet.of();
+			}
+
+			public Set<Edge> incomingEdgesOf(final BindingNode target) {
+				return ImmutableSet.copyOf(getIncomingEdges(target));
+			}
+
+			public int inDegreeOf(final BindingNode target) {
+				return getIncomingEdges(target).size();
+			}
+
+			private Set<Edge> getOutgoingEdges(final ECOccurrenceNode source) {
+				final Set<Edge> edges = this.outgoingEdges.get(source);
+				return null != edges ? edges : ImmutableSet.of();
+			}
+
+			public Set<Edge> outgoingEdgesOf(final ECOccurrenceNode source) {
+				return ImmutableSet.copyOf(getOutgoingEdges(source));
+			}
+
+			public int outDegreeOf(final ECOccurrenceNode source) {
+				return getOutgoingEdges(source).size();
+			}
+
+			public Set<ECOccurrenceNode> occurrenceNodeSet() {
+				return ImmutableSet.copyOf(this.outgoingEdges.keySet());
+			}
+
+			public Set<BindingNode> bindingNodeSet() {
+				return ImmutableSet.copyOf(this.incomingEdges.keySet());
+			}
+		}
+	}
+
+
+	public void addECs(final Iterable<EquivalenceClass> ecs) {
 		// for every equivalence class
 		for (final EquivalenceClass ec : ecs) {
 			// gather binding nodes of the EC
 			final List<BindingNode> bindingNodes = new ArrayList<>();
 			// add to lookup map
-			ecToElements.put(ec, bindingNodes);
+			this.ecToElements.put(ec, bindingNodes);
 			// create fact binding nodes
 			final LinkedList<SingleFactVariable> factVariables = ec.getFactVariables();
 			for (final SingleFactVariable factVariable : factVariables) {
 				final FactBindingNode factBindingNode = new FactBindingNode(ec, factVariable);
 				bindingNodes.add(factBindingNode);
 				// add to template lookup maps
-				templateToInstances.computeIfAbsent(factVariable.getTemplate(), newIdentityHashSet()).add
-						(factVariable);
-				templateInstanceToBindingNodes.computeIfAbsent(factVariable, newIdentityHashSet()).add
-						(factBindingNode);
+				this.templateToInstances.computeIfAbsent(factVariable.getTemplate(), newIdentityHashSet())
+						.add(factVariable);
+				this.templateInstanceToBindingNodes.computeIfAbsent(factVariable, newIdentityHashSet())
+						.add(factBindingNode);
 				// add to binding lookup map
-				directBindingNodes
+				this.directBindingNodes
 						.computeIfAbsent(new TemplateSlotLeaf(factVariable.getTemplate(), null), newIdentityHashSet())
 						.add(factBindingNode);
 			}
@@ -141,22 +244,22 @@ public class AssignmentGraph {
 				bindingNodes.add(slotBindingNode);
 				// add to template lookup map
 				final SingleFactVariable factVariable = slotVariable.getFactVariable();
-				templateToInstances.computeIfAbsent(factVariable.getTemplate(), newIdentityHashSet()).add
-						(factVariable);
-				templateInstanceToBindingNodes.computeIfAbsent(factVariable, newIdentityHashSet()).add
-						(slotBindingNode);
+				this.templateToInstances.computeIfAbsent(factVariable.getTemplate(), newIdentityHashSet())
+						.add(factVariable);
+				this.templateInstanceToBindingNodes.computeIfAbsent(factVariable, newIdentityHashSet())
+						.add(slotBindingNode);
 				// add to binding lookup map
-				directBindingNodes
+				this.directBindingNodes
 						.computeIfAbsent(new TemplateSlotLeaf(factVariable.getTemplate(), slotVariable.getSlot()),
 								newIdentityHashSet()).add(slotBindingNode);
 			}
 			final LinkedList<FunctionWithArguments<ECLeaf>> constantExpressions = ec.getConstantExpressions();
 			for (final FunctionWithArguments<ECLeaf> constantExpression : constantExpressions) {
 				final ConstantBindingNode constantBindingNode =
-						new ConstantBindingNode(ec, new ConstantLeaf<TemplateSlotLeaf>(constantExpression));
+						new ConstantBindingNode(ec, new ConstantLeaf<>(constantExpression));
 				bindingNodes.add(constantBindingNode);
 				// add to binding lookup map
-				directBindingNodes.computeIfAbsent(constantBindingNode.getConstant(), newIdentityHashSet())
+				this.directBindingNodes.computeIfAbsent(constantBindingNode.getConstant(), newIdentityHashSet())
 						.add(constantBindingNode);
 			}
 			final LinkedList<FunctionWithArguments<ECLeaf>> functionalExpressions = ec.getFunctionalExpressions();
@@ -167,7 +270,7 @@ public class AssignmentGraph {
 						new FunctionalExpressionBindingNode(ec, occurrenceBasedFunctionalExpression);
 				bindingNodes.add(functionalExpressionBindingNode);
 				// add to template lookup map and create occurrences
-				functionalExpressionToBindings
+				this.functionalExpressionToBindings
 						.computeIfAbsent(FWAECLeafToTypeLeafTranslator.translate(functionalExpression),
 								newIdentityHashSet()).add(functionalExpressionBindingNode);
 				final ArrayList<ECOccurrenceLeaf> occurrences =
@@ -177,7 +280,7 @@ public class AssignmentGraph {
 					arguments.put(i, new FunctionalExpressionOccurrenceNode(occurrences.get(i).getEcOccurrence(),
 							functionalExpressionBindingNode));
 				}
-				functionalExpressionBindingToOccurrenceNodes.put(functionalExpressionBindingNode, arguments);
+				this.functionalExpressionBindingToOccurrenceNodes.put(functionalExpressionBindingNode, arguments);
 			}
 
 			// create implicit occurrence nodes for the bindings
@@ -187,30 +290,28 @@ public class AssignmentGraph {
 						new ImplicitOccurrenceNode(new ECOccurrence(ec), bindingNode);
 				implicitOccurrenceNodes.add(implicitOccurrenceNode);
 				// add the binding node and the corresponding implicit occurrence node to the graph
-				graph.addVertex(bindingNode);
-				graph.addVertex(implicitOccurrenceNode);
-				bindingNodeToImplicitOccurrence.put(bindingNode, implicitOccurrenceNode);
+				this.graph.addEdge(implicitOccurrenceNode, bindingNode);
+				this.bindingNodeToImplicitOccurrence.put(bindingNode, implicitOccurrenceNode);
 			}
 			// create edges between all implicit occurrence and binding nodes of the EC
 			for (final ImplicitOccurrenceNode implicitOccurrenceNode : implicitOccurrenceNodes) {
 				for (final BindingNode bindingNode : bindingNodes) {
-					addEdge(implicitOccurrenceNode, bindingNode);
+					this.graph.addEdge(implicitOccurrenceNode, bindingNode);
 				}
 			}
 		}
 
 		// now that all direct bindings are created for all ECs, add the edges from the occurrences in functional
 		// expressions to their bindings (and the occurrence nodes themselves) to the graph
-		for (final TreeMap<Integer, FunctionalExpressionOccurrenceNode> occurrenceNodes :
-				functionalExpressionBindingToOccurrenceNodes
+		for (final TreeMap<Integer, FunctionalExpressionOccurrenceNode> occurrenceNodes : this
+				.functionalExpressionBindingToOccurrenceNodes
 				.values()) {
 			for (final FunctionalExpressionOccurrenceNode functionalExpressionOccurrenceNode : occurrenceNodes
 					.values()) {
 				final EquivalenceClass equivalenceClass = functionalExpressionOccurrenceNode.getOccurrence().getEc();
-				final List<BindingNode> bindingNodes = ecToElements.get(equivalenceClass);
-				graph.addVertex(functionalExpressionOccurrenceNode);
+				final List<BindingNode> bindingNodes = this.ecToElements.get(equivalenceClass);
 				for (final BindingNode bindingNode : bindingNodes) {
-					addEdge(functionalExpressionOccurrenceNode, bindingNode);
+					this.graph.addEdge(functionalExpressionOccurrenceNode, bindingNode);
 				}
 			}
 		}
@@ -219,13 +320,13 @@ public class AssignmentGraph {
 	// FIXME to be implemented: fact variables occurring within existential parts that do not occur in any actual
 	// filters have to be used in dummy filters to make sure they are represented correctly in the graph
 
-	public void addFilter(final Rule rule, final ECFilter filter, final ExistentialInfo existentialInfo) {
+	public void addFilter(final ECFilter filter, final ExistentialInfo existentialInfo) {
 		final PredicateWithArguments<TypeLeaf> typeLeafBasedPredicate =
 				FWAECLeafToTypeLeafTranslator.translate(filter.getFunction());
 		// store the grouping filter in the lookup map
 		final ExistentialInfo.FunctionWithExistentialInfo functionWithExistentialInfo =
 				new ExistentialInfo.FunctionWithExistentialInfo(typeLeafBasedPredicate, existentialInfo);
-		predicateToFilters.computeIfAbsent(functionWithExistentialInfo, newIdentityHashSet()).add(filter);
+		this.predicateToFilters.computeIfAbsent(functionWithExistentialInfo, newIdentityHashSet()).add(filter);
 		final TreeMap<Integer, FilterOccurrenceNode> parameters = new TreeMap<>();
 		final FunctionWithArguments<ECOccurrenceLeaf> occurrenceBasedPredicate =
 				ECLeafToECOccurrenceLeafTranslator.translateUsingNewOccurrences(filter.getFunction());
@@ -235,12 +336,11 @@ public class AssignmentGraph {
 			final FilterOccurrenceNode filterOccurrenceNode =
 					new FilterOccurrenceNode(occurrence, functionWithExistentialInfo, filter);
 			parameters.put(i, filterOccurrenceNode);
-			graph.addVertex(filterOccurrenceNode);
-			final List<BindingNode> bindingNodes = ecToElements.get(occurrence.getEc());
+			final List<BindingNode> bindingNodes = this.ecToElements.get(occurrence.getEc());
 			for (final BindingNode bindingNode : bindingNodes) {
-				addEdge(filterOccurrenceNode, bindingNode);
+				this.graph.addEdge(filterOccurrenceNode, bindingNode);
 			}
 		}
-		filterToOccurrenceNodes.put(filter, parameters);
+		this.filterToOccurrenceNodes.put(filter, parameters);
 	}
 }

@@ -17,18 +17,13 @@ package org.jamocha.dn.compiler.ecblocks;
 import com.google.common.collect.Sets;
 import lombok.Getter;
 import org.jamocha.dn.compiler.ecblocks.assignmentgraph.AssignmentGraph;
-import org.jamocha.dn.compiler.ecblocks.assignmentgraph.AssignmentGraph.OccurrenceToBindingEdge;
-import org.jamocha.dn.compiler.ecblocks.assignmentgraph.AssignmentGraphNode;
+import org.jamocha.dn.compiler.ecblocks.assignmentgraph.AssignmentGraph.Edge;
+import org.jamocha.dn.compiler.ecblocks.assignmentgraph.ExistentialSubgraphCompletelyContainedChecker;
+import org.jamocha.dn.compiler.ecblocks.assignmentgraph.FunctionalExpressionBindingChecker;
 import org.jamocha.dn.compiler.ecblocks.assignmentgraph.node.binding.*;
 import org.jamocha.dn.compiler.ecblocks.assignmentgraph.node.occurrence.*;
 import org.jamocha.filter.ECFilter;
 import org.jamocha.languages.common.SingleFactVariable;
-import org.jgrapht.DirectedGraph;
-import org.jgrapht.Graphs;
-import org.jgrapht.alg.ConnectivityInspector;
-import org.jgrapht.graph.DirectedSubgraph;
-import org.jgrapht.graph.MaskFunctor;
-import org.jgrapht.graph.MaskSubgraph;
 
 import java.util.*;
 
@@ -44,47 +39,38 @@ public class Block {
 
 	private class BlockRows {
 		final AssignmentGraph assignmentGraph;
-		final DirectedGraph<AssignmentGraphNode, OccurrenceToBindingEdge> subgraph;
+		final AssignmentGraph.UnrestrictedGraph.SubGraph subgraph;
+		int ccCount = 0;
 
-		public BlockRows(final AssignmentGraph assignmentGraph, final Set<AssignmentGraphNode> nodes) {
+		public BlockRows(final AssignmentGraph assignmentGraph) {
 			this.assignmentGraph = assignmentGraph;
-			this.subgraph = new DirectedSubgraph<>(assignmentGraph.getGraph(), nodes, null);
+			this.subgraph = assignmentGraph.getGraph().newSubGraph();
 		}
 
 		public BlockRows(final BlockRows other) {
 			this.assignmentGraph = other.assignmentGraph;
-			this.subgraph = new DirectedSubgraph<>(assignmentGraph.getGraph(), other.subgraph.vertexSet(), null);
-		}
-
-		public boolean addEdgeToExistingCC(final OccurrenceToBindingEdge occurrenceToBindingEdge) {
-			return Graphs.addEdgeWithVertices(subgraph, assignmentGraph.getGraph(), occurrenceToBindingEdge);
-		}
-
-		public boolean addEdgeToExistingCCBetweenExistingNodes(final AssignmentGraphNode sourceVertex,
-				final AssignmentGraphNode targetVertex, final OccurrenceToBindingEdge occurrenceToBindingEdge) {
-			return subgraph.addEdge(sourceVertex, targetVertex, occurrenceToBindingEdge);
+			this.subgraph = other.assignmentGraph.getGraph().new SubGraph(other.subgraph);
+			this.ccCount = other.ccCount;
 		}
 
 		public int getRowCount() {
-			// FIXME cache this number and use the connectivity inspector only for assertions
-			return new ConnectivityInspector(subgraph).connectedSets().size();
+			return this.ccCount;
 		}
 	}
 
 	private class BlockColumn {
 		final OccurrenceType occurrenceType;
 		final BindingType bindingType;
-		final Set<OccurrenceToBindingEdge> edges;
+		final Set<AssignmentGraph.Edge> edges;
 
-		public BlockColumn(final DirectedGraph<AssignmentGraphNode, OccurrenceToBindingEdge> graph,
-				final Set<OccurrenceToBindingEdge> edges) {
+		public BlockColumn(final Set<AssignmentGraph.Edge> edges) {
 			assert !edges.isEmpty();
 			this.edges = edges;
-			final OccurrenceToBindingEdge edge = edges.iterator().next();
-			this.occurrenceType = edge.getOccurrence(graph).getNodeType();
-			assert edges.stream().allMatch(e -> this.occurrenceType == e.getOccurrence(graph).getNodeType());
-			this.bindingType = edge.getBinding(graph).getNodeType();
-			assert edges.stream().allMatch(e -> this.bindingType == e.getBinding(graph).getNodeType());
+			final AssignmentGraph.Edge edge = edges.iterator().next();
+			this.occurrenceType = edge.getSource().getNodeType();
+			assert edges.stream().allMatch(e -> this.occurrenceType == e.getSource().getNodeType());
+			this.bindingType = edge.getTarget().getNodeType();
+			assert edges.stream().allMatch(e -> this.bindingType == e.getTarget().getNodeType());
 		}
 
 		public BlockColumn(final BlockColumn other) {
@@ -94,30 +80,34 @@ public class Block {
 		}
 	}
 
-	public Set<AssignmentGraphNode> getNodesOfType(final BindingType type) {
-		return columns.stream().filter(c -> type == c.bindingType)
-				.flatMap(c -> c.edges.stream().map(e -> e.getBinding(graph))).collect(toSet());
-	}
-
-	public Set<AssignmentGraphNode> getNodesOfType(final OccurrenceType type) {
-		return columns.stream().filter(c -> type == c.occurrenceType)
-				.flatMap(c -> c.edges.stream().map(e -> e.getOccurrence(graph))).collect(toSet());
-	}
+	//	public Set<AssignmentGraphNode> getNodesOfType(final BindingType type) {
+	//		return columns.stream().filter(c -> type == c.bindingType)
+	//				.flatMap(c -> c.edges.stream().map(e -> e.getBinding(graph))).collect(toSet());
+	//	}
+	//
+	//	public Set<AssignmentGraphNode> getNodesOfType(final OccurrenceType type) {
+	//		return columns.stream().filter(c -> type == c.occurrenceType)
+	//				.flatMap(c -> c.edges.stream().map(e -> e.getOccurrence(graph))).collect(toSet());
+	//	}
 
 	final AssignmentGraph graph;
 	final BlockRows rows;
 	final Set<BlockColumn> columns;
+	final Set<SingleFactVariable> factVariablesUsed;
 
-	public Block(final AssignmentGraph graph, final Set<AssignmentGraphNode> nodes) {
+	public Block(final AssignmentGraph graph) {
 		this.graph = graph;
-		this.rows = new BlockRows(graph, nodes);
+		this.rows = new BlockRows(graph);
 		this.columns = new HashSet<>();
+		this.factVariablesUsed = Sets.newIdentityHashSet();
 	}
 
-	public Block(final Block block) {
-		this.graph = block.graph;
-		this.rows = new BlockRows(block.rows);
-		this.columns = block.columns.stream().map(BlockColumn::new).collect(toHashSet());
+	public Block(final Block other) {
+		this.graph = other.graph;
+		this.rows = new BlockRows(other.rows);
+		this.columns = other.columns.stream().map(BlockColumn::new).collect(toHashSet());
+		this.factVariablesUsed = Sets.newIdentityHashSet();
+		this.factVariablesUsed.addAll(other.factVariablesUsed);
 	}
 
 	@Override
@@ -171,56 +161,53 @@ public class Block {
 		\end{itemize}
 		*/
 
-		final DirectedGraph<AssignmentGraphNode, OccurrenceToBindingEdge> subgraph = this.rows.subgraph;
+		final AssignmentGraph.UnrestrictedGraph.SubGraph subgraph = this.rows.subgraph;
+		final Set<BindingNode> bindingNodes = subgraph.bindingNodeSet();
+		final Set<ECOccurrenceNode> occurrenceNodes = subgraph.occurrenceNodeSet();
+
 		final Set<FilterOccurrenceNode> filterOccurrenceNodes = Sets.newIdentityHashSet();
 		final Set<FunctionalExpressionOccurrenceNode> functionalExpressionOccurrenceNodes = Sets.newIdentityHashSet();
 		final Set<ImplicitOccurrenceNode> implicitOccurrenceNodes = Sets.newIdentityHashSet();
 		final Set<ConstantBindingNode> constantBindingNodes = Sets.newIdentityHashSet();
 		final Set<SlotOrFactBindingNode> slotOrFactBindingNodes = Sets.newIdentityHashSet();
 		final Set<FunctionalExpressionBindingNode> functionalExpressionBindingNodes = Sets.newIdentityHashSet();
-		for (final AssignmentGraphNode node : subgraph.vertexSet()) {
-			final int inDegree = this.rows.subgraph.inDegreeOf(node);
-			final int outDegree = this.rows.subgraph.outDegreeOf(node);
-			if (outDegree != 0 && inDegree != 0) {
-				throw new IllegalStateException("A node with incoming AND outgoing edges has been detected!");
+
+		for (final BindingNode bindingNode : bindingNodes) {
+			if (subgraph.incomingEdgesOf(bindingNode).isEmpty()) {
+				throw new IllegalStateException("A binding node without incoming edges has been detected!");
 			}
-			if (outDegree == 0) {
-				if (node instanceof ECOccurrenceNode) {
-					throw new IllegalStateException("An occurrence node without outgoing edges has been detected!");
-				}
-				final BindingNode bindingNode = (BindingNode) node;
-				switch (bindingNode.getNodeType()) {
-					case FACT_BINDING:
-					case SLOT_BINDING:
-						slotOrFactBindingNodes.add((SlotOrFactBindingNode) bindingNode);
-						break;
-					case CONSTANT_EXPRESSION:
-						constantBindingNodes.add((ConstantBindingNode) bindingNode);
-						break;
-					case FUNCTIONAL_EXPRESSION:
-						functionalExpressionBindingNodes.add((FunctionalExpressionBindingNode) bindingNode);
-						break;
-				}
-			} else { // outDegree != 0 && inDegree == 0
-				if (node instanceof BindingNode) {
-					throw new IllegalStateException("A binding node with outgoing edges has been detected!");
-				}
-				final ECOccurrenceNode occurrenceNode = (ECOccurrenceNode) node;
-				switch (occurrenceNode.getNodeType()) {
-					case IMPLICIT_OCCURRENCE:
-						implicitOccurrenceNodes.add((ImplicitOccurrenceNode) occurrenceNode);
-						break;
-					case FILTER_OCCURRENCE:
-						filterOccurrenceNodes.add((FilterOccurrenceNode) occurrenceNode);
-						break;
-					case FUNCTIONAL_OCCURRENCE:
-						functionalExpressionOccurrenceNodes.add((FunctionalExpressionOccurrenceNode) occurrenceNode);
-						break;
-				}
+			switch (bindingNode.getNodeType()) {
+				case FACT_BINDING:
+				case SLOT_BINDING:
+					slotOrFactBindingNodes.add((SlotOrFactBindingNode) bindingNode);
+					break;
+				case CONSTANT_EXPRESSION:
+					constantBindingNodes.add((ConstantBindingNode) bindingNode);
+					break;
+				case FUNCTIONAL_EXPRESSION:
+					functionalExpressionBindingNodes.add((FunctionalExpressionBindingNode) bindingNode);
+					break;
 			}
 		}
+		for (final ECOccurrenceNode occurrenceNode : occurrenceNodes) {
+			if (subgraph.outgoingEdgesOf(occurrenceNode).isEmpty()) {
+				throw new IllegalStateException("An occurrence node without outgoing edges has been detected!");
+			}
+			switch (occurrenceNode.getNodeType()) {
+				case IMPLICIT_OCCURRENCE:
+					implicitOccurrenceNodes.add((ImplicitOccurrenceNode) occurrenceNode);
+					break;
+				case FILTER_OCCURRENCE:
+					filterOccurrenceNodes.add((FilterOccurrenceNode) occurrenceNode);
+					break;
+				case FUNCTIONAL_OCCURRENCE:
+					functionalExpressionOccurrenceNodes.add((FunctionalExpressionOccurrenceNode) occurrenceNode);
+					break;
+			}
+		}
+
 		// now all occurrence nodes have outgoing edges
-		// all bindings nodes have incoming edges or none at all
+		// all bindings nodes have incoming edges
 		{
 			// If an edge adjacent to a filter is in $Z$, all edges in $G$ adjacent to that filter have to be in $Z$.
 			final Map<ECFilter, Set<FilterOccurrenceNode>> filterToOccurrences =
@@ -230,16 +217,30 @@ public class Block {
 				final ECFilter filter = filterAndOccurrences.getKey();
 				final Set<FilterOccurrenceNode> occurrences = filterAndOccurrences.getValue();
 				final Collection<FilterOccurrenceNode> arguments =
-						graph.getFilterToOccurrenceNodes().get(filter).values();
+						this.graph.getFilterToOccurrenceNodes().get(filter).values();
 				if (!occurrences.containsAll(arguments)) {
 					throw new IllegalStateException("Not all arguments of a filter are bound!");
 				}
 			}
 		}
-		// The edge to a non-implicit occurrence is in $Z$ iff at least one edge from that occurrence to a binding is
-		// in $Z$
-		// we already checked that there is one outgoing edge for every occurrence
 
+		// The edge to a non-implicit occurrence is in $Z$ iff at least one edge from that occurrence to a binding is
+		// in $Z$.
+		// => we already checked that there is at least one outgoing edge for every occurrence
+
+		{
+			// The edge from a fact or slot binding to the corresponding template instance is in $Z$ iff at least one
+			// edge from an occurrence to a binding of this template instance is in $Z$.
+			// => graph will not contain unused bindings, but the set of fact variables used (stored in the block
+			// class)
+			// has to be identical to the set of fact variables used in the graph via edges
+			final Set<SingleFactVariable> factVariables =
+					slotOrFactBindingNodes.stream().map(SlotOrFactBindingNode::getGroupingFactVariable)
+							.collect(toIdentityHashSet());
+			if (!this.factVariablesUsed.equals(factVariables)) {
+				throw new IllegalStateException("Template instance set of the block differs from that of the rows!");
+			}
+		}
 
 		{
 			// If an edge from an occurrence to a functional expression binding is in $Z$, all edges originating from
@@ -258,8 +259,8 @@ public class Block {
 				}
 				final Set<FunctionalExpressionOccurrenceNode> occurrences = feAndOccurrences.getValue();
 				final Collection<FunctionalExpressionOccurrenceNode> arguments =
-						graph.getFunctionalExpressionBindingToOccurrenceNodes().get(functionalExpressionBindingNode)
-								.values();
+						this.graph.getFunctionalExpressionBindingToOccurrenceNodes()
+								.get(functionalExpressionBindingNode).values();
 				if (!occurrences.containsAll(arguments)) {
 					throw new IllegalStateException("Not all arguments of a functional expression are bound!");
 				}
@@ -267,43 +268,11 @@ public class Block {
 		}
 
 		{
-			// The edge from a fact or slot binding to the corresponding template instance is in $Z$ iff at least one
-			// edge from an occurrence to a binding of this template instance is in $Z$.
-			final Map<SingleFactVariable, List<SlotOrFactBindingNode>> fvToBindings =
-					slotOrFactBindingNodes.stream().collect(groupingBy
-							(SlotOrFactBindingNode::getGroupingFactVariable));
-			for (final Map.Entry<SingleFactVariable, List<SlotOrFactBindingNode>> fvAndBindings : fvToBindings
-					.entrySet()) {
-				final SingleFactVariable fv = fvAndBindings.getKey();
-				final List<SlotOrFactBindingNode> bindingNodes = fvAndBindings.getValue();
-				final Set<SlotOrFactBindingNode> allBindings = graph.getTemplateInstanceToBindingNodes().get(fv);
-				// if one binding contained, then all of them
-				if (!bindingNodes.containsAll(allBindings)) {
-					throw new IllegalStateException(
-							"Not all slot/fact bindings of a template instance are " + "contained!");
-				}
-				// if any binding contained, then at least one of them is used
-				if (bindingNodes.stream().allMatch(n -> subgraph.inDegreeOf(n) == 0)) {
-					throw new IllegalStateException(
-							"None of the bindings of a template instance is used although the binding nodes are " +
-									"contained!");
-				}
-			}
-		}
-
-		final Set<BindingNode> directBindings = Sets.newIdentityHashSet();
-		directBindings.addAll(constantBindingNodes);
-		directBindings.addAll(slotOrFactBindingNodes);
-		final Set<BindingNode> allBindings = Sets.newIdentityHashSet();
-		allBindings.addAll(directBindings);
-		allBindings.addAll(functionalExpressionBindingNodes);
-
-		{
 			// An edge from an implicit occurrence to its corresponding binding is in $Z$ iff at least one other edge
 			// to that binding is in $Z$.
-			for (final BindingNode binding : allBindings) {
+			for (final BindingNode binding : bindingNodes) {
 				final ImplicitOccurrenceNode implicitOccurrenceNode =
-						graph.getBindingNodeToImplicitOccurrence().get(binding);
+						this.graph.getBindingNodeToImplicitOccurrence().get(binding);
 				if (subgraph.inDegreeOf(binding) > 1 ^ !subgraph.containsEdge(implicitOccurrenceNode, binding)) {
 					throw new IllegalStateException(
 							"Edge to implicit occurrence is contained, but no other edge to that binding!");
@@ -320,29 +289,26 @@ public class Block {
 			// then look for other edges from these occurrence nodes to other bindings
 			// if there is such a chain of edges, there has to be an edge from the original occurrence to each of the
 			// latter bindings
-			for (final BindingNode binding : allBindings) {
-				final Set<OccurrenceToBindingEdge> edgesToBinding = subgraph.incomingEdgesOf(binding);
+			for (final BindingNode binding : bindingNodes) {
+				final Set<Edge> edgesToBinding = subgraph.incomingEdgesOf(binding);
 				if (edgesToBinding.size() < 2) continue;
 				final ImplicitOccurrenceNode correspondingOccurrenceNode =
-						graph.getBindingNodeToImplicitOccurrence().get(binding);
-				final OccurrenceToBindingEdge correspondingEdge =
-						subgraph.getEdge(correspondingOccurrenceNode, binding);
-				for (final OccurrenceToBindingEdge otherEdgeToBinding : edgesToBinding) {
+						this.graph.getBindingNodeToImplicitOccurrence().get(binding);
+				final Edge correspondingEdge = subgraph.getEdge(correspondingOccurrenceNode, binding);
+				for (final Edge otherEdgeToBinding : edgesToBinding) {
 					if (otherEdgeToBinding == correspondingEdge) {
 						continue;
 					}
-					final ECOccurrenceNode otherOccurrence = otherEdgeToBinding.getOccurrence(graph);
-					final Set<OccurrenceToBindingEdge> outgoingEdgesOfOtherOccurrence =
-							subgraph.outgoingEdgesOf(otherOccurrence);
+					final ECOccurrenceNode otherOccurrence = otherEdgeToBinding.getSource();
+					final Set<Edge> outgoingEdgesOfOtherOccurrence = subgraph.outgoingEdgesOf(otherOccurrence);
 					if (outgoingEdgesOfOtherOccurrence.size() < 2) {
 						continue;
 					}
-					for (final OccurrenceToBindingEdge outgoingEdgeOfOtherOccurrence :
-							outgoingEdgesOfOtherOccurrence) {
+					for (final Edge outgoingEdgeOfOtherOccurrence : outgoingEdgesOfOtherOccurrence) {
 						if (outgoingEdgeOfOtherOccurrence == otherEdgeToBinding) {
 							continue;
 						}
-						final BindingNode otherBinding = outgoingEdgeOfOtherOccurrence.getBinding(graph);
+						final BindingNode otherBinding = outgoingEdgeOfOtherOccurrence.getTarget();
 						if (!subgraph.containsEdge(correspondingOccurrenceNode, otherBinding)) {
 							throw new IllegalStateException(
 									"An edge is missing for a strongly connected equivalence class subset!");
@@ -352,60 +318,37 @@ public class Block {
 			}
 		}
 
+		final Set<BindingNode> directBindings = Sets.newIdentityHashSet();
+		directBindings.addAll(constantBindingNodes);
+		directBindings.addAll(slotOrFactBindingNodes);
+
+
 		{
 			// For all occurrences in functional expressions with adjacent edges in $Z$, it holds that there are paths
 			// in $Z$ from these occurrences to slot, fact, or constant bindings.
-			final ConnectivityInspector<AssignmentGraphNode, OccurrenceToBindingEdge> connectivityInspector =
-					new ConnectivityInspector<>(subgraph);
-			occurrenceLoop:
-			for (final FunctionalExpressionOccurrenceNode feOccurrenceNode : functionalExpressionOccurrenceNodes) {
-				for (final BindingNode directBinding : directBindings) {
-					if (connectivityInspector.pathExists(feOccurrenceNode, directBinding)) {
-						continue occurrenceLoop;
-					}
-				}
+			if (!FunctionalExpressionBindingChecker.check(graph, subgraph, functionalExpressionBindingNodes)) {
 				throw new IllegalStateException(
-						"No edge from functional expression occurrence to a slot, fact, or constant binding!");
+						"No edge from a functional expression occurrence to a slot, fact, or constant binding!");
 			}
 		}
 
 		{
 			// If an existential edge $(f,o)$ adjacent to a filter $f$ is in $Z$, the connected component originating
 			// from removing all existential edges adjacent to $f$ that contains $o$ has to be a subset of $Z$.
-			final Map<ECFilter, Set<ExistentialInfo>> existentialFilters = filterOccurrenceNodes.stream()
+			final Map<ECFilter, ExistentialInfo> existentialFilters = filterOccurrenceNodes.stream()
 					.filter(node -> node.getFunctionWithExistentialInfo().getExistentialInfo().isExistential())
 					.collect(
-							groupingBy(FilterOccurrenceNode::getFilter,
+							groupingBy(FilterOccurrenceNode::getFilter, collectingAndThen(
 									mapping(node -> node.getFunctionWithExistentialInfo().getExistentialInfo(),
-											toIdentityHashSet())));
-			final IdentityHashMap<ECFilter, TreeMap<Integer, FilterOccurrenceNode>> filterToOccurrenceNodes =
-					graph.getFilterToOccurrenceNodes();
-			final Set<OccurrenceToBindingEdge> edgesToHide = Sets.newIdentityHashSet();
-			for (final Map.Entry<ECFilter, Set<ExistentialInfo>> filterWithExistentialInfo : existentialFilters
-					.entrySet()) {
+											toIdentityHashSet()), set -> set.iterator().next())));
+			for (final Map.Entry<ECFilter, ExistentialInfo> filterWithExistentialInfo : existentialFilters.entrySet
+					()) {
+				final ExistentialInfo existentialInfo = filterWithExistentialInfo.getValue();
 				final ECFilter filter = filterWithExistentialInfo.getKey();
-				final ExistentialInfo existentialInfo = filterWithExistentialInfo.getValue().iterator().next();
-				final int[] existentialArguments = existentialInfo.getExistentialArguments();
-				final TreeMap<Integer, FilterOccurrenceNode> argumentMap = filterToOccurrenceNodes.get(filter);
-				for (final int existentialArgument : existentialArguments) {
-					final FilterOccurrenceNode filterOccurrenceNode = argumentMap.get(existentialArgument);
-					final Set<OccurrenceToBindingEdge> outgoingEdges = subgraph.outgoingEdgesOf(filterOccurrenceNode);
-					edgesToHide.addAll(outgoingEdges);
+				if (!ExistentialSubgraphCompletelyContainedChecker.check(graph, subgraph, filter, existentialInfo)) {
+					throw new IllegalStateException("Existential subgraph not completely contained!");
 				}
 			}
-			final MaskSubgraph<AssignmentGraphNode, OccurrenceToBindingEdge> subsubgraph =
-					new MaskSubgraph<>(graph.getGraph(), new MaskFunctor<AssignmentGraphNode, OccurrenceToBindingEdge>() {
-						@Override
-						public boolean isEdgeMasked(final OccurrenceToBindingEdge edge) {
-							return edgesToHide.contains(edge);
-						}
-
-						@Override
-						public boolean isVertexMasked(final AssignmentGraphNode vertex) {
-							return false;
-						}
-					});
-			new ConnectivityInspector<>()
 		}
 
 		// Two block rows are \emph{compatible} iff both block rows are disjoint and no edge in the one block row is

@@ -16,6 +16,7 @@ package org.jamocha.dn.compiler.ecblocks.assignmentgraph.node.binding;
 
 import lombok.Getter;
 import org.jamocha.dn.compiler.ecblocks.ECOccurrenceLeaf;
+import org.jamocha.dn.compiler.ecblocks.assignmentgraph.AssignmentGraphNodeVisitor;
 import org.jamocha.function.fwa.FunctionWithArguments;
 import org.jamocha.languages.common.RuleCondition;
 
@@ -35,5 +36,11 @@ public class FunctionalExpressionBindingNode extends BindingNode {
 	@Override
 	public BindingType getNodeType() {
 		return BindingType.FUNCTIONAL_EXPRESSION;
+	}
+
+	@Override
+	public <V extends AssignmentGraphNodeVisitor> V accept(final V visitor) {
+		visitor.visit(this);
+		return visitor;
 	}
 }

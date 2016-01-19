@@ -18,6 +18,7 @@ package org.jamocha.dn.compiler.ecblocks.assignmentgraph.node.occurrence;
 import lombok.Getter;
 import org.jamocha.dn.compiler.ecblocks.ECOccurrence;
 import org.jamocha.dn.compiler.ecblocks.ECOccurrenceLeaf;
+import org.jamocha.dn.compiler.ecblocks.assignmentgraph.AssignmentGraphNodeVisitor;
 import org.jamocha.dn.compiler.ecblocks.assignmentgraph.node.binding.FunctionalExpressionBindingNode;
 import org.jamocha.function.fwa.FunctionWithArguments;
 
@@ -41,5 +42,11 @@ public class FunctionalExpressionOccurrenceNode extends ECOccurrenceNode {
 	@Override
 	public OccurrenceType getNodeType() {
 		return OccurrenceType.FUNCTIONAL_OCCURRENCE;
+	}
+
+	@Override
+	public <V extends AssignmentGraphNodeVisitor> V accept(final V visitor) {
+		visitor.visit(this);
+		return visitor;
 	}
 }

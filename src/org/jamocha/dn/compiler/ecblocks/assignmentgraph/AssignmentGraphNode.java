@@ -15,9 +15,11 @@
 package org.jamocha.dn.compiler.ecblocks.assignmentgraph;
 
 
+import org.jamocha.visitor.Visitable;
+
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
-public interface AssignmentGraphNode<T extends NodeType> {
-	public T getNodeType();
+public interface AssignmentGraphNode<T extends NodeType> extends Visitable<AssignmentGraphNodeVisitor> {
+	T getNodeType();
 }

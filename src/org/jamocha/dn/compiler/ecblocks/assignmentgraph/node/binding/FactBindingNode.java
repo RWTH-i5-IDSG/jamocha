@@ -15,6 +15,7 @@
 
 package org.jamocha.dn.compiler.ecblocks.assignmentgraph.node.binding;
 
+import org.jamocha.dn.compiler.ecblocks.assignmentgraph.AssignmentGraphNodeVisitor;
 import org.jamocha.languages.common.RuleCondition;
 import org.jamocha.languages.common.SingleFactVariable;
 
@@ -38,5 +39,11 @@ public class FactBindingNode extends SlotOrFactBindingNode {
 	@Override
 	public SingleFactVariable getGroupingFactVariable() {
 		return this.groupingFactVariable;
+	}
+
+	@Override
+	public <V extends AssignmentGraphNodeVisitor> V accept(final V visitor) {
+		visitor.visit(this);
+		return visitor;
 	}
 }
