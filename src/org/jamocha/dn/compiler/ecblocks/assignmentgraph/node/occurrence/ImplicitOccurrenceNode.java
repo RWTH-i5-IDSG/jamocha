@@ -15,6 +15,7 @@
 
 package org.jamocha.dn.compiler.ecblocks.assignmentgraph.node.occurrence;
 
+import lombok.Getter;
 import org.jamocha.dn.compiler.ecblocks.ECOccurrence;
 import org.jamocha.dn.compiler.ecblocks.assignmentgraph.AssignmentGraphNodeVisitor;
 import org.jamocha.dn.compiler.ecblocks.assignmentgraph.node.binding.BindingNode;
@@ -22,6 +23,7 @@ import org.jamocha.dn.compiler.ecblocks.assignmentgraph.node.binding.BindingNode
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
+@Getter
 public class ImplicitOccurrenceNode extends ECOccurrenceNode {
 	final BindingNode correspondingBindingNode;
 

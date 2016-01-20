@@ -16,14 +16,15 @@ package org.jamocha.dn.compiler.ecblocks;
 
 import com.google.common.collect.Sets;
 import lombok.Getter;
-import org.jamocha.dn.compiler.ecblocks.assignmentgraph.AssignmentGraph;
+import org.jamocha.dn.compiler.ecblocks.assignmentgraph.*;
 import org.jamocha.dn.compiler.ecblocks.assignmentgraph.AssignmentGraph.Edge;
-import org.jamocha.dn.compiler.ecblocks.assignmentgraph.ExistentialSubgraphCompletelyContainedChecker;
-import org.jamocha.dn.compiler.ecblocks.assignmentgraph.FunctionalExpressionBindingChecker;
 import org.jamocha.dn.compiler.ecblocks.assignmentgraph.node.binding.*;
 import org.jamocha.dn.compiler.ecblocks.assignmentgraph.node.occurrence.*;
 import org.jamocha.filter.ECFilter;
 import org.jamocha.languages.common.SingleFactVariable;
+import org.paukov.combinatorics.Factory;
+import org.paukov.combinatorics.Generator;
+import org.paukov.combinatorics.ICombinatoricsVector;
 
 import java.util.*;
 
@@ -37,6 +38,7 @@ import static org.jamocha.util.Lambdas.toIdentityHashSet;
 @Getter
 public class Block {
 
+	@Getter
 	private class BlockRows {
 		final AssignmentGraph assignmentGraph;
 		final AssignmentGraph.UnrestrictedGraph.SubGraph subgraph;
@@ -58,6 +60,7 @@ public class Block {
 		}
 	}
 
+	@Getter
 	private class BlockColumn {
 		final OccurrenceType occurrenceType;
 		final BindingType bindingType;
@@ -161,7 +164,7 @@ public class Block {
 		\end{itemize}
 		*/
 
-		final AssignmentGraph.UnrestrictedGraph.SubGraph subgraph = this.rows.subgraph;
+		final AssignmentGraph.UnrestrictedGraph.SubGraph subgraph = this.rows.getSubgraph();
 		final Set<BindingNode> bindingNodes = subgraph.bindingNodeSet();
 		final Set<ECOccurrenceNode> occurrenceNodes = subgraph.occurrenceNodeSet();
 
@@ -318,15 +321,10 @@ public class Block {
 			}
 		}
 
-		final Set<BindingNode> directBindings = Sets.newIdentityHashSet();
-		directBindings.addAll(constantBindingNodes);
-		directBindings.addAll(slotOrFactBindingNodes);
-
-
 		{
 			// For all occurrences in functional expressions with adjacent edges in $Z$, it holds that there are paths
 			// in $Z$ from these occurrences to slot, fact, or constant bindings.
-			if (!FunctionalExpressionBindingChecker.check(graph, subgraph, functionalExpressionBindingNodes)) {
+			if (!FunctionalExpressionBindingChecker.check(this.graph, subgraph, functionalExpressionBindingNodes)) {
 				throw new IllegalStateException(
 						"No edge from a functional expression occurrence to a slot, fact, or constant binding!");
 			}
@@ -345,7 +343,8 @@ public class Block {
 					()) {
 				final ExistentialInfo existentialInfo = filterWithExistentialInfo.getValue();
 				final ECFilter filter = filterWithExistentialInfo.getKey();
-				if (!ExistentialSubgraphCompletelyContainedChecker.check(graph, subgraph, filter, existentialInfo)) {
+				if (!ExistentialSubgraphCompletelyContainedChecker
+						.check(this.graph, subgraph, filter, existentialInfo)) {
 					throw new IllegalStateException("Existential subgraph not completely contained!");
 				}
 			}
@@ -353,6 +352,11 @@ public class Block {
 
 		// Two block rows are \emph{compatible} iff both block rows are disjoint and no edge in the one block row is
 		// adjacent to an edge in the other block row.
+		if (this.rows.getCcCount() !=
+				ConnectedComponentCounter.countConnectedComponents(this.graph, this.rows.getSubgraph())) {
+			throw new IllegalStateException(
+					"The cached number of connected components in the row-subgraph of a block is incorrect!");
+		}
 
 		/*
 		A non-empty subset $S\subset E(G)$ of the edges of the assignment graph $G$ is called a \emph{block column} if
@@ -389,9 +393,135 @@ public class Block {
 		\end{itemize}
 		*/
 
+		for (final BlockColumn column : this.columns) {
+			// All edges in $S$ are pairwise non-adjacent
+			final int edgeCount = column.edges.size();
+			if (0 == edgeCount) {
+				throw new IllegalStateException("A block column is empty!");
+			}
+			final Set<ECOccurrenceNode> sourceNodes =
+					column.edges.stream().map(Edge::getSource).collect(toIdentityHashSet());
+			if (edgeCount != sourceNodes.size()) {
+				throw new IllegalStateException("Edges in block column overlap in source node!");
+			}
+			final Set<BindingNode> targetNodes =
+					column.edges.stream().map(Edge::getTarget).collect(toIdentityHashSet());
+			if (edgeCount != targetNodes.size()) {
+				throw new IllegalStateException("Edges in block column overlap in target node!");
+			}
+
+			if (1L != sourceNodes.stream().map(AssignmentGraphNode::getNodeType).distinct().count()) {
+				throw new IllegalStateException("Not all of the source nodes of a block column are of the same type!");
+			}
+			if (1L != targetNodes.stream().map(AssignmentGraphNode::getNodeType).distinct().count()) {
+				throw new IllegalStateException("Not all of the target nodes of a block column are of the same type!");
+			}
+
+			final OccurrenceType occurrenceType = sourceNodes.iterator().next().getNodeType();
+			if (occurrenceType != column.getOccurrenceType())
+				throw new IllegalStateException("Column occurrence type incorrect!");
+			switch (occurrenceType) {
+				case IMPLICIT_OCCURRENCE:
+					// $V'$ only contains implicit occurrences
+					// => check
+					// If all start nodes of the edges in $S$ are implicit occurrences, either all or none of the
+					// edges lead to the corresponding binding.
+					if (1L != column.edges.stream()
+							.map(edge -> ((ImplicitOccurrenceNode) edge.getSource()).getCorrespondingBindingNode() ==
+									edge.getTarget()).distinct().count()) {
+						throw new IllegalStateException(
+								"In a column with implicit occurrences, some of the edges lead to their " +
+										"corresponding binding and others don't!");
+					}
+					break;
+				case FILTER_OCCURRENCE: {
+					// $V'$ contains filters only and they all apply the same predicate having the same parameters
+					// marked as (negated) existential
+					final Set<FilterOccurrenceNode> occurrences =
+							sourceNodes.stream().map(node -> (FilterOccurrenceNode) node).collect(toIdentityHashSet());
+					if (1L != occurrences.stream().map(FilterOccurrenceNode::getFunctionWithExistentialInfo).distinct()
+							.count()) {
+						throw new IllegalStateException("Predicates in a block column differ!");
+					}
+					// $V'$ only contains non-implicit occurrences representing the same position in the list of
+					// parameters of a filter or functional expression.
+					if (1L != occurrences.stream().mapToInt(FilterOccurrenceNode::getParameterPosition).distinct()
+							.count()) {
+						throw new IllegalStateException(
+								"Filter occurrences in a block column represent different parameter positions of a " +
+										"filter!");
+					}
+				}
+				break;
+				case FUNCTIONAL_OCCURRENCE: {
+					// $V'$ only contains non-implicit occurrences representing the same position in the list of
+					// parameters of a filter or functional expression.
+					if (1L != sourceNodes.stream()
+							.mapToInt(node -> ((FunctionalExpressionOccurrenceNode) node).getParameterPosition())
+							.distinct().count()) {
+						throw new IllegalStateException(
+								"Filter occurrences in a block column represent different parameter positions of a " +
+										"filter!");
+					}
+				}
+				break;
+			}
+			final BindingType bindingType = targetNodes.iterator().next().getNodeType();
+			if (bindingType != column.getBindingType())
+				throw new IllegalStateException("Column binding type incorrect!");
+			switch (bindingType) {
+				case FACT_BINDING: {
+					// $V'$ only contains fact bindings.
+					// => check
+					// $V'$ only contains template instances (facts) of the same template.
+					if (1L !=
+							targetNodes.stream().map(node -> ((FactBindingNode) node).getSchema()).distinct().count
+									()) {
+						throw new IllegalStateException("Fact bindings in a block column differ!");
+					}
+				}
+				break;
+				case SLOT_BINDING:
+					// $V'$ only contains bindings to slots of the same name. The equality of the template is assured
+					// via the compatibility of block columns (see below).
+					if (1L !=
+							targetNodes.stream().map(node -> ((SlotBindingNode) node).getSchema()).distinct().count
+									()) {
+						throw new IllegalStateException("Slots in a block column differ!");
+					}
+					break;
+				case CONSTANT_EXPRESSION:
+					// $V'$ only contains bindings to the same constant.
+					if (1L != targetNodes.stream().map(node -> ((ConstantBindingNode) node).getConstant()).distinct()
+							.count()) {
+						throw new IllegalStateException("Constants in a block column differ!");
+					}
+					break;
+				case FUNCTIONAL_EXPRESSION: {
+					// $V'$ only contains bindings to functional expressions and they all use the same function.
+					if (1L != targetNodes.stream().map(node -> ((FunctionalExpressionBindingNode) node).getFunction())
+							.distinct().count()) {
+						throw new IllegalStateException("Functions in a block column differ!");
+					}
+				}
+				break;
+			}
+		}
+
 		// Two different block columns $S$ and $S'$ are \emph{compatible} iff at most one pair of the sets of start and
 		// target nodes of $S$ and the sets of start and target nodes of $S'$ are identical and all others are
 		// disjoint.
+		{
+			final ICombinatoricsVector<BlockColumn> columnVector = Factory.createVector(this.columns);
+			final Generator<BlockColumn> generator = Factory.createSimpleCombinationGenerator(columnVector, 2);
+			for (final ICombinatoricsVector<BlockColumn> combination : generator) {
+				final BlockColumn c0 = combination.getValue(0);
+				final BlockColumn c1 = combination.getValue(1);
+				if ((!directedCompatibilityCheck(c0, c1) || !directedCompatibilityCheck(c1, c0))) {
+					throw new IllegalStateException("There are incompatible columns in the block!");
+				}
+			}
+		}
 
 		/*
 		We also refer to the number of the elements of a block column as the height of the block column.
@@ -400,6 +530,35 @@ public class Block {
 		 all edges of the block columns and the amount of block rows corresponds to the height of the block columns.
 		*/
 
+		{
+			if (1L != this.columns.stream().mapToInt(col -> col.getEdges().size()).distinct().count()) {
+				throw new IllegalStateException("Not all of the columns are of the same height!");
+			}
+			final int columnHeight = this.columns.iterator().next().getEdges().size();
+			if (this.rows.ccCount != columnHeight) {
+				throw new IllegalStateException("The column height is not equal to the row count!");
+			}
+			if (!this.rows.getSubgraph().edgeSet().equals(this.columns.stream().flatMap(col -> col.getEdges().stream())
+					.collect(toIdentityHashSet()))) {
+				throw new IllegalStateException(
+						"The set of edges in the columns is not identical to the set of edges in the rows!");
+			}
+		}
+
 		return true;
+	}
+
+	private boolean directedCompatibilityCheck(final BlockColumn c0, final BlockColumn c1) {
+		if (c0.getBindingType() != BindingType.FUNCTIONAL_EXPRESSION ||
+				c1.getOccurrenceType() != OccurrenceType.FUNCTIONAL_OCCURRENCE) {
+			return true;
+		}
+		final Set<BindingNode> bindingNodes = c0.getEdges().stream().map(Edge::getTarget).collect(toIdentityHashSet());
+		final Set<ECOccurrenceNode> occurrenceNodes =
+				c1.getEdges().stream().map(Edge::getSource).collect(toIdentityHashSet());
+		final Set<FunctionalExpressionBindingNode> groupingBindingNodes = occurrenceNodes.stream()
+				.map(node -> ((FunctionalExpressionOccurrenceNode) node).getGroupingBindingNode())
+				.collect(toIdentityHashSet());
+		return bindingNodes.equals(groupingBindingNodes) || Collections.disjoint(bindingNodes, groupingBindingNodes);
 	}
 }

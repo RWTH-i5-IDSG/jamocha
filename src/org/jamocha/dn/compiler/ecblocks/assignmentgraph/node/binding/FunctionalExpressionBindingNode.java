@@ -18,6 +18,7 @@ import lombok.Getter;
 import org.jamocha.dn.compiler.ecblocks.ECOccurrenceLeaf;
 import org.jamocha.dn.compiler.ecblocks.assignmentgraph.AssignmentGraphNodeVisitor;
 import org.jamocha.function.fwa.FunctionWithArguments;
+import org.jamocha.function.fwa.TypeLeaf;
 import org.jamocha.languages.common.RuleCondition;
 
 /**
@@ -25,11 +26,14 @@ import org.jamocha.languages.common.RuleCondition;
  */
 @Getter
 public class FunctionalExpressionBindingNode extends BindingNode {
+	final FunctionWithArguments<TypeLeaf> function;
 	final FunctionWithArguments<ECOccurrenceLeaf> functionalExpression;
 
 	public FunctionalExpressionBindingNode(final RuleCondition.EquivalenceClass equivalenceClass,
+			final FunctionWithArguments<TypeLeaf> function,
 			final FunctionWithArguments<ECOccurrenceLeaf> functionalExpression) {
 		super(equivalenceClass);
+		this.function = function;
 		this.functionalExpression = functionalExpression;
 	}
 

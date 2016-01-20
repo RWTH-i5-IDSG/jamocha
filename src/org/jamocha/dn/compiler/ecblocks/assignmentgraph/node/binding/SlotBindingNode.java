@@ -14,19 +14,26 @@
  */
 package org.jamocha.dn.compiler.ecblocks.assignmentgraph.node.binding;
 
+import lombok.Getter;
 import org.jamocha.dn.compiler.ecblocks.assignmentgraph.AssignmentGraphNodeVisitor;
+import org.jamocha.function.fwa.FunctionWithArguments;
+import org.jamocha.function.fwa.TemplateSlotLeaf;
 import org.jamocha.languages.common.RuleCondition;
 import org.jamocha.languages.common.SingleFactVariable;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
+@Getter
 public class SlotBindingNode extends SlotOrFactBindingNode {
+	final FunctionWithArguments<TemplateSlotLeaf> schema;
 	final SingleFactVariable.SingleSlotVariable slotInGroupingFactVariable;
 
 	public SlotBindingNode(final RuleCondition.EquivalenceClass equivalenceClass,
+			final FunctionWithArguments<TemplateSlotLeaf> schema,
 			final SingleFactVariable.SingleSlotVariable slotInGroupingFactVariable) {
 		super(equivalenceClass);
+		this.schema = schema;
 		this.slotInGroupingFactVariable = slotInGroupingFactVariable;
 	}
 

@@ -16,20 +16,10 @@ package org.jamocha.dn.compiler.ecblocks.assignmentgraph;
 
 
 import com.google.common.base.Function;
-import com.google.common.collect.Sets;
-import lombok.AccessLevel;
-import lombok.RequiredArgsConstructor;
 import org.jamocha.dn.compiler.ecblocks.ExistentialInfo;
-import org.jamocha.dn.compiler.ecblocks.assignmentgraph.node.binding.*;
-import org.jamocha.dn.compiler.ecblocks.assignmentgraph.node.occurrence.ECOccurrenceNode;
 import org.jamocha.dn.compiler.ecblocks.assignmentgraph.node.occurrence.FilterOccurrenceNode;
-import org.jamocha.dn.compiler.ecblocks.assignmentgraph.node.occurrence.FunctionalExpressionOccurrenceNode;
-import org.jamocha.dn.compiler.ecblocks.assignmentgraph.node.occurrence.ImplicitOccurrenceNode;
 import org.jamocha.filter.ECFilter;
-import org.jamocha.languages.common.SingleFactVariable;
 
-import java.util.Deque;
-import java.util.LinkedList;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.stream.IntStream;
@@ -41,15 +31,13 @@ import static org.jamocha.util.Lambdas.toIdentityHashSet;
  *
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
-@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-public class ExistentialSubgraphCompletelyContainedChecker implements AssignmentGraphNodeVisitor {
-	final AssignmentGraph assignmentGraph;
-	final AssignmentGraph.UnrestrictedGraph.SubGraph subgraph;
-
-	final Set<AssignmentGraphNode> queued = Sets.newIdentityHashSet();
-	final Set<AssignmentGraphNode> done = Sets.newIdentityHashSet();
-	final Deque<AssignmentGraphNode> queue = new LinkedList<>();
+public class ExistentialSubgraphCompletelyContainedChecker extends ConnectedComponentTraversal {
 	boolean valid = true;
+
+	private ExistentialSubgraphCompletelyContainedChecker(final AssignmentGraph assignmentGraph,
+			final AssignmentGraph.UnrestrictedGraph.SubGraph subgraph) {
+		super(assignmentGraph, subgraph);
+	}
 
 	public static boolean check(final AssignmentGraph assignmentGraph,
 			final AssignmentGraph.UnrestrictedGraph.SubGraph subgraph, final ECFilter filter,
@@ -74,11 +62,8 @@ public class ExistentialSubgraphCompletelyContainedChecker implements Assignment
 		return this.valid;
 	}
 
-	private void enqueueNode(final AssignmentGraphNode<?> node) {
-		if (this.queued.add(node)) this.queue.add(node);
-	}
-
-	private <T extends AssignmentGraphNode<?>> void handleNode(final T node,
+	@Override
+	protected <T extends AssignmentGraphNode<?>> void handleNode(final T node,
 			final Function<AssignmentGraph.Edge, AssignmentGraphNode<?>> getOtherNode,
 			final Function<T, Set<AssignmentGraph.Edge>> getEdges) {
 		this.done.add(node);
@@ -92,62 +77,5 @@ public class ExistentialSubgraphCompletelyContainedChecker implements Assignment
 			}
 			enqueueNode(otherNode);
 		}
-	}
-
-	private void handleBindingNode(final BindingNode node) {
-		handleNode(node, AssignmentGraph.Edge::getSource, this.assignmentGraph.getGraph()::incomingEdgesOf);
-	}
-
-	private void handleOccurrenceNode(final ECOccurrenceNode node) {
-		handleNode(node, AssignmentGraph.Edge::getTarget, this.assignmentGraph.getGraph()::outgoingEdgesOf);
-	}
-
-	private void handleSlotOrFactBindingNode(final SlotOrFactBindingNode node) {
-		final SingleFactVariable groupingFactVariable = node.getGroupingFactVariable();
-		this.assignmentGraph.getTemplateInstanceToBindingNodes().get(groupingFactVariable).forEach(this::enqueueNode);
-	}
-
-	@Override
-	public void visit(final ConstantBindingNode node) {
-		handleBindingNode(node);
-	}
-
-	@Override
-	public void visit(final FactBindingNode node) {
-		handleBindingNode(node);
-		handleSlotOrFactBindingNode(node);
-	}
-
-	@Override
-	public void visit(final FunctionalExpressionBindingNode node) {
-		handleBindingNode(node);
-		this.assignmentGraph.getFunctionalExpressionBindingToOccurrenceNodes().get(node).values()
-				.forEach(this::enqueueNode);
-	}
-
-	@Override
-	public void visit(final SlotBindingNode node) {
-		handleBindingNode(node);
-		handleSlotOrFactBindingNode(node);
-	}
-
-	@Override
-	public void visit(final FilterOccurrenceNode node) {
-		handleOccurrenceNode(node);
-		this.assignmentGraph.getFilterToOccurrenceNodes().get(node.getFilter()).values().forEach(this::enqueueNode);
-
-	}
-
-	@Override
-	public void visit(final FunctionalExpressionOccurrenceNode node) {
-		handleOccurrenceNode(node);
-		this.assignmentGraph.getFunctionalExpressionBindingToOccurrenceNodes().get(node.getGroupingBindingNode())
-				.values().forEach(this::enqueueNode);
-
-	}
-
-	@Override
-	public void visit(final ImplicitOccurrenceNode node) {
-		handleOccurrenceNode(node);
 	}
 }

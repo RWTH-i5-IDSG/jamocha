@@ -102,6 +102,19 @@ public class AssignmentGraph {
 			return true;
 		}
 
+		public boolean containsEdge(final Edge edge) {
+			return this.edgeSet.contains(edge);
+		}
+
+		public boolean containsEdge(final ECOccurrenceNode source, final BindingNode target) {
+			return null != getEdge(source, target);
+		}
+
+		public Edge getEdge(final ECOccurrenceNode source, final BindingNode target) {
+			return this.outgoingEdges.get(source).stream().filter(e -> e.getTarget() == target).findAny().orElse(null);
+		}
+
+
 		private Set<Edge> getIncomingEdges(final BindingNode target) {
 			final Set<Edge> edges = this.incomingEdges.get(target);
 			return null != edges ? edges : ImmutableSet.of();
@@ -166,6 +179,10 @@ public class AssignmentGraph {
 						.orElse(null);
 			}
 
+			public Set<Edge> edgeSet() {
+				return ImmutableSet.copyOf(this.edgeSet);
+			}
+
 			public boolean removeEdge(final Edge edge) {
 				assert UnrestrictedGraph.this.edgeSet.contains(edge);
 				final boolean removed = this.edgeSet.remove(edge);
@@ -226,7 +243,8 @@ public class AssignmentGraph {
 			// create fact binding nodes
 			final LinkedList<SingleFactVariable> factVariables = ec.getFactVariables();
 			for (final SingleFactVariable factVariable : factVariables) {
-				final FactBindingNode factBindingNode = new FactBindingNode(ec, factVariable);
+				final TemplateSlotLeaf templateSlotLeaf = new TemplateSlotLeaf(factVariable.getTemplate(), null);
+				final FactBindingNode factBindingNode = new FactBindingNode(ec, templateSlotLeaf, factVariable);
 				bindingNodes.add(factBindingNode);
 				// add to template lookup maps
 				this.templateToInstances.computeIfAbsent(factVariable.getTemplate(), newIdentityHashSet())
@@ -234,24 +252,22 @@ public class AssignmentGraph {
 				this.templateInstanceToBindingNodes.computeIfAbsent(factVariable, newIdentityHashSet())
 						.add(factBindingNode);
 				// add to binding lookup map
-				this.directBindingNodes
-						.computeIfAbsent(new TemplateSlotLeaf(factVariable.getTemplate(), null), newIdentityHashSet())
-						.add(factBindingNode);
+				this.directBindingNodes.computeIfAbsent(templateSlotLeaf, newIdentityHashSet()).add(factBindingNode);
 			}
 			final LinkedList<SingleFactVariable.SingleSlotVariable> slotVariables = ec.getSlotVariables();
 			for (final SingleFactVariable.SingleSlotVariable slotVariable : slotVariables) {
-				final SlotBindingNode slotBindingNode = new SlotBindingNode(ec, slotVariable);
+				final SingleFactVariable factVariable = slotVariable.getFactVariable();
+				final TemplateSlotLeaf templateSlotLeaf =
+						new TemplateSlotLeaf(factVariable.getTemplate(), slotVariable.getSlot());
+				final SlotBindingNode slotBindingNode = new SlotBindingNode(ec, templateSlotLeaf, slotVariable);
 				bindingNodes.add(slotBindingNode);
 				// add to template lookup map
-				final SingleFactVariable factVariable = slotVariable.getFactVariable();
 				this.templateToInstances.computeIfAbsent(factVariable.getTemplate(), newIdentityHashSet())
 						.add(factVariable);
 				this.templateInstanceToBindingNodes.computeIfAbsent(factVariable, newIdentityHashSet())
 						.add(slotBindingNode);
 				// add to binding lookup map
-				this.directBindingNodes
-						.computeIfAbsent(new TemplateSlotLeaf(factVariable.getTemplate(), slotVariable.getSlot()),
-								newIdentityHashSet()).add(slotBindingNode);
+				this.directBindingNodes.computeIfAbsent(templateSlotLeaf, newIdentityHashSet()).add(slotBindingNode);
 			}
 			final LinkedList<FunctionWithArguments<ECLeaf>> constantExpressions = ec.getConstantExpressions();
 			for (final FunctionWithArguments<ECLeaf> constantExpression : constantExpressions) {
@@ -266,19 +282,22 @@ public class AssignmentGraph {
 			for (final FunctionWithArguments<ECLeaf> functionalExpression : functionalExpressions) {
 				final FunctionWithArguments<ECOccurrenceLeaf> occurrenceBasedFunctionalExpression =
 						ECLeafToECOccurrenceLeafTranslator.translateUsingNewOccurrences(functionalExpression);
+				final FunctionWithArguments<TypeLeaf> typeLeafBasedFunctionalExpression =
+						FWAECLeafToTypeLeafTranslator.translate(functionalExpression);
 				final FunctionalExpressionBindingNode functionalExpressionBindingNode =
-						new FunctionalExpressionBindingNode(ec, occurrenceBasedFunctionalExpression);
+						new FunctionalExpressionBindingNode(ec, typeLeafBasedFunctionalExpression,
+								occurrenceBasedFunctionalExpression);
 				bindingNodes.add(functionalExpressionBindingNode);
 				// add to template lookup map and create occurrences
 				this.functionalExpressionToBindings
-						.computeIfAbsent(FWAECLeafToTypeLeafTranslator.translate(functionalExpression),
-								newIdentityHashSet()).add(functionalExpressionBindingNode);
+						.computeIfAbsent(typeLeafBasedFunctionalExpression, newIdentityHashSet())
+						.add(functionalExpressionBindingNode);
 				final ArrayList<ECOccurrenceLeaf> occurrences =
 						ECOccurrenceLeafCollector.collect(occurrenceBasedFunctionalExpression);
 				final TreeMap<Integer, FunctionalExpressionOccurrenceNode> arguments = new TreeMap<>();
 				for (int i = 0; i < occurrences.size(); i++) {
 					arguments.put(i, new FunctionalExpressionOccurrenceNode(occurrences.get(i).getEcOccurrence(),
-							functionalExpressionBindingNode));
+							functionalExpressionBindingNode, i));
 				}
 				this.functionalExpressionBindingToOccurrenceNodes.put(functionalExpressionBindingNode, arguments);
 			}
@@ -334,7 +353,7 @@ public class AssignmentGraph {
 		for (int i = 0; i < occurrences.size(); i++) {
 			final ECOccurrence occurrence = occurrences.get(i).getEcOccurrence();
 			final FilterOccurrenceNode filterOccurrenceNode =
-					new FilterOccurrenceNode(occurrence, functionWithExistentialInfo, filter);
+					new FilterOccurrenceNode(occurrence, functionWithExistentialInfo, filter, i);
 			parameters.put(i, filterOccurrenceNode);
 			final List<BindingNode> bindingNodes = this.ecToElements.get(occurrence.getEc());
 			for (final BindingNode bindingNode : bindingNodes) {

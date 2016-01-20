@@ -21,6 +21,7 @@ import org.jamocha.dn.compiler.ecblocks.ECOccurrenceLeaf;
 import org.jamocha.dn.compiler.ecblocks.assignmentgraph.AssignmentGraphNodeVisitor;
 import org.jamocha.dn.compiler.ecblocks.assignmentgraph.node.binding.FunctionalExpressionBindingNode;
 import org.jamocha.function.fwa.FunctionWithArguments;
+import org.jamocha.function.fwa.TypeLeaf;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
@@ -28,11 +29,17 @@ import org.jamocha.function.fwa.FunctionWithArguments;
 @Getter
 public class FunctionalExpressionOccurrenceNode extends ECOccurrenceNode {
 	final FunctionalExpressionBindingNode groupingBindingNode;
+	final int parameterPosition;
 
-	public FunctionalExpressionOccurrenceNode(final ECOccurrence occcurrence,
-			final FunctionalExpressionBindingNode groupingBindingNode) {
-		super(occcurrence);
+	public FunctionalExpressionOccurrenceNode(final ECOccurrence occurrence,
+			final FunctionalExpressionBindingNode groupingBindingNode, final int parameterPosition) {
+		super(occurrence);
 		this.groupingBindingNode = groupingBindingNode;
+		this.parameterPosition = parameterPosition;
+	}
+
+	public FunctionWithArguments<TypeLeaf> getFunction() {
+		return this.groupingBindingNode.getFunction();
 	}
 
 	public FunctionWithArguments<ECOccurrenceLeaf> getFunctionalExpression() {

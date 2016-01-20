@@ -28,12 +28,15 @@ import org.jamocha.filter.ECFilter;
 public class FilterOccurrenceNode extends ECOccurrenceNode {
 	final ExistentialInfo.FunctionWithExistentialInfo functionWithExistentialInfo;
 	final ECFilter filter;
+	final int parameterPosition;
 
 	public FilterOccurrenceNode(final ECOccurrence occurrence,
-			final ExistentialInfo.FunctionWithExistentialInfo functionWithExistentialInfo, final ECFilter filter) {
+			final ExistentialInfo.FunctionWithExistentialInfo functionWithExistentialInfo, final ECFilter filter,
+			final int parameterPosition) {
 		super(occurrence);
 		this.functionWithExistentialInfo = functionWithExistentialInfo;
 		this.filter = filter;
+		this.parameterPosition = parameterPosition;
 	}
 
 	@Override
