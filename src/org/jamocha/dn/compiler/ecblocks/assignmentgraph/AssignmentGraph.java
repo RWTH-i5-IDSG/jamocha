@@ -85,21 +85,13 @@ public class AssignmentGraph {
 		final BindingNode target;
 	}
 
-	public class UnrestrictedGraph {
+	public abstract class Graph {
 		final IdentityHashMap<ECOccurrenceNode, Set<Edge>> outgoingEdges = new IdentityHashMap<>();
 		final IdentityHashMap<BindingNode, Set<Edge>> incomingEdges = new IdentityHashMap<>();
 		final Set<Edge> edgeSet = Sets.newIdentityHashSet();
 
-		public boolean addEdge(final ECOccurrenceNode source, final BindingNode target) {
-			final Set<Edge> outEdges = this.outgoingEdges.computeIfAbsent(source, newIdentityHashSet());
-			if (outEdges.stream().anyMatch(e -> e.getTarget() == target)) {
-				return false;
-			}
-			final Edge edge = new Edge(source, target);
-			outEdges.add(edge);
-			this.incomingEdges.computeIfAbsent(target, newIdentityHashSet()).add(edge);
-			this.edgeSet.add(edge);
-			return true;
+		public Set<Edge> edgeSet() {
+			return ImmutableSet.copyOf(this.edgeSet);
 		}
 
 		public boolean containsEdge(final Edge edge) {
@@ -114,8 +106,7 @@ public class AssignmentGraph {
 			return this.outgoingEdges.get(source).stream().filter(e -> e.getTarget() == target).findAny().orElse(null);
 		}
 
-
-		private Set<Edge> getIncomingEdges(final BindingNode target) {
+		protected Set<Edge> getIncomingEdges(final BindingNode target) {
 			final Set<Edge> edges = this.incomingEdges.get(target);
 			return null != edges ? edges : ImmutableSet.of();
 		}
@@ -128,7 +119,7 @@ public class AssignmentGraph {
 			return getIncomingEdges(target).size();
 		}
 
-		private Set<Edge> getOutgoingEdges(final ECOccurrenceNode source) {
+		protected Set<Edge> getOutgoingEdges(final ECOccurrenceNode source) {
 			final Set<Edge> edges = this.outgoingEdges.get(source);
 			return null != edges ? edges : ImmutableSet.of();
 		}
@@ -140,17 +131,27 @@ public class AssignmentGraph {
 		public int outDegreeOf(final ECOccurrenceNode source) {
 			return getOutgoingEdges(source).size();
 		}
+	}
+
+	public class UnrestrictedGraph extends Graph {
+		public boolean addEdge(final ECOccurrenceNode source, final BindingNode target) {
+			final Set<Edge> outEdges = this.outgoingEdges.computeIfAbsent(source, newIdentityHashSet());
+			if (outEdges.stream().anyMatch(e -> e.getTarget() == target)) {
+				return false;
+			}
+			final Edge edge = new Edge(source, target);
+			outEdges.add(edge);
+			this.incomingEdges.computeIfAbsent(target, newIdentityHashSet()).add(edge);
+			this.edgeSet.add(edge);
+			return true;
+		}
 
 		public SubGraph newSubGraph() {
 			return new SubGraph();
 		}
 
 		@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-		public class SubGraph {
-			final IdentityHashMap<ECOccurrenceNode, Set<Edge>> outgoingEdges = new IdentityHashMap<>();
-			final IdentityHashMap<BindingNode, Set<Edge>> incomingEdges = new IdentityHashMap<>();
-			final Set<Edge> edgeSet = Sets.newIdentityHashSet();
-
+		public class SubGraph extends Graph {
 			public SubGraph(final SubGraph other) {
 				this.outgoingEdges.putAll(other.outgoingEdges);
 				this.incomingEdges.putAll(other.incomingEdges);
@@ -166,23 +167,6 @@ public class AssignmentGraph {
 				return true;
 			}
 
-			public boolean containsEdge(final Edge edge) {
-				return this.edgeSet.contains(edge);
-			}
-
-			public boolean containsEdge(final ECOccurrenceNode source, final BindingNode target) {
-				return null != getEdge(source, target);
-			}
-
-			public Edge getEdge(final ECOccurrenceNode source, final BindingNode target) {
-				return this.outgoingEdges.get(source).stream().filter(e -> e.getTarget() == target).findAny()
-						.orElse(null);
-			}
-
-			public Set<Edge> edgeSet() {
-				return ImmutableSet.copyOf(this.edgeSet);
-			}
-
 			public boolean removeEdge(final Edge edge) {
 				assert UnrestrictedGraph.this.edgeSet.contains(edge);
 				final boolean removed = this.edgeSet.remove(edge);
@@ -194,32 +178,6 @@ public class AssignmentGraph {
 				this.outgoingEdges.compute(edge.getSource(), edgeRemover);
 				this.incomingEdges.compute(edge.getTarget(), edgeRemover);
 				return true;
-			}
-
-			private Set<Edge> getIncomingEdges(final BindingNode target) {
-				final Set<Edge> edges = this.incomingEdges.get(target);
-				return null != edges ? edges : ImmutableSet.of();
-			}
-
-			public Set<Edge> incomingEdgesOf(final BindingNode target) {
-				return ImmutableSet.copyOf(getIncomingEdges(target));
-			}
-
-			public int inDegreeOf(final BindingNode target) {
-				return getIncomingEdges(target).size();
-			}
-
-			private Set<Edge> getOutgoingEdges(final ECOccurrenceNode source) {
-				final Set<Edge> edges = this.outgoingEdges.get(source);
-				return null != edges ? edges : ImmutableSet.of();
-			}
-
-			public Set<Edge> outgoingEdgesOf(final ECOccurrenceNode source) {
-				return ImmutableSet.copyOf(getOutgoingEdges(source));
-			}
-
-			public int outDegreeOf(final ECOccurrenceNode source) {
-				return getOutgoingEdges(source).size();
 			}
 
 			public Set<ECOccurrenceNode> occurrenceNodeSet() {
