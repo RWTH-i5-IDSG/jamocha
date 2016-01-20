@@ -38,6 +38,7 @@ import java.util.Set;
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 public abstract class ConnectedComponentTraversal implements AssignmentGraphNodeVisitor {
 	final AssignmentGraph assignmentGraph;
+	final AssignmentGraph.Graph traversedGraph;
 	final AssignmentGraph.UnrestrictedGraph.SubGraph subgraph;
 
 	final Set<AssignmentGraphNode> queued = Sets.newIdentityHashSet();
@@ -54,11 +55,11 @@ public abstract class ConnectedComponentTraversal implements AssignmentGraphNode
 			final Function<T, Set<AssignmentGraph.Edge>> getEdges);
 
 	protected void handleBindingNode(final BindingNode node) {
-		handleNode(node, AssignmentGraph.Edge::getSource, this.assignmentGraph.getGraph()::incomingEdgesOf);
+		handleNode(node, AssignmentGraph.Edge::getSource, this.traversedGraph::incomingEdgesOf);
 	}
 
 	protected void handleOccurrenceNode(final ECOccurrenceNode node) {
-		handleNode(node, AssignmentGraph.Edge::getTarget, this.assignmentGraph.getGraph()::outgoingEdgesOf);
+		handleNode(node, AssignmentGraph.Edge::getTarget, this.traversedGraph::outgoingEdgesOf);
 	}
 
 	protected void handleSlotOrFactBindingNode(final SlotOrFactBindingNode node) {

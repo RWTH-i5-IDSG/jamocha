@@ -36,7 +36,7 @@ public class ExistentialSubgraphCompletelyContainedChecker extends ConnectedComp
 
 	private ExistentialSubgraphCompletelyContainedChecker(final AssignmentGraph assignmentGraph,
 			final AssignmentGraph.UnrestrictedGraph.SubGraph subgraph) {
-		super(assignmentGraph, subgraph);
+		super(assignmentGraph, assignmentGraph.getGraph(), subgraph);
 	}
 
 	public static boolean check(final AssignmentGraph assignmentGraph,

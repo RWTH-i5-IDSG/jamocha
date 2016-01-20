@@ -30,7 +30,7 @@ public class ConnectedComponentCounter extends ConnectedComponentTraversal {
 
 	private ConnectedComponentCounter(final AssignmentGraph assignmentGraph,
 			final AssignmentGraph.UnrestrictedGraph.SubGraph subgraph) {
-		super(assignmentGraph, subgraph);
+		super(assignmentGraph, subgraph, subgraph);
 	}
 
 	public static int countConnectedComponents(final AssignmentGraph assignmentGraph,
