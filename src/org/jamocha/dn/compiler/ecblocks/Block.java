@@ -21,6 +21,7 @@ import org.jamocha.dn.compiler.ecblocks.assignmentgraph.AssignmentGraph.Edge;
 import org.jamocha.dn.compiler.ecblocks.assignmentgraph.node.binding.*;
 import org.jamocha.dn.compiler.ecblocks.assignmentgraph.node.occurrence.*;
 import org.jamocha.filter.ECFilter;
+import org.jamocha.function.fwa.FunctionWithArguments;
 import org.jamocha.languages.common.SingleFactVariable;
 import org.paukov.combinatorics.Factory;
 import org.paukov.combinatorics.Generator;
@@ -517,8 +518,85 @@ public class Block {
 			for (final ICombinatoricsVector<BlockColumn> combination : generator) {
 				final BlockColumn c0 = combination.getValue(0);
 				final BlockColumn c1 = combination.getValue(1);
-				if ((!directedCompatibilityCheck(c0, c1) || !directedCompatibilityCheck(c1, c0))) {
-					throw new IllegalStateException("There are incompatible columns in the block!");
+				final BindingType bt0 = c0.getBindingType();
+				final BindingType bt1 = c1.getBindingType();
+				final Set<BindingNode> b0 = c0.getEdges().stream().map(Edge::getTarget).collect(toIdentityHashSet());
+				final Set<BindingNode> b1 = c1.getEdges().stream().map(Edge::getTarget).collect(toIdentityHashSet());
+				if (!b0.equals(b1)) {
+					if (!Collections.disjoint(b0, b1)) {
+						throw new IllegalStateException("There are incompatible columns in the block!");
+					}
+					final EnumSet<BindingType> slotOrFact =
+							EnumSet.of(BindingType.FACT_BINDING, BindingType.SLOT_BINDING);
+					if (slotOrFact.contains(bt0) && slotOrFact.contains(bt1)) {
+						final Set<SingleFactVariable> t0 =
+								b0.stream().map(node -> ((SlotOrFactBindingNode) node).getGroupingFactVariable())
+										.collect(toIdentityHashSet());
+						final Set<SingleFactVariable> t1 =
+								b1.stream().map(node -> ((SlotOrFactBindingNode) node).getGroupingFactVariable())
+										.collect(toIdentityHashSet());
+						if (!t0.equals(t1) && !Collections.disjoint(t0, t1)) {
+							throw new IllegalStateException("There are incompatible columns in the block!");
+						}
+					}
+					if (bt0 == BindingType.FUNCTIONAL_EXPRESSION && bt1 == BindingType.FUNCTIONAL_EXPRESSION) {
+						final Set<FunctionWithArguments<ECOccurrenceLeaf>> fe0 = b0.stream()
+								.map(node -> ((FunctionalExpressionBindingNode) node).getFunctionalExpression())
+								.collect(toIdentityHashSet());
+						final Set<FunctionWithArguments<ECOccurrenceLeaf>> fe1 = b1.stream()
+								.map(node -> ((FunctionalExpressionBindingNode) node).getFunctionalExpression())
+								.collect(toIdentityHashSet());
+						if (!fe0.equals(fe1) && !Collections.disjoint(fe0, fe1)) {
+							throw new IllegalStateException("There are incompatible columns in the block!");
+						}
+					}
+				}
+				final OccurrenceType ot0 = c0.getOccurrenceType();
+				final OccurrenceType ot1 = c1.getOccurrenceType();
+				final Set<ECOccurrenceNode> o0 =
+						c0.getEdges().stream().map(Edge::getSource).collect(toIdentityHashSet());
+				final Set<ECOccurrenceNode> o1 =
+						c1.getEdges().stream().map(Edge::getSource).collect(toIdentityHashSet());
+				if (!o0.equals(o1)) {
+					if (!Collections.disjoint(o0, o1)) {
+						throw new IllegalStateException("There are incompatible columns in the block!");
+					}
+					if (ot0 == OccurrenceType.FILTER_OCCURRENCE && ot1 == OccurrenceType.FILTER_OCCURRENCE) {
+						final Set<ECFilter> f0 = o0.stream().map(node -> ((FilterOccurrenceNode) node).getFilter())
+								.collect(toIdentityHashSet());
+						final Set<ECFilter> f1 = o1.stream().map(node -> ((FilterOccurrenceNode) node).getFilter())
+								.collect(toIdentityHashSet());
+						if (!f0.equals(f1) && !Collections.disjoint(f0, f1)) {
+							throw new IllegalStateException("There are incompatible columns in the block!");
+						}
+					}
+					if (ot0 == OccurrenceType.FUNCTIONAL_OCCURRENCE && ot1 == OccurrenceType.FUNCTIONAL_OCCURRENCE) {
+						final Set<FunctionalExpressionBindingNode> fe0 = o0.stream()
+								.map(node -> ((FunctionalExpressionOccurrenceNode) node).getGroupingBindingNode())
+								.collect(toIdentityHashSet());
+						final Set<FunctionalExpressionBindingNode> fe1 = o1.stream()
+								.map(node -> ((FunctionalExpressionOccurrenceNode) node).getGroupingBindingNode())
+								.collect(toIdentityHashSet());
+						if (!fe0.equals(fe1) && !Collections.disjoint(fe0, fe1)) {
+							throw new IllegalStateException("There are incompatible columns in the block!");
+						}
+					}
+				}
+				if (bt0 == BindingType.FUNCTIONAL_EXPRESSION && ot1 == OccurrenceType.FUNCTIONAL_OCCURRENCE) {
+					final Set<FunctionalExpressionBindingNode> gb1 = o1.stream()
+							.map(node -> ((FunctionalExpressionOccurrenceNode) node).getGroupingBindingNode())
+							.collect(toIdentityHashSet());
+					if (!b0.equals(gb1) && !Collections.disjoint(b0, gb1)) {
+						throw new IllegalStateException("There are incompatible columns in the block!");
+					}
+				}
+				if (bt1 == BindingType.FUNCTIONAL_EXPRESSION && ot0 == OccurrenceType.FUNCTIONAL_OCCURRENCE) {
+					final Set<FunctionalExpressionBindingNode> gb0 = o0.stream()
+							.map(node -> ((FunctionalExpressionOccurrenceNode) node).getGroupingBindingNode())
+							.collect(toIdentityHashSet());
+					if (!b1.equals(gb0) && !Collections.disjoint(b1, gb0)) {
+						throw new IllegalStateException("There are incompatible columns in the block!");
+					}
 				}
 			}
 		}
@@ -548,17 +626,4 @@ public class Block {
 		return true;
 	}
 
-	private boolean directedCompatibilityCheck(final BlockColumn c0, final BlockColumn c1) {
-		if (c0.getBindingType() != BindingType.FUNCTIONAL_EXPRESSION ||
-				c1.getOccurrenceType() != OccurrenceType.FUNCTIONAL_OCCURRENCE) {
-			return true;
-		}
-		final Set<BindingNode> bindingNodes = c0.getEdges().stream().map(Edge::getTarget).collect(toIdentityHashSet());
-		final Set<ECOccurrenceNode> occurrenceNodes =
-				c1.getEdges().stream().map(Edge::getSource).collect(toIdentityHashSet());
-		final Set<FunctionalExpressionBindingNode> groupingBindingNodes = occurrenceNodes.stream()
-				.map(node -> ((FunctionalExpressionOccurrenceNode) node).getGroupingBindingNode())
-				.collect(toIdentityHashSet());
-		return bindingNodes.equals(groupingBindingNodes) || Collections.disjoint(bindingNodes, groupingBindingNodes);
-	}
 }
