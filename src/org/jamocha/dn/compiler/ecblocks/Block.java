@@ -539,17 +539,6 @@ public class Block {
 							throw new IllegalStateException("There are incompatible columns in the block!");
 						}
 					}
-					if (bt0 == BindingType.FUNCTIONAL_EXPRESSION && bt1 == BindingType.FUNCTIONAL_EXPRESSION) {
-						final Set<FunctionWithArguments<ECOccurrenceLeaf>> fe0 = b0.stream()
-								.map(node -> ((FunctionalExpressionBindingNode) node).getFunctionalExpression())
-								.collect(toIdentityHashSet());
-						final Set<FunctionWithArguments<ECOccurrenceLeaf>> fe1 = b1.stream()
-								.map(node -> ((FunctionalExpressionBindingNode) node).getFunctionalExpression())
-								.collect(toIdentityHashSet());
-						if (!fe0.equals(fe1) && !Collections.disjoint(fe0, fe1)) {
-							throw new IllegalStateException("There are incompatible columns in the block!");
-						}
-					}
 				}
 				final OccurrenceType ot0 = c0.getOccurrenceType();
 				final OccurrenceType ot1 = c1.getOccurrenceType();
