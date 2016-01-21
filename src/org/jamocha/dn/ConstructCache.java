@@ -15,26 +15,31 @@
 package org.jamocha.dn;
 
 import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
 import com.google.common.collect.Sets;
 import lombok.Data;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Value;
 import org.apache.logging.log4j.Marker;
+import org.jamocha.dn.compiler.DeepFactVariableCollector;
 import org.jamocha.dn.memory.MemoryHandlerTerminal.AssertOrRetract;
 import org.jamocha.dn.memory.Template;
 import org.jamocha.filter.*;
 import org.jamocha.function.Function;
 import org.jamocha.function.fwa.*;
 import org.jamocha.function.fwatransformer.FWASymbolToRHSVariableLeafTranslator;
-import org.jamocha.languages.common.RuleCondition;
+import org.jamocha.languages.common.*;
 import org.jamocha.languages.common.RuleCondition.EquivalenceClass;
-import org.jamocha.languages.common.SingleFactVariable;
 import org.jamocha.logging.MarkerType;
+import org.jamocha.util.Lambdas;
 
 import java.util.*;
 import java.util.stream.StreamSupport;
 
 import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toMap;
+import static org.jamocha.util.Lambdas.toIdentityHashSet;
 import static org.jamocha.util.ToArray.toArray;
 
 /**
@@ -77,6 +82,81 @@ public class ConstructCache {
 			this.actionList = actionList;
 			this.fireMarker = MarkerType.RULES.createChild(name);
 			this.activationMarker = MarkerType.ACTIVATIONS.createChild(name);
+		}
+
+		@RequiredArgsConstructor
+		@Getter
+		public class ECBasedCERule {
+			final ConditionalElement<ECLeaf> condition;
+			final Set<SingleFactVariable> factVariables;
+			final Set<EquivalenceClass> equivalenceClasses;
+			final BiMap<EquivalenceClass, EquivalenceClass> localECsToConditionECs;
+
+			public List<ECBasedCERule> newECBasedCERules() {
+				// move (not )s down to the lowest possible nodes
+				ConditionalElement<ECLeaf> ecCE = RuleConditionProcessor.moveNots(this.condition);
+				// combine nested ands and ors
+				RuleConditionProcessor.combineNested(ecCE);
+				// expand ors
+				ecCE = RuleConditionProcessor.expandOrs(ecCE);
+				// simply translate SymbolLeafs to ECLeafs by calling getEC
+				assert ecCE instanceof ConditionalElement.OrFunctionConditionalElement;
+				return ecCE.getChildren().stream().map(child -> {
+					final HashBiMap<EquivalenceClass, EquivalenceClass> oldToNewEC = HashBiMap
+							.create(equivalenceClasses.stream()
+									.collect(toMap(java.util.function.Function.identity(), EquivalenceClass::new)));
+					final ConditionalElement<ECLeaf> copy =
+							RuleConditionProcessor.copyDeeplyUsingNewECsAndFactVariables(oldToNewEC, child);
+					final Set<SingleFactVariable> factVariables =
+							Lambdas.newIdentityHashSet(DeepFactVariableCollector.collect(copy));
+					RuleConditionProcessor.removeMissingBindingsInNonOR(child);
+					final Set<EquivalenceClass> equivalenceClasses = oldToNewEC.values().stream()
+							.filter(ec -> !ec.getFactVariables().isEmpty() || !ec.getSlotVariables().isEmpty())
+							.collect(toIdentityHashSet());
+					oldToNewEC.inverse().replaceAll((newEC, oldEC) -> this.localECsToConditionECs.get(oldEC));
+					return new ECBasedCERule(copy, factVariables, equivalenceClasses, oldToNewEC.inverse());
+				}).collect(toList());
+			}
+		}
+
+		public List<ECBasedCERule> newECBasedCERules() {
+			final RuleCondition condition = Defrule.this.getCondition();
+			ConditionalElement<SymbolLeaf> symbolCE =
+					new ConditionalElement.AndFunctionConditionalElement<>(condition.getConditionalElements());
+			// move (not )s down to the lowest possible nodes
+			symbolCE = RuleConditionProcessor.moveNots(symbolCE);
+			// combine nested ands and ors
+			RuleConditionProcessor.combineNested(symbolCE);
+			// expand ors
+			symbolCE = RuleConditionProcessor.expandOrs(symbolCE);
+			// simply translate SymbolLeafs to ECLeafs by calling getEC
+			ConditionalElement<ECLeaf> ecCE =
+					symbolCE.accept(new RuleConditionProcessor.CESymbolToECTranslator()).getResult();
+			final List<EquivalenceClass> allECs =
+					Defrule.this.condition.getVariableSymbols().stream().map(ScopeStack.VariableSymbol::getEqual)
+							.collect(toList());
+			assert ecCE instanceof ConditionalElement.OrFunctionConditionalElement;
+			return ecCE.getChildren().stream().map(child -> {
+				final HashBiMap<EquivalenceClass, EquivalenceClass> oldToNewEC = HashBiMap.create(allECs.stream()
+						.collect(toMap(java.util.function.Function.identity(), EquivalenceClass::new)));
+				ConditionalElement<ECLeaf> copy =
+						RuleConditionProcessor.copyDeeplyUsingNewECsAndFactVariables(oldToNewEC, child);
+				final Set<SingleFactVariable> factVariables =
+						Lambdas.newIdentityHashSet(DeepFactVariableCollector.collect(copy));
+				RuleConditionProcessor.removeMissingBindingsInNonOR(copy);
+				final Set<EquivalenceClass> equivalenceClasses = oldToNewEC.values().stream()
+						.filter(ec -> !ec.getFactVariables().isEmpty() || !ec.getSlotVariables().isEmpty())
+						.collect(toIdentityHashSet());
+
+				// split up the equivalence classes on the existential thresholds
+				copy = RuleConditionProcessor.ExistentialECSplitter.split(condition.getScope(), copy);
+
+				// move functions not using any existential EC(-part)s out of the existential part
+				// (producing (or)s in case of negated existential conditions)
+				copy = copy.accept(new RuleConditionProcessor.CEExistentialTransformer()).getCe();
+
+				return new ECBasedCERule(copy, factVariables, equivalenceClasses, oldToNewEC.inverse());
+			}).flatMap(rule -> rule.newECBasedCERules().stream()).collect(toList());
 		}
 
 		public ECSetRule newECSetRule(final Set<ECFilterSet> condition, final Set<SingleFactVariable> factVariables,

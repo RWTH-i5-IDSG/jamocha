@@ -15,15 +15,11 @@
 package org.jamocha.filter;
 
 import lombok.Getter;
-import org.jamocha.function.fwa.DefaultFunctionWithArgumentsVisitor;
-import org.jamocha.function.fwa.FunctionWithArguments;
-import org.jamocha.function.fwa.PredicateWithArgumentsComposite;
-import org.jamocha.function.fwa.SymbolLeaf;
+import org.jamocha.function.fwa.*;
 import org.jamocha.function.impls.predicates.Equals;
 import org.jamocha.languages.common.ConditionalElement;
 import org.jamocha.languages.common.ConditionalElement.TestConditionalElement;
 import org.jamocha.languages.common.DefaultConditionalElementsVisitor;
-import org.jamocha.languages.common.RuleCondition;
 
 import java.util.*;
 
@@ -34,8 +30,8 @@ import java.util.*;
  * 		collection type to use while collecting the {@link FunctionWithArguments}
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
-public class FWACollector<T extends Collection<FunctionWithArguments<SymbolLeaf>>>
-		implements DefaultConditionalElementsVisitor<SymbolLeaf>, DefaultFunctionWithArgumentsVisitor<SymbolLeaf> {
+public class FWACollector<L extends ExchangeableLeaf<L>, T extends Collection<FunctionWithArguments<L>>>
+		implements DefaultConditionalElementsVisitor<L>, DefaultFunctionWithArgumentsVisitor<L> {
 	@Getter
 	private final T fwas;
 
@@ -43,55 +39,61 @@ public class FWACollector<T extends Collection<FunctionWithArguments<SymbolLeaf>
 		this.fwas = symbols;
 	}
 
-	public FWACollector<T> collect(final ConditionalElement<SymbolLeaf> ce) {
+	public FWACollector<L, T> collect(final ConditionalElement<L> ce) {
 		ce.accept(this);
 		return this;
 	}
 
-	public FWACollector<T> collect(final RuleCondition rc) {
-		return collect(rc.getConditionalElements());
-	}
-
-	public FWACollector<T> collect(final List<ConditionalElement<SymbolLeaf>> ces) {
+	public FWACollector<L, T> collect(final List<ConditionalElement<L>> ces) {
 		ces.forEach(this::collect);
 		return this;
 	}
 
-	public static FWACollector<HashSet<FunctionWithArguments<SymbolLeaf>>> newHashSet() {
+	public static <L extends ExchangeableLeaf<L>> FWACollector<L, HashSet<FunctionWithArguments<L>>> newHashSet() {
 		return new FWACollector<>(new HashSet<>());
 	}
 
-	public static FWACollector<LinkedHashSet<FunctionWithArguments<SymbolLeaf>>> newLinkedHashSet() {
+	public static FWACollector<ECLeaf, HashSet<FunctionWithArguments<ECLeaf>>> newECLeafHashSet() {
+		return new FWACollector<>(new HashSet<>());
+	}
+
+	public static FWACollector<SymbolLeaf, HashSet<FunctionWithArguments<SymbolLeaf>>> newSymbolLeafHashSet() {
+		return new FWACollector<>(new HashSet<>());
+	}
+
+	public static <L extends ExchangeableLeaf<L>> FWACollector<L, LinkedHashSet<FunctionWithArguments<L>>>
+	newLinkedHashSet() {
 		return new FWACollector<>(new LinkedHashSet<>());
 	}
 
-	public static FWACollector<ArrayList<FunctionWithArguments<SymbolLeaf>>> newArrayList() {
+	public static <L extends ExchangeableLeaf<L>> FWACollector<L, ArrayList<FunctionWithArguments<L>>> newArrayList() {
 		return new FWACollector<>(new ArrayList<>());
 	}
 
-	public static FWACollector<LinkedList<FunctionWithArguments<SymbolLeaf>>> newLinkedList() {
+	public static <L extends ExchangeableLeaf<L>> FWACollector<L, LinkedList<FunctionWithArguments<L>>> newLinkedList
+			() {
 		return new FWACollector<>(new LinkedList<>());
 	}
 
 	@Override
-	public void defaultAction(final ConditionalElement<SymbolLeaf> ce) {
+	public void defaultAction(final ConditionalElement<L> ce) {
 		ce.getChildren().forEach(c -> c.accept(this));
 	}
 
 	@Override
-	public void visit(final TestConditionalElement<SymbolLeaf> ce) {
+	public void visit(final TestConditionalElement<L> ce) {
 		ce.getPredicateWithArguments().accept(this);
 	}
 
 	@Override
-	public void defaultAction(final FunctionWithArguments<SymbolLeaf> fwa) {
+	public void defaultAction(final FunctionWithArguments<L> fwa) {
 		fwas.add(fwa);
 	}
 
 	@Override
-	public void visit(final PredicateWithArgumentsComposite<SymbolLeaf> pwac) {
+	public void visit(final PredicateWithArgumentsComposite<L> pwac) {
 		if (pwac.getFunction().inClips().equals(Equals.inClips)) {
-			for (final FunctionWithArguments<SymbolLeaf> arg : pwac.getArgs()) {
+			for (final FunctionWithArguments<L> arg : pwac.getArgs()) {
 				defaultAction(arg);
 			}
 		} else {

@@ -14,33 +14,24 @@
  */
 package org.jamocha.dn.compiler;
 
-import static java.util.stream.Collectors.toList;
-
-import java.util.Collection;
-import java.util.List;
-
+import com.atlassian.fugue.Either;
+import com.google.common.collect.ImmutableList;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jamocha.dn.ConstructCache.Defrule;
 import org.jamocha.dn.ConstructCache.Defrule.ECSetRule;
 import org.jamocha.dn.ConstructCache.Defrule.PathRule;
 import org.jamocha.dn.ConstructCache.Defrule.PathSetRule;
-import org.jamocha.dn.compiler.ecblocks.CEToECTranslator;
-import org.jamocha.dn.compiler.ecblocks.ECBlockSet;
-import org.jamocha.dn.compiler.ecblocks.ECBlocks;
-import org.jamocha.dn.compiler.ecblocks.ExistentialProxy;
-import org.jamocha.dn.compiler.ecblocks.Randomizer;
-import org.jamocha.dn.compiler.ecblocks.Rule;
+import org.jamocha.dn.compiler.ecblocks.*;
 import org.jamocha.dn.compiler.pathblocks.PathBlocks;
 import org.jamocha.dn.compiler.pathblocks.PathFilterConsolidator;
 import org.jamocha.dn.memory.Template;
-import org.jamocha.filter.optimizer.Optimizer;
-import org.jamocha.filter.optimizer.PathFilterOrderOptimizer;
-import org.jamocha.filter.optimizer.SamePathsFilterCombiningOptimizer;
-import org.jamocha.filter.optimizer.SamePathsNodeFilterSetCombiningOptimizer;
-import org.jamocha.filter.optimizer.SubsetPathsNodeFilterSetCombiningOptimizer;
+import org.jamocha.filter.optimizer.*;
+import org.jamocha.languages.common.RuleConditionProcessor;
 
-import com.atlassian.fugue.Either;
-import com.google.common.collect.ImmutableList;
+import java.util.Collection;
+import java.util.List;
+
+import static java.util.stream.Collectors.toList;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
@@ -48,32 +39,31 @@ import com.google.common.collect.ImmutableList;
 public enum RuleCompiler {
 	TRIVIAL {
 		@Override
-		public Collection<PathRule> compileRules(final Template initialFactTemplate, final Collection<Defrule> defrules) {
-			final List<PathSetRule> consolidatedRules =
-					defrules.stream()
-							.flatMap(
-									rule -> new PathFilterConsolidator(initialFactTemplate, rule).consolidate()
-											.stream()).collect(toList());
+		public Collection<PathRule> compileRules(final Template initialFactTemplate,
+				final Collection<Defrule> defrules) {
+			final List<PathSetRule> consolidatedRules = defrules.stream()
+					.flatMap(rule -> new PathFilterConsolidator(initialFactTemplate, rule).consolidate().stream())
+					.collect(toList());
 			Collection<PathRule> transformedRules =
 					consolidatedRules.stream().map(PathSetRule::trivialToPathRule).collect(toList());
 			for (final Optimizer optimizer : ImmutableList.of(
 			/*
 			 * node filter sets using the same paths can be combined
 			 */
-			SamePathsNodeFilterSetCombiningOptimizer.instance,
+					SamePathsNodeFilterSetCombiningOptimizer.instance,
 			/*
 			 * filters using the same paths can be combined
 			 */
-			SamePathsFilterCombiningOptimizer.instance,
+					SamePathsFilterCombiningOptimizer.instance,
 			/*
 			 * now perform the actual optimization of the filter order
 			 */
-			PathFilterOrderOptimizer.instance,
+					PathFilterOrderOptimizer.instance,
 			/*
 			 * now that the order of the node filter sets is fixed, we can combine node filter sets
 			 * using only a subset of the paths of their predecessors
 			 */
-			SubsetPathsNodeFilterSetCombiningOptimizer.instance)) {
+					SubsetPathsNodeFilterSetCombiningOptimizer.instance)) {
 				transformedRules = optimizer.optimize(transformedRules);
 			}
 			return transformedRules;
@@ -81,31 +71,30 @@ public enum RuleCompiler {
 	},
 	PATHBLOCKS {
 		@Override
-		public Collection<PathRule> compileRules(final Template initialFactTemplate, final Collection<Defrule> defrules) {
-			final List<PathSetRule> consolidatedRules =
-					defrules.stream()
-							.flatMap(
-									rule -> new PathFilterConsolidator(initialFactTemplate, rule).consolidate()
-											.stream()).collect(toList());
+		public Collection<PathRule> compileRules(final Template initialFactTemplate,
+				final Collection<Defrule> defrules) {
+			final List<PathSetRule> consolidatedRules = defrules.stream()
+					.flatMap(rule -> new PathFilterConsolidator(initialFactTemplate, rule).consolidate().stream())
+					.collect(toList());
 			Collection<PathRule> transformedRules = PathBlocks.transform(consolidatedRules);
 			for (final Optimizer optimizer : ImmutableList.of(
 			/*
 			 * now perform the actual optimization of the filter order
 			 */
-			PathFilterOrderOptimizer.instance,
+					PathFilterOrderOptimizer.instance,
 			/*
 			 * node filter sets using the same paths can be combined
 			 */
-			SamePathsNodeFilterSetCombiningOptimizer.instance,
+					SamePathsNodeFilterSetCombiningOptimizer.instance,
 			/*
 			 * filters using the same paths can be combined
 			 */
-			SamePathsFilterCombiningOptimizer.instance,
+					SamePathsFilterCombiningOptimizer.instance,
 			/*
 			 * now that the order of the node filter sets is fixed, we can combine node filter sets
 			 * using only a subset of the paths of their predecessors
 			 */
-			SubsetPathsNodeFilterSetCombiningOptimizer.instance)) {
+					SubsetPathsNodeFilterSetCombiningOptimizer.instance)) {
 				transformedRules = optimizer.optimize(transformedRules);
 			}
 			return transformedRules;
@@ -113,26 +102,27 @@ public enum RuleCompiler {
 	},
 	ECBLOCKS {
 		@Override
-		public Collection<PathRule> compileRules(final Template initialFactTemplate, final Collection<Defrule> defrules) {
+		public Collection<PathRule> compileRules(final Template initialFactTemplate,
+				final Collection<Defrule> defrules) {
 			final List<ECSetRule> consolidatedRules =
-					defrules.stream()
-							.flatMap(rule -> new CEToECTranslator(initialFactTemplate, rule).translate().stream())
-							.collect(toList());
+					defrules.stream().flatMap(rule -> RuleConditionProcessor.flatten(rule).stream())
+							.map(rule -> new CEToECTranslator(initialFactTemplate, rule).translate()).collect(toList
+							());
 			Collection<PathRule> transformedRules = ECBlocks.transform(consolidatedRules);
 			for (final Optimizer optimizer : ImmutableList.of(
 			/*
 			 * node filter sets using the same paths can be combined
 			 */
-			SamePathsNodeFilterSetCombiningOptimizer.instance,
+					SamePathsNodeFilterSetCombiningOptimizer.instance,
 			/*
 			 * filters using the same paths can be combined
 			 */
-			SamePathsFilterCombiningOptimizer.instance,
+					SamePathsFilterCombiningOptimizer.instance,
 			/*
 			 * node filter sets using only a subset of the paths of their predecessors can be
 			 * combined
 			 */
-			SubsetPathsNodeFilterSetCombiningOptimizer.instance)) {
+					SubsetPathsNodeFilterSetCombiningOptimizer.instance)) {
 				transformedRules = optimizer.optimize(transformedRules);
 			}
 			return transformedRules;
@@ -140,19 +130,19 @@ public enum RuleCompiler {
 	},
 	ECBLOCKSRAND {
 		@Override
-		public Collection<PathRule> compileRules(final Template initialFactTemplate, final Collection<Defrule> defrules) {
-			final List<ECSetRule> consolidatedRules =
-					defrules.stream()
-							.flatMap(rule -> new CEToECTranslator(initialFactTemplate, rule).translate().stream())
-							.collect(toList());
+		public Collection<PathRule> compileRules(final Template initialFactTemplate,
+				final Collection<Defrule> defrules) {
+			final List<ECSetRule> consolidatedRules = defrules.stream()
+					.flatMap(rule -> new CEToECTranslator(initialFactTemplate, rule).translate().stream())
+					.collect(toList());
 			final Pair<List<Either<Rule, ExistentialProxy>>, ECBlockSet> pair = ECBlocks.compile(consolidatedRules);
 			final List<Either<Rule, ExistentialProxy>> rules = pair.getLeft();
 			final ECBlockSet blockSet = pair.getRight();
-			final Collection<PathRule> randomized = Randomizer.randomizeTPO(rules, blockSet); 
+			final Collection<PathRule> randomized = Randomizer.randomizeTPO(rules, blockSet);
 			return randomized;
 		}
-	},
-	;
+	},;
+
 	public abstract Collection<Defrule.PathRule> compileRules(final Template initialFactTemplate,
 			final Collection<Defrule> defrules);
 }

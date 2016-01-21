@@ -19,6 +19,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Value;
 import lombok.extern.log4j.Log4j2;
+import org.jamocha.dn.ConstructCache;
 import org.jamocha.dn.compiler.DeepFactVariableCollector;
 import org.jamocha.dn.compiler.ShallowFactVariableCollector;
 import org.jamocha.function.fwa.*;
@@ -69,54 +70,11 @@ public class RuleConditionProcessor {
 		return new AndFunctionConditionalElement<>(Lists.newArrayList(ImmutableList.of(ce)));
 	}
 
-	public static ConditionalElement<ECLeaf> flatten(final RuleCondition condition) {
-		ConditionalElement<SymbolLeaf> symbolCE =
-				new AndFunctionConditionalElement<>(condition.getConditionalElements());
-
-		// move (not )s down to the lowest possible nodes
-		symbolCE = RuleConditionProcessor.moveNots(symbolCE);
-
-		// combine nested ands and ors
-		RuleConditionProcessor.combineNested(symbolCE);
-
-		// expand ors
-		symbolCE = RuleConditionProcessor.expandOrs(symbolCE);
-
-		// simply translate SymbolLeafs to ECLeafs by calling getEC
-		ConditionalElement<ECLeaf> ecCE = symbolCE.accept(new CESymbolToECTranslator()).getResult();
-
-		// copy the whole condition using different sets of fact variables (and equivalence classes)
-		// for the disjuncts
-		{
-			final List<EquivalenceClass> allECs =
-					condition.getVariableSymbols().stream().map(VariableSymbol::getEqual).collect(toList());
-			ecCE.getChildren().replaceAll(
-					(final ConditionalElement<ECLeaf> child) -> copyDeeplyUsingNewECsAndFactVariables(allECs, child));
-		}
-
-		// remove the bindings not present in the corresponding or-part
-		removeMissingBindings(ecCE);
-
-		// split up the equivalence classes on the existential thresholds
-		ecCE.getChildren().replaceAll(child -> ExistentialECSplitter.split(condition.getScope(), child));
-
-		// move functions not using any existential EC(-part)s out of the existential part
-		// (producing (or)s in case of negated existential conditions)
-		ecCE = ecCE.accept(new CEExistentialTransformer()).ce;
-
-		// perform the initial transformation again in case the previous steps performed changes
-		ecCE = RuleConditionProcessor.moveNots(ecCE);
-		RuleConditionProcessor.combineNested(ecCE);
-		ecCE = RuleConditionProcessor.expandOrs(ecCE);
-		ecCE.getChildren().replaceAll((final ConditionalElement<ECLeaf> child) ->
-				copyDeeplyUsingNewECsAndFactVariables(
-				child.accept(new DeepECCollector()).getEquivalenceClasses(), child));
-		removeMissingBindings(ecCE);
-
-		return ecCE;
+	public static List<ConstructCache.Defrule.ECBasedCERule> flatten(final ConstructCache.Defrule rule) {
+		return rule.newECBasedCERules();
 	}
 
-	private static void removeMissingBindings(final ConditionalElement<ECLeaf> ecCE) {
+	public static void removeMissingBindingsInOR(final ConditionalElement<ECLeaf> ecCE) {
 		for (final ConditionalElement<ECLeaf> child : ecCE.getChildren()) {
 			final List<SingleFactVariable> fvs = DeepFactVariableCollector.collect(child);
 			final Set<EquivalenceClass> equivalenceClasses =
@@ -128,12 +86,17 @@ public class RuleConditionProcessor {
 		}
 	}
 
-	private static ConditionalElement<ECLeaf> copyDeeplyUsingNewECsAndFactVariables(
-			final Collection<EquivalenceClass> allECs, final ConditionalElement<ECLeaf> child) {
-		// copy all equivalence classes
-		final HashBiMap<EquivalenceClass, EquivalenceClass> oldToNewEC =
-				HashBiMap.create(allECs.stream().collect(toMap(Function.identity(), EquivalenceClass::new)));
+	public static void removeMissingBindingsInNonOR(final ConditionalElement<ECLeaf> ecCE) {
+		final List<SingleFactVariable> fvs = DeepFactVariableCollector.collect(ecCE);
+		final Set<EquivalenceClass> equivalenceClasses = ecCE.accept(new DeepECCollector()).getEquivalenceClasses();
+		for (final EquivalenceClass equivalenceClass : equivalenceClasses) {
+			equivalenceClass.getFactVariables().removeIf(negate(fvs::contains));
+			equivalenceClass.getSlotVariables().removeIf(sv -> !fvs.contains(sv.getFactVariable()));
+		}
+	}
 
+	public static ConditionalElement<ECLeaf> copyDeeplyUsingNewECsAndFactVariables(
+			final HashBiMap<EquivalenceClass, EquivalenceClass> oldToNewEC, final ConditionalElement<ECLeaf> child) {
 		// collect all fact variables contained in this child
 		final List<SingleFactVariable> deepFactVariables = DeepFactVariableCollector.collect(child);
 
@@ -403,7 +366,7 @@ public class RuleConditionProcessor {
 	}
 
 	@Getter
-	private static class ExistentialECSplitter extends CETranslator<ECLeaf, ECLeaf> {
+	public static class ExistentialECSplitter extends CETranslator<ECLeaf, ECLeaf> {
 		@Value
 		class State {
 			final Scope scope;
@@ -524,7 +487,7 @@ public class RuleConditionProcessor {
 		}
 	}
 
-	private static class CESymbolToECTranslator extends CETranslator<SymbolLeaf, ECLeaf> {
+	public static class CESymbolToECTranslator extends CETranslator<SymbolLeaf, ECLeaf> {
 		@Override
 		public CETranslator<SymbolLeaf, ECLeaf> of() {
 			return new CESymbolToECTranslator();
@@ -540,7 +503,8 @@ public class RuleConditionProcessor {
 	/**
 	 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
 	 */
-	private static class CEExistentialTransformer implements DefaultConditionalElementsVisitor<ECLeaf> {
+	@Getter
+	public static class CEExistentialTransformer implements DefaultConditionalElementsVisitor<ECLeaf> {
 		private ConditionalElement<ECLeaf> ce;
 
 		@Override

@@ -49,7 +49,6 @@ import org.jamocha.languages.clips.parser.generated.ParseException;
 import org.jamocha.languages.clips.parser.generated.SFPParser;
 import org.jamocha.languages.clips.parser.generated.SFPStart;
 import org.jamocha.languages.clips.parser.generated.SimpleNode;
-import org.jamocha.languages.common.RuleConditionProcessor;
 import org.jamocha.languages.common.ScopeStack;
 import org.jamocha.languages.common.ScopeStack.Symbol;
 import org.jamocha.logging.LayoutAdapter;
@@ -519,11 +518,7 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 
 	@Override
 	public void defRules(final List<Defrule> defrules) {
-		for (final Defrule rule : defrules) {
-			this.constructCache.addRule(rule);
-			// Preprocess CEs
-			RuleConditionProcessor.flatten(rule.getCondition());
-		}
+		defrules.forEach(this.constructCache::addRule);
 		final Collection<PathRule> rules = ruleCompiler.compileRules(this.initialFactTemplate, defrules);
 		for (final PathRule rule : rules) {
 			System.out.println(rule.getParent().getName());
