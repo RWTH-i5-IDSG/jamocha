@@ -84,16 +84,6 @@ public class Block {
 		}
 	}
 
-	//	public Set<AssignmentGraphNode> getNodesOfType(final BindingType type) {
-	//		return columns.stream().filter(c -> type == c.bindingType)
-	//				.flatMap(c -> c.edges.stream().map(e -> e.getBinding(graph))).collect(toSet());
-	//	}
-	//
-	//	public Set<AssignmentGraphNode> getNodesOfType(final OccurrenceType type) {
-	//		return columns.stream().filter(c -> type == c.occurrenceType)
-	//				.flatMap(c -> c.edges.stream().map(e -> e.getOccurrence(graph))).collect(toSet());
-	//	}
-
 	final AssignmentGraph graph;
 	final BlockRows rows;
 	final Set<BlockColumn> columns;
