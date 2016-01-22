@@ -14,24 +14,14 @@
  */
 package test.jamocha.dn.compiler;
 
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.instanceOf;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-
-import java.io.StringReader;
-import java.util.List;
-import java.util.Queue;
-import java.util.Set;
-
+import com.google.common.collect.Lists;
 import org.jamocha.dn.ConstructCache.Defrule;
 import org.jamocha.dn.ConstructCache.Defrule.PathSetRule;
 import org.jamocha.dn.compiler.pathblocks.PathFilterConsolidator;
 import org.jamocha.filter.Path;
 import org.jamocha.filter.PathFilterSet;
 import org.jamocha.filter.PathFilterSet.PathExistentialSet;
+import org.jamocha.function.fwa.SymbolLeaf;
 import org.jamocha.languages.clips.parser.SFPToCETranslator;
 import org.jamocha.languages.clips.parser.generated.ParseException;
 import org.jamocha.languages.clips.parser.generated.SFPParser;
@@ -40,42 +30,47 @@ import org.jamocha.languages.common.ConditionalElement;
 import org.jamocha.languages.common.RuleConditionProcessor;
 import org.jamocha.languages.common.Warning;
 import org.junit.Test;
-
 import test.jamocha.util.NetworkMockup;
 
-import com.google.common.collect.Lists;
+import java.io.StringReader;
+import java.util.List;
+import java.util.Queue;
+import java.util.Set;
+
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.instanceOf;
+import static org.junit.Assert.*;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  * @author Christoph Terwelp <christoph.terwelp@rwth-aachen.de>
  */
 public class PathFilterConsolidatorTest {
-	private static final String templateString = "(deftemplate templ1 (slot slot1 (type INTEGER)))\n"
-			+ "(deftemplate templ2 (slot slot1 (type INTEGER)))\n"
-			+ "(deftemplate templ3 (slot slot1 (type INTEGER)))\n";
+	private static final String templateString = "(deftemplate templ1 (slot slot1 (type INTEGER)))\n" +
+			"(deftemplate templ2 (slot slot1 (type INTEGER)))\n" + "(deftemplate templ3 (slot slot1 (type INTEGER)))" +
+			"\n";
 	private static final String preRule = "(defrule rule1 ";
 	private static final String postRule = " => )\n";
 
 	private static Queue<Warning> run(final SFPParser parser, final SFPToCETranslator visitor) throws ParseException {
 		while (true) {
 			final SFPStart n = parser.Start();
-			if (n == null)
-				return visitor.getWarnings();
+			if (n == null) return visitor.getWarnings();
 			n.jjtAccept(visitor, null);
 		}
 	}
 
 	private static List<PathSetRule> clipsToFilters(final String condition) throws ParseException {
-		final StringReader parserInput =
-				new StringReader(new StringBuilder().append(templateString).append(preRule).append(condition)
-						.append(postRule).toString());
+		final StringReader parserInput = new StringReader(
+				new StringBuilder().append(templateString).append(preRule).append(condition).append(postRule)
+						.toString());
 		final SFPParser parser = new SFPParser(parserInput);
 		final NetworkMockup ptn = new NetworkMockup();
 		final SFPToCETranslator visitor = new SFPToCETranslator(ptn, ptn);
 		run(parser, visitor);
 		final Defrule rule = ptn.getRule("rule1");
-		final List<ConditionalElement> conditionalElements = rule.getCondition().getConditionalElements();
-		RuleConditionProcessor.flatten(conditionalElements);
+		final List<ConditionalElement<SymbolLeaf>> conditionalElements = rule.getCondition().getConditionalElements();
+		RuleConditionProcessor.flattenInPlace(conditionalElements);
 		assertThat(conditionalElements, hasSize(1));
 		return new PathFilterConsolidator(ptn.getInitialFactTemplate(), rule).consolidate();
 	}

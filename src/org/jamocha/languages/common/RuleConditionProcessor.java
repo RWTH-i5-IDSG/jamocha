@@ -70,8 +70,8 @@ public class RuleConditionProcessor {
 		return new AndFunctionConditionalElement<>(Lists.newArrayList(ImmutableList.of(ce)));
 	}
 
-	public static <L extends ExchangeableLeaf<L>> ConditionalElement<L> flatten(final ConditionalElement<L>
-			toFlatten) {
+	public static <L extends ExchangeableLeaf<L>> ConditionalElement<L> flattenInPlace(
+			final ConditionalElement<L> toFlatten) {
 		ConditionalElement<L> ce = toFlatten;
 		// move (not )s down to the lowest possible nodes
 		ce = RuleConditionProcessor.moveNots(ce);
@@ -82,11 +82,16 @@ public class RuleConditionProcessor {
 		return ce;
 	}
 
-	public static ConditionalElement<SymbolLeaf> flatten(final RuleCondition condition) {
-		return flatten(new AndFunctionConditionalElement<>(condition.getConditionalElements()));
+	public static ConditionalElement<SymbolLeaf> flattenInPlace(final RuleCondition condition) {
+		return flattenInPlace(new AndFunctionConditionalElement<>(condition.getConditionalElements()));
 	}
 
-	public static List<ConstructCache.Defrule.ECBasedCERule> flatten(final ConstructCache.Defrule rule) {
+	public static <L extends ExchangeableLeaf<L>> List<ConditionalElement<SymbolLeaf>> flattenInPlace(
+			final List<ConditionalElement<L>> toFlatten) {
+		return flattenInPlace(toFlatten);
+	}
+
+	public static List<ConstructCache.Defrule.ECBasedCERule> flattenOutOfPlace(final ConstructCache.Defrule rule) {
 		return rule.newECBasedCERules();
 	}
 
@@ -391,7 +396,6 @@ public class RuleConditionProcessor {
 		}
 
 		final State state;
-		private ConditionalElement<ECLeaf> result;
 
 		public ExistentialECSplitter(final Scope scope, final Set<SingleFactVariable> shallowFactVariables) {
 			this.state = new State(scope, shallowFactVariables, split(scope, shallowFactVariables));
@@ -402,8 +406,11 @@ public class RuleConditionProcessor {
 		}
 
 		public static ConditionalElement<ECLeaf> split(final Scope scope, final ConditionalElement<ECLeaf> child) {
-			return child.accept(new ExistentialECSplitter(scope,
-					newIdentityHashSet(ShallowFactVariableCollector.collect(child)))).getResult();
+			final ConditionalElement<ECLeaf> result = child.accept(
+					new ExistentialECSplitter(scope, newIdentityHashSet(ShallowFactVariableCollector.collect(child))))
+					.getResult();
+			assert null != result;
+			return result;
 		}
 
 		@Override
@@ -491,14 +498,14 @@ public class RuleConditionProcessor {
 		@Override
 		public void visit(final ExistentialConditionalElement<ECLeaf> ce) {
 			assert ce.getChildren().size() == 1;
-			this.result = ce.accept(new ExistentialECSplitter(ce.scope,
+			this.result = ce.getChildren().get(0).accept(new ExistentialECSplitter(ce.scope,
 					newIdentityHashSet(ShallowFactVariableCollector.collect(ce.getChildren().get(0))))).result;
 		}
 
 		@Override
 		public void visit(final NegatedExistentialConditionalElement<ECLeaf> ce) {
 			assert ce.getChildren().size() == 1;
-			this.result = ce.accept(new ExistentialECSplitter(ce.scope,
+			this.result = ce.getChildren().get(0).accept(new ExistentialECSplitter(ce.scope,
 					newIdentityHashSet(ShallowFactVariableCollector.collect(ce.getChildren().get(0))))).result;
 		}
 	}

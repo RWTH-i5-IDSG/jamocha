@@ -14,26 +14,11 @@
  */
 package test.jamocha.dn.compiler;
 
-import static java.util.stream.Collectors.toList;
-import static org.hamcrest.Matchers.hasItem;
-import static org.hamcrest.Matchers.hasSize;
-import static org.jamocha.util.ToArray.toArray;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertThat;
-
-import java.io.StringReader;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Queue;
-import java.util.Set;
-import java.util.StringJoiner;
-
 import org.jamocha.dn.ConstructCache.Defrule;
 import org.jamocha.dn.compiler.ShallowFactVariableCollector;
 import org.jamocha.filter.Path;
 import org.jamocha.filter.SymbolCollector;
+import org.jamocha.function.fwa.SymbolLeaf;
 import org.jamocha.languages.clips.parser.SFPToCETranslator;
 import org.jamocha.languages.clips.parser.generated.ParseException;
 import org.jamocha.languages.clips.parser.generated.SFPParser;
@@ -45,12 +30,20 @@ import org.jamocha.languages.common.ScopeStack.VariableSymbol;
 import org.jamocha.languages.common.SingleFactVariable;
 import org.jamocha.languages.common.Warning;
 import org.junit.Test;
-
 import test.jamocha.util.NetworkMockup;
+
+import java.io.StringReader;
+import java.util.*;
+import java.util.Map.Entry;
+
+import static java.util.stream.Collectors.toList;
+import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.hasSize;
+import static org.jamocha.util.ToArray.toArray;
+import static org.junit.Assert.*;
 
 /**
  * @author Christoph Terwelp <christoph.terwelp@rwth-aachen.de>
- *
  */
 public class FactVariableCollectorTest {
 
@@ -60,20 +53,19 @@ public class FactVariableCollectorTest {
 	private static String template3Name = "templ3";
 	private static String slot1Name = "slot1";
 
-	private static String templateString = "(deftemplate " + templateName + " (slot " + slot1Name
-			+ " (type INTEGER)))\n";
-	private static String template2String = "(deftemplate " + template2Name + " (slot " + slot1Name
-			+ " (type INTEGER)))\n";
-	private static String template3String = "(deftemplate " + template3Name + " (slot " + slot1Name
-			+ " (type INTEGER)))\n";
+	private static String templateString =
+			"(deftemplate " + templateName + " (slot " + slot1Name + " (type INTEGER)))\n";
+	private static String template2String =
+			"(deftemplate " + template2Name + " (slot " + slot1Name + " (type INTEGER)))\n";
+	private static String template3String =
+			"(deftemplate " + template3Name + " (slot " + slot1Name + " (type INTEGER)))\n";
 	private static String preRule = "(defrule " + ruleName;
 	private static String postRule = "=> )\n";
 
 	private static Queue<Warning> run(final SFPParser parser, final SFPToCETranslator visitor) throws ParseException {
 		while (true) {
 			final SFPStart n = parser.Start();
-			if (n == null)
-				return visitor.getWarnings();
+			if (n == null) return visitor.getWarnings();
 			n.jjtAccept(visitor, null);
 		}
 	}
@@ -88,9 +80,9 @@ public class FactVariableCollectorTest {
 
 	private static RuleCondition clipsToCondition(final NetworkMockup ptn, final String condition)
 			throws ParseException {
-		final StringReader parserInput =
-				new StringReader(new StringJoiner(" ").add(templateString).add(template2String).add(template3String)
-						.add(preRule).add(condition).add(postRule).toString());
+		final StringReader parserInput = new StringReader(
+				new StringJoiner(" ").add(templateString).add(template2String).add(template3String).add(preRule)
+						.add(condition).add(postRule).toString());
 		final SFPParser parser = new SFPParser(parserInput);
 		final SFPToCETranslator visitor = new SFPToCETranslator(ptn, ptn);
 		run(parser, visitor);
@@ -103,7 +95,7 @@ public class FactVariableCollectorTest {
 		final String input = "(and (" + templateName + " (" + slot1Name + " ?x)) (test (> ?x 10)) (test (< ?x 15)))";
 		final NetworkMockup ptn = new NetworkMockup();
 		final RuleCondition ruleCondition = clipsToCondition(ptn, input);
-		final List<ConditionalElement> conditionalElements = ruleCondition.getConditionalElements();
+		final List<ConditionalElement<SymbolLeaf>> conditionalElements = ruleCondition.getConditionalElements();
 		assertEquals(1, conditionalElements.size());
 		final Map<EquivalenceClass, Path> ec2Path =
 				ShallowFactVariableCollector.generatePaths(ptn.getInitialFactTemplate(), conditionalElements.get(0))
@@ -123,24 +115,24 @@ public class FactVariableCollectorTest {
 	@Test
 	public void aLitteMoreComplexTest() throws ParseException {
 		final String input =
-				"(and (" + templateName + " (" + slot1Name + " ?x)) (and ?y <- (" + template2Name + " (" + slot1Name
-						+ " ?x)) (" + template3Name + " (" + slot1Name + " ?x))) (test (> ?x 10)) (test (< ?x 15)))";
+				"(and (" + templateName + " (" + slot1Name + " ?x)) (and ?y <- (" + template2Name + " (" + slot1Name +
+						" ?x)) (" + template3Name + " (" + slot1Name + " ?x))) (test (> ?x 10)) (test (< ?x 15)))";
 		final NetworkMockup ptn = new NetworkMockup();
 		final RuleCondition ruleCondition = clipsToCondition(ptn, input);
-		final List<ConditionalElement> conditionalElements = ruleCondition.getConditionalElements();
+		final List<ConditionalElement<SymbolLeaf>> conditionalElements = ruleCondition.getConditionalElements();
 		assertEquals(1, conditionalElements.size());
 		// TBD see above
 		final List<SingleFactVariable> variables =
 				conditionalElements.get(0).accept(new ShallowFactVariableCollector()).getFactVariables();
 		assertEquals(3, variables.size());
 		final Set<VariableSymbol> dummySymbols = new SymbolCollector(ruleCondition).getDummySymbols();
-		assertThat(dummySymbols.stream().map(VariableSymbol::getEqual).collect(toList()), hasItem(variables.get(0)
-				.getEqual()));
+		assertThat(dummySymbols.stream().map(VariableSymbol::getEqual).collect(toList()),
+				hasItem(variables.get(0).getEqual()));
 		assertEquals(templateName, variables.get(0).getTemplate().getName());
 		assertSame(getSymbol(ruleCondition, "?y").getEqual(), variables.get(1).getEqual());
 		assertEquals(template2Name, variables.get(1).getTemplate().getName());
-		assertThat(dummySymbols.stream().map(VariableSymbol::getEqual).collect(toList()), hasItem(variables.get(2)
-				.getEqual()));
+		assertThat(dummySymbols.stream().map(VariableSymbol::getEqual).collect(toList()),
+				hasItem(variables.get(2).getEqual()));
 		assertEquals(template3Name, variables.get(2).getTemplate().getName());
 	}
 

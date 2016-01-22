@@ -14,23 +14,6 @@
  */
 package test.jamocha.languages.clips;
 
-import static org.hamcrest.CoreMatchers.instanceOf;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.isIn;
-import static org.jamocha.util.ToArray.toArray;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertThat;
-
-import java.io.Reader;
-import java.io.StringReader;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Queue;
-import java.util.Set;
-
 import org.jamocha.dn.ConstructCache.Defrule;
 import org.jamocha.dn.compiler.DeepFactVariableCollector;
 import org.jamocha.dn.memory.SlotType;
@@ -47,12 +30,7 @@ import org.jamocha.languages.clips.parser.generated.ParseException;
 import org.jamocha.languages.clips.parser.generated.SFPParser;
 import org.jamocha.languages.clips.parser.generated.SFPStart;
 import org.jamocha.languages.common.ConditionalElement;
-import org.jamocha.languages.common.ConditionalElement.AndFunctionConditionalElement;
-import org.jamocha.languages.common.ConditionalElement.InitialFactConditionalElement;
-import org.jamocha.languages.common.ConditionalElement.NegatedExistentialConditionalElement;
-import org.jamocha.languages.common.ConditionalElement.OrFunctionConditionalElement;
-import org.jamocha.languages.common.ConditionalElement.TemplatePatternConditionalElement;
-import org.jamocha.languages.common.ConditionalElement.TestConditionalElement;
+import org.jamocha.languages.common.ConditionalElement.*;
 import org.jamocha.languages.common.RuleCondition;
 import org.jamocha.languages.common.ScopeStack.VariableSymbol;
 import org.jamocha.languages.common.SingleFactVariable;
@@ -60,13 +38,18 @@ import org.jamocha.languages.common.SingleFactVariable.SingleSlotVariable;
 import org.jamocha.languages.common.Warning;
 import org.jamocha.languages.common.errors.NameClashError;
 import org.jamocha.languages.common.errors.VariableNotDeclaredError;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-
+import org.junit.*;
 import test.jamocha.util.NetworkMockup;
+
+import java.io.Reader;
+import java.io.StringReader;
+import java.util.*;
+
+import static org.hamcrest.CoreMatchers.instanceOf;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.isIn;
+import static org.jamocha.util.ToArray.toArray;
+import static org.junit.Assert.*;
 
 public class ParserTest {
 
@@ -89,13 +72,12 @@ public class ParserTest {
 	private static Queue<Warning> run(final SFPParser parser, final SFPToCETranslator visitor) throws ParseException {
 		while (true) {
 			final SFPStart n = parser.Start();
-			if (n == null)
-				return visitor.getWarnings();
+			if (n == null) return visitor.getWarnings();
 			n.jjtAccept(visitor, null);
 		}
 	}
 
-	private static Set<SingleFactVariable> getFactVariablesForCE(final ConditionalElement ce) {
+	private static Set<SingleFactVariable> getFactVariablesForCE(final ConditionalElement<SymbolLeaf> ce) {
 		return new HashSet<>(DeepFactVariableCollector.collect(ce));
 	}
 
@@ -110,9 +92,9 @@ public class ParserTest {
 	@Test
 	public void testDeftemplateTypes() throws ParseException {
 		final Reader parserInput =
-				new StringReader("(deftemplate f1 " + "(slot s1 (type INTEGER))" + "(slot s2 (type FLOAT))"
-						+ "(slot s3 (type INTEGER))" + "(slot s4 (type BOOLEAN))" + "(slot s5 (type SYMBOL))"
-						+ "(slot s6 (type STRING))" + "(slot s7 (type STRING))" + "(slot s8 (type DATETIME))" + ")\n");
+				new StringReader("(deftemplate f1 " + "(slot s1 (type INTEGER))" + "(slot s2 (type FLOAT))" +
+						"(slot s3 (type INTEGER))" + "(slot s4 (type BOOLEAN))" + "(slot s5 (type SYMBOL))" +
+						"(slot s6 (type STRING))" + "(slot s7 (type STRING))" + "(slot s8 (type DATETIME))" + ")\n");
 		final SFPParser parser = new SFPParser(parserInput);
 		final NetworkMockup network = new NetworkMockup();
 		final SFPToCETranslator visitor = new SFPToCETranslator(network, network);
@@ -130,9 +112,8 @@ public class ParserTest {
 
 	@Test(expected = NameClashError.class)
 	public void testDeftemplateUniqueNames() throws ParseException {
-		final Reader parserInput =
-				new StringReader("(deftemplate f1 (slot s1 (type INTEGER)))\n"
-						+ "(deftemplate f1 (slot s1 (type FLOAT)))\n");
+		final Reader parserInput = new StringReader(
+				"(deftemplate f1 (slot s1 (type INTEGER)))\n" + "(deftemplate f1 (slot s1 (type FLOAT)))\n");
 		final SFPParser parser = new SFPParser(parserInput);
 		final NetworkMockup network = new NetworkMockup();
 		final SFPToCETranslator visitor = new SFPToCETranslator(network, network);
@@ -142,8 +123,8 @@ public class ParserTest {
 	@Test(expected = NameClashError.class)
 	public void testDefruleUniqueNames() throws ParseException {
 		final Reader parserInput =
-				new StringReader("(deftemplate f1 (slot s1 (type INTEGER)))\n" + "(defrule r1 (f1 (s1 ?x))=>)\n"
-						+ "(defrule r1 (f1 (s1 ?x))=>)\n");
+				new StringReader("(deftemplate f1 (slot s1 (type INTEGER)))\n" + "(defrule r1 (f1 (s1 ?x))=>)\n" +
+						"(defrule r1 (f1 (s1 ?x))=>)\n");
 		final SFPParser parser = new SFPParser(parserInput);
 		final NetworkMockup network = new NetworkMockup();
 		final SFPToCETranslator visitor = new SFPToCETranslator(network, network);
@@ -152,9 +133,8 @@ public class ParserTest {
 
 	@Test
 	public void testDefruleAssignedPatternCENameReuse() throws ParseException {
-		final Reader parserInput =
-				new StringReader("(deftemplate f1 (slot s1 (type INTEGER)))\n"
-						+ "(defrule r1 ?x <- (f1) ?x <- (f1) =>)\n");
+		final Reader parserInput = new StringReader(
+				"(deftemplate f1 (slot s1 (type INTEGER)))\n" + "(defrule r1 ?x <- (f1) ?x <- (f1) =>)\n");
 		final SFPParser parser = new SFPParser(parserInput);
 		final NetworkMockup network = new NetworkMockup();
 		final SFPToCETranslator visitor = new SFPToCETranslator(network, network);
@@ -173,9 +153,8 @@ public class ParserTest {
 
 	@Test(expected = VariableNotDeclaredError.class)
 	public void testDefruleVariableInExScope() throws ParseException {
-		final Reader parserInput =
-				new StringReader("(deftemplate f1 (slot s1 (type INTEGER)))\n"
-						+ "(defrule r1 (exists (f1 (s1 ?x))) (test (> 2 ?x))=>)\n");
+		final Reader parserInput = new StringReader("(deftemplate f1 (slot s1 (type INTEGER)))\n" +
+				"(defrule r1 (exists (f1 (s1 ?x))) (test (> 2 ?x))=>)\n");
 		final SFPParser parser = new SFPParser(parserInput);
 		final NetworkMockup network = new NetworkMockup();
 		final SFPToCETranslator visitor = new SFPToCETranslator(network, network);
@@ -184,9 +163,8 @@ public class ParserTest {
 
 	@Test(expected = VariableNotDeclaredError.class)
 	public void testDefruleVariableInNegExScope() throws ParseException {
-		final Reader parserInput =
-				new StringReader("(deftemplate f1 (slot s1 (type INTEGER)))\n"
-						+ "(defrule r1 (not (f1 (s1 ?x))) (test (> 2 ?x))=>)\n");
+		final Reader parserInput = new StringReader(
+				"(deftemplate f1 (slot s1 (type INTEGER)))\n" + "(defrule r1 (not (f1 (s1 ?x))) (test (> 2 ?x))=>)\n");
 		final SFPParser parser = new SFPParser(parserInput);
 		final NetworkMockup network = new NetworkMockup();
 		final SFPToCETranslator visitor = new SFPToCETranslator(network, network);
@@ -195,9 +173,8 @@ public class ParserTest {
 
 	@Test
 	public void testDefruleVariableInNegExScopePseudoReuse() throws ParseException {
-		final Reader parserInput =
-				new StringReader("(deftemplate f1 (slot s1 (type INTEGER)))\n"
-						+ "(defrule r1 (not (f1 (s1 ?x))) (f1 (s1 ?x)) (test (> 2 ?x))=>)\n");
+		final Reader parserInput = new StringReader("(deftemplate f1 (slot s1 (type INTEGER)))\n" +
+				"(defrule r1 (not (f1 (s1 ?x))) (f1 (s1 ?x)) (test (> 2 ?x))=>)\n");
 		final SFPParser parser = new SFPParser(parserInput);
 		final NetworkMockup network = new NetworkMockup();
 		final SFPToCETranslator visitor = new SFPToCETranslator(network, network);
@@ -207,9 +184,8 @@ public class ParserTest {
 
 	@Test(expected = VariableNotDeclaredError.class)
 	public void testDefruleVariableInForallScope1() throws ParseException {
-		final Reader parserInput =
-				new StringReader("(deftemplate f1 (slot s1 (type INTEGER)))\n"
-						+ "(defrule r1 (forall (f1 (s1 ?x))(f1 (s1 2))) (test (> 2 ?x))=>)\n");
+		final Reader parserInput = new StringReader("(deftemplate f1 (slot s1 (type INTEGER)))\n" +
+				"(defrule r1 (forall (f1 (s1 ?x))(f1 (s1 2))) (test (> 2 ?x))=>)\n");
 		final SFPParser parser = new SFPParser(parserInput);
 		final NetworkMockup network = new NetworkMockup();
 		final SFPToCETranslator visitor = new SFPToCETranslator(network, network);
@@ -218,9 +194,8 @@ public class ParserTest {
 
 	@Test(expected = VariableNotDeclaredError.class)
 	public void testDefruleVariableInForallScope2() throws ParseException {
-		final Reader parserInput =
-				new StringReader("(deftemplate f1 (slot s1 (type INTEGER)))\n"
-						+ "(defrule r1 (forall (f1 (s1 2))(f1 (s1 ?x))) (test (> 2 ?x))=>)\n");
+		final Reader parserInput = new StringReader("(deftemplate f1 (slot s1 (type INTEGER)))\n" +
+				"(defrule r1 (forall (f1 (s1 2))(f1 (s1 ?x))) (test (> 2 ?x))=>)\n");
 		final SFPParser parser = new SFPParser(parserInput);
 		final NetworkMockup network = new NetworkMockup();
 		final SFPToCETranslator visitor = new SFPToCETranslator(network, network);
@@ -240,9 +215,9 @@ public class ParserTest {
 	@Test
 	public void testSimpleRule() throws ParseException {
 		final Reader parserInput =
-				new StringReader("(deftemplate f1 (slot s1 (type INTEGER))(slot s2 (type FLOAT)))\n"
-						+ "(deftemplate f2 (slot s1 (type INTEGER))(slot s2 (type FLOAT)))\n"
-						+ "(defrule r1 (f1 (s1 ?x)) ?z <- (f2 (s2 ?y))" + "(test (> ?x 2)) (test (< ?y 0.0)) =>)\n");
+				new StringReader("(deftemplate f1 (slot s1 (type INTEGER))(slot s2 (type FLOAT)))\n" +
+						"(deftemplate f2 (slot s1 (type INTEGER))(slot s2 (type FLOAT)))\n" +
+						"(defrule r1 (f1 (s1 ?x)) ?z <- (f2 (s2 ?y))" + "(test (> ?x 2)) (test (< ?y 0.0)) =>)\n");
 		final SFPParser parser = new SFPParser(parserInput);
 		final NetworkMockup network = new NetworkMockup();
 		final SFPToCETranslator visitor = new SFPToCETranslator(network, network);
@@ -292,25 +267,26 @@ public class ParserTest {
 			final Template template = network.getTemplate("f2");
 			assertSame(template, var.getTemplate());
 		}
-		final List<ConditionalElement> conditionalElements = condition.getConditionalElements();
+		final List<ConditionalElement<SymbolLeaf>> conditionalElements = condition.getConditionalElements();
 		assertEquals(4, conditionalElements.size());
 		{
-			final ConditionalElement conditionalElement = conditionalElements.get(1);
+			final ConditionalElement<SymbolLeaf> conditionalElement = conditionalElements.get(1);
 			assertThat(conditionalElement, instanceOf(TemplatePatternConditionalElement.class));
 			final SingleFactVariable factVariable =
-					((TemplatePatternConditionalElement) conditionalElement).getFactVariable();
+					((TemplatePatternConditionalElement<SymbolLeaf>) conditionalElement).getFactVariable();
 			final LinkedList<SingleFactVariable> factVariables = z.getEqual().getFactVariables();
 			assertThat(factVariables, hasSize(1));
 			assertSame(factVariables.getFirst(), factVariable);
 		}
 		{
-			final ConditionalElement conditionalElement = conditionalElements.get(2);
+			final ConditionalElement<SymbolLeaf> conditionalElement = conditionalElements.get(2);
 			assertThat(conditionalElement, instanceOf(TestConditionalElement.class));
 			final FunctionWithArguments<SymbolLeaf> functionCall =
-					((TestConditionalElement) conditionalElement).getPredicateWithArguments();
+					((TestConditionalElement<SymbolLeaf>) conditionalElement).getPredicateWithArguments();
 			assertThat(functionCall, instanceOf(GenericWithArgumentsComposite.class));
 			@SuppressWarnings("unchecked")
-			final Function<?> function = ((GenericWithArgumentsComposite<?, ?, SymbolLeaf>) functionCall).getFunction();
+			final Function<?> function = ((GenericWithArgumentsComposite<?, ?, SymbolLeaf>) functionCall)
+					.getFunction();
 			assertEquals(org.jamocha.function.impls.predicates.Greater.inClips, function.inClips());
 			@SuppressWarnings("unchecked")
 			final FunctionWithArguments<SymbolLeaf>[] arguments =
@@ -324,13 +300,14 @@ public class ParserTest {
 			assertEquals(2L, ((ConstantLeaf<SymbolLeaf>) secondArg).getValue());
 		}
 		{
-			final ConditionalElement conditionalElement = conditionalElements.get(3);
+			final ConditionalElement<SymbolLeaf> conditionalElement = conditionalElements.get(3);
 			assertThat(conditionalElement, instanceOf(TestConditionalElement.class));
 			final FunctionWithArguments<SymbolLeaf> functionCall =
-					((TestConditionalElement) conditionalElement).getPredicateWithArguments();
+					((TestConditionalElement<SymbolLeaf>) conditionalElement).getPredicateWithArguments();
 			assertThat(functionCall, instanceOf(GenericWithArgumentsComposite.class));
 			@SuppressWarnings("unchecked")
-			final Function<?> function = ((GenericWithArgumentsComposite<?, ?, SymbolLeaf>) functionCall).getFunction();
+			final Function<?> function = ((GenericWithArgumentsComposite<?, ?, SymbolLeaf>) functionCall)
+					.getFunction();
 			assertEquals(org.jamocha.function.impls.predicates.Less.inClips, function.inClips());
 			@SuppressWarnings("unchecked")
 			final FunctionWithArguments<SymbolLeaf>[] arguments =
@@ -348,9 +325,9 @@ public class ParserTest {
 	@Test
 	public void testConnectedConstraints() throws ParseException {
 		final Reader parserInput =
-				new StringReader("(deftemplate f1 (slot s1 (type INTEGER))(slot s2 (type FLOAT)))\n"
-						+ "(deftemplate f2 (slot s1 (type INTEGER))(slot s2 (type FLOAT)))\n"
-						+ "(defrule r1 (f1 (s1 ?x&2|3&4|5)) =>)\n");
+				new StringReader("(deftemplate f1 (slot s1 (type INTEGER))(slot s2 (type FLOAT)))\n" +
+						"(deftemplate f2 (slot s1 (type INTEGER))(slot s2 (type FLOAT)))\n" +
+						"(defrule r1 (f1 (s1 ?x&2|3&4|5)) =>)\n");
 		// => ?x & (2 | (3 & 4) | 5)
 		final SFPParser parser = new SFPParser(parserInput);
 		final NetworkMockup network = new NetworkMockup();
@@ -382,35 +359,38 @@ public class ParserTest {
 			assertEquals(template, var.getFactVariable().getTemplate());
 			assertEquals(template.getSlotAddress("s1"), var.getSlot());
 		}
-		final List<ConditionalElement> conditionalElements = condition.getConditionalElements();
+		final List<ConditionalElement<SymbolLeaf>> conditionalElements = condition.getConditionalElements();
 		assertEquals(1, conditionalElements.size());
 		{
-			final ConditionalElement conditionalElement;
+			final ConditionalElement<SymbolLeaf> conditionalElement;
 			{
-				final ConditionalElement andCE = conditionalElements.get(0);
+				final ConditionalElement<SymbolLeaf> andCE = conditionalElements.get(0);
 				assertThat(andCE, instanceOf(AndFunctionConditionalElement.class));
-				final List<ConditionalElement> andChildren = andCE.getChildren();
+				final List<ConditionalElement<SymbolLeaf>> andChildren = andCE.getChildren();
 				assertThat(andChildren, hasSize(2));
-				final ConditionalElement tpce = andChildren.get(0);
+				final ConditionalElement<SymbolLeaf> tpce = andChildren.get(0);
 				assertThat(tpce, instanceOf(TemplatePatternConditionalElement.class));
-				assertSame(network.getTemplate("f1"), ((TemplatePatternConditionalElement) tpce).getFactVariable()
-						.getTemplate());
+				assertSame(network.getTemplate("f1"),
+						((TemplatePatternConditionalElement<SymbolLeaf>) tpce).getFactVariable().getTemplate());
 				conditionalElement = andChildren.get(1);
 			}
 			assertThat(conditionalElement, instanceOf(OrFunctionConditionalElement.class));
-			final List<ConditionalElement> children = ((OrFunctionConditionalElement) conditionalElement).getChildren();
+			final List<ConditionalElement<SymbolLeaf>> children =
+					((OrFunctionConditionalElement<SymbolLeaf>) conditionalElement).getChildren();
 			assertEquals(3, children.size());
 			{
-				final ConditionalElement child = children.get(0);
+				final ConditionalElement<SymbolLeaf> child = children.get(0);
 				assertThat(child, instanceOf(TestConditionalElement.class));
 				final FunctionWithArguments<SymbolLeaf> functionCall =
-						((TestConditionalElement) child).getPredicateWithArguments();
+						((TestConditionalElement<SymbolLeaf>) child).getPredicateWithArguments();
 				assertThat(functionCall, instanceOf(GenericWithArgumentsComposite.class));
 				@SuppressWarnings("unchecked")
 				final Function<?> function =
 						((GenericWithArgumentsComposite<?, ?, SymbolLeaf>) functionCall).getFunction();
-				assertEquals(FunctionDictionary.lookup(org.jamocha.function.impls.predicates.Equals.inClips,
-						SlotType.LONG, SlotType.LONG), function);
+				assertEquals(FunctionDictionary
+								.lookup(org.jamocha.function.impls.predicates.Equals.inClips, SlotType.LONG, SlotType
+										.LONG),
+						function);
 				@SuppressWarnings("unchecked")
 				final FunctionWithArguments<SymbolLeaf>[] arguments =
 						((GenericWithArgumentsComposite<?, ?, SymbolLeaf>) functionCall).getArgs();
@@ -423,21 +403,24 @@ public class ParserTest {
 				assertEquals(2L, ((ConstantLeaf<SymbolLeaf>) secondArg).getValue());
 			}
 			{
-				final ConditionalElement child = children.get(1);
+				final ConditionalElement<SymbolLeaf> child = children.get(1);
 				assertThat(child, instanceOf(AndFunctionConditionalElement.class));
-				final List<ConditionalElement> andChildren = ((AndFunctionConditionalElement) child).getChildren();
+				final List<ConditionalElement<SymbolLeaf>> andChildren =
+						((AndFunctionConditionalElement<SymbolLeaf>) child).getChildren();
 				assertEquals(2, andChildren.size());
 				{
-					final ConditionalElement andChild = andChildren.get(0);
+					final ConditionalElement<SymbolLeaf> andChild = andChildren.get(0);
 					assertThat(andChild, instanceOf(TestConditionalElement.class));
 					final FunctionWithArguments<SymbolLeaf> functionCall =
-							((TestConditionalElement) andChild).getPredicateWithArguments();
+							((TestConditionalElement<SymbolLeaf>) andChild).getPredicateWithArguments();
 					assertThat(functionCall, instanceOf(GenericWithArgumentsComposite.class));
 					@SuppressWarnings("unchecked")
 					final Function<?> function =
 							((GenericWithArgumentsComposite<?, ?, SymbolLeaf>) functionCall).getFunction();
-					assertEquals(FunctionDictionary.lookup(org.jamocha.function.impls.predicates.Equals.inClips,
-							SlotType.LONG, SlotType.LONG), function);
+					assertEquals(FunctionDictionary
+									.lookup(org.jamocha.function.impls.predicates.Equals.inClips, SlotType.LONG,
+											SlotType.LONG),
+							function);
 					@SuppressWarnings("unchecked")
 					final FunctionWithArguments<SymbolLeaf>[] arguments =
 							((GenericWithArgumentsComposite<?, ?, SymbolLeaf>) functionCall).getArgs();
@@ -450,16 +433,18 @@ public class ParserTest {
 					assertEquals(3L, ((ConstantLeaf<SymbolLeaf>) secondArg).getValue());
 				}
 				{
-					final ConditionalElement andChild = andChildren.get(1);
+					final ConditionalElement<SymbolLeaf> andChild = andChildren.get(1);
 					assertThat(andChild, instanceOf(TestConditionalElement.class));
 					final FunctionWithArguments<SymbolLeaf> functionCall =
-							((TestConditionalElement) andChild).getPredicateWithArguments();
+							((TestConditionalElement<SymbolLeaf>) andChild).getPredicateWithArguments();
 					assertThat(functionCall, instanceOf(GenericWithArgumentsComposite.class));
 					@SuppressWarnings("unchecked")
 					final Function<?> function =
 							((GenericWithArgumentsComposite<?, ?, SymbolLeaf>) functionCall).getFunction();
-					assertEquals(FunctionDictionary.lookup(org.jamocha.function.impls.predicates.Equals.inClips,
-							SlotType.LONG, SlotType.LONG), function);
+					assertEquals(FunctionDictionary
+									.lookup(org.jamocha.function.impls.predicates.Equals.inClips, SlotType.LONG,
+											SlotType.LONG),
+							function);
 					@SuppressWarnings("unchecked")
 					final FunctionWithArguments<SymbolLeaf>[] arguments =
 							((GenericWithArgumentsComposite<?, ?, SymbolLeaf>) functionCall).getArgs();
@@ -473,16 +458,18 @@ public class ParserTest {
 				}
 			}
 			{
-				final ConditionalElement child = children.get(2);
+				final ConditionalElement<SymbolLeaf> child = children.get(2);
 				assertThat(child, instanceOf(TestConditionalElement.class));
 				final FunctionWithArguments<SymbolLeaf> functionCall =
-						((TestConditionalElement) child).getPredicateWithArguments();
+						((TestConditionalElement<SymbolLeaf>) child).getPredicateWithArguments();
 				assertThat(functionCall, instanceOf(GenericWithArgumentsComposite.class));
 				@SuppressWarnings("unchecked")
 				final Function<?> function =
 						((GenericWithArgumentsComposite<?, ?, SymbolLeaf>) functionCall).getFunction();
-				assertEquals(FunctionDictionary.lookup(org.jamocha.function.impls.predicates.Equals.inClips,
-						SlotType.LONG, SlotType.LONG), function);
+				assertEquals(FunctionDictionary
+								.lookup(org.jamocha.function.impls.predicates.Equals.inClips, SlotType.LONG, SlotType
+										.LONG),
+						function);
 				@SuppressWarnings("unchecked")
 				final FunctionWithArguments<SymbolLeaf>[] arguments =
 						((GenericWithArgumentsComposite<?, ?, SymbolLeaf>) functionCall).getArgs();
@@ -500,9 +487,9 @@ public class ParserTest {
 	@Test
 	public void testComplexRule() throws ParseException {
 		final Reader parserInput =
-				new StringReader("(deftemplate f1 (slot s1 (type INTEGER))(slot s2 (type FLOAT)))\n"
-						+ "(deftemplate f2 (slot s1 (type INTEGER))(slot s2 (type FLOAT)))\n"
-						+ "(defrule r1 (not (and (f1 (s1 ?x) (s2 ?y)) (not (f2 (s1 ?x))) (test (>= ?y 0.5)) )) =>)\n");
+				new StringReader("(deftemplate f1 (slot s1 (type INTEGER))(slot s2 (type FLOAT)))\n" +
+						"(deftemplate f2 (slot s1 (type INTEGER))(slot s2 (type FLOAT)))\n" +
+						"(defrule r1 (not (and (f1 (s1 ?x) (s2 ?y)) (not (f2 (s1 ?x))) (test (>= ?y 0.5)) )) =>)\n");
 		final SFPParser parser = new SFPParser(parserInput);
 		final NetworkMockup network = new NetworkMockup();
 		final SFPToCETranslator visitor = new SFPToCETranslator(network, network);
@@ -555,56 +542,62 @@ public class ParserTest {
 			assertEquals(template.getSlotAddress("s2"), var.getSlot());
 			ySlot = var;
 		}
-		final List<ConditionalElement> conditionalElements = condition.getConditionalElements();
+		final List<ConditionalElement<SymbolLeaf>> conditionalElements = condition.getConditionalElements();
 		assertThat(conditionalElements, hasSize(2));
 		{
-			final ConditionalElement conditionalElement = conditionalElements.get(0);
+			final ConditionalElement<SymbolLeaf> conditionalElement = conditionalElements.get(0);
 			assertThat(conditionalElement, instanceOf(InitialFactConditionalElement.class));
 		}
 		{
-			final ConditionalElement conditionalElement = conditionalElements.get(1);
+			final ConditionalElement<SymbolLeaf> conditionalElement = conditionalElements.get(1);
 			assertThat(conditionalElement, instanceOf(NegatedExistentialConditionalElement.class));
-			final NegatedExistentialConditionalElement negatedExistentialConditionalElement =
-					(NegatedExistentialConditionalElement) conditionalElement;
+			final NegatedExistentialConditionalElement<SymbolLeaf> negatedExistentialConditionalElement =
+					(NegatedExistentialConditionalElement<SymbolLeaf>) conditionalElement;
 			assertEquals(x1.getFactVariable(), ySlot.getFactVariable());
 
 			assertThat(x1.getFactVariable(), isIn(getFactVariablesForCE(negatedExistentialConditionalElement)));
-			final List<ConditionalElement> negChildren = negatedExistentialConditionalElement.getChildren();
+			final List<ConditionalElement<SymbolLeaf>> negChildren = negatedExistentialConditionalElement
+					.getChildren();
 			assertThat(negChildren, hasSize(1));
-			final ConditionalElement negChild = negChildren.get(0);
+			final ConditionalElement<SymbolLeaf> negChild = negChildren.get(0);
 			assertThat(negChild, instanceOf(AndFunctionConditionalElement.class));
-			final List<ConditionalElement> andChildren = ((AndFunctionConditionalElement) negChild).getChildren();
+			final List<ConditionalElement<SymbolLeaf>> andChildren =
+					((AndFunctionConditionalElement<SymbolLeaf>) negChild).getChildren();
 			assertThat(andChildren, hasSize(3));
 			{
-				final ConditionalElement child = andChildren.get(0);
+				final ConditionalElement<SymbolLeaf> child = andChildren.get(0);
 				assertThat(child, instanceOf(TemplatePatternConditionalElement.class));
-				final TemplatePatternConditionalElement tpce = (TemplatePatternConditionalElement) child;
+				final TemplatePatternConditionalElement<SymbolLeaf> tpce =
+						(TemplatePatternConditionalElement<SymbolLeaf>) child;
 				assertThat(tpce.getChildren(), hasSize(0));
 				assertSame(x1.getFactVariable(), tpce.getFactVariable());
 				assertSame(ySlot.getFactVariable(), tpce.getFactVariable());
 			}
 			{
-				final ConditionalElement child = andChildren.get(1);
+				final ConditionalElement<SymbolLeaf> child = andChildren.get(1);
 				assertThat(child, instanceOf(NegatedExistentialConditionalElement.class));
-				final NegatedExistentialConditionalElement innerNegExCE = (NegatedExistentialConditionalElement) child;
+				final NegatedExistentialConditionalElement<SymbolLeaf> innerNegExCE =
+						(NegatedExistentialConditionalElement<SymbolLeaf>) child;
 				assertThat(innerNegExCE.getChildren(), hasSize(1));
 				assertThat(x2.getFactVariable(), isIn(getFactVariablesForCE(innerNegExCE)));
-				final ConditionalElement tpce = innerNegExCE.getChildren().get(0);
+				final ConditionalElement<SymbolLeaf> tpce = innerNegExCE.getChildren().get(0);
 				assertThat(tpce, instanceOf(TemplatePatternConditionalElement.class));
-				assertSame(x2.getFactVariable(), ((TemplatePatternConditionalElement) tpce).getFactVariable());
+				assertSame(x2.getFactVariable(),
+						((TemplatePatternConditionalElement<SymbolLeaf>) tpce).getFactVariable());
 			}
 			{
-				final ConditionalElement child = andChildren.get(2);
+				final ConditionalElement<SymbolLeaf> child = andChildren.get(2);
 				assertThat(child, instanceOf(TestConditionalElement.class));
-				final TestConditionalElement testCE = (TestConditionalElement) child;
+				final TestConditionalElement<SymbolLeaf> testCE = (TestConditionalElement<SymbolLeaf>) child;
 				assertThat(testCE.getChildren(), hasSize(0));
 				final FunctionWithArguments<SymbolLeaf> functionCall = testCE.getPredicateWithArguments();
 				assertThat(functionCall, instanceOf(GenericWithArgumentsComposite.class));
 				@SuppressWarnings("unchecked")
 				final Function<?> function =
 						((GenericWithArgumentsComposite<?, ?, SymbolLeaf>) functionCall).getFunction();
-				assertEquals(FunctionDictionary.lookup(org.jamocha.function.impls.predicates.GreaterOrEqual.inClips,
-						SlotType.DOUBLE, SlotType.DOUBLE), function);
+				assertEquals(FunctionDictionary
+						.lookup(org.jamocha.function.impls.predicates.GreaterOrEqual.inClips, SlotType.DOUBLE,
+								SlotType.DOUBLE), function);
 				@SuppressWarnings("unchecked")
 				final FunctionWithArguments<SymbolLeaf>[] arguments =
 						((GenericWithArgumentsComposite<?, ?, SymbolLeaf>) functionCall).getArgs();
