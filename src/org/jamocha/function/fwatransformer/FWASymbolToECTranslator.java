@@ -16,13 +16,7 @@ package org.jamocha.function.fwatransformer;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-
-import org.jamocha.function.fwa.ConstantLeaf;
-import org.jamocha.function.fwa.ECLeaf;
-import org.jamocha.function.fwa.FunctionWithArguments;
-import org.jamocha.function.fwa.PredicateWithArguments;
-import org.jamocha.function.fwa.SymbolLeaf;
-import org.jamocha.languages.common.RuleCondition.EquivalenceClass;
+import org.jamocha.function.fwa.*;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
@@ -52,8 +46,6 @@ public class FWASymbolToECTranslator extends FWATranslator<SymbolLeaf, ECLeaf> {
 	@SuppressWarnings("unchecked")
 	@Override
 	public void visit(final ConstantLeaf<SymbolLeaf> constantLeaf) {
-		this.functionWithArguments =
-				new ECLeaf(EquivalenceClass.newECFromConstantExpression(null,
-						(ConstantLeaf<ECLeaf>) (ConstantLeaf<?>) constantLeaf));
+		this.functionWithArguments = new ConstantLeaf<>(constantLeaf);
 	}
 }
