@@ -14,6 +14,7 @@
  */
 package org.jamocha.function.impls;
 
+import org.jamocha.function.impls.sideeffects.SetCompiler;
 import org.jamocha.visitor.Visitor;
 
 /**
@@ -99,7 +100,7 @@ public interface FunctionVisitor extends Visitor {
 
 	void visit(final org.jamocha.function.impls.sideeffects.SaveFacts function);
 
-	void visit(final org.jamocha.function.impls.sideeffects.SetRuleCompiler function);
+	void visit(final SetCompiler function);
 
 	// waltz
 

@@ -14,6 +14,8 @@
  */
 package org.jamocha.function.impls;
 
+import org.jamocha.function.impls.sideeffects.SetCompiler;
+
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
@@ -215,7 +217,7 @@ public interface DefaultFunctionVisitor extends FunctionVisitor {
 	}
 
 	@Override
-	default void visit(final org.jamocha.function.impls.sideeffects.SetRuleCompiler function) {
+	default void visit(final SetCompiler function) {
 		defaultAction(function);
 	}
 
