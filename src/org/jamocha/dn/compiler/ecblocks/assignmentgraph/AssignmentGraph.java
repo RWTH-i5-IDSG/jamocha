@@ -297,9 +297,6 @@ public class AssignmentGraph {
 		}
 	}
 
-	// FIXME to be implemented: fact variables occurring within existential parts that do not occur in any actual
-	// filters have to be used in dummy filters to make sure they are represented correctly in the graph
-
 	private void addFilter(final ECFilter filter, final ExistentialInfo existentialInfo) {
 		final PredicateWithArguments<TypeLeaf> typeLeafBasedPredicate =
 				FWAECLeafToTypeLeafTranslator.translate(filter.getFunction());
