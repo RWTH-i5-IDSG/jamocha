@@ -18,8 +18,15 @@ package org.jamocha.dn.compiler.ecblocks;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Value;
+import org.jamocha.filter.ECFilter;
+import org.jamocha.filter.ECFilterSet;
 import org.jamocha.function.fwa.FunctionWithArguments;
 import org.jamocha.function.fwa.TypeLeaf;
+import org.jamocha.languages.common.RuleCondition;
+
+import java.util.ArrayList;
+import java.util.Set;
+import java.util.stream.IntStream;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
@@ -78,6 +85,23 @@ public interface ExistentialInfo {
 		public boolean isExistential() {
 			return true;
 		}
+	}
+
+	static ExistentialInfo get(final ECFilterSet.ECExistentialSet existentialSet) {
+		return get(existentialSet.getExistentialClosure(), existentialSet.getEquivalenceClasses(),
+				existentialSet.isPositive());
+	}
+
+	static ExistentialInfo get(final ECFilter filter,
+			final Set<RuleCondition.EquivalenceClass> existentialEquivalenceClasses, final boolean positive) {
+		final ArrayList<RuleCondition.EquivalenceClass> collect = OrderedECCollector.collect(filter.getFunction());
+		final int[] existentialParameters =
+				IntStream.range(0, collect.size()).filter(i -> existentialEquivalenceClasses.contains(collect.get(i)))
+						.toArray();
+		final ExistentialInfo existentialInfo =
+				positive ? new ExistentialInfo.PositiveExistentialInfo(existentialParameters) :
+						new ExistentialInfo.NegatedExistentialInfo(existentialParameters);
+		return existentialInfo;
 	}
 
 	@Value

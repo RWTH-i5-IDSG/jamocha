@@ -19,6 +19,7 @@ import com.google.common.collect.Sets;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.jamocha.dn.ConstructCache;
 import org.jamocha.dn.compiler.ecblocks.*;
 import org.jamocha.dn.compiler.ecblocks.assignmentgraph.node.binding.*;
 import org.jamocha.dn.compiler.ecblocks.assignmentgraph.node.occurrence.ECOccurrenceNode;
@@ -27,6 +28,8 @@ import org.jamocha.dn.compiler.ecblocks.assignmentgraph.node.occurrence.Function
 import org.jamocha.dn.compiler.ecblocks.assignmentgraph.node.occurrence.ImplicitOccurrenceNode;
 import org.jamocha.dn.memory.Template;
 import org.jamocha.filter.ECFilter;
+import org.jamocha.filter.ECFilterSet;
+import org.jamocha.filter.ECFilterSetVisitor;
 import org.jamocha.function.fwa.*;
 import org.jamocha.function.fwatransformer.FWAECLeafToTypeLeafTranslator;
 import org.jamocha.languages.common.RuleCondition.EquivalenceClass;
@@ -191,7 +194,7 @@ public class AssignmentGraph {
 	}
 
 
-	public void addECs(final Iterable<EquivalenceClass> ecs) {
+	private void addECs(final Iterable<EquivalenceClass> ecs) {
 		// for every equivalence class
 		for (final EquivalenceClass ec : ecs) {
 			// gather binding nodes of the EC
@@ -297,7 +300,7 @@ public class AssignmentGraph {
 	// FIXME to be implemented: fact variables occurring within existential parts that do not occur in any actual
 	// filters have to be used in dummy filters to make sure they are represented correctly in the graph
 
-	public void addFilter(final ECFilter filter, final ExistentialInfo existentialInfo) {
+	private void addFilter(final ECFilter filter, final ExistentialInfo existentialInfo) {
 		final PredicateWithArguments<TypeLeaf> typeLeafBasedPredicate =
 				FWAECLeafToTypeLeafTranslator.translate(filter.getFunction());
 		// store the grouping filter in the lookup map
@@ -319,5 +322,31 @@ public class AssignmentGraph {
 			}
 		}
 		this.filterToOccurrenceNodes.put(filter, parameters);
+	}
+
+	class ECFilterSetAdder implements ECFilterSetVisitor {
+		public void add(final Iterable<ECFilterSet> ecFilterSets) {
+			for (final ECFilterSet ecFilterSet : ecFilterSets) {
+				ecFilterSet.accept(this);
+			}
+		}
+
+		@Override
+		public void visit(final ECFilterSet.ECExistentialSet set) {
+			add(set.getPurePart());
+			addFilter(set.getExistentialClosure(), ExistentialInfo.get(set));
+		}
+
+		@Override
+		public void visit(final ECFilter filter) {
+			addFilter(filter, ExistentialInfo.REGULAR);
+		}
+	}
+
+	public void addRule(final ConstructCache.Defrule.ECSetRule rule) {
+		final Set<ECFilterSet> condition = rule.getCondition();
+		final Set<EquivalenceClass> equivalenceClasses = rule.getEquivalenceClasses();
+		addECs(equivalenceClasses);
+		new ECFilterSetAdder().add(condition);
 	}
 }
