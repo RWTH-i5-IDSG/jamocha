@@ -14,18 +14,7 @@
  */
 package org.jamocha.function.fwa;
 
-import static java.util.stream.Collectors.joining;
-import static org.jamocha.util.ToArray.toArray;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-
-import lombok.AccessLevel;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.ToString;
-
+import lombok.*;
 import org.jamocha.dn.SideEffectFunctionToNetwork;
 import org.jamocha.dn.memory.SlotType;
 import org.jamocha.function.Function;
@@ -35,14 +24,18 @@ import org.jamocha.function.impls.FunctionVisitor;
 import org.jamocha.function.impls.predicates.Not;
 import org.jamocha.languages.common.errors.VariableNotDeclaredError;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+
+import static java.util.stream.Collectors.joining;
+import static org.jamocha.util.ToArray.toArray;
+
 /**
- * This class is the composite of the {@link FunctionWithArguments} hierarchy. It stores a
- * {@link Function function} and its parameters as an array of {@link FunctionWithArguments}. This
- * way it can recursively represent any combination of {@link Function functions} and their
- * arguments. On evaluation, the given parameters are split into chunks and passed to the
- * corresponding arguments. The returning values are passed to the stored function evaluating the
- * result.
- * 
+ * This class is the composite of the {@link FunctionWithArguments} hierarchy. It stores a {@link Function function} and
+ * its parameters as an array of {@link FunctionWithArguments}. This way it can recursively represent any combination of
+ * {@link Function functions} and their arguments. On evaluation, the given parameters are split into chunks and passed
+ * to the corresponding arguments. The returning values are passed to the stored function evaluating the result.
+ *
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  * @see Function
  * @see FunctionWithArguments
@@ -226,11 +219,12 @@ public abstract class GenericWithArgumentsComposite<R, F extends Function<? exte
 			final SideEffectFunctionToNetwork sideEffectFunctionToNetwork, final boolean sideEffectsAllowed,
 			final String inClips, final FunctionWithArguments<L>... arguments) {
 		final SlotType[] argTypes = getArgumentTypes(arguments);
-		final Function<?> function =
-				sideEffectsAllowed ? FunctionDictionary.lookupWithSideEffects(sideEffectFunctionToNetwork, inClips,
-						argTypes) : FunctionDictionary.lookup(inClips, argTypes);
-		return SlotType.BOOLEAN == function.getReturnType() ? new PredicateWithArgumentsComposite<L>(
-				(Predicate) function, arguments) : new FunctionWithArgumentsComposite<L>(function, arguments);
+		final Function<?> function = sideEffectsAllowed ?
+				FunctionDictionary.lookupWithSideEffects(sideEffectFunctionToNetwork, inClips, argTypes) :
+				FunctionDictionary.lookup(inClips, argTypes);
+		return SlotType.BOOLEAN == function.getReturnType() ?
+				new PredicateWithArgumentsComposite<L>((Predicate) function, arguments) :
+				new FunctionWithArgumentsComposite<L>(function, arguments);
 	}
 
 	@SafeVarargs
@@ -245,8 +239,8 @@ public abstract class GenericWithArgumentsComposite<R, F extends Function<? exte
 		final SlotType[] argTypes = getArgumentTypes(arguments);
 		final Predicate predicate = FunctionDictionary.lookupPredicate(inClips, argTypes);
 		final PredicateWithArgumentsComposite<L> pwac = new PredicateWithArgumentsComposite<L>(predicate, arguments);
-		return isPositive ? pwac : new PredicateWithArgumentsComposite<L>(FunctionDictionary.lookupPredicate(
-				Not.inClips, SlotType.BOOLEAN), pwac);
+		return isPositive ? pwac : new PredicateWithArgumentsComposite<L>(
+				FunctionDictionary.lookupPredicate(Not.inClips, SlotType.BOOLEAN), pwac);
 	}
 
 	@SafeVarargs
@@ -257,7 +251,8 @@ public abstract class GenericWithArgumentsComposite<R, F extends Function<? exte
 		for (int i = 0; i < argTypes.length; i++) {
 			final SlotType type = argTypes[i];
 			if (null == type) {
-				final FunctionWithArguments<L> fwa = arguments[i];
+				assert arguments[i] instanceof FunctionWithArguments;
+				final FunctionWithArguments<SymbolLeaf> fwa = (FunctionWithArguments<SymbolLeaf>) arguments[i];
 				assert fwa instanceof SymbolLeaf;
 				throw new VariableNotDeclaredError(((SymbolLeaf) fwa).getSymbol().getImage());
 			}
