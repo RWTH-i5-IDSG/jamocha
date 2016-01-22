@@ -73,9 +73,10 @@ public enum RuleCompiler {
 		@Override
 		public Collection<PathRule> compileRules(final Template initialFactTemplate,
 				final Collection<Defrule> defrules) {
-			final List<PathSetRule> consolidatedRules = defrules.stream()
-					.flatMap(rule -> new PathFilterConsolidator(initialFactTemplate, rule).consolidate().stream())
-					.collect(toList());
+			final List<PathSetRule> consolidatedRules =
+					defrules.stream().peek(rule -> RuleConditionProcessor.flatten(rule.getCondition())).flatMap(
+							rule -> new PathFilterConsolidator(initialFactTemplate, rule).consolidate().stream())
+							.collect(toList());
 			Collection<PathRule> transformedRules = PathBlocks.transform(consolidatedRules);
 			for (final Optimizer optimizer : ImmutableList.of(
 			/*
@@ -106,8 +107,8 @@ public enum RuleCompiler {
 				final Collection<Defrule> defrules) {
 			final List<ECSetRule> consolidatedRules =
 					defrules.stream().flatMap(rule -> RuleConditionProcessor.flatten(rule).stream())
-							.map(rule -> new CEToECTranslator(initialFactTemplate, rule).translate()).collect(toList
-							());
+							.flatMap(rule -> new CEToECTranslator(initialFactTemplate, rule).translate().stream())
+							.collect(toList());
 			Collection<PathRule> transformedRules = ECBlocks.transform(consolidatedRules);
 			for (final Optimizer optimizer : ImmutableList.of(
 			/*
@@ -132,9 +133,10 @@ public enum RuleCompiler {
 		@Override
 		public Collection<PathRule> compileRules(final Template initialFactTemplate,
 				final Collection<Defrule> defrules) {
-			final List<ECSetRule> consolidatedRules = defrules.stream()
-					.flatMap(rule -> new CEToECTranslator(initialFactTemplate, rule).translate().stream())
-					.collect(toList());
+			final List<ECSetRule> consolidatedRules =
+					defrules.stream().flatMap(rule -> RuleConditionProcessor.flatten(rule).stream())
+							.flatMap(rule -> new CEToECTranslator(initialFactTemplate, rule).translate().stream())
+							.collect(toList());
 			final Pair<List<Either<Rule, ExistentialProxy>>, ECBlockSet> pair = ECBlocks.compile(consolidatedRules);
 			final List<Either<Rule, ExistentialProxy>> rules = pair.getLeft();
 			final ECBlockSet blockSet = pair.getRight();
