@@ -163,7 +163,12 @@ public class ConstructCache {
 				(final ConditionalElement<ECLeaf> ce, final RuleCondition condition, final HashBiMap<EquivalenceClass,
 						EquivalenceClass> oldToNewEC, final BiMap<EquivalenceClass, EquivalenceClass>
 						localECsToConditionECs) -> {
-					oldToNewEC.inverse().replaceAll((newEC, oldEC) -> localECsToConditionECs.get(oldEC));
+					// replaceAll seems to be unsupported by HashBiMap for now, use a work-around
+					final Map<EquivalenceClass, EquivalenceClass> map = Maps.newHashMap(
+							Maps.asMap(oldToNewEC.inverse().keySet(),
+									k -> localECsToConditionECs.get(oldToNewEC.inverse().get(k))));
+					oldToNewEC.inverse().putAll(map);
+					// oldToNewEC.inverse().replaceAll((newEC, oldEC) -> localECsToConditionECs.get(oldEC));
 					return ce;
 				};
 		private static final FunctionalInjection SPLIT_AND_TRANSFORM_EXISTENTIALS =
