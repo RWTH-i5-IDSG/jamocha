@@ -35,6 +35,7 @@ import org.jamocha.logging.MarkerType;
 import org.jamocha.util.Lambdas;
 
 import java.util.*;
+import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 import static java.util.stream.Collectors.toList;
@@ -101,6 +102,16 @@ public class ConstructCache {
 								null,
 								CONCATENATE_BI_MAPS)).collect(toList());
 			}
+
+			public Defrule getParent() {
+				return Defrule.this;
+			}
+
+			public ECSetRule newECSetRule(final Set<ECFilterSet> filters, final Set<SingleFactVariable> factVariables,
+					final Set<EquivalenceClass> equivalenceClasses, final int specificity) {
+				return new ECSetRule(filters, factVariables, equivalenceClasses, this.localECsToConditionECs,
+						specificity);
+			}
 		}
 
 		public List<ECBasedCERule> newECBasedCERules() {
@@ -129,10 +140,14 @@ public class ConstructCache {
 			final Set<SingleFactVariable> factVariables =
 					Lambdas.newIdentityHashSet(DeepFactVariableCollector.collect(copy));
 			RuleConditionProcessor.removeMissingBindingsInNonOR(copy);
-			final Set<EquivalenceClass> equivalenceClasses = oldToNewEC.values().stream()
-					.filter(ec -> !ec.getFactVariables().isEmpty() || !ec.getSlotVariables().isEmpty())
-					.collect(toIdentityHashSet());
 			copy = functionalInjection.apply(copy, condition, oldToNewEC, localECsToConditionECs);
+			// Make sure to find all equivalence classes (also the existential ones) by going through all fact
+			// variables. Since only slot or fact bindings are part of the equivalence classes at this point, going
+			// through the fact variables and their slots is enough.
+			final Set<EquivalenceClass> equivalenceClasses =
+					Stream.concat(factVariables.stream().map(SingleFactVariable::getEqual),
+							factVariables.stream().flatMap(fv -> fv.getSlotVariables().stream())
+									.flatMap(sv -> sv.getEqualSet().stream())).collect(toIdentityHashSet());
 			return new ECBasedCERule(copy, factVariables, equivalenceClasses, oldToNewEC.inverse());
 		}
 
@@ -282,9 +297,10 @@ public class ConstructCache {
 
 			public Translated translatePathToAddress() {
 				final VariableValueContext context = new VariableValueContext();
-				return new Translated(
-						this.condition, new AddressesActionList(context, FWASymbolToRHSVariableLeafTranslator
-						.translate(this.equivalenceClassToPathLeaf, context, Defrule.this.actionList)), this.specificity);
+				return new Translated(this.condition, new AddressesActionList(context,
+						FWASymbolToRHSVariableLeafTranslator
+								.translate(this.equivalenceClassToPathLeaf, context, Defrule.this.actionList)),
+						this.specificity);
 			}
 		}
 

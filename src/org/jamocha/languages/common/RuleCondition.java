@@ -14,24 +14,8 @@
  */
 package org.jamocha.languages.common;
 
-import static java.util.stream.Collectors.toSet;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
-
+import com.google.common.collect.Sets;
+import lombok.*;
 import org.jamocha.dn.memory.SlotAddress;
 import org.jamocha.dn.memory.SlotType;
 import org.jamocha.dn.memory.Template;
@@ -46,7 +30,9 @@ import org.jamocha.languages.common.ScopeStack.Scope;
 import org.jamocha.languages.common.ScopeStack.VariableSymbol;
 import org.jamocha.languages.common.SingleFactVariable.SingleSlotVariable;
 
-import com.google.common.collect.Sets;
+import java.util.*;
+
+import static java.util.stream.Collectors.toSet;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
@@ -78,7 +64,7 @@ public class RuleCondition {
 
 	/**
 	 * Equivalence class whose elements are equal to each other.
-	 * 
+	 *
 	 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
 	 */
 	@Getter
@@ -99,16 +85,11 @@ public class RuleCondition {
 			final StringBuilder sb = new StringBuilder();
 			sb.append(Objects.toString(type));
 			sb.append("-EC: {");
-			if (!factVariables.isEmpty())
-				sb.append(Objects.toString(factVariables));
-			if (!slotVariables.isEmpty())
-				sb.append(Objects.toString(slotVariables));
-			if (!constantExpressions.isEmpty())
-				sb.append(Objects.toString(constantExpressions));
-			if (!functionalExpressions.isEmpty())
-				sb.append(Objects.toString(functionalExpressions));
-			if (!equalParentEquivalenceClasses.isEmpty())
-				sb.append(Objects.toString(equalParentEquivalenceClasses));
+			if (!factVariables.isEmpty()) sb.append(Objects.toString(factVariables));
+			if (!slotVariables.isEmpty()) sb.append(Objects.toString(slotVariables));
+			if (!constantExpressions.isEmpty()) sb.append(Objects.toString(constantExpressions));
+			if (!functionalExpressions.isEmpty()) sb.append(Objects.toString(functionalExpressions));
+			if (!equalParentEquivalenceClasses.isEmpty()) sb.append(Objects.toString(equalParentEquivalenceClasses));
 			sb.append("}@");
 			sb.append(Integer.toHexString(System.identityHashCode(this)));
 			return sb.toString();
@@ -136,20 +117,22 @@ public class RuleCondition {
 
 		public static EquivalenceClass newECFromConstantExpression(final Scope maximalScope,
 				final FunctionWithArguments<ECLeaf> constantExpression) {
-			return new EquivalenceClass(new LinkedList<>(), new LinkedList<>(), new LinkedList<>(
-					Collections.singleton(constantExpression)), new LinkedList<>(), maximalScope,
+			return new EquivalenceClass(new LinkedList<>(), new LinkedList<>(),
+					new LinkedList<>(Collections.singleton(constantExpression)), new LinkedList<>(), maximalScope,
 					constantExpression.getReturnType());
 		}
 
-		public static EquivalenceClass newECFromVariableExpression(final Scope maximalScope,
-				final FunctionWithArguments<ECLeaf> variableExpression) {
-			return new EquivalenceClass(new LinkedList<>(), new LinkedList<>(), new LinkedList<>(), new LinkedList<>(
-					Collections.singleton(variableExpression)), maximalScope, variableExpression.getReturnType());
+		public static EquivalenceClass newECFromFunctionalExpression(final Scope maximalScope,
+				final FunctionWithArguments<ECLeaf> functionalExpression) {
+			return new EquivalenceClass(new LinkedList<>(), new LinkedList<>(), new LinkedList<>(),
+					new LinkedList<>(Collections.singleton(functionalExpression)), maximalScope,
+					functionalExpression.getReturnType());
 		}
 
 		public EquivalenceClass(final EquivalenceClass copy) {
-			this(new LinkedList<>(copy.factVariables), new LinkedList<>(copy.slotVariables), new LinkedList<>(
-					copy.constantExpressions), new LinkedList<>(copy.functionalExpressions), copy.maximalScope, copy.type);
+			this(new LinkedList<>(copy.factVariables), new LinkedList<>(copy.slotVariables),
+					new LinkedList<>(copy.constantExpressions), new LinkedList<>(copy.functionalExpressions),
+					copy.maximalScope, copy.type);
 		}
 
 		public Set<SingleFactVariable> getDirectlyDependentFactVariables() {
@@ -158,23 +141,21 @@ public class RuleCondition {
 		}
 
 		public Set<SingleFactVariable> getDependentFactVariables() {
-			return Sets.union(Sets.newHashSet(this.getFactVariables()), Sets.union(
-					this.slotVariables.stream().map(SingleSlotVariable::getFactVariable).collect(toSet()),
-					this.functionalExpressions.stream().flatMap(fwa -> ECCollector.collect(fwa).stream()).distinct()
-							.flatMap(ec -> ec.getFactVariables().stream()).collect(toSet())));
+			return Sets.union(Sets.newHashSet(this.getFactVariables()),
+					Sets.union(this.slotVariables.stream().map(SingleSlotVariable::getFactVariable).collect(toSet()),
+							this.functionalExpressions.stream().flatMap(fwa -> ECCollector.collect(fwa).stream())
+									.distinct().flatMap(ec -> ec.getFactVariables().stream()).collect(toSet())));
 		}
 
 		public void merge(final EquivalenceClass other) {
 			if (this.maximalScope != other.maximalScope) {
 				throw new IllegalArgumentException("Only equivalence classes of the same scope can be merged!");
 			}
-			if (this == other)
-				return;
+			if (this == other) return;
 			other.factVariables.forEach(this::add);
 			other.slotVariables.forEach(this::add);
 			other.constantExpressions.forEach(this::add);
-			if (null == this.type)
-				this.type = other.type;
+			if (null == this.type) this.type = other.type;
 			else if (null != other.type && other.type != this.type)
 				throw new IllegalArgumentException("Only equivalence classes of equal types can be merged!");
 			other.factVariables.forEach(fv -> fv.setEqual(this));
@@ -185,10 +166,10 @@ public class RuleCondition {
 		}
 
 		/**
-		 * Merges the equivalence classes contained in the slots of the equal fact variables. Does
-		 * nothing if there are less than two fact variables. Does not necessarily completely merge
-		 * all equivalence classes if there are fact variables of different templates in the
-		 * equivalence class.
+		 * Merges the equivalence classes contained in the slots of the equal fact variables. Does nothing if there are
+		 * less than two fact variables. Does not necessarily completely merge all equivalence classes if there are
+		 * fact
+		 * variables of different templates in the equivalence class.
 		 */
 		public void mergeEquivalenceClassesOfFactVariables() {
 			if (this.factVariables.isEmpty()) {
@@ -198,16 +179,11 @@ public class RuleCondition {
 			while (true) {
 				final Optional<SingleFactVariable> optFactVariable =
 						this.factVariables.stream().filter(fv -> !merged.contains(fv)).findAny();
-				if (!optFactVariable.isPresent())
-					break;
+				if (!optFactVariable.isPresent()) break;
 				final SingleFactVariable thisFV = optFactVariable.get();
-				final SingleFactVariable mergeFV =
-						merged.stream()
-								.findAny()
-								.orElseGet(
-										() -> factVariables.stream().filter(fv -> thisFV != fv).findAny().orElse(null));
-				if (null == mergeFV)
-					break;
+				final SingleFactVariable mergeFV = merged.stream().findAny()
+						.orElseGet(() -> factVariables.stream().filter(fv -> thisFV != fv).findAny().orElse(null));
+				if (null == mergeFV) break;
 				merged.add(thisFV);
 				merged.add(mergeFV);
 				factVariables.remove(thisFV);
@@ -232,12 +208,12 @@ public class RuleCondition {
 		}
 
 		public void add(final SingleFactVariable fv) {
-			if (null == type)
-				type = SlotType.FACTADDRESS;
-			if (SlotType.FACTADDRESS != type)
-				throw new IllegalArgumentException("Tried to add a SingleFactVariable to an EquivalenceClass of type "
-						+ type + " instead of FACTADDRESS!");
-			if (!this.factVariables.isEmpty() && fv.getTemplate() != this.factVariables.iterator().next().getTemplate()) {
+			if (null == type) type = SlotType.FACTADDRESS;
+			if (SlotType.FACTADDRESS != type) throw new IllegalArgumentException(
+					"Tried to add a SingleFactVariable to an EquivalenceClass of type " + type +
+							" instead of FACTADDRESS!");
+			if (!this.factVariables.isEmpty() &&
+					fv.getTemplate() != this.factVariables.iterator().next().getTemplate()) {
 				throw new IllegalArgumentException(
 						"All fact variables of an equivalence class need to have the same template!");
 			}
@@ -245,11 +221,10 @@ public class RuleCondition {
 		}
 
 		public void add(final SingleSlotVariable sv) {
-			if (null == type)
-				type = sv.getType();
+			if (null == type) type = sv.getType();
 			if (sv.getType() != type) {
-				throw new IllegalArgumentException("Tried to add a SingleSlotVariable of type " + sv.getType()
-						+ " to an EquivalenceClass of type " + type + "!");
+				throw new IllegalArgumentException("Tried to add a SingleSlotVariable of type " + sv.getType() +
+						" to an EquivalenceClass of type " + type + "!");
 			}
 			if (this.slotVariables.contains(sv)) {
 				throw new IllegalArgumentException(
@@ -259,13 +234,14 @@ public class RuleCondition {
 		}
 
 		public void add(final FunctionWithArguments<ECLeaf> fwa) {
-			if (null == type)
-				type = fwa.getReturnType();
+			if (null == type) type = fwa.getReturnType();
 			if (fwa.getReturnType() != type) {
-				throw new IllegalArgumentException("Tried to add a FunctionWithArguments of type "
-						+ fwa.getReturnType() + " to an EquivalenceClass of type " + type + "!");
+				throw new IllegalArgumentException(
+						"Tried to add a FunctionWithArguments of type " + fwa.getReturnType() +
+								" to an EquivalenceClass of type " + type + "!");
 			}
-			checkContainmentAndAdd(ECCollector.collect(fwa).isEmpty() ? constantExpressions : functionalExpressions, fwa);
+			checkContainmentAndAdd(ECCollector.collect(fwa).isEmpty() ? constantExpressions : functionalExpressions,
+					fwa);
 		}
 
 		private static void checkContainmentAndAdd(final LinkedList<FunctionWithArguments<ECLeaf>> target,
@@ -309,9 +285,9 @@ public class RuleCondition {
 		}
 
 		public boolean isNonTrivial() {
-			return (this.factVariables.isEmpty() ? 0 : 1) + this.slotVariables.size()
-					+ this.equalParentEquivalenceClasses.size() + this.constantExpressions.size()
-					+ this.functionalExpressions.size() > 1;
+			return (this.factVariables.isEmpty() ? 0 : 1) + this.slotVariables.size() +
+					this.equalParentEquivalenceClasses.size() + this.constantExpressions.size() +
+					this.functionalExpressions.size() > 1;
 		}
 	}
 }

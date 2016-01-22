@@ -130,7 +130,7 @@ public class RuleConditionProcessor {
 					.replaceAll(sv -> oldToNewFV.get(sv.getFactVariable()).getSlots().get(sv.getSlot()));
 		}
 
-		return child.accept(new CEECReplacer(oldToNewEC)).getResult();
+		return child.accept(new CEECReplacer(oldToNewEC, oldToNewFV)).getResult();
 	}
 
 	public static <L extends ExchangeableLeaf<L>> ConditionalElement<L> moveNots(final ConditionalElement<L> ce) {
@@ -432,8 +432,8 @@ public class RuleConditionProcessor {
 		private static EquivalenceClass splitEC(final Scope scope, final Set<SingleFactVariable> shallowFactVariables,
 				final EquivalenceClass oldEC) throws IllegalStateException {
 			assert oldEC.getConstantExpressions().isEmpty() && oldEC.getFunctionalExpressions().isEmpty() :
-					"This method assumes that the parser leaves the equality tests involving constants and variable " +
-							"expressions explicitly.";
+					"This method assumes that the parser leaves the equality tests involving constants and " +
+							"functional expressions explicitly.";
 			if (scope == oldEC.getMaximalScope()) {
 				// EC belongs to this scope, nothing to do
 				return oldEC;
@@ -472,12 +472,12 @@ public class RuleConditionProcessor {
 					slotVariable.getEqualSet().add(newEC);
 				}
 			}
-			// add equal parent relationship
-			newEC.addEqualParentEquivalenceClass(oldEC);
 			// if there are no bindings at the current level, use the old EC
 			if (newEC.getSlotVariables().isEmpty() && newEC.getFactVariables().isEmpty()) {
 				return oldEC;
 			}
+			// add equal parent relationship
+			newEC.addEqualParentEquivalenceClass(oldEC);
 			return newEC;
 		}
 
@@ -778,17 +778,28 @@ public class RuleConditionProcessor {
 	 */
 	@RequiredArgsConstructor
 	private static class CEECReplacer extends CETranslator<ECLeaf, ECLeaf> {
-		final Map<EquivalenceClass, EquivalenceClass> oldToNew;
+		final Map<EquivalenceClass, EquivalenceClass> oldToNewEC;
+		final Map<SingleFactVariable, SingleFactVariable> oldToNewFV;
 
 		@Override
 		public void visit(final TestConditionalElement<ECLeaf> ce) {
 			this.result = new TestConditionalElement<>((PredicateWithArguments<ECLeaf>) ce.getPredicateWithArguments()
-					.accept(new FWAECReplacer(oldToNew::get)).getFunctionWithArguments());
+					.accept(new FWAECReplacer(oldToNewEC::get)).getFunctionWithArguments());
+		}
+
+		@Override
+		public void visit(final TemplatePatternConditionalElement<ECLeaf> ce) {
+			result = new TemplatePatternConditionalElement<>(oldToNewFV.get(ce.getFactVariable()));
+		}
+
+		@Override
+		public void visit(final InitialFactConditionalElement<ECLeaf> ce) {
+			result = new InitialFactConditionalElement<>(oldToNewFV.get(ce.getInitialFactVariable()));
 		}
 
 		@Override
 		public CEECReplacer of() {
-			return new CEECReplacer(oldToNew);
+			return new CEECReplacer(oldToNewEC, oldToNewFV);
 		}
 	}
 
