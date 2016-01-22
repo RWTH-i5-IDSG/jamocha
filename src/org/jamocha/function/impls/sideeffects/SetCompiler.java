@@ -26,7 +26,7 @@ import org.jamocha.languages.common.ScopeStack.Symbol;
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  *
  */
-public abstract class SetRuleCompiler implements Function<Object> {
+public abstract class SetCompiler implements Function<Object> {
 	public static final String inClips = "set-compiler";
 	private static final SlotType[] paramTypes = new SlotType[] { SlotType.SYMBOL };
 
@@ -54,7 +54,7 @@ public abstract class SetRuleCompiler implements Function<Object> {
 	static {
 		FunctionDictionary.addFixedArgsGeneratorWithSideEffects(inClips, paramTypes, (
 				final SideEffectFunctionToNetwork network, final SlotType[] paramTypes) -> {
-			return new SetRuleCompiler() {
+			return new SetCompiler() {
 				@Override
 				public Object evaluate(final Function<?>... params) {
 					final String name = ((Symbol) params[0].evaluate()).getImage();
