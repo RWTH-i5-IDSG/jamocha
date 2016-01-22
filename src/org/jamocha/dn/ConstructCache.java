@@ -16,6 +16,7 @@ package org.jamocha.dn;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
+import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import lombok.Data;
 import lombok.Getter;
@@ -94,7 +95,7 @@ public class ConstructCache {
 			final BiMap<EquivalenceClass, EquivalenceClass> localECsToConditionECs;
 
 			public List<ECBasedCERule> newECBasedCERules() {
-				ConditionalElement<ECLeaf> ecCE = RuleConditionProcessor.flatten(this.condition);
+				ConditionalElement<ECLeaf> ecCE = RuleConditionProcessor.flattenInPlace(this.condition);
 				// simply translate SymbolLeafs to ECLeafs by calling getEC
 				assert ecCE instanceof ConditionalElement.OrFunctionConditionalElement;
 				return ecCE.getChildren().stream()
@@ -116,7 +117,7 @@ public class ConstructCache {
 
 		public List<ECBasedCERule> newECBasedCERules() {
 			final RuleCondition condition = Defrule.this.getCondition();
-			ConditionalElement<SymbolLeaf> symbolCE = RuleConditionProcessor.flatten(condition);
+			ConditionalElement<SymbolLeaf> symbolCE = RuleConditionProcessor.flattenInPlace(condition);
 			// simply translate SymbolLeafs to ECLeafs by calling getEC
 			ConditionalElement<ECLeaf> ecCE =
 					symbolCE.accept(new RuleConditionProcessor.CESymbolToECTranslator()).getResult();
@@ -141,7 +142,7 @@ public class ConstructCache {
 					Lambdas.newIdentityHashSet(DeepFactVariableCollector.collect(copy));
 			RuleConditionProcessor.removeMissingBindingsInNonOR(copy);
 			copy = functionalInjection.apply(copy, condition, oldToNewEC, localECsToConditionECs);
-			// Make sure to find all equivalence classes (also the existential ones) by going through all fact
+			// <Make sure to find all equivalence classes (also the existential ones) by going through all fact
 			// variables. Since only slot or fact bindings are part of the equivalence classes at this point, going
 			// through the fact variables and their slots is enough.
 			final Set<EquivalenceClass> equivalenceClasses =
