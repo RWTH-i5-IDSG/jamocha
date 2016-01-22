@@ -46,10 +46,10 @@ import static org.jamocha.util.ToArray.toArray;
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
 public class ConstructCache {
-	final private HashMap<String, Template> template = new HashMap<>();
-	final private HashMap<String, Function<?>> functions = new HashMap<>();
-	final private HashMap<String, Defrule> rules = new HashMap<>();
-	final private HashMap<String, Deffacts> deffacts = new HashMap<>();
+	private final HashMap<String, Template> template = new HashMap<>();
+	private final HashMap<String, Function<?>> functions = new HashMap<>();
+	private final HashMap<String, Defrule> rules = new HashMap<>();
+	private final HashMap<String, Deffacts> deffacts = new HashMap<>();
 
 	@Value
 	public static class Deffacts {
@@ -93,42 +93,19 @@ public class ConstructCache {
 			final BiMap<EquivalenceClass, EquivalenceClass> localECsToConditionECs;
 
 			public List<ECBasedCERule> newECBasedCERules() {
-				// move (not )s down to the lowest possible nodes
-				ConditionalElement<ECLeaf> ecCE = RuleConditionProcessor.moveNots(this.condition);
-				// combine nested ands and ors
-				RuleConditionProcessor.combineNested(ecCE);
-				// expand ors
-				ecCE = RuleConditionProcessor.expandOrs(ecCE);
+				ConditionalElement<ECLeaf> ecCE = RuleConditionProcessor.flatten(this.condition);
 				// simply translate SymbolLeafs to ECLeafs by calling getEC
 				assert ecCE instanceof ConditionalElement.OrFunctionConditionalElement;
-				return ecCE.getChildren().stream().map(child -> {
-					final HashBiMap<EquivalenceClass, EquivalenceClass> oldToNewEC = HashBiMap
-							.create(equivalenceClasses.stream()
-									.collect(toMap(java.util.function.Function.identity(), EquivalenceClass::new)));
-					final ConditionalElement<ECLeaf> copy =
-							RuleConditionProcessor.copyDeeplyUsingNewECsAndFactVariables(oldToNewEC, child);
-					final Set<SingleFactVariable> factVariables =
-							Lambdas.newIdentityHashSet(DeepFactVariableCollector.collect(copy));
-					RuleConditionProcessor.removeMissingBindingsInNonOR(child);
-					final Set<EquivalenceClass> equivalenceClasses = oldToNewEC.values().stream()
-							.filter(ec -> !ec.getFactVariables().isEmpty() || !ec.getSlotVariables().isEmpty())
-							.collect(toIdentityHashSet());
-					oldToNewEC.inverse().replaceAll((newEC, oldEC) -> this.localECsToConditionECs.get(oldEC));
-					return new ECBasedCERule(copy, factVariables, equivalenceClasses, oldToNewEC.inverse());
-				}).collect(toList());
+				return ecCE.getChildren().stream()
+						.map(child -> toEcBasedCERule(child, this.equivalenceClasses, this.localECsToConditionECs,
+								null,
+								CONCATENATE_BI_MAPS)).collect(toList());
 			}
 		}
 
 		public List<ECBasedCERule> newECBasedCERules() {
 			final RuleCondition condition = Defrule.this.getCondition();
-			ConditionalElement<SymbolLeaf> symbolCE =
-					new ConditionalElement.AndFunctionConditionalElement<>(condition.getConditionalElements());
-			// move (not )s down to the lowest possible nodes
-			symbolCE = RuleConditionProcessor.moveNots(symbolCE);
-			// combine nested ands and ors
-			RuleConditionProcessor.combineNested(symbolCE);
-			// expand ors
-			symbolCE = RuleConditionProcessor.expandOrs(symbolCE);
+			ConditionalElement<SymbolLeaf> symbolCE = RuleConditionProcessor.flatten(condition);
 			// simply translate SymbolLeafs to ECLeafs by calling getEC
 			ConditionalElement<ECLeaf> ecCE =
 					symbolCE.accept(new RuleConditionProcessor.CESymbolToECTranslator()).getResult();
@@ -136,35 +113,62 @@ public class ConstructCache {
 					Defrule.this.condition.getVariableSymbols().stream().map(ScopeStack.VariableSymbol::getEqual)
 							.collect(toList());
 			assert ecCE instanceof ConditionalElement.OrFunctionConditionalElement;
-			return ecCE.getChildren().stream().map(child -> {
-				final HashBiMap<EquivalenceClass, EquivalenceClass> oldToNewEC = HashBiMap.create(allECs.stream()
-						.collect(toMap(java.util.function.Function.identity(), EquivalenceClass::new)));
-				ConditionalElement<ECLeaf> copy =
-						RuleConditionProcessor.copyDeeplyUsingNewECsAndFactVariables(oldToNewEC, child);
-				final Set<SingleFactVariable> factVariables =
-						Lambdas.newIdentityHashSet(DeepFactVariableCollector.collect(copy));
-				RuleConditionProcessor.removeMissingBindingsInNonOR(copy);
-				final Set<EquivalenceClass> equivalenceClasses = oldToNewEC.values().stream()
-						.filter(ec -> !ec.getFactVariables().isEmpty() || !ec.getSlotVariables().isEmpty())
-						.collect(toIdentityHashSet());
-
-				// split up the equivalence classes on the existential thresholds
-				copy = RuleConditionProcessor.ExistentialECSplitter.split(condition.getScope(), copy);
-
-				// move functions not using any existential EC(-part)s out of the existential part
-				// (producing (or)s in case of negated existential conditions)
-				copy = copy.accept(new RuleConditionProcessor.CEExistentialTransformer()).getCe();
-
-				return new ECBasedCERule(copy, factVariables, equivalenceClasses, oldToNewEC.inverse());
-			}).flatMap(rule -> rule.newECBasedCERules().stream()).collect(toList());
+			return ecCE.getChildren().stream()
+					.map(child -> toEcBasedCERule(child, allECs, null, condition, SPLIT_AND_TRANSFORM_EXISTENTIALS))
+					.flatMap(rule -> rule.newECBasedCERules().stream()).collect(toList());
 		}
+
+		private ECBasedCERule toEcBasedCERule(final ConditionalElement<ECLeaf> child,
+				final Collection<EquivalenceClass> allECs,
+				final BiMap<EquivalenceClass, EquivalenceClass> localECsToConditionECs, final RuleCondition condition,
+				final FunctionalInjection functionalInjection) {
+			final HashBiMap<EquivalenceClass, EquivalenceClass> oldToNewEC = HashBiMap.create(allECs.stream()
+					.collect(toMap(java.util.function.Function.identity(), EquivalenceClass::new)));
+			ConditionalElement<ECLeaf> copy =
+					RuleConditionProcessor.copyDeeplyUsingNewECsAndFactVariables(oldToNewEC, child);
+			final Set<SingleFactVariable> factVariables =
+					Lambdas.newIdentityHashSet(DeepFactVariableCollector.collect(copy));
+			RuleConditionProcessor.removeMissingBindingsInNonOR(copy);
+			final Set<EquivalenceClass> equivalenceClasses = oldToNewEC.values().stream()
+					.filter(ec -> !ec.getFactVariables().isEmpty() || !ec.getSlotVariables().isEmpty())
+					.collect(toIdentityHashSet());
+			copy = functionalInjection.apply(copy, condition, oldToNewEC, localECsToConditionECs);
+			return new ECBasedCERule(copy, factVariables, equivalenceClasses, oldToNewEC.inverse());
+		}
+
+		@FunctionalInterface
+		public interface FunctionalInjection {
+			ConditionalElement<ECLeaf> apply(final ConditionalElement<ECLeaf> ce, final RuleCondition condition,
+					final HashBiMap<EquivalenceClass, EquivalenceClass> oldToNewEC,
+					final BiMap<EquivalenceClass, EquivalenceClass> localECsToConditionECs);
+		}
+
+		private static final FunctionalInjection CONCATENATE_BI_MAPS =
+				(final ConditionalElement<ECLeaf> ce, final RuleCondition condition, final HashBiMap<EquivalenceClass,
+						EquivalenceClass> oldToNewEC, final BiMap<EquivalenceClass, EquivalenceClass>
+						localECsToConditionECs) -> {
+					oldToNewEC.inverse().replaceAll((newEC, oldEC) -> localECsToConditionECs.get(oldEC));
+					return ce;
+				};
+		private static final FunctionalInjection SPLIT_AND_TRANSFORM_EXISTENTIALS =
+				(final ConditionalElement<ECLeaf> ce, final RuleCondition condition, final HashBiMap<EquivalenceClass,
+						EquivalenceClass> oldToNew, final BiMap<EquivalenceClass, EquivalenceClass>
+						localECsToConditionECs) -> {
+					ConditionalElement<ECLeaf> copy = ce;
+					// split up the equivalence classes on the existential thresholds
+					copy = RuleConditionProcessor.ExistentialECSplitter.split(condition.getScope(), copy);
+
+					// move functions not using any existential EC(-part)s out of the existential part
+					// (producing (or)s in case of negated existential conditions)
+					copy = copy.accept(new RuleConditionProcessor.CEExistentialTransformer()).getCe();
+					return copy;
+				};
 
 		public ECSetRule newECSetRule(final Set<ECFilterSet> condition, final Set<SingleFactVariable> factVariables,
 				final Set<EquivalenceClass> equivalenceClasses,
 				final BiMap<EquivalenceClass, EquivalenceClass> localECsToConditionECs, final int specificity) {
 			assert !factVariables.contains(null);
-			return new ECSetRule(condition, factVariables, equivalenceClasses, localECsToConditionECs, actionList,
-					specificity);
+			return new ECSetRule(condition, factVariables, equivalenceClasses, localECsToConditionECs, specificity);
 		}
 
 		@Data
@@ -174,7 +178,6 @@ public class ConstructCache {
 			final Set<SingleFactVariable> factVariables;
 			final Set<EquivalenceClass> equivalenceClasses;
 			final BiMap<EquivalenceClass, EquivalenceClass> localECsToConditionECs;
-			final FunctionWithArguments<SymbolLeaf>[] actionList;
 			final int specificity;
 
 			public Defrule getParent() {
@@ -183,26 +186,23 @@ public class ConstructCache {
 
 			public PathRule toPathRule(final PathFilterList convertedCondition, final Set<Path> resultPaths,
 					final Map<EquivalenceClass, FunctionWithArguments<PathLeaf>> equivalenceClassToPathLeaf) {
-				return new PathRule(convertedCondition, resultPaths, actionList, equivalenceClassToPathLeaf,
-						specificity);
+				return new PathRule(convertedCondition, resultPaths, equivalenceClassToPathLeaf, this.specificity);
 			}
 
 			public ECListRule toECListRule(final ECFilterList condition,
 					final Set<SingleFactVariable> additionalInitialFactVariables) {
-				return new ECListRule(condition, Sets.union(factVariables, additionalInitialFactVariables),
-						equivalenceClasses, localECsToConditionECs, actionList, specificity);
+				return new ECListRule(condition, Sets.union(this.factVariables, additionalInitialFactVariables),
+						this.equivalenceClasses, this.localECsToConditionECs, this.specificity);
 			}
 
 			protected ECSetRule(final Set<ECFilterSet> condition, final Set<SingleFactVariable> factVariables,
 					final Set<EquivalenceClass> equivalenceClasses,
-					final BiMap<EquivalenceClass, EquivalenceClass> localECsToConditionECs,
-					final FunctionWithArguments<SymbolLeaf>[] actionList, final int specificity) {
+					final BiMap<EquivalenceClass, EquivalenceClass> localECsToConditionECs, final int specificity) {
 				this.condition = condition;
 				assert !factVariables.isEmpty();
 				this.factVariables = factVariables;
 				this.equivalenceClasses = equivalenceClasses;
 				this.localECsToConditionECs = localECsToConditionECs;
-				this.actionList = actionList;
 				this.specificity = specificity;
 			}
 		}
@@ -214,7 +214,6 @@ public class ConstructCache {
 			final Set<SingleFactVariable> factVariables;
 			final Set<EquivalenceClass> equivalenceClasses;
 			final BiMap<EquivalenceClass, EquivalenceClass> localECsToConditionECs;
-			final FunctionWithArguments<SymbolLeaf>[] actionList;
 			final int specificity;
 
 			public Defrule getParent() {
@@ -223,15 +222,14 @@ public class ConstructCache {
 
 			public PathRule toPathRule(final PathFilterList convertedCondition, final Set<Path> resultPaths,
 					final Map<EquivalenceClass, FunctionWithArguments<PathLeaf>> equivalenceClassToPathLeaf) {
-				return new PathRule(convertedCondition, resultPaths, actionList, equivalenceClassToPathLeaf,
-						specificity);
+				return new PathRule(convertedCondition, resultPaths, equivalenceClassToPathLeaf, this.specificity);
 			}
 		}
 
 		public PathRule newTranslated(final PathFilterList condition, final Set<Path> resultPaths,
 				final Map<EquivalenceClass, FunctionWithArguments<PathLeaf>> equivalenceClassToPathLeaf,
 				final int specificity) {
-			return new PathRule(condition, resultPaths, actionList, equivalenceClassToPathLeaf, specificity);
+			return new PathRule(condition, resultPaths, equivalenceClassToPathLeaf, specificity);
 		}
 
 		public PathRule newTranslated(final PathFilterList condition,
@@ -250,7 +248,6 @@ public class ConstructCache {
 		public class PathSetRule {
 			final Set<PathFilterSet> condition;
 			final Set<Path> resultPaths;
-			final FunctionWithArguments<SymbolLeaf>[] actionList;
 			final Map<EquivalenceClass, FunctionWithArguments<PathLeaf>> equivalenceClassToPathLeaf;
 			final int specificity;
 
@@ -260,14 +257,14 @@ public class ConstructCache {
 
 			public PathRule trivialToPathRule() {
 				return new PathRule(PathFilterList.toSimpleList(
-						condition.stream().map(TrivialPathSetToPathListConverter::convert).collect(toList())),
-						resultPaths, actionList, equivalenceClassToPathLeaf, specificity);
+						this.condition.stream().map(TrivialPathSetToPathListConverter::convert).collect(toList())),
+						this.resultPaths, this.equivalenceClassToPathLeaf, this.specificity);
 			}
 
 			public PathRule toPathRule(final PathFilterList convertedCondition,
 					final Set<Path> additionalInitialPaths) {
-				return new PathRule(convertedCondition, Sets.union(resultPaths, additionalInitialPaths), actionList,
-						equivalenceClassToPathLeaf, specificity);
+				return new PathRule(convertedCondition, Sets.union(this.resultPaths, additionalInitialPaths),
+						this.equivalenceClassToPathLeaf, this.specificity);
 			}
 		}
 
@@ -276,7 +273,6 @@ public class ConstructCache {
 		public class PathRule {
 			final PathFilterList condition;
 			final Set<Path> resultPaths;
-			final FunctionWithArguments<SymbolLeaf>[] actionList;
 			final Map<EquivalenceClass, FunctionWithArguments<PathLeaf>> equivalenceClassToPathLeaf;
 			final int specificity;
 
@@ -286,8 +282,9 @@ public class ConstructCache {
 
 			public Translated translatePathToAddress() {
 				final VariableValueContext context = new VariableValueContext();
-				return new Translated(condition, new AddressesActionList(context, FWASymbolToRHSVariableLeafTranslator
-						.translate(equivalenceClassToPathLeaf, context, actionList)), specificity);
+				return new Translated(
+						this.condition, new AddressesActionList(context, FWASymbolToRHSVariableLeafTranslator
+						.translate(this.equivalenceClassToPathLeaf, context, Defrule.this.actionList)), this.specificity);
 			}
 		}
 
@@ -309,8 +306,8 @@ public class ConstructCache {
 		final FunctionWithArguments<RHSVariableLeaf>[] actions;
 
 		public void evaluate(final AssertOrRetract<?> token) {
-			context.initialize(token);
-			for (final FunctionWithArguments<RHSVariableLeaf> action : actions) {
+			this.context.initialize(token);
+			for (final FunctionWithArguments<RHSVariableLeaf> action : this.actions) {
 				action.evaluate();
 			}
 		}

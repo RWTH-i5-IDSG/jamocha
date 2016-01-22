@@ -70,6 +70,22 @@ public class RuleConditionProcessor {
 		return new AndFunctionConditionalElement<>(Lists.newArrayList(ImmutableList.of(ce)));
 	}
 
+	public static <L extends ExchangeableLeaf<L>> ConditionalElement<L> flatten(final ConditionalElement<L>
+			toFlatten) {
+		ConditionalElement<L> ce = toFlatten;
+		// move (not )s down to the lowest possible nodes
+		ce = RuleConditionProcessor.moveNots(ce);
+		// combine nested ands and ors
+		RuleConditionProcessor.combineNested(ce);
+		// expand ors
+		ce = RuleConditionProcessor.expandOrs(ce);
+		return ce;
+	}
+
+	public static ConditionalElement<SymbolLeaf> flatten(final RuleCondition condition) {
+		return flatten(new AndFunctionConditionalElement<>(condition.getConditionalElements()));
+	}
+
 	public static List<ConstructCache.Defrule.ECBasedCERule> flatten(final ConstructCache.Defrule rule) {
 		return rule.newECBasedCERules();
 	}
