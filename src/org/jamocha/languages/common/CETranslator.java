@@ -14,26 +14,19 @@
  */
 package org.jamocha.languages.common;
 
-import static java.util.stream.Collectors.toList;
+import lombok.Getter;
+import org.jamocha.function.fwa.ExchangeableLeaf;
+import org.jamocha.languages.common.ConditionalElement.*;
 
 import java.util.List;
 
-import lombok.Getter;
-
-import org.jamocha.function.fwa.ExchangeableLeaf;
-import org.jamocha.languages.common.ConditionalElement.AndFunctionConditionalElement;
-import org.jamocha.languages.common.ConditionalElement.ExistentialConditionalElement;
-import org.jamocha.languages.common.ConditionalElement.InitialFactConditionalElement;
-import org.jamocha.languages.common.ConditionalElement.NegatedExistentialConditionalElement;
-import org.jamocha.languages.common.ConditionalElement.NotFunctionConditionalElement;
-import org.jamocha.languages.common.ConditionalElement.OrFunctionConditionalElement;
-import org.jamocha.languages.common.ConditionalElement.TemplatePatternConditionalElement;
+import static java.util.stream.Collectors.toList;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
-public abstract class CETranslator<S extends ExchangeableLeaf<S>, T extends ExchangeableLeaf<T>> implements
-		ConditionalElementsVisitor<S> {
+public abstract class CETranslator<S extends ExchangeableLeaf<S>, T extends ExchangeableLeaf<T>>
+		implements ConditionalElementsVisitor<S> {
 	@Getter
 	protected ConditionalElement<T> result;
 
@@ -55,7 +48,8 @@ public abstract class CETranslator<S extends ExchangeableLeaf<S>, T extends Exch
 
 	@Override
 	public void visit(final NegatedExistentialConditionalElement<S> ce) {
-		this.result = new NegatedExistentialConditionalElement<>(ce.getScope(), translateChildren(ce.getChildren()));
+		this.result = new NegatedExistentialConditionalElement<>(ce.getScope(),
+				new AndFunctionConditionalElement<>(translateChildren(ce.getChildren())));
 	}
 
 	@Override
