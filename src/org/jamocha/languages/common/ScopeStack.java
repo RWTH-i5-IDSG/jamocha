@@ -14,23 +14,23 @@
  */
 package org.jamocha.languages.common;
 
-import java.util.HashMap;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.function.BiFunction;
-import java.util.function.Consumer;
-
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-
 import org.jamocha.dn.memory.SlotAddress;
 import org.jamocha.dn.memory.SlotType;
 import org.jamocha.dn.memory.Template;
 import org.jamocha.languages.common.RuleCondition.EquivalenceClass;
 import org.jamocha.languages.common.SingleFactVariable.SingleSlotVariable;
+
+import javax.annotation.Nullable;
+import java.util.HashMap;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.function.BiFunction;
+import java.util.function.Consumer;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
@@ -44,8 +44,7 @@ public class ScopeStack {
 		Scope getParent();
 
 		default boolean isParentOf(final Scope possibleChild) {
-			if (null == possibleChild)
-				return false;
+			if (null == possibleChild) return false;
 			Scope current = possibleChild;
 			do {
 				current = current.getParent();
@@ -72,11 +71,9 @@ public class ScopeStack {
 		public Symbol getOrCreateSymbol(final String image, final BiFunction<Scope, String, ? extends Symbol> ctor) {
 			// if no entry present, try parent
 			// if no scope contains matching symbol, create it at lowest scope
-			return this.symbolTable
-					.computeIfAbsent(
-							image,
-							s -> Optional.ofNullable(parentScope).map(c -> c.getSymbol(s))
-									.orElseGet(() -> ctor.apply(this, s)));
+			return this.symbolTable.computeIfAbsent(image,
+					s -> Optional.ofNullable(parentScope).map(c -> c.getSymbol(s))
+							.orElseGet(() -> ctor.apply(this, s)));
 		}
 
 		public VariableSymbol createDummySymbol(final SlotType type) {
@@ -90,9 +87,9 @@ public class ScopeStack {
 	}
 
 	/**
-	 * Wrapper class for a string providing distinguishable instances even though the contained
-	 * string may be identical.
-	 * 
+	 * Wrapper class for a string providing distinguishable instances even though the contained string may be
+	 * identical.
+	 *
 	 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
 	 */
 	@Getter
@@ -141,7 +138,7 @@ public class ScopeStack {
 			super(image);
 			this.equal = EquivalenceClass.newPlainEC(scope);
 		}
-		
+
 		public void setEqual(final EquivalenceClass equal) {
 			this.equal = equal;
 		}
@@ -177,11 +174,10 @@ public class ScopeStack {
 		return getScope().getOrCreateSymbol(image, Symbol::new);
 	}
 
-	public VariableSymbol getOrCreateVariableSymbol(final String image, final RuleCondition rc) {
+	public VariableSymbol getOrCreateVariableSymbol(final String image, @Nullable final RuleCondition rc) {
 		try {
 			final VariableSymbol instance = (VariableSymbol) getScope().getOrCreateSymbol(image, VariableSymbol::new);
-			if (null != rc)
-				rc.addSymbol(instance);
+			if (null != rc) rc.addSymbol(instance);
 			return instance;
 		} catch (final ClassCastException e) {
 			log.error("expecting to create or fetch a VariableSymbol, but casting failed!");
@@ -198,18 +194,16 @@ public class ScopeStack {
 		}
 	}
 
-	public SingleFactVariable createDummyFactVariable(final Template template, final RuleCondition rc) {
+	public SingleFactVariable createDummyFactVariable(final Template template, @Nullable final RuleCondition rc) {
 		final VariableSymbol instance = getScope().createDummySymbol(SlotType.FACTADDRESS);
-		if (null != rc)
-			rc.addSymbol(instance);
+		if (null != rc) rc.addSymbol(instance);
 		return new SingleFactVariable(template, instance);
 	}
 
 	public VariableSymbol createDummySlotVariable(final SingleFactVariable fv, final SlotAddress slot,
-			final RuleCondition rc, final Consumer<? super SingleSlotVariable> consumer) {
+			@Nullable final RuleCondition rc, final Consumer<? super SingleSlotVariable> consumer) {
 		final VariableSymbol instance = getScope().createDummySymbol(fv.getTemplate().getSlotType(slot));
-		if (null != rc)
-			rc.addSymbol(instance);
+		if (null != rc) rc.addSymbol(instance);
 		consumer.accept(fv.newSingleSlotVariable(slot, instance));
 		return instance;
 	}
@@ -226,8 +220,7 @@ public class ScopeStack {
 
 	public Symbol getOrCreateTopLevelSymbol(final String image) {
 		ScopeImpl top = currentScope;
-		while (top.parentScope != null)
-			top = top.parentScope;
+		while (top.parentScope != null) top = top.parentScope;
 		return top.getOrCreateSymbol(image, Symbol::new);
 	}
 }

@@ -98,7 +98,7 @@ public class CEToECTranslator implements DefaultConditionalElementsVisitor<ECLea
 	 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
 	 * @author Christoph Terwelp <christoph.terwelp@rwth-aachen.de>
 	 */
-	static class NoORsTranslator implements DefaultConditionalElementsVisitor<ECLeaf> {
+	public static class NoORsTranslator implements DefaultConditionalElementsVisitor<ECLeaf> {
 		private final Template initialFactTemplate;
 		private final SingleFactVariable initialFactVariable;
 		private final Set<EquivalenceClass> equivalenceClasses;
@@ -365,7 +365,13 @@ public class CEToECTranslator implements DefaultConditionalElementsVisitor<ECLea
 			final Set<ECFilterSet> filters =
 					new NoORsTranslator(initialFactTemplate, initialFactVariable, equivalenceClasses, shallowTests)
 							.collect(ce).getFilters();
+			return toEcExistentialSet(initialFactVariable, isPositive, shallowExistentialFVs, shallowExistentialECs,
+					filters);
+		}
 
+		public static ECExistentialSet toEcExistentialSet(final SingleFactVariable initialFactVariable,
+				final boolean isPositive, final Set<SingleFactVariable> shallowExistentialFVs,
+				final Set<EquivalenceClass> shallowExistentialECs, final Set<ECFilterSet> filters) {
 			// Collect all used Equivalence Classes for every Filter
 			final Map<ECFilterSet, Set<EquivalenceClass>> filter2ECs =
 					filters.stream().collect(Collectors.toMap(Function.identity(), ECCollector::collect));
@@ -447,8 +453,8 @@ public class CEToECTranslator implements DefaultConditionalElementsVisitor<ECLea
 							PredicateWithArgumentsComposite.newPredicateInstance(And.inClips,
 									ToArray.<FunctionWithArguments<ECLeaf>>toArray(predicates,
 											FunctionWithArguments[]::new)));
-			return new ECFilterSet.ECExistentialSet(isPositive, initialFactVariable, shallowExistentialFVs,
-					equivalenceClasses, pureFilters, existentialClosure);
+			return new ECExistentialSet(isPositive, initialFactVariable, shallowExistentialFVs, shallowExistentialECs,
+					pureFilters, existentialClosure);
 		}
 
 		@Override

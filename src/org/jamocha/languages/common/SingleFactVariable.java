@@ -14,18 +14,7 @@
  */
 package org.jamocha.languages.common;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NonNull;
-import lombok.Setter;
-
+import lombok.*;
 import org.jamocha.dn.memory.SlotAddress;
 import org.jamocha.dn.memory.SlotType;
 import org.jamocha.dn.memory.Template;
@@ -34,9 +23,11 @@ import org.jamocha.function.fwa.PathLeaf;
 import org.jamocha.languages.common.RuleCondition.EquivalenceClass;
 import org.jamocha.languages.common.ScopeStack.VariableSymbol;
 
+import java.util.*;
+
 /**
  * Gathers relevant information about a variable.
- * 
+ *
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
 @Getter
@@ -128,8 +119,8 @@ public class SingleFactVariable {
 
 		@Override
 		public String toString() {
-			return "SV(" + template.getName() + "::" + template.getSlotName(slot) + ")@"
-					+ Integer.toHexString(System.identityHashCode(SingleFactVariable.this));
+			return "SV(" + template.getName() + "::" + template.getSlotName(slot) + ")@" +
+					Integer.toHexString(System.identityHashCode(SingleFactVariable.this));
 		}
 	}
 }
