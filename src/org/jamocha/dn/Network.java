@@ -171,8 +171,6 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 	 *
 	 * @param memoryFactory
 	 * 		the {@link MemoryFactory} to use in the created network
-	 * @param optimizerConfiguration
-	 * 		optimizer configuration
 	 * @param logFormatter
 	 * 		log formatter
 	 * @param tokenQueueCapacity
@@ -307,9 +305,6 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 	/**
 	 * Creates a new network object with the {@link org.jamocha.dn.memory.javaimpl default memory implementation} and
 	 * {@link ThreadPoolScheduler scheduler}.
-	 *
-	 * @param optimizerConfiguration
-	 * 		optimizer configuration
 	 */
 	public Network() {
 		this(Integer.MAX_VALUE, new ThreadPoolScheduler(10));
@@ -317,7 +312,7 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 
 	/**
 	 * Tries to find a node performing the same filtering as the given filter and calls {@link
-	 * Node#shareNode(java.util.Map, org.jamocha.filter.Path...)} or creates a new {@link Node} for the given {@link
+	 * Node#shareNode(PathNodeFilterSet, Map, Path...)} or creates a new {@link Node} for the given {@link
 	 * PathNodeFilterSet filter}. Returns true iff a {@link Node} to share was found.
 	 *
 	 * @param filter
@@ -655,11 +650,6 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 
 	/**
 	 * Clears all appenders of the logging framework.
-	 *
-	 * @param out
-	 * 		output stream
-	 * @param plain
-	 * 		true for just the content, false for log-style additional infos in front of the content
 	 */
 	public void clearAppender() {
 		final LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
