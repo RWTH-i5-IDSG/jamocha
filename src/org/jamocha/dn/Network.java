@@ -143,8 +143,8 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 	@Getter(AccessLevel.PRIVATE)
 	private static int loggerDiscriminator = 0;
 	@Getter(onMethod = @__(@Override))
-	private final Logger interactiveEventsLogger = LogManager
-			.getLogger(this.getClass().getCanonicalName() + Integer.valueOf(loggerDiscriminator++).toString());
+	private final Logger interactiveEventsLogger =
+			LogManager.getLogger(this.getClass().getCanonicalName() + Integer.toString(loggerDiscriminator++));
 
 	@Getter(onMethod = @__(@Override))
 	private final TypedFilter typedFilter = new TypedFilter(true);

@@ -103,7 +103,8 @@
                 <version>3.0.1</version>
                 <configuration>
                     <failOnError>false</failOnError>
-                    <onlyAnalyze>org.jamocha.-</onlyAnalyze>
+                    <includeFilterFile>findbugs-include.xml</includeFilterFile>
+                    <!--<onlyAnalyze>org.jamocha.-</onlyAnalyze>-->
                 </configuration>
                 <executions>
                     <execution>

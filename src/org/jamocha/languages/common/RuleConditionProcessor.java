@@ -83,12 +83,12 @@ public class RuleConditionProcessor {
 	}
 
 	public static ConditionalElement<SymbolLeaf> flattenInPlace(final RuleCondition condition) {
-		return flattenInPlace(new AndFunctionConditionalElement<>(condition.getConditionalElements()));
+		return flattenInPlace(condition.getConditionalElements());
 	}
 
-	public static <L extends ExchangeableLeaf<L>> List<ConditionalElement<SymbolLeaf>> flattenInPlace(
+	public static <L extends ExchangeableLeaf<L>> ConditionalElement<L> flattenInPlace(
 			final List<ConditionalElement<L>> toFlatten) {
-		return flattenInPlace(toFlatten);
+		return flattenInPlace(new AndFunctionConditionalElement<>(toFlatten));
 	}
 
 	public static List<ConstructCache.Defrule.ECBasedCERule> flattenOutOfPlace(final ConstructCache.Defrule rule) {
@@ -389,7 +389,7 @@ public class RuleConditionProcessor {
 	@Getter
 	public static class ExistentialECSplitter extends CETranslator<ECLeaf, ECLeaf> {
 		@Value
-		class State {
+		static class State {
 			final Scope scope;
 			final Set<SingleFactVariable> shallowFactVariables;
 			final Map<EquivalenceClass, EquivalenceClass> oldToNew;

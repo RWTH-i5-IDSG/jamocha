@@ -38,7 +38,7 @@ public abstract class PathNodeFilterSet extends NodeFilterSet<PathLeaf, PathFilt
 	@Getter(lazy = true)
 	final private PathNodeFilterSet normalizedPathFilter = normalise();
 
-	public static PathNodeFilterSet empty = new RegularPathNodeFilterSet(Collections.emptySet());
+	public static final PathNodeFilterSet empty = new RegularPathNodeFilterSet(Collections.emptySet());
 
 	public abstract Set<Path> getPositiveExistentialPaths();
 

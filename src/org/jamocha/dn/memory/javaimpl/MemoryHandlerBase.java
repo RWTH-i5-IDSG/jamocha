@@ -34,7 +34,6 @@ import org.jamocha.dn.memory.Template;
  * 
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
-@EqualsAndHashCode
 @AllArgsConstructor
 public class MemoryHandlerBase implements MemoryHandler {
 

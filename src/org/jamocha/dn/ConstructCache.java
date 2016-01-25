@@ -142,7 +142,7 @@ public class ConstructCache {
 					Lambdas.newIdentityHashSet(DeepFactVariableCollector.collect(copy));
 			RuleConditionProcessor.removeMissingBindingsInNonOR(copy);
 			copy = functionalInjection.apply(copy, condition, oldToNewEC, localECsToConditionECs);
-			// <Make sure to find all equivalence classes (also the existential ones) by going through all fact
+			// Make sure to find all equivalence classes (also the existential ones) by going through all fact
 			// variables. Since only slot or fact bindings are part of the equivalence classes at this point, going
 			// through the fact variables and their slots is enough.
 			final Set<EquivalenceClass> equivalenceClasses =

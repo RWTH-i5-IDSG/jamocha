@@ -251,9 +251,9 @@ public abstract class GenericWithArgumentsComposite<R, F extends Function<? exte
 		for (int i = 0; i < argTypes.length; i++) {
 			final SlotType type = argTypes[i];
 			if (null == type) {
-				assert arguments[i] instanceof FunctionWithArguments;
 				final FunctionWithArguments<SymbolLeaf> fwa = (FunctionWithArguments<SymbolLeaf>) arguments[i];
-				assert fwa instanceof SymbolLeaf;
+				if (!(fwa instanceof SymbolLeaf))
+					throw new IllegalStateException("null-type leaves only allowed for symbol leaves!");
 				throw new VariableNotDeclaredError(((SymbolLeaf) fwa).getSymbol().getImage());
 			}
 		}

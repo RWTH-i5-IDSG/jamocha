@@ -43,7 +43,7 @@ public class AddressNodeFilterSet extends NodeFilterSet<ParameterLeaf, AddressNo
 		}
 	}
 
-	public static AddressNodeFilterSet empty =
+	public static final AddressNodeFilterSet empty =
 			new NormalAddressNodeFilterSet(new HashSet<FactAddress>(), new HashSet<FactAddress>(),
 					new LinkedHashSet<AddressFilter>(), Collections.emptyList());
 

@@ -82,8 +82,8 @@ public class RuleConditionProcessorTest {
 	public void trivialTest() throws ParseException {
 		final String input = "(templ1 (slot1 10))";
 		final RuleCondition ruleCondition = clipsToCondition(input);
-		final List<ConditionalElement<SymbolLeaf>> conditionalElements =
-				RuleConditionProcessor.flattenInPlace(ruleCondition.getConditionalElements());
+		final List<ConditionalElement<SymbolLeaf>> conditionalElements = ruleCondition.getConditionalElements();
+		RuleConditionProcessor.flattenInPlace(ruleCondition.getConditionalElements());
 
 		assertThat(conditionalElements, hasSize(1));
 		final ConditionalElement<SymbolLeaf> andCE = conditionalElements.get(0);
