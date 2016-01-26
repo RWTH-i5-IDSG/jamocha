@@ -2,11 +2,14 @@
  * Copyright 2002-2016 The Jamocha Team
  *
  *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance
+ * with the License. You may obtain a copy of the License at
  *
  * http://www.jamocha.org/
  *
- * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed
+ * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for
+ * the specific language governing permissions and limitations under
  * the License.
  */
 
@@ -17,6 +20,7 @@ import lombok.Getter;
 import org.jamocha.dn.ConstructCache;
 import org.jamocha.dn.compiler.ecblocks.CEToECTranslator;
 import org.jamocha.dn.memory.Template;
+import org.jamocha.filter.ECCollector;
 import org.jamocha.filter.ECFilterSet;
 import org.jamocha.function.fwa.FunctionWithArguments;
 import org.jamocha.languages.common.RuleCondition;
@@ -89,6 +93,11 @@ public class ECSetRuleBuilder extends AbstractConditionProxy {
 		final Set<ECFilterSet> condition = conditionProxy.condition;
 		final Set<SingleFactVariable> factVariableSet = conditionProxy.factVariableSet;
 		final Set<RuleCondition.EquivalenceClass> equivalenceClasses = conditionProxy.equivalenceClasses;
+		final Set<RuleCondition.EquivalenceClass> usedECs = ECCollector.collect(condition);
+		if (usedECs.contains(this.initialFactVariable.getEqual())) {
+			factVariableSet.add(this.initialFactVariable);
+			equivalenceClasses.add(this.initialFactVariable.getEqual());
+		}
 		final ConstructCache.Defrule defrule =
 				new ConstructCache.Defrule(this.ruleName, "", 0, null, new FunctionWithArguments[]{});
 		final ConstructCache.Defrule.ECSetRule ecSetRule =
