@@ -330,6 +330,7 @@ public class AssignmentGraph {
 
 		@Override
 		public void visit(final ECFilterSet.ECExistentialSet set) {
+			addECs(set.getEquivalenceClasses());
 			add(set.getPurePart());
 			addFilter(set.getExistentialClosure(), ExistentialInfo.get(set));
 		}
