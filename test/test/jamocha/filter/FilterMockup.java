@@ -42,7 +42,7 @@ import org.junit.experimental.theories.Theories;
 import org.junit.experimental.theories.Theory;
 import org.junit.runner.RunWith;
 
-import test.jamocha.util.PredicateBuilder;
+import test.jamocha.util.builder.fwa.PathPredicateBuilder;
 import test.jamocha.util.TestData.SomeStuff;
 
 import com.google.common.collect.Sets;
@@ -91,7 +91,7 @@ public class FilterMockup extends PathNodeFilterSet {
 					return pasa.slotAddress.getSlotType(pasa.path.getTemplate());
 				}).collect(Collectors.toCollection(ArrayList::new));
 		final SlotType[] slotTypes = toArray(slotTypesC, SlotType[]::new);
-		final PredicateBuilder predicateBuilder = new PredicateBuilder(new org.jamocha.function.Predicate() {
+		final PathPredicateBuilder pathPredicateBuilder = new PathPredicateBuilder(new org.jamocha.function.Predicate() {
 			@Override
 			public String inClips() {
 				return "DUMMY";
@@ -113,9 +113,9 @@ public class FilterMockup extends PathNodeFilterSet {
 			}
 		});
 		for (final PathAndSlotAddress pasa : pathAndSlotAddresses) {
-			predicateBuilder.addPath(pasa.path, pasa.slotAddress);
+			pathPredicateBuilder.addPath(pasa.path, pasa.slotAddress);
 		}
-		return predicateBuilder.buildFilter();
+		return pathPredicateBuilder.buildFilter();
 	}
 
 	/**

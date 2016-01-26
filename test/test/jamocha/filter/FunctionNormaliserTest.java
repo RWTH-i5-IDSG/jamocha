@@ -44,8 +44,8 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import test.jamocha.util.CounterColumnMatcherMockup;
-import test.jamocha.util.FunctionBuilder;
-import test.jamocha.util.PredicateBuilder;
+import test.jamocha.util.builder.fwa.PathFunctionBuilder;
+import test.jamocha.util.builder.fwa.PathPredicateBuilder;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
@@ -84,14 +84,14 @@ public class FunctionNormaliserTest {
 				FunctionDictionary.lookupPredicate(org.jamocha.function.impls.predicates.Equals.inClips, SlotType.LONG,
 						SlotType.LONG);
 		final PredicateWithArguments<PathLeaf> originalPredicate =
-				new PredicateBuilder(equalsLL).addLong(5L)
-						.addFunction(new FunctionBuilder(minusLL).addLong(6L).addLong(1L).build()).build();
+				new PathPredicateBuilder(equalsLL).addLong(5L)
+						.addFunction(new PathFunctionBuilder(minusLL).addLong(6L).addLong(1L).build()).build();
 		final PathNodeFilterSet compare =
-				PathNodeFilterSet.newRegularPathNodeFilterSet(new PredicateBuilder(equalsLL)
+				PathNodeFilterSet.newRegularPathNodeFilterSet(new PathPredicateBuilder(equalsLL)
 						.addLong(5L)
 						.addFunction(
-								new FunctionBuilder(plusLL).addLong(6)
-										.addFunction(new FunctionBuilder(minusL).addLong(1).build()).build())
+								new PathFunctionBuilder(plusLL).addLong(6)
+										.addFunction(new PathFunctionBuilder(minusL).addLong(1).build()).build())
 						.buildFilter());
 		testEqualResult(originalPredicate, compare);
 	}
@@ -112,14 +112,14 @@ public class FunctionNormaliserTest {
 				FunctionDictionary.lookupPredicate(org.jamocha.function.impls.predicates.Equals.inClips,
 						SlotType.DOUBLE, SlotType.DOUBLE);
 		final PredicateWithArguments<PathLeaf> originalPredicate =
-				new PredicateBuilder(equalsDD).addDouble(5.)
-						.addFunction(new FunctionBuilder(minusDD).addDouble(6.).addDouble(1.).build()).build();
+				new PathPredicateBuilder(equalsDD).addDouble(5.)
+						.addFunction(new PathFunctionBuilder(minusDD).addDouble(6.).addDouble(1.).build()).build();
 		final PathNodeFilterSet compare =
-				PathNodeFilterSet.newRegularPathNodeFilterSet(new PredicateBuilder(equalsDD)
+				PathNodeFilterSet.newRegularPathNodeFilterSet(new PathPredicateBuilder(equalsDD)
 						.addDouble(5.)
 						.addFunction(
-								new FunctionBuilder(plusDD).addDouble(6.)
-										.addFunction(new FunctionBuilder(minusD).addDouble(1.).build()).build())
+								new PathFunctionBuilder(plusDD).addDouble(6.)
+										.addFunction(new PathFunctionBuilder(minusD).addDouble(1.).build()).build())
 						.buildFilter());
 		testEqualResult(originalPredicate, compare);
 	}
@@ -134,13 +134,13 @@ public class FunctionNormaliserTest {
 				FunctionDictionary.lookupPredicate(org.jamocha.function.impls.predicates.Equals.inClips, SlotType.LONG,
 						SlotType.LONG);
 		final PredicateWithArguments<PathLeaf> originalPredicate =
-				new PredicateBuilder(equalsLL)
+				new PathPredicateBuilder(equalsLL)
 						.addLong(5L)
 						.addFunction(
-								new FunctionBuilder(minusL)
-										.addFunction(new FunctionBuilder(minusL).addLong(5L).build()).build()).build();
+								new PathFunctionBuilder(minusL)
+										.addFunction(new PathFunctionBuilder(minusL).addLong(5L).build()).build()).build();
 		final PathNodeFilterSet compare =
-				PathNodeFilterSet.newRegularPathNodeFilterSet(new PredicateBuilder(equalsLL).addLong(5L).addLong(5L)
+				PathNodeFilterSet.newRegularPathNodeFilterSet(new PathPredicateBuilder(equalsLL).addLong(5L).addLong(5L)
 						.buildFilter());
 		testEqualResult(originalPredicate, compare);
 	}
@@ -155,13 +155,13 @@ public class FunctionNormaliserTest {
 				FunctionDictionary.lookupPredicate(org.jamocha.function.impls.predicates.Equals.inClips,
 						SlotType.DOUBLE, SlotType.DOUBLE);
 		final PredicateWithArguments<PathLeaf> originalPredicate =
-				new PredicateBuilder(equalsDD)
+				new PathPredicateBuilder(equalsDD)
 						.addDouble(5.)
 						.addFunction(
-								new FunctionBuilder(minusD).addFunction(
-										new FunctionBuilder(minusD).addDouble(5.).build()).build()).build();
+								new PathFunctionBuilder(minusD).addFunction(
+										new PathFunctionBuilder(minusD).addDouble(5.).build()).build()).build();
 		final PathNodeFilterSet compare =
-				PathNodeFilterSet.newRegularPathNodeFilterSet(new PredicateBuilder(equalsDD).addDouble(5.)
+				PathNodeFilterSet.newRegularPathNodeFilterSet(new PathPredicateBuilder(equalsDD).addDouble(5.)
 						.addDouble(5.).buildFilter());
 		testEqualResult(originalPredicate, compare);
 	}
@@ -182,14 +182,14 @@ public class FunctionNormaliserTest {
 				FunctionDictionary.lookupPredicate(org.jamocha.function.impls.predicates.Equals.inClips, SlotType.LONG,
 						SlotType.LONG);
 		final PredicateWithArguments<PathLeaf> originalPredicate =
-				new PredicateBuilder(equalsLL).addLong(5L)
-						.addFunction(new FunctionBuilder(divLL).addLong(7).addLong(5).build()).build();
+				new PathPredicateBuilder(equalsLL).addLong(5L)
+						.addFunction(new PathFunctionBuilder(divLL).addLong(7).addLong(5).build()).build();
 		final PathNodeFilterSet compare =
-				PathNodeFilterSet.newRegularPathNodeFilterSet(new PredicateBuilder(equalsLL)
+				PathNodeFilterSet.newRegularPathNodeFilterSet(new PathPredicateBuilder(equalsLL)
 						.addLong(5L)
 						.addFunction(
-								new FunctionBuilder(timesLL).addLong(7)
-										.addFunction(new FunctionBuilder(divL).addLong(5).build()).build())
+								new PathFunctionBuilder(timesLL).addLong(7)
+										.addFunction(new PathFunctionBuilder(divL).addLong(5).build()).build())
 						.buildFilter());
 		testEqualResult(originalPredicate, compare);
 	}
@@ -210,14 +210,14 @@ public class FunctionNormaliserTest {
 				FunctionDictionary.lookupPredicate(org.jamocha.function.impls.predicates.Equals.inClips,
 						SlotType.DOUBLE, SlotType.DOUBLE);
 		final PredicateWithArguments<PathLeaf> originalPredicate =
-				new PredicateBuilder(equalsDD).addDouble(5.)
-						.addFunction(new FunctionBuilder(divDD).addDouble(7.).addDouble(5.).build()).build();
+				new PathPredicateBuilder(equalsDD).addDouble(5.)
+						.addFunction(new PathFunctionBuilder(divDD).addDouble(7.).addDouble(5.).build()).build();
 		final PathNodeFilterSet compare =
-				PathNodeFilterSet.newRegularPathNodeFilterSet(new PredicateBuilder(equalsDD)
+				PathNodeFilterSet.newRegularPathNodeFilterSet(new PathPredicateBuilder(equalsDD)
 						.addDouble(5.)
 						.addFunction(
-								new FunctionBuilder(timesDD).addDouble(7.)
-										.addFunction(new FunctionBuilder(divD).addDouble(5.).build()).build())
+								new PathFunctionBuilder(timesDD).addDouble(7.)
+										.addFunction(new PathFunctionBuilder(divD).addDouble(5.).build()).build())
 						.buildFilter());
 		testEqualResult(originalPredicate, compare);
 	}
@@ -232,13 +232,13 @@ public class FunctionNormaliserTest {
 				FunctionDictionary.lookupPredicate(org.jamocha.function.impls.predicates.Equals.inClips, SlotType.LONG,
 						SlotType.LONG);
 		final PathNodeFilterSet original =
-				PathNodeFilterSet.newRegularPathNodeFilterSet(new PathFilter(new PredicateBuilder(equalsLL)
+				PathNodeFilterSet.newRegularPathNodeFilterSet(new PathFilter(new PathPredicateBuilder(equalsLL)
 						.addLong(5L)
 						.addFunction(
-								new FunctionBuilder(divL).addFunction(new FunctionBuilder(divL).addLong(5L).build())
+								new PathFunctionBuilder(divL).addFunction(new PathFunctionBuilder(divL).addLong(5L).build())
 										.build()).build()));
 		final PathNodeFilterSet compare =
-				PathNodeFilterSet.newRegularPathNodeFilterSet(new PredicateBuilder(equalsLL).addLong(5L).addLong(5L)
+				PathNodeFilterSet.newRegularPathNodeFilterSet(new PathPredicateBuilder(equalsLL).addLong(5L).addLong(5L)
 						.buildFilter());
 		assertNotSame(evalFirstFE(original.normalise()), evalFirstFE(compare.normalise()));
 
@@ -254,13 +254,13 @@ public class FunctionNormaliserTest {
 				FunctionDictionary.lookupPredicate(org.jamocha.function.impls.predicates.Equals.inClips,
 						SlotType.DOUBLE, SlotType.DOUBLE);
 		final PredicateWithArguments<PathLeaf> originalPredicate =
-				new PredicateBuilder(equalsDD)
+				new PathPredicateBuilder(equalsDD)
 						.addDouble(5.)
 						.addFunction(
-								new FunctionBuilder(divD).addFunction(new FunctionBuilder(divD).addDouble(5.).build())
+								new PathFunctionBuilder(divD).addFunction(new PathFunctionBuilder(divD).addDouble(5.).build())
 										.build()).build();
 		final PathNodeFilterSet compare =
-				PathNodeFilterSet.newRegularPathNodeFilterSet(new PredicateBuilder(equalsDD).addDouble(5.)
+				PathNodeFilterSet.newRegularPathNodeFilterSet(new PathPredicateBuilder(equalsDD).addDouble(5.)
 						.addDouble(5.).buildFilter());
 		testEqualResult(originalPredicate, compare);
 	}
@@ -278,15 +278,15 @@ public class FunctionNormaliserTest {
 				FunctionDictionary.lookupPredicate(org.jamocha.function.impls.predicates.Equals.inClips, SlotType.LONG,
 						SlotType.LONG);
 		final PredicateWithArguments<PathLeaf> originalPredicate =
-				new PredicateBuilder(equalsLL)
+				new PathPredicateBuilder(equalsLL)
 						.addLong(12L)
 						.addFunction(
-								new FunctionBuilder(plusLL)
-										.addFunction(new FunctionBuilder(plusLL).addLong(5L).addLong(4L).build())
+								new PathFunctionBuilder(plusLL)
+										.addFunction(new PathFunctionBuilder(plusLL).addLong(5L).addLong(4L).build())
 										.addLong(3L).build()).build();
 		final PathNodeFilterSet compare =
-				PathNodeFilterSet.newRegularPathNodeFilterSet(new PredicateBuilder(equalsLL).addLong(12L)
-						.addFunction(new FunctionBuilder(plusLLL).addLong(5L).addLong(4L).addLong(3L).build())
+				PathNodeFilterSet.newRegularPathNodeFilterSet(new PathPredicateBuilder(equalsLL).addLong(12L)
+						.addFunction(new PathFunctionBuilder(plusLLL).addLong(5L).addLong(4L).addLong(3L).build())
 						.buildFilter());
 		testEqualResult(originalPredicate, compare);
 	}
@@ -304,15 +304,15 @@ public class FunctionNormaliserTest {
 				FunctionDictionary.lookupPredicate(org.jamocha.function.impls.predicates.Equals.inClips,
 						SlotType.DOUBLE, SlotType.DOUBLE);
 		final PredicateWithArguments<PathLeaf> originalPredicate =
-				new PredicateBuilder(equalsDD)
+				new PathPredicateBuilder(equalsDD)
 						.addDouble(12.)
 						.addFunction(
-								new FunctionBuilder(plusDD)
-										.addFunction(new FunctionBuilder(plusDD).addDouble(5.).addDouble(4.).build())
+								new PathFunctionBuilder(plusDD)
+										.addFunction(new PathFunctionBuilder(plusDD).addDouble(5.).addDouble(4.).build())
 										.addDouble(3.).build()).build();
 		final PathNodeFilterSet compare =
-				PathNodeFilterSet.newRegularPathNodeFilterSet(new PredicateBuilder(equalsDD).addDouble(12.)
-						.addFunction(new FunctionBuilder(plusDDD).addDouble(5.).addDouble(4.).addDouble(3.).build())
+				PathNodeFilterSet.newRegularPathNodeFilterSet(new PathPredicateBuilder(equalsDD).addDouble(12.)
+						.addFunction(new PathFunctionBuilder(plusDDD).addDouble(5.).addDouble(4.).addDouble(3.).build())
 						.buildFilter());
 		testEqualResult(originalPredicate, compare);
 	}
@@ -330,15 +330,15 @@ public class FunctionNormaliserTest {
 				FunctionDictionary.lookupPredicate(org.jamocha.function.impls.predicates.Equals.inClips, SlotType.LONG,
 						SlotType.LONG);
 		final PredicateWithArguments<PathLeaf> originalPredicate =
-				new PredicateBuilder(equalsLL)
+				new PathPredicateBuilder(equalsLL)
 						.addLong(12L)
 						.addFunction(
-								new FunctionBuilder(plusLL).addLong(5L)
-										.addFunction(new FunctionBuilder(plusLL).addLong(4L).addLong(3L).build())
+								new PathFunctionBuilder(plusLL).addLong(5L)
+										.addFunction(new PathFunctionBuilder(plusLL).addLong(4L).addLong(3L).build())
 										.build()).build();
 		final PathNodeFilterSet compare =
-				PathNodeFilterSet.newRegularPathNodeFilterSet(new PredicateBuilder(equalsLL).addLong(12L)
-						.addFunction(new FunctionBuilder(plusLLL).addLong(5L).addLong(4L).addLong(3L).build())
+				PathNodeFilterSet.newRegularPathNodeFilterSet(new PathPredicateBuilder(equalsLL).addLong(12L)
+						.addFunction(new PathFunctionBuilder(plusLLL).addLong(5L).addLong(4L).addLong(3L).build())
 						.buildFilter());
 		testEqualResult(originalPredicate, compare);
 	}
@@ -356,15 +356,15 @@ public class FunctionNormaliserTest {
 				FunctionDictionary.lookupPredicate(org.jamocha.function.impls.predicates.Equals.inClips,
 						SlotType.DOUBLE, SlotType.DOUBLE);
 		final PredicateWithArguments<PathLeaf> originalPredicate =
-				new PredicateBuilder(equalsDD)
+				new PathPredicateBuilder(equalsDD)
 						.addDouble(12.)
 						.addFunction(
-								new FunctionBuilder(plusDD).addDouble(5.)
-										.addFunction(new FunctionBuilder(plusDD).addDouble(4.).addDouble(3.).build())
+								new PathFunctionBuilder(plusDD).addDouble(5.)
+										.addFunction(new PathFunctionBuilder(plusDD).addDouble(4.).addDouble(3.).build())
 										.build()).build();
 		final PathNodeFilterSet compare =
-				PathNodeFilterSet.newRegularPathNodeFilterSet(new PredicateBuilder(equalsDD).addDouble(12.)
-						.addFunction(new FunctionBuilder(plusDDD).addDouble(5.).addDouble(4.).addDouble(3.).build())
+				PathNodeFilterSet.newRegularPathNodeFilterSet(new PathPredicateBuilder(equalsDD).addDouble(12.)
+						.addFunction(new PathFunctionBuilder(plusDDD).addDouble(5.).addDouble(4.).addDouble(3.).build())
 						.buildFilter());
 		testEqualResult(originalPredicate, compare);
 	}
@@ -382,18 +382,18 @@ public class FunctionNormaliserTest {
 				FunctionDictionary.lookupPredicate(org.jamocha.function.impls.predicates.Equals.inClips, SlotType.LONG,
 						SlotType.LONG);
 		final PredicateWithArguments<PathLeaf> originalPredicate =
-				new PredicateBuilder(equalsLL)
+				new PathPredicateBuilder(equalsLL)
 						.addLong(10L)
 						.addFunction(
-								new FunctionBuilder(plusLL)
-										.addFunction(new FunctionBuilder(plusLL).addLong(1L).addLong(2L).build())
-										.addFunction(new FunctionBuilder(plusLL).addLong(3L).addLong(4L).build())
+								new PathFunctionBuilder(plusLL)
+										.addFunction(new PathFunctionBuilder(plusLL).addLong(1L).addLong(2L).build())
+										.addFunction(new PathFunctionBuilder(plusLL).addLong(3L).addLong(4L).build())
 										.build()).build();
 		final PathNodeFilterSet compare =
-				PathNodeFilterSet.newRegularPathNodeFilterSet(new PredicateBuilder(equalsLL)
+				PathNodeFilterSet.newRegularPathNodeFilterSet(new PathPredicateBuilder(equalsLL)
 						.addLong(10L)
 						.addFunction(
-								new FunctionBuilder(plusLLL).addLong(1L).addLong(2L).addLong(3L).addLong(4L).build())
+								new PathFunctionBuilder(plusLLL).addLong(1L).addLong(2L).addLong(3L).addLong(4L).build())
 						.buildFilter());
 		testEqualResult(originalPredicate, compare);
 	}
@@ -411,18 +411,18 @@ public class FunctionNormaliserTest {
 				FunctionDictionary.lookupPredicate(org.jamocha.function.impls.predicates.Equals.inClips,
 						SlotType.DOUBLE, SlotType.DOUBLE);
 		final PredicateWithArguments<PathLeaf> originalPredicate =
-				new PredicateBuilder(equalsDD)
+				new PathPredicateBuilder(equalsDD)
 						.addDouble(10.)
 						.addFunction(
-								new FunctionBuilder(plusDD)
-										.addFunction(new FunctionBuilder(plusDD).addDouble(1.).addDouble(2.).build())
-										.addFunction(new FunctionBuilder(plusDD).addDouble(3.).addDouble(4.).build())
+								new PathFunctionBuilder(plusDD)
+										.addFunction(new PathFunctionBuilder(plusDD).addDouble(1.).addDouble(2.).build())
+										.addFunction(new PathFunctionBuilder(plusDD).addDouble(3.).addDouble(4.).build())
 										.build()).build();
 		final PathNodeFilterSet compare =
-				PathNodeFilterSet.newRegularPathNodeFilterSet(new PredicateBuilder(equalsDD)
+				PathNodeFilterSet.newRegularPathNodeFilterSet(new PathPredicateBuilder(equalsDD)
 						.addDouble(10.)
 						.addFunction(
-								new FunctionBuilder(plusDDD).addDouble(1.).addDouble(2.).addDouble(3.).addDouble(4.)
+								new PathFunctionBuilder(plusDDD).addDouble(1.).addDouble(2.).addDouble(3.).addDouble(4.)
 										.build()).buildFilter());
 		testEqualResult(originalPredicate, compare);
 	}
@@ -440,19 +440,19 @@ public class FunctionNormaliserTest {
 				FunctionDictionary.lookupPredicate(org.jamocha.function.impls.predicates.Equals.inClips, SlotType.LONG,
 						SlotType.LONG);
 		final PredicateWithArguments<PathLeaf> originalPredicate =
-				new PredicateBuilder(equalsLL)
+				new PathPredicateBuilder(equalsLL)
 						.addLong(35L)
 						.addFunction(
-								new FunctionBuilder(timesLL)
-										.addFunction(new FunctionBuilder(plusLL).addLong(3L).addLong(4L).build())
+								new PathFunctionBuilder(timesLL)
+										.addFunction(new PathFunctionBuilder(plusLL).addLong(3L).addLong(4L).build())
 										.addLong(5L).build()).build();
 		final PathNodeFilterSet compare =
-				PathNodeFilterSet.newRegularPathNodeFilterSet(new PredicateBuilder(equalsLL)
+				PathNodeFilterSet.newRegularPathNodeFilterSet(new PathPredicateBuilder(equalsLL)
 						.addLong(35L)
 						.addFunction(
-								new FunctionBuilder(plusLL)
-										.addFunction(new FunctionBuilder(timesLL).addLong(3L).addLong(5L).build())
-										.addFunction(new FunctionBuilder(timesLL).addLong(4L).addLong(5L).build())
+								new PathFunctionBuilder(plusLL)
+										.addFunction(new PathFunctionBuilder(timesLL).addLong(3L).addLong(5L).build())
+										.addFunction(new PathFunctionBuilder(timesLL).addLong(4L).addLong(5L).build())
 										.build()).buildFilter());
 		testEqualResult(originalPredicate, compare);
 	}
@@ -470,19 +470,19 @@ public class FunctionNormaliserTest {
 				FunctionDictionary.lookupPredicate(org.jamocha.function.impls.predicates.Equals.inClips,
 						SlotType.DOUBLE, SlotType.DOUBLE);
 		final PredicateWithArguments<PathLeaf> originalPredicate =
-				new PredicateBuilder(equalsDD)
+				new PathPredicateBuilder(equalsDD)
 						.addDouble(35.)
 						.addFunction(
-								new FunctionBuilder(timesDD)
-										.addFunction(new FunctionBuilder(plusDD).addDouble(3.).addDouble(4.).build())
+								new PathFunctionBuilder(timesDD)
+										.addFunction(new PathFunctionBuilder(plusDD).addDouble(3.).addDouble(4.).build())
 										.addDouble(5.).build()).build();
 		final PathNodeFilterSet compare =
-				PathNodeFilterSet.newRegularPathNodeFilterSet(new PredicateBuilder(equalsDD)
+				PathNodeFilterSet.newRegularPathNodeFilterSet(new PathPredicateBuilder(equalsDD)
 						.addDouble(35.)
 						.addFunction(
-								new FunctionBuilder(plusDD)
-										.addFunction(new FunctionBuilder(timesDD).addDouble(3.).addDouble(5.).build())
-										.addFunction(new FunctionBuilder(timesDD).addDouble(4.).addDouble(5.).build())
+								new PathFunctionBuilder(plusDD)
+										.addFunction(new PathFunctionBuilder(timesDD).addDouble(3.).addDouble(5.).build())
+										.addFunction(new PathFunctionBuilder(timesDD).addDouble(4.).addDouble(5.).build())
 										.build()).buildFilter());
 		testEqualResult(originalPredicate, compare);
 	}
@@ -500,18 +500,18 @@ public class FunctionNormaliserTest {
 				FunctionDictionary.lookupPredicate(org.jamocha.function.impls.predicates.Equals.inClips, SlotType.LONG,
 						SlotType.LONG);
 		final PredicateWithArguments<PathLeaf> originalPredicate =
-				new PredicateBuilder(equalsLL)
+				new PathPredicateBuilder(equalsLL)
 						.addLong(-10L)
 						.addFunction(
-								new FunctionBuilder(timesLL)
-										.addFunction(new FunctionBuilder(minusL).addLong(2L).build()).addLong(5L)
+								new PathFunctionBuilder(timesLL)
+										.addFunction(new PathFunctionBuilder(minusL).addLong(2L).build()).addLong(5L)
 										.build()).build();
 		final PathNodeFilterSet compare =
-				PathNodeFilterSet.newRegularPathNodeFilterSet(new PredicateBuilder(equalsLL)
+				PathNodeFilterSet.newRegularPathNodeFilterSet(new PathPredicateBuilder(equalsLL)
 						.addLong(-10L)
 						.addFunction(
-								new FunctionBuilder(minusL).addFunction(
-										new FunctionBuilder(timesLL).addLong(2L).addLong(5L).build()).build())
+								new PathFunctionBuilder(minusL).addFunction(
+										new PathFunctionBuilder(timesLL).addLong(2L).addLong(5L).build()).build())
 						.buildFilter());
 		testEqualResult(originalPredicate, compare);
 	}
@@ -529,18 +529,18 @@ public class FunctionNormaliserTest {
 				FunctionDictionary.lookupPredicate(org.jamocha.function.impls.predicates.Equals.inClips,
 						SlotType.DOUBLE, SlotType.DOUBLE);
 		final PredicateWithArguments<PathLeaf> originalPredicate =
-				new PredicateBuilder(equalsDD)
+				new PathPredicateBuilder(equalsDD)
 						.addDouble(-10.)
 						.addFunction(
-								new FunctionBuilder(timesDD)
-										.addFunction(new FunctionBuilder(minusD).addDouble(2.).build()).addDouble(5.)
+								new PathFunctionBuilder(timesDD)
+										.addFunction(new PathFunctionBuilder(minusD).addDouble(2.).build()).addDouble(5.)
 										.build()).build();
 		final PathNodeFilterSet compare =
-				PathNodeFilterSet.newRegularPathNodeFilterSet(new PredicateBuilder(equalsDD)
+				PathNodeFilterSet.newRegularPathNodeFilterSet(new PathPredicateBuilder(equalsDD)
 						.addDouble(-10.)
 						.addFunction(
-								new FunctionBuilder(minusD).addFunction(
-										new FunctionBuilder(timesDD).addDouble(2.).addDouble(5.).build()).build())
+								new PathFunctionBuilder(minusD).addFunction(
+										new PathFunctionBuilder(timesDD).addDouble(2.).addDouble(5.).build()).build())
 						.buildFilter());
 		testEqualResult(originalPredicate, compare);
 	}
@@ -558,17 +558,17 @@ public class FunctionNormaliserTest {
 				FunctionDictionary.lookupPredicate(org.jamocha.function.impls.predicates.Equals.inClips, SlotType.LONG,
 						SlotType.LONG);
 		final PredicateWithArguments<PathLeaf> originalPredicate =
-				new PredicateBuilder(equalsLL)
+				new PathPredicateBuilder(equalsLL)
 						.addLong(-10L)
 						.addFunction(
-								new FunctionBuilder(timesLL).addLong(2L)
-										.addFunction(new FunctionBuilder(minusL).addLong(5L).build()).build()).build();
+								new PathFunctionBuilder(timesLL).addLong(2L)
+										.addFunction(new PathFunctionBuilder(minusL).addLong(5L).build()).build()).build();
 		final PathNodeFilterSet compare =
-				PathNodeFilterSet.newRegularPathNodeFilterSet(new PredicateBuilder(equalsLL)
+				PathNodeFilterSet.newRegularPathNodeFilterSet(new PathPredicateBuilder(equalsLL)
 						.addLong(-10L)
 						.addFunction(
-								new FunctionBuilder(minusL).addFunction(
-										new FunctionBuilder(timesLL).addLong(2L).addLong(5L).build()).build())
+								new PathFunctionBuilder(minusL).addFunction(
+										new PathFunctionBuilder(timesLL).addLong(2L).addLong(5L).build()).build())
 						.buildFilter());
 		testEqualResult(originalPredicate, compare);
 	}
@@ -586,18 +586,18 @@ public class FunctionNormaliserTest {
 				FunctionDictionary.lookupPredicate(org.jamocha.function.impls.predicates.Equals.inClips,
 						SlotType.DOUBLE, SlotType.DOUBLE);
 		final PredicateWithArguments<PathLeaf> originalPredicate =
-				new PredicateBuilder(equalsDD)
+				new PathPredicateBuilder(equalsDD)
 						.addDouble(-10.)
 						.addFunction(
-								new FunctionBuilder(timesDD).addDouble(2.)
-										.addFunction(new FunctionBuilder(minusD).addDouble(5.).build()).build())
+								new PathFunctionBuilder(timesDD).addDouble(2.)
+										.addFunction(new PathFunctionBuilder(minusD).addDouble(5.).build()).build())
 						.build();
 		final PathNodeFilterSet compare =
-				PathNodeFilterSet.newRegularPathNodeFilterSet(new PredicateBuilder(equalsDD)
+				PathNodeFilterSet.newRegularPathNodeFilterSet(new PathPredicateBuilder(equalsDD)
 						.addDouble(-10.)
 						.addFunction(
-								new FunctionBuilder(minusD).addFunction(
-										new FunctionBuilder(timesDD).addDouble(2.).addDouble(5.).build()).build())
+								new PathFunctionBuilder(minusD).addFunction(
+										new PathFunctionBuilder(timesDD).addDouble(2.).addDouble(5.).build()).build())
 						.buildFilter());
 		testEqualResult(originalPredicate, compare);
 	}
@@ -615,15 +615,15 @@ public class FunctionNormaliserTest {
 				FunctionDictionary.lookupPredicate(org.jamocha.function.impls.predicates.Equals.inClips, SlotType.LONG,
 						SlotType.LONG);
 		final PredicateWithArguments<PathLeaf> originalPredicate =
-				new PredicateBuilder(equalsLL)
+				new PathPredicateBuilder(equalsLL)
 						.addLong(10L)
 						.addFunction(
-								new FunctionBuilder(timesLL)
-										.addFunction(new FunctionBuilder(minusL).addLong(2L).build())
-										.addFunction(new FunctionBuilder(minusL).addLong(5L).build()).build()).build();
+								new PathFunctionBuilder(timesLL)
+										.addFunction(new PathFunctionBuilder(minusL).addLong(2L).build())
+										.addFunction(new PathFunctionBuilder(minusL).addLong(5L).build()).build()).build();
 		final PathNodeFilterSet compare =
-				PathNodeFilterSet.newRegularPathNodeFilterSet(new PredicateBuilder(equalsLL).addLong(10L)
-						.addFunction(new FunctionBuilder(timesLL).addLong(2L).addLong(5L).build()).buildFilter());
+				PathNodeFilterSet.newRegularPathNodeFilterSet(new PathPredicateBuilder(equalsLL).addLong(10L)
+						.addFunction(new PathFunctionBuilder(timesLL).addLong(2L).addLong(5L).build()).buildFilter());
 		testEqualResult(originalPredicate, compare);
 	}
 
@@ -640,16 +640,16 @@ public class FunctionNormaliserTest {
 				FunctionDictionary.lookupPredicate(org.jamocha.function.impls.predicates.Equals.inClips,
 						SlotType.DOUBLE, SlotType.DOUBLE);
 		final PredicateWithArguments<PathLeaf> originalPredicate =
-				new PredicateBuilder(equalsDD)
+				new PathPredicateBuilder(equalsDD)
 						.addDouble(10.)
 						.addFunction(
-								new FunctionBuilder(timesDD)
-										.addFunction(new FunctionBuilder(minusD).addDouble(2.).build())
-										.addFunction(new FunctionBuilder(minusD).addDouble(5.).build()).build())
+								new PathFunctionBuilder(timesDD)
+										.addFunction(new PathFunctionBuilder(minusD).addDouble(2.).build())
+										.addFunction(new PathFunctionBuilder(minusD).addDouble(5.).build()).build())
 						.build();
 		final PathNodeFilterSet compare =
-				PathNodeFilterSet.newRegularPathNodeFilterSet(new PredicateBuilder(equalsDD).addDouble(10.)
-						.addFunction(new FunctionBuilder(timesDD).addDouble(2.).addDouble(5.).build()).buildFilter());
+				PathNodeFilterSet.newRegularPathNodeFilterSet(new PathPredicateBuilder(equalsDD).addDouble(10.)
+						.addFunction(new PathFunctionBuilder(timesDD).addDouble(2.).addDouble(5.).build()).buildFilter());
 		testEqualResult(originalPredicate, compare);
 	}
 
@@ -663,9 +663,9 @@ public class FunctionNormaliserTest {
 				FunctionDictionary.lookupPredicate(org.jamocha.function.impls.predicates.Less.inClips, SlotType.LONG,
 						SlotType.LONG);
 		final PredicateWithArguments<PathLeaf> originalPredicate =
-				new PredicateBuilder(greaterLL).addLong(20L).addLong(10L).build();
+				new PathPredicateBuilder(greaterLL).addLong(20L).addLong(10L).build();
 		final PathNodeFilterSet compare =
-				PathNodeFilterSet.newRegularPathNodeFilterSet(new PredicateBuilder(lessLL).addLong(10L).addLong(20L)
+				PathNodeFilterSet.newRegularPathNodeFilterSet(new PathPredicateBuilder(lessLL).addLong(10L).addLong(20L)
 						.buildFilter());
 		testEqualResult(originalPredicate, compare);
 	}
@@ -680,9 +680,9 @@ public class FunctionNormaliserTest {
 				FunctionDictionary.lookupPredicate(org.jamocha.function.impls.predicates.Less.inClips, SlotType.DOUBLE,
 						SlotType.DOUBLE);
 		final PredicateWithArguments<PathLeaf> originalPredicate =
-				new PredicateBuilder(greaterDD).addDouble(20.).addDouble(10.).build();
+				new PathPredicateBuilder(greaterDD).addDouble(20.).addDouble(10.).build();
 		final PathNodeFilterSet compare =
-				PathNodeFilterSet.newRegularPathNodeFilterSet(new PredicateBuilder(lessDD).addDouble(10.)
+				PathNodeFilterSet.newRegularPathNodeFilterSet(new PathPredicateBuilder(lessDD).addDouble(10.)
 						.addDouble(20.).buildFilter());
 		testEqualResult(originalPredicate, compare);
 	}
@@ -699,10 +699,10 @@ public class FunctionNormaliserTest {
 		final Predicate notB =
 				FunctionDictionary.lookupPredicate(org.jamocha.function.impls.predicates.Not.inClips, SlotType.BOOLEAN);
 		final PredicateWithArguments<PathLeaf> originalPredicate =
-				new PredicateBuilder(leqLL).addLong(10L).addLong(20L).build();
+				new PathPredicateBuilder(leqLL).addLong(10L).addLong(20L).build();
 		final PathNodeFilterSet compare =
-				PathNodeFilterSet.newRegularPathNodeFilterSet(new PredicateBuilder(notB).addFunction(
-						new PredicateBuilder(lessLL).addLong(20L).addLong(10L).build()).buildFilter());
+				PathNodeFilterSet.newRegularPathNodeFilterSet(new PathPredicateBuilder(notB).addFunction(
+						new PathPredicateBuilder(lessLL).addLong(20L).addLong(10L).build()).buildFilter());
 		testEqualResult(originalPredicate, compare);
 	}
 
@@ -718,10 +718,10 @@ public class FunctionNormaliserTest {
 		final Predicate notB =
 				FunctionDictionary.lookupPredicate(org.jamocha.function.impls.predicates.Not.inClips, SlotType.BOOLEAN);
 		final PredicateWithArguments<PathLeaf> originalPredicate =
-				new PredicateBuilder(leqDD).addDouble(10.).addDouble(20.).build();
+				new PathPredicateBuilder(leqDD).addDouble(10.).addDouble(20.).build();
 		final PathNodeFilterSet compare =
-				PathNodeFilterSet.newRegularPathNodeFilterSet(new PredicateBuilder(notB).addFunction(
-						new PredicateBuilder(lessDD).addDouble(20.).addDouble(10.).build()).buildFilter());
+				PathNodeFilterSet.newRegularPathNodeFilterSet(new PathPredicateBuilder(notB).addFunction(
+						new PathPredicateBuilder(lessDD).addDouble(20.).addDouble(10.).build()).buildFilter());
 		testEqualResult(originalPredicate, compare);
 	}
 
@@ -737,10 +737,10 @@ public class FunctionNormaliserTest {
 		final Predicate notB =
 				FunctionDictionary.lookupPredicate(org.jamocha.function.impls.predicates.Not.inClips, SlotType.BOOLEAN);
 		final PredicateWithArguments<PathLeaf> originalPredicate =
-				new PredicateBuilder(geqLL).addLong(20L).addLong(10L).build();
+				new PathPredicateBuilder(geqLL).addLong(20L).addLong(10L).build();
 		final PathNodeFilterSet compare =
-				PathNodeFilterSet.newRegularPathNodeFilterSet(new PredicateBuilder(notB).addFunction(
-						new PredicateBuilder(lessLL).addLong(20L).addLong(10L).build()).buildFilter());
+				PathNodeFilterSet.newRegularPathNodeFilterSet(new PathPredicateBuilder(notB).addFunction(
+						new PathPredicateBuilder(lessLL).addLong(20L).addLong(10L).build()).buildFilter());
 		testEqualResult(originalPredicate, compare);
 	}
 
@@ -756,10 +756,10 @@ public class FunctionNormaliserTest {
 		final Predicate notB =
 				FunctionDictionary.lookupPredicate(org.jamocha.function.impls.predicates.Not.inClips, SlotType.BOOLEAN);
 		final PredicateWithArguments<PathLeaf> originalPredicate =
-				new PredicateBuilder(geqDD).addDouble(20.).addDouble(10.).build();
+				new PathPredicateBuilder(geqDD).addDouble(20.).addDouble(10.).build();
 		final PathNodeFilterSet compare =
-				PathNodeFilterSet.newRegularPathNodeFilterSet(new PredicateBuilder(notB).addFunction(
-						new PredicateBuilder(lessDD).addDouble(20.).addDouble(10.).build()).buildFilter());
+				PathNodeFilterSet.newRegularPathNodeFilterSet(new PathPredicateBuilder(notB).addFunction(
+						new PathPredicateBuilder(lessDD).addDouble(20.).addDouble(10.).build()).buildFilter());
 		testEqualResult(originalPredicate, compare);
 	}
 
@@ -786,30 +786,30 @@ public class FunctionNormaliserTest {
 				FunctionDictionary.lookupPredicate(org.jamocha.function.impls.predicates.Equals.inClips,
 						SlotType.DOUBLE, SlotType.DOUBLE);
 		final PredicateWithArguments<PathLeaf> originalPredicate =
-				new PredicateBuilder(equalsDD)
+				new PathPredicateBuilder(equalsDD)
 						.addDouble(12.)
 						.addFunction(
-								new FunctionBuilder(timesDD)
+								new PathFunctionBuilder(timesDD)
 										.addFunction(
-												new FunctionBuilder(plusDD)
-														.addFunction(new FunctionBuilder(minusD).addDouble(5.).build())
+												new PathFunctionBuilder(plusDD)
+														.addFunction(new PathFunctionBuilder(minusD).addDouble(5.).build())
 														.addDouble(7.).build())
-										.addFunction(new FunctionBuilder(minusDD).addDouble(9).addDouble(3).build())
+										.addFunction(new PathFunctionBuilder(minusDD).addDouble(9).addDouble(3).build())
 										.build()).build();
 		final PathNodeFilterSet compare =
-				PathNodeFilterSet.newRegularPathNodeFilterSet(new PredicateBuilder(equalsDD)
+				PathNodeFilterSet.newRegularPathNodeFilterSet(new PathPredicateBuilder(equalsDD)
 						.addDouble(12.)
 						.addFunction(
-								new FunctionBuilder(plusDDDD)
+								new PathFunctionBuilder(plusDDDD)
 										.addFunction(
-												new FunctionBuilder(minusD).addFunction(
-														new FunctionBuilder(timesDD).addDouble(5.).addDouble(9.)
+												new PathFunctionBuilder(minusD).addFunction(
+														new PathFunctionBuilder(timesDD).addDouble(5.).addDouble(9.)
 																.build()).build())
-										.addFunction(new FunctionBuilder(timesDD).addDouble(5.).addDouble(3.).build())
-										.addFunction(new FunctionBuilder(timesDD).addDouble(7.).addDouble(9.).build())
+										.addFunction(new PathFunctionBuilder(timesDD).addDouble(5.).addDouble(3.).build())
+										.addFunction(new PathFunctionBuilder(timesDD).addDouble(7.).addDouble(9.).build())
 										.addFunction(
-												new FunctionBuilder(minusD).addFunction(
-														new FunctionBuilder(timesDD).addDouble(7.).addDouble(3.)
+												new PathFunctionBuilder(minusD).addFunction(
+														new PathFunctionBuilder(timesDD).addDouble(7.).addDouble(3.)
 																.build()).build()).build()).buildFilter());
 		testEqualResult(originalPredicate, compare);
 	}
@@ -853,85 +853,85 @@ public class FunctionNormaliserTest {
 		final Double a = 7., b = 4., c = 8., d = 3., e = 5., f = 5., g = 7., h = 2., i = 7., j = 1., k = 9.;
 		final Double l = (-a + b) * (c - d) * (e + f + g + h * i * j) * k;
 		final PredicateWithArguments<PathLeaf> originalPredicate =
-				new PredicateBuilder(equalsDD)
+				new PathPredicateBuilder(equalsDD)
 						.addDouble(l)
 						.addFunction(
-								new FunctionBuilder(timesDDDD)
+								new PathFunctionBuilder(timesDDDD)
 										.addFunction(
-												new FunctionBuilder(plusDD)
-														.addFunction(new FunctionBuilder(minusD).addDouble(a).build())
+												new PathFunctionBuilder(plusDD)
+														.addFunction(new PathFunctionBuilder(minusD).addDouble(a).build())
 														.addDouble(b).build())
-										.addFunction(new FunctionBuilder(minusDD).addDouble(c).addDouble(d).build())
+										.addFunction(new PathFunctionBuilder(minusDD).addDouble(c).addDouble(d).build())
 										.addFunction(
-												new FunctionBuilder(plusDDDD)
+												new PathFunctionBuilder(plusDDDD)
 														.addDouble(e)
 														.addDouble(f)
 														.addDouble(g)
 														.addFunction(
-																new FunctionBuilder(timesDDD).addDouble(h).addDouble(i)
+																new PathFunctionBuilder(timesDDD).addDouble(h).addDouble(i)
 																		.addDouble(j).build()).build()).addDouble(k)
 										.build()).build();
 		final PathNodeFilterSet compare =
-				PathNodeFilterSet.newRegularPathNodeFilterSet(new PredicateBuilder(equalsDD)
+				PathNodeFilterSet.newRegularPathNodeFilterSet(new PathPredicateBuilder(equalsDD)
 						.addDouble(l)
 						.addFunction(
-								new FunctionBuilder(plusD16)
+								new PathFunctionBuilder(plusD16)
 										.addFunction(
-												new FunctionBuilder(minusD).addFunction(
-														new FunctionBuilder(timesDDDD).addDouble(a).addDouble(c)
+												new PathFunctionBuilder(minusD).addFunction(
+														new PathFunctionBuilder(timesDDDD).addDouble(a).addDouble(c)
 																.addDouble(e).addDouble(k).build()).build())
 										.addFunction(
-												new FunctionBuilder(minusD).addFunction(
-														new FunctionBuilder(timesDDDD).addDouble(a).addDouble(c)
+												new PathFunctionBuilder(minusD).addFunction(
+														new PathFunctionBuilder(timesDDDD).addDouble(a).addDouble(c)
 																.addDouble(f).addDouble(k).build()).build())
 										.addFunction(
-												new FunctionBuilder(minusD).addFunction(
-														new FunctionBuilder(timesDDDD).addDouble(a).addDouble(c)
+												new PathFunctionBuilder(minusD).addFunction(
+														new PathFunctionBuilder(timesDDDD).addDouble(a).addDouble(c)
 																.addDouble(g).addDouble(k).build()).build())
 										.addFunction(
-												new FunctionBuilder(minusD).addFunction(
-														new FunctionBuilder(timesDDDDDD).addDouble(a).addDouble(c)
+												new PathFunctionBuilder(minusD).addFunction(
+														new PathFunctionBuilder(timesDDDDDD).addDouble(a).addDouble(c)
 																.addDouble(h).addDouble(i).addDouble(j).addDouble(k)
 																.build()).build())
 										.addFunction(
-												new FunctionBuilder(timesDDDD).addDouble(a).addDouble(d).addDouble(e)
+												new PathFunctionBuilder(timesDDDD).addDouble(a).addDouble(d).addDouble(e)
 														.addDouble(k).build())
 										.addFunction(
-												new FunctionBuilder(timesDDDD).addDouble(a).addDouble(d).addDouble(f)
+												new PathFunctionBuilder(timesDDDD).addDouble(a).addDouble(d).addDouble(f)
 														.addDouble(k).build())
 										.addFunction(
-												new FunctionBuilder(timesDDDD).addDouble(a).addDouble(d).addDouble(g)
+												new PathFunctionBuilder(timesDDDD).addDouble(a).addDouble(d).addDouble(g)
 														.addDouble(k).build())
 										.addFunction(
-												new FunctionBuilder(timesDDDDDD).addDouble(a).addDouble(d).addDouble(h)
+												new PathFunctionBuilder(timesDDDDDD).addDouble(a).addDouble(d).addDouble(h)
 														.addDouble(i).addDouble(j).addDouble(k).build())
 										.addFunction(
-												new FunctionBuilder(timesDDDD).addDouble(b).addDouble(c).addDouble(e)
+												new PathFunctionBuilder(timesDDDD).addDouble(b).addDouble(c).addDouble(e)
 														.addDouble(k).build())
 										.addFunction(
-												new FunctionBuilder(timesDDDD).addDouble(b).addDouble(c).addDouble(f)
+												new PathFunctionBuilder(timesDDDD).addDouble(b).addDouble(c).addDouble(f)
 														.addDouble(k).build())
 										.addFunction(
-												new FunctionBuilder(timesDDDD).addDouble(b).addDouble(c).addDouble(g)
+												new PathFunctionBuilder(timesDDDD).addDouble(b).addDouble(c).addDouble(g)
 														.addDouble(k).build())
 										.addFunction(
-												new FunctionBuilder(timesDDDDDD).addDouble(b).addDouble(c).addDouble(h)
+												new PathFunctionBuilder(timesDDDDDD).addDouble(b).addDouble(c).addDouble(h)
 														.addDouble(i).addDouble(j).addDouble(k).build())
 										.addFunction(
-												new FunctionBuilder(minusD).addFunction(
-														new FunctionBuilder(timesDDDD).addDouble(b).addDouble(d)
+												new PathFunctionBuilder(minusD).addFunction(
+														new PathFunctionBuilder(timesDDDD).addDouble(b).addDouble(d)
 																.addDouble(e).addDouble(k).build()).build())
 										.addFunction(
-												new FunctionBuilder(minusD).addFunction(
-														new FunctionBuilder(timesDDDD).addDouble(b).addDouble(d)
+												new PathFunctionBuilder(minusD).addFunction(
+														new PathFunctionBuilder(timesDDDD).addDouble(b).addDouble(d)
 																.addDouble(f).addDouble(k).build()).build())
 										.addFunction(
-												new FunctionBuilder(minusD).addFunction(
-														new FunctionBuilder(timesDDDD).addDouble(b).addDouble(d)
+												new PathFunctionBuilder(minusD).addFunction(
+														new PathFunctionBuilder(timesDDDD).addDouble(b).addDouble(d)
 																.addDouble(g).addDouble(k).build()).build())
 										.addFunction(
-												new FunctionBuilder(minusD).addFunction(
-														new FunctionBuilder(timesDDDDDD).addDouble(b).addDouble(d)
+												new PathFunctionBuilder(minusD).addFunction(
+														new PathFunctionBuilder(timesDDDDDD).addDouble(b).addDouble(d)
 																.addDouble(h).addDouble(i).addDouble(j).addDouble(k)
 																.build()).build()).build()).buildFilter());
 		testEqualResult(originalPredicate, compare);
@@ -982,8 +982,8 @@ public class FunctionNormaliserTest {
 		final PathNodeFilterSet original =
 				PathNodeFilterSet
 						.newRegularPathNodeFilterSet(
-								new PredicateBuilder(equalsLL).addLong(7L)
-										.addFunction(new FunctionBuilder(plusLL).addLong(6L).addLong(1L).build())
+								new PathPredicateBuilder(equalsLL).addLong(7L)
+										.addFunction(new PathFunctionBuilder(plusLL).addLong(6L).addLong(1L).build())
 										.buildFilter()).normalise();
 		@SuppressWarnings("unchecked")
 		final FunctionWithArguments<PathLeaf>[] args =
@@ -1013,29 +1013,29 @@ public class FunctionNormaliserTest {
 						SlotType.LONG);
 		final PathNodeFilterSet original =
 				PathNodeFilterSet.newRegularPathNodeFilterSet(
-						new PredicateBuilder(equalsLL)
+						new PathPredicateBuilder(equalsLL)
 								.addLong(44L)
 								.addFunction(
-										new FunctionBuilder(plusLLL)
+										new PathFunctionBuilder(plusLLL)
 												.addFunction(
-														new FunctionBuilder(timesLL).addLong(3L).addLong(4L).build())
+														new PathFunctionBuilder(timesLL).addLong(3L).addLong(4L).build())
 												.addFunction(
-														new FunctionBuilder(timesLL).addLong(5L).addLong(6L).build())
+														new PathFunctionBuilder(timesLL).addLong(5L).addLong(6L).build())
 												.addFunction(
-														new FunctionBuilder(timesLL).addLong(1L).addLong(2L).build())
+														new PathFunctionBuilder(timesLL).addLong(1L).addLong(2L).build())
 												.build()).buildFilter()).normalise();
 		final PathNodeFilterSet compare =
 				PathNodeFilterSet.newRegularPathNodeFilterSet(
-						new PredicateBuilder(equalsLL)
+						new PathPredicateBuilder(equalsLL)
 								.addLong(44L)
 								.addFunction(
-										new FunctionBuilder(plusLLL)
+										new PathFunctionBuilder(plusLLL)
 												.addFunction(
-														new FunctionBuilder(timesLL).addLong(1L).addLong(2L).build())
+														new PathFunctionBuilder(timesLL).addLong(1L).addLong(2L).build())
 												.addFunction(
-														new FunctionBuilder(timesLL).addLong(3L).addLong(4L).build())
+														new PathFunctionBuilder(timesLL).addLong(3L).addLong(4L).build())
 												.addFunction(
-														new FunctionBuilder(timesLL).addLong(5L).addLong(6L).build())
+														new PathFunctionBuilder(timesLL).addLong(5L).addLong(6L).build())
 												.build()).buildFilter()).normalise();
 		assertTrue(FilterFunctionCompare.equals(PathNodeFilterSetToAddressNodeFilterSetTranslator.translate(compare,
 				CounterColumnMatcherMockup.counterColumnMatcherMockup),

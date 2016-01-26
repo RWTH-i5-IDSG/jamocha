@@ -31,9 +31,9 @@ import org.jamocha.function.impls.predicates.Equals;
 import org.jamocha.function.impls.predicates.Less;
 import org.jamocha.languages.clips.parser.generated.ParseException;
 
-import test.jamocha.util.FunctionBuilder;
-import test.jamocha.util.PathRuleBuilder;
-import test.jamocha.util.PredicateBuilder;
+import test.jamocha.util.builder.fwa.PathFunctionBuilder;
+import test.jamocha.util.builder.rule.PathRuleBuilder;
+import test.jamocha.util.builder.fwa.PathPredicateBuilder;
 import test.jamocha.util.Slots;
 
 /**
@@ -143,7 +143,7 @@ public class FactEquality {
 		final PathFilter r3_f2 = createFilter(r3_b, s2, r3_c, s1, plus, less);
 
 		final PathFilter r2_fe =
-				new PredicateBuilder(FunctionDictionary.lookupPredicate(Equals.inClips, SlotType.FACTADDRESS,
+				new PathPredicateBuilder(FunctionDictionary.lookupPredicate(Equals.inClips, SlotType.FACTADDRESS,
 						SlotType.FACTADDRESS)).addPath(r2_b, null).addPath(r2_bprime, null).buildFilter();
 
 		final PathRule r1 = new PathRuleBuilder("r1").add(r1_f1).build();
@@ -156,8 +156,8 @@ public class FactEquality {
 
 	private static PathFilter createFilter(final Path p_a, final SlotAddress a_s, final Path p_b,
 			final SlotAddress b_s, final Function<?> inner, final Predicate outer) {
-		return new PredicateBuilder(outer)
-				.addFunction(new FunctionBuilder(inner).addPath(p_a, a_s).addPath(p_b, b_s).build()).addLong(101)
+		return new PathPredicateBuilder(outer)
+				.addFunction(new PathFunctionBuilder(inner).addPath(p_a, a_s).addPath(p_b, b_s).build()).addLong(101)
 				.buildFilter();
 	}
 

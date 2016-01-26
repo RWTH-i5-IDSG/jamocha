@@ -63,8 +63,8 @@ import org.junit.Test;
 import test.jamocha.filter.FilterMockup;
 import test.jamocha.filter.FilterMockup.PathAndSlotAddress;
 import test.jamocha.util.AssertsAndRetracts;
-import test.jamocha.util.FunctionBuilder;
-import test.jamocha.util.PredicateBuilder;
+import test.jamocha.util.builder.fwa.PathFunctionBuilder;
+import test.jamocha.util.builder.fwa.PathPredicateBuilder;
 import test.jamocha.util.Slots;
 
 /**
@@ -128,22 +128,22 @@ public class TokenProcessingTest {
 		// get the (old) students with hobby "Coding", for which there are younger (semester-wise)
 		// students in the same course of study, but who lack a professor for their course of study
 		final List<PathFilterList> filter =
-				Arrays.asList(PathNodeFilterSet.newRegularPathNodeFilterSet(new PredicateBuilder(eqStrStr)
+				Arrays.asList(PathNodeFilterSet.newRegularPathNodeFilterSet(new PathPredicateBuilder(eqStrStr)
 						.addPath(oldStudent, studentHobby).addConstant("Coding", SlotType.STRING).buildFilter()),
 						PathNodeFilterSet.newExistentialPathNodeFilterSet(
 								false,
 								existentialYoungStudent,
-								new PredicateBuilder(and)
+								new PathPredicateBuilder(and)
 										.addFunction(
-												new PredicateBuilder(lessLongLong).addPath(youngStudent, studentSem)
+												new PathPredicateBuilder(lessLongLong).addPath(youngStudent, studentSem)
 														.addPath(oldStudent, studentSem).build())
 										.addFunction(
-												new PredicateBuilder(eqStrStr).addPath(youngStudent, studentSG)
+												new PathPredicateBuilder(eqStrStr).addPath(youngStudent, studentSG)
 														.addPath(oldStudent, studentSG).build()).buildFilter()),
 						PathNodeFilterSet.newExistentialPathNodeFilterSet(
 								true,
 								negatedExistentialMatchingProf,
-								new PredicateBuilder(eqStrStr).addPath(oldStudent, studentSG)
+								new PathPredicateBuilder(eqStrStr).addPath(oldStudent, studentSG)
 										.addPath(matchingProf, profSG).buildFilter()));
 
 		final TerminalNode terminal =
@@ -237,9 +237,9 @@ public class TokenProcessingTest {
 				Arrays.asList(PathNodeFilterSet.newExistentialPathNodeFilterSet(
 						new HashSet<Path>(Arrays.asList(p2)),
 						new HashSet<Path>(),
-						new PredicateBuilder(and)
-								.addFunction(new PredicateBuilder(eqStrStr).addPath(p1, s1).addPath(p2, s1).build())
-								.addFunction(new PredicateBuilder(eqBoolBool).addBoolean(false).addPath(p2, s2).build())
+						new PathPredicateBuilder(and)
+								.addFunction(new PathPredicateBuilder(eqStrStr).addPath(p1, s1).addPath(p2, s1).build())
+								.addFunction(new PathPredicateBuilder(eqBoolBool).addBoolean(false).addPath(p2, s2).build())
 								.buildFilter()));
 
 		final TerminalNode terminal =
@@ -310,11 +310,11 @@ public class TokenProcessingTest {
 						.newExistentialPathNodeFilterSet(
 								new HashSet<Path>(),
 								new HashSet<Path>(Arrays.asList(p2)),
-								new PredicateBuilder(and)
+								new PathPredicateBuilder(and)
 										.addFunction(
-												new PredicateBuilder(eqStrStr).addPath(p1, s1).addPath(p2, s1).build())
+												new PathPredicateBuilder(eqStrStr).addPath(p1, s1).addPath(p2, s1).build())
 										.addFunction(
-												new PredicateBuilder(eqBoolBool).addBoolean(false).addPath(p2, s2)
+												new PathPredicateBuilder(eqBoolBool).addBoolean(false).addPath(p2, s2)
 														.build()).buildFilter()));
 
 		final TerminalNode terminal =
@@ -387,9 +387,9 @@ public class TokenProcessingTest {
 
 		final List<PathFilterList> filter =
 				Arrays.asList(PathNodeFilterSet.newRegularPathNodeFilterSet(
-						new PredicateBuilder(lessLongLong).addPath(youngStudent, studentSem)
+						new PathPredicateBuilder(lessLongLong).addPath(youngStudent, studentSem)
 								.addPath(oldStudent, studentSem).buildFilter(),
-						new PredicateBuilder(eqStrStr).addPath(youngStudent, studentSG).addPath(oldStudent, studentSG)
+						new PathPredicateBuilder(eqStrStr).addPath(youngStudent, studentSG).addPath(oldStudent, studentSG)
 								.buildFilter()));
 
 		network.buildRule(new Defrule("dummyrule", "", 0, (RuleCondition) null, new ArrayList<>()).newTranslated(
@@ -451,14 +451,14 @@ public class TokenProcessingTest {
 		final List<PathFilterList> filter =
 				Arrays.asList(
 						PathNodeFilterSet
-								.newRegularPathNodeFilterSet(new PredicateBuilder(eqStrStr)
+								.newRegularPathNodeFilterSet(new PathPredicateBuilder(eqStrStr)
 										.addPath(oldStudent, studentHobby).addConstant("Coding", SlotType.STRING)
 										.buildFilter()),
 						PathNodeFilterSet.newRegularPathNodeFilterSet(
-								new PredicateBuilder(lessLongLong).addPath(youngStudent, studentSem)
-										.addPath(oldStudent, studentSem).buildFilter(), new PredicateBuilder(eqStrStr)
+								new PathPredicateBuilder(lessLongLong).addPath(youngStudent, studentSem)
+										.addPath(oldStudent, studentSem).buildFilter(), new PathPredicateBuilder(eqStrStr)
 										.addPath(youngStudent, studentSG).addPath(oldStudent, studentSG).buildFilter()),
-						PathNodeFilterSet.newRegularPathNodeFilterSet(new PredicateBuilder(eqStrStr)
+						PathNodeFilterSet.newRegularPathNodeFilterSet(new PathPredicateBuilder(eqStrStr)
 								.addPath(youngStudent, studentSG).addPath(matchingProf, profSG).buildFilter()));
 
 		network.buildRule(new Defrule("dummyrule", "", 0, (RuleCondition) null, new ArrayList<>()).newTranslated(
@@ -529,14 +529,14 @@ public class TokenProcessingTest {
 		final List<PathFilterList> filter =
 				Arrays.asList(
 						PathNodeFilterSet
-								.newRegularPathNodeFilterSet(new PredicateBuilder(eqStrStr)
+								.newRegularPathNodeFilterSet(new PathPredicateBuilder(eqStrStr)
 										.addPath(oldStudent, studentHobby).addConstant("Coding", SlotType.STRING)
 										.buildFilter()),
 						PathNodeFilterSet.newRegularPathNodeFilterSet(
-								new PredicateBuilder(lessLongLong).addPath(youngStudent, studentSem)
-										.addPath(oldStudent, studentSem).buildFilter(), new PredicateBuilder(eqStrStr)
+								new PathPredicateBuilder(lessLongLong).addPath(youngStudent, studentSem)
+										.addPath(oldStudent, studentSem).buildFilter(), new PathPredicateBuilder(eqStrStr)
 										.addPath(youngStudent, studentSG).addPath(oldStudent, studentSG).buildFilter()),
-						PathNodeFilterSet.newRegularPathNodeFilterSet(new PredicateBuilder(eqStrStr)
+						PathNodeFilterSet.newRegularPathNodeFilterSet(new PathPredicateBuilder(eqStrStr)
 								.addPath(youngStudent, studentSG).addPath(matchingProf, profSG).buildFilter()));
 
 		network.buildRule(new Defrule("dummyrule", "", 0, (RuleCondition) null, new ArrayList<>()).newTranslated(
@@ -592,7 +592,7 @@ public class TokenProcessingTest {
 		final Predicate eqStrStr = FunctionDictionary.lookupPredicate("=", SlotType.STRING, SlotType.STRING);
 
 		final List<PathFilterList> filter =
-				Arrays.asList(PathNodeFilterSet.newRegularPathNodeFilterSet(new PredicateBuilder(eqStrStr)
+				Arrays.asList(PathNodeFilterSet.newRegularPathNodeFilterSet(new PathPredicateBuilder(eqStrStr)
 						.addPath(p1, slotStr).addPath(p2, slotStr).buildFilter()));
 		network.buildRule(new Defrule("dummyrule", "", 0, (RuleCondition) null, new ArrayList<>()).newTranslated(
 				filter, (Map<EquivalenceClass, FunctionWithArguments<PathLeaf>>) null));
@@ -638,10 +638,10 @@ public class TokenProcessingTest {
 		final Predicate eqBoolBool = FunctionDictionary.lookupPredicate("=", SlotType.BOOLEAN, SlotType.BOOLEAN);
 
 		final List<PathFilterList> filter =
-				Arrays.asList(PathNodeFilterSet.newRegularPathNodeFilterSet(new PredicateBuilder(eqBoolBool)
+				Arrays.asList(PathNodeFilterSet.newRegularPathNodeFilterSet(new PathPredicateBuilder(eqBoolBool)
 						.addPath(p1, slotBool)
 						.addFunction(
-								new FunctionBuilder(lessLongLong).addPath(p1, slotLong).addConstant(3L, SlotType.LONG)
+								new PathFunctionBuilder(lessLongLong).addPath(p1, slotLong).addConstant(3L, SlotType.LONG)
 										.build()).buildFilter()));
 
 		network.buildRule(new Defrule("dummyrule", "", 0, (RuleCondition) null, new ArrayList<>()).newTranslated(
@@ -808,10 +808,10 @@ public class TokenProcessingTest {
 		final Predicate eqBoolBool = FunctionDictionary.lookupPredicate("=", SlotType.BOOLEAN, SlotType.BOOLEAN);
 
 		final PathNodeFilterSet filter =
-				PathNodeFilterSet.newRegularPathNodeFilterSet(new PredicateBuilder(eqBoolBool)
+				PathNodeFilterSet.newRegularPathNodeFilterSet(new PathPredicateBuilder(eqBoolBool)
 						.addPath(p1, slotBool)
 						.addFunction(
-								new FunctionBuilder(lessLongLong).addPath(p1, slotLong).addConstant(3L, SlotType.LONG)
+								new PathFunctionBuilder(lessLongLong).addPath(p1, slotLong).addConstant(3L, SlotType.LONG)
 										.build()).buildFilter());
 
 		network.buildRule(new Defrule("dummyrule", "", 0, (RuleCondition) null, new ArrayList<>()).newTranslated(

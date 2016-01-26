@@ -1,18 +1,15 @@
 /*
- * Copyright 2002-2015 The Jamocha Team
- * 
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
- * in compliance with the License. You may obtain a copy of the License at
- * 
+ * Copyright 2002-2016 The Jamocha Team
+ *
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at
+ *
  * http://www.jamocha.org/
- * 
- * Unless required by applicable law or agreed to in writing, software distributed under the License
- * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
- * or implied. See the License for the specific language governing permissions and limitations under
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package test.jamocha.util;
+package test.jamocha.util.builder.rule;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -37,6 +34,9 @@ import org.jamocha.function.fwa.PathLeaf;
 import org.jamocha.function.fwa.PredicateWithArguments;
 import org.jamocha.function.fwa.SymbolLeaf;
 import org.jamocha.languages.common.RuleCondition;
+import test.jamocha.util.builder.fwa.PathFunctionBuilder;
+import test.jamocha.util.builder.fwa.PathPredicateBuilder;
+import test.jamocha.util.Slots;
 
 /**
  * 
@@ -88,13 +88,13 @@ public class PathRuleBuilder {
 		final Predicate equals = FunctionDictionary.lookupPredicate("=", SlotType.DOUBLE, SlotType.DOUBLE);
 
 		final PathFilter f =
-				new PredicateBuilder(equals)
-						.addFunction(new FunctionBuilder(plus).addPath(p1, a1).addPath(p2, a2).build())
-						.addFunction(new FunctionBuilder(minus).addDouble(1337.).addPath(p3, a3).build()).buildFilter();
+				new PathPredicateBuilder(equals)
+						.addFunction(new PathFunctionBuilder(plus).addPath(p1, a1).addPath(p2, a2).build())
+						.addFunction(new PathFunctionBuilder(minus).addDouble(1337.).addPath(p3, a3).build()).buildFilter();
 		final PathFilter g =
-				new PredicateBuilder(equals)
-						.addFunction(new FunctionBuilder(plus).addPath(p1, a4).addPath(p2, a2).build())
-						.addFunction(new FunctionBuilder(minus).addDouble(1337.).addPath(p3, a3).build()).buildFilter();
+				new PathPredicateBuilder(equals)
+						.addFunction(new PathFunctionBuilder(plus).addPath(p1, a4).addPath(p2, a2).build())
+						.addFunction(new PathFunctionBuilder(minus).addDouble(1337.).addPath(p3, a3).build()).buildFilter();
 
 		final PathRule asd = new PathRuleBuilder("asd").add(f).add(g).build();
 		network.buildRule(asd);

@@ -37,8 +37,8 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import test.jamocha.util.FunctionBuilder;
-import test.jamocha.util.PredicateBuilder;
+import test.jamocha.util.builder.fwa.PathFunctionBuilder;
+import test.jamocha.util.builder.fwa.PathPredicateBuilder;
 import test.jamocha.util.Slots;
 
 /**
@@ -97,14 +97,14 @@ public class UniformFunctionTranslatorTest {
 						SlotType.LONG);
 		final PathNodeFilterSet original =
 				PathNodeFilterSet.newRegularPathNodeFilterSet(new PathFilter(UniformFunctionTranslator
-						.translate(new PredicateBuilder(equalsLL).addLong(5L)
-								.addFunction(new FunctionBuilder(minusLL).addLong(6L).addLong(1L).build()).build())));
+						.translate(new PathPredicateBuilder(equalsLL).addLong(5L)
+								.addFunction(new PathFunctionBuilder(minusLL).addLong(6L).addLong(1L).build()).build())));
 		final PathNodeFilterSet compare =
-				PathNodeFilterSet.newRegularPathNodeFilterSet(new PredicateBuilder(equalsLL)
+				PathNodeFilterSet.newRegularPathNodeFilterSet(new PathPredicateBuilder(equalsLL)
 						.addLong(5L)
 						.addFunction(
-								new FunctionBuilder(plusLL).addLong(6)
-										.addFunction(new FunctionBuilder(minusL).addLong(1).build()).build())
+								new PathFunctionBuilder(plusLL).addLong(6)
+										.addFunction(new PathFunctionBuilder(minusL).addLong(1).build()).build())
 						.buildFilter());
 		assertTrue(FilterFunctionCompare.equals(
 				PathNodeFilterSetToAddressNodeFilterSetTranslator.translate(compare, counterColumnMatcherMockup),
@@ -134,15 +134,15 @@ public class UniformFunctionTranslatorTest {
 		final PathNodeFilterSet original =
 				PathNodeFilterSet
 						.newRegularPathNodeFilterSet(new PathFilter(UniformFunctionTranslator
-								.translate(new PredicateBuilder(equalsDD).addDouble(5.)
-										.addFunction(new FunctionBuilder(minusDD).addDouble(6.).addDouble(1.).build())
+								.translate(new PathPredicateBuilder(equalsDD).addDouble(5.)
+										.addFunction(new PathFunctionBuilder(minusDD).addDouble(6.).addDouble(1.).build())
 										.build())));
 		final PathNodeFilterSet compare =
-				PathNodeFilterSet.newRegularPathNodeFilterSet(new PredicateBuilder(equalsDD)
+				PathNodeFilterSet.newRegularPathNodeFilterSet(new PathPredicateBuilder(equalsDD)
 						.addDouble(5.)
 						.addFunction(
-								new FunctionBuilder(plusDD).addDouble(6.)
-										.addFunction(new FunctionBuilder(minusD).addDouble(1.).build()).build())
+								new PathFunctionBuilder(plusDD).addDouble(6.)
+										.addFunction(new PathFunctionBuilder(minusD).addDouble(1.).build()).build())
 						.buildFilter());
 		assertTrue(FilterFunctionCompare.equals(
 				PathNodeFilterSetToAddressNodeFilterSetTranslator.translate(compare, counterColumnMatcherMockup),
@@ -165,13 +165,13 @@ public class UniformFunctionTranslatorTest {
 						SlotType.LONG);
 		final PathNodeFilterSet original =
 				PathNodeFilterSet.newRegularPathNodeFilterSet(new PathFilter(UniformFunctionTranslator
-						.translate(new PredicateBuilder(equalsLL)
+						.translate(new PathPredicateBuilder(equalsLL)
 								.addLong(5L)
 								.addFunction(
-										new FunctionBuilder(minusL).addFunction(
-												new FunctionBuilder(minusL).addLong(5L).build()).build()).build())));
+										new PathFunctionBuilder(minusL).addFunction(
+												new PathFunctionBuilder(minusL).addLong(5L).build()).build()).build())));
 		final PathNodeFilterSet compare =
-				PathNodeFilterSet.newRegularPathNodeFilterSet(new PredicateBuilder(equalsLL).addLong(5L).addLong(5L)
+				PathNodeFilterSet.newRegularPathNodeFilterSet(new PathPredicateBuilder(equalsLL).addLong(5L).addLong(5L)
 						.buildFilter());
 		assertTrue(FilterFunctionCompare.equals(
 				PathNodeFilterSetToAddressNodeFilterSetTranslator.translate(compare, counterColumnMatcherMockup),
@@ -194,13 +194,13 @@ public class UniformFunctionTranslatorTest {
 						SlotType.DOUBLE, SlotType.DOUBLE);
 		final PathNodeFilterSet original =
 				PathNodeFilterSet.newRegularPathNodeFilterSet(new PathFilter(UniformFunctionTranslator
-						.translate(new PredicateBuilder(equalsDD)
+						.translate(new PathPredicateBuilder(equalsDD)
 								.addDouble(5.)
 								.addFunction(
-										new FunctionBuilder(minusD).addFunction(
-												new FunctionBuilder(minusD).addDouble(5.).build()).build()).build())));
+										new PathFunctionBuilder(minusD).addFunction(
+												new PathFunctionBuilder(minusD).addDouble(5.).build()).build()).build())));
 		final PathNodeFilterSet compare =
-				PathNodeFilterSet.newRegularPathNodeFilterSet(new PredicateBuilder(equalsDD).addDouble(5.)
+				PathNodeFilterSet.newRegularPathNodeFilterSet(new PathPredicateBuilder(equalsDD).addDouble(5.)
 						.addDouble(5.).buildFilter());
 		assertTrue(FilterFunctionCompare.equals(
 				PathNodeFilterSetToAddressNodeFilterSetTranslator.translate(compare, counterColumnMatcherMockup),
@@ -229,14 +229,14 @@ public class UniformFunctionTranslatorTest {
 						SlotType.LONG);
 		final PathNodeFilterSet original =
 				PathNodeFilterSet.newRegularPathNodeFilterSet(new PathFilter(UniformFunctionTranslator
-						.translate(new PredicateBuilder(equalsLL).addLong(5L)
-								.addFunction(new FunctionBuilder(divLL).addLong(7).addLong(5).build()).build())));
+						.translate(new PathPredicateBuilder(equalsLL).addLong(5L)
+								.addFunction(new PathFunctionBuilder(divLL).addLong(7).addLong(5).build()).build())));
 		final PathNodeFilterSet compare =
-				PathNodeFilterSet.newRegularPathNodeFilterSet(new PredicateBuilder(equalsLL)
+				PathNodeFilterSet.newRegularPathNodeFilterSet(new PathPredicateBuilder(equalsLL)
 						.addLong(5L)
 						.addFunction(
-								new FunctionBuilder(timesLL).addLong(7)
-										.addFunction(new FunctionBuilder(divL).addLong(5).build()).build())
+								new PathFunctionBuilder(timesLL).addLong(7)
+										.addFunction(new PathFunctionBuilder(divL).addLong(5).build()).build())
 						.buildFilter());
 		assertFalse(FilterFunctionCompare.equals(
 				PathNodeFilterSetToAddressNodeFilterSetTranslator.translate(compare, counterColumnMatcherMockup),
@@ -265,14 +265,14 @@ public class UniformFunctionTranslatorTest {
 						SlotType.DOUBLE, SlotType.DOUBLE);
 		final PathNodeFilterSet original =
 				PathNodeFilterSet.newRegularPathNodeFilterSet(new PathFilter(UniformFunctionTranslator
-						.translate(new PredicateBuilder(equalsDD).addDouble(5.)
-								.addFunction(new FunctionBuilder(divDD).addDouble(7.).addDouble(5.).build()).build())));
+						.translate(new PathPredicateBuilder(equalsDD).addDouble(5.)
+								.addFunction(new PathFunctionBuilder(divDD).addDouble(7.).addDouble(5.).build()).build())));
 		final PathNodeFilterSet compare =
-				PathNodeFilterSet.newRegularPathNodeFilterSet(new PredicateBuilder(equalsDD)
+				PathNodeFilterSet.newRegularPathNodeFilterSet(new PathPredicateBuilder(equalsDD)
 						.addDouble(5.)
 						.addFunction(
-								new FunctionBuilder(timesDD).addDouble(7.)
-										.addFunction(new FunctionBuilder(divD).addDouble(5.).build()).build())
+								new PathFunctionBuilder(timesDD).addDouble(7.)
+										.addFunction(new PathFunctionBuilder(divD).addDouble(5.).build()).build())
 						.buildFilter());
 		assertTrue(FilterFunctionCompare.equals(
 				PathNodeFilterSetToAddressNodeFilterSetTranslator.translate(compare, counterColumnMatcherMockup),
@@ -295,13 +295,13 @@ public class UniformFunctionTranslatorTest {
 						SlotType.LONG);
 		final PathNodeFilterSet original =
 				PathNodeFilterSet.newRegularPathNodeFilterSet(new PathFilter(UniformFunctionTranslator
-						.translate(new PredicateBuilder(equalsLL)
+						.translate(new PathPredicateBuilder(equalsLL)
 								.addLong(5L)
 								.addFunction(
-										new FunctionBuilder(divL).addFunction(
-												new FunctionBuilder(divL).addLong(5L).build()).build()).build())));
+										new PathFunctionBuilder(divL).addFunction(
+												new PathFunctionBuilder(divL).addLong(5L).build()).build()).build())));
 		final PathNodeFilterSet compare =
-				PathNodeFilterSet.newRegularPathNodeFilterSet(new PredicateBuilder(equalsLL).addLong(5L).addLong(5L)
+				PathNodeFilterSet.newRegularPathNodeFilterSet(new PathPredicateBuilder(equalsLL).addLong(5L).addLong(5L)
 						.buildFilter());
 		assertFalse(FilterFunctionCompare.equals(
 				PathNodeFilterSetToAddressNodeFilterSetTranslator.translate(compare, counterColumnMatcherMockup),
@@ -324,13 +324,13 @@ public class UniformFunctionTranslatorTest {
 						SlotType.DOUBLE, SlotType.DOUBLE);
 		final PathNodeFilterSet original =
 				PathNodeFilterSet.newRegularPathNodeFilterSet(new PathFilter(UniformFunctionTranslator
-						.translate(new PredicateBuilder(equalsDD)
+						.translate(new PathPredicateBuilder(equalsDD)
 								.addDouble(5.)
 								.addFunction(
-										new FunctionBuilder(divD).addFunction(
-												new FunctionBuilder(divD).addDouble(5.).build()).build()).build())));
+										new PathFunctionBuilder(divD).addFunction(
+												new PathFunctionBuilder(divD).addDouble(5.).build()).build()).build())));
 		final PathNodeFilterSet compare =
-				PathNodeFilterSet.newRegularPathNodeFilterSet(new PredicateBuilder(equalsDD).addDouble(5.)
+				PathNodeFilterSet.newRegularPathNodeFilterSet(new PathPredicateBuilder(equalsDD).addDouble(5.)
 						.addDouble(5.).buildFilter());
 		assertTrue(FilterFunctionCompare.equals(
 				PathNodeFilterSetToAddressNodeFilterSetTranslator.translate(compare, counterColumnMatcherMockup),
@@ -356,16 +356,16 @@ public class UniformFunctionTranslatorTest {
 						SlotType.LONG);
 		final PathNodeFilterSet original =
 				PathNodeFilterSet.newRegularPathNodeFilterSet(new PathFilter(UniformFunctionTranslator
-						.translate(new PredicateBuilder(equalsLL)
+						.translate(new PathPredicateBuilder(equalsLL)
 								.addLong(12L)
 								.addFunction(
-										new FunctionBuilder(plusLL)
+										new PathFunctionBuilder(plusLL)
 												.addFunction(
-														new FunctionBuilder(plusLL).addLong(5L).addLong(4L).build())
+														new PathFunctionBuilder(plusLL).addLong(5L).addLong(4L).build())
 												.addLong(3L).build()).build())));
 		final PathNodeFilterSet compare =
-				PathNodeFilterSet.newRegularPathNodeFilterSet(new PredicateBuilder(equalsLL).addLong(12L)
-						.addFunction(new FunctionBuilder(plusLLL).addLong(5L).addLong(4L).addLong(3L).build())
+				PathNodeFilterSet.newRegularPathNodeFilterSet(new PathPredicateBuilder(equalsLL).addLong(12L)
+						.addFunction(new PathFunctionBuilder(plusLLL).addLong(5L).addLong(4L).addLong(3L).build())
 						.buildFilter());
 		assertTrue(FilterFunctionCompare.equals(
 				PathNodeFilterSetToAddressNodeFilterSetTranslator.translate(compare, counterColumnMatcherMockup),
@@ -392,16 +392,16 @@ public class UniformFunctionTranslatorTest {
 		final PathNodeFilterSet original =
 				PathNodeFilterSet.newRegularPathNodeFilterSet(new PathFilter(
 						UniformFunctionTranslator
-								.translate(new PredicateBuilder(equalsDD)
+								.translate(new PathPredicateBuilder(equalsDD)
 										.addDouble(12.)
 										.addFunction(
-												new FunctionBuilder(plusDD)
+												new PathFunctionBuilder(plusDD)
 														.addFunction(
-																new FunctionBuilder(plusDD).addDouble(5.).addDouble(4.)
+																new PathFunctionBuilder(plusDD).addDouble(5.).addDouble(4.)
 																		.build()).addDouble(3.).build()).build())));
 		final PathNodeFilterSet compare =
-				PathNodeFilterSet.newRegularPathNodeFilterSet(new PredicateBuilder(equalsDD).addDouble(12.)
-						.addFunction(new FunctionBuilder(plusDDD).addDouble(5.).addDouble(4.).addDouble(3.).build())
+				PathNodeFilterSet.newRegularPathNodeFilterSet(new PathPredicateBuilder(equalsDD).addDouble(12.)
+						.addFunction(new PathFunctionBuilder(plusDDD).addDouble(5.).addDouble(4.).addDouble(3.).build())
 						.buildFilter());
 		assertTrue(FilterFunctionCompare.equals(
 				PathNodeFilterSetToAddressNodeFilterSetTranslator.translate(compare, counterColumnMatcherMockup),
@@ -427,17 +427,17 @@ public class UniformFunctionTranslatorTest {
 						SlotType.LONG);
 		final PathNodeFilterSet original =
 				PathNodeFilterSet.newRegularPathNodeFilterSet(new PathFilter(UniformFunctionTranslator
-						.translate(new PredicateBuilder(equalsLL)
+						.translate(new PathPredicateBuilder(equalsLL)
 								.addLong(12L)
 								.addFunction(
-										new FunctionBuilder(plusLL)
+										new PathFunctionBuilder(plusLL)
 												.addLong(5L)
 												.addFunction(
-														new FunctionBuilder(plusLL).addLong(4L).addLong(3L).build())
+														new PathFunctionBuilder(plusLL).addLong(4L).addLong(3L).build())
 												.build()).build())));
 		final PathNodeFilterSet compare =
-				PathNodeFilterSet.newRegularPathNodeFilterSet(new PredicateBuilder(equalsLL).addLong(12L)
-						.addFunction(new FunctionBuilder(plusLLL).addLong(5L).addLong(4L).addLong(3L).build())
+				PathNodeFilterSet.newRegularPathNodeFilterSet(new PathPredicateBuilder(equalsLL).addLong(12L)
+						.addFunction(new PathFunctionBuilder(plusLLL).addLong(5L).addLong(4L).addLong(3L).build())
 						.buildFilter());
 		assertTrue(FilterFunctionCompare.equals(
 				PathNodeFilterSetToAddressNodeFilterSetTranslator.translate(compare, counterColumnMatcherMockup),
@@ -464,17 +464,17 @@ public class UniformFunctionTranslatorTest {
 		final PathNodeFilterSet original =
 				PathNodeFilterSet.newRegularPathNodeFilterSet(new PathFilter(
 						UniformFunctionTranslator
-								.translate(new PredicateBuilder(equalsDD)
+								.translate(new PathPredicateBuilder(equalsDD)
 										.addDouble(12.)
 										.addFunction(
-												new FunctionBuilder(plusDD)
+												new PathFunctionBuilder(plusDD)
 														.addDouble(5.)
 														.addFunction(
-																new FunctionBuilder(plusDD).addDouble(4.).addDouble(3.)
+																new PathFunctionBuilder(plusDD).addDouble(4.).addDouble(3.)
 																		.build()).build()).build())));
 		final PathNodeFilterSet compare =
-				PathNodeFilterSet.newRegularPathNodeFilterSet(new PredicateBuilder(equalsDD).addDouble(12.)
-						.addFunction(new FunctionBuilder(plusDDD).addDouble(5.).addDouble(4.).addDouble(3.).build())
+				PathNodeFilterSet.newRegularPathNodeFilterSet(new PathPredicateBuilder(equalsDD).addDouble(12.)
+						.addFunction(new PathFunctionBuilder(plusDDD).addDouble(5.).addDouble(4.).addDouble(3.).build())
 						.buildFilter());
 		assertTrue(FilterFunctionCompare.equals(
 				PathNodeFilterSetToAddressNodeFilterSetTranslator.translate(compare, counterColumnMatcherMockup),
@@ -500,20 +500,20 @@ public class UniformFunctionTranslatorTest {
 						SlotType.LONG);
 		final PathNodeFilterSet original =
 				PathNodeFilterSet.newRegularPathNodeFilterSet(new PathFilter(UniformFunctionTranslator
-						.translate(new PredicateBuilder(equalsLL)
+						.translate(new PathPredicateBuilder(equalsLL)
 								.addLong(10L)
 								.addFunction(
-										new FunctionBuilder(plusLL)
+										new PathFunctionBuilder(plusLL)
 												.addFunction(
-														new FunctionBuilder(plusLL).addLong(1L).addLong(2L).build())
+														new PathFunctionBuilder(plusLL).addLong(1L).addLong(2L).build())
 												.addFunction(
-														new FunctionBuilder(plusLL).addLong(3L).addLong(4L).build())
+														new PathFunctionBuilder(plusLL).addLong(3L).addLong(4L).build())
 												.build()).build())));
 		final PathNodeFilterSet compare =
-				PathNodeFilterSet.newRegularPathNodeFilterSet(new PredicateBuilder(equalsLL)
+				PathNodeFilterSet.newRegularPathNodeFilterSet(new PathPredicateBuilder(equalsLL)
 						.addLong(10L)
 						.addFunction(
-								new FunctionBuilder(plusLLL).addLong(1L).addLong(2L).addLong(3L).addLong(4L).build())
+								new PathFunctionBuilder(plusLLL).addLong(1L).addLong(2L).addLong(3L).addLong(4L).build())
 						.buildFilter());
 		assertTrue(FilterFunctionCompare.equals(
 				PathNodeFilterSetToAddressNodeFilterSetTranslator.translate(compare, counterColumnMatcherMockup),
@@ -540,21 +540,21 @@ public class UniformFunctionTranslatorTest {
 		final PathNodeFilterSet original =
 				PathNodeFilterSet.newRegularPathNodeFilterSet(new PathFilter(
 						UniformFunctionTranslator
-								.translate(new PredicateBuilder(equalsDD)
+								.translate(new PathPredicateBuilder(equalsDD)
 										.addDouble(10.)
 										.addFunction(
-												new FunctionBuilder(plusDD)
+												new PathFunctionBuilder(plusDD)
 														.addFunction(
-																new FunctionBuilder(plusDD).addDouble(1.).addDouble(2.)
+																new PathFunctionBuilder(plusDD).addDouble(1.).addDouble(2.)
 																		.build())
 														.addFunction(
-																new FunctionBuilder(plusDD).addDouble(3.).addDouble(4.)
+																new PathFunctionBuilder(plusDD).addDouble(3.).addDouble(4.)
 																		.build()).build()).build())));
 		final PathNodeFilterSet compare =
-				PathNodeFilterSet.newRegularPathNodeFilterSet(new PredicateBuilder(equalsDD)
+				PathNodeFilterSet.newRegularPathNodeFilterSet(new PathPredicateBuilder(equalsDD)
 						.addDouble(10.)
 						.addFunction(
-								new FunctionBuilder(plusDDD).addDouble(1.).addDouble(2.).addDouble(3.).addDouble(4.)
+								new PathFunctionBuilder(plusDDD).addDouble(1.).addDouble(2.).addDouble(3.).addDouble(4.)
 										.build()).buildFilter());
 		assertTrue(FilterFunctionCompare.equals(
 				PathNodeFilterSetToAddressNodeFilterSetTranslator.translate(compare, counterColumnMatcherMockup),
@@ -580,20 +580,20 @@ public class UniformFunctionTranslatorTest {
 						SlotType.LONG);
 		final PathNodeFilterSet original =
 				PathNodeFilterSet.newRegularPathNodeFilterSet(new PathFilter(UniformFunctionTranslator
-						.translate(new PredicateBuilder(equalsLL)
+						.translate(new PathPredicateBuilder(equalsLL)
 								.addLong(35L)
 								.addFunction(
-										new FunctionBuilder(timesLL)
+										new PathFunctionBuilder(timesLL)
 												.addFunction(
-														new FunctionBuilder(plusLL).addLong(3L).addLong(4L).build())
+														new PathFunctionBuilder(plusLL).addLong(3L).addLong(4L).build())
 												.addLong(5L).build()).build())));
 		final PathNodeFilterSet compare =
-				PathNodeFilterSet.newRegularPathNodeFilterSet(new PredicateBuilder(equalsLL)
+				PathNodeFilterSet.newRegularPathNodeFilterSet(new PathPredicateBuilder(equalsLL)
 						.addLong(35L)
 						.addFunction(
-								new FunctionBuilder(plusLL)
-										.addFunction(new FunctionBuilder(timesLL).addLong(3L).addLong(5L).build())
-										.addFunction(new FunctionBuilder(timesLL).addLong(4L).addLong(5L).build())
+								new PathFunctionBuilder(plusLL)
+										.addFunction(new PathFunctionBuilder(timesLL).addLong(3L).addLong(5L).build())
+										.addFunction(new PathFunctionBuilder(timesLL).addLong(4L).addLong(5L).build())
 										.build()).buildFilter());
 		assertTrue(FilterFunctionCompare.equals(
 				PathNodeFilterSetToAddressNodeFilterSetTranslator.translate(compare, counterColumnMatcherMockup),
@@ -620,20 +620,20 @@ public class UniformFunctionTranslatorTest {
 		final PathNodeFilterSet original =
 				PathNodeFilterSet.newRegularPathNodeFilterSet(new PathFilter(
 						UniformFunctionTranslator
-								.translate(new PredicateBuilder(equalsDD)
+								.translate(new PathPredicateBuilder(equalsDD)
 										.addDouble(35.)
 										.addFunction(
-												new FunctionBuilder(timesDD)
+												new PathFunctionBuilder(timesDD)
 														.addFunction(
-																new FunctionBuilder(plusDD).addDouble(3.).addDouble(4.)
+																new PathFunctionBuilder(plusDD).addDouble(3.).addDouble(4.)
 																		.build()).addDouble(5.).build()).build())));
 		final PathNodeFilterSet compare =
-				PathNodeFilterSet.newRegularPathNodeFilterSet(new PredicateBuilder(equalsDD)
+				PathNodeFilterSet.newRegularPathNodeFilterSet(new PathPredicateBuilder(equalsDD)
 						.addDouble(35.)
 						.addFunction(
-								new FunctionBuilder(plusDD)
-										.addFunction(new FunctionBuilder(timesDD).addDouble(3.).addDouble(5.).build())
-										.addFunction(new FunctionBuilder(timesDD).addDouble(4.).addDouble(5.).build())
+								new PathFunctionBuilder(plusDD)
+										.addFunction(new PathFunctionBuilder(timesDD).addDouble(3.).addDouble(5.).build())
+										.addFunction(new PathFunctionBuilder(timesDD).addDouble(4.).addDouble(5.).build())
 										.build()).buildFilter());
 		assertTrue(FilterFunctionCompare.equals(
 				PathNodeFilterSetToAddressNodeFilterSetTranslator.translate(compare, counterColumnMatcherMockup),
@@ -659,18 +659,18 @@ public class UniformFunctionTranslatorTest {
 						SlotType.LONG);
 		final PathNodeFilterSet original =
 				PathNodeFilterSet.newRegularPathNodeFilterSet(new PathFilter(UniformFunctionTranslator
-						.translate(new PredicateBuilder(equalsLL)
+						.translate(new PathPredicateBuilder(equalsLL)
 								.addLong(-10L)
 								.addFunction(
-										new FunctionBuilder(timesLL)
-												.addFunction(new FunctionBuilder(minusL).addLong(2L).build())
+										new PathFunctionBuilder(timesLL)
+												.addFunction(new PathFunctionBuilder(minusL).addLong(2L).build())
 												.addLong(5L).build()).build())));
 		final PathNodeFilterSet compare =
-				PathNodeFilterSet.newRegularPathNodeFilterSet(new PredicateBuilder(equalsLL)
+				PathNodeFilterSet.newRegularPathNodeFilterSet(new PathPredicateBuilder(equalsLL)
 						.addLong(-10L)
 						.addFunction(
-								new FunctionBuilder(minusL).addFunction(
-										new FunctionBuilder(timesLL).addLong(2L).addLong(5L).build()).build())
+								new PathFunctionBuilder(minusL).addFunction(
+										new PathFunctionBuilder(timesLL).addLong(2L).addLong(5L).build()).build())
 						.buildFilter());
 		assertTrue(FilterFunctionCompare.equals(
 				PathNodeFilterSetToAddressNodeFilterSetTranslator.translate(compare, counterColumnMatcherMockup),
@@ -696,18 +696,18 @@ public class UniformFunctionTranslatorTest {
 						SlotType.DOUBLE, SlotType.DOUBLE);
 		final PathNodeFilterSet original =
 				PathNodeFilterSet.newRegularPathNodeFilterSet(new PathFilter(UniformFunctionTranslator
-						.translate(new PredicateBuilder(equalsDD)
+						.translate(new PathPredicateBuilder(equalsDD)
 								.addDouble(-10.)
 								.addFunction(
-										new FunctionBuilder(timesDD)
-												.addFunction(new FunctionBuilder(minusD).addDouble(2.).build())
+										new PathFunctionBuilder(timesDD)
+												.addFunction(new PathFunctionBuilder(minusD).addDouble(2.).build())
 												.addDouble(5.).build()).build())));
 		final PathNodeFilterSet compare =
-				PathNodeFilterSet.newRegularPathNodeFilterSet(new PredicateBuilder(equalsDD)
+				PathNodeFilterSet.newRegularPathNodeFilterSet(new PathPredicateBuilder(equalsDD)
 						.addDouble(-10.)
 						.addFunction(
-								new FunctionBuilder(minusD).addFunction(
-										new FunctionBuilder(timesDD).addDouble(2.).addDouble(5.).build()).build())
+								new PathFunctionBuilder(minusD).addFunction(
+										new PathFunctionBuilder(timesDD).addDouble(2.).addDouble(5.).build()).build())
 						.buildFilter());
 		assertTrue(FilterFunctionCompare.equals(
 				PathNodeFilterSetToAddressNodeFilterSetTranslator.translate(compare, counterColumnMatcherMockup),
@@ -733,18 +733,18 @@ public class UniformFunctionTranslatorTest {
 						SlotType.LONG);
 		final PathNodeFilterSet original =
 				PathNodeFilterSet.newRegularPathNodeFilterSet(new PathFilter(UniformFunctionTranslator
-						.translate(new PredicateBuilder(equalsLL)
+						.translate(new PathPredicateBuilder(equalsLL)
 								.addLong(-10L)
 								.addFunction(
-										new FunctionBuilder(timesLL).addLong(2L)
-												.addFunction(new FunctionBuilder(minusL).addLong(5L).build()).build())
+										new PathFunctionBuilder(timesLL).addLong(2L)
+												.addFunction(new PathFunctionBuilder(minusL).addLong(5L).build()).build())
 								.build())));
 		final PathNodeFilterSet compare =
-				PathNodeFilterSet.newRegularPathNodeFilterSet(new PredicateBuilder(equalsLL)
+				PathNodeFilterSet.newRegularPathNodeFilterSet(new PathPredicateBuilder(equalsLL)
 						.addLong(-10L)
 						.addFunction(
-								new FunctionBuilder(minusL).addFunction(
-										new FunctionBuilder(timesLL).addLong(2L).addLong(5L).build()).build())
+								new PathFunctionBuilder(minusL).addFunction(
+										new PathFunctionBuilder(timesLL).addLong(2L).addLong(5L).build()).build())
 						.buildFilter());
 		assertTrue(FilterFunctionCompare.equals(
 				PathNodeFilterSetToAddressNodeFilterSetTranslator.translate(compare, counterColumnMatcherMockup),
@@ -771,18 +771,18 @@ public class UniformFunctionTranslatorTest {
 		final PathNodeFilterSet original =
 				PathNodeFilterSet.newRegularPathNodeFilterSet(new PathFilter(
 						UniformFunctionTranslator
-								.translate(new PredicateBuilder(equalsDD)
+								.translate(new PathPredicateBuilder(equalsDD)
 										.addDouble(-10.)
 										.addFunction(
-												new FunctionBuilder(timesDD).addDouble(2.)
-														.addFunction(new FunctionBuilder(minusD).addDouble(5.).build())
+												new PathFunctionBuilder(timesDD).addDouble(2.)
+														.addFunction(new PathFunctionBuilder(minusD).addDouble(5.).build())
 														.build()).build())));
 		final PathNodeFilterSet compare =
-				PathNodeFilterSet.newRegularPathNodeFilterSet(new PredicateBuilder(equalsDD)
+				PathNodeFilterSet.newRegularPathNodeFilterSet(new PathPredicateBuilder(equalsDD)
 						.addDouble(-10.)
 						.addFunction(
-								new FunctionBuilder(minusD).addFunction(
-										new FunctionBuilder(timesDD).addDouble(2.).addDouble(5.).build()).build())
+								new PathFunctionBuilder(minusD).addFunction(
+										new PathFunctionBuilder(timesDD).addDouble(2.).addDouble(5.).build()).build())
 						.buildFilter());
 		assertTrue(FilterFunctionCompare.equals(
 				PathNodeFilterSetToAddressNodeFilterSetTranslator.translate(compare, counterColumnMatcherMockup),
@@ -808,16 +808,16 @@ public class UniformFunctionTranslatorTest {
 						SlotType.LONG);
 		final PathNodeFilterSet original =
 				PathNodeFilterSet.newRegularPathNodeFilterSet(new PathFilter(UniformFunctionTranslator
-						.translate(new PredicateBuilder(equalsLL)
+						.translate(new PathPredicateBuilder(equalsLL)
 								.addLong(10L)
 								.addFunction(
-										new FunctionBuilder(timesLL)
-												.addFunction(new FunctionBuilder(minusL).addLong(2L).build())
-												.addFunction(new FunctionBuilder(minusL).addLong(5L).build()).build())
+										new PathFunctionBuilder(timesLL)
+												.addFunction(new PathFunctionBuilder(minusL).addLong(2L).build())
+												.addFunction(new PathFunctionBuilder(minusL).addLong(5L).build()).build())
 								.build())));
 		final PathNodeFilterSet compare =
-				PathNodeFilterSet.newRegularPathNodeFilterSet(new PredicateBuilder(equalsLL).addLong(10L)
-						.addFunction(new FunctionBuilder(timesLL).addLong(2L).addLong(5L).build()).buildFilter());
+				PathNodeFilterSet.newRegularPathNodeFilterSet(new PathPredicateBuilder(equalsLL).addLong(10L)
+						.addFunction(new PathFunctionBuilder(timesLL).addLong(2L).addLong(5L).build()).buildFilter());
 		assertTrue(FilterFunctionCompare.equals(
 				PathNodeFilterSetToAddressNodeFilterSetTranslator.translate(compare, counterColumnMatcherMockup),
 				PathNodeFilterSetToAddressNodeFilterSetTranslator.translate(original, counterColumnMatcherMockup)));
@@ -843,16 +843,16 @@ public class UniformFunctionTranslatorTest {
 		final PathNodeFilterSet original =
 				PathNodeFilterSet.newRegularPathNodeFilterSet(new PathFilter(
 						UniformFunctionTranslator
-								.translate(new PredicateBuilder(equalsDD)
+								.translate(new PathPredicateBuilder(equalsDD)
 										.addDouble(10.)
 										.addFunction(
-												new FunctionBuilder(timesDD)
-														.addFunction(new FunctionBuilder(minusD).addDouble(2.).build())
-														.addFunction(new FunctionBuilder(minusD).addDouble(5.).build())
+												new PathFunctionBuilder(timesDD)
+														.addFunction(new PathFunctionBuilder(minusD).addDouble(2.).build())
+														.addFunction(new PathFunctionBuilder(minusD).addDouble(5.).build())
 														.build()).build())));
 		final PathNodeFilterSet compare =
-				PathNodeFilterSet.newRegularPathNodeFilterSet(new PredicateBuilder(equalsDD).addDouble(10.)
-						.addFunction(new FunctionBuilder(timesDD).addDouble(2.).addDouble(5.).build()).buildFilter());
+				PathNodeFilterSet.newRegularPathNodeFilterSet(new PathPredicateBuilder(equalsDD).addDouble(10.)
+						.addFunction(new PathFunctionBuilder(timesDD).addDouble(2.).addDouble(5.).build()).buildFilter());
 		assertTrue(FilterFunctionCompare.equals(
 				PathNodeFilterSetToAddressNodeFilterSetTranslator.translate(compare, counterColumnMatcherMockup),
 				PathNodeFilterSetToAddressNodeFilterSetTranslator.translate(original, counterColumnMatcherMockup)));
@@ -874,9 +874,9 @@ public class UniformFunctionTranslatorTest {
 						SlotType.LONG);
 		final PathNodeFilterSet original =
 				PathNodeFilterSet.newRegularPathNodeFilterSet(new PathFilter(UniformFunctionTranslator
-						.translate(new PredicateBuilder(greaterLL).addLong(20L).addLong(10L).build())));
+						.translate(new PathPredicateBuilder(greaterLL).addLong(20L).addLong(10L).build())));
 		final PathNodeFilterSet compare =
-				PathNodeFilterSet.newRegularPathNodeFilterSet(new PredicateBuilder(lessLL).addLong(10L).addLong(20L)
+				PathNodeFilterSet.newRegularPathNodeFilterSet(new PathPredicateBuilder(lessLL).addLong(10L).addLong(20L)
 						.buildFilter());
 		assertTrue(FilterFunctionCompare.equals(
 				PathNodeFilterSetToAddressNodeFilterSetTranslator.translate(compare, counterColumnMatcherMockup),
@@ -899,9 +899,9 @@ public class UniformFunctionTranslatorTest {
 						SlotType.DOUBLE);
 		final PathNodeFilterSet original =
 				PathNodeFilterSet.newRegularPathNodeFilterSet(new PathFilter(UniformFunctionTranslator
-						.translate(new PredicateBuilder(greaterDD).addDouble(20.).addDouble(10.).build())));
+						.translate(new PathPredicateBuilder(greaterDD).addDouble(20.).addDouble(10.).build())));
 		final PathNodeFilterSet compare =
-				PathNodeFilterSet.newRegularPathNodeFilterSet(new PredicateBuilder(lessDD).addDouble(10.)
+				PathNodeFilterSet.newRegularPathNodeFilterSet(new PathPredicateBuilder(lessDD).addDouble(10.)
 						.addDouble(20.).buildFilter());
 		assertTrue(FilterFunctionCompare.equals(
 				PathNodeFilterSetToAddressNodeFilterSetTranslator.translate(compare, counterColumnMatcherMockup),
@@ -926,10 +926,10 @@ public class UniformFunctionTranslatorTest {
 				FunctionDictionary.lookupPredicate(org.jamocha.function.impls.predicates.Not.inClips, SlotType.BOOLEAN);
 		final PathNodeFilterSet original =
 				PathNodeFilterSet.newRegularPathNodeFilterSet(new PathFilter(UniformFunctionTranslator
-						.translate(new PredicateBuilder(leqLL).addLong(10L).addLong(20L).build())));
+						.translate(new PathPredicateBuilder(leqLL).addLong(10L).addLong(20L).build())));
 		final PathNodeFilterSet compare =
-				PathNodeFilterSet.newRegularPathNodeFilterSet(new PredicateBuilder(notB).addFunction(
-						new PredicateBuilder(lessLL).addLong(20L).addLong(10L).build()).buildFilter());
+				PathNodeFilterSet.newRegularPathNodeFilterSet(new PathPredicateBuilder(notB).addFunction(
+						new PathPredicateBuilder(lessLL).addLong(20L).addLong(10L).build()).buildFilter());
 		assertTrue(FilterFunctionCompare.equals(
 				PathNodeFilterSetToAddressNodeFilterSetTranslator.translate(compare, counterColumnMatcherMockup),
 				PathNodeFilterSetToAddressNodeFilterSetTranslator.translate(original, counterColumnMatcherMockup)));
@@ -953,10 +953,10 @@ public class UniformFunctionTranslatorTest {
 				FunctionDictionary.lookupPredicate(org.jamocha.function.impls.predicates.Not.inClips, SlotType.BOOLEAN);
 		final PathNodeFilterSet original =
 				PathNodeFilterSet.newRegularPathNodeFilterSet(new PathFilter(UniformFunctionTranslator
-						.translate(new PredicateBuilder(leqDD).addDouble(10.).addDouble(20.).build())));
+						.translate(new PathPredicateBuilder(leqDD).addDouble(10.).addDouble(20.).build())));
 		final PathNodeFilterSet compare =
-				PathNodeFilterSet.newRegularPathNodeFilterSet(new PredicateBuilder(notB).addFunction(
-						new PredicateBuilder(lessDD).addDouble(20.).addDouble(10.).build()).buildFilter());
+				PathNodeFilterSet.newRegularPathNodeFilterSet(new PathPredicateBuilder(notB).addFunction(
+						new PathPredicateBuilder(lessDD).addDouble(20.).addDouble(10.).build()).buildFilter());
 		assertTrue(FilterFunctionCompare.equals(
 				PathNodeFilterSetToAddressNodeFilterSetTranslator.translate(compare, counterColumnMatcherMockup),
 				PathNodeFilterSetToAddressNodeFilterSetTranslator.translate(original, counterColumnMatcherMockup)));
@@ -980,10 +980,10 @@ public class UniformFunctionTranslatorTest {
 				FunctionDictionary.lookupPredicate(org.jamocha.function.impls.predicates.Not.inClips, SlotType.BOOLEAN);
 		final PathNodeFilterSet original =
 				PathNodeFilterSet.newRegularPathNodeFilterSet(new PathFilter(UniformFunctionTranslator
-						.translate(new PredicateBuilder(geqLL).addLong(20L).addLong(10L).build())));
+						.translate(new PathPredicateBuilder(geqLL).addLong(20L).addLong(10L).build())));
 		final PathNodeFilterSet compare =
-				PathNodeFilterSet.newRegularPathNodeFilterSet(new PredicateBuilder(notB).addFunction(
-						new PredicateBuilder(lessLL).addLong(20L).addLong(10L).build()).buildFilter());
+				PathNodeFilterSet.newRegularPathNodeFilterSet(new PathPredicateBuilder(notB).addFunction(
+						new PathPredicateBuilder(lessLL).addLong(20L).addLong(10L).build()).buildFilter());
 		assertTrue(FilterFunctionCompare.equals(
 				PathNodeFilterSetToAddressNodeFilterSetTranslator.translate(compare, counterColumnMatcherMockup),
 				PathNodeFilterSetToAddressNodeFilterSetTranslator.translate(original, counterColumnMatcherMockup)));
@@ -1007,10 +1007,10 @@ public class UniformFunctionTranslatorTest {
 				FunctionDictionary.lookupPredicate(org.jamocha.function.impls.predicates.Not.inClips, SlotType.BOOLEAN);
 		final PathNodeFilterSet original =
 				PathNodeFilterSet.newRegularPathNodeFilterSet(new PathFilter(UniformFunctionTranslator
-						.translate(new PredicateBuilder(geqDD).addDouble(20.).addDouble(10.).build())));
+						.translate(new PathPredicateBuilder(geqDD).addDouble(20.).addDouble(10.).build())));
 		final PathNodeFilterSet compare =
-				PathNodeFilterSet.newRegularPathNodeFilterSet(new PredicateBuilder(notB).addFunction(
-						new PredicateBuilder(lessDD).addDouble(20.).addDouble(10.).build()).buildFilter());
+				PathNodeFilterSet.newRegularPathNodeFilterSet(new PathPredicateBuilder(notB).addFunction(
+						new PathPredicateBuilder(lessDD).addDouble(20.).addDouble(10.).build()).buildFilter());
 		assertTrue(FilterFunctionCompare.equals(
 				PathNodeFilterSetToAddressNodeFilterSetTranslator.translate(compare, counterColumnMatcherMockup),
 				PathNodeFilterSetToAddressNodeFilterSetTranslator.translate(original, counterColumnMatcherMockup)));
@@ -1045,32 +1045,32 @@ public class UniformFunctionTranslatorTest {
 						SlotType.DOUBLE, SlotType.DOUBLE);
 		final PathNodeFilterSet original =
 				PathNodeFilterSet.newRegularPathNodeFilterSet(new PathFilter(UniformFunctionTranslator
-						.translate(new PredicateBuilder(equalsDD)
+						.translate(new PathPredicateBuilder(equalsDD)
 								.addDouble(12.)
 								.addFunction(
-										new FunctionBuilder(timesDD)
+										new PathFunctionBuilder(timesDD)
 												.addFunction(
-														new FunctionBuilder(plusDD)
+														new PathFunctionBuilder(plusDD)
 																.addFunction(
-																		new FunctionBuilder(minusD).addDouble(5.)
+																		new PathFunctionBuilder(minusD).addDouble(5.)
 																				.build()).addDouble(7.).build())
 												.addFunction(
-														new FunctionBuilder(minusDD).addDouble(9).addDouble(3).build())
+														new PathFunctionBuilder(minusDD).addDouble(9).addDouble(3).build())
 												.build()).build())));
 		final PathNodeFilterSet compare =
-				PathNodeFilterSet.newRegularPathNodeFilterSet(new PredicateBuilder(equalsDD)
+				PathNodeFilterSet.newRegularPathNodeFilterSet(new PathPredicateBuilder(equalsDD)
 						.addDouble(12.)
 						.addFunction(
-								new FunctionBuilder(plusDDDD)
+								new PathFunctionBuilder(plusDDDD)
 										.addFunction(
-												new FunctionBuilder(minusD).addFunction(
-														new FunctionBuilder(timesDD).addDouble(5.).addDouble(9.)
+												new PathFunctionBuilder(minusD).addFunction(
+														new PathFunctionBuilder(timesDD).addDouble(5.).addDouble(9.)
 																.build()).build())
-										.addFunction(new FunctionBuilder(timesDD).addDouble(5.).addDouble(3.).build())
-										.addFunction(new FunctionBuilder(timesDD).addDouble(7.).addDouble(9.).build())
+										.addFunction(new PathFunctionBuilder(timesDD).addDouble(5.).addDouble(3.).build())
+										.addFunction(new PathFunctionBuilder(timesDD).addDouble(7.).addDouble(9.).build())
 										.addFunction(
-												new FunctionBuilder(minusD).addFunction(
-														new FunctionBuilder(timesDD).addDouble(7.).addDouble(3.)
+												new PathFunctionBuilder(minusD).addFunction(
+														new PathFunctionBuilder(timesDD).addDouble(7.).addDouble(3.)
 																.build()).build()).build()).buildFilter());
 		final AddressNodeFilterSet translate =
 				PathNodeFilterSetToAddressNodeFilterSetTranslator.translate(original, counterColumnMatcherMockup);
@@ -1112,32 +1112,32 @@ public class UniformFunctionTranslatorTest {
 		final SlotAddress s = new SlotAddress(0);
 		final PathNodeFilterSet original =
 				PathNodeFilterSet.newRegularPathNodeFilterSet(new PathFilter(UniformFunctionTranslator
-						.translate(new PredicateBuilder(equalsDD)
+						.translate(new PathPredicateBuilder(equalsDD)
 								.addPath(l, s)
 								.addFunction(
-										new FunctionBuilder(timesDD)
+										new PathFunctionBuilder(timesDD)
 												.addFunction(
-														new FunctionBuilder(plusDD)
+														new PathFunctionBuilder(plusDD)
 																.addFunction(
-																		new FunctionBuilder(minusD).addPath(a, s)
+																		new PathFunctionBuilder(minusD).addPath(a, s)
 																				.build()).addPath(b, s).build())
 												.addFunction(
-														new FunctionBuilder(minusDD).addPath(c, s).addPath(d, s)
+														new PathFunctionBuilder(minusDD).addPath(c, s).addPath(d, s)
 																.build()).build()).build())));
 		final PathNodeFilterSet compare =
-				PathNodeFilterSet.newRegularPathNodeFilterSet(new PredicateBuilder(equalsDD)
+				PathNodeFilterSet.newRegularPathNodeFilterSet(new PathPredicateBuilder(equalsDD)
 						.addPath(l, s)
 						.addFunction(
-								new FunctionBuilder(plusDDDD)
+								new PathFunctionBuilder(plusDDDD)
 										.addFunction(
-												new FunctionBuilder(minusD).addFunction(
-														new FunctionBuilder(timesDD).addPath(a, s).addPath(c, s)
+												new PathFunctionBuilder(minusD).addFunction(
+														new PathFunctionBuilder(timesDD).addPath(a, s).addPath(c, s)
 																.build()).build())
-										.addFunction(new FunctionBuilder(timesDD).addPath(a, s).addPath(d, s).build())
-										.addFunction(new FunctionBuilder(timesDD).addPath(b, s).addPath(c, s).build())
+										.addFunction(new PathFunctionBuilder(timesDD).addPath(a, s).addPath(d, s).build())
+										.addFunction(new PathFunctionBuilder(timesDD).addPath(b, s).addPath(c, s).build())
 										.addFunction(
-												new FunctionBuilder(minusD).addFunction(
-														new FunctionBuilder(timesDD).addPath(b, s).addPath(d, s)
+												new PathFunctionBuilder(minusD).addFunction(
+														new PathFunctionBuilder(timesDD).addPath(b, s).addPath(d, s)
 																.build()).build()).build()).buildFilter());
 		final AddressNodeFilterSet translate =
 				PathNodeFilterSetToAddressNodeFilterSetTranslator.translate(original, counterColumnMatcherMockup);
@@ -1194,97 +1194,97 @@ public class UniformFunctionTranslatorTest {
 		final SlotAddress s = new SlotAddress(0);
 		final PathNodeFilterSet original =
 				PathNodeFilterSet.newRegularPathNodeFilterSet(new PathFilter(UniformFunctionTranslator
-						.translate(new PredicateBuilder(equalsDD)
+						.translate(new PathPredicateBuilder(equalsDD)
 								.addPath(l, s)
 								.addFunction(
-										new FunctionBuilder(timesDDDD)
+										new PathFunctionBuilder(timesDDDD)
 												.addFunction(
-														new FunctionBuilder(plusDD)
+														new PathFunctionBuilder(plusDD)
 																.addFunction(
-																		new FunctionBuilder(minusD).addPath(a, s)
+																		new PathFunctionBuilder(minusD).addPath(a, s)
 																				.build()).addPath(b, s).build())
 												.addFunction(
-														new FunctionBuilder(minusDD).addPath(c, s).addPath(d, s)
+														new PathFunctionBuilder(minusDD).addPath(c, s).addPath(d, s)
 																.build())
 												.addFunction(
-														new FunctionBuilder(plusDDDD)
+														new PathFunctionBuilder(plusDDDD)
 																.addPath(e, s)
 																.addPath(f, s)
 																.addPath(g, s)
 																.addFunction(
-																		new FunctionBuilder(timesDDD).addPath(h, s)
+																		new PathFunctionBuilder(timesDDD).addPath(h, s)
 																				.addPath(i, s).addPath(j, s).build())
 																.build()).addPath(k, s).build()).build())));
 		final PathNodeFilterSet compare =
 				PathNodeFilterSet
-						.newRegularPathNodeFilterSet(new PredicateBuilder(equalsDD)
+						.newRegularPathNodeFilterSet(new PathPredicateBuilder(equalsDD)
 								.addPath(l, s)
 								.addFunction(
-										new FunctionBuilder(plusD16)
+										new PathFunctionBuilder(plusD16)
 												.addFunction(
-														new FunctionBuilder(minusD).addFunction(
-																new FunctionBuilder(timesDDDD).addPath(a, s)
+														new PathFunctionBuilder(minusD).addFunction(
+																new PathFunctionBuilder(timesDDDD).addPath(a, s)
 																		.addPath(c, s).addPath(e, s).addPath(k, s)
 																		.build()).build())
 												.addFunction(
-														new FunctionBuilder(minusD).addFunction(
-																new FunctionBuilder(timesDDDD).addPath(a, s)
+														new PathFunctionBuilder(minusD).addFunction(
+																new PathFunctionBuilder(timesDDDD).addPath(a, s)
 																		.addPath(c, s).addPath(f, s).addPath(k, s)
 																		.build()).build())
 												.addFunction(
-														new FunctionBuilder(minusD).addFunction(
-																new FunctionBuilder(timesDDDD).addPath(a, s)
+														new PathFunctionBuilder(minusD).addFunction(
+																new PathFunctionBuilder(timesDDDD).addPath(a, s)
 																		.addPath(c, s).addPath(g, s).addPath(k, s)
 																		.build()).build())
 												.addFunction(
-														new FunctionBuilder(minusD).addFunction(
-																new FunctionBuilder(timesDDDDDD).addPath(a, s)
+														new PathFunctionBuilder(minusD).addFunction(
+																new PathFunctionBuilder(timesDDDDDD).addPath(a, s)
 																		.addPath(c, s).addPath(h, s).addPath(i, s)
 																		.addPath(j, s).addPath(k, s).build()).build())
 												.addFunction(
-														new FunctionBuilder(timesDDDD).addPath(a, s).addPath(d, s)
+														new PathFunctionBuilder(timesDDDD).addPath(a, s).addPath(d, s)
 																.addPath(e, s).addPath(k, s).build())
 												.addFunction(
-														new FunctionBuilder(timesDDDD).addPath(a, s).addPath(d, s)
+														new PathFunctionBuilder(timesDDDD).addPath(a, s).addPath(d, s)
 																.addPath(f, s).addPath(k, s).build())
 												.addFunction(
-														new FunctionBuilder(timesDDDD).addPath(a, s).addPath(d, s)
+														new PathFunctionBuilder(timesDDDD).addPath(a, s).addPath(d, s)
 																.addPath(g, s).addPath(k, s).build())
 												.addFunction(
-														new FunctionBuilder(timesDDDDDD).addPath(a, s).addPath(d, s)
+														new PathFunctionBuilder(timesDDDDDD).addPath(a, s).addPath(d, s)
 																.addPath(h, s).addPath(i, s).addPath(j, s)
 																.addPath(k, s).build())
 												.addFunction(
-														new FunctionBuilder(timesDDDD).addPath(b, s).addPath(c, s)
+														new PathFunctionBuilder(timesDDDD).addPath(b, s).addPath(c, s)
 																.addPath(e, s).addPath(k, s).build())
 												.addFunction(
-														new FunctionBuilder(timesDDDD).addPath(b, s).addPath(c, s)
+														new PathFunctionBuilder(timesDDDD).addPath(b, s).addPath(c, s)
 																.addPath(f, s).addPath(k, s).build())
 												.addFunction(
-														new FunctionBuilder(timesDDDD).addPath(b, s).addPath(c, s)
+														new PathFunctionBuilder(timesDDDD).addPath(b, s).addPath(c, s)
 																.addPath(g, s).addPath(k, s).build())
 												.addFunction(
-														new FunctionBuilder(timesDDDDDD).addPath(b, s).addPath(c, s)
+														new PathFunctionBuilder(timesDDDDDD).addPath(b, s).addPath(c, s)
 																.addPath(h, s).addPath(i, s).addPath(j, s)
 																.addPath(k, s).build())
 												.addFunction(
-														new FunctionBuilder(minusD).addFunction(
-																new FunctionBuilder(timesDDDD).addPath(b, s)
+														new PathFunctionBuilder(minusD).addFunction(
+																new PathFunctionBuilder(timesDDDD).addPath(b, s)
 																		.addPath(d, s).addPath(e, s).addPath(k, s)
 																		.build()).build())
 												.addFunction(
-														new FunctionBuilder(minusD).addFunction(
-																new FunctionBuilder(timesDDDD).addPath(b, s)
+														new PathFunctionBuilder(minusD).addFunction(
+																new PathFunctionBuilder(timesDDDD).addPath(b, s)
 																		.addPath(d, s).addPath(f, s).addPath(k, s)
 																		.build()).build())
 												.addFunction(
-														new FunctionBuilder(minusD).addFunction(
-																new FunctionBuilder(timesDDDD).addPath(b, s)
+														new PathFunctionBuilder(minusD).addFunction(
+																new PathFunctionBuilder(timesDDDD).addPath(b, s)
 																		.addPath(d, s).addPath(g, s).addPath(k, s)
 																		.build()).build())
 												.addFunction(
-														new FunctionBuilder(minusD).addFunction(
-																new FunctionBuilder(timesDDDDDD).addPath(b, s)
+														new PathFunctionBuilder(minusD).addFunction(
+																new PathFunctionBuilder(timesDDDDDD).addPath(b, s)
 																		.addPath(d, s).addPath(h, s).addPath(i, s)
 																		.addPath(j, s).addPath(k, s).build()).build())
 												.build()).buildFilter());

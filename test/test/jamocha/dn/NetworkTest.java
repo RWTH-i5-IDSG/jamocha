@@ -52,8 +52,8 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import test.jamocha.util.FunctionBuilder;
-import test.jamocha.util.PredicateBuilder;
+import test.jamocha.util.builder.fwa.PathFunctionBuilder;
+import test.jamocha.util.builder.fwa.PathPredicateBuilder;
 import test.jamocha.util.Slots;
 
 /**
@@ -109,24 +109,24 @@ public class NetworkTest {
 
 		final List<PathFilterList> filterOne =
 				Arrays.asList(
-						PathNodeFilterSet.newRegularPathNodeFilterSet(new PredicateBuilder(lessL)
+						PathNodeFilterSet.newRegularPathNodeFilterSet(new PathPredicateBuilder(lessL)
 								.addConstant(3L, SlotType.LONG).addPath(pathOne, slotLongOne).buildFilter()),
-						PathNodeFilterSet.newRegularPathNodeFilterSet(new PredicateBuilder(lessL)
+						PathNodeFilterSet.newRegularPathNodeFilterSet(new PathPredicateBuilder(lessL)
 								.addPath(pathOne, slotLongOne).addPath(pathOne, slotLongTwo).buildFilter()));
 		final PathNodeFilterSet[] filterTwo =
 				new PathNodeFilterSet[] {
-						PathNodeFilterSet.newRegularPathNodeFilterSet(new PredicateBuilder(lessL)
+						PathNodeFilterSet.newRegularPathNodeFilterSet(new PathPredicateBuilder(lessL)
 								.addConstant(3L, SlotType.LONG).addPath(pathTwo, slotLongOne).buildFilter()),
-						PathNodeFilterSet.newRegularPathNodeFilterSet(new PredicateBuilder(lessL)
+						PathNodeFilterSet.newRegularPathNodeFilterSet(new PathPredicateBuilder(lessL)
 								.addPath(pathTwo, slotLongOne).addPath(pathTwo, slotLongTwo).buildFilter()),
-						PathNodeFilterSet.newRegularPathNodeFilterSet(new PredicateBuilder(eqS)
+						PathNodeFilterSet.newRegularPathNodeFilterSet(new PathPredicateBuilder(eqS)
 								.addPath(pathTwo, slotStringOne).addPath(pathTwo, slotStringTwo).buildFilter()) }, filterThree =
 				new PathNodeFilterSet[] {
-						PathNodeFilterSet.newRegularPathNodeFilterSet(new PredicateBuilder(lessL)
+						PathNodeFilterSet.newRegularPathNodeFilterSet(new PathPredicateBuilder(lessL)
 								.addConstant(3L, SlotType.LONG).addPath(pathThree, slotLongTwo).buildFilter()),
-						PathNodeFilterSet.newRegularPathNodeFilterSet(new PredicateBuilder(lessL)
+						PathNodeFilterSet.newRegularPathNodeFilterSet(new PathPredicateBuilder(lessL)
 								.addPath(pathThree, slotLongTwo).addPath(pathThree, slotLongOne).buildFilter()),
-						PathNodeFilterSet.newRegularPathNodeFilterSet(new PredicateBuilder(eqS)
+						PathNodeFilterSet.newRegularPathNodeFilterSet(new PathPredicateBuilder(eqS)
 								.addPath(pathThree, slotStringTwo).addPath(pathThree, slotStringOne).buildFilter()) };
 
 		network.buildRule(new Defrule("dummyrule", "", 0, (RuleCondition) null, new ArrayList<>()).newTranslated(
@@ -185,17 +185,17 @@ public class NetworkTest {
 
 		final List<PathFilterList> filterOne =
 				Arrays.asList(
-						PathNodeFilterSet.newRegularPathNodeFilterSet(new PredicateBuilder(lessL)
+						PathNodeFilterSet.newRegularPathNodeFilterSet(new PathPredicateBuilder(lessL)
 								.addConstant(3L, SlotType.LONG).addPath(pathOneA, slotLongOne).buildFilter()),
-						PathNodeFilterSet.newRegularPathNodeFilterSet(new PredicateBuilder(lessL)
+						PathNodeFilterSet.newRegularPathNodeFilterSet(new PathPredicateBuilder(lessL)
 								.addPath(pathOneA, slotLongOne).addPath(pathOneB, slotLongTwo).buildFilter()));
 		final PathNodeFilterSet[] filterTwo =
 				new PathNodeFilterSet[] {
-						PathNodeFilterSet.newRegularPathNodeFilterSet(new PredicateBuilder(lessL)
+						PathNodeFilterSet.newRegularPathNodeFilterSet(new PathPredicateBuilder(lessL)
 								.addConstant(3L, SlotType.LONG).addPath(pathTwoA, slotLongOne).buildFilter()),
-						PathNodeFilterSet.newRegularPathNodeFilterSet(new PredicateBuilder(lessL)
+						PathNodeFilterSet.newRegularPathNodeFilterSet(new PathPredicateBuilder(lessL)
 								.addPath(pathTwoA, slotLongOne).addPath(pathTwoB, slotLongTwo).buildFilter()),
-						PathNodeFilterSet.newRegularPathNodeFilterSet(new PredicateBuilder(eqS)
+						PathNodeFilterSet.newRegularPathNodeFilterSet(new PathPredicateBuilder(eqS)
 								.addPath(pathTwoA, slotStringOne).addPath(pathTwoB, slotStringTwo).buildFilter()) };
 
 		network.buildRule(new Defrule("dummyrule", "", 0, (RuleCondition) null, new ArrayList<>()).newTranslated(
@@ -240,17 +240,17 @@ public class NetworkTest {
 
 		final List<PathFilterList> filterOne =
 				Arrays.asList(
-						PathNodeFilterSet.newRegularPathNodeFilterSet(new PredicateBuilder(lessL)
+						PathNodeFilterSet.newRegularPathNodeFilterSet(new PathPredicateBuilder(lessL)
 								.addConstant(3L, SlotType.LONG).addPath(pathOneA, slotLongOne).buildFilter()),
-						PathNodeFilterSet.newRegularPathNodeFilterSet(new PredicateBuilder(lessL)
+						PathNodeFilterSet.newRegularPathNodeFilterSet(new PathPredicateBuilder(lessL)
 								.addPath(pathOneA, slotLongOne).addPath(pathOneB, slotLongTwo).buildFilter()));
 		final PathNodeFilterSet[] filterTwo =
 				new PathNodeFilterSet[] {
-						PathNodeFilterSet.newRegularPathNodeFilterSet(new PredicateBuilder(lessL)
+						PathNodeFilterSet.newRegularPathNodeFilterSet(new PathPredicateBuilder(lessL)
 								.addConstant(3L, SlotType.LONG).addPath(pathTwoA, slotLongOne).buildFilter()),
-						PathNodeFilterSet.newRegularPathNodeFilterSet(new PredicateBuilder(lessL)
+						PathNodeFilterSet.newRegularPathNodeFilterSet(new PathPredicateBuilder(lessL)
 								.addPath(pathTwoA, slotLongOne).addPath(pathTwoB, slotLongTwo).buildFilter()),
-						PathNodeFilterSet.newRegularPathNodeFilterSet(new PredicateBuilder(eqS)
+						PathNodeFilterSet.newRegularPathNodeFilterSet(new PathPredicateBuilder(eqS)
 								.addPath(pathTwoA, slotStringOne).addPath(pathTwoB, slotStringTwo).buildFilter()) };
 
 		network.buildRule(new Defrule("dummyrule", "", 0, (RuleCondition) null, new ArrayList<>()).newTranslated(
@@ -300,27 +300,27 @@ public class NetworkTest {
 
 		final List<PathFilterList> filterOne =
 				Arrays.asList(
-						PathNodeFilterSet.newRegularPathNodeFilterSet(new PredicateBuilder(eqStrStr)
+						PathNodeFilterSet.newRegularPathNodeFilterSet(new PathPredicateBuilder(eqStrStr)
 								.addPath(oldStudent1, studentHobby).addConstant("Coding", SlotType.STRING)
 								.buildFilter()),
 						PathNodeFilterSet.newRegularPathNodeFilterSet(
-								new PredicateBuilder(lessLongLong).addPath(youngStudent1, studentSem)
-										.addPath(oldStudent1, studentSem).buildFilter(), new PredicateBuilder(eqStrStr)
+								new PathPredicateBuilder(lessLongLong).addPath(youngStudent1, studentSem)
+										.addPath(oldStudent1, studentSem).buildFilter(), new PathPredicateBuilder(eqStrStr)
 										.addPath(youngStudent1, studentSG).addPath(oldStudent1, studentSG)
 										.buildFilter()),
-						PathNodeFilterSet.newRegularPathNodeFilterSet(new PredicateBuilder(eqStrStr)
+						PathNodeFilterSet.newRegularPathNodeFilterSet(new PathPredicateBuilder(eqStrStr)
 								.addPath(youngStudent1, studentSG).addPath(matchingProf1, profSG).buildFilter()));
 		final PathNodeFilterSet[] filterTwo =
 				new PathNodeFilterSet[] {
-						PathNodeFilterSet.newRegularPathNodeFilterSet(new PredicateBuilder(eqStrStr)
+						PathNodeFilterSet.newRegularPathNodeFilterSet(new PathPredicateBuilder(eqStrStr)
 								.addPath(oldStudent2, studentHobby).addConstant("Coding", SlotType.STRING)
 								.buildFilter()),
 						PathNodeFilterSet.newRegularPathNodeFilterSet(
-								new PredicateBuilder(lessLongLong).addPath(youngStudent2, studentSem)
-										.addPath(oldStudent2, studentSem).buildFilter(), new PredicateBuilder(eqStrStr)
+								new PathPredicateBuilder(lessLongLong).addPath(youngStudent2, studentSem)
+										.addPath(oldStudent2, studentSem).buildFilter(), new PathPredicateBuilder(eqStrStr)
 										.addPath(youngStudent2, studentSG).addPath(oldStudent2, studentSG)
 										.buildFilter()),
-						PathNodeFilterSet.newRegularPathNodeFilterSet(new PredicateBuilder(eqStrStr)
+						PathNodeFilterSet.newRegularPathNodeFilterSet(new PathPredicateBuilder(eqStrStr)
 								.addPath(youngStudent2, studentSG).addPath(matchingProf2, profSG).buildFilter()) };
 		network.buildRule(new Defrule("dummyrule", "", 0, (RuleCondition) null, new ArrayList<>()).newTranslated(
 				filterOne, (Map<EquivalenceClass, FunctionWithArguments<PathLeaf>>) null));
@@ -367,23 +367,23 @@ public class NetworkTest {
 
 		final List<PathFilterList> filterOne =
 				Arrays.asList(
-						PathNodeFilterSet.newRegularPathNodeFilterSet(new PredicateBuilder(lessL)
+						PathNodeFilterSet.newRegularPathNodeFilterSet(new PathPredicateBuilder(lessL)
 								.addConstant(3L, SlotType.LONG).addPath(pathOne, slotLongOne).buildFilter()),
-						PathNodeFilterSet.newRegularPathNodeFilterSet(new PredicateBuilder(lessL)
+						PathNodeFilterSet.newRegularPathNodeFilterSet(new PathPredicateBuilder(lessL)
 								.addPath(pathOne, slotLongOne).addPath(pathOne, slotLongTwo).buildFilter())), filterTwo =
 				Arrays.asList(
-						PathNodeFilterSet.newRegularPathNodeFilterSet(new PredicateBuilder(lessL)
+						PathNodeFilterSet.newRegularPathNodeFilterSet(new PathPredicateBuilder(lessL)
 								.addConstant(3L, SlotType.LONG).addPath(pathTwo, slotLongOne).buildFilter()),
-						PathNodeFilterSet.newRegularPathNodeFilterSet(new PredicateBuilder(lessL)
+						PathNodeFilterSet.newRegularPathNodeFilterSet(new PathPredicateBuilder(lessL)
 								.addPath(pathTwo, slotLongOne).addPath(pathTwo, slotLongTwo).buildFilter()),
-						PathNodeFilterSet.newRegularPathNodeFilterSet(new PredicateBuilder(eqS)
+						PathNodeFilterSet.newRegularPathNodeFilterSet(new PathPredicateBuilder(eqS)
 								.addPath(pathTwo, slotStringOne).addPath(pathTwo, slotStringTwo).buildFilter())), filterThree =
 				Arrays.asList(
-						PathNodeFilterSet.newRegularPathNodeFilterSet(new PredicateBuilder(lessL)
+						PathNodeFilterSet.newRegularPathNodeFilterSet(new PathPredicateBuilder(lessL)
 								.addConstant(3L, SlotType.LONG).addPath(pathThree, slotLongTwo).buildFilter()),
-						PathNodeFilterSet.newRegularPathNodeFilterSet(new PredicateBuilder(lessL)
+						PathNodeFilterSet.newRegularPathNodeFilterSet(new PathPredicateBuilder(lessL)
 								.addPath(pathThree, slotLongTwo).addPath(pathThree, slotLongOne).buildFilter()),
-						PathNodeFilterSet.newRegularPathNodeFilterSet(new PredicateBuilder(eqS)
+						PathNodeFilterSet.newRegularPathNodeFilterSet(new PathPredicateBuilder(eqS)
 								.addPath(pathThree, slotStringTwo).addPath(pathThree, slotStringOne).buildFilter()));
 
 		network.buildRule(new Defrule("rule1", "", 0, (RuleCondition) null, new ArrayList<>()).newTranslated(filterOne,
@@ -422,16 +422,16 @@ public class NetworkTest {
 
 		final List<PathFilterList> filterOne =
 				Arrays.asList(
-						PathNodeFilterSet.newRegularPathNodeFilterSet(new PredicateBuilder(lessL)
+						PathNodeFilterSet.newRegularPathNodeFilterSet(new PathPredicateBuilder(lessL)
 								.addConstant(3L, SlotType.LONG).addPath(pathOneA, slotLongOne).buildFilter()),
-						PathNodeFilterSet.newRegularPathNodeFilterSet(new PredicateBuilder(lessL)
+						PathNodeFilterSet.newRegularPathNodeFilterSet(new PathPredicateBuilder(lessL)
 								.addPath(pathOneA, slotLongOne).addPath(pathOneB, slotLongTwo).buildFilter())), filterTwo =
 				Arrays.asList(
-						PathNodeFilterSet.newRegularPathNodeFilterSet(new PredicateBuilder(lessL)
+						PathNodeFilterSet.newRegularPathNodeFilterSet(new PathPredicateBuilder(lessL)
 								.addConstant(3L, SlotType.LONG).addPath(pathTwoA, slotLongOne).buildFilter()),
-						PathNodeFilterSet.newRegularPathNodeFilterSet(new PredicateBuilder(lessL)
+						PathNodeFilterSet.newRegularPathNodeFilterSet(new PathPredicateBuilder(lessL)
 								.addPath(pathTwoA, slotLongOne).addPath(pathTwoB, slotLongTwo).buildFilter()),
-						PathNodeFilterSet.newRegularPathNodeFilterSet(new PredicateBuilder(eqS)
+						PathNodeFilterSet.newRegularPathNodeFilterSet(new PathPredicateBuilder(eqS)
 								.addPath(pathTwoA, slotStringOne).addPath(pathTwoB, slotStringTwo).buildFilter()));
 
 		network.buildRule(new Defrule("rule1", "", 0, (RuleCondition) null, new ArrayList<>()).newTranslated(filterOne,
@@ -466,16 +466,16 @@ public class NetworkTest {
 
 		final List<PathFilterList> filterOne =
 				Arrays.asList(
-						PathNodeFilterSet.newRegularPathNodeFilterSet(new PredicateBuilder(lessL)
+						PathNodeFilterSet.newRegularPathNodeFilterSet(new PathPredicateBuilder(lessL)
 								.addConstant(3L, SlotType.LONG).addPath(pathOneA, slotLongOne).buildFilter()),
-						PathNodeFilterSet.newRegularPathNodeFilterSet(new PredicateBuilder(lessL)
+						PathNodeFilterSet.newRegularPathNodeFilterSet(new PathPredicateBuilder(lessL)
 								.addPath(pathOneA, slotLongOne).addPath(pathOneB, slotLongTwo).buildFilter())), filterTwo =
 				Arrays.asList(
-						PathNodeFilterSet.newRegularPathNodeFilterSet(new PredicateBuilder(lessL)
+						PathNodeFilterSet.newRegularPathNodeFilterSet(new PathPredicateBuilder(lessL)
 								.addConstant(3L, SlotType.LONG).addPath(pathTwoA, slotLongOne).buildFilter()),
-						PathNodeFilterSet.newRegularPathNodeFilterSet(new PredicateBuilder(lessL)
+						PathNodeFilterSet.newRegularPathNodeFilterSet(new PathPredicateBuilder(lessL)
 								.addPath(pathTwoA, slotLongOne).addPath(pathTwoB, slotLongTwo).buildFilter()),
-						PathNodeFilterSet.newRegularPathNodeFilterSet(new PredicateBuilder(eqS)
+						PathNodeFilterSet.newRegularPathNodeFilterSet(new PathPredicateBuilder(eqS)
 								.addPath(pathTwoA, slotStringOne).addPath(pathTwoB, slotStringTwo).buildFilter()));
 
 		network.buildRule(new Defrule("rule1", "", 0, (RuleCondition) null, new ArrayList<>()).newTranslated(filterOne,
@@ -515,26 +515,26 @@ public class NetworkTest {
 
 		final List<PathFilterList> filterOne =
 				Arrays.asList(
-						PathNodeFilterSet.newRegularPathNodeFilterSet(new PredicateBuilder(eqStrStr)
+						PathNodeFilterSet.newRegularPathNodeFilterSet(new PathPredicateBuilder(eqStrStr)
 								.addPath(oldStudent1, studentHobby).addConstant("Coding", SlotType.STRING)
 								.buildFilter()),
 						PathNodeFilterSet.newRegularPathNodeFilterSet(
-								new PredicateBuilder(lessLongLong).addPath(youngStudent1, studentSem)
-										.addPath(oldStudent1, studentSem).buildFilter(), new PredicateBuilder(eqStrStr)
+								new PathPredicateBuilder(lessLongLong).addPath(youngStudent1, studentSem)
+										.addPath(oldStudent1, studentSem).buildFilter(), new PathPredicateBuilder(eqStrStr)
 										.addPath(youngStudent1, studentSG).addPath(oldStudent1, studentSG)
 										.buildFilter()),
-						PathNodeFilterSet.newRegularPathNodeFilterSet(new PredicateBuilder(eqStrStr)
+						PathNodeFilterSet.newRegularPathNodeFilterSet(new PathPredicateBuilder(eqStrStr)
 								.addPath(youngStudent1, studentSG).addPath(matchingProf1, profSG).buildFilter())), filterTwo =
 				Arrays.asList(
-						PathNodeFilterSet.newRegularPathNodeFilterSet(new PredicateBuilder(eqStrStr)
+						PathNodeFilterSet.newRegularPathNodeFilterSet(new PathPredicateBuilder(eqStrStr)
 								.addPath(oldStudent2, studentHobby).addConstant("Coding", SlotType.STRING)
 								.buildFilter()),
 						PathNodeFilterSet.newRegularPathNodeFilterSet(
-								new PredicateBuilder(lessLongLong).addPath(youngStudent2, studentSem)
-										.addPath(oldStudent2, studentSem).buildFilter(), new PredicateBuilder(eqStrStr)
+								new PathPredicateBuilder(lessLongLong).addPath(youngStudent2, studentSem)
+										.addPath(oldStudent2, studentSem).buildFilter(), new PathPredicateBuilder(eqStrStr)
 										.addPath(youngStudent2, studentSG).addPath(oldStudent2, studentSG)
 										.buildFilter()),
-						PathNodeFilterSet.newRegularPathNodeFilterSet(new PredicateBuilder(eqStrStr)
+						PathNodeFilterSet.newRegularPathNodeFilterSet(new PathPredicateBuilder(eqStrStr)
 								.addPath(youngStudent2, studentSG).addPath(matchingProf2, profSG).buildFilter()));
 		network.buildRule(new Defrule("rule1", "", 0, (RuleCondition) null, new ArrayList<>()).newTranslated(filterOne,
 				(Map<EquivalenceClass, FunctionWithArguments<PathLeaf>>) null));
@@ -571,10 +571,10 @@ public class NetworkTest {
 				FunctionDictionary.lookupPredicate(Greater.inClips, SlotType.LONG, SlotType.LONG);
 
 		final List<PathFilterList> filterOne =
-				Arrays.asList(PathNodeFilterSet.newRegularPathNodeFilterSet(new PredicateBuilder(greaterLongLong)
+				Arrays.asList(PathNodeFilterSet.newRegularPathNodeFilterSet(new PathPredicateBuilder(greaterLongLong)
 						.addPath(youngStudent1, studentSem).addPath(oldStudent1, studentSem).buildFilter()));
 		final List<PathFilterList> filterTwo =
-				Arrays.asList(PathNodeFilterSet.newRegularPathNodeFilterSet(new PredicateBuilder(lessLongLong)
+				Arrays.asList(PathNodeFilterSet.newRegularPathNodeFilterSet(new PathPredicateBuilder(lessLongLong)
 						.addPath(youngStudent2, studentSem).addPath(oldStudent2, studentSem).buildFilter()));
 		network.buildRule(new Defrule("rule1", "", 0, (RuleCondition) null, new ArrayList<>()).newTranslated(filterOne,
 				(Map<EquivalenceClass, FunctionWithArguments<PathLeaf>>) null));
@@ -606,15 +606,15 @@ public class NetworkTest {
 		final SlotAddress slotLongOne = new SlotAddress(1), slotLongTwo = new SlotAddress(2);
 
 		final List<PathFilterList> filterOne =
-				Arrays.asList(PathNodeFilterSet.newRegularPathNodeFilterSet(new PredicateBuilder(eqL)
+				Arrays.asList(PathNodeFilterSet.newRegularPathNodeFilterSet(new PathPredicateBuilder(eqL)
 						.addPath(path1A, slotLongOne)
 						.addFunction(
-								new FunctionBuilder(plusL).addPath(path1B, slotLongOne).addPath(path1B, slotLongTwo)
+								new PathFunctionBuilder(plusL).addPath(path1B, slotLongOne).addPath(path1B, slotLongTwo)
 										.build()).buildFilter()));
 		final PathNodeFilterSet[] filterTwo =
-				new PathNodeFilterSet[] { PathNodeFilterSet.newRegularPathNodeFilterSet(new PredicateBuilder(eqL)
+				new PathNodeFilterSet[] { PathNodeFilterSet.newRegularPathNodeFilterSet(new PathPredicateBuilder(eqL)
 						.addFunction(
-								new FunctionBuilder(plusL).addPath(path2B, slotLongTwo).addPath(path2B, slotLongOne)
+								new PathFunctionBuilder(plusL).addPath(path2B, slotLongTwo).addPath(path2B, slotLongOne)
 										.build()).addPath(path2A, slotLongOne).buildFilter()) };
 
 		network.buildRule(new Defrule("dummyrule", "", 0, (RuleCondition) null, new ArrayList<>()).newTranslated(
@@ -655,15 +655,15 @@ public class NetworkTest {
 		final SlotAddress slotLongOne = new SlotAddress(1), slotLongTwo = new SlotAddress(2);
 
 		final List<PathFilterList> filterOne =
-				Arrays.asList(PathNodeFilterSet.newRegularPathNodeFilterSet(new PredicateBuilder(eqL)
+				Arrays.asList(PathNodeFilterSet.newRegularPathNodeFilterSet(new PathPredicateBuilder(eqL)
 						.addPath(path1A, slotLongOne)
 						.addFunction(
-								new FunctionBuilder(plusL).addPath(path1B, slotLongOne).addPath(path1B, slotLongTwo)
+								new PathFunctionBuilder(plusL).addPath(path1B, slotLongOne).addPath(path1B, slotLongTwo)
 										.build()).buildFilter()));
 		final PathNodeFilterSet[] filterTwo =
-				new PathNodeFilterSet[] { PathNodeFilterSet.newRegularPathNodeFilterSet(new PredicateBuilder(eqL)
+				new PathNodeFilterSet[] { PathNodeFilterSet.newRegularPathNodeFilterSet(new PathPredicateBuilder(eqL)
 						.addFunction(
-								new FunctionBuilder(plusL).addPath(path2B, slotLongTwo).addPath(path2A, slotLongOne)
+								new PathFunctionBuilder(plusL).addPath(path2B, slotLongTwo).addPath(path2A, slotLongOne)
 										.build()).addPath(path2B, slotLongOne).buildFilter()) };
 
 		network.buildRule(new Defrule("dummyrule", "", 0, (RuleCondition) null, new ArrayList<>()).newTranslated(
