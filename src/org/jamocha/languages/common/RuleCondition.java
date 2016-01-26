@@ -289,5 +289,10 @@ public class RuleCondition {
 					this.equalParentEquivalenceClasses.size() + this.constantExpressions.size() +
 					this.functionalExpressions.size() > 1;
 		}
+
+		public boolean containsAnyBinding() {
+			return !(this.factVariables.isEmpty() && this.slotVariables.isEmpty() &&
+					this.constantExpressions.isEmpty() && this.functionalExpressions.isEmpty());
+		}
 	}
 }

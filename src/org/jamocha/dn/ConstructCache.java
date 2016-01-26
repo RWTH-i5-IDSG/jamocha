@@ -22,6 +22,7 @@ import lombok.Data;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Value;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.logging.log4j.Marker;
 import org.jamocha.dn.compiler.DeepFactVariableCollector;
 import org.jamocha.dn.memory.MemoryHandlerTerminal.AssertOrRetract;
@@ -36,7 +37,6 @@ import org.jamocha.logging.MarkerType;
 import org.jamocha.util.Lambdas;
 
 import java.util.*;
-import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 import static java.util.stream.Collectors.toList;
@@ -99,7 +99,7 @@ public class ConstructCache {
 				// simply translate SymbolLeafs to ECLeafs by calling getEC
 				assert ecCE instanceof ConditionalElement.OrFunctionConditionalElement;
 				return ecCE.getChildren().stream()
-						.map(child -> toEcBasedCERule(child, this.equivalenceClasses, this.localECsToConditionECs,
+						.map(child -> toECBasedCERule(child, this.equivalenceClasses, this.localECsToConditionECs,
 								null,
 								CONCATENATE_BI_MAPS)).collect(toList());
 			}
@@ -117,40 +117,49 @@ public class ConstructCache {
 
 		public List<ECBasedCERule> newECBasedCERules() {
 			final RuleCondition condition = Defrule.this.getCondition();
-			ConditionalElement<SymbolLeaf> symbolCE = RuleConditionProcessor.flattenInPlace(condition);
-			// simply translate SymbolLeafs to ECLeafs by calling getEC
-			ConditionalElement<ECLeaf> ecCE = symbolCE.accept(
-					new RuleConditionProcessor.CESymbolToECTranslator(Defrule.this.getCondition().getScope()))
-					.getResult();
-			final List<EquivalenceClass> allECs =
+			final ConditionalElement<SymbolLeaf> symbolCE = RuleConditionProcessor.flattenInPlace(condition);
+			// all ECs of variable symbols are found already, which means all slot and fact variables
+			final Set<EquivalenceClass> allECs =
 					Defrule.this.condition.getVariableSymbols().stream().map(ScopeStack.VariableSymbol::getEqual)
-							.collect(toList());
+							.collect(toIdentityHashSet());
+			// translate SymbolLeafs to ECLeafs by calling getEC, convert ConstantLeafs to ECLeafs by creating an
+			// equivalence class containing it (re-using the ECs for all occurrences of the constant in the same scope
+			// and saving them into the HashMap provided).
+			final HashMap<Pair<ScopeStack.Scope, ConstantLeaf<SymbolLeaf>>, EquivalenceClass> constantToEC =
+					new HashMap<>();
+			final ConditionalElement<ECLeaf> ecCE = symbolCE.accept(
+					new RuleConditionProcessor.CESymbolToECTranslator(Defrule.this.getCondition().getScope(),
+							constantToEC)).getResult();
+			// we add all ECs created during this step to the set of equivalence classes
+			allECs.addAll(constantToEC.values());
 			assert ecCE instanceof ConditionalElement.OrFunctionConditionalElement;
 			return ecCE.getChildren().stream()
-					.map(child -> toEcBasedCERule(child, allECs, null, condition, SPLIT_AND_TRANSFORM_EXISTENTIALS))
+					.map(child -> toECBasedCERule(child, allECs, null, condition, SPLIT_AND_TRANSFORM_EXISTENTIALS))
 					.flatMap(rule -> rule.newECBasedCERules().stream()).collect(toList());
 		}
 
-		private ECBasedCERule toEcBasedCERule(final ConditionalElement<ECLeaf> child,
-				final Collection<EquivalenceClass> allECs,
+		private ECBasedCERule toECBasedCERule(final ConditionalElement<ECLeaf> child,
+				final Collection<EquivalenceClass> oldECs,
 				final BiMap<EquivalenceClass, EquivalenceClass> localECsToConditionECs, final RuleCondition condition,
 				final FunctionalInjection functionalInjection) {
-			final HashBiMap<EquivalenceClass, EquivalenceClass> oldToNewEC = HashBiMap.create(allECs.stream()
+			// copy all equivalence classes
+			final HashBiMap<EquivalenceClass, EquivalenceClass> oldToNewEC = HashBiMap.create(oldECs.stream()
 					.collect(toMap(java.util.function.Function.identity(), EquivalenceClass::new)));
+			// using those copies, create a copy of the conditional element creating new fact variables on the way
 			ConditionalElement<ECLeaf> copy =
 					RuleConditionProcessor.copyDeeplyUsingNewECsAndFactVariables(oldToNewEC, child);
+			// remove all bindings not present in this disjunct of the rule
+			RuleConditionProcessor.removeMissingBindingsInNonOR(copy);
+			// collect all fact variables
 			final Set<SingleFactVariable> factVariables =
 					Lambdas.newIdentityHashSet(DeepFactVariableCollector.collect(copy));
-			RuleConditionProcessor.removeMissingBindingsInNonOR(copy);
 			copy = functionalInjection.apply(copy, condition, oldToNewEC, localECsToConditionECs);
-			// Make sure to find all equivalence classes (also the existential ones) by going through all fact
-			// variables. Since only slot or fact bindings are part of the equivalence classes at this point, going
-			// through the fact variables and their slots is enough.
-			final Set<EquivalenceClass> equivalenceClasses =
-					Stream.concat(factVariables.stream().map(SingleFactVariable::getEqual),
-							factVariables.stream().flatMap(fv -> fv.getSlotVariables().stream())
-									.flatMap(sv -> sv.getEqualSet().stream())).collect(toIdentityHashSet());
-			return new ECBasedCERule(copy, factVariables, equivalenceClasses, oldToNewEC.inverse());
+			// all equivalence classes (also the existential ones) that contain any binding in this disjunct of the
+			// rule are kept
+			final Set<EquivalenceClass> newECs =
+					oldToNewEC.values().stream().filter(EquivalenceClass::containsAnyBinding)
+							.collect(toIdentityHashSet());
+			return new ECBasedCERule(copy, factVariables, newECs, oldToNewEC.inverse());
 		}
 
 		@FunctionalInterface
@@ -178,6 +187,7 @@ public class ConstructCache {
 						localECsToConditionECs) -> {
 					ConditionalElement<ECLeaf> copy = ce;
 					// split up the equivalence classes on the existential thresholds
+					// this should leave alive the equivalence classes containing constants only
 					copy = RuleConditionProcessor.ExistentialECSplitter.split(condition.getScope(), copy);
 
 					// move functions not using any existential EC(-part)s out of the existential part

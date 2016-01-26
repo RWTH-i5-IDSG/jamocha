@@ -22,6 +22,7 @@ import org.jamocha.dn.ConstructCache.Defrule.ECSetRule;
 import org.jamocha.dn.ConstructCache.Defrule.PathRule;
 import org.jamocha.dn.ConstructCache.Defrule.PathSetRule;
 import org.jamocha.dn.compiler.ecblocks.*;
+import org.jamocha.dn.compiler.ecblocks.assignmentgraph.AssignmentGraph;
 import org.jamocha.dn.compiler.pathblocks.PathBlocks;
 import org.jamocha.dn.compiler.pathblocks.PathFilterConsolidator;
 import org.jamocha.dn.memory.Template;
@@ -29,6 +30,7 @@ import org.jamocha.filter.optimizer.*;
 import org.jamocha.languages.common.RuleConditionProcessor;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import static java.util.stream.Collectors.toList;
@@ -74,7 +76,7 @@ public enum RuleCompiler {
 		public Collection<PathRule> compileRules(final Template initialFactTemplate,
 				final Collection<Defrule> defrules) {
 			final List<PathSetRule> consolidatedRules =
-					defrules.stream().peek(rule -> RuleConditionProcessor.flatten(rule.getCondition())).flatMap(
+					defrules.stream().peek(rule -> RuleConditionProcessor.flattenInPlace(rule.getCondition())).flatMap(
 							rule -> new PathFilterConsolidator(initialFactTemplate, rule).consolidate().stream())
 							.collect(toList());
 			Collection<PathRule> transformedRules = PathBlocks.transform(consolidatedRules);
@@ -106,9 +108,11 @@ public enum RuleCompiler {
 		public Collection<PathRule> compileRules(final Template initialFactTemplate,
 				final Collection<Defrule> defrules) {
 			final List<ECSetRule> consolidatedRules =
-					defrules.stream().flatMap(rule -> RuleConditionProcessor.flatten(rule).stream())
+					defrules.stream().flatMap(rule -> RuleConditionProcessor.flattenOutOfPlace(rule).stream())
 							.flatMap(rule -> new CEToECTranslator(initialFactTemplate, rule).translate().stream())
 							.collect(toList());
+			final AssignmentGraph assignmentGraph = new AssignmentGraph();
+			consolidatedRules.forEach(assignmentGraph::addRule);
 			Collection<PathRule> transformedRules = ECBlocks.transform(consolidatedRules);
 			for (final Optimizer optimizer : ImmutableList.of(
 			/*

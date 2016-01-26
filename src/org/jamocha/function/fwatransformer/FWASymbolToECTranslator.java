@@ -16,9 +16,12 @@ package org.jamocha.function.fwatransformer;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.tuple.Pair;
 import org.jamocha.function.fwa.*;
 import org.jamocha.languages.common.RuleCondition;
 import org.jamocha.languages.common.ScopeStack;
+
+import java.util.HashMap;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
@@ -27,20 +30,27 @@ import org.jamocha.languages.common.ScopeStack;
 @Getter
 public class FWASymbolToECTranslator extends FWATranslator<SymbolLeaf, ECLeaf> {
 	final ScopeStack.Scope scope;
+	private final HashMap<Pair<ScopeStack.Scope, ConstantLeaf<SymbolLeaf>>, RuleCondition.EquivalenceClass>
+			constantToEquivalenceClasses;
 
 	public static PredicateWithArguments<ECLeaf> translate(final ScopeStack.Scope scope,
+			final HashMap<Pair<ScopeStack.Scope, ConstantLeaf<SymbolLeaf>>, RuleCondition.EquivalenceClass>
+					constantToEquivalenceClasses,
 			final PredicateWithArguments<SymbolLeaf> pwa) {
-		return (PredicateWithArguments<ECLeaf>) translate(scope, (FunctionWithArguments<SymbolLeaf>) pwa);
+		return (PredicateWithArguments<ECLeaf>) translate(scope, constantToEquivalenceClasses,
+				(FunctionWithArguments<SymbolLeaf>) pwa);
 	}
 
 	public static FunctionWithArguments<ECLeaf> translate(final ScopeStack.Scope scope,
+			final HashMap<Pair<ScopeStack.Scope, ConstantLeaf<SymbolLeaf>>, RuleCondition.EquivalenceClass>
+					constantToEquivalenceClasses,
 			final FunctionWithArguments<SymbolLeaf> pwa) {
-		return pwa.accept(new FWASymbolToECTranslator(scope)).functionWithArguments;
+		return pwa.accept(new FWASymbolToECTranslator(scope, constantToEquivalenceClasses)).functionWithArguments;
 	}
 
 	@Override
 	public FWATranslator<SymbolLeaf, ECLeaf> of() {
-		return new FWASymbolToECTranslator(this.scope);
+		return new FWASymbolToECTranslator(this.scope, this.constantToEquivalenceClasses);
 	}
 
 	@Override
@@ -48,10 +58,10 @@ public class FWASymbolToECTranslator extends FWATranslator<SymbolLeaf, ECLeaf> {
 		this.functionWithArguments = new ECLeaf(symbolLeaf.getSymbol().getEqual());
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public void visit(final ConstantLeaf<SymbolLeaf> constantLeaf) {
-		this.functionWithArguments = new ECLeaf(
-				RuleCondition.EquivalenceClass.newECFromConstantExpression(scope, new ConstantLeaf<>(constantLeaf)));
+		this.functionWithArguments = new ECLeaf(this.constantToEquivalenceClasses
+				.computeIfAbsent(Pair.of(this.scope, constantLeaf), cl -> RuleCondition.EquivalenceClass
+						.newECFromConstantExpression(this.scope, new ConstantLeaf<>(cl.getRight()))));
 	}
 }

@@ -20,6 +20,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Value;
 import lombok.extern.log4j.Log4j2;
+import org.apache.commons.lang3.tuple.Pair;
 import org.jamocha.dn.ConstructCache;
 import org.jamocha.dn.compiler.DeepFactVariableCollector;
 import org.jamocha.dn.compiler.ShallowFactVariableCollector;
@@ -297,7 +298,8 @@ public class RuleConditionProcessor {
 		}
 
 		private void visitLeaf(final ConditionalElement<L> ce) {
-			this.ce = this.negated ? new NotFunctionConditionalElement<L>(Lists.newArrayList(ImmutableList.of(ce))) : ce;
+			this.ce =
+					this.negated ? new NotFunctionConditionalElement<L>(Lists.newArrayList(ImmutableList.of(ce))) : ce;
 		}
 
 		@Override
@@ -433,9 +435,11 @@ public class RuleConditionProcessor {
 
 		private static EquivalenceClass splitEC(final Scope scope, final Set<SingleFactVariable> shallowFactVariables,
 				final EquivalenceClass oldEC) throws IllegalStateException {
-			assert oldEC.getConstantExpressions().isEmpty() && oldEC.getFunctionalExpressions().isEmpty() :
+			assert oldEC.getFunctionalExpressions().isEmpty() && (oldEC.getConstantExpressions().isEmpty() ||
+					(oldEC.getFactVariables().isEmpty() && oldEC.getSlotVariables().isEmpty())) :
 					"This method assumes that the parser leaves the equality tests involving constants and " +
-							"functional expressions explicitly.";
+							"functional expressions explicitly. Thus there should only be slot/fact binding ECs and " +
+							"constant ECs (separately).";
 			if (scope == oldEC.getMaximalScope()) {
 				// EC belongs to this scope, nothing to do
 				return oldEC;
@@ -508,16 +512,17 @@ public class RuleConditionProcessor {
 	@AllArgsConstructor
 	public static class CESymbolToECTranslator extends CETranslator<SymbolLeaf, ECLeaf> {
 		private Scope scope;
+		private final HashMap<Pair<Scope, ConstantLeaf<SymbolLeaf>>, RuleCondition.EquivalenceClass> constantToEquivalenceClasses;
 
 		@Override
 		public CETranslator<SymbolLeaf, ECLeaf> of() {
-			return new CESymbolToECTranslator(this.scope);
+			return new CESymbolToECTranslator(this.scope, this.constantToEquivalenceClasses);
 		}
 
 		@Override
 		public void visit(final TestConditionalElement<SymbolLeaf> ce) {
-			this.result = new TestConditionalElement<>(
-					FWASymbolToECTranslator.translate(this.scope, ce.getPredicateWithArguments()));
+			this.result = new TestConditionalElement<>(FWASymbolToECTranslator
+					.translate(this.scope, this.constantToEquivalenceClasses, ce.getPredicateWithArguments()));
 		}
 
 		@Override
