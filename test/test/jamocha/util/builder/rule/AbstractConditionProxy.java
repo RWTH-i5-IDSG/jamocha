@@ -2,11 +2,14 @@
  * Copyright 2002-2016 The Jamocha Team
  *
  *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance
+ * with the License. You may obtain a copy of the License at
  *
  * http://www.jamocha.org/
  *
- * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed
+ * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for
+ * the specific language governing permissions and limitations under
  * the License.
  */
 
@@ -17,9 +20,13 @@ import lombok.RequiredArgsConstructor;
 import org.jamocha.dn.memory.SlotAddress;
 import org.jamocha.dn.memory.Template;
 import org.jamocha.filter.ECFilterSet;
+import org.jamocha.function.Function;
+import org.jamocha.function.Predicate;
 import org.jamocha.languages.common.RuleCondition;
 import org.jamocha.languages.common.ScopeStack;
 import org.jamocha.languages.common.SingleFactVariable;
+import test.jamocha.util.builder.fwa.ECFunctionBuilder;
+import test.jamocha.util.builder.fwa.ECPredicateBuilder;
 
 import java.util.LinkedList;
 import java.util.Set;
@@ -61,4 +68,16 @@ public abstract class AbstractConditionProxy implements ConditionBuilder {
 	public void add(final ECFilterSet filter) {
 		this.condition.add(filter);
 	}
+
+	@Override
+	public PredicateBuilder newPredicateBuilder(final Predicate predicate) {
+		return new PredicateBuilder(new ECPredicateBuilder(predicate, this.scopeStack.getCurrentScope()), this);
+	}
+
+	@Override
+	public ECFunctionBuilder newFunctionBuilder(final Function<?> function) {
+		return new ECFunctionBuilder(function, this.scopeStack.getCurrentScope());
+	}
+
+
 }
