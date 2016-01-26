@@ -240,8 +240,8 @@ public class RuleCondition {
 						"Tried to add a FunctionWithArguments of type " + fwa.getReturnType() +
 								" to an EquivalenceClass of type " + type + "!");
 			}
-			checkContainmentAndAdd(ECCollector.collect(fwa).isEmpty() ? constantExpressions : functionalExpressions,
-					fwa);
+			checkContainmentAndAdd(
+					FunctionalExpressionIdentifier.isConstant(fwa) ? constantExpressions : functionalExpressions, fwa);
 		}
 
 		private static void checkContainmentAndAdd(final LinkedList<FunctionWithArguments<ECLeaf>> target,
