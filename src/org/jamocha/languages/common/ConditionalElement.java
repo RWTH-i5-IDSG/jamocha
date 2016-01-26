@@ -14,28 +14,26 @@
  */
 package org.jamocha.languages.common;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
-
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-
 import org.jamocha.function.fwa.ExchangeableLeaf;
 import org.jamocha.function.fwa.PredicateWithArguments;
 import org.jamocha.languages.common.ScopeStack.Scope;
 import org.jamocha.visitor.Visitable;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
 @RequiredArgsConstructor
-public abstract class ConditionalElement<L extends ExchangeableLeaf<L>> implements
-		Visitable<ConditionalElementsVisitor<L>> {
+public abstract class ConditionalElement<L extends ExchangeableLeaf<L>>
+		implements Visitable<ConditionalElementsVisitor<L>> {
 
 	@Getter
 	final List<ConditionalElement<L>> children;
@@ -59,8 +57,8 @@ public abstract class ConditionalElement<L extends ExchangeableLeaf<L>> implemen
 		abstract public PositiveOrNegativeExistentialConditionalElement<L> negate();
 	}
 
-	public static class ExistentialConditionalElement<L extends ExchangeableLeaf<L>> extends
-			PositiveOrNegativeExistentialConditionalElement<L> {
+	public static class ExistentialConditionalElement<L extends ExchangeableLeaf<L>>
+			extends PositiveOrNegativeExistentialConditionalElement<L> {
 		public ExistentialConditionalElement(final Scope scope, final AndFunctionConditionalElement<L> child) {
 			super(scope, child);
 		}
@@ -86,8 +84,8 @@ public abstract class ConditionalElement<L extends ExchangeableLeaf<L>> implemen
 		}
 	}
 
-	public static class NegatedExistentialConditionalElement<L extends ExchangeableLeaf<L>> extends
-			PositiveOrNegativeExistentialConditionalElement<L> {
+	public static class NegatedExistentialConditionalElement<L extends ExchangeableLeaf<L>>
+			extends PositiveOrNegativeExistentialConditionalElement<L> {
 		public NegatedExistentialConditionalElement(final Scope scope, final AndFunctionConditionalElement<L> child) {
 			super(scope, child);
 		}
@@ -186,8 +184,8 @@ public abstract class ConditionalElement<L extends ExchangeableLeaf<L>> implemen
 	}
 
 	/**
-	 * This class is inserted into a {@link RuleCondition} iff there are no variable bindings in the
-	 * {@link RuleCondition}.
+	 * This class is inserted into a {@link RuleCondition} iff there are no variable bindings in the {@link
+	 * RuleCondition}.
 	 *
 	 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
 	 */
@@ -215,7 +213,8 @@ public abstract class ConditionalElement<L extends ExchangeableLeaf<L>> implemen
 	/**
 	 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
 	 */
-	public static class TemplatePatternConditionalElement<L extends ExchangeableLeaf<L>> extends ConditionalElement<L> {
+	public static class TemplatePatternConditionalElement<L extends ExchangeableLeaf<L>> extends
+			ConditionalElement<L> {
 		@Getter
 		final SingleFactVariable factVariable;
 
