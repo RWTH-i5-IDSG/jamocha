@@ -15,6 +15,7 @@
 package org.jamocha.languages.common;
 
 import com.google.common.collect.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Value;
@@ -97,19 +98,13 @@ public class RuleConditionProcessor {
 
 	public static void removeMissingBindingsInOR(final ConditionalElement<ECLeaf> ecCE) {
 		for (final ConditionalElement<ECLeaf> child : ecCE.getChildren()) {
-			final List<SingleFactVariable> fvs = DeepFactVariableCollector.collect(child);
-			final Set<EquivalenceClass> equivalenceClasses =
-					child.accept(new DeepECCollector()).getEquivalenceClasses();
-			for (final EquivalenceClass equivalenceClass : equivalenceClasses) {
-				equivalenceClass.getFactVariables().removeIf(negate(fvs::contains));
-				equivalenceClass.getSlotVariables().removeIf(sv -> !fvs.contains(sv.getFactVariable()));
-			}
+			removeMissingBindingsInNonOR(child);
 		}
 	}
 
-	public static void removeMissingBindingsInNonOR(final ConditionalElement<ECLeaf> ecCE) {
-		final List<SingleFactVariable> fvs = DeepFactVariableCollector.collect(ecCE);
-		final Set<EquivalenceClass> equivalenceClasses = ecCE.accept(new DeepECCollector()).getEquivalenceClasses();
+	public static void removeMissingBindingsInNonOR(final ConditionalElement<ECLeaf> child) {
+		final List<SingleFactVariable> fvs = DeepFactVariableCollector.collect(child);
+		final Set<EquivalenceClass> equivalenceClasses = child.accept(new DeepECCollector()).getEquivalenceClasses();
 		for (final EquivalenceClass equivalenceClass : equivalenceClasses) {
 			equivalenceClass.getFactVariables().removeIf(negate(fvs::contains));
 			equivalenceClass.getSlotVariables().removeIf(sv -> !fvs.contains(sv.getFactVariable()));
@@ -252,12 +247,12 @@ public class RuleConditionProcessor {
 	private static class NotFunctionConditionalElementSeep<L extends ExchangeableLeaf<L>>
 			implements ConditionalElementsVisitor<L> {
 
-		final private boolean negated;
+		private final boolean negated;
 		@Getter
 		private ConditionalElement<L> ce = null;
 
 		public NotFunctionConditionalElementSeep() {
-			negated = false;
+			this.negated = false;
 		}
 
 		private void processChildren(final ConditionalElement<L> ce, final boolean nextNegated) {
@@ -274,35 +269,35 @@ public class RuleConditionProcessor {
 		@Override
 		public void visit(final NotFunctionConditionalElement<L> ce) {
 			assert 1 == ce.getChildren().size();
-			this.ce = ce.getChildren().get(0).accept(new NotFunctionConditionalElementSeep<L>(!negated)).ce;
+			this.ce = ce.getChildren().get(0).accept(new NotFunctionConditionalElementSeep<L>(!this.negated)).ce;
 		}
 
 		@Override
 		public void visit(final OrFunctionConditionalElement<L> ce) {
-			this.ce = applySkippingIfNegated(ce, negated, RuleConditionProcessor::combineViaAnd);
-			processChildren(this.ce, negated);
+			this.ce = applySkippingIfNegated(ce, this.negated, RuleConditionProcessor::combineViaAnd);
+			processChildren(this.ce, this.negated);
 		}
 
 		@Override
 		public void visit(final AndFunctionConditionalElement<L> ce) {
-			this.ce = applySkippingIfNegated(ce, negated, RuleConditionProcessor::combineViaOr);
-			processChildren(this.ce, negated);
+			this.ce = applySkippingIfNegated(ce, this.negated, RuleConditionProcessor::combineViaOr);
+			processChildren(this.ce, this.negated);
 		}
 
 		@Override
 		public void visit(final ExistentialConditionalElement<L> ce) {
-			this.ce = negated ? ce.negate() : ce;
+			this.ce = this.negated ? ce.negate() : ce;
 			processChildren(this.ce, false);
 		}
 
 		@Override
 		public void visit(final NegatedExistentialConditionalElement<L> ce) {
-			this.ce = negated ? ce.negate() : ce;
+			this.ce = this.negated ? ce.negate() : ce;
 			processChildren(this.ce, false);
 		}
 
 		private void visitLeaf(final ConditionalElement<L> ce) {
-			this.ce = negated ? new NotFunctionConditionalElement<L>(Lists.newArrayList(ImmutableList.of(ce))) : ce;
+			this.ce = this.negated ? new NotFunctionConditionalElement<L>(Lists.newArrayList(ImmutableList.of(ce))) : ce;
 		}
 
 		@Override
@@ -321,7 +316,7 @@ public class RuleConditionProcessor {
 		}
 	}
 
-	private static interface Stripping<L extends ExchangeableLeaf<L>> extends ConditionalElementsVisitor<L> {
+	private interface Stripping<L extends ExchangeableLeaf<L>> extends ConditionalElementsVisitor<L> {
 		List<ConditionalElement<L>> getCes();
 	}
 
@@ -382,7 +377,7 @@ public class RuleConditionProcessor {
 
 		@Override
 		public void visit(final SymbolLeaf leaf) {
-			symbols.add(leaf.getSymbol());
+			this.symbols.add(leaf.getSymbol());
 		}
 	}
 
@@ -415,7 +410,7 @@ public class RuleConditionProcessor {
 
 		@Override
 		public ExistentialECSplitter of() {
-			return new ExistentialECSplitter(state);
+			return new ExistentialECSplitter(this.state);
 		}
 
 		@Override
@@ -491,7 +486,7 @@ public class RuleConditionProcessor {
 		@Override
 		public void visit(final TestConditionalElement<ECLeaf> ce) {
 			this.result = new TestConditionalElement<>((PredicateWithArguments<ECLeaf>) ce.getPredicateWithArguments()
-					.accept(new FWAECReplacer(key -> state.oldToNew.getOrDefault(key, key)))
+					.accept(new FWAECReplacer(key -> this.state.oldToNew.getOrDefault(key, key)))
 					.getFunctionWithArguments());
 		}
 
@@ -510,16 +505,35 @@ public class RuleConditionProcessor {
 		}
 	}
 
+	@AllArgsConstructor
 	public static class CESymbolToECTranslator extends CETranslator<SymbolLeaf, ECLeaf> {
+		private Scope scope;
+
 		@Override
 		public CETranslator<SymbolLeaf, ECLeaf> of() {
-			return new CESymbolToECTranslator();
+			return new CESymbolToECTranslator(this.scope);
 		}
 
 		@Override
 		public void visit(final TestConditionalElement<SymbolLeaf> ce) {
-			this.result =
-					new TestConditionalElement<>(FWASymbolToECTranslator.translate(ce.getPredicateWithArguments()));
+			this.result = new TestConditionalElement<>(
+					FWASymbolToECTranslator.translate(this.scope, ce.getPredicateWithArguments()));
+		}
+
+		@Override
+		public void visit(final ExistentialConditionalElement<SymbolLeaf> ce) {
+			final Scope scopeBackup = this.scope;
+			this.scope = ce.getScope();
+			super.visit(ce);
+			this.scope = scopeBackup;
+		}
+
+		@Override
+		public void visit(final NegatedExistentialConditionalElement<SymbolLeaf> ce) {
+			final Scope scopeBackup = this.scope;
+			this.scope = ce.getScope();
+			super.visit(ce);
+			this.scope = scopeBackup;
 		}
 	}
 
@@ -647,12 +661,12 @@ public class RuleConditionProcessor {
 
 		@Override
 		public void visit(final InitialFactConditionalElement<ECLeaf> ce) {
-			fvCEs.add(ce);
+			this.fvCEs.add(ce);
 		}
 
 		@Override
 		public void visit(final TemplatePatternConditionalElement<ECLeaf> ce) {
-			fvCEs.add(ce);
+			this.fvCEs.add(ce);
 		}
 
 		@Override
@@ -682,22 +696,22 @@ public class RuleConditionProcessor {
 
 		@Override
 		public void visit(final TestConditionalElement<ECLeaf> ce) {
-			testAndExistentialCEs.add(ce);
+			this.testAndExistentialCEs.add(ce);
 		}
 
 		@Override
 		public void visit(final NotFunctionConditionalElement<ECLeaf> ce) {
-			testAndExistentialCEs.add(ce);
+			this.testAndExistentialCEs.add(ce);
 		}
 
 		@Override
 		public void visit(final ExistentialConditionalElement<ECLeaf> ce) {
-			testAndExistentialCEs.add(ce);
+			this.testAndExistentialCEs.add(ce);
 		}
 
 		@Override
 		public void visit(final NegatedExistentialConditionalElement<ECLeaf> ce) {
-			testAndExistentialCEs.add(ce);
+			this.testAndExistentialCEs.add(ce);
 		}
 	}
 
@@ -791,22 +805,22 @@ public class RuleConditionProcessor {
 		@Override
 		public void visit(final TestConditionalElement<ECLeaf> ce) {
 			this.result = new TestConditionalElement<>((PredicateWithArguments<ECLeaf>) ce.getPredicateWithArguments()
-					.accept(new FWAECReplacer(oldToNewEC::get)).getFunctionWithArguments());
+					.accept(new FWAECReplacer(this.oldToNewEC::get)).getFunctionWithArguments());
 		}
 
 		@Override
 		public void visit(final TemplatePatternConditionalElement<ECLeaf> ce) {
-			result = new TemplatePatternConditionalElement<>(oldToNewFV.get(ce.getFactVariable()));
+			this.result = new TemplatePatternConditionalElement<>(this.oldToNewFV.get(ce.getFactVariable()));
 		}
 
 		@Override
 		public void visit(final InitialFactConditionalElement<ECLeaf> ce) {
-			result = new InitialFactConditionalElement<>(oldToNewFV.get(ce.getInitialFactVariable()));
+			this.result = new InitialFactConditionalElement<>(this.oldToNewFV.get(ce.getInitialFactVariable()));
 		}
 
 		@Override
 		public CEECReplacer of() {
-			return new CEECReplacer(oldToNewEC, oldToNewFV);
+			return new CEECReplacer(this.oldToNewEC, this.oldToNewFV);
 		}
 	}
 
@@ -819,12 +833,12 @@ public class RuleConditionProcessor {
 
 		@Override
 		public void visit(final ECLeaf leaf) {
-			this.functionWithArguments = new ECLeaf(oldToNew.apply(leaf.getEc()));
+			this.functionWithArguments = new ECLeaf(this.oldToNew.apply(leaf.getEc()));
 		}
 
 		@Override
 		public FWAECReplacer of() {
-			return new FWAECReplacer(oldToNew);
+			return new FWAECReplacer(this.oldToNew);
 		}
 	}
 }

@@ -17,6 +17,8 @@ package org.jamocha.function.fwatransformer;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.jamocha.function.fwa.*;
+import org.jamocha.languages.common.RuleCondition;
+import org.jamocha.languages.common.ScopeStack;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
@@ -24,18 +26,21 @@ import org.jamocha.function.fwa.*;
 @RequiredArgsConstructor
 @Getter
 public class FWASymbolToECTranslator extends FWATranslator<SymbolLeaf, ECLeaf> {
+	final ScopeStack.Scope scope;
 
-	public static PredicateWithArguments<ECLeaf> translate(final PredicateWithArguments<SymbolLeaf> pwa) {
-		return (PredicateWithArguments<ECLeaf>) translate((FunctionWithArguments<SymbolLeaf>) pwa);
+	public static PredicateWithArguments<ECLeaf> translate(final ScopeStack.Scope scope,
+			final PredicateWithArguments<SymbolLeaf> pwa) {
+		return (PredicateWithArguments<ECLeaf>) translate(scope, (FunctionWithArguments<SymbolLeaf>) pwa);
 	}
 
-	public static FunctionWithArguments<ECLeaf> translate(final FunctionWithArguments<SymbolLeaf> pwa) {
-		return pwa.accept(new FWASymbolToECTranslator()).functionWithArguments;
+	public static FunctionWithArguments<ECLeaf> translate(final ScopeStack.Scope scope,
+			final FunctionWithArguments<SymbolLeaf> pwa) {
+		return pwa.accept(new FWASymbolToECTranslator(scope)).functionWithArguments;
 	}
 
 	@Override
 	public FWATranslator<SymbolLeaf, ECLeaf> of() {
-		return new FWASymbolToECTranslator();
+		return new FWASymbolToECTranslator(this.scope);
 	}
 
 	@Override
@@ -46,6 +51,7 @@ public class FWASymbolToECTranslator extends FWATranslator<SymbolLeaf, ECLeaf> {
 	@SuppressWarnings("unchecked")
 	@Override
 	public void visit(final ConstantLeaf<SymbolLeaf> constantLeaf) {
-		this.functionWithArguments = new ConstantLeaf<>(constantLeaf);
+		this.functionWithArguments = new ECLeaf(
+				RuleCondition.EquivalenceClass.newECFromConstantExpression(scope, new ConstantLeaf<>(constantLeaf)));
 	}
 }

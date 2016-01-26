@@ -119,8 +119,9 @@ public class ConstructCache {
 			final RuleCondition condition = Defrule.this.getCondition();
 			ConditionalElement<SymbolLeaf> symbolCE = RuleConditionProcessor.flattenInPlace(condition);
 			// simply translate SymbolLeafs to ECLeafs by calling getEC
-			ConditionalElement<ECLeaf> ecCE =
-					symbolCE.accept(new RuleConditionProcessor.CESymbolToECTranslator()).getResult();
+			ConditionalElement<ECLeaf> ecCE = symbolCE.accept(
+					new RuleConditionProcessor.CESymbolToECTranslator(Defrule.this.getCondition().getScope()))
+					.getResult();
 			final List<EquivalenceClass> allECs =
 					Defrule.this.condition.getVariableSymbols().stream().map(ScopeStack.VariableSymbol::getEqual)
 							.collect(toList());
