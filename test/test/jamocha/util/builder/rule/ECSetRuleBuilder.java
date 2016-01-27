@@ -55,6 +55,7 @@ public class ECSetRuleBuilder extends AbstractConditionProxy {
 			if (this != ECSetRuleBuilder.this.stack.peek()) {
 				throw new IllegalStateException("Close was called on a scope that is not on top of the stack!");
 			}
+			this.equivalenceClasses.addAll(this.constantToEquivalenceClass.values());
 			final ECFilterSet.ECExistentialSet ecExistentialSet = CEToECTranslator.NoORsTranslator
 					.toEcExistentialSet(ECSetRuleBuilder.this.initialFactVariable, this.positive, this.factVariableSet,
 							this.equivalenceClasses, this.condition);
@@ -93,6 +94,7 @@ public class ECSetRuleBuilder extends AbstractConditionProxy {
 		final Set<ECFilterSet> condition = conditionProxy.condition;
 		final Set<SingleFactVariable> factVariableSet = conditionProxy.factVariableSet;
 		final Set<RuleCondition.EquivalenceClass> equivalenceClasses = conditionProxy.equivalenceClasses;
+		equivalenceClasses.addAll(this.constantToEquivalenceClass.values());
 		final Set<RuleCondition.EquivalenceClass> usedECs = ECCollector.collect(condition);
 		if (usedECs.contains(this.initialFactVariable.getEqual())) {
 			factVariableSet.add(this.initialFactVariable);
