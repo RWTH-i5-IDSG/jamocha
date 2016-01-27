@@ -58,7 +58,7 @@ public class AssignmentGraphToDot {
 	}
 
 	private static String toString(final ECFilter f) {
-		return ((PredicateWithArgumentsComposite<ECLeaf>) f.getFunction()).getFunction().inClips();
+		return FWAECLeafToTypeLeafTranslator.translate(f.getFunction()).toString();
 	}
 
 	private static String toString(final ECFilter filter, final HashBiMap<ECFilter, String> target) {
