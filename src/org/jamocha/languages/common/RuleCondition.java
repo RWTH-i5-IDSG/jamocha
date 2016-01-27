@@ -22,10 +22,7 @@ import org.jamocha.dn.memory.Template;
 import org.jamocha.dn.memory.Template.Slot;
 import org.jamocha.filter.ECCollector;
 import org.jamocha.filter.Path;
-import org.jamocha.function.fwa.ECLeaf;
-import org.jamocha.function.fwa.FunctionWithArguments;
-import org.jamocha.function.fwa.PathLeaf;
-import org.jamocha.function.fwa.SymbolLeaf;
+import org.jamocha.function.fwa.*;
 import org.jamocha.languages.common.ScopeStack.Scope;
 import org.jamocha.languages.common.ScopeStack.VariableSymbol;
 import org.jamocha.languages.common.SingleFactVariable.SingleSlotVariable;
@@ -83,13 +80,14 @@ public class RuleCondition {
 		@Override
 		public String toString() {
 			final StringBuilder sb = new StringBuilder();
-			sb.append(Objects.toString(type));
+			sb.append(Objects.toString(this.type));
 			sb.append("-EC: {");
-			if (!factVariables.isEmpty()) sb.append(Objects.toString(factVariables));
-			if (!slotVariables.isEmpty()) sb.append(Objects.toString(slotVariables));
-			if (!constantExpressions.isEmpty()) sb.append(Objects.toString(constantExpressions));
-			if (!functionalExpressions.isEmpty()) sb.append(Objects.toString(functionalExpressions));
-			if (!equalParentEquivalenceClasses.isEmpty()) sb.append(Objects.toString(equalParentEquivalenceClasses));
+			if (!this.factVariables.isEmpty()) sb.append(Objects.toString(this.factVariables));
+			if (!this.slotVariables.isEmpty()) sb.append(Objects.toString(this.slotVariables));
+			if (!this.constantExpressions.isEmpty()) sb.append(Objects.toString(this.constantExpressions));
+			if (!this.functionalExpressions.isEmpty()) sb.append(Objects.toString(this.functionalExpressions));
+			if (!this.equalParentEquivalenceClasses.isEmpty())
+				sb.append(Objects.toString(this.equalParentEquivalenceClasses));
 			sb.append("}@");
 			sb.append(Integer.toHexString(System.identityHashCode(this)));
 			return sb.toString();
@@ -175,19 +173,20 @@ public class RuleCondition {
 			if (this.factVariables.isEmpty()) {
 				return;
 			}
-			assert SlotType.FACTADDRESS == type;
+			assert SlotType.FACTADDRESS == this.type;
 			while (true) {
 				final Optional<SingleFactVariable> optFactVariable =
-						this.factVariables.stream().filter(fv -> !merged.contains(fv)).findAny();
+						this.factVariables.stream().filter(fv -> !this.merged.contains(fv)).findAny();
 				if (!optFactVariable.isPresent()) break;
 				final SingleFactVariable thisFV = optFactVariable.get();
-				final SingleFactVariable mergeFV = merged.stream().findAny()
-						.orElseGet(() -> factVariables.stream().filter(fv -> thisFV != fv).findAny().orElse(null));
+				final SingleFactVariable mergeFV = this.merged.stream().findAny()
+						.orElseGet(() -> this.factVariables.stream().filter(fv -> thisFV != fv).findAny().orElse
+								(null));
 				if (null == mergeFV) break;
-				merged.add(thisFV);
-				merged.add(mergeFV);
-				factVariables.remove(thisFV);
-				factVariables.remove(mergeFV);
+				this.merged.add(thisFV);
+				this.merged.add(mergeFV);
+				this.factVariables.remove(thisFV);
+				this.factVariables.remove(mergeFV);
 				final Template template = thisFV.template;
 				assert thisFV.template == mergeFV.template;
 				for (final Slot slot : template.getSlots()) {
@@ -202,15 +201,15 @@ public class RuleCondition {
 					}
 				}
 			}
-			if (factVariables.isEmpty()) {
-				factVariables.add(merged.iterator().next());
+			if (this.factVariables.isEmpty()) {
+				this.factVariables.add(this.merged.iterator().next());
 			}
 		}
 
 		public void add(final SingleFactVariable fv) {
-			if (null == type) type = SlotType.FACTADDRESS;
-			if (SlotType.FACTADDRESS != type) throw new IllegalArgumentException(
-					"Tried to add a SingleFactVariable to an EquivalenceClass of type " + type +
+			if (null == this.type) this.type = SlotType.FACTADDRESS;
+			if (SlotType.FACTADDRESS != this.type) throw new IllegalArgumentException(
+					"Tried to add a SingleFactVariable to an EquivalenceClass of type " + this.type +
 							" instead of FACTADDRESS!");
 			if (!this.factVariables.isEmpty() &&
 					fv.getTemplate() != this.factVariables.iterator().next().getTemplate()) {
@@ -221,10 +220,10 @@ public class RuleCondition {
 		}
 
 		public void add(final SingleSlotVariable sv) {
-			if (null == type) type = sv.getType();
-			if (sv.getType() != type) {
+			if (null == this.type) this.type = sv.getType();
+			if (sv.getType() != this.type) {
 				throw new IllegalArgumentException("Tried to add a SingleSlotVariable of type " + sv.getType() +
-						" to an EquivalenceClass of type " + type + "!");
+						" to an EquivalenceClass of type " + this.type + "!");
 			}
 			if (this.slotVariables.contains(sv)) {
 				throw new IllegalArgumentException(
@@ -234,14 +233,35 @@ public class RuleCondition {
 		}
 
 		public void add(final FunctionWithArguments<ECLeaf> fwa) {
-			if (null == type) type = fwa.getReturnType();
-			if (fwa.getReturnType() != type) {
+			if (null == this.type) this.type = fwa.getReturnType();
+			if (fwa.getReturnType() != this.type) {
 				throw new IllegalArgumentException(
 						"Tried to add a FunctionWithArguments of type " + fwa.getReturnType() +
-								" to an EquivalenceClass of type " + type + "!");
+								" to an EquivalenceClass of type " + this.type + "!");
 			}
-			checkContainmentAndAdd(
-					FunctionalExpressionIdentifier.isConstant(fwa) ? constantExpressions : functionalExpressions, fwa);
+			checkContainmentAndAdd(FunctionalExpressionIdentifier.isConstant(fwa) ? this.constantExpressions :
+					this.functionalExpressions, fwa);
+		}
+
+		public void add(final long value) {
+			if (null == this.type) this.type = SlotType.LONG;
+			if (SlotType.LONG != this.type) throw new IllegalArgumentException(
+					"Tried to add a LONG to an EquivalenceClass of type " + this.type + "!");
+			checkContainmentAndAdd(this.constantExpressions, new ConstantLeaf<>(value, SlotType.LONG));
+		}
+
+		public void add(final double value) {
+			if (null == this.type) this.type = SlotType.DOUBLE;
+			if (SlotType.DOUBLE != this.type) throw new IllegalArgumentException(
+					"Tried to add a DOUBLE to an EquivalenceClass of type " + this.type + "!");
+			checkContainmentAndAdd(this.constantExpressions, new ConstantLeaf<>(value, SlotType.DOUBLE));
+		}
+
+		public void add(final String value) {
+			if (null == this.type) this.type = SlotType.STRING;
+			if (SlotType.STRING != this.type) throw new IllegalArgumentException(
+					"Tried to add a STRING to an EquivalenceClass of type " + this.type + "!");
+			checkContainmentAndAdd(this.constantExpressions, new ConstantLeaf<>(value, SlotType.STRING));
 		}
 
 		private static void checkContainmentAndAdd(final LinkedList<FunctionWithArguments<ECLeaf>> target,
@@ -273,15 +293,15 @@ public class RuleCondition {
 		}
 
 		public PathLeaf getPathLeaf(final Map<EquivalenceClass, Path> ec2Path, final SingleSlotVariable sv) {
-			if (!factVariables.isEmpty()) {
-				return Optional.ofNullable(ec2Path.get(factVariables.getFirst().getEqual()))
+			if (!this.factVariables.isEmpty()) {
+				return Optional.ofNullable(ec2Path.get(this.factVariables.getFirst().getEqual()))
 						.map(path -> new PathLeaf(path, (SlotAddress) null)).orElse(null);
 			}
 			return Optional.ofNullable(sv).map(var -> var.getPathLeaf(ec2Path)).orElse(null);
 		}
 
 		public PathLeaf getPathLeaf(final Map<EquivalenceClass, Path> ec2Path) {
-			return getPathLeaf(ec2Path, slotVariables.peekFirst());
+			return getPathLeaf(ec2Path, this.slotVariables.peekFirst());
 		}
 
 		public boolean isNonTrivial() {
