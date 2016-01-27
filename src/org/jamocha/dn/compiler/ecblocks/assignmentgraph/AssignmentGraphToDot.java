@@ -1,0 +1,178 @@
+/*
+ * Copyright 2002-2016 The Jamocha Team
+ *
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance
+ * with the License. You may obtain a copy of the License at
+ *
+ * http://www.jamocha.org/
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed
+ * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for
+ * the specific language governing permissions and limitations under
+ * the License.
+ */
+
+package org.jamocha.dn.compiler.ecblocks.assignmentgraph;
+
+import com.google.common.collect.HashBiMap;
+import org.jamocha.dn.compiler.ecblocks.assignmentgraph.node.binding.*;
+import org.jamocha.dn.compiler.ecblocks.assignmentgraph.node.occurrence.ECOccurrenceNode;
+import org.jamocha.dn.compiler.ecblocks.assignmentgraph.node.occurrence.FilterOccurrenceNode;
+import org.jamocha.dn.compiler.ecblocks.assignmentgraph.node.occurrence.FunctionalExpressionOccurrenceNode;
+import org.jamocha.filter.ECFilter;
+import org.jamocha.function.fwa.ECLeaf;
+import org.jamocha.function.fwa.FunctionWithArgumentsComposite;
+import org.jamocha.function.fwa.PredicateWithArgumentsComposite;
+import org.jamocha.languages.common.SingleFactVariable;
+
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.function.Function;
+
+/**
+ * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
+ */
+public class AssignmentGraphToDot {
+	private static <T> String toString(final T element, final Function<T, String> toString,
+			final HashBiMap<T, String> target) {
+		final String old = target.get(element);
+		if (null != old) return old;
+		final String base = toString.apply(element) + "_";
+		int i = 1;
+		String str = base + i;
+		while (target.containsValue(str)) {
+			str = base + ++i;
+		}
+		target.put(element, str);
+		return str;
+	}
+
+	private static String toString(final ECFilter filter, final HashBiMap<ECFilter, String> target) {
+		return toString(filter,
+				f -> ((PredicateWithArgumentsComposite<ECLeaf>) f.getFunction()).getFunction().inClips(), target);
+	}
+
+	private static String toString(final ECOccurrenceNode occurrenceNode,
+			final HashBiMap<ECOccurrenceNode, String> target) {
+		return toString(occurrenceNode, o -> "o", target);
+	}
+
+	private static String toString(final BindingNode bindingNode) {
+		switch (bindingNode.getNodeType()) {
+			case FACT_BINDING:
+				return ((FactBindingNode) bindingNode).getGroupingFactVariable().getTemplate().getName();
+			case SLOT_BINDING:
+				return ((SlotBindingNode) bindingNode).getSlotInGroupingFactVariable().getSlotName();
+			case CONSTANT_EXPRESSION:
+				return ((ConstantBindingNode) bindingNode).getConstant().getValue().toString();
+			case FUNCTIONAL_EXPRESSION:
+				return ((FunctionWithArgumentsComposite) ((FunctionalExpressionBindingNode) bindingNode)
+						.getFunctionalExpression()).getFunction().toString();
+		}
+		return "null";
+	}
+
+	private static String toString(final BindingNode bindingNode, final HashBiMap<BindingNode, String> target) {
+		return toString(bindingNode, b -> '[' + toString(b) + ']', target);
+	}
+
+	private static String toString(final SingleFactVariable factVariable,
+			final HashBiMap<SingleFactVariable, String> target) {
+		return toString(factVariable, fv -> fv.getTemplate().getName(), target);
+	}
+
+	private static StringBuilder makeEdge(final StringBuilder sb, final String rawSource, final String rawTarget) {
+		sb.append('"').append(rawSource).append('"');
+		sb.append("->");
+		sb.append('"').append(rawTarget).append('"');
+		return sb;
+	}
+
+	public static String toDot(final AssignmentGraph assignmentGraph) {
+		final HashBiMap<ECFilter, String> filterToString = HashBiMap.create();
+		final HashBiMap<ECOccurrenceNode, String> occurrenceNodeToString = HashBiMap.create();
+		final HashBiMap<BindingNode, String> bindingNodeToString = HashBiMap.create();
+		final HashBiMap<SingleFactVariable, String> templateInstanceToString = HashBiMap.create();
+
+
+		final StringBuilder sb = new StringBuilder();
+		final String n = System.lineSeparator();
+		sb.append("digraph network {").append(n).append(n);
+
+		sb.append("// filter nodes").append(n).append("{ rank = same").append(n);
+		for (final ECFilter filter : assignmentGraph.getFilterToOccurrenceNodes().keySet()) {
+			sb.append('\t').append('"').append(toString(filter, filterToString)).append('"').append(n);
+		}
+		sb.append("}").append(n).append(n);
+
+		sb.append("// occurrence nodes").append(n).append("{ rank = same").append(n);
+		for (final ECOccurrenceNode occurrenceNode : assignmentGraph.getGraph().getECOccurrenceNodes()) {
+			sb.append('\t').append('"').append(toString(occurrenceNode, occurrenceNodeToString)).append('"').append(n);
+		}
+		sb.append("}").append(n).append(n);
+
+		sb.append("// binding nodes").append(n).append("{ rank = same").append(n);
+		for (final BindingNode bindingNode : assignmentGraph.getGraph().getBindingNodes()) {
+			sb.append('\t').append('"').append(toString(bindingNode, bindingNodeToString)).append('"').append(n);
+		}
+		sb.append("}").append(n).append(n);
+
+		sb.append("// template instances nodes").append(n).append("{ rank = same").append(n);
+		for (final SingleFactVariable templateInstance : assignmentGraph.getTemplateInstanceToBindingNodes().keySet
+				()) {
+			sb.append('\t').append('"').append(toString(templateInstance, templateInstanceToString)).append('"')
+					.append(n);
+		}
+		sb.append("}").append(n).append(n);
+
+		// edges between filters and filter occurrence nodes
+		for (final Map.Entry<ECFilter, TreeMap<Integer, FilterOccurrenceNode>> entry : assignmentGraph
+				.getFilterToOccurrenceNodes().entrySet()) {
+			final ECFilter filter = entry.getKey();
+			for (final FilterOccurrenceNode occurrenceNode : entry.getValue().values()) {
+				makeEdge(sb, toString(filter, filterToString), toString(occurrenceNode, occurrenceNodeToString))
+						.append(n);
+			}
+		}
+		// edges between functional expression bindings and occurrence nodes
+		for (final Map.Entry<FunctionalExpressionBindingNode, TreeMap<Integer, FunctionalExpressionOccurrenceNode>>
+				entry : assignmentGraph
+				.getFunctionalExpressionBindingToOccurrenceNodes().entrySet()) {
+			final FunctionalExpressionBindingNode functionalExpression = entry.getKey();
+			for (final FunctionalExpressionOccurrenceNode occurrenceNode : entry.getValue().values()) {
+				makeEdge(sb, toString(functionalExpression, bindingNodeToString),
+						toString(occurrenceNode, occurrenceNodeToString)).append(n);
+			}
+		}
+		// edges between bindings and template instances
+		for (final Map.Entry<SingleFactVariable, Set<SlotOrFactBindingNode>> entry : assignmentGraph
+				.getTemplateInstanceToBindingNodes().entrySet()) {
+			final SingleFactVariable templateInstance = entry.getKey();
+			for (final SlotOrFactBindingNode bindingNode : entry.getValue()) {
+				makeEdge(sb, toString(bindingNode, bindingNodeToString),
+						toString(templateInstance, templateInstanceToString)).append(n);
+			}
+		}
+		// edges between occurrences and bindings
+		for (final AssignmentGraph.Edge edge : assignmentGraph.getGraph().edgeSet()) {
+			makeEdge(sb, toString(edge.getSource(), occurrenceNodeToString),
+					toString(edge.getTarget(), bindingNodeToString)).append(n);
+		}
+		sb.append(n).append(n);
+
+		sb.append("}").append(n);
+		return sb.toString();
+	}
+
+	public static void toDot(final AssignmentGraph assignmentGraph, final String fileName) {
+		try (final FileWriter fileWriter = new FileWriter(fileName)) {
+			fileWriter.write(toDot(assignmentGraph));
+		} catch (final IOException e) {
+			e.printStackTrace();
+		}
+	}
+}
