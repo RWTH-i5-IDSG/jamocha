@@ -107,4 +107,3 @@ public class ECSetRuleBuilder extends AbstractConditionProxy {
 		return ecSetRule;
 	}
 }
-

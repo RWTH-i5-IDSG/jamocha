@@ -196,7 +196,6 @@ public class AssignmentGraphToDot {
 			makeEdge(sb, toString(edge.getSource(), occurrenceNodeToString),
 					toString(edge.getTarget(), bindingNodeToString)).append(n);
 		}
-		sb.append(n).append(n);
 
 		sb.append("}").append(n);
 		return sb.toString();
