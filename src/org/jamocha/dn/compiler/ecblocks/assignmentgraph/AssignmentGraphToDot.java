@@ -118,6 +118,10 @@ public class AssignmentGraphToDot {
 		return sb;
 	}
 
+	private static final String POSITIVE_EDGE_MARKUP = "[label=\"p\",style=\"dashed\"]";
+	private static final String NEGATED_EDGE_MARKUP = "[label=\"n\",style=\"dashed\"]";
+
+
 	public static String toDot(final AssignmentGraph assignmentGraph) {
 		final HashBiMap<ECFilter, String> filterToString = HashBiMap.create();
 		final HashBiMap<ECOccurrenceNode, String> occurrenceNodeToString = HashBiMap.create();
@@ -174,7 +178,7 @@ public class AssignmentGraphToDot {
 					final FilterOccurrenceNode occurrenceNode = entry.getValue();
 					makeEdge(sb, toString(filter, filterToString), toString(occurrenceNode, occurrenceNodeToString));
 					if (existentialArguments.contains(argument)) {
-						sb.append("[label=\"").append(existentialInfo.isPositive() ? "+" : "-").append("\"]");
+						sb.append(existentialInfo.isPositive() ? POSITIVE_EDGE_MARKUP : NEGATED_EDGE_MARKUP);
 					}
 					sb.append(n);
 				}
