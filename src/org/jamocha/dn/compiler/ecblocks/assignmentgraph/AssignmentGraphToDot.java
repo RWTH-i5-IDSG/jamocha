@@ -23,9 +23,8 @@ import org.jamocha.dn.compiler.ecblocks.assignmentgraph.node.occurrence.ECOccurr
 import org.jamocha.dn.compiler.ecblocks.assignmentgraph.node.occurrence.FilterOccurrenceNode;
 import org.jamocha.dn.compiler.ecblocks.assignmentgraph.node.occurrence.FunctionalExpressionOccurrenceNode;
 import org.jamocha.filter.ECFilter;
-import org.jamocha.function.fwa.ECLeaf;
 import org.jamocha.function.fwa.FunctionWithArgumentsComposite;
-import org.jamocha.function.fwa.PredicateWithArgumentsComposite;
+import org.jamocha.function.fwatransformer.FWAECLeafToTypeLeafTranslator;
 import org.jamocha.languages.common.SingleFactVariable;
 
 import java.io.FileWriter;
@@ -70,9 +69,9 @@ public class AssignmentGraphToDot {
 			case IMPLICIT_OCCURRENCE:
 				return "o_i";
 			case FILTER_OCCURRENCE:
-				return "o_f";
+				return "o:" + ((FilterOccurrenceNode) occurrenceNode).getParameterPosition();
 			case FUNCTIONAL_OCCURRENCE:
-				return "o_fe";
+				return "o:" + ((FunctionalExpressionOccurrenceNode) occurrenceNode).getParameterPosition();
 		}
 		return "o";
 	}
