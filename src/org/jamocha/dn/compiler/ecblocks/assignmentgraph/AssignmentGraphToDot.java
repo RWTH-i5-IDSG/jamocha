@@ -57,14 +57,21 @@ public class AssignmentGraphToDot {
 		return str;
 	}
 
+	private static String toString(final ECFilter f) {
+		return ((PredicateWithArgumentsComposite<ECLeaf>) f.getFunction()).getFunction().inClips();
+	}
+
 	private static String toString(final ECFilter filter, final HashBiMap<ECFilter, String> target) {
-		return toString(filter,
-				f -> ((PredicateWithArgumentsComposite<ECLeaf>) f.getFunction()).getFunction().inClips(), target);
+		return toString(filter, AssignmentGraphToDot::toString, target);
+	}
+
+	private static String toString(final ECOccurrenceNode occurrenceNode) {
+		return "o";
 	}
 
 	private static String toString(final ECOccurrenceNode occurrenceNode,
 			final HashBiMap<ECOccurrenceNode, String> target) {
-		return toString(occurrenceNode, o -> "o", target);
+		return toString(occurrenceNode, AssignmentGraphToDot::toString, target);
 	}
 
 	private static String toString(final BindingNode bindingNode) {
@@ -87,9 +94,13 @@ public class AssignmentGraphToDot {
 		return toString(bindingNode, b -> '[' + toString(b) + ']', target);
 	}
 
+	private static String toString(final SingleFactVariable fv) {
+		return fv.getTemplate().getName();
+	}
+
 	private static String toString(final SingleFactVariable factVariable,
 			final HashBiMap<SingleFactVariable, String> target) {
-		return toString(factVariable, fv -> fv.getTemplate().getName(), target);
+		return toString(factVariable, AssignmentGraphToDot::toString, target);
 	}
 
 	private static StringBuilder makeEdge(final StringBuilder sb, final String rawSource, final String rawTarget) {
@@ -112,27 +123,30 @@ public class AssignmentGraphToDot {
 
 		sb.append("// filter nodes").append(n).append("{ rank = same").append(n);
 		for (final ECFilter filter : assignmentGraph.getFilterToOccurrenceNodes().keySet()) {
-			sb.append('\t').append('"').append(toString(filter, filterToString)).append('"').append(n);
+			sb.append('\t').append('"').append(toString(filter, filterToString)).append('"');
+			sb.append("[label=\"").append(toString(filter)).append("\"]").append(n);
 		}
 		sb.append("}").append(n).append(n);
 
 		sb.append("// occurrence nodes").append(n).append("{ rank = same").append(n);
 		for (final ECOccurrenceNode occurrenceNode : assignmentGraph.getGraph().getECOccurrenceNodes()) {
-			sb.append('\t').append('"').append(toString(occurrenceNode, occurrenceNodeToString)).append('"').append(n);
+			sb.append('\t').append('"').append(toString(occurrenceNode, occurrenceNodeToString)).append('"');
+			sb.append("[label=\"").append(toString(occurrenceNode)).append("\"]").append(n);
 		}
 		sb.append("}").append(n).append(n);
 
 		sb.append("// binding nodes").append(n).append("{ rank = same").append(n);
 		for (final BindingNode bindingNode : assignmentGraph.getGraph().getBindingNodes()) {
-			sb.append('\t').append('"').append(toString(bindingNode, bindingNodeToString)).append('"').append(n);
+			sb.append('\t').append('"').append(toString(bindingNode, bindingNodeToString)).append('"');
+			sb.append("[label=\"").append(toString(bindingNode)).append("\"]").append(n);
 		}
 		sb.append("}").append(n).append(n);
 
 		sb.append("// template instances nodes").append(n).append("{ rank = same").append(n);
 		for (final SingleFactVariable templateInstance : assignmentGraph.getTemplateInstanceToBindingNodes().keySet
 				()) {
-			sb.append('\t').append('"').append(toString(templateInstance, templateInstanceToString)).append('"')
-					.append(n);
+			sb.append('\t').append('"').append(toString(templateInstance, templateInstanceToString)).append('"');
+			sb.append("[label=\"").append(toString(templateInstance)).append("\"]").append(n);
 		}
 		sb.append("}").append(n).append(n);
 
