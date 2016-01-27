@@ -66,6 +66,14 @@ public class AssignmentGraphToDot {
 	}
 
 	private static String toString(final ECOccurrenceNode occurrenceNode) {
+		switch (occurrenceNode.getNodeType()) {
+			case IMPLICIT_OCCURRENCE:
+				return "o_i";
+			case FILTER_OCCURRENCE:
+				return "o_f";
+			case FUNCTIONAL_OCCURRENCE:
+				return "o_fe";
+		}
 		return "o";
 	}
 
