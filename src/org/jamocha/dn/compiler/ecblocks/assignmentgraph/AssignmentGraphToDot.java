@@ -16,6 +16,8 @@
 package org.jamocha.dn.compiler.ecblocks.assignmentgraph;
 
 import com.google.common.collect.HashBiMap;
+import org.jamocha.dn.compiler.ecblocks.ECOccurrenceLeaf;
+import org.jamocha.dn.compiler.ecblocks.ExistentialInfo;
 import org.jamocha.dn.compiler.ecblocks.assignmentgraph.node.binding.*;
 import org.jamocha.dn.compiler.ecblocks.assignmentgraph.node.occurrence.ECOccurrenceNode;
 import org.jamocha.dn.compiler.ecblocks.assignmentgraph.node.occurrence.FilterOccurrenceNode;
@@ -28,10 +30,14 @@ import org.jamocha.languages.common.SingleFactVariable;
 
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.function.Function;
+import java.util.stream.IntStream;
+
+import static java.util.stream.Collectors.toSet;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
@@ -70,7 +76,8 @@ public class AssignmentGraphToDot {
 			case CONSTANT_EXPRESSION:
 				return ((ConstantBindingNode) bindingNode).getConstant().getValue().toString();
 			case FUNCTIONAL_EXPRESSION:
-				return ((FunctionWithArgumentsComposite) ((FunctionalExpressionBindingNode) bindingNode)
+				return ((FunctionWithArgumentsComposite<ECOccurrenceLeaf>) ((FunctionalExpressionBindingNode)
+						bindingNode)
 						.getFunctionalExpression()).getFunction().toString();
 		}
 		return "null";
@@ -130,12 +137,25 @@ public class AssignmentGraphToDot {
 		sb.append("}").append(n).append(n);
 
 		// edges between filters and filter occurrence nodes
-		for (final Map.Entry<ECFilter, TreeMap<Integer, FilterOccurrenceNode>> entry : assignmentGraph
-				.getFilterToOccurrenceNodes().entrySet()) {
-			final ECFilter filter = entry.getKey();
-			for (final FilterOccurrenceNode occurrenceNode : entry.getValue().values()) {
-				makeEdge(sb, toString(filter, filterToString), toString(occurrenceNode, occurrenceNodeToString))
-						.append(n);
+		for (final Map.Entry<ExistentialInfo.FunctionWithExistentialInfo, Set<ECFilter>>
+				functionWithExistentialInfoEntry : assignmentGraph
+				.getPredicateToFilters().entrySet()) {
+			final ExistentialInfo existentialInfo = functionWithExistentialInfoEntry.getKey().getExistentialInfo();
+			final Set<Integer> existentialArguments = existentialInfo.isExistential() ?
+					IntStream.of(existentialInfo.getExistentialArguments()).boxed().collect(toSet()) :
+					Collections.emptySet();
+			for (final ECFilter filter : functionWithExistentialInfoEntry.getValue()) {
+				for (final Map.Entry<Integer, FilterOccurrenceNode> entry : assignmentGraph
+						.getFilterToOccurrenceNodes()
+						.get(filter).entrySet()) {
+					final Integer argument = entry.getKey();
+					final FilterOccurrenceNode occurrenceNode = entry.getValue();
+					makeEdge(sb, toString(filter, filterToString), toString(occurrenceNode, occurrenceNodeToString));
+					if (existentialArguments.contains(argument)) {
+						sb.append("[label=\"").append(existentialInfo.isPositive() ? "+" : "-").append("\"]");
+					}
+					sb.append(n);
+				}
 			}
 		}
 		// edges between functional expression bindings and occurrence nodes
