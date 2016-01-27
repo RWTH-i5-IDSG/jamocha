@@ -16,11 +16,11 @@ package test.jamocha.util.builder.fwa;
 
 import org.jamocha.filter.ECFilter;
 import org.jamocha.function.Predicate;
-import org.jamocha.function.fwa.ECLeaf;
-import org.jamocha.function.fwa.FunctionWithArguments;
-import org.jamocha.function.fwa.PredicateWithArguments;
-import org.jamocha.function.fwa.PredicateWithArgumentsComposite;
+import org.jamocha.function.fwa.*;
+import org.jamocha.languages.common.RuleCondition;
 import org.jamocha.languages.common.ScopeStack;
+
+import java.util.HashMap;
 
 import static org.jamocha.util.ToArray.toArray;
 
@@ -28,8 +28,9 @@ import static org.jamocha.util.ToArray.toArray;
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
 public class ECPredicateBuilder extends ECGenericBuilder<Boolean, Predicate, ECPredicateBuilder> {
-	public ECPredicateBuilder(final Predicate function, final ScopeStack.Scope scope) {
-		super(function, scope);
+	public ECPredicateBuilder(final Predicate function, final ScopeStack.Scope scope,
+			final HashMap<ConstantLeaf<ECLeaf>, RuleCondition.EquivalenceClass> constantToEquivalenceClass) {
+		super(function, scope, constantToEquivalenceClass);
 	}
 
 	@Override

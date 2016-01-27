@@ -21,6 +21,8 @@ import org.jamocha.function.fwa.ECLeaf;
 import org.jamocha.languages.common.RuleCondition;
 import org.jamocha.languages.common.ScopeStack;
 
+import java.util.HashMap;
+
 /**
  * Derived classes have to use themselves or one of their super classes as T.
  *
@@ -36,10 +38,13 @@ public abstract class ECGenericBuilder<R, F extends Function<? extends R>, T ext
 		extends GenericBuilder<ECLeaf, R, F, T> {
 
 	private final ScopeStack.Scope scope;
+	private final HashMap<ConstantLeaf<ECLeaf>, RuleCondition.EquivalenceClass> constantToEquivalenceClass;
 
-	protected ECGenericBuilder(final F function, final ScopeStack.Scope scope) {
+	protected ECGenericBuilder(final F function, final ScopeStack.Scope scope,
+			final HashMap<ConstantLeaf<ECLeaf>, RuleCondition.EquivalenceClass> constantToEquivalenceClass) {
 		super(function);
 		this.scope = scope;
+		this.constantToEquivalenceClass = constantToEquivalenceClass;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -51,8 +56,9 @@ public abstract class ECGenericBuilder<R, F extends Function<? extends R>, T ext
 		if (paramTypes[this.args.size()] != type) {
 			throw new IllegalArgumentException("Wrong argument type!");
 		}
-		this.args.add(new ECLeaf(
-				RuleCondition.EquivalenceClass.newECFromConstantExpression(scope, new ConstantLeaf<>(value, type))));
+		final ConstantLeaf<ECLeaf> constantExpression = new ConstantLeaf<>(value, type);
+		this.args.add(new ECLeaf(constantToEquivalenceClass.computeIfAbsent(constantExpression,
+				c -> RuleCondition.EquivalenceClass.newECFromConstantExpression(scope, c))));
 		return (T) this;
 	}
 

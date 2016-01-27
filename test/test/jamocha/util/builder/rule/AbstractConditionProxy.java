@@ -22,12 +22,15 @@ import org.jamocha.dn.memory.Template;
 import org.jamocha.filter.ECFilterSet;
 import org.jamocha.function.Function;
 import org.jamocha.function.Predicate;
+import org.jamocha.function.fwa.ConstantLeaf;
+import org.jamocha.function.fwa.ECLeaf;
 import org.jamocha.languages.common.RuleCondition;
 import org.jamocha.languages.common.ScopeStack;
 import org.jamocha.languages.common.SingleFactVariable;
 import test.jamocha.util.builder.fwa.ECFunctionBuilder;
 import test.jamocha.util.builder.fwa.ECPredicateBuilder;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -45,6 +48,7 @@ public abstract class AbstractConditionProxy implements ConditionBuilder {
 	final Set<ECFilterSet> condition = Sets.newIdentityHashSet();
 	final Set<SingleFactVariable> factVariableSet = Sets.newIdentityHashSet();
 	final Set<RuleCondition.EquivalenceClass> equivalenceClasses = Sets.newIdentityHashSet();
+	final HashMap<ConstantLeaf<ECLeaf>, RuleCondition.EquivalenceClass> constantToEquivalenceClass = new HashMap<>();
 
 	@Override
 	public SingleFactVariable newFactVariable(final Template template) {
@@ -71,13 +75,14 @@ public abstract class AbstractConditionProxy implements ConditionBuilder {
 
 	@Override
 	public PredicateBuilder newPredicateBuilder(final Predicate predicate) {
-		return new PredicateBuilder(new ECPredicateBuilder(predicate, this.scopeStack.getCurrentScope()), this);
+		return new PredicateBuilder(
+				new ECPredicateBuilder(predicate, this.scopeStack.getCurrentScope(), constantToEquivalenceClass),
+				this);
 	}
 
 	@Override
-	public ECFunctionBuilder newFunctionBuilder(final Function<?> function) {
-		return new ECFunctionBuilder(function, this.scopeStack.getCurrentScope());
+	public FunctionBuilder newFunctionBuilder(final Function<?> function) {
+		return new FunctionBuilder(
+				new ECFunctionBuilder(function, this.scopeStack.getCurrentScope(), constantToEquivalenceClass));
 	}
-
-
 }

@@ -15,10 +15,14 @@
 package test.jamocha.util.builder.fwa;
 
 import org.jamocha.function.Function;
+import org.jamocha.function.fwa.ConstantLeaf;
 import org.jamocha.function.fwa.ECLeaf;
 import org.jamocha.function.fwa.FunctionWithArguments;
 import org.jamocha.function.fwa.FunctionWithArgumentsComposite;
+import org.jamocha.languages.common.RuleCondition;
 import org.jamocha.languages.common.ScopeStack;
+
+import java.util.HashMap;
 
 import static org.jamocha.util.ToArray.toArray;
 
@@ -26,8 +30,9 @@ import static org.jamocha.util.ToArray.toArray;
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
 public class ECFunctionBuilder extends ECGenericBuilder<Object, Function<?>, ECFunctionBuilder> {
-	public ECFunctionBuilder(final Function<?> function, final ScopeStack.Scope scope) {
-		super(function, scope);
+	public ECFunctionBuilder(final Function<?> function, final ScopeStack.Scope scope,
+			final HashMap<ConstantLeaf<ECLeaf>, RuleCondition.EquivalenceClass> constantToEquivalenceClass) {
+		super(function, scope, constantToEquivalenceClass);
 	}
 
 	@Override

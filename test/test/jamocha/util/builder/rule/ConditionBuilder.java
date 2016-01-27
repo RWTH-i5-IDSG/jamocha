@@ -56,7 +56,7 @@ public interface ConditionBuilder {
 
 	PredicateBuilder newPredicateBuilder(final Predicate predicate);
 
-	ECFunctionBuilder newFunctionBuilder(final Function<?> function);
+	FunctionBuilder newFunctionBuilder(final Function<?> function);
 
 	@RequiredArgsConstructor
 	class PredicateBuilder {
@@ -64,41 +64,85 @@ public interface ConditionBuilder {
 		final ConditionBuilder target;
 
 		public void build() {
-			target.add(delegate.build());
+			this.target.add(this.delegate.build());
 		}
 
 		public PredicateBuilder addBoolean(final boolean value) {
-			delegate.addBoolean(value);
+			this.delegate.addBoolean(value);
 			return this;
 		}
 
 		public PredicateBuilder addFunction(final FunctionWithArguments<ECLeaf> function) {
-			delegate.addFunction(function);
+			this.delegate.addFunction(function);
 			return this;
 		}
 
 		public PredicateBuilder addDouble(final double value) {
-			delegate.addDouble(value);
+			this.delegate.addDouble(value);
 			return this;
 		}
 
 		public PredicateBuilder addConstant(final Object value, final SlotType type) {
-			delegate.addConstant(value, type);
+			this.delegate.addConstant(value, type);
 			return this;
 		}
 
 		public PredicateBuilder addEC(final RuleCondition.EquivalenceClass equivalenceClass) {
-			delegate.addEC(equivalenceClass);
+			this.delegate.addEC(equivalenceClass);
 			return this;
 		}
 
 		public PredicateBuilder addLong(final long value) {
-			delegate.addLong(value);
+			this.delegate.addLong(value);
 			return this;
 		}
 
 		public PredicateBuilder addString(final String value) {
-			delegate.addString(value);
+			this.delegate.addString(value);
+			return this;
+		}
+	}
+
+	@RequiredArgsConstructor
+	class FunctionBuilder {
+		final ECFunctionBuilder delegate;
+
+		public FunctionWithArguments<ECLeaf> build() {
+			return this.delegate.build();
+		}
+
+		public FunctionBuilder addBoolean(final boolean value) {
+			this.delegate.addBoolean(value);
+			return this;
+		}
+
+		public FunctionBuilder addFunction(final FunctionWithArguments<ECLeaf> function) {
+			this.delegate.addFunction(function);
+			return this;
+		}
+
+		public FunctionBuilder addDouble(final double value) {
+			this.delegate.addDouble(value);
+			return this;
+		}
+
+		public FunctionBuilder addConstant(final Object value, final SlotType type) {
+			this.delegate.addConstant(value, type);
+			return this;
+		}
+
+		public FunctionBuilder addEC(final RuleCondition.EquivalenceClass equivalenceClass) {
+			this.delegate.addEC(equivalenceClass);
+			return this;
+		}
+
+		public FunctionBuilder addLong(final long value) {
+			this.delegate.addLong(value);
+			return this;
+		}
+
+		public FunctionBuilder addString(final String value) {
+			this.delegate.addString(value);
 			return this;
 		}
 	}
