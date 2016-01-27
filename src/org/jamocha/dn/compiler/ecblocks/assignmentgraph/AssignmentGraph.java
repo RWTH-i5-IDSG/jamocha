@@ -134,6 +134,14 @@ public class AssignmentGraph {
 		public int outDegreeOf(final ECOccurrenceNode source) {
 			return getOutgoingEdges(source).size();
 		}
+
+		public Set<ECOccurrenceNode> getECOccurrenceNodes() {
+			return this.outgoingEdges.keySet();
+		}
+
+		public Set<BindingNode> getBindingNodes() {
+			return this.incomingEdges.keySet();
+		}
 	}
 
 	public class UnrestrictedGraph extends Graph {
