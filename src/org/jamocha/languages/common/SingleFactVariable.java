@@ -122,5 +122,9 @@ public class SingleFactVariable {
 			return "SV(" + template.getName() + "::" + template.getSlotName(slot) + ")@" +
 					Integer.toHexString(System.identityHashCode(SingleFactVariable.this));
 		}
+
+		public String getSlotName() {
+			return getSlot().getSlotName(getFactVariable().getTemplate());
+		}
 	}
 }
