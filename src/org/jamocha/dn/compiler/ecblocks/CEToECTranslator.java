@@ -444,8 +444,10 @@ public class CEToECTranslator implements DefaultConditionalElementsVisitor<ECLea
 				Sets.difference(shallowExistentialECs, usedECs).stream()
 						.filter(ec -> !usedFVs.containsAll(ec.getFactVariables())).forEach(missingECs::add);
 				if (predicates.isEmpty()) missingECs.add(initialFactVariable.getEqual());
-				predicates.add(new PredicateWithArgumentsComposite<>(DummyPredicate.instance,
-						toArray(missingECs.stream().map(ECLeaf::new), ECLeaf[]::new)));
+				if (!missingECs.isEmpty()) {
+					predicates.add(new PredicateWithArgumentsComposite<>(DummyPredicate.instance,
+							toArray(missingECs.stream().map(ECLeaf::new), ECLeaf[]::new)));
+				}
 			}
 
 			final ECFilter existentialClosure = new ECFilter(
