@@ -52,7 +52,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static java.util.stream.Collectors.toSet;
+import static java.util.stream.Collectors.*;
 import static org.jamocha.util.Lambdas.newIdentityHashSet;
 import static org.jamocha.util.Lambdas.toIdentityHashSet;
 import static org.jamocha.util.ToArray.toArray;
@@ -323,15 +323,24 @@ public class CEToECTranslator implements DefaultConditionalElementsVisitor<ECLea
 							.collect(ce).getFilters();
 			final Pair<SingleFactVariable, Set<SingleFactVariable>> initialFactAndVariables =
 					ShallowFactVariableCollector.collectVariables(initialFactTemplate, ce);
-			final Set<SingleFactVariable> factVariables = initialFactAndVariables.getRight();
+			final Set<SingleFactVariable> shallowFVs = initialFactAndVariables.getRight();
 
 			final Set<EquivalenceClass> usedECs = ECCollector.collect(filters);
+			// final Set<SingleFactVariable> usedFVs =
+			// usedECs.stream().map(EquivalenceClass::getDirectlyDependentFactVariables).flatMap
+			// (Set::stream)
+			// .collect(toIdentityHashSet());
 			if (usedECs.contains(initialFactVariable.getEqual())) {
-				factVariables.add(initialFactVariable);
+				// usedFVs.add(initialFactVariable);
+				shallowFVs.add(initialFactVariable);
 			} else {
 				equivalenceClasses.remove(initialFactVariable.getEqual());
 			}
-			return rule.newECSetRule(filters, factVariables, equivalenceClasses, specificity);
+			final Scope scope = rule.getParent().getCondition().getScope();
+			final Set<EquivalenceClass> shallowECs =
+					equivalenceClasses.stream().filter(ec -> scope == ec.getMaximalScope()).collect(Collectors.toSet
+							());
+			return rule.newECSetRule(filters, shallowFVs, shallowECs, specificity);
 		}
 
 		private NoORsTranslator collect(final ConditionalElement<ECLeaf> ce) {
