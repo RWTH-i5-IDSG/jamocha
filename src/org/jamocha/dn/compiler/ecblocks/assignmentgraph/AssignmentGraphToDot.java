@@ -19,9 +19,7 @@ import com.google.common.collect.HashBiMap;
 import org.jamocha.dn.compiler.ecblocks.ECOccurrenceLeaf;
 import org.jamocha.dn.compiler.ecblocks.ExistentialInfo;
 import org.jamocha.dn.compiler.ecblocks.assignmentgraph.node.binding.*;
-import org.jamocha.dn.compiler.ecblocks.assignmentgraph.node.occurrence.ECOccurrenceNode;
-import org.jamocha.dn.compiler.ecblocks.assignmentgraph.node.occurrence.FilterOccurrenceNode;
-import org.jamocha.dn.compiler.ecblocks.assignmentgraph.node.occurrence.FunctionalExpressionOccurrenceNode;
+import org.jamocha.dn.compiler.ecblocks.assignmentgraph.node.occurrence.*;
 import org.jamocha.filter.ECFilter;
 import org.jamocha.function.fwa.FunctionWithArgumentsComposite;
 import org.jamocha.function.fwatransformer.FWAECLeafToTypeLeafTranslator;
@@ -119,7 +117,7 @@ public class AssignmentGraphToDot {
 
 	private static final String POSITIVE_EDGE_MARKUP = "[label=\"p\",style=\"dashed\"]";
 	private static final String NEGATED_EDGE_MARKUP = "[label=\"n\",style=\"dashed\"]";
-
+	private static final String IMPLICIT_EDGE_MARKUP = "[style=\"dotted\"]";
 
 	public static String toDot(final AssignmentGraph assignmentGraph) {
 		final HashBiMap<ECFilter, String> filterToString = HashBiMap.create();
@@ -205,10 +203,18 @@ public class AssignmentGraphToDot {
 		// edges between occurrences and bindings
 		for (final AssignmentGraph.Edge edge : assignmentGraph.getGraph().edgeSet()) {
 			makeEdge(sb, toString(edge.getSource(), occurrenceNodeToString),
-					toString(edge.getTarget(), bindingNodeToString)).append(n);
+					toString(edge.getTarget(), bindingNodeToString));
+			if (edge.getSource().getNodeType() == OccurrenceType.IMPLICIT_OCCURRENCE &&
+					((ImplicitOccurrenceNode) edge.getSource()).getCorrespondingBindingNode() != edge.getTarget()) {
+				sb.append(IMPLICIT_EDGE_MARKUP);
+			}
+			sb.append(n);
 		}
 
-		sb.append("}").append(n);
+		sb.append("}").
+
+				append(n);
+
 		return sb.toString();
 	}
 
