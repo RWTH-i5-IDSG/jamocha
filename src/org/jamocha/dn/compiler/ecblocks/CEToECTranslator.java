@@ -447,6 +447,7 @@ public class CEToECTranslator implements DefaultConditionalElementsVisitor<ECLea
 				if (!missingECs.isEmpty()) {
 					predicates.add(new PredicateWithArgumentsComposite<>(DummyPredicate.instance,
 							toArray(missingECs.stream().map(ECLeaf::new), ECLeaf[]::new)));
+					missingECs.forEach(markAsUsed);
 				}
 			}
 
