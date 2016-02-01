@@ -112,8 +112,18 @@ public class RuleConditionProcessor {
 		}
 	}
 
-	public static ConditionalElement<ECLeaf> copyDeeplyUsingNewECsAndFactVariables(
-			final HashBiMap<EquivalenceClass, EquivalenceClass> oldToNewEC, final ConditionalElement<ECLeaf> child) {
+	@Value
+	public static class CopyWithMetaInformation {
+		ConditionalElement<ECLeaf> copy;
+		HashBiMap<EquivalenceClass, EquivalenceClass> oldToNewEC;
+		HashBiMap<SingleFactVariable, SingleFactVariable> oldToNewFV;
+	}
+
+	public static CopyWithMetaInformation copyDeeplyUsingNewECsAndFactVariables(final ConditionalElement<ECLeaf> child,
+			final Collection<EquivalenceClass> equivalenceClasses) {
+		final HashBiMap<EquivalenceClass, EquivalenceClass> oldToNewEC = HashBiMap.create(equivalenceClasses.stream()
+				.collect(toMap(java.util.function.Function.identity(), EquivalenceClass::new)));
+
 		// collect all fact variables contained in this child
 		final List<SingleFactVariable> deepFactVariables = DeepFactVariableCollector.collect(child);
 
@@ -125,13 +135,28 @@ public class RuleConditionProcessor {
 						(final SingleFactVariable fv) -> new SingleFactVariable(fv, oldToNewEC))));
 
 		// replace the old FVs in the new ECs by the new FVs
-		for (final EquivalenceClass newEC : oldToNewEC.values()) {
+		for (Iterator<EquivalenceClass> iterator = oldToNewEC.values().iterator(); iterator.hasNext(); ) {
+			final EquivalenceClass newEC = iterator.next();
+			newEC.getFactVariables().removeIf(negate(deepFactVariables::contains));
+			newEC.getSlotVariables().removeIf(sv -> !deepFactVariables.contains(sv.getFactVariable()));
+			if (newEC.getElementCount() == 0) {
+				iterator.remove();
+				continue;
+			}
 			newEC.getFactVariables().replaceAll(oldToNewFV::get);
 			newEC.getSlotVariables()
 					.replaceAll(sv -> oldToNewFV.get(sv.getFactVariable()).getSlots().get(sv.getSlot()));
 		}
 
-		return child.accept(new CEECReplacer(oldToNewEC, oldToNewFV)).getResult();
+		final ConditionalElement<ECLeaf> copy = child.accept(new CEECReplacer(oldToNewEC, oldToNewFV)).getResult();
+
+		// remove all equivalence classes not occurring in the filters and only consisting of a single constant xor a
+		// single functional expression
+		final Set<EquivalenceClass> usedECs = copy.accept(new DeepECCollector()).getEquivalenceClasses();
+		oldToNewEC.values().removeIf(ec -> !usedECs.contains(ec) && ec.getElementCount() == 1 &&
+				!(ec.getConstantExpressions().isEmpty() && ec.getFunctionalExpressions().isEmpty()));
+
+		return new CopyWithMetaInformation(copy, oldToNewEC, oldToNewFV);
 	}
 
 	public static <L extends ExchangeableLeaf<L>> ConditionalElement<L> moveNots(final ConditionalElement<L> ce) {
@@ -497,22 +522,28 @@ public class RuleConditionProcessor {
 		@Override
 		public void visit(final ExistentialConditionalElement<ECLeaf> ce) {
 			assert ce.getChildren().size() == 1;
-			this.result = ce.getChildren().get(0).accept(new ExistentialECSplitter(ce.scope,
-					newIdentityHashSet(ShallowFactVariableCollector.collect(ce.getChildren().get(0))))).result;
+			this.result = new ExistentialConditionalElement<>(ce.getScope(), ce.getChildren().get(0)
+					.accept(new ExistentialECSplitter(ce.scope,
+							newIdentityHashSet(ShallowFactVariableCollector.collect(ce.getChildren().get(0))))).result
+					.getChildren());
 		}
 
 		@Override
 		public void visit(final NegatedExistentialConditionalElement<ECLeaf> ce) {
 			assert ce.getChildren().size() == 1;
-			this.result = ce.getChildren().get(0).accept(new ExistentialECSplitter(ce.scope,
-					newIdentityHashSet(ShallowFactVariableCollector.collect(ce.getChildren().get(0))))).result;
+			this.result = new NegatedExistentialConditionalElement<>(ce.getScope(), new
+					AndFunctionConditionalElement<>(
+					ce.getChildren().get(0).accept(new ExistentialECSplitter(ce.scope,
+							newIdentityHashSet(ShallowFactVariableCollector.collect(ce.getChildren().get(0))))).result
+							.getChildren()));
 		}
 	}
 
 	@AllArgsConstructor
 	public static class CESymbolToECTranslator extends CETranslator<SymbolLeaf, ECLeaf> {
 		private Scope scope;
-		private final HashMap<Pair<Scope, ConstantLeaf<SymbolLeaf>>, RuleCondition.EquivalenceClass> constantToEquivalenceClasses;
+		private final HashMap<Pair<Scope, ConstantLeaf<SymbolLeaf>>, RuleCondition.EquivalenceClass>
+				constantToEquivalenceClasses;
 
 		@Override
 		public CETranslator<SymbolLeaf, ECLeaf> of() {
