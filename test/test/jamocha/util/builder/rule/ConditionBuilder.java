@@ -48,6 +48,24 @@ public interface ConditionBuilder {
 		return newSlotVariable(fv, slot.getName());
 	}
 
+	RuleCondition.EquivalenceClass getECFromConstant(final Object value, final SlotType type);
+
+	default RuleCondition.EquivalenceClass getECFromLong(final long value) {
+		return getECFromConstant(value, SlotType.LONG);
+	}
+
+	default RuleCondition.EquivalenceClass getECFromBoolean(final boolean value) {
+		return getECFromConstant(value, SlotType.BOOLEAN);
+	}
+
+	default RuleCondition.EquivalenceClass getECFromDouble(final double value) {
+		return getECFromConstant(value, SlotType.DOUBLE);
+	}
+
+	default RuleCondition.EquivalenceClass getECFromString(final String value) {
+		return getECFromConstant(value, SlotType.STRING);
+	}
+
 	default void add(final PredicateWithArguments<ECLeaf> predicate) {
 		add(new ECFilter(predicate));
 	}

@@ -18,6 +18,7 @@ package test.jamocha.util.builder.rule;
 import com.google.common.collect.Sets;
 import lombok.RequiredArgsConstructor;
 import org.jamocha.dn.memory.SlotAddress;
+import org.jamocha.dn.memory.SlotType;
 import org.jamocha.dn.memory.Template;
 import org.jamocha.filter.ECFilterSet;
 import org.jamocha.function.Function;
@@ -66,6 +67,12 @@ public abstract class AbstractConditionProxy implements ConditionBuilder {
 				variableSymbol.getEqual().getSlotVariables();
 		this.equivalenceClasses.add(variableSymbol.getEqual());
 		return slotVariables.getLast();
+	}
+
+	@Override
+	public RuleCondition.EquivalenceClass getECFromConstant(final Object value, final SlotType type) {
+		return this.constantToEquivalenceClass.computeIfAbsent(new ConstantLeaf<>(value, type),
+				c -> RuleCondition.EquivalenceClass.newECFromConstantExpression(this.scopeStack.getCurrentScope(), c));
 	}
 
 	@Override
