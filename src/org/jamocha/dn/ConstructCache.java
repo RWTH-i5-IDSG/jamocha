@@ -119,7 +119,6 @@ public class ConstructCache {
 			final Set<EquivalenceClass> allECs =
 					Defrule.this.condition.getVariableSymbols().stream().map(ScopeStack.VariableSymbol::getEqual)
 							.collect(toIdentityHashSet());
-			System.out.printf("");
 			// translate SymbolLeafs to ECLeafs by calling getEC, convert ConstantLeafs to ECLeafs by creating an
 			// equivalence class containing it (re-using the ECs for all occurrences of the constant in the same scope
 			// and saving them into the HashMap provided).
