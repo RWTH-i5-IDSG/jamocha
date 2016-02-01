@@ -24,7 +24,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.Value;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.logging.log4j.Marker;
-import org.jamocha.dn.compiler.DeepFactVariableCollector;
 import org.jamocha.dn.memory.MemoryHandlerTerminal.AssertOrRetract;
 import org.jamocha.dn.memory.Template;
 import org.jamocha.filter.*;
@@ -34,13 +33,11 @@ import org.jamocha.function.fwatransformer.FWASymbolToRHSVariableLeafTranslator;
 import org.jamocha.languages.common.*;
 import org.jamocha.languages.common.RuleCondition.EquivalenceClass;
 import org.jamocha.logging.MarkerType;
-import org.jamocha.util.Lambdas;
 
 import java.util.*;
 import java.util.stream.StreamSupport;
 
 import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toMap;
 import static org.jamocha.util.Lambdas.toIdentityHashSet;
 import static org.jamocha.util.ToArray.toArray;
 
@@ -122,6 +119,7 @@ public class ConstructCache {
 			final Set<EquivalenceClass> allECs =
 					Defrule.this.condition.getVariableSymbols().stream().map(ScopeStack.VariableSymbol::getEqual)
 							.collect(toIdentityHashSet());
+			System.out.printf("");
 			// translate SymbolLeafs to ECLeafs by calling getEC, convert ConstantLeafs to ECLeafs by creating an
 			// equivalence class containing it (re-using the ECs for all occurrences of the constant in the same scope
 			// and saving them into the HashMap provided).
@@ -142,24 +140,16 @@ public class ConstructCache {
 				final Collection<EquivalenceClass> oldECs,
 				final BiMap<EquivalenceClass, EquivalenceClass> localECsToConditionECs, final RuleCondition condition,
 				final FunctionalInjection functionalInjection) {
-			// copy all equivalence classes
-			final HashBiMap<EquivalenceClass, EquivalenceClass> oldToNewEC = HashBiMap.create(oldECs.stream()
-					.collect(toMap(java.util.function.Function.identity(), EquivalenceClass::new)));
 			// using those copies, create a copy of the conditional element creating new fact variables on the way
-			ConditionalElement<ECLeaf> copy =
-					RuleConditionProcessor.copyDeeplyUsingNewECsAndFactVariables(oldToNewEC, child);
 			// remove all bindings not present in this disjunct of the rule
-			RuleConditionProcessor.removeMissingBindingsInNonOR(copy);
 			// collect all fact variables
-			final Set<SingleFactVariable> factVariables =
-					Lambdas.newIdentityHashSet(DeepFactVariableCollector.collect(copy));
+			final RuleConditionProcessor.CopyWithMetaInformation copyWithMetaInformation =
+					RuleConditionProcessor.copyDeeplyUsingNewECsAndFactVariables(child, oldECs);
+			ConditionalElement<ECLeaf> copy = copyWithMetaInformation.getCopy();
+			final Set<SingleFactVariable> factVariables = copyWithMetaInformation.getOldToNewFV().values();
+			final HashBiMap<EquivalenceClass, EquivalenceClass> oldToNewEC = copyWithMetaInformation.getOldToNewEC();
 			copy = functionalInjection.apply(copy, condition, oldToNewEC, localECsToConditionECs);
-			// all equivalence classes (also the existential ones) that contain any binding in this disjunct of the
-			// rule are kept
-			final Set<EquivalenceClass> newECs =
-					oldToNewEC.values().stream().filter(EquivalenceClass::containsAnyBinding)
-							.collect(toIdentityHashSet());
-			return new ECBasedCERule(copy, factVariables, newECs, oldToNewEC.inverse());
+			return new ECBasedCERule(copy, factVariables, oldToNewEC.values(), oldToNewEC.inverse());
 		}
 
 		@FunctionalInterface
