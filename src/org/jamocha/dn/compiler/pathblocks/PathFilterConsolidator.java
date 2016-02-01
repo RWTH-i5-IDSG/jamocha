@@ -361,7 +361,7 @@ public class PathFilterConsolidator implements DefaultConditionalElementsVisitor
 				final Map<EquivalenceClass, PathLeaf> equivalenceClassToPathLeaf, final Set<PathFilterSet> filters,
 				final Set<EquivalenceClass> neqAlreadyDone) {
 			if (!neqAlreadyDone.add(equiv)) return;
-			if (!equiv.isNonTrivial()) return;
+			if (!equiv.hasMoreThanOneElementOrAParent()) return;
 			final FunctionWithArguments<PathLeaf> element = equivalenceClassToPathLeaf.get(equiv);
 			Objects.requireNonNull(element, "EquivalenceClass could not be mapped to PathLeaf!");
 			// constant and variable expressions are empty - no need to create tests for them
