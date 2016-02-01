@@ -16,7 +16,6 @@
 package org.jamocha.dn.compiler.ecblocks;
 
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import lombok.Value;
 import org.jamocha.filter.ECFilter;
 import org.jamocha.filter.ECFilterSet;
@@ -55,7 +54,7 @@ public interface ExistentialInfo {
 		}
 	};
 
-	@RequiredArgsConstructor
+	@Value
 	class PositiveExistentialInfo implements ExistentialInfo {
 		@Getter(onMethod = @__({@Override}))
 		final int[] existentialArguments;
@@ -71,7 +70,7 @@ public interface ExistentialInfo {
 		}
 	}
 
-	@RequiredArgsConstructor
+	@Value
 	class NegatedExistentialInfo implements ExistentialInfo {
 		@Getter(onMethod = @__({@Override}))
 		final int[] existentialArguments;
