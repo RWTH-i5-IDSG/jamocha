@@ -87,7 +87,9 @@ public abstract class ConditionalElement<L extends ExchangeableLeaf<L>>
 	public static class NegatedExistentialConditionalElement<L extends ExchangeableLeaf<L>>
 			extends PositiveOrNegativeExistentialConditionalElement<L> {
 		public NegatedExistentialConditionalElement(final Scope scope, final AndFunctionConditionalElement<L> child) {
-			super(scope, child);
+			super(scope, child.getChildren().size() == 1 &&
+					child.getChildren().get(0) instanceof AndFunctionConditionalElement ?
+					(AndFunctionConditionalElement<L>) child.getChildren().get(0) : child);
 		}
 
 		private NegatedExistentialConditionalElement(final Scope scope, final List<ConditionalElement<L>> children) {
