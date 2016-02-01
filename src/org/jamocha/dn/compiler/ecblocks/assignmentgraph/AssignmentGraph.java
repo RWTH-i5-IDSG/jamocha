@@ -19,6 +19,7 @@ import com.google.common.collect.Sets;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.Value;
 import org.jamocha.dn.ConstructCache;
 import org.jamocha.dn.compiler.ecblocks.*;
 import org.jamocha.dn.compiler.ecblocks.assignmentgraph.node.binding.*;
@@ -27,6 +28,7 @@ import org.jamocha.dn.compiler.ecblocks.assignmentgraph.node.occurrence.FilterOc
 import org.jamocha.dn.compiler.ecblocks.assignmentgraph.node.occurrence.FunctionalExpressionOccurrenceNode;
 import org.jamocha.dn.compiler.ecblocks.assignmentgraph.node.occurrence.ImplicitOccurrenceNode;
 import org.jamocha.dn.memory.Template;
+import org.jamocha.filter.ECCollector;
 import org.jamocha.filter.ECFilter;
 import org.jamocha.filter.ECFilterSet;
 import org.jamocha.filter.ECFilterSetVisitor;
@@ -39,6 +41,7 @@ import java.util.*;
 import java.util.function.BiFunction;
 
 import static org.jamocha.util.Lambdas.newIdentityHashSet;
+import static org.jamocha.util.Lambdas.toIdentityHashSet;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
@@ -82,7 +85,7 @@ public class AssignmentGraph {
 
 
 	@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-	@Getter
+	@Value
 	public static class Edge {
 		final ECOccurrenceNode source;
 		final BindingNode target;
@@ -338,7 +341,8 @@ public class AssignmentGraph {
 
 		@Override
 		public void visit(final ECFilterSet.ECExistentialSet set) {
-			addECs(set.getEquivalenceClasses());
+			addECs(getRelevantEquivalenceClasses(set.getEquivalenceClasses(),
+					Sets.union(set.getPurePart(), Collections.singleton(set.getExistentialClosure()))));
 			add(set.getPurePart());
 			addFilter(set.getExistentialClosure(), ExistentialInfo.get(set));
 		}
@@ -350,9 +354,28 @@ public class AssignmentGraph {
 	}
 
 	public void addRule(final ConstructCache.Defrule.ECSetRule rule) {
-		final Set<ECFilterSet> condition = rule.getCondition();
-		final Set<EquivalenceClass> equivalenceClasses = rule.getEquivalenceClasses();
-		addECs(equivalenceClasses);
-		new ECFilterSetAdder().add(condition);
+		final Set<ECFilterSet> filters = rule.getCondition();
+		addECs(getRelevantEquivalenceClasses(rule.getEquivalenceClasses(), filters));
+		new ECFilterSetAdder().add(filters);
+	}
+
+	private static Set<EquivalenceClass> getRelevantEquivalenceClasses(final Set<EquivalenceClass> equivalenceClasses,
+			final Set<ECFilterSet> filters) {
+		final Set<EquivalenceClass> relevantECs = newIdentityHashSet(equivalenceClasses);
+		// we only need to represent those equivalence classes that
+		// - are used in filters
+		// - include a fact variable that is not mentioned in any equivalence class used in a filter
+		// - contain more than one element
+		final Set<EquivalenceClass> usedECs = ECCollector.collect(filters);
+		final Set<SingleFactVariable> usedFVs =
+				usedECs.stream().map(EquivalenceClass::getDirectlyDependentFactVariables).flatMap(Set::stream)
+						.collect(toIdentityHashSet());
+		relevantECs.removeIf(ec -> {
+			if (usedECs.contains(ec)) return false;
+			if (ec.hasMoreThanOneElement()) return false;
+			if (!usedFVs.containsAll(ec.getFactVariables())) return false;
+			return true;
+		});
+		return relevantECs;
 	}
 }
