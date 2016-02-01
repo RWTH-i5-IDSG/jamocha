@@ -66,6 +66,7 @@ public class RuleCondition {
 	 */
 	@Getter
 	@AllArgsConstructor(access = AccessLevel.PRIVATE)
+	// no not implement hashCode (or at least don't include anything that might change)
 	public static class EquivalenceClass {
 		final LinkedList<SingleFactVariable> factVariables;
 		final LinkedList<SingleSlotVariable> slotVariables;
@@ -304,15 +305,23 @@ public class RuleCondition {
 			return getPathLeaf(ec2Path, this.slotVariables.peekFirst());
 		}
 
-		public boolean isNonTrivial() {
-			return (this.factVariables.isEmpty() ? 0 : 1) + this.slotVariables.size() +
-					this.equalParentEquivalenceClasses.size() + this.constantExpressions.size() +
-					this.functionalExpressions.size() > 1;
+		public boolean hasMoreThanOneElementOrAParent() {
+			return getElementCount() + this.equalParentEquivalenceClasses.size() > 1;
+		}
+
+		public boolean hasMoreThanOneElement() {
+			return getElementCount() > 1;
 		}
 
 		public boolean containsAnyBinding() {
 			return !(this.factVariables.isEmpty() && this.slotVariables.isEmpty() &&
 					this.constantExpressions.isEmpty() && this.functionalExpressions.isEmpty());
+		}
+
+		public int getElementCount() {
+			return (this.factVariables.isEmpty() ? 0 : 1) + this.slotVariables.size() +
+					this.constantExpressions.size() +
+					this.functionalExpressions.size();
 		}
 	}
 }
