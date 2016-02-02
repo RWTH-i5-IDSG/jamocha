@@ -370,10 +370,17 @@ public class AssignmentGraph {
 		final Set<SingleFactVariable> usedFVs =
 				usedECs.stream().map(EquivalenceClass::getDirectlyDependentFactVariables).flatMap(Set::stream)
 						.collect(toIdentityHashSet());
+		for (final EquivalenceClass ec : equivalenceClasses) {
+			if (usedECs.contains(ec)) continue;
+			if (ec.hasMoreThanOneElement()) {
+				usedFVs.addAll(ec.getDirectlyDependentFactVariables());
+				usedECs.add(ec);
+			}
+		}
 		relevantECs.removeIf(ec -> {
 			if (usedECs.contains(ec)) return false;
-			if (ec.hasMoreThanOneElement()) return false;
 			if (!usedFVs.containsAll(ec.getFactVariables())) return false;
+			if (!ec.getConstantExpressions().isEmpty() || !ec.getFunctionalExpressions().isEmpty()) return false;
 			return true;
 		});
 		return relevantECs;
