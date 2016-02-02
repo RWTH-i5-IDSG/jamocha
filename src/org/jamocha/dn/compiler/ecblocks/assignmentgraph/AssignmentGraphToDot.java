@@ -34,7 +34,7 @@ import java.util.TreeMap;
 import java.util.function.Function;
 import java.util.stream.IntStream;
 
-import static java.util.stream.Collectors.toSet;
+import static java.util.stream.Collectors.*;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
@@ -151,7 +151,7 @@ public class AssignmentGraphToDot {
 		}
 		sb.append("}").append(n).append(n);
 
-		sb.append("// template instances nodes").append(n).append("{ rank = same").append(n);
+		sb.append("// template instance nodes").append(n).append("{ rank = same").append(n);
 		for (final SingleFactVariable templateInstance : assignmentGraph.getTemplateInstanceToBindingNodes().keySet
 				()) {
 			sb.append('\t').append('"').append(toString(templateInstance, templateInstanceToString)).append('"');
@@ -211,9 +211,7 @@ public class AssignmentGraphToDot {
 			sb.append(n);
 		}
 
-		sb.append("}").
-
-				append(n);
+		sb.append("}").append(n);
 
 		return sb.toString();
 	}
