@@ -878,7 +878,7 @@ public class RuleConditionProcessor {
 	 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
 	 */
 	@RequiredArgsConstructor
-	private static class FWAECReplacer extends FWATranslator<ECLeaf, ECLeaf> {
+	public static class FWAECReplacer extends FWATranslator<ECLeaf, ECLeaf> {
 		final Function<EquivalenceClass, EquivalenceClass> oldToNew;
 
 		@Override
