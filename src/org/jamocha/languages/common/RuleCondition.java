@@ -159,6 +159,7 @@ public class RuleCondition {
 				throw new IllegalArgumentException("Only equivalence classes of equal types can be merged!");
 			other.factVariables.forEach(fv -> fv.setEqual(this));
 			other.slotVariables.forEach(sv -> {
+				assert 1 == sv.getEqualSet().size();
 				sv.getEqualSet().clear();
 				sv.getEqualSet().add(this);
 			});
