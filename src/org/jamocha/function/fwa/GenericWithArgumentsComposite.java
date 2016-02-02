@@ -231,7 +231,8 @@ public abstract class GenericWithArgumentsComposite<R, F extends Function<? exte
 
 	public static <L extends ExchangeableLeaf<L>> PredicateWithArguments<L> newPredicateInstance(final String inClips,
 			final Collection<FunctionWithArguments<L>> arguments) {
-		return newPredicateInstance(inClips, ToArray.toArray(arguments, FunctionWithArguments[]::new));
+		return newPredicateInstance(inClips,
+				ToArray.<FunctionWithArguments<L>>toArray(arguments, FunctionWithArguments[]::new));
 	}
 
 	public static <L extends ExchangeableLeaf<L>> PredicateWithArguments<L> newPredicateInstance(
