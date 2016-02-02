@@ -27,10 +27,7 @@ import org.jamocha.languages.common.SingleFactVariable;
 
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.Collections;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.IntStream;
 
@@ -86,7 +83,7 @@ public class AssignmentGraphToDot {
 			case SLOT_BINDING:
 				return ((SlotBindingNode) bindingNode).getSlotInGroupingFactVariable().getSlotName();
 			case CONSTANT_EXPRESSION:
-				return ((ConstantBindingNode) bindingNode).getConstant().getValue().toString();
+				return Objects.toString(((ConstantBindingNode) bindingNode).getConstant().getValue());
 			case FUNCTIONAL_EXPRESSION:
 				return ((FunctionWithArgumentsComposite<ECOccurrenceLeaf>) ((FunctionalExpressionBindingNode)
 						bindingNode)
