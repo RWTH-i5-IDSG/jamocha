@@ -23,11 +23,13 @@ import org.jamocha.function.Predicate;
 import org.jamocha.function.impls.FunctionVisitor;
 import org.jamocha.function.impls.predicates.Not;
 import org.jamocha.languages.common.errors.VariableNotDeclaredError;
+import org.jamocha.util.ToArray;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 
-import static java.util.stream.Collectors.joining;
+import static java.util.stream.Collectors.*;
 import static org.jamocha.util.ToArray.toArray;
 
 /**
@@ -225,6 +227,16 @@ public abstract class GenericWithArgumentsComposite<R, F extends Function<? exte
 		return SlotType.BOOLEAN == function.getReturnType() ?
 				new PredicateWithArgumentsComposite<L>((Predicate) function, arguments) :
 				new FunctionWithArgumentsComposite<L>(function, arguments);
+	}
+
+	public static <L extends ExchangeableLeaf<L>> PredicateWithArguments<L> newPredicateInstance(final String inClips,
+			final Collection<FunctionWithArguments<L>> arguments) {
+		return newPredicateInstance(inClips, ToArray.toArray(arguments, FunctionWithArguments[]::new));
+	}
+
+	public static <L extends ExchangeableLeaf<L>> PredicateWithArguments<L> newPredicateInstance(
+			final boolean isPositive, final String inClips, final Collection<FunctionWithArguments<L>> arguments) {
+		return newPredicateInstance(isPositive, inClips, arguments);
 	}
 
 	@SafeVarargs

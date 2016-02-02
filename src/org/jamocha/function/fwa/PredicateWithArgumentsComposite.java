@@ -19,11 +19,11 @@ import org.jamocha.function.Predicate;
 
 /**
  * Instantiation of {@link GenericWithArgumentsComposite} holding a Predicate.
- * 
+ *
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
-public class PredicateWithArgumentsComposite<L extends ExchangeableLeaf<L>> extends
-		GenericWithArgumentsComposite<Boolean, Predicate, L> implements PredicateWithArguments<L> {
+public class PredicateWithArgumentsComposite<L extends ExchangeableLeaf<L>>
+		extends GenericWithArgumentsComposite<Boolean, Predicate, L> implements PredicateWithArguments<L> {
 	@SafeVarargs
 	public PredicateWithArgumentsComposite(final Predicate predicate, final FunctionWithArguments<L>... args) {
 		super(predicate, args);

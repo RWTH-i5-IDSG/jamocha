@@ -44,7 +44,6 @@ import org.jamocha.languages.common.RuleCondition.EquivalenceClass;
 import org.jamocha.languages.common.ScopeStack.Scope;
 import org.jamocha.languages.common.SingleFactVariable;
 import org.jamocha.languages.common.SingleFactVariable.SingleSlotVariable;
-import org.jamocha.util.ToArray;
 
 import java.util.*;
 import java.util.Map.Entry;
@@ -263,9 +262,7 @@ public class CEToECTranslator implements DefaultConditionalElementsVisitor<ECLea
 							remainingArguments.addFirst(args[0]);
 							ShallowCEEquivalenceClassBuilder.this.shallowTests.add(GenericWithArgumentsComposite
 									.newPredicateInstance(!ShallowCEEquivalenceClassBuilder.this.negated,
-											Equals.inClips,
-											ToArray.<FunctionWithArguments<ECLeaf>>toArray(remainingArguments,
-													FunctionWithArguments[]::new)));
+											Equals.inClips, remainingArguments));
 						}
 					}
 				}
@@ -462,9 +459,7 @@ public class CEToECTranslator implements DefaultConditionalElementsVisitor<ECLea
 
 			final ECFilter existentialClosure = new ECFilter(
 					predicates.size() == 1 ? (PredicateWithArguments<ECLeaf>) predicates.get(0) :
-							PredicateWithArgumentsComposite.newPredicateInstance(And.inClips,
-									ToArray.<FunctionWithArguments<ECLeaf>>toArray(predicates,
-											FunctionWithArguments[]::new)));
+							PredicateWithArgumentsComposite.newPredicateInstance(And.inClips, predicates));
 			return new ECExistentialSet(isPositive, initialFactVariable, shallowExistentialFVs, shallowExistentialECs,
 					pureFilters, existentialClosure);
 		}
