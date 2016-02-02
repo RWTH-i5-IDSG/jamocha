@@ -41,6 +41,7 @@ import org.jamocha.languages.common.ConditionalElement;
 import org.jamocha.languages.common.ConditionalElement.*;
 import org.jamocha.languages.common.DefaultConditionalElementsVisitor;
 import org.jamocha.languages.common.RuleCondition.EquivalenceClass;
+import org.jamocha.languages.common.RuleConditionProcessor;
 import org.jamocha.languages.common.ScopeStack.Scope;
 import org.jamocha.languages.common.SingleFactVariable;
 import org.jamocha.languages.common.SingleFactVariable.SingleSlotVariable;
@@ -142,6 +143,7 @@ public class CEToECTranslator implements DefaultConditionalElementsVisitor<ECLea
 			final ShallowCEEquivalenceClassBuilder equivalenceClassBuilder =
 					ce.accept(new ShallowCEEquivalenceClassBuilder(equivalenceClasses, scope, false));
 			equivalenceClasses.addAll(equivalenceClassBuilder.equivalenceClasses.values());
+			// remove equivalence classes that were merged with other equivalence classes
 			for (final Iterator<EquivalenceClass> ecIter = equivalenceClasses.iterator(); ecIter.hasNext(); ) {
 				final EquivalenceClass equivalenceClass = ecIter.next();
 				final EquivalenceClass replacement =
@@ -151,11 +153,14 @@ public class CEToECTranslator implements DefaultConditionalElementsVisitor<ECLea
 				ecIter.remove();
 			}
 
+			final Set<PredicateWithArguments<ECLeaf>> shallowTests =
+					equivalenceClassBuilder.getTranslatedShallowTests();
+
 			final SingleFactVariable initialFactVariable =
 					ShallowFactVariableCollector.collectVariables(initialFactTemplate, ce).getLeft();
 
 			return consolidateOnCopiedEquivalenceClasses(initialFactTemplate, initialFactVariable, rule, ce,
-					equivalenceClassBuilder.shallowTests, equivalenceClasses, Specificity.calculate(ce));
+					shallowTests, equivalenceClasses, Specificity.calculate(ce));
 		}
 
 		// there are references to EquivalenceClass in:
@@ -178,6 +183,13 @@ public class CEToECTranslator implements DefaultConditionalElementsVisitor<ECLea
 			final FWAEquivalenceClassBuilder fwaBuilder = new FWAEquivalenceClassBuilder();
 			final Set<PredicateWithArguments<ECLeaf>> shallowTests = new HashSet<>();
 			boolean negated = false;
+
+			public Set<PredicateWithArguments<ECLeaf>> getTranslatedShallowTests() {
+				return this.shallowTests.stream().map(pwa -> ((PredicateWithArguments<ECLeaf>) pwa
+						.accept(new RuleConditionProcessor.FWAECReplacer(
+								ec -> this.equivalenceClasses.getOrDefault(new ECLeaf(ec), ec)))
+						.getFunctionWithArguments())).collect(toSet());
+			}
 
 			public ShallowCEEquivalenceClassBuilder(final Set<EquivalenceClass> allECs, final Scope scope,
 					final boolean negated) {
@@ -361,7 +373,8 @@ public class CEToECTranslator implements DefaultConditionalElementsVisitor<ECLea
 					ce.accept(new ShallowCEEquivalenceClassBuilder(equivalenceClasses, scope, false));
 			equivalenceClasses.addAll(equivalenceClassBuilder.equivalenceClasses.values());
 
-			final Set<PredicateWithArguments<ECLeaf>> shallowTests = equivalenceClassBuilder.shallowTests;
+			final Set<PredicateWithArguments<ECLeaf>> shallowTests =
+					equivalenceClassBuilder.getTranslatedShallowTests();
 
 			// Generate ECFilters from CE (recurse)
 			final Set<ECFilterSet> filters =
