@@ -46,7 +46,6 @@ import org.jamocha.languages.common.SingleFactVariable;
 import org.jamocha.languages.common.SingleFactVariable.SingleSlotVariable;
 
 import java.util.*;
-import java.util.Map.Entry;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -143,6 +142,14 @@ public class CEToECTranslator implements DefaultConditionalElementsVisitor<ECLea
 			final ShallowCEEquivalenceClassBuilder equivalenceClassBuilder =
 					ce.accept(new ShallowCEEquivalenceClassBuilder(equivalenceClasses, scope, false));
 			equivalenceClasses.addAll(equivalenceClassBuilder.equivalenceClasses.values());
+			for (final Iterator<EquivalenceClass> ecIter = equivalenceClasses.iterator(); ecIter.hasNext(); ) {
+				final EquivalenceClass equivalenceClass = ecIter.next();
+				final EquivalenceClass replacement =
+						equivalenceClassBuilder.equivalenceClasses.get(new ECLeaf(equivalenceClass));
+				if (null == replacement) continue;
+				if (replacement == equivalenceClass) continue;
+				ecIter.remove();
+			}
 
 			final SingleFactVariable initialFactVariable =
 					ShallowFactVariableCollector.collectVariables(initialFactTemplate, ce).getLeft();
@@ -231,20 +238,9 @@ public class CEToECTranslator implements DefaultConditionalElementsVisitor<ECLea
 							// merge right into left
 							left.merge(right);
 							// replace right with left everywhere
+							ShallowCEEquivalenceClassBuilder.this.equivalenceClasses
+									.replaceAll((ecLeaf, ec) -> ec == right ? left : ec);
 							ShallowCEEquivalenceClassBuilder.this.equivalenceClasses.put(arg, left);
-							// replace all constants in right to point to left
-							if (!right.getConstantExpressions().isEmpty() ||
-									!right.getFunctionalExpressions().isEmpty()) {
-								for (final Entry<FunctionWithArguments<ECLeaf>, EquivalenceClass> entry :
-										ShallowCEEquivalenceClassBuilder.this.equivalenceClasses
-										.entrySet()) {
-									if (entry.getValue() == right) {
-										ShallowCEEquivalenceClassBuilder.this.equivalenceClasses
-												.put(entry.getKey(), left);
-									}
-								}
-							}
-							replaceEC(right, left);
 						} else if (leftInCS || rightInCS) {
 							// equal parent scope relation
 							EquivalenceClass.addEqualParentEquivalenceClassRelation(left, right);
