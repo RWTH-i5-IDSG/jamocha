@@ -35,9 +35,10 @@ import org.jamocha.languages.common.RuleCondition.EquivalenceClass;
 import org.jamocha.logging.MarkerType;
 
 import java.util.*;
+import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.*;
 import static org.jamocha.util.Lambdas.toIdentityHashSet;
 import static org.jamocha.util.ToArray.toArray;
 
@@ -177,7 +178,10 @@ public class ConstructCache {
 					ConditionalElement<ECLeaf> copy = ce;
 					// split up the equivalence classes on the existential thresholds
 					// this should leave alive the equivalence classes containing constants only
-					copy = RuleConditionProcessor.ExistentialECSplitter.split(condition.getScope(), copy);
+					final Pair<ConditionalElement<ECLeaf>, Set<EquivalenceClass>> pair =
+							RuleConditionProcessor.ExistentialECSplitter.split(condition.getScope(), copy);
+					pair.getRight().forEach(ec -> oldToNew.put(ec, ec));
+					copy = pair.getLeft();
 
 					// move functions not using any existential EC(-part)s out of the existential part
 					// (producing (or)s in case of negated existential conditions)

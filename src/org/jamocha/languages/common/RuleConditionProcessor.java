@@ -34,6 +34,7 @@ import org.jamocha.languages.common.ScopeStack.VariableSymbol;
 import org.jamocha.languages.common.SingleFactVariable.SingleSlotVariable;
 
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
@@ -123,6 +124,12 @@ public class RuleConditionProcessor {
 			final Collection<EquivalenceClass> equivalenceClasses) {
 		final HashBiMap<EquivalenceClass, EquivalenceClass> oldToNewEC = HashBiMap.create(equivalenceClasses.stream()
 				.collect(toMap(java.util.function.Function.identity(), EquivalenceClass::new)));
+		for (final Map.Entry<EquivalenceClass, EquivalenceClass> entry : oldToNewEC.entrySet()) {
+			final EquivalenceClass oldEC = entry.getKey();
+			final EquivalenceClass newEC = entry.getValue();
+			oldEC.getEqualParentEquivalenceClasses().stream().map(oldToNewEC::get)
+					.forEach(newEC::addEqualParentEquivalenceClass);
+		}
 
 		// collect all fact variables contained in this child
 		final List<SingleFactVariable> deepFactVariables = DeepFactVariableCollector.collect(child);
@@ -135,12 +142,12 @@ public class RuleConditionProcessor {
 						(final SingleFactVariable fv) -> new SingleFactVariable(fv, oldToNewEC))));
 
 		// replace the old FVs in the new ECs by the new FVs
-		for (Iterator<EquivalenceClass> iterator = oldToNewEC.values().iterator(); iterator.hasNext(); ) {
-			final EquivalenceClass newEC = iterator.next();
+		for (final Iterator<EquivalenceClass> ecIter = oldToNewEC.values().iterator(); ecIter.hasNext(); ) {
+			final EquivalenceClass newEC = ecIter.next();
 			newEC.getFactVariables().removeIf(negate(deepFactVariables::contains));
 			newEC.getSlotVariables().removeIf(sv -> !deepFactVariables.contains(sv.getFactVariable()));
 			if (newEC.getElementCount() == 0) {
-				iterator.remove();
+				ecIter.remove();
 				continue;
 			}
 			newEC.getFactVariables().replaceAll(oldToNewFV::get);
@@ -415,24 +422,29 @@ public class RuleConditionProcessor {
 			final Scope scope;
 			final Set<SingleFactVariable> shallowFactVariables;
 			final Map<EquivalenceClass, EquivalenceClass> oldToNew;
+			final Set<EquivalenceClass> newECs;
 		}
 
 		final State state;
 
-		public ExistentialECSplitter(final Scope scope, final Set<SingleFactVariable> shallowFactVariables) {
-			this.state = new State(scope, shallowFactVariables, split(scope, shallowFactVariables));
+		public ExistentialECSplitter(final Scope scope, final Set<SingleFactVariable> shallowFactVariables,
+				final Set<EquivalenceClass> newECs) {
+			this.state =
+					new State(scope, shallowFactVariables, split(scope, shallowFactVariables, newECs::add), newECs);
 		}
 
 		public ExistentialECSplitter(final State state) {
 			this.state = state;
 		}
 
-		public static ConditionalElement<ECLeaf> split(final Scope scope, final ConditionalElement<ECLeaf> child) {
+		public static Pair<ConditionalElement<ECLeaf>, Set<EquivalenceClass>> split(final Scope scope,
+				final ConditionalElement<ECLeaf> child) {
+			final Set<EquivalenceClass> newECs = Sets.newIdentityHashSet();
 			final ConditionalElement<ECLeaf> result = child.accept(
-					new ExistentialECSplitter(scope, newIdentityHashSet(ShallowFactVariableCollector.collect(child))))
-					.getResult();
+					new ExistentialECSplitter(scope, newIdentityHashSet(ShallowFactVariableCollector.collect(child)),
+							newECs)).getResult();
 			assert null != result;
-			return result;
+			return Pair.of(result, newECs);
 		}
 
 		@Override
@@ -446,20 +458,21 @@ public class RuleConditionProcessor {
 		}
 
 		private static Map<EquivalenceClass, EquivalenceClass> split(final Scope scope,
-				final Set<SingleFactVariable> shallowFactVariables) {
+				final Set<SingleFactVariable> shallowFactVariables, final Consumer<EquivalenceClass> newECConsumer) {
 			final Set<EquivalenceClass> ecs =
 					Stream.concat(shallowFactVariables.stream().map(SingleFactVariable::getEqual),
 							shallowFactVariables.stream().flatMap(fv -> fv.getSlotVariables().stream())
 									.flatMap(sv -> sv.getEqualSet().stream())).collect(toIdentityHashSet());
 			final Map<EquivalenceClass, EquivalenceClass> oldToNew = HashBiMap.create();
 			for (final EquivalenceClass oldEC : ecs) {
-				oldToNew.put(oldEC, splitEC(scope, shallowFactVariables, oldEC));
+				oldToNew.put(oldEC, splitEC(scope, shallowFactVariables, oldEC, newECConsumer));
 			}
 			return oldToNew;
 		}
 
 		private static EquivalenceClass splitEC(final Scope scope, final Set<SingleFactVariable> shallowFactVariables,
-				final EquivalenceClass oldEC) throws IllegalStateException {
+				final EquivalenceClass oldEC, final Consumer<EquivalenceClass> newECConsumer)
+				throws IllegalStateException {
 			assert oldEC.getFunctionalExpressions().isEmpty() && (oldEC.getConstantExpressions().isEmpty() ||
 					(oldEC.getFactVariables().isEmpty() && oldEC.getSlotVariables().isEmpty())) :
 					"This method assumes that the parser leaves the equality tests involving constants and " +
@@ -509,6 +522,7 @@ public class RuleConditionProcessor {
 			}
 			// add equal parent relationship
 			newEC.addEqualParentEquivalenceClass(oldEC);
+			newECConsumer.accept(newEC);
 			return newEC;
 		}
 
@@ -524,8 +538,8 @@ public class RuleConditionProcessor {
 			assert ce.getChildren().size() == 1;
 			this.result = new ExistentialConditionalElement<>(ce.getScope(), ce.getChildren().get(0)
 					.accept(new ExistentialECSplitter(ce.scope,
-							newIdentityHashSet(ShallowFactVariableCollector.collect(ce.getChildren().get(0))))).result
-					.getChildren());
+							newIdentityHashSet(ShallowFactVariableCollector.collect(ce.getChildren().get(0))),
+							this.state.newECs)).result.getChildren());
 		}
 
 		@Override
@@ -534,8 +548,8 @@ public class RuleConditionProcessor {
 			this.result = new NegatedExistentialConditionalElement<>(ce.getScope(), new
 					AndFunctionConditionalElement<>(
 					ce.getChildren().get(0).accept(new ExistentialECSplitter(ce.scope,
-							newIdentityHashSet(ShallowFactVariableCollector.collect(ce.getChildren().get(0))))).result
-							.getChildren()));
+							newIdentityHashSet(ShallowFactVariableCollector.collect(ce.getChildren().get(0))),
+							this.state.newECs)).result.getChildren()));
 		}
 	}
 
