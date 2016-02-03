@@ -37,4 +37,9 @@ public class FilterToTemplateColumn extends AbstractColumn<FilterOccurrenceNode,
 		return new FilterToTemplateColumn(newIdentityHashSet(this.edges));
 	}
 
+	@Override
+	public <V extends ColumnVisitor> V accept(final V visitor) {
+		visitor.visit(this);
+		return visitor;
+	}
 }

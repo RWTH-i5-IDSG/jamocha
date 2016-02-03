@@ -38,4 +38,10 @@ public class FilterToFunctionalExpressionColumn
 	public FilterToFunctionalExpressionColumn copy() {
 		return new FilterToFunctionalExpressionColumn(newIdentityHashSet(this.edges));
 	}
+
+	@Override
+	public <V extends ColumnVisitor> V accept(final V visitor) {
+		visitor.visit(this);
+		return visitor;
+	}
 }

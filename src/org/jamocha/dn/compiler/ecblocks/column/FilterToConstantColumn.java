@@ -36,4 +36,10 @@ public class FilterToConstantColumn extends AbstractColumn<FilterOccurrenceNode,
 	public FilterToConstantColumn copy() {
 		return new FilterToConstantColumn(newIdentityHashSet(this.edges));
 	}
+
+	@Override
+	public <V extends ColumnVisitor> V accept(final V visitor) {
+		visitor.visit(this);
+		return visitor;
+	}
 }

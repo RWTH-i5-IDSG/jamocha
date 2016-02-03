@@ -37,4 +37,10 @@ public class ImplicitToTemplateColumn extends AbstractColumn<ImplicitOccurrenceN
 	public ImplicitToTemplateColumn copy() {
 		return new ImplicitToTemplateColumn(newIdentityHashSet(this.edges));
 	}
+
+	@Override
+	public <V extends ColumnVisitor> V accept(final V visitor) {
+		visitor.visit(this);
+		return visitor;
+	}
 }

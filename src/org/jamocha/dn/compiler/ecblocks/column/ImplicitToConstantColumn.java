@@ -37,4 +37,10 @@ public class ImplicitToConstantColumn extends AbstractColumn<ImplicitOccurrenceN
 	public ImplicitToConstantColumn copy() {
 		return new ImplicitToConstantColumn(newIdentityHashSet(this.edges));
 	}
+
+	@Override
+	public <V extends ColumnVisitor> V accept(final V visitor) {
+		visitor.visit(this);
+		return visitor;
+	}
 }

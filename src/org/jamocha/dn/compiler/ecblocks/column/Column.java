@@ -18,6 +18,7 @@ package org.jamocha.dn.compiler.ecblocks.column;
 import org.jamocha.dn.compiler.ecblocks.assignmentgraph.AssignmentGraph;
 import org.jamocha.dn.compiler.ecblocks.assignmentgraph.node.binding.BindingNode;
 import org.jamocha.dn.compiler.ecblocks.assignmentgraph.node.occurrence.ECOccurrenceNode;
+import org.jamocha.visitor.Visitable;
 
 import java.util.Set;
 
@@ -26,7 +27,8 @@ import static org.jamocha.util.Lambdas.toIdentityHashSet;
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
-public interface Column<O extends ECOccurrenceNode, B extends BindingNode> extends FromColumn<O>, ToColumn<B> {
+public interface Column<O extends ECOccurrenceNode, B extends BindingNode>
+		extends FromColumn<O>, ToColumn<B>, Visitable<ColumnVisitor> {
 	Set<AssignmentGraph.Edge<O, B>> getEdges();
 
 	Column<O, B> copy();
