@@ -606,14 +606,23 @@ public class RuleConditionProcessor {
 			final Scope scope = ce.getScope();
 
 			final ConditionalElement<ECLeaf> andCE = ce.getChildren().get(0);
+			// since there are no OR-CEs within ce, we only have to consider TemplatePattern & InitialFact CEs
+			// and Test & [Negated]Existential CEs (not-CE will also be collected, as we assume there is a test CE
+			// directly contained)
 			final Set<ConditionalElement<ECLeaf>> fvCEs = andCE.accept(new ShallowTPAndIFCECollector()).fvCEs;
 			final Set<ConditionalElement<ECLeaf>> testAndExistentialCEs =
 					andCE.accept(new ShallowTestCEAndExistentialCollector()).getTestAndExistentialCEs();
 
+			final Map<Boolean, List<ConditionalElement<ECLeaf>>> shallowTestsMap1 = testAndExistentialCEs.stream()
+					.collect(partitioningBy(t -> t.accept(new DeepFactVariableCollector<>()).getFactVariables().stream()
+							.map(fv -> fv.getEqual())
+							.anyMatch(ec -> ec.getMaximalScope() == scope)));
 			final Map<Boolean, List<ConditionalElement<ECLeaf>>> shallowTestsMap = testAndExistentialCEs.stream()
 					.collect(partitioningBy(t -> t.accept(new DeepECCollector()).getEquivalenceClasses().stream()
 							.anyMatch(ec -> ec.getMaximalScope() == scope)));
+			// store all test and existential CEs that contain at least one local EC in innerTests
 			final List<ConditionalElement<ECLeaf>> innerTests = shallowTestsMap.get(Boolean.TRUE);
+			// and the rest in outerTests
 			final List<ConditionalElement<ECLeaf>> outerTests = shallowTestsMap.get(Boolean.FALSE);
 
 			final ArrayList<ConditionalElement<ECLeaf>> disjuncts = Lists.newArrayList();

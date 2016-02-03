@@ -184,7 +184,7 @@ public class ConstructCache {
 
 					// move functions not using any existential EC(-part)s out of the existential part
 					// (producing (or)s in case of negated existential conditions)
-					copy = copy.accept(new RuleConditionProcessor.CEExistentialTransformer()).getCe();
+					// copy = copy.accept(new RuleConditionProcessor.CEExistentialTransformer()).getCe();
 					return copy;
 				};
 
