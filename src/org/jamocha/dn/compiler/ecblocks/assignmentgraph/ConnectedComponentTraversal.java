@@ -41,9 +41,9 @@ public abstract class ConnectedComponentTraversal implements AssignmentGraphNode
 	final AssignmentGraph.Graph traversedGraph;
 	final AssignmentGraph.UnrestrictedGraph.SubGraph subgraph;
 
-	final Set<AssignmentGraphNode> queued = Sets.newIdentityHashSet();
-	final Set<AssignmentGraphNode> done = Sets.newIdentityHashSet();
-	final Deque<AssignmentGraphNode> queue = new LinkedList<>();
+	final Set<AssignmentGraphNode<?>> queued = Sets.newIdentityHashSet();
+	final Set<AssignmentGraphNode<?>> done = Sets.newIdentityHashSet();
+	final Deque<AssignmentGraphNode<?>> queue = new LinkedList<>();
 
 
 	protected void enqueueNode(final AssignmentGraphNode<?> node) {
@@ -51,8 +51,8 @@ public abstract class ConnectedComponentTraversal implements AssignmentGraphNode
 	}
 
 	abstract protected <T extends AssignmentGraphNode<?>> void handleNode(final T node,
-			final Function<AssignmentGraph.Edge, AssignmentGraphNode<?>> getOtherNode,
-			final Function<T, Set<AssignmentGraph.Edge>> getEdges);
+			final Function<AssignmentGraph.Edge<ECOccurrenceNode, BindingNode>, AssignmentGraphNode<?>> getOtherNode,
+			final Function<T, Set<AssignmentGraph.Edge<ECOccurrenceNode, BindingNode>>> getEdges);
 
 	protected void handleBindingNode(final BindingNode node) {
 		handleNode(node, AssignmentGraph.Edge::getSource, this.traversedGraph::incomingEdgesOf);

@@ -13,13 +13,17 @@
  * the License.
  */
 
-package org.jamocha.dn.compiler.ecblocks.assignmentgraph.node.binding;
+package org.jamocha.dn.compiler.ecblocks.column;
 
-import org.jamocha.dn.compiler.ecblocks.assignmentgraph.NodeType;
+import org.jamocha.dn.compiler.ecblocks.assignmentgraph.node.binding.BindingType;
+import org.jamocha.dn.compiler.ecblocks.assignmentgraph.node.binding.FunctionalExpressionBindingNode;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
-public enum BindingType implements NodeType {
-	SLOT_OR_FACT_BINDING, CONSTANT_EXPRESSION, FUNCTIONAL_EXPRESSION;
+public interface ToFunctionalExpressionColumn extends ToColumn<FunctionalExpressionBindingNode> {
+	@Override
+	default BindingType getBindingType() {
+		return BindingType.FUNCTIONAL_EXPRESSION;
+	}
 }

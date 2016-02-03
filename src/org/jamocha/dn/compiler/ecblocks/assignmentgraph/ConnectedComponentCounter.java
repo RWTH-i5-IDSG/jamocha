@@ -17,6 +17,8 @@ package org.jamocha.dn.compiler.ecblocks.assignmentgraph;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Sets;
+import org.jamocha.dn.compiler.ecblocks.assignmentgraph.node.binding.BindingNode;
+import org.jamocha.dn.compiler.ecblocks.assignmentgraph.node.occurrence.ECOccurrenceNode;
 
 import java.util.Set;
 
@@ -55,11 +57,11 @@ public class ConnectedComponentCounter extends ConnectedComponentTraversal {
 
 	@Override
 	protected <T extends AssignmentGraphNode<?>> void handleNode(final T node,
-			final Function<AssignmentGraph.Edge, AssignmentGraphNode<?>> getOtherNode,
-			final Function<T, Set<AssignmentGraph.Edge>> getEdges) {
+			final Function<AssignmentGraph.Edge<ECOccurrenceNode, BindingNode>, AssignmentGraphNode<?>> getOtherNode,
+			final Function<T, Set<AssignmentGraph.Edge<ECOccurrenceNode, BindingNode>>> getEdges) {
 		this.done.add(node);
-		final Set<AssignmentGraph.Edge> edges = getEdges.apply(node);
-		for (final AssignmentGraph.Edge edge : edges) {
+		final Set<AssignmentGraph.Edge<ECOccurrenceNode, BindingNode>> edges = getEdges.apply(node);
+		for (final AssignmentGraph.Edge<ECOccurrenceNode, BindingNode> edge : edges) {
 			final AssignmentGraphNode<?> otherNode = getOtherNode.apply(edge);
 			if (this.done.contains(otherNode)) continue;
 			enqueueNode(otherNode);

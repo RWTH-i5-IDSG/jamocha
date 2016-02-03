@@ -20,6 +20,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import org.jamocha.dn.compiler.ecblocks.assignmentgraph.node.binding.BindingNode;
 import org.jamocha.dn.compiler.ecblocks.assignmentgraph.node.binding.FunctionalExpressionBindingNode;
+import org.jamocha.dn.compiler.ecblocks.assignmentgraph.node.occurrence.ECOccurrenceNode;
 import org.jamocha.dn.compiler.ecblocks.assignmentgraph.node.occurrence.FunctionalExpressionOccurrenceNode;
 
 import java.util.Set;
@@ -71,8 +72,9 @@ public class FunctionalExpressionBindingChecker {
 		boolean bound = false;
 
 		void check(final FunctionalExpressionOccurrenceNode occurrenceNode) {
-			final Set<AssignmentGraph.Edge> edges = subgraph.outgoingEdgesOf(occurrenceNode);
-			for (final AssignmentGraph.Edge edge : edges) {
+			final Set<AssignmentGraph.Edge<ECOccurrenceNode, BindingNode>> edges =
+					subgraph.outgoingEdgesOf(occurrenceNode);
+			for (final AssignmentGraph.Edge<ECOccurrenceNode, BindingNode> edge : edges) {
 				final BindingNode target = edge.getTarget();
 				switch (target.getNodeType()) {
 					case FUNCTIONAL_EXPRESSION:
@@ -84,8 +86,7 @@ public class FunctionalExpressionBindingChecker {
 						if (seen.contains(node)) continue;
 						if (!FunctionalExpressionBindingChecker.this.check(node)) continue;
 						// FALL THROUGH
-					case FACT_BINDING:
-					case SLOT_BINDING:
+					case SLOT_OR_FACT_BINDING:
 					case CONSTANT_EXPRESSION:
 						bound = true;
 						return;

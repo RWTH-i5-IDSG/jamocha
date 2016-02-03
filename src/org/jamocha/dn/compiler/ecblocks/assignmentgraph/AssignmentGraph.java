@@ -86,21 +86,23 @@ public class AssignmentGraph {
 
 	@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 	@Value
-	public static class Edge {
-		final ECOccurrenceNode source;
-		final BindingNode target;
+	public static class Edge<O extends ECOccurrenceNode, B extends BindingNode> {
+		final O source;
+		final B target;
 	}
 
 	public abstract class Graph {
-		final IdentityHashMap<ECOccurrenceNode, Set<Edge>> outgoingEdges = new IdentityHashMap<>();
-		final IdentityHashMap<BindingNode, Set<Edge>> incomingEdges = new IdentityHashMap<>();
-		final Set<Edge> edgeSet = Sets.newIdentityHashSet();
+		final IdentityHashMap<ECOccurrenceNode, Set<Edge<ECOccurrenceNode, BindingNode>>> outgoingEdges =
+				new IdentityHashMap<>();
+		final IdentityHashMap<BindingNode, Set<Edge<ECOccurrenceNode, BindingNode>>> incomingEdges =
+				new IdentityHashMap<>();
+		final Set<Edge<ECOccurrenceNode, BindingNode>> edgeSet = Sets.newIdentityHashSet();
 
-		public Set<Edge> edgeSet() {
+		public Set<Edge<ECOccurrenceNode, BindingNode>> edgeSet() {
 			return ImmutableSet.copyOf(this.edgeSet);
 		}
 
-		public boolean containsEdge(final Edge edge) {
+		public boolean containsEdge(final Edge<ECOccurrenceNode, BindingNode> edge) {
 			return this.edgeSet.contains(edge);
 		}
 
@@ -108,16 +110,16 @@ public class AssignmentGraph {
 			return null != getEdge(source, target);
 		}
 
-		public Edge getEdge(final ECOccurrenceNode source, final BindingNode target) {
+		public Edge<ECOccurrenceNode, BindingNode> getEdge(final ECOccurrenceNode source, final BindingNode target) {
 			return this.outgoingEdges.get(source).stream().filter(e -> e.getTarget() == target).findAny().orElse(null);
 		}
 
-		protected Set<Edge> getIncomingEdges(final BindingNode target) {
-			final Set<Edge> edges = this.incomingEdges.get(target);
+		protected Set<Edge<ECOccurrenceNode, BindingNode>> getIncomingEdges(final BindingNode target) {
+			final Set<Edge<ECOccurrenceNode, BindingNode>> edges = this.incomingEdges.get(target);
 			return null != edges ? edges : ImmutableSet.of();
 		}
 
-		public Set<Edge> incomingEdgesOf(final BindingNode target) {
+		public Set<Edge<ECOccurrenceNode, BindingNode>> incomingEdgesOf(final BindingNode target) {
 			return ImmutableSet.copyOf(getIncomingEdges(target));
 		}
 
@@ -125,12 +127,12 @@ public class AssignmentGraph {
 			return getIncomingEdges(target).size();
 		}
 
-		protected Set<Edge> getOutgoingEdges(final ECOccurrenceNode source) {
-			final Set<Edge> edges = this.outgoingEdges.get(source);
+		protected Set<Edge<ECOccurrenceNode, BindingNode>> getOutgoingEdges(final ECOccurrenceNode source) {
+			final Set<Edge<ECOccurrenceNode, BindingNode>> edges = this.outgoingEdges.get(source);
 			return null != edges ? edges : ImmutableSet.of();
 		}
 
-		public Set<Edge> outgoingEdgesOf(final ECOccurrenceNode source) {
+		public Set<Edge<ECOccurrenceNode, BindingNode>> outgoingEdgesOf(final ECOccurrenceNode source) {
 			return ImmutableSet.copyOf(getOutgoingEdges(source));
 		}
 
@@ -149,11 +151,12 @@ public class AssignmentGraph {
 
 	public class UnrestrictedGraph extends Graph {
 		public boolean addEdge(final ECOccurrenceNode source, final BindingNode target) {
-			final Set<Edge> outEdges = this.outgoingEdges.computeIfAbsent(source, newIdentityHashSet());
+			final Set<Edge<ECOccurrenceNode, BindingNode>> outEdges =
+					this.outgoingEdges.computeIfAbsent(source, newIdentityHashSet());
 			if (outEdges.stream().anyMatch(e -> e.getTarget() == target)) {
 				return false;
 			}
-			final Edge edge = new Edge(source, target);
+			final Edge<ECOccurrenceNode, BindingNode> edge = new Edge<>(source, target);
 			outEdges.add(edge);
 			this.incomingEdges.computeIfAbsent(target, newIdentityHashSet()).add(edge);
 			this.edgeSet.add(edge);
@@ -172,7 +175,7 @@ public class AssignmentGraph {
 				this.edgeSet.addAll(other.edgeSet);
 			}
 
-			public boolean addEdge(final Edge edge) {
+			public boolean addEdge(final Edge<ECOccurrenceNode, BindingNode> edge) {
 				assert UnrestrictedGraph.this.edgeSet.contains(edge);
 				final boolean added = this.edgeSet.add(edge);
 				if (!added) return false;
@@ -181,11 +184,13 @@ public class AssignmentGraph {
 				return true;
 			}
 
-			public boolean removeEdge(final Edge edge) {
+			public boolean removeEdge(final Edge<ECOccurrenceNode, BindingNode> edge) {
 				assert UnrestrictedGraph.this.edgeSet.contains(edge);
 				final boolean removed = this.edgeSet.remove(edge);
 				if (!removed) return false;
-				final BiFunction<AssignmentGraphNode, Set<Edge>, Set<Edge>> edgeRemover = (k, set) -> {
+				final BiFunction<AssignmentGraphNode<?>, Set<Edge<ECOccurrenceNode, BindingNode>>,
+						Set<Edge<ECOccurrenceNode, BindingNode>>>
+						edgeRemover = (k, set) -> {
 					set.remove(edge);
 					return set.isEmpty() ? null : set;
 				};

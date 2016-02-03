@@ -35,7 +35,6 @@ import org.jamocha.languages.common.RuleCondition.EquivalenceClass;
 import org.jamocha.logging.MarkerType;
 
 import java.util.*;
-import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 import static java.util.stream.Collectors.*;

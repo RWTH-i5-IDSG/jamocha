@@ -78,9 +78,9 @@ public class AssignmentGraphToDot {
 
 	private static String toString(final BindingNode bindingNode) {
 		switch (bindingNode.getNodeType()) {
-			case FACT_BINDING:
-				return ((FactBindingNode) bindingNode).getGroupingFactVariable().getTemplate().getName();
-			case SLOT_BINDING:
+			case SLOT_OR_FACT_BINDING:
+				if (bindingNode instanceof FactBindingNode)
+					return ((FactBindingNode) bindingNode).getGroupingFactVariable().getTemplate().getName();
 				return ((SlotBindingNode) bindingNode).getSlotInGroupingFactVariable().getSlotName();
 			case CONSTANT_EXPRESSION:
 				return Objects.toString(((ConstantBindingNode) bindingNode).getConstant().getValue());

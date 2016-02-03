@@ -27,19 +27,12 @@ import org.jamocha.languages.common.SingleFactVariable;
  */
 @Getter
 public class FactBindingNode extends SlotOrFactBindingNode {
-	final FunctionWithArguments<TemplateSlotLeaf> schema;
 	final SingleFactVariable groupingFactVariable;
 
 	public FactBindingNode(final RuleCondition.EquivalenceClass equivalenceClass,
 			final FunctionWithArguments<TemplateSlotLeaf> schema, final SingleFactVariable groupingFactVariable) {
-		super(equivalenceClass);
-		this.schema = schema;
+		super(equivalenceClass, schema);
 		this.groupingFactVariable = groupingFactVariable;
-	}
-
-	@Override
-	public BindingType getNodeType() {
-		return BindingType.FACT_BINDING;
 	}
 
 	@Override

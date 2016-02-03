@@ -146,7 +146,7 @@ public class AssignmentGraphTest {
 			sevenBN = ((ConstantBindingNode) constantBinding);
 			final ConstantLeaf<TemplateSlotLeaf> constantLeaf = sevenBN.getConstant();
 			assertThat(constantLeaf, equalTo(of(7)));
-			final List<BindingNode> slotBindings = partition.get(BindingType.SLOT_BINDING);
+			final List<BindingNode> slotBindings = partition.get(BindingType.SLOT_OR_FACT_BINDING);
 			assertNotNull(slotBindings);
 			assertThat(slotBindings, hasSize(1));
 			final BindingNode slotBinding = slotBindings.get(0);
@@ -161,7 +161,7 @@ public class AssignmentGraphTest {
 			assertThat(ec2bindingNodes, hasSize(1));
 			final Map<BindingType, List<BindingNode>> partition =
 					ec2bindingNodes.stream().collect(groupingBy(BindingNode::getNodeType));
-			final List<BindingNode> slotBindings = partition.get(BindingType.SLOT_BINDING);
+			final List<BindingNode> slotBindings = partition.get(BindingType.SLOT_OR_FACT_BINDING);
 			assertNotNull(slotBindings);
 			assertThat(slotBindings, hasSize(1));
 			final BindingNode slotBinding = slotBindings.get(0);
@@ -176,7 +176,7 @@ public class AssignmentGraphTest {
 			assertThat(ex1ec1bindingNodes, hasSize(1));
 			final Map<BindingType, List<BindingNode>> partition =
 					ex1ec1bindingNodes.stream().collect(groupingBy(BindingNode::getNodeType));
-			final List<BindingNode> slotBindings = partition.get(BindingType.SLOT_BINDING);
+			final List<BindingNode> slotBindings = partition.get(BindingType.SLOT_OR_FACT_BINDING);
 			assertNotNull(slotBindings);
 			assertThat(slotBindings, hasSize(1));
 			final BindingNode slotBinding = slotBindings.get(0);
@@ -316,9 +316,9 @@ public class AssignmentGraphTest {
 		assertThat(occurrenceNodes, equalTo(myOccurrenceNodes));
 		assertThat(graph.edgeSet().stream().map(AssignmentGraph.Edge::getSource).collect(toIdentityHashSet()),
 				equalTo(myOccurrenceNodes));
-		final Set<AssignmentGraph.Edge> myEdges = new HashSet<>();
+		final Set<AssignmentGraph.Edge<ECOccurrenceNode, BindingNode>> myEdges = new HashSet<>();
 		final BiConsumer<ECOccurrenceNode, BindingNode> edgeCheck = (e, b) -> {
-			final AssignmentGraph.Edge edge = graph.getEdge(e, b);
+			final AssignmentGraph.Edge<ECOccurrenceNode, BindingNode> edge = graph.getEdge(e, b);
 			assertNotNull(edge);
 			myEdges.add(edge);
 		};

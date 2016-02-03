@@ -15,16 +15,29 @@
 
 package org.jamocha.dn.compiler.ecblocks.assignmentgraph.node.binding;
 
+import lombok.Getter;
+import org.jamocha.function.fwa.FunctionWithArguments;
+import org.jamocha.function.fwa.TemplateSlotLeaf;
 import org.jamocha.languages.common.RuleCondition;
 import org.jamocha.languages.common.SingleFactVariable;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
+@Getter
 public abstract class SlotOrFactBindingNode extends BindingNode {
-	public SlotOrFactBindingNode(final RuleCondition.EquivalenceClass equivalenceClass) {
+	final FunctionWithArguments<TemplateSlotLeaf> schema;
+
+	public SlotOrFactBindingNode(final RuleCondition.EquivalenceClass equivalenceClass,
+			final FunctionWithArguments<TemplateSlotLeaf> schema) {
 		super(equivalenceClass);
+		this.schema = schema;
 	}
 
 	public abstract SingleFactVariable getGroupingFactVariable();
+
+	@Override
+	public BindingType getNodeType() {
+		return BindingType.SLOT_OR_FACT_BINDING;
+	}
 }

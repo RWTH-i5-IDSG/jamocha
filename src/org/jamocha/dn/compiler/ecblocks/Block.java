@@ -16,10 +16,14 @@ package org.jamocha.dn.compiler.ecblocks;
 
 import com.google.common.collect.Sets;
 import lombok.Getter;
-import org.jamocha.dn.compiler.ecblocks.assignmentgraph.*;
+import org.jamocha.dn.compiler.ecblocks.assignmentgraph.AssignmentGraph;
 import org.jamocha.dn.compiler.ecblocks.assignmentgraph.AssignmentGraph.Edge;
+import org.jamocha.dn.compiler.ecblocks.assignmentgraph.ConnectedComponentCounter;
+import org.jamocha.dn.compiler.ecblocks.assignmentgraph.ExistentialSubgraphCompletelyContainedChecker;
+import org.jamocha.dn.compiler.ecblocks.assignmentgraph.FunctionalExpressionBindingChecker;
 import org.jamocha.dn.compiler.ecblocks.assignmentgraph.node.binding.*;
 import org.jamocha.dn.compiler.ecblocks.assignmentgraph.node.occurrence.*;
+import org.jamocha.dn.compiler.ecblocks.column.Column;
 import org.jamocha.dn.compiler.ecblocks.exceptions.*;
 import org.jamocha.filter.ECFilter;
 import org.jamocha.languages.common.SingleFactVariable;
@@ -61,32 +65,9 @@ public class Block {
 		}
 	}
 
-	@Getter
-	private class BlockColumn {
-		final OccurrenceType occurrenceType;
-		final BindingType bindingType;
-		final Set<AssignmentGraph.Edge> edges;
-
-		public BlockColumn(final Set<AssignmentGraph.Edge> edges) {
-			assert !edges.isEmpty();
-			this.edges = edges;
-			final AssignmentGraph.Edge edge = edges.iterator().next();
-			this.occurrenceType = edge.getSource().getNodeType();
-			assert edges.stream().allMatch(e -> this.occurrenceType == e.getSource().getNodeType());
-			this.bindingType = edge.getTarget().getNodeType();
-			assert edges.stream().allMatch(e -> this.bindingType == e.getTarget().getNodeType());
-		}
-
-		public BlockColumn(final BlockColumn other) {
-			this.occurrenceType = other.occurrenceType;
-			this.bindingType = other.bindingType;
-			this.edges = Sets.newHashSet(other.edges);
-		}
-	}
-
 	final AssignmentGraph graph;
 	final BlockRows rows;
-	final Set<BlockColumn> columns;
+	final Set<Column<ECOccurrenceNode, BindingNode>> columns;
 	final Set<SingleFactVariable> factVariablesUsed;
 
 	public Block(final AssignmentGraph graph) {
@@ -99,7 +80,7 @@ public class Block {
 	public Block(final Block other) {
 		this.graph = other.graph;
 		this.rows = new BlockRows(other.rows);
-		this.columns = other.columns.stream().map(BlockColumn::new).collect(toHashSet());
+		this.columns = other.columns.stream().map(Column::copy).collect(toHashSet());
 		this.factVariablesUsed = Sets.newIdentityHashSet();
 		this.factVariablesUsed.addAll(other.factVariablesUsed);
 	}
@@ -171,8 +152,7 @@ public class Block {
 				throw new IllegalNodeDegreeException("A binding node without incoming edges has been detected!");
 			}
 			switch (bindingNode.getNodeType()) {
-				case FACT_BINDING:
-				case SLOT_BINDING:
+				case SLOT_OR_FACT_BINDING:
 					slotOrFactBindingNodes.add((SlotOrFactBindingNode) bindingNode);
 					break;
 				case CONSTANT_EXPRESSION:
@@ -287,21 +267,24 @@ public class Block {
 			// if there is such a chain of edges, there has to be an edge from the original occurrence to each of the
 			// latter bindings
 			for (final BindingNode binding : bindingNodes) {
-				final Set<Edge> edgesToBinding = subgraph.incomingEdgesOf(binding);
+				final Set<Edge<ECOccurrenceNode, BindingNode>> edgesToBinding = subgraph.incomingEdgesOf(binding);
 				if (edgesToBinding.size() < 2) continue;
 				final ImplicitOccurrenceNode correspondingOccurrenceNode =
 						this.graph.getBindingNodeToImplicitOccurrence().get(binding);
-				final Edge correspondingEdge = subgraph.getEdge(correspondingOccurrenceNode, binding);
-				for (final Edge otherEdgeToBinding : edgesToBinding) {
+				final Edge<ECOccurrenceNode, BindingNode> correspondingEdge =
+						subgraph.getEdge(correspondingOccurrenceNode, binding);
+				for (final Edge<ECOccurrenceNode, BindingNode> otherEdgeToBinding : edgesToBinding) {
 					if (otherEdgeToBinding == correspondingEdge) {
 						continue;
 					}
 					final ECOccurrenceNode otherOccurrence = otherEdgeToBinding.getSource();
-					final Set<Edge> outgoingEdgesOfOtherOccurrence = subgraph.outgoingEdgesOf(otherOccurrence);
+					final Set<Edge<ECOccurrenceNode, BindingNode>> outgoingEdgesOfOtherOccurrence =
+							subgraph.outgoingEdgesOf(otherOccurrence);
 					if (outgoingEdgesOfOtherOccurrence.size() < 2) {
 						continue;
 					}
-					for (final Edge outgoingEdgeOfOtherOccurrence : outgoingEdgesOfOtherOccurrence) {
+					for (final Edge<ECOccurrenceNode, BindingNode> outgoingEdgeOfOtherOccurrence :
+							outgoingEdgesOfOtherOccurrence) {
 						if (outgoingEdgeOfOtherOccurrence == otherEdgeToBinding) {
 							continue;
 						}
@@ -388,42 +371,38 @@ public class Block {
 		\end{itemize}
 		*/
 
-		for (final BlockColumn column : this.columns) {
+		for (final Column<ECOccurrenceNode, BindingNode> column : this.columns) {
 			// All edges in $S$ are pairwise non-adjacent
-			final int edgeCount = column.edges.size();
+			final int edgeCount = column.getEdges().size();
 			if (0 == edgeCount) {
 				throw new InconsistentBlockColumnException("A block column is empty!");
 			}
-			final Set<ECOccurrenceNode> sourceNodes =
-					column.edges.stream().map(Edge::getSource).collect(toIdentityHashSet());
+			final Set<ECOccurrenceNode> sourceNodes = column.getSourceNodes();
 			if (edgeCount != sourceNodes.size()) {
 				throw new InconsistentBlockColumnException("Edges in block column overlap in source node!");
 			}
-			final Set<BindingNode> targetNodes =
-					column.edges.stream().map(Edge::getTarget).collect(toIdentityHashSet());
+			final OccurrenceType columnOccurrenceType = column.getOccurrenceType();
+			if (sourceNodes.stream().map(ECOccurrenceNode::getNodeType)
+					.anyMatch(type -> type != columnOccurrenceType)) {
+				throw new InconsistentBlockColumnException(
+						"Not all of the source nodes of a block column are of the correct type!");
+			}
+			final Set<BindingNode> targetNodes = column.getTargetNodes();
 			if (edgeCount != targetNodes.size()) {
 				throw new InconsistentBlockColumnException("Edges in block column overlap in target node!");
 			}
-
-			if (1L != sourceNodes.stream().map(AssignmentGraphNode::getNodeType).distinct().count()) {
+			final BindingType columnBindingType = column.getBindingType();
+			if (targetNodes.stream().map(BindingNode::getNodeType).anyMatch(type -> type != columnBindingType)) {
 				throw new InconsistentBlockColumnException(
-						"Not all of the source nodes of a block column are of the same type!");
+						"Not all of the target nodes of a block column are of the correct type!");
 			}
-			if (1L != targetNodes.stream().map(AssignmentGraphNode::getNodeType).distinct().count()) {
-				throw new InconsistentBlockColumnException(
-						"Not all of the target nodes of a block column are of the same type!");
-			}
-
-			final OccurrenceType occurrenceType = sourceNodes.iterator().next().getNodeType();
-			if (occurrenceType != column.getOccurrenceType())
-				throw new InconsistentBlockColumnException("Column occurrence type incorrect!");
-			switch (occurrenceType) {
+			switch (columnOccurrenceType) {
 				case IMPLICIT_OCCURRENCE:
 					// $V'$ only contains implicit occurrences
 					// => check
 					// If all start nodes of the edges in $S$ are implicit occurrences, either all or none of the
 					// edges lead to the corresponding binding.
-					if (1L != column.edges.stream()
+					if (1L != column.getEdges().stream()
 							.map(edge -> ((ImplicitOccurrenceNode) edge.getSource()).getCorrespondingBindingNode() ==
 									edge.getTarget()).distinct().count()) {
 						throw new InconsistentBlockColumnException(
@@ -463,30 +442,20 @@ public class Block {
 				}
 				break;
 			}
-			final BindingType bindingType = targetNodes.iterator().next().getNodeType();
-			if (bindingType != column.getBindingType())
-				throw new InconsistentBlockColumnException("Column binding type incorrect!");
-			switch (bindingType) {
-				case FACT_BINDING: {
+			switch (columnBindingType) {
+				case SLOT_OR_FACT_BINDING: {
 					// $V'$ only contains fact bindings.
 					// => check
 					// $V'$ only contains template instances (facts) of the same template.
-					if (1L !=
-							targetNodes.stream().map(node -> ((FactBindingNode) node).getSchema()).distinct().count
-									()) {
-						throw new InconsistentBlockColumnException("Fact bindings in a block column differ!");
+					// or
+					// $V'$ only contains bindings to slots of the same name. The equality of the template is assured
+					// via the compatibility of block columns (see below).
+					if (1L != targetNodes.stream().map(node -> ((SlotOrFactBindingNode) node).getSchema()).distinct()
+							.count()) {
+						throw new InconsistentBlockColumnException("Slot of fact bindings in a block column differ!");
 					}
 				}
 				break;
-				case SLOT_BINDING:
-					// $V'$ only contains bindings to slots of the same name. The equality of the template is assured
-					// via the compatibility of block columns (see below).
-					if (1L !=
-							targetNodes.stream().map(node -> ((SlotBindingNode) node).getSchema()).distinct().count
-									()) {
-						throw new InconsistentBlockColumnException("Slots in a block column differ!");
-					}
-					break;
 				case CONSTANT_EXPRESSION:
 					// $V'$ only contains bindings to the same constant.
 					if (1L != targetNodes.stream().map(node -> ((ConstantBindingNode) node).getConstant()).distinct()
@@ -509,11 +478,13 @@ public class Block {
 		// target nodes of $S$ and the sets of start and target nodes of $S'$ are identical and all others are
 		// disjoint.
 		{
-			final ICombinatoricsVector<BlockColumn> columnVector = Factory.createVector(this.columns);
-			final Generator<BlockColumn> generator = Factory.createSimpleCombinationGenerator(columnVector, 2);
-			for (final ICombinatoricsVector<BlockColumn> combination : generator) {
-				final BlockColumn c0 = combination.getValue(0);
-				final BlockColumn c1 = combination.getValue(1);
+			final ICombinatoricsVector<Column<ECOccurrenceNode, BindingNode>> columnVector =
+					Factory.createVector(this.columns);
+			final Generator<Column<ECOccurrenceNode, BindingNode>> generator =
+					Factory.createSimpleCombinationGenerator(columnVector, 2);
+			for (final ICombinatoricsVector<Column<ECOccurrenceNode, BindingNode>> combination : generator) {
+				final Column<ECOccurrenceNode, BindingNode> c0 = combination.getValue(0);
+				final Column<ECOccurrenceNode, BindingNode> c1 = combination.getValue(1);
 				final BindingType bt0 = c0.getBindingType();
 				final BindingType bt1 = c1.getBindingType();
 				final Set<BindingNode> b0 = c0.getEdges().stream().map(Edge::getTarget).collect(toIdentityHashSet());
@@ -522,9 +493,7 @@ public class Block {
 					if (!Collections.disjoint(b0, b1)) {
 						throw new IncompatibleColumnsException("There are incompatible columns in the block!");
 					}
-					final EnumSet<BindingType> slotOrFact =
-							EnumSet.of(BindingType.FACT_BINDING, BindingType.SLOT_BINDING);
-					if (slotOrFact.contains(bt0) && slotOrFact.contains(bt1)) {
+					if (bt0 == BindingType.SLOT_OR_FACT_BINDING && bt1 == BindingType.SLOT_OR_FACT_BINDING) {
 						final Set<SingleFactVariable> t0 =
 								b0.stream().map(node -> ((SlotOrFactBindingNode) node).getGroupingFactVariable())
 										.collect(toIdentityHashSet());
