@@ -15,7 +15,9 @@
 
 package org.jamocha.dn.compiler.ecblocks;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.Value;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jamocha.dn.compiler.ecblocks.assignmentgraph.AssignmentGraph;
 import org.jamocha.dn.compiler.ecblocks.assignmentgraph.AssignmentGraph.Edge;
@@ -24,99 +26,251 @@ import org.jamocha.dn.compiler.ecblocks.assignmentgraph.node.occurrence.*;
 import org.jamocha.dn.compiler.ecblocks.column.*;
 
 import java.util.HashMap;
-import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
-import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.*;
+import static org.jamocha.util.Lambdas.newIdentityHashSet;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
 @Getter
 public class MaximalColumns {
-	final HashMap<Edge<FilterOccurrenceNode, ConstantBindingNode>, Column<FilterOccurrenceNode, ConstantBindingNode>>
-			filterToConstant = new HashMap<>();
-	final HashMap<Edge<FilterOccurrenceNode, FunctionalExpressionBindingNode>, Column<FilterOccurrenceNode,
-			FunctionalExpressionBindingNode>>
+	final HashMap<Edge<FilterOccurrenceNode, ConstantBindingNode>, FilterToConstantColumn> filterToConstant =
+			new HashMap<>();
+	final HashMap<Edge<FilterOccurrenceNode, FunctionalExpressionBindingNode>, FilterToFunctionalExpressionColumn>
 			filterToFunctionalExpression = new HashMap<>();
-	final HashMap<Edge<FilterOccurrenceNode, SlotOrFactBindingNode>, Column<FilterOccurrenceNode,
-			SlotOrFactBindingNode>>
-			filterToTemplate = new HashMap<>();
-	final HashMap<Edge<FunctionalExpressionOccurrenceNode, ConstantBindingNode>,
-			Column<FunctionalExpressionOccurrenceNode, ConstantBindingNode>>
+	final HashMap<Edge<FilterOccurrenceNode, SlotOrFactBindingNode>, FilterToTemplateColumn> filterToTemplate =
+			new HashMap<>();
+	final HashMap<Edge<FunctionalExpressionOccurrenceNode, ConstantBindingNode>, FunctionalExpressionToConstantColumn>
 			functionalExpressionToConstant = new HashMap<>();
 	final HashMap<Edge<FunctionalExpressionOccurrenceNode, FunctionalExpressionBindingNode>,
-			Column<FunctionalExpressionOccurrenceNode, FunctionalExpressionBindingNode>>
+			FunctionalExpressionToFunctionalExpressionColumn>
 			functionalExpressionToFunctionalExpression = new HashMap<>();
 	final HashMap<Edge<FunctionalExpressionOccurrenceNode, SlotOrFactBindingNode>,
-			Column<FunctionalExpressionOccurrenceNode, SlotOrFactBindingNode>>
+			FunctionalExpressionToTemplateColumn>
 			functionalExpressionToTemplate = new HashMap<>();
-	final HashMap<Edge<ImplicitOccurrenceNode, ConstantBindingNode>, Column<ImplicitOccurrenceNode,
-			ConstantBindingNode>>
-			implicitToConstant = new HashMap<>();
-	final HashMap<Edge<ImplicitOccurrenceNode, FunctionalExpressionBindingNode>, Column<ImplicitOccurrenceNode,
-			FunctionalExpressionBindingNode>>
+	final HashMap<Edge<ImplicitOccurrenceNode, ConstantBindingNode>, ImplicitToConstantColumn> implicitToConstant =
+			new HashMap<>();
+	final HashMap<Edge<ImplicitOccurrenceNode, FunctionalExpressionBindingNode>, ImplicitToFunctionalExpressionColumn>
 			implicitToFunctionalExpression = new HashMap<>();
-	final HashMap<Edge<ImplicitOccurrenceNode, SlotOrFactBindingNode>, Column<ImplicitOccurrenceNode,
-			SlotOrFactBindingNode>>
-			implicitToTemplate = new HashMap<>();
+	final HashMap<Edge<ImplicitOccurrenceNode, SlotOrFactBindingNode>, ImplicitToTemplateColumn> implicitToTemplate =
+			new HashMap<>();
 
 	public MaximalColumns(final AssignmentGraph assignmentGraph) {
-		final Set<Edge<ECOccurrenceNode, BindingNode>> edges = assignmentGraph.getGraph().edgeSet();
+		assignmentGraph.getGraph().edgeSet().stream().collect(groupingBy(this::toInfo))
+				.forEach((i, e) -> i.disperse(newIdentityHashSet(e)));
+	}
 
-		final Map<OccurrenceType, Map<BindingType, Set<Edge<ECOccurrenceNode, BindingNode>>>> collect = edges.stream()
-				.collect(groupingBy(e -> e.getSource().getNodeType(),
-						groupingBy(e -> e.getTarget().getNodeType(), toSet())));
-		for (final Map.Entry<OccurrenceType, Map<BindingType, Set<Edge<ECOccurrenceNode, BindingNode>>>> outerEntry :
-				collect
-				.entrySet()) {
-			final OccurrenceType occurrenceType = outerEntry.getKey();
-			for (final Map.Entry<BindingType, Set<Edge<ECOccurrenceNode, BindingNode>>> innerEntry : outerEntry
-					.getValue().entrySet()) {
-				final BindingType bindingType = innerEntry.getKey();
-				storeColumn(occurrenceType, bindingType, innerEntry.getValue());
-			}
+	@SuppressWarnings("unchecked")
+	private Info toInfo(final Edge<ECOccurrenceNode, BindingNode> edge) {
+		final OccurrenceType occurrenceType = edge.getSource().getNodeType();
+		final BindingType bindingType = edge.getTarget().getNodeType();
+		switch (occurrenceType) {
+			case IMPLICIT_OCCURRENCE:
+				switch (bindingType) {
+					case SLOT_OR_FACT_BINDING:
+						return new ImplicitToTemplateInfo(
+								((Edge<ImplicitOccurrenceNode, SlotOrFactBindingNode>) (Edge<?, ?>) edge));
+					case CONSTANT_EXPRESSION:
+						return new ImplicitToConstantInfo(
+								((Edge<ImplicitOccurrenceNode, ConstantBindingNode>) (Edge<?, ?>) edge));
+					case FUNCTIONAL_EXPRESSION:
+						return new ImplicitToFEInfo(
+								((Edge<ImplicitOccurrenceNode, FunctionalExpressionBindingNode>) (Edge<?, ?>) edge));
+				}
+			case FILTER_OCCURRENCE:
+				switch (bindingType) {
+					case SLOT_OR_FACT_BINDING:
+						return new FilterToTemplateInfo(
+								((Edge<FilterOccurrenceNode, SlotOrFactBindingNode>) (Edge<?, ?>) edge));
+					case CONSTANT_EXPRESSION:
+						return new FilterToConstantInfo(
+								((Edge<FilterOccurrenceNode, ConstantBindingNode>) (Edge<?, ?>) edge));
+					case FUNCTIONAL_EXPRESSION:
+						return new FilterToFEInfo(
+								((Edge<FilterOccurrenceNode, FunctionalExpressionBindingNode>) (Edge<?, ?>) edge));
+				}
+			case FUNCTIONAL_OCCURRENCE:
+				switch (bindingType) {
+					case SLOT_OR_FACT_BINDING:
+						return new FEToTemplateInfo(
+								((Edge<FunctionalExpressionOccurrenceNode, SlotOrFactBindingNode>) (Edge<?, ?>) edge));
+					case CONSTANT_EXPRESSION:
+						return new FEToConstantInfo(
+								((Edge<FunctionalExpressionOccurrenceNode, ConstantBindingNode>) (Edge<?, ?>) edge));
+					case FUNCTIONAL_EXPRESSION:
+						return new FEToFEInfo(
+								((Edge<FunctionalExpressionOccurrenceNode, FunctionalExpressionBindingNode>) (Edge<?,
+										?>) edge));
+				}
+		}
+		throw new IllegalArgumentException("UNSUPPORTED EDGE TYPE DETECTED!");
+	}
+
+	@Value
+	abstract class Info {
+		Object occurrenceInfo;
+		Object bindingInfo;
+
+		public abstract void disperse(final Set<Edge<ECOccurrenceNode, BindingNode>> edges);
+	}
+
+	static Object implicitOccurrenceInfo(final Edge<ImplicitOccurrenceNode, ? extends BindingNode> edge) {
+		return edge.getSource().getCorrespondingBindingNode() == edge.getTarget();
+	}
+
+	static Object filterOccurrenceInfo(final Edge<FilterOccurrenceNode, ? extends BindingNode> edge) {
+		return Pair.of(edge.getSource().getFunctionWithExistentialInfo(), edge.getSource().getParameterPosition());
+	}
+
+	static Object feOccurrenceInfo(final Edge<FunctionalExpressionOccurrenceNode, ? extends BindingNode> edge) {
+		return Pair.of(edge.getSource().getFunction(), edge.getSource().getParameterPosition());
+	}
+
+	static Object constantBindingInfo(final Edge<? extends ECOccurrenceNode, ConstantBindingNode> edge) {
+		return edge.getTarget().getConstant();
+	}
+
+	static Object feBindingInfo(final Edge<? extends ECOccurrenceNode, FunctionalExpressionBindingNode> edge) {
+		return edge.getTarget().getFunction();
+	}
+
+	static Object slotOrFactBindingInfo(final Edge<? extends ECOccurrenceNode, SlotOrFactBindingNode> edge) {
+		return edge.getTarget().getSchema();
+	}
+
+	@EqualsAndHashCode(callSuper = true)
+	@SuppressWarnings("unchecked")
+	class FilterToConstantInfo extends Info {
+		public FilterToConstantInfo(final Edge<FilterOccurrenceNode, ConstantBindingNode> edge) {
+			super(filterOccurrenceInfo(edge), constantBindingInfo(edge));
+		}
+
+		@Override
+		public void disperse(final Set<Edge<ECOccurrenceNode, BindingNode>> edges) {
+			MaximalColumns.disperse((Set<Edge<FilterOccurrenceNode, ConstantBindingNode>>) (Set<?>) edges,
+					FilterToConstantColumn::new, MaximalColumns.this.filterToConstant);
 		}
 	}
 
-	private static <O extends ECOccurrenceNode> Stream<Set<Edge<O, ConstantBindingNode>>> groupConstantBindings(
-			final Set<Edge<O, ConstantBindingNode>> set) {
-		return set.stream().collect(groupingBy(e -> e.getTarget().getConstant(), toSet())).values().stream();
+	@EqualsAndHashCode(callSuper = true)
+	@SuppressWarnings("unchecked")
+	class FilterToFEInfo extends Info {
+		public FilterToFEInfo(final Edge<FilterOccurrenceNode, FunctionalExpressionBindingNode> edge) {
+			super(filterOccurrenceInfo(edge), feBindingInfo(edge));
+		}
+
+		@Override
+		public void disperse(final Set<Edge<ECOccurrenceNode, BindingNode>> edges) {
+			MaximalColumns.disperse((Set<Edge<FilterOccurrenceNode, FunctionalExpressionBindingNode>>) (Set<?>) edges,
+					FilterToFunctionalExpressionColumn::new, MaximalColumns.this.filterToFunctionalExpression);
+		}
 	}
 
-	private static <O extends ECOccurrenceNode> Stream<Set<Edge<O, SlotOrFactBindingNode>>> groupSlotOrFactBindings(
-			final Set<Edge<O, SlotOrFactBindingNode>> set) {
-		return set.stream().collect(groupingBy(e -> e.getTarget().getSchema(), toSet())).values().stream();
+	@EqualsAndHashCode(callSuper = true)
+	@SuppressWarnings("unchecked")
+	class FilterToTemplateInfo extends Info {
+		public FilterToTemplateInfo(final Edge<FilterOccurrenceNode, SlotOrFactBindingNode> edge) {
+			super(filterOccurrenceInfo(edge), slotOrFactBindingInfo(edge));
+		}
+
+		@Override
+		public void disperse(final Set<Edge<ECOccurrenceNode, BindingNode>> edges) {
+			MaximalColumns.disperse((Set<Edge<FilterOccurrenceNode, SlotOrFactBindingNode>>) (Set<?>) edges,
+					FilterToTemplateColumn::new, MaximalColumns.this.filterToTemplate);
+		}
 	}
 
-	private static <O extends ECOccurrenceNode> Stream<Set<Edge<O, FunctionalExpressionBindingNode>>>
-	groupFunctionalExpressionBindings(
-			final Set<Edge<O, FunctionalExpressionBindingNode>> set) {
-		return set.stream().collect(groupingBy(e -> e.getTarget().getFunction(), toSet())).values().stream();
+	@EqualsAndHashCode(callSuper = true)
+	@SuppressWarnings("unchecked")
+	class FEToConstantInfo extends Info {
+		public FEToConstantInfo(final Edge<FunctionalExpressionOccurrenceNode, ConstantBindingNode> edge) {
+			super(feOccurrenceInfo(edge), constantBindingInfo(edge));
+		}
+
+		@Override
+		public void disperse(final Set<Edge<ECOccurrenceNode, BindingNode>> edges) {
+			MaximalColumns.disperse((Set<Edge<FunctionalExpressionOccurrenceNode, ConstantBindingNode>>) (Set<?>)
+					edges,
+					FunctionalExpressionToConstantColumn::new, MaximalColumns.this.functionalExpressionToConstant);
+		}
 	}
 
-	private static <B extends BindingNode> Stream<Set<Edge<ImplicitOccurrenceNode, B>>> groupImplicitOccurrences(
-			final Set<Edge<ImplicitOccurrenceNode, B>> set) {
-		return set.stream()
-				.collect(partitioningBy(e -> e.getSource().getCorrespondingBindingNode() == e.getTarget(), toSet()))
-				.values().stream();
+	@EqualsAndHashCode(callSuper = true)
+	@SuppressWarnings("unchecked")
+	class FEToFEInfo extends Info {
+		public FEToFEInfo(final Edge<FunctionalExpressionOccurrenceNode, FunctionalExpressionBindingNode> edge) {
+			super(feOccurrenceInfo(edge), feBindingInfo(edge));
+		}
+
+		@Override
+		public void disperse(final Set<Edge<ECOccurrenceNode, BindingNode>> edges) {
+			MaximalColumns.disperse(
+					(Set<Edge<FunctionalExpressionOccurrenceNode, FunctionalExpressionBindingNode>>) (Set<?>) edges,
+					FunctionalExpressionToFunctionalExpressionColumn::new,
+					MaximalColumns.this.functionalExpressionToFunctionalExpression);
+		}
 	}
 
-	private static <B extends BindingNode> Stream<Set<Edge<FilterOccurrenceNode, B>>> groupFilterOccurrences(
-			final Set<Edge<FilterOccurrenceNode, B>> set) {
-		return set.stream().collect(
-				groupingBy(e -> Pair.of(e.getSource().getFilter(), e.getSource().getParameterPosition()), toSet()))
-				.values().stream();
+	@EqualsAndHashCode(callSuper = true)
+	@SuppressWarnings("unchecked")
+	class FEToTemplateInfo extends Info {
+		public FEToTemplateInfo(final Edge<FunctionalExpressionOccurrenceNode, SlotOrFactBindingNode> edge) {
+			super(feOccurrenceInfo(edge), slotOrFactBindingInfo(edge));
+		}
+
+		@Override
+		public void disperse(final Set<Edge<ECOccurrenceNode, BindingNode>> edges) {
+			MaximalColumns
+					.disperse((Set<Edge<FunctionalExpressionOccurrenceNode, SlotOrFactBindingNode>>) (Set<?>) edges,
+							FunctionalExpressionToTemplateColumn::new,
+							MaximalColumns.this.functionalExpressionToTemplate);
+		}
 	}
 
-	private static <B extends BindingNode> Stream<Set<Edge<FunctionalExpressionOccurrenceNode, B>>>
-	groupFunctionalExpressionOccurrences(
-			final Set<Edge<FunctionalExpressionOccurrenceNode, B>> set) {
-		return set.stream().collect(
-				groupingBy(e -> Pair.of(e.getSource().getFunction(), e.getSource().getParameterPosition()), toSet()))
-				.values().stream();
+	@EqualsAndHashCode(callSuper = true)
+	@SuppressWarnings("unchecked")
+	class ImplicitToConstantInfo extends Info {
+		public ImplicitToConstantInfo(final Edge<ImplicitOccurrenceNode, ConstantBindingNode> edge) {
+			super(implicitOccurrenceInfo(edge), constantBindingInfo(edge));
+		}
+
+		@Override
+		public void disperse(final Set<Edge<ECOccurrenceNode, BindingNode>> edges) {
+			MaximalColumns.disperse((Set<Edge<ImplicitOccurrenceNode, ConstantBindingNode>>) (Set<?>) edges,
+					ImplicitToConstantColumn::new, MaximalColumns.this.implicitToConstant);
+		}
+	}
+
+	@EqualsAndHashCode(callSuper = true)
+	@SuppressWarnings("unchecked")
+	class ImplicitToFEInfo extends Info {
+		public ImplicitToFEInfo(final Edge<ImplicitOccurrenceNode, FunctionalExpressionBindingNode> edge) {
+			super(implicitOccurrenceInfo(edge), feBindingInfo(edge));
+		}
+
+		@Override
+		public void disperse(final Set<Edge<ECOccurrenceNode, BindingNode>> edges) {
+			MaximalColumns.disperse((Set<Edge<ImplicitOccurrenceNode, FunctionalExpressionBindingNode>>) (Set<?>)
+					edges,
+					ImplicitToFunctionalExpressionColumn::new, MaximalColumns.this.implicitToFunctionalExpression);
+		}
+	}
+
+	@EqualsAndHashCode(callSuper = true)
+	@SuppressWarnings("unchecked")
+	class ImplicitToTemplateInfo extends Info {
+		public ImplicitToTemplateInfo(final Edge<ImplicitOccurrenceNode, SlotOrFactBindingNode> edge) {
+			super(implicitOccurrenceInfo(edge), slotOrFactBindingInfo(edge));
+		}
+
+		@Override
+		public void disperse(final Set<Edge<ECOccurrenceNode, BindingNode>> edges) {
+			MaximalColumns.disperse((Set<Edge<ImplicitOccurrenceNode, SlotOrFactBindingNode>>) (Set<?>) edges,
+					ImplicitToTemplateColumn::new, MaximalColumns.this.implicitToTemplate);
+		}
 	}
 
 	private static <O extends ECOccurrenceNode, B extends BindingNode, C extends Column<O, B>> void disperse(
@@ -124,86 +278,5 @@ public class MaximalColumns {
 			target) {
 		final C column = ctor.apply(edges);
 		edges.forEach(edge -> target.put(edge, column));
-	}
-
-	@SuppressWarnings("unchecked")
-	private void storeColumn(final OccurrenceType occurrenceType, final BindingType bindingType,
-			final Set<Edge<ECOccurrenceNode, BindingNode>> edges) {
-		switch (occurrenceType) {
-			case IMPLICIT_OCCURRENCE:
-				switch (bindingType) {
-					case CONSTANT_EXPRESSION:
-						Stream.of((Set<Edge<ImplicitOccurrenceNode, ConstantBindingNode>>) (Set<?>) edges)
-								.flatMap(MaximalColumns::groupImplicitOccurrences)
-								.flatMap(MaximalColumns::groupConstantBindings)
-								.forEach(set -> disperse(set, ImplicitToConstantColumn::new, this.implicitToConstant));
-						break;
-					case FUNCTIONAL_EXPRESSION:
-						Stream.of((Set<Edge<ImplicitOccurrenceNode, FunctionalExpressionBindingNode>>) (Set<?>) edges)
-								.flatMap(MaximalColumns::groupImplicitOccurrences)
-								.flatMap(MaximalColumns::groupFunctionalExpressionBindings).forEach(
-								set -> disperse(set, ImplicitToFunctionalExpressionColumn::new,
-										this.implicitToFunctionalExpression));
-						break;
-					case SLOT_OR_FACT_BINDING:
-						Stream.of((Set<Edge<ImplicitOccurrenceNode, SlotOrFactBindingNode>>) (Set<?>) edges)
-								.flatMap(MaximalColumns::groupImplicitOccurrences)
-								.flatMap(MaximalColumns::groupSlotOrFactBindings)
-								.forEach(set -> disperse(set, ImplicitToTemplateColumn::new, this.implicitToTemplate));
-						break;
-				}
-				break;
-			case FILTER_OCCURRENCE:
-				switch (bindingType) {
-					case CONSTANT_EXPRESSION:
-						Stream.of((Set<Edge<FilterOccurrenceNode, ConstantBindingNode>>) (Set<?>) edges)
-								.flatMap(MaximalColumns::groupFilterOccurrences)
-								.flatMap(MaximalColumns::groupConstantBindings)
-								.forEach(set -> disperse(set, FilterToConstantColumn::new, this.filterToConstant));
-						break;
-					case FUNCTIONAL_EXPRESSION:
-						Stream.of((Set<Edge<FilterOccurrenceNode, FunctionalExpressionBindingNode>>) (Set<?>) edges)
-								.flatMap(MaximalColumns::groupFilterOccurrences)
-								.flatMap(MaximalColumns::groupFunctionalExpressionBindings).forEach(
-								set -> disperse(set, FilterToFunctionalExpressionColumn::new,
-										this.filterToFunctionalExpression));
-						break;
-					case SLOT_OR_FACT_BINDING:
-						Stream.of((Set<Edge<FilterOccurrenceNode, SlotOrFactBindingNode>>) (Set<?>) edges)
-								.flatMap(MaximalColumns::groupFilterOccurrences)
-								.flatMap(MaximalColumns::groupSlotOrFactBindings)
-								.forEach(set -> disperse(set, FilterToTemplateColumn::new, this.filterToTemplate));
-						break;
-				}
-				break;
-			case FUNCTIONAL_OCCURRENCE:
-				switch (bindingType) {
-					case CONSTANT_EXPRESSION:
-						Stream.of((Set<Edge<FunctionalExpressionOccurrenceNode, ConstantBindingNode>>) (Set<?>) edges)
-								.flatMap(MaximalColumns::groupFunctionalExpressionOccurrences)
-								.flatMap(MaximalColumns::groupConstantBindings).forEach(
-								set -> disperse(set, FunctionalExpressionToConstantColumn::new,
-										this.functionalExpressionToConstant));
-						break;
-					case FUNCTIONAL_EXPRESSION:
-						Stream.of(
-								(Set<Edge<FunctionalExpressionOccurrenceNode, FunctionalExpressionBindingNode>>)
-										(Set<?>) edges)
-								.flatMap(MaximalColumns::groupFunctionalExpressionOccurrences)
-								.flatMap(MaximalColumns::groupFunctionalExpressionBindings).forEach(
-								set -> disperse(set, FunctionalExpressionToFunctionalExpressionColumn::new,
-										this.functionalExpressionToFunctionalExpression));
-						break;
-					case SLOT_OR_FACT_BINDING:
-						Stream.of((Set<Edge<FunctionalExpressionOccurrenceNode, SlotOrFactBindingNode>>) (Set<?>)
-								edges)
-								.flatMap(MaximalColumns::groupFunctionalExpressionOccurrences)
-								.flatMap(MaximalColumns::groupSlotOrFactBindings).forEach(
-								set -> disperse(set, FunctionalExpressionToTemplateColumn::new,
-										this.functionalExpressionToTemplate));
-						break;
-				}
-				break;
-		}
 	}
 }
