@@ -14,15 +14,14 @@
  */
 package org.jamocha.dn.compiler;
 
-import com.atlassian.fugue.Either;
 import com.google.common.collect.ImmutableList;
-import org.apache.commons.lang3.tuple.Pair;
 import org.jamocha.dn.ConstructCache.Defrule;
 import org.jamocha.dn.ConstructCache.Defrule.ECSetRule;
 import org.jamocha.dn.ConstructCache.Defrule.PathRule;
 import org.jamocha.dn.ConstructCache.Defrule.PathSetRule;
-import org.jamocha.dn.compiler.ecblocks.*;
+import org.jamocha.dn.compiler.ecblocks.CEToECTranslator;
 import org.jamocha.dn.compiler.ecblocks.assignmentgraph.AssignmentGraph;
+import org.jamocha.dn.compiler.ecblocks.assignmentgraph.AssignmentGraphToDot;
 import org.jamocha.dn.compiler.pathblocks.PathBlocks;
 import org.jamocha.dn.compiler.pathblocks.PathFilterConsolidator;
 import org.jamocha.dn.memory.Template;
@@ -33,7 +32,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.*;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
@@ -113,39 +112,26 @@ public enum RuleCompiler {
 							.collect(toList());
 			final AssignmentGraph assignmentGraph = new AssignmentGraph();
 			consolidatedRules.forEach(assignmentGraph::addRule);
-			Collection<PathRule> transformedRules = ECBlocks.transform(consolidatedRules);
-			for (final Optimizer optimizer : ImmutableList.of(
-			/*
-			 * node filter sets using the same paths can be combined
-			 */
-					SamePathsNodeFilterSetCombiningOptimizer.instance,
-			/*
-			 * filters using the same paths can be combined
-			 */
-					SamePathsFilterCombiningOptimizer.instance,
-			/*
-			 * node filter sets using only a subset of the paths of their predecessors can be
-			 * combined
-			 */
-					SubsetPathsNodeFilterSetCombiningOptimizer.instance)) {
-				transformedRules = optimizer.optimize(transformedRules);
-			}
-			return transformedRules;
-		}
-	},
-	ECBLOCKSRAND {
-		@Override
-		public Collection<PathRule> compileRules(final Template initialFactTemplate,
-				final Collection<Defrule> defrules) {
-			final List<ECSetRule> consolidatedRules =
-					defrules.stream().flatMap(rule -> RuleConditionProcessor.flatten(rule).stream())
-							.flatMap(rule -> new CEToECTranslator(initialFactTemplate, rule).translate().stream())
-							.collect(toList());
-			final Pair<List<Either<Rule, ExistentialProxy>>, ECBlockSet> pair = ECBlocks.compile(consolidatedRules);
-			final List<Either<Rule, ExistentialProxy>> rules = pair.getLeft();
-			final ECBlockSet blockSet = pair.getRight();
-			final Collection<PathRule> randomized = Randomizer.randomizeTPO(rules, blockSet);
-			return randomized;
+			AssignmentGraphToDot.toDot(assignmentGraph, "assignmentGraphTest.gv");
+			//Collection<PathRule> transformedRules = ECBlocks.transform(consolidatedRules);
+			//for (final Optimizer optimizer : ImmutableList.of(
+			///*
+			// * node filter sets using the same paths can be combined
+			// */
+			//		SamePathsNodeFilterSetCombiningOptimizer.instance,
+			///*
+			// * filters using the same paths can be combined
+			// */
+			//		SamePathsFilterCombiningOptimizer.instance,
+			///*
+			// * node filter sets using only a subset of the paths of their predecessors can be
+			// * combined
+			// */
+			//		SubsetPathsNodeFilterSetCombiningOptimizer.instance)) {
+			//	transformedRules = optimizer.optimize(transformedRules);
+			//}
+			//return transformedRules;
+			return Collections.emptySet();
 		}
 	},;
 
