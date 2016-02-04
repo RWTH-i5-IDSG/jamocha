@@ -15,15 +15,19 @@
 
 package org.jamocha.dn.compiler.ecblocks;
 
+import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.Value;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jamocha.dn.compiler.ecblocks.assignmentgraph.AssignmentGraph;
 import org.jamocha.dn.compiler.ecblocks.assignmentgraph.AssignmentGraph.Edge;
 import org.jamocha.dn.compiler.ecblocks.assignmentgraph.node.binding.*;
 import org.jamocha.dn.compiler.ecblocks.assignmentgraph.node.occurrence.*;
 import org.jamocha.dn.compiler.ecblocks.column.*;
+import org.jamocha.function.fwa.ConstantLeaf;
+import org.jamocha.function.fwa.FunctionWithArguments;
+import org.jamocha.function.fwa.TemplateSlotLeaf;
+import org.jamocha.function.fwa.TypeLeaf;
 
 import java.util.HashMap;
 import java.util.Set;
@@ -109,35 +113,40 @@ public class MaximalColumns {
 		throw new IllegalArgumentException("UNSUPPORTED EDGE TYPE DETECTED!");
 	}
 
-	@Value
+	@Data
 	abstract class Info {
-		Object occurrenceInfo;
-		Object bindingInfo;
+		final Object occurrenceInfo;
+		final Object bindingInfo;
 
 		public abstract void disperse(final Set<Edge<ECOccurrenceNode, BindingNode>> edges);
 	}
 
-	static Object implicitOccurrenceInfo(final Edge<ImplicitOccurrenceNode, ? extends BindingNode> edge) {
+	static boolean implicitOccurrenceInfo(final Edge<ImplicitOccurrenceNode, ? extends BindingNode> edge) {
 		return edge.getSource().getCorrespondingBindingNode() == edge.getTarget();
 	}
 
-	static Object filterOccurrenceInfo(final Edge<FilterOccurrenceNode, ? extends BindingNode> edge) {
+	static Pair<ExistentialInfo.FunctionWithExistentialInfo, Integer> filterOccurrenceInfo(
+			final Edge<FilterOccurrenceNode, ? extends BindingNode> edge) {
 		return Pair.of(edge.getSource().getFunctionWithExistentialInfo(), edge.getSource().getParameterPosition());
 	}
 
-	static Object feOccurrenceInfo(final Edge<FunctionalExpressionOccurrenceNode, ? extends BindingNode> edge) {
+	static Pair<FunctionWithArguments<TypeLeaf>, Integer> feOccurrenceInfo(
+			final Edge<FunctionalExpressionOccurrenceNode, ? extends BindingNode> edge) {
 		return Pair.of(edge.getSource().getFunction(), edge.getSource().getParameterPosition());
 	}
 
-	static Object constantBindingInfo(final Edge<? extends ECOccurrenceNode, ConstantBindingNode> edge) {
+	static ConstantLeaf<TemplateSlotLeaf> constantBindingInfo(
+			final Edge<? extends ECOccurrenceNode, ConstantBindingNode> edge) {
 		return edge.getTarget().getConstant();
 	}
 
-	static Object feBindingInfo(final Edge<? extends ECOccurrenceNode, FunctionalExpressionBindingNode> edge) {
+	static FunctionWithArguments<TypeLeaf> feBindingInfo(
+			final Edge<? extends ECOccurrenceNode, FunctionalExpressionBindingNode> edge) {
 		return edge.getTarget().getFunction();
 	}
 
-	static Object slotOrFactBindingInfo(final Edge<? extends ECOccurrenceNode, SlotOrFactBindingNode> edge) {
+	static FunctionWithArguments<TemplateSlotLeaf> slotOrFactBindingInfo(
+			final Edge<? extends ECOccurrenceNode, SlotOrFactBindingNode> edge) {
 		return edge.getTarget().getSchema();
 	}
 
