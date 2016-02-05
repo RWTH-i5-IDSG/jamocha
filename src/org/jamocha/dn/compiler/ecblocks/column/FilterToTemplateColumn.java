@@ -27,7 +27,7 @@ import static org.jamocha.util.Lambdas.newIdentityHashSet;
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
 public class FilterToTemplateColumn extends AbstractColumn<FilterOccurrenceNode, SlotOrFactBindingNode>
-		implements FromFilterColumn, ToTemplateColumn {
+		implements FromFilterColumn<SlotOrFactBindingNode>, ToTemplateColumn<FilterOccurrenceNode> {
 	public FilterToTemplateColumn(final Set<AssignmentGraph.Edge<FilterOccurrenceNode, SlotOrFactBindingNode>> edges) {
 		super(edges);
 	}

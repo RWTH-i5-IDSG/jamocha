@@ -27,7 +27,7 @@ import static org.jamocha.util.Lambdas.newIdentityHashSet;
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
 public class ImplicitToTemplateColumn extends AbstractColumn<ImplicitOccurrenceNode, SlotOrFactBindingNode>
-		implements FromImplicitColumn, ToTemplateColumn {
+		implements FromImplicitColumn<SlotOrFactBindingNode>, ToTemplateColumn<ImplicitOccurrenceNode> {
 	public ImplicitToTemplateColumn(
 			final Set<AssignmentGraph.Edge<ImplicitOccurrenceNode, SlotOrFactBindingNode>> edges) {
 		super(edges);

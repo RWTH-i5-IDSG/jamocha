@@ -15,13 +15,14 @@
 
 package org.jamocha.dn.compiler.ecblocks.column;
 
+import org.jamocha.dn.compiler.ecblocks.assignmentgraph.node.binding.BindingNode;
 import org.jamocha.dn.compiler.ecblocks.assignmentgraph.node.occurrence.ImplicitOccurrenceNode;
 import org.jamocha.dn.compiler.ecblocks.assignmentgraph.node.occurrence.OccurrenceType;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
-public interface FromImplicitColumn extends FromColumn<ImplicitOccurrenceNode> {
+public interface FromImplicitColumn<B extends BindingNode> extends Column<ImplicitOccurrenceNode, B> {
 	@Override
 	default OccurrenceType getOccurrenceType() {
 		return OccurrenceType.IMPLICIT_OCCURRENCE;

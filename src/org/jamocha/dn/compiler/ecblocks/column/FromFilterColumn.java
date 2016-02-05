@@ -15,13 +15,14 @@
 
 package org.jamocha.dn.compiler.ecblocks.column;
 
+import org.jamocha.dn.compiler.ecblocks.assignmentgraph.node.binding.BindingNode;
 import org.jamocha.dn.compiler.ecblocks.assignmentgraph.node.occurrence.FilterOccurrenceNode;
 import org.jamocha.dn.compiler.ecblocks.assignmentgraph.node.occurrence.OccurrenceType;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
-public interface FromFilterColumn extends FromColumn<FilterOccurrenceNode> {
+public interface FromFilterColumn<B extends BindingNode> extends Column<FilterOccurrenceNode, B> {
 	@Override
 	default OccurrenceType getOccurrenceType() {
 		return OccurrenceType.FILTER_OCCURRENCE;

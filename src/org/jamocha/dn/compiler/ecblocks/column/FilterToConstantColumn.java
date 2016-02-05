@@ -27,7 +27,7 @@ import static org.jamocha.util.Lambdas.newIdentityHashSet;
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
 public class FilterToConstantColumn extends AbstractColumn<FilterOccurrenceNode, ConstantBindingNode>
-		implements FromFilterColumn, ToConstantColumn {
+		implements FromFilterColumn<ConstantBindingNode>, ToConstantColumn<FilterOccurrenceNode> {
 	public FilterToConstantColumn(final Set<AssignmentGraph.Edge<FilterOccurrenceNode, ConstantBindingNode>> edges) {
 		super(edges);
 	}

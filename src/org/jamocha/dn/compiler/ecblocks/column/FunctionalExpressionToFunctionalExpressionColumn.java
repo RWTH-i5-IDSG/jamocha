@@ -28,7 +28,8 @@ import static org.jamocha.util.Lambdas.newIdentityHashSet;
  */
 public class FunctionalExpressionToFunctionalExpressionColumn
 		extends AbstractColumn<FunctionalExpressionOccurrenceNode, FunctionalExpressionBindingNode>
-		implements FromFunctionalExpressionColumn, ToFunctionalExpressionColumn {
+		implements FromFunctionalExpressionColumn<FunctionalExpressionBindingNode>,
+		ToFunctionalExpressionColumn<FunctionalExpressionOccurrenceNode> {
 	public FunctionalExpressionToFunctionalExpressionColumn(
 			final Set<AssignmentGraph.Edge<FunctionalExpressionOccurrenceNode, FunctionalExpressionBindingNode>>
 					edges) {

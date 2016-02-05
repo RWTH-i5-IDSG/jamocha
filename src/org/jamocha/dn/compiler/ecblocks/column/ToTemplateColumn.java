@@ -17,11 +17,12 @@ package org.jamocha.dn.compiler.ecblocks.column;
 
 import org.jamocha.dn.compiler.ecblocks.assignmentgraph.node.binding.BindingType;
 import org.jamocha.dn.compiler.ecblocks.assignmentgraph.node.binding.SlotOrFactBindingNode;
+import org.jamocha.dn.compiler.ecblocks.assignmentgraph.node.occurrence.ECOccurrenceNode;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
-public interface ToTemplateColumn extends ToColumn<SlotOrFactBindingNode> {
+public interface ToTemplateColumn<O extends ECOccurrenceNode> extends Column<O, SlotOrFactBindingNode> {
 	@Override
 	default BindingType getBindingType() {
 		return BindingType.SLOT_OR_FACT_BINDING;

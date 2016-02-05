@@ -15,13 +15,15 @@
 
 package org.jamocha.dn.compiler.ecblocks.column;
 
+import org.jamocha.dn.compiler.ecblocks.assignmentgraph.node.binding.BindingNode;
 import org.jamocha.dn.compiler.ecblocks.assignmentgraph.node.occurrence.FunctionalExpressionOccurrenceNode;
 import org.jamocha.dn.compiler.ecblocks.assignmentgraph.node.occurrence.OccurrenceType;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
-public interface FromFunctionalExpressionColumn extends FromColumn<FunctionalExpressionOccurrenceNode> {
+public interface FromFunctionalExpressionColumn<B extends BindingNode>
+		extends Column<FunctionalExpressionOccurrenceNode, B> {
 	@Override
 	default OccurrenceType getOccurrenceType() {
 		return OccurrenceType.FUNCTIONAL_OCCURRENCE;

@@ -28,7 +28,8 @@ import static org.jamocha.util.Lambdas.newIdentityHashSet;
  */
 public class ImplicitToFunctionalExpressionColumn
 		extends AbstractColumn<ImplicitOccurrenceNode, FunctionalExpressionBindingNode>
-		implements FromImplicitColumn, ToFunctionalExpressionColumn {
+		implements FromImplicitColumn<FunctionalExpressionBindingNode>,
+		ToFunctionalExpressionColumn<ImplicitOccurrenceNode> {
 	public ImplicitToFunctionalExpressionColumn(
 			final Set<AssignmentGraph.Edge<ImplicitOccurrenceNode, FunctionalExpressionBindingNode>> edges) {
 		super(edges);

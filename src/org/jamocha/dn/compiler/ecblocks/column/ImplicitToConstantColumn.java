@@ -27,7 +27,7 @@ import static org.jamocha.util.Lambdas.newIdentityHashSet;
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
 public class ImplicitToConstantColumn extends AbstractColumn<ImplicitOccurrenceNode, ConstantBindingNode>
-		implements FromImplicitColumn, ToConstantColumn {
+		implements FromImplicitColumn<ConstantBindingNode>, ToConstantColumn<ImplicitOccurrenceNode> {
 	public ImplicitToConstantColumn(
 			final Set<AssignmentGraph.Edge<ImplicitOccurrenceNode, ConstantBindingNode>> edges) {
 		super(edges);

@@ -17,11 +17,13 @@ package org.jamocha.dn.compiler.ecblocks.column;
 
 import org.jamocha.dn.compiler.ecblocks.assignmentgraph.node.binding.BindingType;
 import org.jamocha.dn.compiler.ecblocks.assignmentgraph.node.binding.FunctionalExpressionBindingNode;
+import org.jamocha.dn.compiler.ecblocks.assignmentgraph.node.occurrence.ECOccurrenceNode;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
-public interface ToFunctionalExpressionColumn extends ToColumn<FunctionalExpressionBindingNode> {
+public interface ToFunctionalExpressionColumn<O extends ECOccurrenceNode>
+		extends Column<O, FunctionalExpressionBindingNode> {
 	@Override
 	default BindingType getBindingType() {
 		return BindingType.FUNCTIONAL_EXPRESSION;

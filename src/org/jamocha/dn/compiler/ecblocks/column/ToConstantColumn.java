@@ -17,11 +17,12 @@ package org.jamocha.dn.compiler.ecblocks.column;
 
 import org.jamocha.dn.compiler.ecblocks.assignmentgraph.node.binding.BindingType;
 import org.jamocha.dn.compiler.ecblocks.assignmentgraph.node.binding.ConstantBindingNode;
+import org.jamocha.dn.compiler.ecblocks.assignmentgraph.node.occurrence.ECOccurrenceNode;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
-public interface ToConstantColumn extends ToColumn<ConstantBindingNode> {
+public interface ToConstantColumn<O extends ECOccurrenceNode> extends Column<O, ConstantBindingNode> {
 	@Override
 	default BindingType getBindingType() {
 		return BindingType.CONSTANT_EXPRESSION;
