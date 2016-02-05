@@ -14,7 +14,6 @@
  */
 package org.jamocha.dn.compiler.ecblocks;
 
-import com.atlassian.fugue.Either;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
@@ -23,6 +22,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.jamocha.dn.ConstructCache.Defrule.PathRule;
 import org.jamocha.dn.Network;
+import org.jamocha.dn.compiler.ecblocks.assignmentgraph.AssignmentGraph;
 import org.jamocha.dn.compiler.ecblocks.rand.IterativeImprovement;
 import org.jamocha.dn.compiler.ecblocks.rand.SimulatedAnnealing;
 import org.jamocha.dn.compiler.ecblocks.rand.TwoPhaseOptimization;
@@ -47,9 +47,9 @@ import java.util.function.DoubleUnaryOperator;
 @Getter
 public class Randomizer {
 
-	final static DoubleBinaryOperator cpuCost = (cpu, mem) -> cpu;
-	final static DoubleBinaryOperator memCost = (cpu, mem) -> mem;
-	final static DoubleBinaryOperator mixCost = (cpu, mem) -> Math.log(cpu) + Math.log10(mem);
+	static final DoubleBinaryOperator cpuCost = (cpu, mem) -> cpu;
+	static final DoubleBinaryOperator memCost = (cpu, mem) -> mem;
+	static final DoubleBinaryOperator mixCost = (cpu, mem) -> Math.log(cpu) + Math.log10(mem);
 
 	class ECBlockSet {
 		public ECBlockSet(final ECBlockSet other) {
@@ -72,9 +72,9 @@ public class Randomizer {
 		}
 
 		public double rate() {
-			if (null == compiledState) {
-				this.compiledState = Randomizer.compile(rules, blockSet);
-				this.rating = Randomizer.rate(compiledState);
+			if (null == this.compiledState) {
+				this.compiledState = Randomizer.compile(Randomizer.this.assignmentGraph, this.blockSet);
+				this.rating = Randomizer.rate(this.compiledState);
 			}
 			return this.rating;
 		}
@@ -90,34 +90,33 @@ public class Randomizer {
 		}
 	}
 
-	final List<Either<Rule, ExistentialProxy>> rules;
+	final AssignmentGraph assignmentGraph;
 	final Random rand = new Random(0);
 	State currentState, bestState, initialState;
 
 	public void setCurrentState(final State state) {
-		currentState = state;
+		this.currentState = state;
 	}
 
 	public void reset() {
-		currentState = initialState;
+		this.currentState = this.initialState;
 	}
 
 	public void setCurrentAsBestState() {
-		bestState = currentState;
+		this.bestState = this.currentState;
 	}
 
 	/**
 	 * Takes a set of rules and a conflict-free set of blocks
 	 *
-	 * @param rules
-	 * 		rules to consider
+	 * @param assignmentGraph
+	 * 		assignmentGraph to consider
 	 * @param blockSet
 	 * 		blocks to consider
 	 * @return a list of PathRule that the randomizer is content with
 	 */
-	public static Collection<PathRule> randomizeII(final List<Either<Rule, ExistentialProxy>> rules,
-			final ECBlockSet blockSet) {
-		final Randomizer randomizer = newRandomizer(rules, blockSet);
+	public static Collection<PathRule> randomizeII(final AssignmentGraph assignmentGraph, final ECBlockSet blockSet) {
+		final Randomizer randomizer = newRandomizer(assignmentGraph, blockSet);
 		/* number of nodes in the condition graph */
 		final long localOptimizations = 0; // TBD number of fact variables
 		final long rLocalMinimum = 20;
@@ -127,15 +126,14 @@ public class Randomizer {
 	/**
 	 * Takes a set of rules and a conflict-free set of blocks
 	 *
-	 * @param rules
-	 * 		rules to consider
+	 * @param assignmentGraph
+	 * 		assignmentGraph to consider
 	 * @param blockSet
 	 * 		blocks to consider
 	 * @return a list of PathRule that the randomizer is content with
 	 */
-	public static Collection<PathRule> randomizeSA(final List<Either<Rule, ExistentialProxy>> rules,
-			final ECBlockSet blockSet) {
-		final Randomizer randomizer = newRandomizer(rules, blockSet);
+	public static Collection<PathRule> randomizeSA(final AssignmentGraph assignmentGraph, final ECBlockSet blockSet) {
+		final Randomizer randomizer = newRandomizer(assignmentGraph, blockSet);
 		final DoubleUnaryOperator cooldown = t -> 0.95 * t;
 		/* Gator uses: number of edges in the condition graph */
 		/* we just use the number of nodes here !? */
@@ -147,15 +145,14 @@ public class Randomizer {
 	/**
 	 * Takes a set of rules and a conflict-free set of blocks
 	 *
-	 * @param rules
-	 * 		rules to consider
+	 * @param assignmentGraph
+	 * 		assignmentGraph to consider
 	 * @param blockSet
 	 * 		blocks to consider
 	 * @return a list of PathRule that the randomizer is content with
 	 */
-	public static Collection<PathRule> randomizeTPO(final List<Either<Rule, ExistentialProxy>> rules,
-			final ECBlockSet blockSet) {
-		final Randomizer randomizer = newRandomizer(rules, blockSet);
+	public static Collection<PathRule> randomizeTPO(final AssignmentGraph assignmentGraph, final ECBlockSet blockSet) {
+		final Randomizer randomizer = newRandomizer(assignmentGraph, blockSet);
 		final long ii_localOptimizations = 0;  // TBD number of fact variables
 		final long ii_rLocalMinimum = 20;
 		final DoubleUnaryOperator sa_cooldown = t -> 0.95 * t;
@@ -180,9 +177,8 @@ public class Randomizer {
 		return optimized;
 	}
 
-	private static Randomizer newRandomizer(final List<Either<Rule, ExistentialProxy>> rules,
-			final ECBlockSet blockSet) {
-		final Randomizer randomizer = new Randomizer(rules);
+	private static Randomizer newRandomizer(final AssignmentGraph assignmentGraph, final ECBlockSet blockSet) {
+		final Randomizer randomizer = new Randomizer(assignmentGraph);
 		randomizer.initialState = randomizer.new State(blockSet);
 		randomizer.bestState = randomizer.new State(randomizer.initialState);
 		randomizer.currentState = randomizer.new State(randomizer.initialState);
@@ -197,8 +193,7 @@ public class Randomizer {
 		return elements.get(rand.nextInt(elements.size()));
 	}
 
-	protected static Collection<PathRule> compile(final List<Either<Rule, ExistentialProxy>> rules,
-			final ECBlockSet blockSet) {
+	protected static Collection<PathRule> compile(final AssignmentGraph assignmentGraph, final ECBlockSet blockSet) {
 		Collection<PathRule> transformedRules = null; // ECBlocks.compile(rules, blockSet);
 		for (final Optimizer optimizer : ImmutableList.of(
 		/*
