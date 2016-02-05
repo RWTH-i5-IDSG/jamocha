@@ -29,8 +29,7 @@ import static org.jamocha.util.Lambdas.toIdentityHashSet;
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
-public interface Column<O extends ECOccurrenceNode, B extends BindingNode>
-		extends FromColumn<O, B>, ToColumn<O, B>, Visitable<ColumnVisitor> {
+public interface Column<O extends ECOccurrenceNode, B extends BindingNode> extends Visitable<ColumnVisitor> {
 	Set<AssignmentGraph.Edge<O, B>> getEdges();
 
 	Column<O, B> copy();
