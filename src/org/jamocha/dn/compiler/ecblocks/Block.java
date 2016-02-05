@@ -69,12 +69,16 @@ public class Block {
 	final BlockRows rows;
 	final Set<Column<ECOccurrenceNode, BindingNode>> columns;
 	final Set<SingleFactVariable> factVariablesUsed;
+	final TemplateInstancePartition templateInstancePartition;
+	final FilterPartition filterPartition;
 
 	public Block(final AssignmentGraph graph) {
 		this.graph = graph;
 		this.rows = new BlockRows(graph);
 		this.columns = new HashSet<>();
 		this.factVariablesUsed = Sets.newIdentityHashSet();
+		this.templateInstancePartition = new TemplateInstancePartition();
+		this.filterPartition = new FilterPartition();
 	}
 
 	public Block(final Block other) {
@@ -83,6 +87,8 @@ public class Block {
 		this.columns = other.columns.stream().map(Column::copy).collect(toHashSet());
 		this.factVariablesUsed = Sets.newIdentityHashSet();
 		this.factVariablesUsed.addAll(other.factVariablesUsed);
+		this.templateInstancePartition = new TemplateInstancePartition(other.templateInstancePartition);
+		this.filterPartition = new FilterPartition(other.filterPartition);
 	}
 
 	@Override

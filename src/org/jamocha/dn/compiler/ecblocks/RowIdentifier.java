@@ -17,16 +17,13 @@ package org.jamocha.dn.compiler.ecblocks;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
-import com.atlassian.fugue.Either;
-
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
 @AllArgsConstructor
 @Getter
 public class RowIdentifier {
-	private final Either<Rule, ExistentialProxy> ruleOrProxy;
-
+	// emphasize the fact that this thing is just an identifier
 	@Override
 	public boolean equals(final Object obj) {
 		return this == obj;

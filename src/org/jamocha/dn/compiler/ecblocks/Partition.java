@@ -32,12 +32,12 @@ import lombok.ToString;
 @RequiredArgsConstructor
 @Getter
 @ToString(of = { "subSets" })
-class Partition<T, S extends Partition.SubSet<T>> {
+public class Partition<T, S extends Partition.SubSet<T>> {
 	@RequiredArgsConstructor
 	@Getter
 	@ToString
 	static class SubSet<T> {
-		final protected IdentityHashMap<RowIdentifier, T> elements;
+		protected final IdentityHashMap<RowIdentifier, T> elements;
 
 		public SubSet(final SubSet<T> copy) {
 			this(new IdentityHashMap<>(copy.elements));
@@ -59,7 +59,7 @@ class Partition<T, S extends Partition.SubSet<T>> {
 		copy.subSets.stream().map(copyCtor).forEach(this.subSets::add);
 		for (final S s : this.subSets) {
 			for (final T t : s.elements.values()) {
-				lookup.put(t, s);
+				this.lookup.put(t, s);
 			}
 		}
 	}
@@ -89,13 +89,13 @@ class Partition<T, S extends Partition.SubSet<T>> {
 	}
 
 	public void remove(final RowIdentifier row) {
-		for (final S s : subSets) {
+		for (final S s : this.subSets) {
 			s.elements.remove(row);
 		}
 	}
 
 	public boolean remove(final S s) {
-		s.elements.keySet().forEach(lookup::remove);
-		return subSets.remove(s);
+		s.elements.keySet().forEach(this.lookup::remove);
+		return this.subSets.remove(s);
 	}
 }
