@@ -22,6 +22,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.Value;
 import org.jamocha.dn.ConstructCache;
 import org.jamocha.dn.compiler.ecblocks.*;
+import org.jamocha.dn.compiler.ecblocks.assignmentgraph.node.AssignmentGraphNode;
 import org.jamocha.dn.compiler.ecblocks.assignmentgraph.node.binding.*;
 import org.jamocha.dn.compiler.ecblocks.assignmentgraph.node.occurrence.ECOccurrenceNode;
 import org.jamocha.dn.compiler.ecblocks.assignmentgraph.node.occurrence.FilterOccurrenceNode;

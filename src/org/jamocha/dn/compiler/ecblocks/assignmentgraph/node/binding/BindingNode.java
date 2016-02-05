@@ -13,7 +13,7 @@ package org.jamocha.dn.compiler.ecblocks.assignmentgraph.node.binding;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import org.jamocha.dn.compiler.ecblocks.assignmentgraph.AssignmentGraphNode;
+import org.jamocha.dn.compiler.ecblocks.assignmentgraph.node.AssignmentGraphNode;
 import org.jamocha.languages.common.RuleCondition;
 
 /**

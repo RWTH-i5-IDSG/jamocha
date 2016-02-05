@@ -16,7 +16,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 import org.jamocha.dn.compiler.ecblocks.ECOccurrence;
-import org.jamocha.dn.compiler.ecblocks.assignmentgraph.AssignmentGraphNode;
+import org.jamocha.dn.compiler.ecblocks.assignmentgraph.node.AssignmentGraphNode;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>

@@ -12,9 +12,6 @@
 
 package org.jamocha.dn.compiler.ecblocks.assignmentgraph.node.occurrence;
 
-import lombok.RequiredArgsConstructor;
-import org.jamocha.dn.compiler.ecblocks.ECOccurrence;
-import org.jamocha.dn.compiler.ecblocks.assignmentgraph.AssignmentGraphNode;
 import org.jamocha.dn.compiler.ecblocks.assignmentgraph.NodeType;
 
 /**

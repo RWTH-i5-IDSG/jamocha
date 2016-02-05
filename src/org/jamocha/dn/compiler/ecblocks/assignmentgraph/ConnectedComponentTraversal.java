@@ -19,6 +19,7 @@ import com.google.common.base.Function;
 import com.google.common.collect.Sets;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import org.jamocha.dn.compiler.ecblocks.assignmentgraph.node.AssignmentGraphNode;
 import org.jamocha.dn.compiler.ecblocks.assignmentgraph.node.binding.*;
 import org.jamocha.dn.compiler.ecblocks.assignmentgraph.node.occurrence.ECOccurrenceNode;
 import org.jamocha.dn.compiler.ecblocks.assignmentgraph.node.occurrence.FilterOccurrenceNode;

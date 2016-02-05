@@ -17,6 +17,7 @@ package org.jamocha.dn.compiler.ecblocks.assignmentgraph;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Sets;
+import org.jamocha.dn.compiler.ecblocks.assignmentgraph.node.AssignmentGraphNode;
 import org.jamocha.dn.compiler.ecblocks.assignmentgraph.node.binding.BindingNode;
 import org.jamocha.dn.compiler.ecblocks.assignmentgraph.node.occurrence.ECOccurrenceNode;
 
