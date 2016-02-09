@@ -4,6 +4,17 @@
     <groupId>jamocha</groupId>
     <artifactId>jamocha</artifactId>
     <version>0.0.1-SNAPSHOT</version>
+    <licenses>
+        <license>
+            <name>Apache License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+    <organization>
+        <name>RWTH I5 IDSG</name>
+        <url>http://dbis.rwth-aachen.de/cms/teaching/IDSG</url>
+    </organization>
     <build>
         <sourceDirectory>src</sourceDirectory>
         <testSourceDirectory>test</testSourceDirectory>
