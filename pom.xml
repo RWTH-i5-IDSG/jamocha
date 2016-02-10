@@ -47,6 +47,57 @@
             </resource>
         </resources>
         <plugins>
+            <!-- START STATIC ANALYSIS PLUGINS SECTION -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-pmd-plugin</artifactId>
+                <version>3.4</version>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>findbugs-maven-plugin</artifactId>
+                <version>3.0.1</version>
+                <configuration>
+                    <failOnError>false</failOnError>
+                    <includeFilterFile>src/main/resources/findbugs-include.xml</includeFilterFile>
+                    <!--<onlyAnalyze>org.jamocha.-</onlyAnalyze>-->
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+                <version>2.17</version>
+                <configuration>
+                    <configLocation>src/main/resources/checkstyle.xml</configLocation>
+                    <headerLocation>src/main/resources/checkstyle.license</headerLocation>
+                    <sourceDirectory>${project.build.sourceDirectory}</sourceDirectory>
+                    <includeTestSourceDirectory>true</includeTestSourceDirectory>
+                    <testSourceDirectory>${project.build.testSourceDirectory}</testSourceDirectory>
+                    <encoding>UTF-8</encoding>
+                    <consoleOutput>false</consoleOutput>
+                    <failsOnError>false</failsOnError>
+                    <failOnViolation>true</failOnViolation>
+                    <includeResources>false</includeResources>
+                    <includeTestResources>false</includeTestResources>
+                    <violationSeverity>error</violationSeverity>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>process-sources</phase>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <!-- END STATIC ANALYSIS PLUGINS SECTION -->
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>javacc-maven-plugin</artifactId>
@@ -116,55 +167,6 @@
                     </execution>
                 </executions>
             </plugin>
-            <!-- START STATIC ANALYSIS PLUGINS SECTION -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-pmd-plugin</artifactId>
-                <version>3.4</version>
-            </plugin>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>findbugs-maven-plugin</artifactId>
-                <version>3.0.1</version>
-                <configuration>
-                    <failOnError>false</failOnError>
-                    <includeFilterFile>src/main/resources/findbugs-include.xml</includeFilterFile>
-                    <!--<onlyAnalyze>org.jamocha.-</onlyAnalyze>-->
-                </configuration>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>check</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-checkstyle-plugin</artifactId>
-                <version>2.17</version>
-                <configuration>
-                    <configLocation>src/main/resources/checkstyle.xml</configLocation>
-                    <headerLocation>src/main/resources/checkstyle.license</headerLocation>
-                    <sourceDirectory>${project.build.sourceDirectory}</sourceDirectory>
-                    <encoding>UTF-8</encoding>
-                    <consoleOutput>false</consoleOutput>
-                    <failsOnError>false</failsOnError>
-                    <failOnViolation>true</failOnViolation>
-                    <includeResources>false</includeResources>
-                    <includeTestResources>false</includeTestResources>
-                    <violationSeverity>error</violationSeverity>
-                </configuration>
-                <executions>
-                    <execution>
-                        <phase>compile</phase>
-                        <goals>
-                            <goal>check</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <!-- END STATIC ANALYSIS PLUGINS SECTION -->
         </plugins>
         <pluginManagement>
             <plugins>
