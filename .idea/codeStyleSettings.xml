@@ -30,6 +30,7 @@
         <codeStyleSettings language="JAVA">
           <option name="KEEP_LINE_BREAKS" value="false" />
           <option name="KEEP_FIRST_COLUMN_COMMENT" value="false" />
+          <option name="INDENT_CASE_FROM_SWITCH" value="false" />
           <option name="ALIGN_MULTILINE_PARAMETERS" value="false" />
           <option name="ALIGN_MULTILINE_RESOURCES" value="false" />
           <option name="ALIGN_MULTILINE_FOR" value="false" />
@@ -42,17 +43,19 @@
           <option name="THROWS_KEYWORD_WRAP" value="1" />
           <option name="METHOD_CALL_CHAIN_WRAP" value="1" />
           <option name="BINARY_OPERATION_WRAP" value="1" />
+          <option name="BINARY_OPERATION_SIGN_ON_NEXT_LINE" value="true" />
           <option name="TERNARY_OPERATION_WRAP" value="1" />
+          <option name="TERNARY_OPERATION_SIGNS_ON_NEXT_LINE" value="true" />
           <option name="FOR_STATEMENT_WRAP" value="1" />
           <option name="ARRAY_INITIALIZER_WRAP" value="1" />
           <option name="ASSIGNMENT_WRAP" value="1" />
           <option name="ASSERT_STATEMENT_WRAP" value="1" />
+          <option name="ASSERT_STATEMENT_COLON_ON_NEXT_LINE" value="true" />
           <option name="WRAP_LONG_LINES" value="true" />
           <option name="PARAMETER_ANNOTATION_WRAP" value="1" />
           <option name="VARIABLE_ANNOTATION_WRAP" value="2" />
           <option name="ENUM_CONSTANTS_WRAP" value="1" />
           <indentOptions>
-            <option name="USE_TAB_CHARACTER" value="true" />
             <option name="SMART_TABS" value="true" />
           </indentOptions>
         </codeStyleSettings>
