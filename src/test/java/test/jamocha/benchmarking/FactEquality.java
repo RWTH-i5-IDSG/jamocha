@@ -56,13 +56,13 @@ public class FactEquality {
         final Template templateB = network.defTemplate("B", "", Slots.newLong("a"), Slots.newLong("c"));
         final Template templateC = network.defTemplate("C", "", Slots.newLong("c"));
 
-        final Path r1_a = new Path(templateA);
-        final Path r1_b = new Path(templateB);
-        final Path r2_a = new Path(templateA);
-        final Path r2_b = new Path(templateB);
-        final Path r2_c = new Path(templateC);
-        final Path r3_b = new Path(templateB);
-        final Path r3_c = new Path(templateC);
+        final Path r1A = new Path(templateA);
+        final Path r1B = new Path(templateB);
+        final Path r2A = new Path(templateA);
+        final Path r2B = new Path(templateB);
+        final Path r2C = new Path(templateC);
+        final Path r3B = new Path(templateB);
+        final Path r3C = new Path(templateC);
 
         final SlotAddress s1 = new SlotAddress(0);
         final SlotAddress s2 = new SlotAddress(1);
@@ -70,14 +70,14 @@ public class FactEquality {
         final Function<?> plus = FunctionDictionary.lookup(Plus.IN_CLIPS, SlotType.LONG, SlotType.LONG);
         final Predicate less = FunctionDictionary.lookupPredicate(Less.IN_CLIPS, SlotType.LONG, SlotType.LONG);
 
-        final PathFilter r1_f1 = createFilter(r1_a, s1, r1_b, s1, plus, less);
-        final PathFilter r2_f1 = createFilter(r2_a, s1, r2_b, s1, plus, less);
-        final PathFilter r2_f2 = createFilter(r2_b, s2, r2_c, s1, plus, less);
-        final PathFilter r3_f2 = createFilter(r3_b, s2, r3_c, s1, plus, less);
+        final PathFilter r1F1 = createFilter(r1A, s1, r1B, s1, plus, less);
+        final PathFilter r2F1 = createFilter(r2A, s1, r2B, s1, plus, less);
+        final PathFilter r2F2 = createFilter(r2B, s2, r2C, s1, plus, less);
+        final PathFilter r3F2 = createFilter(r3B, s2, r3C, s1, plus, less);
 
-        final PathRule r1 = new PathRuleBuilder("r1").add(r1_f1).build();
-        final PathRule r2 = new PathRuleBuilder("r2").add(r2_f1).add(r2_f2).build();
-        final PathRule r3 = new PathRuleBuilder("r3").add(r3_f2).build();
+        final PathRule r1 = new PathRuleBuilder("r1").add(r1F1).build();
+        final PathRule r2 = new PathRuleBuilder("r2").add(r2F1).add(r2F2).build();
+        final PathRule r3 = new PathRuleBuilder("r3").add(r3F2).build();
         network.buildRule(r3);
         network.buildRule(r2);
         network.buildRule(r1);
@@ -88,13 +88,13 @@ public class FactEquality {
         final Template templateB = network.defTemplate("B", "", Slots.newLong("a"), Slots.newLong("c"));
         final Template templateC = network.defTemplate("C", "", Slots.newLong("c"));
 
-        final Path r1_a = new Path(templateA);
-        final Path r1_b = new Path(templateB);
-        final Path r2_a = new Path(templateA);
-        final Path r2_b = new Path(templateB);
-        final Path r2_c = new Path(templateC);
-        final Path r3_b = new Path(templateB);
-        final Path r3_c = new Path(templateC);
+        final Path r1A = new Path(templateA);
+        final Path r1B = new Path(templateB);
+        final Path r2A = new Path(templateA);
+        final Path r2B = new Path(templateB);
+        final Path r2C = new Path(templateC);
+        final Path r3B = new Path(templateB);
+        final Path r3C = new Path(templateC);
 
         final SlotAddress s1 = new SlotAddress(0);
         final SlotAddress s2 = new SlotAddress(1);
@@ -102,14 +102,14 @@ public class FactEquality {
         final Function<?> plus = FunctionDictionary.lookup(Plus.IN_CLIPS, SlotType.LONG, SlotType.LONG);
         final Predicate less = FunctionDictionary.lookupPredicate(Less.IN_CLIPS, SlotType.LONG, SlotType.LONG);
 
-        final PathFilter r1_f1 = createFilter(r1_a, s1, r1_b, s1, plus, less);
-        final PathFilter r2_f1 = createFilter(r2_a, s1, r2_b, s1, plus, less);
-        final PathFilter r2_f2 = createFilter(r2_b, s2, r2_c, s1, plus, less);
-        final PathFilter r3_f2 = createFilter(r3_b, s2, r3_c, s1, plus, less);
+        final PathFilter r1F1 = createFilter(r1A, s1, r1B, s1, plus, less);
+        final PathFilter r2F1 = createFilter(r2A, s1, r2B, s1, plus, less);
+        final PathFilter r2F2 = createFilter(r2B, s2, r2C, s1, plus, less);
+        final PathFilter r3F2 = createFilter(r3B, s2, r3C, s1, plus, less);
 
-        final PathRule r1 = new PathRuleBuilder("r1").add(r1_f1).build();
-        final PathRule r2 = new PathRuleBuilder("r2").add(r2_f1).add(r2_f2).build();
-        final PathRule r3 = new PathRuleBuilder("r3").add(r3_f2).build();
+        final PathRule r1 = new PathRuleBuilder("r1").add(r1F1).build();
+        final PathRule r2 = new PathRuleBuilder("r2").add(r2F1).add(r2F2).build();
+        final PathRule r3 = new PathRuleBuilder("r3").add(r3F2).build();
         network.buildRule(r1);
         network.buildRule(r2);
         network.buildRule(r3);
@@ -120,14 +120,14 @@ public class FactEquality {
         final Template templateB = network.defTemplate("B", "", Slots.newLong("a"), Slots.newLong("c"));
         final Template templateC = network.defTemplate("C", "", Slots.newLong("c"));
 
-        final Path r1_a = new Path(templateA);
-        final Path r1_b = new Path(templateB);
-        final Path r2_a = new Path(templateA);
-        final Path r2_b = new Path(templateB);
-        final Path r2_bprime = new Path(templateB);
-        final Path r2_c = new Path(templateC);
-        final Path r3_b = new Path(templateB);
-        final Path r3_c = new Path(templateC);
+        final Path r1A = new Path(templateA);
+        final Path r1B = new Path(templateB);
+        final Path r2A = new Path(templateA);
+        final Path r2B = new Path(templateB);
+        final Path r2Bprime = new Path(templateB);
+        final Path r2C = new Path(templateC);
+        final Path r3B = new Path(templateB);
+        final Path r3C = new Path(templateC);
 
         final SlotAddress s1 = new SlotAddress(0);
         final SlotAddress s2 = new SlotAddress(1);
@@ -135,27 +135,27 @@ public class FactEquality {
         final Function<?> plus = FunctionDictionary.lookup(Plus.IN_CLIPS, SlotType.LONG, SlotType.LONG);
         final Predicate less = FunctionDictionary.lookupPredicate(Less.IN_CLIPS, SlotType.LONG, SlotType.LONG);
 
-        final PathFilter r1_f1 = createFilter(r1_a, s1, r1_b, s1, plus, less);
-        final PathFilter r2_f1 = createFilter(r2_a, s1, r2_b, s1, plus, less);
-        final PathFilter r2_f2 = createFilter(r2_bprime, s2, r2_c, s1, plus, less);
-        final PathFilter r3_f2 = createFilter(r3_b, s2, r3_c, s1, plus, less);
+        final PathFilter r1F1 = createFilter(r1A, s1, r1B, s1, plus, less);
+        final PathFilter r2F1 = createFilter(r2A, s1, r2B, s1, plus, less);
+        final PathFilter r2F2 = createFilter(r2Bprime, s2, r2C, s1, plus, less);
+        final PathFilter r3F2 = createFilter(r3B, s2, r3C, s1, plus, less);
 
-        final PathFilter r2_fe = new PathPredicateBuilder(
+        final PathFilter r2Fe = new PathPredicateBuilder(
                 FunctionDictionary.lookupPredicate(Equals.IN_CLIPS, SlotType.FACTADDRESS, SlotType.FACTADDRESS))
-                .addPath(r2_b, null).addPath(r2_bprime, null).buildFilter();
+                .addPath(r2B, null).addPath(r2Bprime, null).buildFilter();
 
-        final PathRule r1 = new PathRuleBuilder("r1").add(r1_f1).build();
-        final PathRule r2 = new PathRuleBuilder("r2").add(r2_f1).add(r2_f2).add(r2_fe).build();
-        final PathRule r3 = new PathRuleBuilder("r3").add(r3_f2).build();
+        final PathRule r1 = new PathRuleBuilder("r1").add(r1F1).build();
+        final PathRule r2 = new PathRuleBuilder("r2").add(r2F1).add(r2F2).add(r2Fe).build();
+        final PathRule r3 = new PathRuleBuilder("r3").add(r3F2).build();
         network.buildRule(r1);
         network.buildRule(r2);
         network.buildRule(r3);
     }
 
-    private static PathFilter createFilter(final Path p_a, final SlotAddress a_s, final Path p_b, final SlotAddress b_s,
+    private static PathFilter createFilter(final Path pA, final SlotAddress aS, final Path pB, final SlotAddress bS,
             final Function<?> inner, final Predicate outer) {
         return new PathPredicateBuilder(outer)
-                .addFunction(new PathFunctionBuilder(inner).addPath(p_a, a_s).addPath(p_b, b_s).build()).addLong(101)
+                .addFunction(new PathFunctionBuilder(inner).addPath(pA, aS).addPath(pB, bS).build()).addLong(101)
                 .buildFilter();
     }
 

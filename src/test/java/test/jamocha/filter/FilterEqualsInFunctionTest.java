@@ -28,7 +28,7 @@ import test.jamocha.util.builder.fwa.PathFunctionBuilder;
 import test.jamocha.util.builder.fwa.PathPredicateBuilder;
 
 import static org.junit.Assert.*;
-import static test.jamocha.util.CounterColumnMatcherMockup.counterColumnMatcherMockup;
+import static test.jamocha.util.CounterColumnMatcherMockup.COUNTER_COLUMN_MATCHER_MOCKUP;
 
 public class FilterEqualsInFunctionTest {
 
@@ -48,7 +48,7 @@ public class FilterEqualsInFunctionTest {
         final Function<?> plus = FunctionDictionary.lookup("+", SlotType.DOUBLE, SlotType.DOUBLE);
         final Function<?> minus = FunctionDictionary.lookup("-", SlotType.DOUBLE, SlotType.DOUBLE);
         final Predicate equals = FunctionDictionary.lookupPredicate("=", SlotType.DOUBLE, SlotType.DOUBLE);
-        PathFilter f, g;
+        final PathFilter f, g;
 
         f = new PathPredicateBuilder(equals)
                 .addFunction(new PathFunctionBuilder(plus).addPath(p1, a1).addPath(p2, a2).build())
@@ -60,14 +60,17 @@ public class FilterEqualsInFunctionTest {
                 PathNodeFilterSet.newRegularPathNodeFilterSet(g);
 
         assertTrue(FilterFunctionCompare
-                .equals(PathNodeFilterSetToAddressNodeFilterSetTranslator.translate(pf, counterColumnMatcherMockup),
-                        PathNodeFilterSetToAddressNodeFilterSetTranslator.translate(pf, counterColumnMatcherMockup)));
+                .equals(PathNodeFilterSetToAddressNodeFilterSetTranslator.translate(pf, COUNTER_COLUMN_MATCHER_MOCKUP),
+                        PathNodeFilterSetToAddressNodeFilterSetTranslator
+                                .translate(pf, COUNTER_COLUMN_MATCHER_MOCKUP)));
         assertTrue(FilterFunctionCompare
-                .equals(PathNodeFilterSetToAddressNodeFilterSetTranslator.translate(pg, counterColumnMatcherMockup),
-                        PathNodeFilterSetToAddressNodeFilterSetTranslator.translate(pg, counterColumnMatcherMockup)));
+                .equals(PathNodeFilterSetToAddressNodeFilterSetTranslator.translate(pg, COUNTER_COLUMN_MATCHER_MOCKUP),
+                        PathNodeFilterSetToAddressNodeFilterSetTranslator
+                                .translate(pg, COUNTER_COLUMN_MATCHER_MOCKUP)));
         assertTrue(FilterFunctionCompare
-                .equals(PathNodeFilterSetToAddressNodeFilterSetTranslator.translate(pf, counterColumnMatcherMockup),
-                        PathNodeFilterSetToAddressNodeFilterSetTranslator.translate(pg, counterColumnMatcherMockup)));
+                .equals(PathNodeFilterSetToAddressNodeFilterSetTranslator.translate(pf, COUNTER_COLUMN_MATCHER_MOCKUP),
+                        PathNodeFilterSetToAddressNodeFilterSetTranslator
+                                .translate(pg, COUNTER_COLUMN_MATCHER_MOCKUP)));
     }
 
     @Test
@@ -83,7 +86,7 @@ public class FilterEqualsInFunctionTest {
         final Function<?> plus = FunctionDictionary.lookup("+", SlotType.DOUBLE, SlotType.DOUBLE);
         final Function<?> minus = FunctionDictionary.lookup("-", SlotType.DOUBLE, SlotType.DOUBLE);
         final Predicate equals = FunctionDictionary.lookupPredicate("=", SlotType.DOUBLE, SlotType.DOUBLE);
-        PathFilter f, g;
+        final PathFilter f, g;
 
         f = new PathPredicateBuilder(equals)
                 .addFunction(new PathFunctionBuilder(plus).addPath(p1, a1).addPath(p2, a2).build())
@@ -95,17 +98,21 @@ public class FilterEqualsInFunctionTest {
                 PathNodeFilterSet.newRegularPathNodeFilterSet(g);
 
         assertTrue(FilterFunctionCompare
-                .equals(PathNodeFilterSetToAddressNodeFilterSetTranslator.translate(pf, counterColumnMatcherMockup),
-                        PathNodeFilterSetToAddressNodeFilterSetTranslator.translate(pf, counterColumnMatcherMockup)));
+                .equals(PathNodeFilterSetToAddressNodeFilterSetTranslator.translate(pf, COUNTER_COLUMN_MATCHER_MOCKUP),
+                        PathNodeFilterSetToAddressNodeFilterSetTranslator
+                                .translate(pf, COUNTER_COLUMN_MATCHER_MOCKUP)));
         assertTrue(FilterFunctionCompare
-                .equals(PathNodeFilterSetToAddressNodeFilterSetTranslator.translate(pg, counterColumnMatcherMockup),
-                        PathNodeFilterSetToAddressNodeFilterSetTranslator.translate(pg, counterColumnMatcherMockup)));
+                .equals(PathNodeFilterSetToAddressNodeFilterSetTranslator.translate(pg, COUNTER_COLUMN_MATCHER_MOCKUP),
+                        PathNodeFilterSetToAddressNodeFilterSetTranslator
+                                .translate(pg, COUNTER_COLUMN_MATCHER_MOCKUP)));
         assertFalse(FilterFunctionCompare
-                .equals(PathNodeFilterSetToAddressNodeFilterSetTranslator.translate(pf, counterColumnMatcherMockup),
-                        PathNodeFilterSetToAddressNodeFilterSetTranslator.translate(pg, counterColumnMatcherMockup)));
+                .equals(PathNodeFilterSetToAddressNodeFilterSetTranslator.translate(pf, COUNTER_COLUMN_MATCHER_MOCKUP),
+                        PathNodeFilterSetToAddressNodeFilterSetTranslator
+                                .translate(pg, COUNTER_COLUMN_MATCHER_MOCKUP)));
         assertFalse(FilterFunctionCompare
-                .equals(PathNodeFilterSetToAddressNodeFilterSetTranslator.translate(pg, counterColumnMatcherMockup),
-                        PathNodeFilterSetToAddressNodeFilterSetTranslator.translate(pf, counterColumnMatcherMockup)));
+                .equals(PathNodeFilterSetToAddressNodeFilterSetTranslator.translate(pg, COUNTER_COLUMN_MATCHER_MOCKUP),
+                        PathNodeFilterSetToAddressNodeFilterSetTranslator
+                                .translate(pf, COUNTER_COLUMN_MATCHER_MOCKUP)));
     }
 
     @Test
@@ -119,8 +126,8 @@ public class FilterEqualsInFunctionTest {
         final Function<?> plus = FunctionDictionary.lookup("+", SlotType.DOUBLE, SlotType.DOUBLE);
         final Function<?> minus = FunctionDictionary.lookup("-", SlotType.DOUBLE, SlotType.DOUBLE);
         final Predicate equals = FunctionDictionary.lookupPredicate("=", SlotType.DOUBLE, SlotType.DOUBLE);
-        PathFilter f, g;
-        PathNodeFilterSet pf, pg;
+        final PathFilter f, g, h;
+        final PathNodeFilterSet pf, pg, ph;
 
         f = new PathPredicateBuilder(equals)
                 .addFunction(new PathFunctionBuilder(plus).addPath(p1, a1).addPath(p2, a2).build())
@@ -131,24 +138,24 @@ public class FilterEqualsInFunctionTest {
         pf = PathNodeFilterSet.newRegularPathNodeFilterSet(f);
         pg = PathNodeFilterSet.newRegularPathNodeFilterSet(g);
         assertTrue(FilterFunctionCompare
-                .equals(PathNodeFilterSetToAddressNodeFilterSetTranslator.translate(pf, counterColumnMatcherMockup),
-                        PathNodeFilterSetToAddressNodeFilterSetTranslator.translate(pg, counterColumnMatcherMockup)
+                .equals(PathNodeFilterSetToAddressNodeFilterSetTranslator.translate(pf, COUNTER_COLUMN_MATCHER_MOCKUP),
+                        PathNodeFilterSetToAddressNodeFilterSetTranslator.translate(pg, COUNTER_COLUMN_MATCHER_MOCKUP)
                                 .getNormalisedVersion()));
         assertTrue(FilterFunctionCompare
-                .equals(PathNodeFilterSetToAddressNodeFilterSetTranslator.translate(pg, counterColumnMatcherMockup),
-                        PathNodeFilterSetToAddressNodeFilterSetTranslator.translate(pf, counterColumnMatcherMockup)
+                .equals(PathNodeFilterSetToAddressNodeFilterSetTranslator.translate(pg, COUNTER_COLUMN_MATCHER_MOCKUP),
+                        PathNodeFilterSetToAddressNodeFilterSetTranslator.translate(pf, COUNTER_COLUMN_MATCHER_MOCKUP)
                                 .getNormalisedVersion()));
-        g = new PathPredicateBuilder(equals)
+        h = new PathPredicateBuilder(equals)
                 .addFunction(new PathFunctionBuilder(minus).addDouble(1337.).addPath(p3, a3).build())
                 .addFunction(new PathFunctionBuilder(plus).addPath(p2, a2).addPath(p1, a1).build()).buildFilter();
-        pg = PathNodeFilterSet.newRegularPathNodeFilterSet(g);
+        ph = PathNodeFilterSet.newRegularPathNodeFilterSet(h);
         assertTrue(FilterFunctionCompare
-                .equals(PathNodeFilterSetToAddressNodeFilterSetTranslator.translate(pf, counterColumnMatcherMockup),
-                        PathNodeFilterSetToAddressNodeFilterSetTranslator.translate(pg, counterColumnMatcherMockup)
+                .equals(PathNodeFilterSetToAddressNodeFilterSetTranslator.translate(pf, COUNTER_COLUMN_MATCHER_MOCKUP),
+                        PathNodeFilterSetToAddressNodeFilterSetTranslator.translate(ph, COUNTER_COLUMN_MATCHER_MOCKUP)
                                 .getNormalisedVersion()));
         assertTrue(FilterFunctionCompare
-                .equals(PathNodeFilterSetToAddressNodeFilterSetTranslator.translate(pg, counterColumnMatcherMockup),
-                        PathNodeFilterSetToAddressNodeFilterSetTranslator.translate(pf, counterColumnMatcherMockup)
+                .equals(PathNodeFilterSetToAddressNodeFilterSetTranslator.translate(ph, COUNTER_COLUMN_MATCHER_MOCKUP),
+                        PathNodeFilterSetToAddressNodeFilterSetTranslator.translate(pf, COUNTER_COLUMN_MATCHER_MOCKUP)
                                 .getNormalisedVersion()));
     }
 
@@ -164,8 +171,8 @@ public class FilterEqualsInFunctionTest {
         final Function<?> plus = FunctionDictionary.lookup("+", SlotType.DOUBLE, SlotType.DOUBLE);
         final Function<?> minus = FunctionDictionary.lookup("-", SlotType.DOUBLE, SlotType.DOUBLE);
         final Predicate equals = FunctionDictionary.lookupPredicate("=", SlotType.DOUBLE, SlotType.DOUBLE);
-        PathFilter f, g;
-        PathNodeFilterSet pf, pg;
+        final PathFilter f, g;
+        final PathNodeFilterSet pf, pg;
 
         f = new PathPredicateBuilder(equals)
                 .addFunction(new PathFunctionBuilder(plus).addPath(p1, a1).addPath(p2, a2).build())
@@ -176,11 +183,13 @@ public class FilterEqualsInFunctionTest {
         pf = PathNodeFilterSet.newRegularPathNodeFilterSet(f);
         pg = PathNodeFilterSet.newRegularPathNodeFilterSet(g);
         assertTrue(FilterFunctionCompare
-                .equals(PathNodeFilterSetToAddressNodeFilterSetTranslator.translate(pf, counterColumnMatcherMockup),
-                        PathNodeFilterSetToAddressNodeFilterSetTranslator.translate(pg, counterColumnMatcherMockup)));
+                .equals(PathNodeFilterSetToAddressNodeFilterSetTranslator.translate(pf, COUNTER_COLUMN_MATCHER_MOCKUP),
+                        PathNodeFilterSetToAddressNodeFilterSetTranslator
+                                .translate(pg, COUNTER_COLUMN_MATCHER_MOCKUP)));
         assertTrue(FilterFunctionCompare
-                .equals(PathNodeFilterSetToAddressNodeFilterSetTranslator.translate(pg, counterColumnMatcherMockup),
-                        PathNodeFilterSetToAddressNodeFilterSetTranslator.translate(pf, counterColumnMatcherMockup)));
+                .equals(PathNodeFilterSetToAddressNodeFilterSetTranslator.translate(pg, COUNTER_COLUMN_MATCHER_MOCKUP),
+                        PathNodeFilterSetToAddressNodeFilterSetTranslator
+                                .translate(pf, COUNTER_COLUMN_MATCHER_MOCKUP)));
     }
 
     @Test
@@ -193,7 +202,7 @@ public class FilterEqualsInFunctionTest {
         final SlotAddress a3 = new SlotAddress(0);
         final SlotAddress a4 = new SlotAddress(0);
         final SlotAddress a5 = new SlotAddress(1);
-        PathFilter f, g, h, i, j, k, l;
+        final PathFilter f, g, h, i, j, k, l;
         final Function<?> plusL = FunctionDictionary.lookup("+", SlotType.LONG, SlotType.LONG);
         final Predicate lessL = FunctionDictionary.lookupPredicate("<", SlotType.LONG, SlotType.LONG);
         final Predicate eqS = FunctionDictionary.lookupPredicate("=", SlotType.STRING, SlotType.STRING);
@@ -205,44 +214,52 @@ public class FilterEqualsInFunctionTest {
         j = new PathPredicateBuilder(lessL).addLong(18L).addPath(p1, a5).buildFilter();
         k = new PathPredicateBuilder(lessL).addLong(50000)
                 .addFunction(new PathFunctionBuilder(plusL).addPath(p2, a3).addPath(p3, a4).build()).buildFilter();
-        PathNodeFilterSet a, b;
-        a = PathNodeFilterSet.newRegularPathNodeFilterSet(f, g, h);
-        b = PathNodeFilterSet.newRegularPathNodeFilterSet(f, g, h);
-        assertTrue(FilterFunctionCompare
-                .equals(PathNodeFilterSetToAddressNodeFilterSetTranslator.translate(a, counterColumnMatcherMockup),
-                        PathNodeFilterSetToAddressNodeFilterSetTranslator.translate(b, counterColumnMatcherMockup)));
-        assertTrue(FilterFunctionCompare
-                .equals(PathNodeFilterSetToAddressNodeFilterSetTranslator.translate(b, counterColumnMatcherMockup),
-                        PathNodeFilterSetToAddressNodeFilterSetTranslator.translate(a, counterColumnMatcherMockup)));
-        b = PathNodeFilterSet.newRegularPathNodeFilterSet(i, j, k);
-        assertTrue(FilterFunctionCompare
-                .equals(PathNodeFilterSetToAddressNodeFilterSetTranslator.translate(a, counterColumnMatcherMockup),
-                        PathNodeFilterSetToAddressNodeFilterSetTranslator.translate(b, counterColumnMatcherMockup)));
-        assertTrue(FilterFunctionCompare
-                .equals(PathNodeFilterSetToAddressNodeFilterSetTranslator.translate(b, counterColumnMatcherMockup),
-                        PathNodeFilterSetToAddressNodeFilterSetTranslator.translate(a, counterColumnMatcherMockup)));
-        b = PathNodeFilterSet.newRegularPathNodeFilterSet(f, j, h);
-        assertTrue(FilterFunctionCompare
-                .equals(PathNodeFilterSetToAddressNodeFilterSetTranslator.translate(a, counterColumnMatcherMockup),
-                        PathNodeFilterSetToAddressNodeFilterSetTranslator.translate(b, counterColumnMatcherMockup)));
-        assertTrue(FilterFunctionCompare
-                .equals(PathNodeFilterSetToAddressNodeFilterSetTranslator.translate(b, counterColumnMatcherMockup),
-                        PathNodeFilterSetToAddressNodeFilterSetTranslator.translate(a, counterColumnMatcherMockup)));
-
+        final PathNodeFilterSet a = PathNodeFilterSet.newRegularPathNodeFilterSet(f, g, h);
+        {
+            final PathNodeFilterSet b = PathNodeFilterSet.newRegularPathNodeFilterSet(f, g, h);
+            assertTrue(FilterFunctionCompare.equals(PathNodeFilterSetToAddressNodeFilterSetTranslator
+                            .translate(a, COUNTER_COLUMN_MATCHER_MOCKUP),
+                    PathNodeFilterSetToAddressNodeFilterSetTranslator.translate(b, COUNTER_COLUMN_MATCHER_MOCKUP)));
+            assertTrue(FilterFunctionCompare.equals(PathNodeFilterSetToAddressNodeFilterSetTranslator
+                            .translate(b, COUNTER_COLUMN_MATCHER_MOCKUP),
+                    PathNodeFilterSetToAddressNodeFilterSetTranslator.translate(a, COUNTER_COLUMN_MATCHER_MOCKUP)));
+        }
+        {
+            final PathNodeFilterSet b = PathNodeFilterSet.newRegularPathNodeFilterSet(i, j, k);
+            assertTrue(FilterFunctionCompare.equals(PathNodeFilterSetToAddressNodeFilterSetTranslator
+                            .translate(a, COUNTER_COLUMN_MATCHER_MOCKUP),
+                    PathNodeFilterSetToAddressNodeFilterSetTranslator.translate(b, COUNTER_COLUMN_MATCHER_MOCKUP)));
+            assertTrue(FilterFunctionCompare.equals(PathNodeFilterSetToAddressNodeFilterSetTranslator
+                            .translate(b, COUNTER_COLUMN_MATCHER_MOCKUP),
+                    PathNodeFilterSetToAddressNodeFilterSetTranslator.translate(a, COUNTER_COLUMN_MATCHER_MOCKUP)));
+        }
+        {
+            final PathNodeFilterSet b = PathNodeFilterSet.newRegularPathNodeFilterSet(f, j, h);
+            assertTrue(FilterFunctionCompare.equals(PathNodeFilterSetToAddressNodeFilterSetTranslator
+                            .translate(a, COUNTER_COLUMN_MATCHER_MOCKUP),
+                    PathNodeFilterSetToAddressNodeFilterSetTranslator.translate(b, COUNTER_COLUMN_MATCHER_MOCKUP)));
+            assertTrue(FilterFunctionCompare.equals(PathNodeFilterSetToAddressNodeFilterSetTranslator
+                            .translate(b, COUNTER_COLUMN_MATCHER_MOCKUP),
+                    PathNodeFilterSetToAddressNodeFilterSetTranslator.translate(a, COUNTER_COLUMN_MATCHER_MOCKUP)));
+        }
         l = new PathPredicateBuilder(lessL).addLong(17L).addPath(p1, a5).buildFilter();
-        b = PathNodeFilterSet.newRegularPathNodeFilterSet(f, l, h);
-        assertFalse(FilterFunctionCompare
-                .equals(PathNodeFilterSetToAddressNodeFilterSetTranslator.translate(a, counterColumnMatcherMockup),
-                        PathNodeFilterSetToAddressNodeFilterSetTranslator.translate(b, counterColumnMatcherMockup)));
-        assertFalse(FilterFunctionCompare
-                .equals(PathNodeFilterSetToAddressNodeFilterSetTranslator.translate(b, counterColumnMatcherMockup),
-                        PathNodeFilterSetToAddressNodeFilterSetTranslator.translate(a, counterColumnMatcherMockup)));
-        b = PathNodeFilterSet.newRegularPathNodeFilterSet(f, l, h);
-        assertFalse(FilterFunctionCompare
-                .equals(PathNodeFilterSetToAddressNodeFilterSetTranslator.translate(a, counterColumnMatcherMockup),
-                        PathNodeFilterSetToAddressNodeFilterSetTranslator.translate(b, counterColumnMatcherMockup)));
-        assertFalse(FilterFunctionCompare
-                .equals(PathNodeFilterSetToAddressNodeFilterSetTranslator.translate(b, counterColumnMatcherMockup),
-                        PathNodeFilterSetToAddressNodeFilterSetTranslator.translate(a, counterColumnMatcherMockup)));
+        {
+            final PathNodeFilterSet b = PathNodeFilterSet.newRegularPathNodeFilterSet(f, l, h);
+            assertFalse(FilterFunctionCompare.equals(PathNodeFilterSetToAddressNodeFilterSetTranslator
+                            .translate(a, COUNTER_COLUMN_MATCHER_MOCKUP),
+                    PathNodeFilterSetToAddressNodeFilterSetTranslator.translate(b, COUNTER_COLUMN_MATCHER_MOCKUP)));
+            assertFalse(FilterFunctionCompare.equals(PathNodeFilterSetToAddressNodeFilterSetTranslator
+                            .translate(b, COUNTER_COLUMN_MATCHER_MOCKUP),
+                    PathNodeFilterSetToAddressNodeFilterSetTranslator.translate(a, COUNTER_COLUMN_MATCHER_MOCKUP)));
+        }
+        {
+            final PathNodeFilterSet b = PathNodeFilterSet.newRegularPathNodeFilterSet(f, l, h);
+            assertFalse(FilterFunctionCompare.equals(PathNodeFilterSetToAddressNodeFilterSetTranslator
+                            .translate(a, COUNTER_COLUMN_MATCHER_MOCKUP),
+                    PathNodeFilterSetToAddressNodeFilterSetTranslator.translate(b, COUNTER_COLUMN_MATCHER_MOCKUP)));
+            assertFalse(FilterFunctionCompare.equals(PathNodeFilterSetToAddressNodeFilterSetTranslator
+                            .translate(b, COUNTER_COLUMN_MATCHER_MOCKUP),
+                    PathNodeFilterSetToAddressNodeFilterSetTranslator.translate(a, COUNTER_COLUMN_MATCHER_MOCKUP)));
+        }
     }
 }

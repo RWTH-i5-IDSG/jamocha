@@ -35,7 +35,7 @@ import static org.junit.Assert.*;
  */
 public class BindTest {
 
-    final static String linesep = System.lineSeparator();
+    static final String LINE_SEPARATOR = System.lineSeparator();
 
     /**
      * @throws java.lang.Exception
@@ -67,7 +67,7 @@ public class BindTest {
 
     private static Pair<Queue<Object>, Queue<Warning>> run(final Network network, final String parserInput)
             throws ParseException {
-        final SFPParser parser = new SFPParser(new StringReader(parserInput + linesep));
+        final SFPParser parser = new SFPParser(new StringReader(parserInput + LINE_SEPARATOR));
         final SFPToCETranslator visitor = new SFPToCETranslator(network, network);
         final Queue<Object> values = new LinkedList<>();
 
@@ -81,7 +81,7 @@ public class BindTest {
         }
     }
 
-    private static ByteArrayOutputStream initializeAppender(Network network) {
+    private static ByteArrayOutputStream initializeAppender(final Network network) {
         final ByteArrayOutputStream out = new ByteArrayOutputStream();
         network.clearAppender();
         network.addAppender(out, true);
@@ -170,7 +170,7 @@ public class BindTest {
             assertThat(returnValues.getRight(), empty());
             final String output = out.toString();
             assertThat(output, not(isEmptyString()));
-            final String[] lines = output.split(linesep);
+            final String[] lines = output.split(LINE_SEPARATOR);
             assertThat(lines, arrayWithSize(1));
             assertEquals("==> f-3\t(f1 (s1 7))", lines[0]);
             out.reset();

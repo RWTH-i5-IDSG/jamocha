@@ -113,8 +113,8 @@ public class FactVariableCollectorTest {
     @Test
     public void aLitteMoreComplexTest() throws ParseException {
         final String input =
-                "(and (" + templateName + " (" + slot1Name + " ?x)) (and ?y <- (" + template2Name + " (" + slot1Name +
-                        " ?x)) (" + template3Name + " (" + slot1Name + " ?x))) (test (> ?x 10)) (test (< ?x 15)))";
+                "(and (" + templateName + " (" + slot1Name + " ?x)) (and ?y <- (" + template2Name + " (" + slot1Name
+                        + " ?x)) (" + template3Name + " (" + slot1Name + " ?x))) (test (> ?x 10)) (test (< ?x 15)))";
         final NetworkMockup ptn = new NetworkMockup();
         final RuleCondition ruleCondition = clipsToCondition(ptn, input);
         final List<ConditionalElement<SymbolLeaf>> conditionalElements = ruleCondition.getConditionalElements();

@@ -17,7 +17,6 @@ import org.jamocha.dn.memory.SlotType;
 import org.jamocha.function.Function;
 import org.jamocha.function.FunctionDictionary;
 import org.jamocha.function.fwa.GenericWithArgumentsComposite.LazyObject;
-import org.jamocha.function.impls.functions.Minus;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.experimental.theories.Theories;
@@ -30,7 +29,7 @@ import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
 
 /**
- * TestCase for the {@link Minus} class using Theories.
+ * TestCase for the {@link org.jamocha.function.impls.functions.Minus} class using Theories.
  *
  * @author Kai Schwarz <kai.schwarz@rwth-aachen.de>
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>

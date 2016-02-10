@@ -17,7 +17,6 @@ import org.jamocha.dn.memory.SlotType;
 import org.jamocha.function.FunctionDictionary;
 import org.jamocha.function.Predicate;
 import org.jamocha.function.fwa.GenericWithArgumentsComposite.LazyObject;
-import org.jamocha.function.impls.predicates.Equals;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.experimental.theories.Theories;
@@ -33,7 +32,7 @@ import static org.junit.Assert.*;
 import static org.junit.Assume.assumeThat;
 
 /**
- * TestCase for the {@link Equals} class using Theories.
+ * TestCase for the {@link org.jamocha.function.impls.predicates.Equals} class using Theories.
  *
  * @author Kai Schwarz <kai.schwarz@rwth-aachen.de>
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>

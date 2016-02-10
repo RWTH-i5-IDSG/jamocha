@@ -42,7 +42,7 @@ public class SlotAddressMockup implements SlotAddress {
     }
 
     @Override
-    public int compareTo(org.jamocha.dn.memory.SlotAddress o) {
+    public int compareTo(final org.jamocha.dn.memory.SlotAddress o) {
         return Integer.compare(index, ((SlotAddressMockup) o).index);
     }
 

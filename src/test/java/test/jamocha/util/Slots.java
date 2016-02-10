@@ -41,22 +41,22 @@ public class Slots {
     /**
      * Template holding exactly one {@link SlotType#STRING} type.
      */
-    final public static Template STRING = MemoryFactory.getMemoryFactory()
+    public static final Template STRING = MemoryFactory.getMemoryFactory()
             .newTemplate("STRING", "Simple template holding exactly one string type.", newString("string slot"));
     /**
      * Template holding exactly one {@link SlotType#BOOLEAN} type.
      */
-    final public static Template BOOLEAN = MemoryFactory.getMemoryFactory()
+    public static final Template BOOLEAN = MemoryFactory.getMemoryFactory()
             .newTemplate("BOOLEAN", "Simple template holding exactly one boolean type.", newBoolean("boolean slot"));
     /**
      * Template holding exactly one {@link SlotType#DOUBLE} type.
      */
-    final public static Template DOUBLE = MemoryFactory.getMemoryFactory()
+    public static final Template DOUBLE = MemoryFactory.getMemoryFactory()
             .newTemplate("DOUBLE", "Simple template holding exactly one double type.", newDouble("double slot"));
     /**
      * Template holding exactly one {@link SlotType#LONG} type.
      */
-    final public static Template LONG = MemoryFactory.getMemoryFactory()
+    public static final Template LONG = MemoryFactory.getMemoryFactory()
             .newTemplate("LONG", "Simple template holding exactly one long type.", newLong("long slot"));
 
 }

@@ -54,6 +54,7 @@ import static test.jamocha.util.Constants.of;
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
 public class AssignmentGraphTest {
+    @SuppressWarnings("checkstyle:methodlength")
     @Test
     public void testSimpleExistential() throws Exception {
         final Network network = new Network();
@@ -337,16 +338,16 @@ public class AssignmentGraphTest {
                 final TreeMap<Integer, FilterOccurrenceNode> arguments = filterToOccurrenceNodes.get(pureFilter);
                 final FilterOccurrenceNode two = arguments.get(0);
                 edgeCheck.accept(two, twoBN);
-                final FilterOccurrenceNode e_sv1 = arguments.get(1);
-                edgeCheck.accept(e_sv1, ex1sv1bn);
+                final FilterOccurrenceNode eSv1 = arguments.get(1);
+                edgeCheck.accept(eSv1, ex1sv1bn);
             }
             {
                 final TreeMap<Integer, FilterOccurrenceNode> arguments = filterToOccurrenceNodes.get(closureFilter);
                 final int[] existentialArguments = existentialInfo.getExistentialArguments();
-                final FilterOccurrenceNode e_sv1 = arguments.get(existentialArguments[0]);
-                edgeCheck.accept(e_sv1, ex1sv1bn);
-                final FilterOccurrenceNode r_sv2 = arguments.get(1 - existentialArguments[0]);
-                edgeCheck.accept(r_sv2, sv2bn);
+                final FilterOccurrenceNode eSv1 = arguments.get(existentialArguments[0]);
+                edgeCheck.accept(eSv1, ex1sv1bn);
+                final FilterOccurrenceNode rSv2 = arguments.get(1 - existentialArguments[0]);
+                edgeCheck.accept(rSv2, sv2bn);
             }
             edgeCheck.accept(bindingNodeToImplicitOccurrence.get(sv1bn), sevenBN);
             edgeCheck.accept(bindingNodeToImplicitOccurrence.get(sevenBN), sv1bn);

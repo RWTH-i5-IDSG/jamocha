@@ -51,7 +51,8 @@ public class FunctionNormaliserTest {
     public void testTranslateBinaryMinusLong() {
         // -(a,b) -> +(a,(-b))
         final Function<Long> minusL =
-                FunctionDictionary.<Long>lookup(org.jamocha.function.impls.functions.UnaryMinus.IN_CLIPS, SlotType.LONG);
+                FunctionDictionary.<Long>lookup(org.jamocha.function.impls.functions.UnaryMinus.IN_CLIPS,
+                        SlotType.LONG);
         final Function<Long> minusLL =
                 FunctionDictionary.<Long>lookup(org.jamocha.function.impls.functions.Minus.IN_CLIPS, SlotType.LONG,
                         SlotType.LONG);
@@ -97,7 +98,8 @@ public class FunctionNormaliserTest {
     public void testTranslateUnaryMinusLong() {
         // -(-(a)) -> a
         final Function<Long> minusL =
-                FunctionDictionary.<Long>lookup(org.jamocha.function.impls.functions.UnaryMinus.IN_CLIPS, SlotType.LONG);
+                FunctionDictionary.<Long>lookup(org.jamocha.function.impls.functions.UnaryMinus.IN_CLIPS,
+                        SlotType.LONG);
         final Predicate equalsLL = FunctionDictionary
                 .lookupPredicate(org.jamocha.function.impls.predicates.Equals.IN_CLIPS, SlotType.LONG, SlotType.LONG);
         final PredicateWithArguments<PathLeaf> originalPredicate = new PathPredicateBuilder(equalsLL).addLong(5L)
@@ -398,7 +400,8 @@ public class FunctionNormaliserTest {
                 FunctionDictionary.<Long>lookup(org.jamocha.function.impls.functions.Times.IN_CLIPS, SlotType.LONG,
                         SlotType.LONG);
         final Function<Long> minusL =
-                FunctionDictionary.<Long>lookup(org.jamocha.function.impls.functions.UnaryMinus.IN_CLIPS, SlotType.LONG);
+                FunctionDictionary.<Long>lookup(org.jamocha.function.impls.functions.UnaryMinus.IN_CLIPS,
+                        SlotType.LONG);
         final Predicate equalsLL = FunctionDictionary
                 .lookupPredicate(org.jamocha.function.impls.predicates.Equals.IN_CLIPS, SlotType.LONG, SlotType.LONG);
         final PredicateWithArguments<PathLeaf> originalPredicate = new PathPredicateBuilder(equalsLL).addLong(-10L)
@@ -441,7 +444,8 @@ public class FunctionNormaliserTest {
                 FunctionDictionary.<Long>lookup(org.jamocha.function.impls.functions.Times.IN_CLIPS, SlotType.LONG,
                         SlotType.LONG);
         final Function<Long> minusL =
-                FunctionDictionary.<Long>lookup(org.jamocha.function.impls.functions.UnaryMinus.IN_CLIPS, SlotType.LONG);
+                FunctionDictionary.<Long>lookup(org.jamocha.function.impls.functions.UnaryMinus.IN_CLIPS,
+                        SlotType.LONG);
         final Predicate equalsLL = FunctionDictionary
                 .lookupPredicate(org.jamocha.function.impls.predicates.Equals.IN_CLIPS, SlotType.LONG, SlotType.LONG);
         final PredicateWithArguments<PathLeaf> originalPredicate = new PathPredicateBuilder(equalsLL).addLong(-10L)
@@ -483,7 +487,8 @@ public class FunctionNormaliserTest {
                 FunctionDictionary.<Long>lookup(org.jamocha.function.impls.functions.Times.IN_CLIPS, SlotType.LONG,
                         SlotType.LONG);
         final Function<Long> minusL =
-                FunctionDictionary.<Long>lookup(org.jamocha.function.impls.functions.UnaryMinus.IN_CLIPS, SlotType.LONG);
+                FunctionDictionary.<Long>lookup(org.jamocha.function.impls.functions.UnaryMinus.IN_CLIPS,
+                        SlotType.LONG);
         final Predicate equalsLL = FunctionDictionary
                 .lookupPredicate(org.jamocha.function.impls.predicates.Equals.IN_CLIPS, SlotType.LONG, SlotType.LONG);
         final PredicateWithArguments<PathLeaf> originalPredicate = new PathPredicateBuilder(equalsLL).addLong(10L)
@@ -556,8 +561,8 @@ public class FunctionNormaliserTest {
                         SlotType.LONG);
         final Predicate lessLL = FunctionDictionary
                 .lookupPredicate(org.jamocha.function.impls.predicates.Less.IN_CLIPS, SlotType.LONG, SlotType.LONG);
-        final Predicate notB =
-                FunctionDictionary.lookupPredicate(org.jamocha.function.impls.predicates.Not.IN_CLIPS, SlotType.BOOLEAN);
+        final Predicate notB = FunctionDictionary
+                .lookupPredicate(org.jamocha.function.impls.predicates.Not.IN_CLIPS, SlotType.BOOLEAN);
         final PredicateWithArguments<PathLeaf> originalPredicate =
                 new PathPredicateBuilder(leqLL).addLong(10L).addLong(20L).build();
         final PathNodeFilterSet compare = PathNodeFilterSet.newRegularPathNodeFilterSet(new PathPredicateBuilder(notB)
@@ -573,8 +578,8 @@ public class FunctionNormaliserTest {
                         SlotType.DOUBLE);
         final Predicate lessDD = FunctionDictionary
                 .lookupPredicate(org.jamocha.function.impls.predicates.Less.IN_CLIPS, SlotType.DOUBLE, SlotType.DOUBLE);
-        final Predicate notB =
-                FunctionDictionary.lookupPredicate(org.jamocha.function.impls.predicates.Not.IN_CLIPS, SlotType.BOOLEAN);
+        final Predicate notB = FunctionDictionary
+                .lookupPredicate(org.jamocha.function.impls.predicates.Not.IN_CLIPS, SlotType.BOOLEAN);
         final PredicateWithArguments<PathLeaf> originalPredicate =
                 new PathPredicateBuilder(leqDD).addDouble(10.).addDouble(20.).build();
         final PathNodeFilterSet compare = PathNodeFilterSet.newRegularPathNodeFilterSet(new PathPredicateBuilder(notB)
@@ -590,8 +595,8 @@ public class FunctionNormaliserTest {
                         SlotType.LONG);
         final Predicate lessLL = FunctionDictionary
                 .lookupPredicate(org.jamocha.function.impls.predicates.Less.IN_CLIPS, SlotType.LONG, SlotType.LONG);
-        final Predicate notB =
-                FunctionDictionary.lookupPredicate(org.jamocha.function.impls.predicates.Not.IN_CLIPS, SlotType.BOOLEAN);
+        final Predicate notB = FunctionDictionary
+                .lookupPredicate(org.jamocha.function.impls.predicates.Not.IN_CLIPS, SlotType.BOOLEAN);
         final PredicateWithArguments<PathLeaf> originalPredicate =
                 new PathPredicateBuilder(geqLL).addLong(20L).addLong(10L).build();
         final PathNodeFilterSet compare = PathNodeFilterSet.newRegularPathNodeFilterSet(new PathPredicateBuilder(notB)
@@ -607,8 +612,8 @@ public class FunctionNormaliserTest {
                         SlotType.DOUBLE);
         final Predicate lessDD = FunctionDictionary
                 .lookupPredicate(org.jamocha.function.impls.predicates.Less.IN_CLIPS, SlotType.DOUBLE, SlotType.DOUBLE);
-        final Predicate notB =
-                FunctionDictionary.lookupPredicate(org.jamocha.function.impls.predicates.Not.IN_CLIPS, SlotType.BOOLEAN);
+        final Predicate notB = FunctionDictionary
+                .lookupPredicate(org.jamocha.function.impls.predicates.Not.IN_CLIPS, SlotType.BOOLEAN);
         final PredicateWithArguments<PathLeaf> originalPredicate =
                 new PathPredicateBuilder(geqDD).addDouble(20.).addDouble(10.).build();
         final PathNodeFilterSet compare = PathNodeFilterSet.newRegularPathNodeFilterSet(new PathPredicateBuilder(notB)
@@ -747,11 +752,11 @@ public class FunctionNormaliserTest {
         final PathNodeFilterSet originalTranslated = PathNodeFilterSet
                 .newRegularPathNodeFilterSet(new PathFilter(UniformFunctionTranslator.translate(originalPredicate)));
         final AddressNodeFilterSet addrOrignal = PathNodeFilterSetToAddressNodeFilterSetTranslator
-                .translate(original, CounterColumnMatcherMockup.counterColumnMatcherMockup);
+                .translate(original, CounterColumnMatcherMockup.COUNTER_COLUMN_MATCHER_MOCKUP);
         final AddressNodeFilterSet addrOrignalTranslated = PathNodeFilterSetToAddressNodeFilterSetTranslator
-                .translate(originalTranslated, CounterColumnMatcherMockup.counterColumnMatcherMockup);
+                .translate(originalTranslated, CounterColumnMatcherMockup.COUNTER_COLUMN_MATCHER_MOCKUP);
         final AddressNodeFilterSet addrCompare = PathNodeFilterSetToAddressNodeFilterSetTranslator
-                .translate(compare, CounterColumnMatcherMockup.counterColumnMatcherMockup);
+                .translate(compare, CounterColumnMatcherMockup.COUNTER_COLUMN_MATCHER_MOCKUP);
         assertSame(evalFirstFE(original), evalFirstFE(original.normalise()));
         assertSame(evalFirstFE(original), evalFirstFE(addrOrignal));
         assertSame(evalFirstFE(original), evalFirstFE(addrOrignal.getNormalisedVersion()));
@@ -819,8 +824,8 @@ public class FunctionNormaliserTest {
                         .addFunction(new PathFunctionBuilder(timesLL).addLong(5L).addLong(6L).build()).build())
                         .buildFilter()).normalise();
         assertTrue(FilterFunctionCompare.equals(PathNodeFilterSetToAddressNodeFilterSetTranslator
-                        .translate(compare, CounterColumnMatcherMockup.counterColumnMatcherMockup),
+                        .translate(compare, CounterColumnMatcherMockup.COUNTER_COLUMN_MATCHER_MOCKUP),
                 PathNodeFilterSetToAddressNodeFilterSetTranslator
-                        .translate(original, CounterColumnMatcherMockup.counterColumnMatcherMockup)));
+                        .translate(original, CounterColumnMatcherMockup.COUNTER_COLUMN_MATCHER_MOCKUP)));
     }
 }

@@ -105,10 +105,10 @@ public class SystemTest {
         final Network network = new Network();
         initializeAppender(network);
         {
-            run(network, "(deftemplate templ1 (slot slot1 (type INTEGER)))\n" + "(defrule rule1 \n" +
-                    "(templ1 (slot1 ?x)) (templ1 (slot1 ?y)) (templ1 (slot1 ?z))\n" + "	(or\n" +
-                    "		(test (> ?x ?y))\n" + "		(test (> ?x ?z))\n" + "	)\n" + "	(test (< ?x ?y))\n" +
-                    "=> )\n");
+            run(network, "(deftemplate templ1 (slot slot1 (type INTEGER)))\n" + "(defrule rule1 \n"
+                    + "(templ1 (slot1 ?x)) (templ1 (slot1 ?y)) (templ1 (slot1 ?z))\n" + "\t(or\n"
+                    + "\t\t(test (> ?x ?y))\n" + "\t\t(test (> ?x ?z))\n" + "\t)\n" + "\t(test (< ?x ?y))\n"
+                    + "=> )\n");
         }
     }
 
@@ -117,9 +117,9 @@ public class SystemTest {
         final Network network = new Network();
         initializeAppender(network);
         {
-            run(network, "(deftemplate templ1 (slot slot1 (type INTEGER)))\n" + "(defrule rule1 \n" +
-                    "(templ1 (slot1 ?x)) (templ1 (slot1 ?y)) (templ1 (slot1 ?z))\n" + "	(or\n" +
-                    "		(test (< ?x ?y))\n" + "		(test (< ?x ?z))\n" + "	)\n" + "=> )\n");
+            run(network, "(deftemplate templ1 (slot slot1 (type INTEGER)))\n" + "(defrule rule1 \n"
+                    + "(templ1 (slot1 ?x)) (templ1 (slot1 ?y)) (templ1 (slot1 ?z))\n" + "\t(or\n"
+                    + "\t\t(test (< ?x ?y))\n" + "\t\t(test (< ?x ?z))\n" + "\t)\n" + "=> )\n");
         }
     }
 
@@ -128,9 +128,9 @@ public class SystemTest {
         final Network network = new Network();
         initializeAppender(network);
         {
-            run(network, "(deftemplate templ1 (slot slot1 (type INTEGER)))\n" + "(defrule rule1 \n" +
-                    "(templ1 (slot1 ?x)) (templ1 (slot1 ?y)) (templ1 (slot1 ?z))\n" + "	(test (> ?x ?y))\n" +
-                    "=> )\n");
+            run(network, "(deftemplate templ1 (slot slot1 (type INTEGER)))\n" + "(defrule rule1 \n"
+                    + "(templ1 (slot1 ?x)) (templ1 (slot1 ?y)) (templ1 (slot1 ?z))\n" + "\t(test (> ?x ?y))\n"
+                    + "=> )\n");
         }
     }
 
@@ -139,9 +139,9 @@ public class SystemTest {
         final Network network = new Network();
         initializeAppender(network);
         {
-            run(network, "(deftemplate templ1 (slot slot1 (type INTEGER)))\n" + "(defrule rule1 \n" +
-                    "(templ1 (slot1 ?x)) (templ1 (slot1 ?y)) (templ1 (slot1 ?z))\n" + "	(or\n" +
-                    "		(test (> ?x ?z))\n" + "	)\n" + "	(test (> ?x ?y))\n" + "=> )\n");
+            run(network, "(deftemplate templ1 (slot slot1 (type INTEGER)))\n" + "(defrule rule1 \n"
+                    + "(templ1 (slot1 ?x)) (templ1 (slot1 ?y)) (templ1 (slot1 ?z))\n" + "\t(or\n"
+                    + "\t\t(test (> ?x ?z))\n" + "\t)\n" + "\t(test (> ?x ?y))\n" + "=> )\n");
         }
     }
 

@@ -35,7 +35,7 @@ import java.util.stream.Collectors;
 
 import static org.jamocha.util.ToArray.toArray;
 import static org.junit.Assert.*;
-import static test.jamocha.util.CounterColumnMatcherMockup.counterColumnMatcherMockup;
+import static test.jamocha.util.CounterColumnMatcherMockup.COUNTER_COLUMN_MATCHER_MOCKUP;
 
 /**
  * A mockup filter implementation for testing purposes.
@@ -144,7 +144,7 @@ public class FilterMockup extends PathNodeFilterSet {
         @Theory
         public void testAlwaysTrue(@SomeStuff final Object... obj) {
             final AddressNodeFilterSet alwaysTrue = PathNodeFilterSetToAddressNodeFilterSetTranslator
-                    .translate(FilterMockup.alwaysTrue(), counterColumnMatcherMockup);
+                    .translate(FilterMockup.alwaysTrue(), COUNTER_COLUMN_MATCHER_MOCKUP);
             for (final Filter<ParameterLeaf> filterElement : alwaysTrue.getFilters()) {
                 assertTrue(filterElement.getFunction().evaluate(obj));
             }
@@ -156,7 +156,7 @@ public class FilterMockup extends PathNodeFilterSet {
         @Theory
         public void testAlwaysFalse(@SomeStuff final Object... obj) {
             final AddressNodeFilterSet alwaysFalse = PathNodeFilterSetToAddressNodeFilterSetTranslator
-                    .translate(FilterMockup.alwaysFalse(), counterColumnMatcherMockup);
+                    .translate(FilterMockup.alwaysFalse(), COUNTER_COLUMN_MATCHER_MOCKUP);
             for (final Filter<ParameterLeaf> filterElement : alwaysFalse.getFilters()) {
                 assertFalse(filterElement.getFunction().evaluate(obj));
             }

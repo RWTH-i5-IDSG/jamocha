@@ -23,7 +23,7 @@ import org.jamocha.filter.PathFilter;
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
 public class CounterColumnMatcherMockup implements CounterColumnMatcher {
-    public static final CounterColumnMatcherMockup counterColumnMatcherMockup = new CounterColumnMatcherMockup();
+    public static final CounterColumnMatcherMockup COUNTER_COLUMN_MATCHER_MOCKUP = new CounterColumnMatcherMockup();
 
     @Override
     public CounterColumn getCounterColumn(final PathFilter filterElement) {

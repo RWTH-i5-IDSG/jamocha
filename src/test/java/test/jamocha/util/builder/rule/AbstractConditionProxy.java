@@ -40,7 +40,7 @@ import java.util.function.Consumer;
  */
 @RequiredArgsConstructor
 public abstract class AbstractConditionProxy implements ConditionBuilder {
-    private static final Consumer<SingleFactVariable.SingleSlotVariable> nullConsumer = (a) -> {
+    private static final Consumer<SingleFactVariable.SingleSlotVariable> NULL_CONSUMER = (a) -> {
     };
 
     final AbstractConditionProxy parent;
@@ -61,7 +61,7 @@ public abstract class AbstractConditionProxy implements ConditionBuilder {
     @Override
     public SingleFactVariable.SingleSlotVariable newSlotVariable(final SingleFactVariable fv, final SlotAddress slot) {
         final ScopeStack.VariableSymbol variableSymbol =
-                this.scopeStack.createDummySlotVariable(fv, slot, null, nullConsumer);
+                this.scopeStack.createDummySlotVariable(fv, slot, null, NULL_CONSUMER);
         final LinkedList<SingleFactVariable.SingleSlotVariable> slotVariables =
                 variableSymbol.getEqual().getSlotVariables();
         this.equivalenceClasses.add(variableSymbol.getEqual());

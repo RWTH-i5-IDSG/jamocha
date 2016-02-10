@@ -44,11 +44,11 @@ import static org.junit.Assert.*;
  * @author Christoph Terwelp <christoph.terwelp@rwth-aachen.de>
  */
 public class PathFilterConsolidatorTest {
-    private static final String templateString = "(deftemplate templ1 (slot slot1 (type INTEGER)))\n" +
-            "(deftemplate templ2 (slot slot1 (type INTEGER)))\n" + "(deftemplate templ3 (slot slot1 (type INTEGER)))" +
-            "\n";
-    private static final String preRule = "(defrule rule1 ";
-    private static final String postRule = " => )\n";
+    private static final String TEMPLATE_STRING =
+            "(deftemplate templ1 (slot slot1 (type INTEGER)))\n" + "(deftemplate templ2 (slot slot1 (type INTEGER)))\n"
+                    + "(deftemplate templ3 (slot slot1 (type INTEGER)))" + "\n";
+    private static final String PRE_RULE = "(defrule rule1 ";
+    private static final String POST_RULE = " => )\n";
 
     private static Queue<Warning> run(final SFPParser parser, final SFPToCETranslator visitor) throws ParseException {
         while (true) {
@@ -60,7 +60,7 @@ public class PathFilterConsolidatorTest {
 
     private static List<PathSetRule> clipsToFilters(final String condition) throws ParseException {
         final StringReader parserInput = new StringReader(
-                new StringBuilder().append(templateString).append(preRule).append(condition).append(postRule)
+                new StringBuilder().append(TEMPLATE_STRING).append(PRE_RULE).append(condition).append(POST_RULE)
                         .toString());
         final SFPParser parser = new SFPParser(parserInput);
         final NetworkMockup ptn = new NetworkMockup();

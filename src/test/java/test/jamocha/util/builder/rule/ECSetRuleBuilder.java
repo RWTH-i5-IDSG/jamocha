@@ -36,7 +36,7 @@ import java.util.Stack;
  */
 public class ECSetRuleBuilder extends AbstractConditionProxy {
 
-    public class ExistentialConditionProxy extends AbstractConditionProxy implements Closeable {
+    public final class ExistentialConditionProxy extends AbstractConditionProxy implements Closeable {
         final boolean positive;
         boolean open = true;
 

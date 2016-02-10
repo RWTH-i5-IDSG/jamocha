@@ -35,22 +35,22 @@ import java.util.Random;
  */
 public class TestData {
 
-	/*
+    /*
      * **************OBJECTS**************
-	 */
+     */
 
-	/*
+    /*
      * Interfaces
-	 */
+     */
 
     @Retention(RetentionPolicy.RUNTIME)
     @ParametersSuppliedBy(RandomStuffSupplier.class)
     public @interface SomeStuff {
     }
 
-	/*
-	 * Supplier
-	 */
+    /*
+     * Supplier
+     */
 
     // List of random stuff
     public static class RandomStuffSupplier extends ParameterSupplier {
@@ -69,13 +69,13 @@ public class TestData {
 
     }
 
-	/*
-	 * **************LONGS**************
-	 */
+    /*
+     * **************LONGS**************
+     */
 
-	/*
-	 * Interfaces
-	 */
+    /*
+     * Interfaces
+     */
 
     @Retention(RetentionPolicy.RUNTIME)
     @ParametersSuppliedBy(RandomLongsSupplier.class)
@@ -87,9 +87,9 @@ public class TestData {
     public @interface ListOfLongs {
     }
 
-	/*
-	 * Supplier
-	 */
+    /*
+     * Supplier
+     */
 
     // Long List of random Longs
     public static class RandomLongsSupplier extends ParameterSupplier {
@@ -153,13 +153,13 @@ public class TestData {
 
     }
 
-	/*
-	 * **************DOUBLES**************
-	 */
+    /*
+     * **************DOUBLES**************
+     */
 
-	/*
-	 * Interfaces
-	 */
+    /*
+     * Interfaces
+     */
 
     @Retention(RetentionPolicy.RUNTIME)
     @ParametersSuppliedBy(RandomDoublesSupplier.class)
@@ -171,9 +171,9 @@ public class TestData {
     public @interface ListOfDoubles {
     }
 
-	/*
-	 * Supplier
-	 */
+    /*
+     * Supplier
+     */
 
     public static class RandomDoublesSupplier extends ParameterSupplier {
 
@@ -236,22 +236,22 @@ public class TestData {
 
     }
 
-	/*
-	 * **************STRINGS**************
-	 */
+    /*
+     * **************STRINGS**************
+     */
 
-	/*
-	 * Interfaces
-	 */
+    /*
+     * Interfaces
+     */
 
     @Retention(RetentionPolicy.RUNTIME)
     @ParametersSuppliedBy(SomeStringsSupplier.class)
     public @interface ListOfStrings {
     }
 
-	/*
-	 * Supplier
-	 */
+    /*
+     * Supplier
+     */
 
     public static class SomeStringsSupplier extends ParameterSupplier {
 
@@ -275,22 +275,22 @@ public class TestData {
 
     }
 
-	/*
-	 * **************BOOLEANS**************
-	 */
+    /*
+     * **************BOOLEANS**************
+     */
 
-	/*
-	 * Interfaces
-	 */
+    /*
+     * Interfaces
+    */
 
     @Retention(RetentionPolicy.RUNTIME)
     @ParametersSuppliedBy(SomeBooleanSupplier.class)
     public @interface ListOfBooleans {
     }
 
-	/*
-	 * Supplier
-	 */
+    /*
+     * Supplier
+     */
 
     public static class SomeBooleanSupplier extends ParameterSupplier {
 

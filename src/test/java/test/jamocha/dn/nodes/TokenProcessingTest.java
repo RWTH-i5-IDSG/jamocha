@@ -677,7 +677,7 @@ public class TokenProcessingTest {
         assertEquals("Amount of asserts does not match expected count!", 7, assertsAndRetracts.getAsserts());
         assertEquals("Amount of retracts does not match expected count!", 1, assertsAndRetracts.getRetracts());
 
-        final FactIdentifier[] t10lfalse_2 = rootNode.assertFacts(t1.newFact(0L, "0L&FALSE", false));
+        final FactIdentifier[] t10lfalse2 = rootNode.assertFacts(t1.newFact(0L, "0L&FALSE", false));
         scheduler.run();
 
         assertEquals("Amount of facts in otn does not match expected count!", 7, otn.getMemory().size());
@@ -686,7 +686,7 @@ public class TokenProcessingTest {
         assertEquals("Amount of asserts does not match expected count!", 8, assertsAndRetracts.getAsserts());
         assertEquals("Amount of retracts does not match expected count!", 1, assertsAndRetracts.getRetracts());
 
-        rootNode.retractFacts(t10lfalse_2);
+        rootNode.retractFacts(t10lfalse2);
         scheduler.run();
 
         assertEquals("Amount of facts in otn does not match expected count!", 6, otn.getMemory().size());

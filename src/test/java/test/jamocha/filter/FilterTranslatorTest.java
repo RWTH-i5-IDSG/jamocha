@@ -32,7 +32,7 @@ import static org.hamcrest.Matchers.*;
 import static org.jamocha.dn.memory.SlotType.BOOLEAN;
 import static org.jamocha.dn.memory.SlotType.DOUBLE;
 import static org.junit.Assert.*;
-import static test.jamocha.util.CounterColumnMatcherMockup.counterColumnMatcherMockup;
+import static test.jamocha.util.CounterColumnMatcherMockup.COUNTER_COLUMN_MATCHER_MOCKUP;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
@@ -118,32 +118,32 @@ public class FilterTranslatorTest {
     @Test
     public void testTranslate() {
         assertThat(SlotInFactAddressCollector.newArrayList()
-                .collect(PathNodeFilterSetToAddressNodeFilterSetTranslator.translate(a, counterColumnMatcherMockup))
+                .collect(PathNodeFilterSetToAddressNodeFilterSetTranslator.translate(a, COUNTER_COLUMN_MATCHER_MOCKUP))
                 .getAddresses(), containsInAnyOrder(new SlotInFactAddress(f1, s1), new SlotInFactAddress(f1, s2)));
         assertThat(SlotInFactAddressCollector.newArrayList()
-                .collect(PathNodeFilterSetToAddressNodeFilterSetTranslator.translate(b, counterColumnMatcherMockup))
+                .collect(PathNodeFilterSetToAddressNodeFilterSetTranslator.translate(b, COUNTER_COLUMN_MATCHER_MOCKUP))
                 .getAddresses(), containsInAnyOrder(new SlotInFactAddress(f2, s1), new SlotInFactAddress(f2, s2),
                 new SlotInFactAddress(f1, s1), new SlotInFactAddress(f2, s2)));
         assertThat(SlotInFactAddressCollector.newArrayList()
-                .collect(PathNodeFilterSetToAddressNodeFilterSetTranslator.translate(c, counterColumnMatcherMockup))
+                .collect(PathNodeFilterSetToAddressNodeFilterSetTranslator.translate(c, COUNTER_COLUMN_MATCHER_MOCKUP))
                 .getAddresses(), containsInAnyOrder(new SlotInFactAddress(f1, s1), new SlotInFactAddress(f2, s2),
                 new SlotInFactAddress(f2, s1), new SlotInFactAddress(f3, s2)));
         assertThat(SlotInFactAddressCollector.newArrayList()
-                .collect(PathNodeFilterSetToAddressNodeFilterSetTranslator.translate(d, counterColumnMatcherMockup))
+                .collect(PathNodeFilterSetToAddressNodeFilterSetTranslator.translate(d, COUNTER_COLUMN_MATCHER_MOCKUP))
                 .getAddresses(), containsInAnyOrder(new SlotInFactAddress(f1, s1), new SlotInFactAddress(f3, s2),
                 new SlotInFactAddress(f3, s1), new SlotInFactAddress(f1, s2)));
         assertThat(SlotInFactAddressCollector.newArrayList()
-                .collect(PathNodeFilterSetToAddressNodeFilterSetTranslator.translate(e, counterColumnMatcherMockup))
+                .collect(PathNodeFilterSetToAddressNodeFilterSetTranslator.translate(e, COUNTER_COLUMN_MATCHER_MOCKUP))
                 .getAddresses(), containsInAnyOrder(new SlotInFactAddress(f1, s1), new SlotInFactAddress(f1, s2),
                 new SlotInFactAddress(f2, s1), new SlotInFactAddress(f2, s2), new SlotInFactAddress(f3, s1),
                 new SlotInFactAddress(f3, s2), new SlotInFactAddress(f4, s1), new SlotInFactAddress(f4, s2)));
         assertThat(SlotInFactAddressCollector.newArrayList()
-                .collect(PathNodeFilterSetToAddressNodeFilterSetTranslator.translate(f, counterColumnMatcherMockup))
+                .collect(PathNodeFilterSetToAddressNodeFilterSetTranslator.translate(f, COUNTER_COLUMN_MATCHER_MOCKUP))
                 .getAddresses(), containsInAnyOrder(new SlotInFactAddress(f1, s1), new SlotInFactAddress(f3, s2),
                 new SlotInFactAddress(f3, s1), new SlotInFactAddress(f2, s2), new SlotInFactAddress(f4, s1),
                 new SlotInFactAddress(f2, s2), new SlotInFactAddress(f2, s1), new SlotInFactAddress(f1, s2)));
         assertThat(SlotInFactAddressCollector.newArrayList()
-                .collect(PathNodeFilterSetToAddressNodeFilterSetTranslator.translate(g, counterColumnMatcherMockup))
+                .collect(PathNodeFilterSetToAddressNodeFilterSetTranslator.translate(g, COUNTER_COLUMN_MATCHER_MOCKUP))
                 .getAddresses(), containsInAnyOrder(new SlotInFactAddress(f1, s1), new SlotInFactAddress(f3, s2),
                 new SlotInFactAddress(f3, s2), new SlotInFactAddress(f4, s1), new SlotInFactAddress(f4, s1),
                 new SlotInFactAddress(f2, s2), new SlotInFactAddress(f2, s1), new SlotInFactAddress(f1, s2)));

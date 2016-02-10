@@ -179,7 +179,7 @@ public class TemplateMockup implements Template {
 
     @Override
     public <L extends ExchangeableLeaf<L>> FunctionWithArguments<L>[] applyDefaultsAndOrder(
-            Map<SlotAddress, FunctionWithArguments<L>> values) {
+            final Map<SlotAddress, FunctionWithArguments<L>> values) {
         return null;
     }
 }

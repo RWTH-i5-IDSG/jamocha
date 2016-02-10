@@ -89,10 +89,10 @@ public class ParserTest {
 
     @Test
     public void testDeftemplateTypes() throws ParseException {
-        final Reader parserInput =
-                new StringReader("(deftemplate f1 " + "(slot s1 (type INTEGER))" + "(slot s2 (type FLOAT))" +
-                        "(slot s3 (type INTEGER))" + "(slot s4 (type BOOLEAN))" + "(slot s5 (type SYMBOL))" +
-                        "(slot s6 (type STRING))" + "(slot s7 (type STRING))" + "(slot s8 (type DATETIME))" + ")\n");
+        final Reader parserInput = new StringReader(
+                "(deftemplate f1 " + "(slot s1 (type INTEGER))" + "(slot s2 (type FLOAT))" + "(slot s3 (type INTEGER))"
+                        + "(slot s4 (type BOOLEAN))" + "(slot s5 (type SYMBOL))" + "(slot s6 (type STRING))"
+                        + "(slot s7 (type STRING))" + "(slot s8 (type DATETIME))" + ")\n");
         final SFPParser parser = new SFPParser(parserInput);
         final NetworkMockup network = new NetworkMockup();
         final SFPToCETranslator visitor = new SFPToCETranslator(network, network);
@@ -120,9 +120,9 @@ public class ParserTest {
 
     @Test(expected = NameClashError.class)
     public void testDefruleUniqueNames() throws ParseException {
-        final Reader parserInput =
-                new StringReader("(deftemplate f1 (slot s1 (type INTEGER)))\n" + "(defrule r1 (f1 (s1 ?x))=>)\n" +
-                        "(defrule r1 (f1 (s1 ?x))=>)\n");
+        final Reader parserInput = new StringReader(
+                "(deftemplate f1 (slot s1 (type INTEGER)))\n" + "(defrule r1 (f1 (s1 ?x))=>)\n"
+                        + "(defrule r1 (f1 (s1 ?x))=>)\n");
         final SFPParser parser = new SFPParser(parserInput);
         final NetworkMockup network = new NetworkMockup();
         final SFPToCETranslator visitor = new SFPToCETranslator(network, network);
@@ -212,10 +212,9 @@ public class ParserTest {
 
     @Test
     public void testSimpleRule() throws ParseException {
-        final Reader parserInput =
-                new StringReader("(deftemplate f1 (slot s1 (type INTEGER))(slot s2 (type FLOAT)))\n" +
-                        "(deftemplate f2 (slot s1 (type INTEGER))(slot s2 (type FLOAT)))\n" +
-                        "(defrule r1 (f1 (s1 ?x)) ?z <- (f2 (s2 ?y))" + "(test (> ?x 2)) (test (< ?y 0.0)) =>)\n");
+        final Reader parserInput = new StringReader("(deftemplate f1 (slot s1 (type INTEGER))(slot s2 (type FLOAT)))\n"
+                + "(deftemplate f2 (slot s1 (type INTEGER))(slot s2 (type FLOAT)))\n"
+                + "(defrule r1 (f1 (s1 ?x)) ?z <- (f2 (s2 ?y))" + "(test (> ?x 2)) (test (< ?y 0.0)) =>)\n");
         final SFPParser parser = new SFPParser(parserInput);
         final NetworkMockup network = new NetworkMockup();
         final SFPToCETranslator visitor = new SFPToCETranslator(network, network);
@@ -318,12 +317,12 @@ public class ParserTest {
         }
     }
 
+    @SuppressWarnings("checkstyle:methodlength")
     @Test
     public void testConnectedConstraints() throws ParseException {
-        final Reader parserInput =
-                new StringReader("(deftemplate f1 (slot s1 (type INTEGER))(slot s2 (type FLOAT)))\n" +
-                        "(deftemplate f2 (slot s1 (type INTEGER))(slot s2 (type FLOAT)))\n" +
-                        "(defrule r1 (f1 (s1 ?x&2|3&4|5)) =>)\n");
+        final Reader parserInput = new StringReader("(deftemplate f1 (slot s1 (type INTEGER))(slot s2 (type FLOAT)))\n"
+                + "(deftemplate f2 (slot s1 (type INTEGER))(slot s2 (type FLOAT)))\n"
+                + "(defrule r1 (f1 (s1 ?x&2|3&4|5)) =>)\n");
         // => ?x & (2 | (3 & 4) | 5)
         final SFPParser parser = new SFPParser(parserInput);
         final NetworkMockup network = new NetworkMockup();
@@ -384,8 +383,8 @@ public class ParserTest {
                 final Function<?> function =
                         ((GenericWithArgumentsComposite<?, ?, SymbolLeaf>) functionCall).getFunction();
                 assertEquals(FunctionDictionary
-                                .lookup(org.jamocha.function.impls.predicates.Equals.IN_CLIPS, SlotType.LONG, SlotType
-                                        .LONG),
+                                .lookup(org.jamocha.function.impls.predicates.Equals.IN_CLIPS, SlotType.LONG,
+                                        SlotType.LONG),
                         function);
                 @SuppressWarnings("unchecked")
                 final FunctionWithArguments<SymbolLeaf>[] arguments =
@@ -414,9 +413,8 @@ public class ParserTest {
                     final Function<?> function =
                             ((GenericWithArgumentsComposite<?, ?, SymbolLeaf>) functionCall).getFunction();
                     assertEquals(FunctionDictionary
-                                    .lookup(org.jamocha.function.impls.predicates.Equals.IN_CLIPS, SlotType.LONG,
-                                            SlotType.LONG),
-                            function);
+                            .lookup(org.jamocha.function.impls.predicates.Equals.IN_CLIPS, SlotType.LONG,
+                                    SlotType.LONG), function);
                     @SuppressWarnings("unchecked")
                     final FunctionWithArguments<SymbolLeaf>[] arguments =
                             ((GenericWithArgumentsComposite<?, ?, SymbolLeaf>) functionCall).getArgs();
@@ -438,9 +436,8 @@ public class ParserTest {
                     final Function<?> function =
                             ((GenericWithArgumentsComposite<?, ?, SymbolLeaf>) functionCall).getFunction();
                     assertEquals(FunctionDictionary
-                                    .lookup(org.jamocha.function.impls.predicates.Equals.IN_CLIPS, SlotType.LONG,
-                                            SlotType.LONG),
-                            function);
+                            .lookup(org.jamocha.function.impls.predicates.Equals.IN_CLIPS, SlotType.LONG,
+                                    SlotType.LONG), function);
                     @SuppressWarnings("unchecked")
                     final FunctionWithArguments<SymbolLeaf>[] arguments =
                             ((GenericWithArgumentsComposite<?, ?, SymbolLeaf>) functionCall).getArgs();
@@ -463,8 +460,8 @@ public class ParserTest {
                 final Function<?> function =
                         ((GenericWithArgumentsComposite<?, ?, SymbolLeaf>) functionCall).getFunction();
                 assertEquals(FunctionDictionary
-                                .lookup(org.jamocha.function.impls.predicates.Equals.IN_CLIPS, SlotType.LONG, SlotType
-                                        .LONG),
+                                .lookup(org.jamocha.function.impls.predicates.Equals.IN_CLIPS, SlotType.LONG,
+                                        SlotType.LONG),
                         function);
                 @SuppressWarnings("unchecked")
                 final FunctionWithArguments<SymbolLeaf>[] arguments =
@@ -482,10 +479,9 @@ public class ParserTest {
 
     @Test
     public void testComplexRule() throws ParseException {
-        final Reader parserInput =
-                new StringReader("(deftemplate f1 (slot s1 (type INTEGER))(slot s2 (type FLOAT)))\n" +
-                        "(deftemplate f2 (slot s1 (type INTEGER))(slot s2 (type FLOAT)))\n" +
-                        "(defrule r1 (not (and (f1 (s1 ?x) (s2 ?y)) (not (f2 (s1 ?x))) (test (>= ?y 0.5)) )) =>)\n");
+        final Reader parserInput = new StringReader("(deftemplate f1 (slot s1 (type INTEGER))(slot s2 (type FLOAT)))\n"
+                + "(deftemplate f2 (slot s1 (type INTEGER))(slot s2 (type FLOAT)))\n"
+                + "(defrule r1 (not (and (f1 (s1 ?x) (s2 ?y)) (not (f2 (s1 ?x))) (test (>= ?y 0.5)) )) =>)\n");
         final SFPParser parser = new SFPParser(parserInput);
         final NetworkMockup network = new NetworkMockup();
         final SFPToCETranslator visitor = new SFPToCETranslator(network, network);

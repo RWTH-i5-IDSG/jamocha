@@ -394,7 +394,7 @@ public class NetworkTest {
         final Template template = MemoryFactory.getMemoryFactory()
                 .newTemplate("", "", Slots.newString("s1"), Slots.newLong("s2"), Slots.newLong("s3"),
                         Slots.newString("s4"));
-        ;
+
         final Path pathOneA = new Path(template), pathOneB = new Path(template), pathTwoA = new Path(template),
                 pathTwoB = new Path(template);
 
