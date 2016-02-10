@@ -1,0 +1,2585 @@
+/*
+ * Copyright 2007-2016 Karl-Heinz Krempels, Sebastian Reinartz, Fabian Ohler, Christoph Terwelp
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.jamocha.org/
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
+ /**
+
+	2007-04-04 : Reduced COOL to the Jamocha Slim Fast Parser (sfp) - Karl-Heinz Krempels, Sebastian Reinartz.
+	2006-11-08 : Implemented the COOL Parser - Ulrich Loup, Ory Chowow-Liebman
+
+
+	The Grammar is based on the CLIPS Object Oriented Language (COOL) used by
+	the CLIPS Production system
+
+	@author Karl-Heinz Krempels
+	@author Fabian Ohler
+	@author Christoph Terwelp
+**/
+
+options {
+	MULTI=true;
+	STATIC=false;
+	NODE_PREFIX="SFP";
+	NODE_USES_PARSER=true;
+	VISITOR_DATA_TYPE="Object";
+	VISITOR_RETURN_TYPE="Object";
+	OUTPUT_DIRECTORY="generated/org/jamocha/languages/clips/parser/generated";
+	VISITOR = true;  // create Visitor interface
+	ERROR_REPORTING = true;
+	JDK_VERSION = "8.0";
+}
+
+
+/* Java code used for the Parser. */
+PARSER_BEGIN(SFPParser)
+
+/*
+ * Copyright 2007 Karl-Heinz Krempels, Sebastian Reinartz
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.jamocha.org/
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+package org.jamocha.languages.clips.parser.generated;
+
+import org.jamocha.languages.clips.parser.SFPToCETranslator;
+import org.jamocha.languages.common.ParserUtils;
+import org.jamocha.dn.Network;
+
+@SuppressWarnings("all")
+public class SFPParser {
+
+}
+
+PARSER_END(SFPParser)
+
+/**********************************************
+ * Lexical Specs
+ */
+
+
+SKIP :
+{
+  " "
+| "\t"
+| "\n"
+| "\r"
+}
+
+SPECIAL_TOKEN : /* COMMENTS */
+{
+  <SINGLE_LINE_COMMENT: ";" (~["\n","\r"])* ("\n"|"\r"|"\r\n")>
+}
+
+TOKEN :
+{
+  < LBRACE: "(" >
+| < RBRACE: ")" >
+| < #DIGIT: ["0"-"9"] >
+| < INTEGER: (["+","-"])? (<DIGIT>)+ >
+|
+  < FLOAT:
+	  (["+","-"])? (<DIGIT>)+ "." (<DIGIT>)* (<EXPONENT>)?
+      | (["+","-"])? "." (<DIGIT>)+ (<EXPONENT>)?
+      | (["+","-"])? (<DIGIT>)+ <EXPONENT>
+  >
+
+| < #EXPONENT: ["e","E"] (["+","-"])? (<DIGIT>)+ >
+| < #GMT_OFFSET: ("+"|"-") ( <DIGIT> )? <DIGIT> >
+| < #DATE: <DIGIT> <DIGIT> <DIGIT> <DIGIT> "-" <DIGIT> <DIGIT> "-" <DIGIT> <DIGIT> >
+| < #TIME: <DIGIT> <DIGIT> ":" <DIGIT> <DIGIT> ( ":" <DIGIT> <DIGIT>)? >
+| < DATETIME:  <DATE> ( " " <TIME> (<GMT_OFFSET>)? )? >
+| < SILENT: "silent" >
+|
+  < STRING:
+      ("\"" ((~["\"","\\"]) | ("\\" ( ["\\","\""] )))* "\"") |
+      ("\'" ((~["\'","\\"]) | ("\\" ( ["\\","\'"] )))* "\'")
+  >
+| < SFWILDCARD: "?" >
+| < MFWILDCARD: "$?" >
+| < GLOBALVAR: "?*" <SYMBOL> "*" >
+| < DEFFACTS: "deffacts" >
+| < DEFTEMPLATE: "deftemplate" >
+| < DEFTEMPLATE_CONSTRUCT: "deftemplate_construct" >
+| < DEFRULE: "defrule" >
+| < DEFRULES: "defrules" >
+| < DEFFUNCTION: "deffunction" >
+| < FUNCTIONGROUP: "functiongroup">
+| < DEFGENERIC: "defgeneric" >
+| < DEFMODULE: "defmodule" >
+| < DEFGLOBAL: "defglobal" >
+| < DEFAULT_ATR: "default" >
+| < DYNAMIC_ATR: "default-dynamic" >
+| < ATR_DEFAULT: "?DEFAULT" >
+| < ATR_DERIVE: "?DERIVE" >
+| < ATR_NONE: "?NONE" >
+| < ATR_ALL: "?ALL" >
+| < SLOT: "slot" >
+| < SINGLE_SLOT: "single-slot" >
+| < MULTISLOT: "multislot" >
+| < ARROW: "=>">
+| < SLOWCOMPILE: "slow-compile" >
+| < DECLARE: "declare" >
+| < SALIENCE: "salience" >
+| < TEMPORALVALIDITY: "temporal-validity" >
+| < MILLISECOND: "millisecond" >
+| < SECOND: "second" >
+| < MINUTE: "minute" >
+| < HOUR: "hour" >
+| < DAY: "day" >
+| < MONTH: "month" >
+| < YEAR: "year" >
+| < WEEKDAY: "weekday" >
+| < DURATION: "duration" >
+| < AUTOFOCUS: "auto-focus" >
+| < RULEVERSION: "rule-version">
+| <	TYPE: "type" >
+| < TRUE: "TRUE" | "true" | "True" >
+| < FALSE: "FALSE" | "false" | "False" >
+| < NIL: "NIL" | "Nil" | "nil" >
+| < NOT: "not" >
+| < AND: "and" >
+| < OR: "or" >
+| < OF: "of" >
+| < LOGICAL: "logical" >
+| < TEST: "test" >
+| < EXISTS: "exists" >
+| < FORALL: "forall">
+| < OBJECT: "object" >
+| < ASSIGN: "<-" >
+| < TILDE: "~" >
+| < AMPERSAND: "&" >
+| < LINE: "|" >
+| < COLON: ":" >
+| < EQUALS: "=" >
+| < VARIABLE_TYPE: "?VARIABLE" >
+| < SYMBOL_TYPE: "SYMBOL" >
+| < STRING_TYPE: "STRING" >
+| < DATETIME_TYPE: "DATETIME" >
+| < LEXEME_TYPE: "LEXEME" >
+| < INTEGER_TYPE: "INTEGER" >
+| < FLOAT_TYPE: "FLOAT" >
+| < NUMBER_TYPE: "NUMBER" >
+| < BOOLEAN_TYPE: "BOOLEAN" >
+| < EXTERNAL_ADDRESS_TYPE: "EXTERNAL-ADDRESS" >
+| < FACT_ADDRESS_TYPE: "FACT-ADDRESS" >
+| < ALLOWED_SYMBOLS: "allowed-symbols" >
+| < ALLOWED_STRINGS: "allowed-strings" >
+| < ALLOWED_LEXEMES: "allowed-lexemes" >
+| < ALLOWED_INTEGERS: "allowed-integers" >
+| < ALLOWED_FLOATS: "allowed-floats" >
+| < ALLOWED_NUMBERS: "allowed-numbers" >
+| < ALLOWED_VALUES: "allowed-values" >
+| < RANGE: "range" >
+| < CARDINALITY: "cardinality" >
+| < ACTIVE: "active" >
+	// Special functions
+| < ASSERT: "assert" >
+| < RETRACT: "retract" >
+| < FIND_FACT_BY_FACT: "find-fact-by-fact" >
+| < MODIFY: "modify" >
+| < DUPLICATE: "duplicate" >
+| < FACT_RELATION: "fact-relation" >
+| < IF: "if" >
+| < THEN: "then" >
+| < ELSE: "else" >
+| < WHILE: "while" >
+| < DO: "do" >
+| < LOOP_FOR_COUNT: "loop-for-count" >
+| < SWITCH: "switch" >
+| < CASE: "case" >
+//| < STAR: "*">
+  // If you think this is ugly, you are right. See CLIPS Basic Progrmmers Guide:
+  // "Numbers are symbols, but treated different. Instances are symbols, but treated different."
+| < #VARSYMBOL:  ["a"-"z","A"-"Z"] (~[" ","\r","\n","\t","\"","\'","(",")","&","|","<","~",";"])* >
+| < SINGLEVAR: ("?" <VARSYMBOL>) >
+| < MULTIVAR: ("$?" <VARSYMBOL>) >
+| < SYMBOL:
+	(~[" ","\r","\n","\t","\"","\'","(",")","&","|","$","?","~",";","0"-"9","="])
+	|(
+		(~[" ","\r","\n","\t","\"","\'","(",")","&","|","$","?","~",";","[","="])
+		(~[" ","\r","\n","\t","\"","\'","(",")","&","|","?","~",";","0"-"9"])*
+		(~[" ","\r","\n","\t","\"","\'","(",")","&","|","<","~",";" ])*
+		(~[" ","\r","\n","\t","\"","\'","(",")","&","|","$","?","~",";","]"])?
+	)
+	|(
+		(~[" ","\r","\n","\t","\"","\'","(",")","&","|","$","?","~",";","="])
+		(~[" ","\r","\n","\t","\"","\'","(",")","&","|","?","~",";","0"-"9"])*
+		(~[" ","\r","\n","\t","\"","\'","(",")","&","|","<","~",";" ])*
+		(~[" ","\r","\n","\t","\"","\'","(",")","&","|","$","?","~",";","]"])+
+	)
+  >
+
+}
+
+/* (From Clips Manual):
+Data Types:
+<file-name> ::= A symbol or string which is a valid file name (including path information)
+	for the operating system under which CLIPS is running
+<slot-name> ::= A valid deftemplate_construct slot name
+<...-name> ::= A <symbol> where the ellipsis indicate what the symbol represents.
+	For example, <rule-name> is a symbol which represents the name of a rule.
+*/
+
+/**********************************************
+ * Cool Grammar Specs.
+ */
+
+// Start rule is a construct at a time, the parser reads all the constructs into a list.
+SFPStart Start() :
+{}
+{
+   ( LOOKAHEAD(2)
+	Construct() | Expression()
+
+	) { return jjtThis; }
+	| <EOF> { return null; }
+}
+
+
+/*
+<number> ::= <float> | <integer>
+<lexeme> ::= <symbol> | <string>
+<constant> ::= <datetime> | <symbol> | <string> | <integer> | <float>
+*/
+
+
+/**
+*		Float
+**/
+
+SimpleNode Float() :
+{ Token t; }
+{
+	(
+		t=<FLOAT>
+	//|	t=<DOUBLE>
+	)
+
+	{
+		jjtThis.jjtSetValue(t.image);
+		return jjtThis;
+	}
+}
+
+
+
+/**
+*		Integer
+**/
+
+SimpleNode Integer() :
+{ Token t; }
+{
+	(
+		t=<INTEGER>
+	//|	t=<LONG>
+	//|	t=<SHORT>
+	)
+
+	{
+		jjtThis.jjtSetValue(t.image);
+		return jjtThis;
+	}
+}
+
+
+
+/**
+*		DateTime
+**/
+
+SimpleNode DateTime() :
+{ Token t; }
+{
+	t=<DATETIME>
+	{
+		jjtThis.jjtSetValue(t.image);
+		return jjtThis;
+	}
+}
+
+
+
+/**
+*		Number
+**/
+
+void Number() #void :
+{}
+{
+	(	Float()
+	|	Integer()
+	)
+}
+
+
+
+/**
+*		Symbol
+**/
+
+SimpleNode Symbol() :
+{ Token t; }
+{
+	t=<SYMBOL>
+	{
+		jjtThis.jjtSetValue(t.image);
+		return jjtThis;
+	}
+}
+
+
+
+/**
+*		String
+**/
+
+SimpleNode String() :
+{ Token t; }
+{
+	t=<STRING>
+	{
+		jjtThis.jjtSetValue(ParserUtils.getStringLiteral(t.image));
+		return jjtThis;
+	}
+}
+
+
+/**
+*		True
+**/
+
+SimpleNode True() :
+{ Token t; }
+{
+	t=<TRUE>
+	{
+		jjtThis.jjtSetValue(t.image);
+		return jjtThis;
+	}
+}
+
+SimpleNode Nil() :
+{ Token t; }
+{
+	t=<NIL>
+	{
+		jjtThis.jjtSetValue(t.image);
+		return jjtThis;
+	}
+}
+
+/**
+*		SymbolType
+**/
+
+SimpleNode SymbolType() :
+{ Token t; }
+{
+	t=<SYMBOL_TYPE>
+	{
+		jjtThis.jjtSetValue(t.image);
+		return jjtThis;
+	}
+}
+
+/**
+*		StringType
+**/
+
+SimpleNode StringType() :
+{ Token t; }
+{
+	t=<STRING_TYPE>
+	{
+		jjtThis.jjtSetValue(t.image);
+		return jjtThis;
+	}
+}
+
+/**
+*		DateTimeType
+**/
+
+SimpleNode DateTimeType() :
+{ Token t; }
+{
+	t=<DATETIME_TYPE>
+	{
+		jjtThis.jjtSetValue(t.image);
+		return jjtThis;
+	}
+}
+
+/**
+*		LexemeType
+**/
+
+SimpleNode LexemeType() :
+{ Token t; }
+{
+	t=<LEXEME_TYPE>
+	{
+		jjtThis.jjtSetValue(t.image);
+		return jjtThis;
+	}
+}
+
+/**
+*		BooleanType
+**/
+
+SimpleNode BooleanType() :
+{ Token t; }
+{
+	t=<BOOLEAN_TYPE>
+	{
+		jjtThis.jjtSetValue(t.image);
+		return jjtThis;
+	}
+}
+
+/**
+*		IntegerType
+**/
+
+SimpleNode IntegerType() :
+{ Token t; }
+{
+	t=<INTEGER_TYPE>
+	{
+		jjtThis.jjtSetValue(t.image);
+		return jjtThis;
+	}
+}
+
+/**
+*		FloatType
+**/
+
+SimpleNode FloatType() :
+{ Token t; }
+{
+	t=<FLOAT_TYPE>
+	{
+		jjtThis.jjtSetValue(t.image);
+		return jjtThis;
+	}
+}
+
+
+/**
+*		NumberType
+**/
+
+SimpleNode NumberType() :
+{ Token t; }
+{
+	t=<NUMBER_TYPE>
+	{
+		jjtThis.jjtSetValue(t.image);
+		return jjtThis;
+	}
+}
+
+
+/**
+*		FactAddressType
+**/
+
+SimpleNode FactAddressType() :
+{ Token t; }
+{
+	t=<FACT_ADDRESS_TYPE>
+	{
+		jjtThis.jjtSetValue(t.image);
+		return jjtThis;
+	}
+}
+
+
+/**
+*		False
+**/
+
+SimpleNode False() :
+{ Token t; }
+{
+	t=<FALSE>
+	{
+		jjtThis.jjtSetValue(t.image);
+		return jjtThis;
+	}
+}
+
+
+/**
+*		Lexeme
+**/
+
+void Lexeme() #void :
+{}
+{
+	(	String()
+	|	Symbol()
+	)
+}
+
+
+
+/**
+*		Constant
+**/
+
+SimpleNode Constant() :
+{}
+{
+	(
+		Nil()
+	|	DateTime()
+	|   Symbol()
+	|	String()
+	|	Integer()
+	|	Float()
+	|	BooleanSymbol()
+	)
+
+    { return jjtThis; }
+}
+
+
+
+/**
+*		Construct Description
+**/
+
+SimpleNode ConstructDescription() :
+{}
+{
+    String()
+
+    { return jjtThis; }
+}
+
+
+/**
+*		Single Variable
+**/
+// This is used exactly then when only the variables value is needed
+
+SimpleNode SingleVariable() :
+{ Token t; }
+{
+	t=<SINGLEVAR>
+
+	{ jjtThis.jjtSetValue(t.image); return jjtThis;}
+}
+
+
+
+/**
+*		Global Variable
+**/
+// This is used exactly then when only the variables value is needed
+
+SimpleNode GlobalVariable() :
+{ Token t; }
+{
+	t=<GLOBALVAR>
+	{ jjtThis.jjtSetValue(t.image); return jjtThis;}
+}
+
+
+
+/**
+*		Multi Variable
+**/
+// This is used exactly then when only the variables contents are needed
+
+SimpleNode MultiVariable() :
+{ Token t; }
+{
+	t=<MULTIVAR>
+
+	{ jjtThis.jjtSetValue(t.image); return jjtThis;}
+}
+
+
+
+/**
+*		Variable
+**/
+// This is used exactly then when only the variables value is needed
+
+void Variable() #void:
+{}
+{
+	(
+		SingleVariable()
+	|	MultiVariable()
+	|	GlobalVariable()
+	)
+}
+
+
+
+/**
+*		Variable Type
+**/
+// This is used exactly then when only the variables contents are needed
+
+SimpleNode VariableType() :
+{ Token t; }
+{
+	t=<VARIABLE_TYPE>
+	{
+		jjtThis.jjtSetValue(t.image);
+		return jjtThis;
+	}
+}
+
+
+
+/**
+*		Function Call
+**/
+
+// <function-call> ::= (<function-name> <expression>*)
+
+void FunctionCall() #void:
+{}
+{
+	<LBRACE>
+		(
+			AssertFunc()
+		|	Modify()
+		|	RetractFunc()
+		|   FindFactByFactFunc()
+		|	IfElseFunc()
+		|	WhileFunc()
+		|	LoopForCountFunc()
+		|	AnyFunction()
+		|	EqualsFunction()
+		|	SwitchCaseFunc()
+		)
+	<RBRACE>
+}
+
+
+
+/**
+*		Any Function
+**/
+
+SimpleNode AnyFunction() :
+{ Token t; }
+{
+ 	(
+ 		(
+ 			t=<SYMBOL> | t=<AND> | t=<OR> | t=<NOT>
+ 		)
+ 		(
+ 			Expression()
+ 		)*
+ 	)
+
+	{
+		jjtThis.jjtSetValue(t.image);
+		return jjtThis;
+	}
+}
+
+
+
+/**
+*		Equals Function (as = is not a symbol)
+**/
+
+SimpleNode EqualsFunction() :
+{}
+{
+ 	(
+ 		<EQUALS>
+ 		(
+ 			Expression()
+ 		)*
+ 	)
+
+	{ return jjtThis; }
+}
+
+
+
+/**
+*		Expression
+**/
+
+SimpleNode Expression() :
+{}
+{
+	(	LOOKAHEAD(2)
+		Constant()
+	|	Variable()
+	|	FunctionCall()
+	)
+	{ return jjtThis; }
+}
+
+
+
+/****
+**		 Special functions which are defined by CLIPS to have
+**		a non-standard syntax (e.g. not all parameters are expressions)
+****/
+
+/**
+*		Assert Function
+**/
+
+SimpleNode AssertFunc() :
+{}
+{
+	<ASSERT>
+	(
+		RHSPattern()
+	)+
+	{ return jjtThis; }
+}
+
+
+/**
+*		Modify Function
+**/
+SimpleNode Modify() :
+{}
+{
+	<MODIFY>
+	ModifyPattern()
+	{ return jjtThis; }
+}
+
+
+/**
+*		FindFactByFact Function
+**/
+
+SimpleNode FindFactByFactFunc() :
+{}
+{
+	<FIND_FACT_BY_FACT>
+	(
+		RHSPattern()
+	)
+	{ return jjtThis; }
+}
+
+
+
+/**
+*		Retract Function
+**/
+
+SimpleNode RetractFunc() :
+{}
+{
+	<RETRACT>
+	(
+	//	<STAR>	// Retract all
+	//|	(
+			(Expression())*		// Integers and 'retract-specifiers' see BPG
+	//	)
+	)
+//	RHSPattern()+
+	{ return jjtThis; }
+}
+
+
+
+/**
+*		If Else Function
+**/
+
+SimpleNode IfElseFunc() :
+{}
+{
+	(
+		<IF>
+		Expression()
+		<THEN>
+		ActionList()
+		[
+		 	<ELSE>
+		 	ActionList()
+		 ]
+	)
+
+	{ return jjtThis; }
+}
+
+
+
+/**
+*		While Function
+**/
+
+SimpleNode WhileFunc() :
+{}
+{
+	(
+		<WHILE>
+		Expression()
+		[
+		 	<DO>
+		]
+		ActionList()
+	)
+
+	{ return jjtThis; }
+}
+
+
+
+/**
+*		Loop For Count Function
+**/
+
+SimpleNode LoopForCountFunc() :
+{}
+{
+	(
+		<LOOP_FOR_COUNT>
+		(
+			<LBRACE>
+			(
+				SingleVariable()
+			 	Expression()
+			 	[
+			 	 	Expression()
+			 	]
+			 )
+			 <RBRACE>
+		)
+		[
+		 	<DO>
+		 ]
+		 ActionList()
+	)
+
+	{ return jjtThis; }
+}
+
+
+
+/**
+*		Case Switch Function
+**/
+
+SimpleNode SwitchCaseFunc() :
+{}
+{
+	(
+		<SWITCH>
+		Expression()	// Test Expression
+		(	LOOKAHEAD(2)
+			CaseStatement()
+		)*
+		[
+		<LBRACE>
+			SwitchDefaults()
+		<RBRACE>
+		]
+	)
+	{ return jjtThis; }
+}
+
+
+
+/**
+*		Case Statement Function
+**/
+
+SimpleNode CaseStatement() :
+{}
+{
+	(
+		<LBRACE>
+			<CASE>
+			Expression()	// Comparison Expression
+			<THEN>
+			ActionList()
+		<RBRACE>
+	)
+
+	{ return jjtThis; }
+}
+
+/**
+*		Default Statements for SwitchCaseFunc
+**/
+SimpleNode SwitchDefaults() :
+{}
+{
+	(
+		<LBRACE>
+			<DEFAULT_ATR>
+			ActionList()
+		<RBRACE>
+	)
+
+	{ return jjtThis; }
+}
+
+/**
+*		Construct - Definition Main Handler
+**/
+
+void Construct() #void : {}
+{
+	<LBRACE>
+		( LOOKAHEAD(2)
+			DeftemplateConstruct()
+		|	DefglobalConstruct()
+		|	DefruleConstruct()
+		|	DefrulesConstruct()
+		|	DeffunctionConstruct()
+		|	DefmoduleConstruct()
+		)
+	<RBRACE>
+}
+
+
+
+/**
+*		Deftemplate Construct
+**/
+// <deftemplate-construct> ::= (deftemplate <deftemplate-name> [<comment>] <slot-definition>*)
+
+SimpleNode DeftemplateConstruct() :
+{}
+{
+        (
+        	<DEFTEMPLATE>
+			Symbol()
+			[
+			 	ConstructDescription()
+			]
+			(
+				SlotDefinition()
+			)*
+	)
+
+        { return jjtThis; }
+}
+
+SimpleNode Silent() :
+{}
+{
+	<SILENT>
+	{return jjtThis;}
+}
+
+
+/**
+*		Slot Definition
+**/
+//<slot-definition> ::= <single-slot-definition> | <multislot-definition>
+
+SimpleNode  SlotDefinition() :
+{}
+{
+    (
+		<LBRACE>
+		(Silent())?
+		(
+					SingleSlotDefinition()
+				| 	MultiSlotDefinition()
+			)
+		<RBRACE>
+    )
+    {return jjtThis;}
+}
+
+
+
+/**
+*		Single Slot Definition
+**/
+//< single-slot-definition> ::= ( slot <slot-name> <template-attribute>*)
+
+SimpleNode SingleSlotDefinition() :
+{}
+{
+	<SLOT>
+	(
+		Symbol()
+		(
+			TemplateAttribute()
+		)*
+	)
+	{ return jjtThis; }
+}
+
+
+
+/**
+*		Multi Slot Definition
+**/
+//<multislot-definition> ::= ( multislot <slot-name> <template-attribute>*)
+
+SimpleNode MultiSlotDefinition() :
+{}
+{
+        <MULTISLOT>
+	(
+		Symbol()
+		(
+			TemplateAttribute()
+		)*
+	)
+	{ return jjtThis; }
+}
+
+
+
+/**
+*		Template Attribute
+**/
+//<template-attribute> ::= <default-attribute> | <constraint-attribute>
+
+void TemplateAttribute() #void:
+{}
+{
+	<LBRACE>
+	(	LOOKAHEAD(2)
+		DefaultAttribute()
+	| 	DynamicAttribute()
+	|	ConstraintAttribute()
+	)
+	<RBRACE>
+}
+
+
+
+/**
+*		Attributes
+**/
+// A dummy node to have a list of attributes
+
+SimpleNode Attributes() :
+{}
+{
+	(	LOOKAHEAD(2)
+		Expression()
+	)*
+	{ return jjtThis; }
+}
+
+
+
+/**
+*		Default Attribute
+**/
+//<default-attribute> ::= (default ?DERIVE | ?NONE | <expression>*) | (default-dynamic <expression>*)
+
+SimpleNode DefaultAttribute() :
+{}
+{
+		<DEFAULT_ATR>
+		(
+			DeriveAttribute()
+		|	NoneAttribute()
+		|	DefaultAttributes()
+		)
+		{ return jjtThis; }
+}
+
+SimpleNode DefaultAttributes() :
+{}
+{
+    Attributes()
+
+    { return jjtThis; }
+}
+
+
+
+/**
+*		Derive Attribute
+**/
+
+SimpleNode DeriveAttribute() :
+{ Token t; }
+{
+	t = <ATR_DERIVE>
+	{
+		jjtThis.jjtSetValue(t.image);
+		return jjtThis;
+	}
+}
+
+
+
+/**
+*		None Attribute
+**/
+
+SimpleNode NoneAttribute() :
+{ Token t; }
+{
+	t = <ATR_NONE>
+	{
+		jjtThis.jjtSetValue(t.image);
+		return jjtThis;
+	}
+}
+
+
+
+/**
+*		Dynamic Attribute
+**/
+
+//<default-attribute> ::= (default ?DERIVE | ?NONE | <expression>*) | (default-dynamic <expression>*)
+
+SimpleNode DynamicAttribute() :
+{}
+{
+	<DYNAMIC_ATR>
+	(
+		Attributes()
+	)
+	{ return jjtThis; }
+}
+
+
+void ModifyPattern() #void:
+{}
+{
+	Expression()
+	(
+		RHSSlot()
+	)+
+}
+
+SimpleNode RHSSlot() :
+{}
+{
+	<LBRACE>
+		Symbol() // slot name
+		(
+		    RHSField()
+		)*
+	<RBRACE>
+
+	{ return jjtThis; }
+}
+
+/**
+*		Fact Construct
+**/
+
+
+/**
+*		Right Hand Site Pattern
+**/
+// <RHS-pattern> ::= <ordered-RHS-pattern> | <template-RHS-pattern>
+// <ordered-RHS-pattern> ::= (<symbol> <RHS-field>+)
+// <template-RHS-pattern> ::= (<deftemplate-name> <RHS-slot>*)
+// <RHS-slot> ::= <single-field-RHS-slot> | <multifield-RHS-slot>
+// <single-field-RHS-slot> ::= (<slot-name> <RHS-field>)
+// <multifield-RHS-slot> ::= (<slot-name> <RHS-field>*)
+// <RHS-field> ::= <variable> | <constant> | <function-call>
+// <RHS-slot> ::= <single-field-RHS-slot> | <multifield-RHS-slot>
+// <single-field-RHS-slot> ::= (<slot-name> <RHS-field>)
+// <multifield-RHS-slot> ::= (<slot-name> <RHS-field>*)
+
+SimpleNode RHSPattern() :
+{}
+{
+	(
+	<LBRACE>
+		Symbol() //Template Name
+		[
+			LOOKAHEAD(2)
+			<LBRACE>
+				TemporalValidity()
+			<RBRACE>
+		]
+		(
+		    RHSSlot()
+		)*
+	<RBRACE>
+
+	{ return jjtThis; }
+	)
+	| <EOF> { return null; }
+}
+
+
+
+/**
+*		Right Hand Site Field
+**/
+
+//<RHS-field> ::= <variable> | <constant> | <function-call>
+
+void RHSField() #void:
+{}
+{
+    	Variable()
+    |   Constant()
+    |   FunctionCall()
+}
+
+
+
+/**
+*		Define Rule Construct
+**/
+
+/*
+<defrule-construct> ::= (defrule <rule-name> [<comment>] [<declaration>] <conditional-element>* => <expression>*)
+<rule-property> ::= (salience <integer-expression>) | (auto-focus <boolean-symbol>)
+<boolean-symbol> ::= TRUE | FALSE
+<conditional-element> ::= <pattern-CE> | <assigned-pattern-CE> | <not-CE> | <and-CE> | <or-CE> |
+	<logical-CE> | <test-CE> | <exists-CE> | <forall-CE>
+<pattern-CE> ::= <ordered-pattern-CE> | <template-pattern-CE> | <object-pattern-CE>
+<assigned-pattern-CE> ::= <single-field-variable> <- <pattern-CE>
+<not-CE> ::= (not <conditional-element>)
+<and-CE> ::= (and <conditional-element>+)
+<or-CE> ::= (or <conditional-element>+)
+<logical-CE> ::= (logical <conditional-element>+)
+<test-CE> ::= (test <function-call>)
+<exists-CE> ::= (exists <conditional-element>+)
+<forall-CE> ::= (forall <conditional-element> <conditional-element>+)
+<ordered-pattern-CE> ::= (<symbol> <constraint>*)
+<template-pattern-CE> ::= (<deftemplate-name> <LHS-slot>*)
+<object-pattern-CE> ::= (object <attribute-constraint>*)
+<attribute-constraint> ::= (is-a <constraint>) | (name <constraint>) | (<slot-name> <constraint>*)
+<LHS-slot> ::= <single-field-LHS-slot> | <multifield-LHS-slot>
+<single-field-LHS-slot> ::= (<slot-name> <constraint>)
+<multifield-LHS-slot> ::= (<slot-name> <constraint>*)
+<constraint> ::= ? | $? | <connected-constraint>
+<connected-constraint>::= <single-constraint> | <single-constraint> & <connected-constraint> |
+	<single-constraint> | <connected-constraint>
+<single-constraint> ::= <term> | ~<term>
+<term> ::= <constant> | <single-field-variable> | <multifield-variable> |
+	:<function-call> | =<function-call>
+*/
+
+
+
+/**
+*		Define Rule Construct
+**/
+
+// <defrule-construct> ::= (defrule <rule-name> [<comment>] [<declaration>] <conditional-element>* => <expression>*)
+
+SimpleNode DefruleConstruct() :
+{}
+{
+	(
+		<DEFRULE>
+		DefruleBody()
+	)
+	{ return jjtThis; }
+}
+
+
+
+// <defrules-construct> ::= (defrules (<rule-name> [<comment>] [<declaration>] <conditional-element>* => <expression>*)+)
+
+SimpleNode DefrulesConstruct() :
+{}
+{
+	(
+		<DEFRULES>
+		(
+			<LBRACE>
+			DefruleBody()
+			<RBRACE>
+		)+
+	)
+	{ return jjtThis; }
+}
+
+
+SimpleNode DefruleBody() :
+{}
+{
+	(
+		Symbol()	//name
+		[
+			ConstructDescription()
+		]
+		(
+			[
+				LOOKAHEAD(3)
+				Declaration()
+			]
+				(
+					ConditionalElement()
+				)*
+		)
+		<ARROW>
+		ActionList()
+	)
+	{ return jjtThis; }
+}
+
+
+
+/**
+*		Action List
+**/
+
+// Create Dummy node to have fixed number of children in Defrule
+
+SimpleNode ActionList():{}
+{
+    	(
+        	(
+        	LOOKAHEAD(2)
+    		Expression()
+        	)*
+	)
+	{ return jjtThis; }
+}
+
+
+
+/**
+*		Declaration
+**/
+
+//<declaration> ::= (declare <rule-property>+)
+
+SimpleNode Declaration():
+{}
+{
+    <LBRACE>
+        <DECLARE>
+        (
+        	RuleProperty()
+        )+
+    <RBRACE>
+    { return jjtThis; }
+}
+
+
+
+/**
+*		Rule Property
+**/
+
+// <rule-property> ::= (salience <integer-expression>) | (auto-focus <boolean-symbol>)
+
+void RuleProperty() #void:
+{}
+{
+    <LBRACE>
+     	(
+     		Salience()
+     	| 	AutoFocus()
+     	|   SlowCompile()
+     	|	RuleVersion()
+     	|   TemporalValidityDeclaration()
+	)
+	<RBRACE>
+}
+
+SimpleNode TemporalValidityDeclaration() :
+{}
+{
+	TemporalValidity()
+	{ return jjtThis;}
+}
+
+
+/**
+*		Temporal Validity
+**/
+
+SimpleNode TemporalValidity() :
+{}
+{
+	<TEMPORALVALIDITY>
+	(
+	    LOOKAHEAD(2)
+      	TemporalAttribute()
+    )+
+	{ return jjtThis; }
+}
+
+/**
+*		Temporal Attribute
+**/
+
+void TemporalAttribute() #void:
+{}
+{
+    <LBRACE>
+     	(
+     	    TAMillisecond()
+     	|	TASecond()
+     	| 	TAMinute()
+     	|	TAHour()
+     	|   TADay()
+     	|   TAMonth()
+     	|   TAYear()
+     	|   TAWeekday()
+     	|   TADuration()
+	)
+	<RBRACE>
+}
+
+SimpleNode TAMillisecond():
+{}
+{
+    <MILLISECOND>
+    Expression()
+    { return jjtThis; }
+}
+
+SimpleNode TASecond():
+{}
+{
+	<SECOND>
+	Expression()
+	{ return jjtThis; }
+}
+
+SimpleNode TAMinute():
+{}
+{
+	<MINUTE>
+	Expression()
+	{ return jjtThis; }
+}
+
+SimpleNode TAHour():
+{}
+{
+	<HOUR>
+	Expression()
+	{ return jjtThis; }
+}
+
+SimpleNode TADay():
+{}
+{
+	<DAY>
+	Expression()
+	{ return jjtThis; }
+}
+
+SimpleNode TAMonth():
+{}
+{
+	<MONTH>
+	Expression()
+	{ return jjtThis; }
+}
+
+SimpleNode TAYear():
+{}
+{
+	<YEAR>
+	Expression()
+	{ return jjtThis; }
+}
+
+SimpleNode TAWeekday():
+{}
+{
+	<WEEKDAY>
+	Expression()
+	{ return jjtThis; }
+}
+
+SimpleNode TADuration():
+{}
+{
+	<DURATION>
+	Expression()
+	{ return jjtThis; }
+}
+
+
+
+
+
+/**
+*		Salience
+**/
+
+SimpleNode Salience() :
+{}
+{
+	<SALIENCE>
+	Expression()
+	{ return jjtThis; }
+}
+
+
+
+/**
+*		Auto Focus
+**/
+
+SimpleNode AutoFocus():
+{}
+{
+	<AUTOFOCUS>
+	BooleanSymbol()
+
+	{ return jjtThis; }
+}
+
+/**
+*       Slow Compile
+**/
+
+SimpleNode SlowCompile():
+{}
+{
+    <SLOWCOMPILE>
+    BooleanSymbol()
+
+    { return jjtThis; }
+}
+
+
+
+/**
+*		Rule Version
+**/
+
+SimpleNode RuleVersion():
+{}
+{
+	<RULEVERSION>
+	Expression()
+
+	{ return jjtThis; }
+}
+
+
+
+/**
+*		Boolean Symbol
+**/
+
+//<boolean-symbol> ::= TRUE | FALSE
+
+void BooleanSymbol() #void:
+{}
+{
+    (
+    	True()
+    |	False()
+    )
+}
+
+
+/**
+*		Conditional Element
+**/
+
+//<conditional-element> ::= <pattern-CE> | <assigned-pattern-CE> | <not-CE> | <and-CE> | <or-CE> |
+//                          <logical-CE> | <test-CE> | <exists-CE> | <forall-CE>
+
+void ConditionalElement() #void:
+{}
+{
+	(
+		(
+		   <LBRACE>
+				(
+						TemplatePatternCE()
+					|	BooleanFunction()
+					|	LogicalCE()
+					|	TestCE()
+					|	ExistsCE()
+					|	ForallCE()
+				)
+			<RBRACE>
+		)
+
+		|	AssignedPatternCE()
+	)
+}
+
+
+
+/**
+*		Boolean Function
+**/
+
+void BooleanFunction() #void:
+{}
+{
+	(LOOKAHEAD(2)
+		NotFunction()
+	|	AndFunction()
+	|	OrFunction()
+	)
+}
+
+
+
+/**
+*		Not Function
+**/
+
+SimpleNode NotFunction():
+{}
+{
+	<NOT>
+		ConditionalElement()
+
+	{ return jjtThis; }
+}
+
+
+
+/**
+*		And Function
+**/
+
+SimpleNode AndFunction():
+{}
+{
+	<AND>
+		(ConditionalElement())+
+
+	{ return jjtThis; }
+}
+
+
+
+/**
+*		Or Function
+**/
+
+SimpleNode OrFunction():
+{}
+{
+
+	<OR>
+		(ConditionalElement())+
+
+	{ return jjtThis; }
+}
+
+
+/**
+*		Pattern Conditional Element
+**/
+
+//<assigned-pattern-CE> ::= <single-field-variable> <- <pattern-CE>
+// Create and return conditions
+
+SimpleNode AssignedPatternCE():
+{}
+{
+
+	(
+		SingleVariable()
+		<ASSIGN>
+
+		<LBRACE>
+
+			TemplatePatternCE()
+
+		<RBRACE>
+	)
+
+	{ return jjtThis; }
+}
+
+
+
+/**
+*		Logical CE
+**/
+
+//<logical-CE> ::= (logical <conditional-element>+)
+// Create and return conditions
+
+SimpleNode LogicalCE() :
+{}
+{
+    <LOGICAL>
+
+    (
+    	LOOKAHEAD(2)
+
+		ConditionalElement()
+    )+
+
+    { return jjtThis; }
+}
+
+
+
+/**
+*		Test CE
+**/
+
+//<test-CE> ::= (test <function-call>)
+// Create and return conditions (initialize the function before execution, to get a node
+
+SimpleNode TestCE() :
+{}
+{
+	<TEST>
+	FunctionCall()
+
+	{ return jjtThis; }
+}
+
+
+
+/**
+*		Exists CE
+**/
+
+//<exists-CE> ::= (exists <conditional-element>+)
+// Create and return conditions
+SimpleNode ExistsCE() :
+{}
+{
+    <EXISTS>
+    (
+		LOOKAHEAD(2)
+
+		ConditionalElement()
+    )+
+
+    { return jjtThis; }
+}
+
+
+
+/**
+*		Forall CE
+**/
+
+//<forall-CE> ::= (forall <conditional-element> <conditional-element>+)
+// Create and return conditions
+
+SimpleNode ForallCE() :
+{}
+{
+	<FORALL>
+	ConditionalElement()
+	(
+		LOOKAHEAD(2)
+
+		ConditionalElement()
+	)+
+
+	{return jjtThis; }
+}
+
+
+/**
+*		Template Pattern CE
+**/
+
+//<template-pattern-CE> ::= (<deftemplate-name> <LHS-slot>*)
+
+SimpleNode TemplatePatternCE():
+{}
+{
+    (
+    	Symbol() //template Name
+    	(LOOKAHEAD(2)
+    			(UnorderedLHSFactBody())+
+	    	|	OrderedLHSFactBody()
+		)
+    )
+
+   { return jjtThis; }
+}
+
+
+
+SimpleNode UnorderedLHSFactBody():
+{}
+{
+	<LBRACE>
+	LHSSlot()
+	<RBRACE>
+
+	{ return jjtThis; }
+}
+
+SimpleNode OrderedLHSFactBody():
+{}
+{
+	(
+			Constraint()
+	)*
+	{ return jjtThis; }
+}
+
+
+/**
+*		LHSSlot
+**/
+
+//<LHS-slot> ::= <single-field-LHS-slot> | <multifield-LHS-slot>
+
+SimpleNode LHSSlot():
+{}
+{
+    (
+    	Symbol() //slot Name
+		(
+			Constraint()
+		)*
+    )
+
+    { return jjtThis; }
+}
+
+
+
+/**
+*		Constraint
+**/
+
+//<constraint> ::= ? | $? | <connected-constraint>
+
+void Constraint() #void :
+{}
+{
+		SingleFieldWildcard()
+	|	MultiFieldWildcard()
+	|	ConnectedConstraint()
+}
+
+
+
+/**
+*		Singlefield Wildcard
+**/
+
+SimpleNode SingleFieldWildcard() :
+{}
+{
+	<SFWILDCARD>
+
+    { return jjtThis; }
+}
+
+
+
+/**
+*		Multifield Wildcard
+**/
+
+SimpleNode MultiFieldWildcard() :
+{}
+{
+	<MFWILDCARD>
+
+    { return jjtThis; }
+}
+
+
+
+/**
+*		Connected Constraint
+**/
+
+//<connected-constraint>::= <single-constraint> | <single-constraint> & <connected-constraint> |
+//	<single-constraint> | <connected-constraint>
+
+SimpleNode ConnectedConstraint():
+{}
+{
+    (
+		LOOKAHEAD(3)
+   		(
+	    	(
+	    		SingleVariable()
+				|
+				MultiVariable()
+			)
+			<AMPERSAND>
+			LineConnectedConstraint()
+		)
+		|
+		LOOKAHEAD( SingleVariable() <RBRACE> )
+   		SingleVariable()
+   		|
+		LOOKAHEAD( MultiVariable() <RBRACE> )
+   		MultiVariable()
+   		|
+   		LineConnectedConstraint()
+    )
+
+    {return jjtThis;}
+}
+
+
+
+/**
+*		Ampersand Connected Constraint
+**/
+
+SimpleNode AmpersandConnectedConstraint():
+{}
+{
+    (
+    	Term()
+    	(
+			<AMPERSAND>
+			Term()
+		)*
+    )
+
+    { return jjtThis; }
+}
+
+
+
+/**
+*		Line Connected Constraint
+**/
+
+SimpleNode LineConnectedConstraint():
+{}
+{
+    (
+    	AmpersandConnectedConstraint()
+		(
+			<LINE>
+			AmpersandConnectedConstraint()
+		)*
+    )
+
+	{ return jjtThis; }
+}
+
+
+
+/**
+*		Term
+**/
+
+//<term> ::= <constant> | <single-field-variable> | <multifield-variable> |
+//	:<function-call> | =<function-call>
+
+SimpleNode Term()  :
+{}
+{
+    (
+    	[
+		Negation()
+	]
+    ( LOOKAHEAD(3)
+    	Constant()
+    |	SingleVariable()
+    |	MultiVariable()
+    |	Colon()
+    |	Equals()
+    )
+    )
+
+    {return jjtThis;}
+}
+
+
+
+/**
+*		Negation
+**/
+
+SimpleNode Negation() :
+{}
+{
+	<TILDE>
+
+	{ return jjtThis; }
+}
+
+
+
+/**
+*		Colon
+**/
+
+SimpleNode Colon() :
+{}
+{
+	<COLON>
+	FunctionCall()
+	{ return jjtThis; }
+}
+
+
+
+/**
+*		Equals
+**/
+
+SimpleNode Equals() :
+{}
+{
+	<EQUALS>
+	FunctionCall()
+	{ return jjtThis; }
+}
+
+
+
+/**
+*		Defglobal Construct
+**/
+
+//<defglobal-construct> ::= (defglobal [<defmodule-name>] <global-assignment>*)
+
+SimpleNode DefglobalConstruct()  :
+{}
+{
+    (
+    	<DEFGLOBAL>
+        [
+         	Symbol()//defmodule-name
+        ]
+        (
+        	GlobalAssignment()
+        )*
+    )
+
+    { return jjtThis; }
+}
+
+
+
+/**
+*		Global Assignment
+**/
+
+//<global-assignment> ::= <global-variable> = <expression>
+
+SimpleNode GlobalAssignment()  :
+{}
+{
+    (
+        GlobalVariable()
+        <EQUALS>
+        Expression()
+    )
+
+    { return jjtThis; }
+}
+
+
+
+/**
+*		Deffunction Construct
+**/
+
+//<deffunction-construct>
+//	::= (deffunction <name> [(functiongroup <groupname>)] [<comment>] (<regular-parameter>* [<wildcard-parameter>]) <expression>*)
+
+SimpleNode DeffunctionConstruct()  :
+{}
+{
+    (
+    	<DEFFUNCTION>
+        Symbol()	//name
+        [
+         	ConstructDescription()
+        ]
+        (<LBRACE>
+        [
+         	FunctionGroup()
+         	<RBRACE>
+         	<LBRACE>
+        ]
+
+        	(
+        		SingleVariable()
+        	)*
+        	(
+             	MultiVariable()
+            )*
+        <RBRACE>
+        )
+        ActionList()
+
+    )
+
+    { return jjtThis; }
+}
+
+
+/**
+*		Function Group
+**/
+
+SimpleNode FunctionGroup() :
+{}
+{
+		<FUNCTIONGROUP>
+		Lexeme()
+
+	 { return jjtThis; }
+}
+
+/**
+*		Defgeneric Construct
+**/
+
+//	<defgeneric-construct> ::= (defgeneric <name> [<comment>])
+
+SimpleNode DefgenericConstruct() :
+{}
+{
+     (
+    	<DEFGENERIC>
+        Symbol()	//name
+        [
+         	ConstructDescription()
+        ]
+     )
+
+     { return jjtThis; }
+}
+
+
+
+/**
+*		Parameter Restriction
+**/
+
+//<parameter-restriction> ::= <single-field-variable> | (<single-field-variable> <type>* [<query>])
+
+SimpleNode ParameterRestriction() : {}
+{
+	( LOOKAHEAD(2)
+		SingleVariable()
+	|	(
+			<LBRACE>
+				SingleVariable()
+				(
+					AllowedType()
+				)*
+				[
+				 	Query()
+				 ]
+			<RBRACE>
+		)
+	)
+
+	{ return jjtThis; }
+}
+
+
+
+/**
+*		Wildcard Parameter Restriction
+**/
+
+//<wildcard-parameter-restriction> ::= <multifield-variable> | (<multifield-variable> <type>* [<query>])
+
+SimpleNode WildcardParameterRestriction() : {}
+{
+	( LOOKAHEAD(2)
+		MultiVariable()
+	|
+		(
+			<LBRACE>
+				MultiVariable()
+				(
+					AllowedType()
+				)*
+				[
+				 	Query()
+				 ]
+			<RBRACE>
+		)
+	)
+
+	{ return jjtThis; }
+}
+
+
+
+/**
+*		Query
+**/
+
+//<query> ::= <global-variable> | <function-call>
+
+void Query() : { Token t; }
+{
+		GlobalVariable()
+	|	FunctionCall()
+}
+
+
+
+/**
+*		Constraint Attribute
+**/
+
+//<constraint-attribute> ::= <type-attribute> | <allowed-constant-attribute> |
+//	<range-attribute> | <cardinality-attribute>
+
+void ConstraintAttribute() #void : { }
+{
+	( LOOKAHEAD(2)
+		TypeAttribute()
+	|	AllowedConstantAttribute()
+	|	RangeAttribute()
+	|	CardinalityAttribute()
+	)
+}
+
+
+
+/**
+*		Type Attribute
+**/
+
+//<type-attribute> ::= (type <type-specification>)
+
+SimpleNode TypeAttribute() :
+{ }
+{
+	<TYPE>
+	TypeSpecification()
+
+	{ return jjtThis; }
+}
+
+
+
+/**
+*		Type Specification
+**/
+
+//<type-specification> ::= <allowed-type>+ | ?VARIABLE
+
+SimpleNode TypeSpecification() :
+{}
+{	(
+		(
+			AllowedType()
+		)+
+		| 	VariableType()
+	)
+	{ return jjtThis; }
+}
+
+
+
+/**
+*		Allowed Type
+**/
+
+//<allowed-type> ::= SYMBOL | STRING | LEXEME | INTEGER | FLOAT | NUMBER |
+// EXTERNAL-ADDRESS | FACT-ADDRESS | DATETIME
+
+void AllowedType()  #void:
+{}
+{
+	(		SymbolType()
+		|	StringType()
+		|	DateTimeType()
+		|	LexemeType()
+		|	IntegerType()
+		|	FloatType()
+		|	NumberType()
+		|	BooleanType()
+		|	FactAddressType()
+	)
+}
+
+
+
+/**
+*		Allowed Constant Atrributes
+**/
+
+// <allowed-constant-attribute> ::= (allowed-symbols <symbol-list>) | (allowed-strings <string-list>) |
+//	(allowed-lexemes <lexeme-list> | (allowed-integers <integer-list>) | (allowed-floats <float-list>) |
+//	(allowed-numbers <number-list>) | (allowed-values <value-list>)
+
+SimpleNode AllowedConstantAttribute() :
+{ Token t; }
+{
+	(
+			t = <ALLOWED_SYMBOLS> SymbolList()
+		|	t = <ALLOWED_STRINGS> StringList()
+		|	t = <ALLOWED_LEXEMES> LexemeList()
+		|	t = <ALLOWED_INTEGERS> IntegerList()
+		|	t = <ALLOWED_FLOATS> FloatList()
+		|	t = <ALLOWED_NUMBERS> NumberList()
+		|	t = <ALLOWED_VALUES> ValueList()
+	)
+
+	{
+		jjtThis.jjtSetValue(t.image);
+		return jjtThis;
+	}
+}
+
+
+
+/**
+*		Symbol List
+**/
+
+//<symbol-list> ::= <symbol>+ | ?VARIABLE
+
+SimpleNode SymbolList() : {}
+{
+    (
+    		( Symbol() )+
+	|	VariableType()
+    )
+
+    { return jjtThis; }
+}
+
+
+
+/**
+*		String List
+**/
+
+//<string-list> ::= <string>+ | ?VARIABLE
+
+SimpleNode StringList() :
+{}
+{
+    (
+    		( String() )+
+	|	VariableType()
+    )
+
+    { return jjtThis; }
+}
+
+
+
+/**
+*		Lexeme List
+**/
+
+//<lexeme-list> ::= <lexeme>+ | ?VARIABLE
+
+SimpleNode LexemeList() :
+{}
+{
+    (
+    		( Lexeme() )+
+	|	VariableType()
+    )
+
+    { return jjtThis; }
+}
+
+
+
+/**
+*		Integer List
+**/
+
+//<integer-list> ::= <integer>+ | ?VARIABLE
+
+SimpleNode IntegerList() :
+{}
+{
+    (
+    		( Integer() )+
+	| 	VariableType()
+    )
+
+    { return jjtThis; }
+}
+
+/**
+*		Float List
+**/
+
+//<float-list> ::= <float>+ | ?VARIABLE
+
+SimpleNode FloatList() :
+{}
+{
+    (
+    		( Float() )+
+	|	VariableType()
+    )
+
+    { return jjtThis; }
+}
+
+
+
+/**
+*		Number List
+**/
+
+//<number-list> ::= <number>+ | ?VARIABLE
+
+SimpleNode NumberList() :
+{}
+{
+    (
+    		( Number() )+
+	| 	VariableType()
+    )
+
+    { return jjtThis; }
+}
+
+
+
+/**
+*		Value List
+**/
+
+//<value-list> ::= <constant>+ | ?VARIABLE
+
+SimpleNode ValueList() :
+{}
+{
+    (
+    		( Constant() )+
+	|	VariableType()
+    )
+
+    { return jjtThis; }
+}
+
+
+
+/**
+*		Range Attribute
+**/
+
+//<range-attribute> ::= (range <range-specification> <range-specification>)
+
+SimpleNode RangeAttribute() :
+{}
+{
+    (
+    	<RANGE>
+
+	RangeSpecification()
+
+	RangeSpecification()
+   )
+
+   { return jjtThis; }
+}
+
+
+/**
+*		Range Specification
+**/
+
+//<range-specification> ::= <number> | ?VARIABLE
+
+SimpleNode RangeSpecification()  :
+{}
+{
+    (
+    		Number()
+	| 	VariableType()
+    )
+
+    { return jjtThis; }
+}
+
+
+//<cardinality-attribute> ::= (cardinality <cardinality-specification> <cardinality-specification>)
+SimpleNode CardinalityAttribute()  :
+{}
+{
+    (
+    	<CARDINALITY>
+
+	CardinalitySpecification()
+
+	CardinalitySpecification()
+    )
+
+    { return jjtThis; }
+}
+
+
+
+/**
+*		Cardinality Specification
+**/
+
+//<cardinality-specification> ::= <integer> | ?VARIABLE
+
+SimpleNode CardinalitySpecification() :
+{}
+{
+    (
+    		Integer()
+	| 	VariableType()
+    )
+
+    { return jjtThis; }
+}
+
+
+
+/**
+*		Defmodule Construct
+**/
+
+//	<defmodule-construct> ::= (defmodule <module-name> [<comment>] )
+
+SimpleNode DefmoduleConstruct() :
+{}
+{
+    (
+    	<DEFMODULE>
+	Symbol()
+	[
+		ConstructDescription()
+	]
+    )
+
+    { return jjtThis; }
+}
+
+
