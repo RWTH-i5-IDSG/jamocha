@@ -89,7 +89,10 @@ public class RuleConditionProcessor {
 
     public static <L extends ExchangeableLeaf<L>> ConditionalElement<L> flattenInPlace(
             final List<ConditionalElement<L>> toFlatten) {
-        return flattenInPlace(new AndFunctionConditionalElement<>(toFlatten));
+        final ArrayList<ConditionalElement<L>> copy = new ArrayList<>(toFlatten);
+        toFlatten.clear();
+        toFlatten.add(new AndFunctionConditionalElement<>(copy));
+        return flattenInPlace(toFlatten.get(0));
     }
 
     public static List<ConstructCache.Defrule.ECBasedCERule> flattenOutOfPlace(final ConstructCache.Defrule rule) {
@@ -472,10 +475,10 @@ public class RuleConditionProcessor {
                 final EquivalenceClass oldEC, final Consumer<EquivalenceClass> newECConsumer)
                 throws IllegalStateException {
             assert oldEC.getFunctionalExpressions().isEmpty() && (oldEC.getConstantExpressions().isEmpty() || (
-                    oldEC.getFactVariables().isEmpty() && oldEC.getSlotVariables().isEmpty()))
-                    : "This method assumes that the parser leaves the equality tests involving constants and "
-                    + "functional expressions explicitly. Thus there should only be slot/fact binding ECs and "
-                    + "constant ECs (separately).";
+                    oldEC.getFactVariables().isEmpty() && oldEC.getSlotVariables().isEmpty())) :
+                    "This method assumes that the parser leaves the equality tests involving constants and "
+                            + "functional expressions explicitly. Thus there should only be slot/fact binding ECs and "
+                            + "constant ECs (separately).";
             if (scope == oldEC.getMaximalScope()) {
                 // EC belongs to this scope, nothing to do
                 return oldEC;
