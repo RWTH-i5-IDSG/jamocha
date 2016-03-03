@@ -9,7 +9,7 @@
 
 ### Getting Jamocha
 
-Download our latest source code from our Github page[as a zip file](https://github.com/RWTH-i5-IDSG/jamocha/archive/master.zip).
+Download our latest source code from our Github page [as a zip file](https://github.com/RWTH-i5-IDSG/jamocha/archive/master.zip).
 
 
 ### Compiling Jamocha
