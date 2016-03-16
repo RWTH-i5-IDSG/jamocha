@@ -167,6 +167,10 @@ public class AssignmentGraph {
             return new SubGraph();
         }
 
+        public SubGraph newSubGraph(final SubGraph subGraph) {
+            return new SubGraph(subGraph);
+        }
+
         @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
         public class SubGraph extends Graph {
             public SubGraph(final SubGraph other) {

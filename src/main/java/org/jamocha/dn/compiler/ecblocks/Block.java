@@ -13,6 +13,7 @@
  */
 package org.jamocha.dn.compiler.ecblocks;
 
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import lombok.Getter;
 import org.jamocha.dn.compiler.ecblocks.assignmentgraph.AssignmentGraph;
@@ -20,6 +21,7 @@ import org.jamocha.dn.compiler.ecblocks.assignmentgraph.AssignmentGraph.Edge;
 import org.jamocha.dn.compiler.ecblocks.assignmentgraph.ConnectedComponentCounter;
 import org.jamocha.dn.compiler.ecblocks.assignmentgraph.ExistentialSubgraphCompletelyContainedChecker;
 import org.jamocha.dn.compiler.ecblocks.assignmentgraph.FunctionalExpressionBindingChecker;
+import org.jamocha.dn.compiler.ecblocks.assignmentgraph.node.AssignmentGraphNode;
 import org.jamocha.dn.compiler.ecblocks.assignmentgraph.node.binding.*;
 import org.jamocha.dn.compiler.ecblocks.assignmentgraph.node.occurrence.*;
 import org.jamocha.dn.compiler.ecblocks.column.Column;
@@ -31,6 +33,8 @@ import org.paukov.combinatorics.Generator;
 import org.paukov.combinatorics.ICombinatoricsVector;
 
 import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.*;
 import static org.jamocha.util.Lambdas.toHashSet;
@@ -40,27 +44,59 @@ import static org.jamocha.util.Lambdas.toIdentityHashSet;
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
 @Getter
-public class Block {
+public class Block implements BlockInterface {
 
     @Getter
-    private class BlockRows {
+    protected class BlockRows {
         final AssignmentGraph assignmentGraph;
-        final AssignmentGraph.UnrestrictedGraph.SubGraph subgraph;
-        int ccCount = 0;
+        //        final AssignmentGraph.UnrestrictedGraph.SubGraph subgraph;
+        final Map<AssignmentGraphNode<?>, AssignmentGraph.UnrestrictedGraph.SubGraph> node2Row;
+        final Set<AssignmentGraph.UnrestrictedGraph.SubGraph> rows;
 
         BlockRows(final AssignmentGraph assignmentGraph) {
             this.assignmentGraph = assignmentGraph;
-            this.subgraph = assignmentGraph.getGraph().newSubGraph();
+            this.rows = new HashSet<>();
+            this.node2Row = new HashMap<>();
         }
 
         BlockRows(final BlockRows other) {
             this.assignmentGraph = other.assignmentGraph;
-            this.subgraph = other.assignmentGraph.getGraph().new SubGraph(other.subgraph);
-            this.ccCount = other.ccCount;
+            this.rows =
+                    other.rows.stream().map(other.assignmentGraph.getGraph()::newSubGraph).collect(Collectors.toSet());
+            this.node2Row = new HashMap<>(other.node2Row);
+        }
+
+        public void removeRow(final AssignmentGraphNode<?> representative) {
+            removeRow(this.node2Row.get(representative));
+        }
+
+        public void removeRow(final AssignmentGraph.UnrestrictedGraph.SubGraph row) {
+            for (final Edge<ECOccurrenceNode, BindingNode> edge : row.edgeSet()) {
+                this.node2Row.remove(edge.getSource());
+                this.node2Row.remove(edge.getTarget());
+            }
+            this.rows.remove(row);
+        }
+
+        public void addColumn(final Iterable<Edge<ECOccurrenceNode, BindingNode>> edges) {
+            if (this.rows.isEmpty()) {
+                for (final Edge<ECOccurrenceNode, BindingNode> edge : edges) {
+                    final AssignmentGraph.UnrestrictedGraph.SubGraph subGraph =
+                            this.assignmentGraph.getGraph().newSubGraph();
+                    subGraph.addEdge(edge);
+                    this.rows.add(subGraph);
+                }
+                return;
+            }
+            assert Iterables.size(edges) == this.rows.size();
+            final Edge<ECOccurrenceNode, BindingNode> firstEdge = edges.iterator().next();
+            final Function<Edge<ECOccurrenceNode, BindingNode>, AssignmentGraphNode<?>> getter =
+                    this.node2Row.containsKey(firstEdge.getSource()) ? Edge::getSource : Edge::getTarget;
+            edges.forEach(edge -> this.node2Row.get(getter.apply(edge)).addEdge(edge));
         }
 
         public int getRowCount() {
-            return this.ccCount;
+            return this.rows.size();
         }
     }
 
@@ -80,14 +116,18 @@ public class Block {
         this.filterPartition = new FilterPartition();
     }
 
-    public Block(final Block other) {
-        this.graph = other.graph;
-        this.rows = new BlockRows(other.rows);
-        this.columns = other.columns.stream().map(Column::copy).collect(toHashSet());
+    public Block(final BlockInterface other) {
+        this.graph = other.getGraph();
+        this.rows = new BlockRows(other.getRows());
+        this.columns = other.getColumns().stream().map(Column::copy).collect(toHashSet());
         this.factVariablesUsed = Sets.newIdentityHashSet();
-        this.factVariablesUsed.addAll(other.factVariablesUsed);
-        this.templateInstancePartition = new TemplateInstancePartition(other.templateInstancePartition);
-        this.filterPartition = new FilterPartition(other.filterPartition);
+        this.factVariablesUsed.addAll(other.getFactVariablesUsed());
+        this.templateInstancePartition = new TemplateInstancePartition(other.getTemplateInstancePartition());
+        this.filterPartition = new FilterPartition(other.getFilterPartition());
+    }
+
+    public IncompleteBlock beginExtension() {
+        return new IncompleteBlock(this);
     }
 
     @Override
@@ -96,10 +136,12 @@ public class Block {
                 .toString(this.columns);
     }
 
+    @Override
     public int getNumberOfRows() {
         return this.rows.getRowCount();
     }
 
+    @Override
     public int getNumberOfColumns() {
         return this.columns.size();
     }
@@ -289,8 +331,8 @@ public class Block {
                     if (outgoingEdgesOfOtherOccurrence.size() < 2) {
                         continue;
                     }
-                    for (final Edge<ECOccurrenceNode, BindingNode> outgoingEdgeOfOtherOccurrence
-                            : outgoingEdgesOfOtherOccurrence) {
+                    for (final Edge<ECOccurrenceNode, BindingNode> outgoingEdgeOfOtherOccurrence :
+                            outgoingEdgesOfOtherOccurrence) {
                         if (outgoingEdgeOfOtherOccurrence == otherEdgeToBinding) {
                             continue;
                         }
@@ -381,7 +423,7 @@ public class Block {
             if (0 == edgeCount) {
                 throw new InconsistentBlockColumnException("A block column is empty!");
             }
-            final Set<ECOccurrenceNode> sourceNodes = column.getSourceNodes();
+            final Set<ECOccurrenceNode> sourceNodes = column.getSourceNodeSet();
             if (edgeCount != sourceNodes.size()) {
                 throw new InconsistentBlockColumnException("Edges in block column overlap in source node!");
             }
@@ -391,7 +433,7 @@ public class Block {
                 throw new InconsistentBlockColumnException(
                         "Not all of the source nodes of a block column are of the correct type!");
             }
-            final Set<BindingNode> targetNodes = column.getTargetNodes();
+            final Set<BindingNode> targetNodes = column.getTargetNodeSet();
             if (edgeCount != targetNodes.size()) {
                 throw new InconsistentBlockColumnException("Edges in block column overlap in target node!");
             }

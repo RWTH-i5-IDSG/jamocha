@@ -22,6 +22,7 @@ import org.jamocha.dn.compiler.ecblocks.assignmentgraph.node.occurrence.Occurren
 import org.jamocha.visitor.Visitable;
 
 import java.util.Set;
+import java.util.stream.Stream;
 
 import static org.jamocha.util.Lambdas.toIdentityHashSet;
 
@@ -33,12 +34,28 @@ public interface Column<O extends ECOccurrenceNode, B extends BindingNode> exten
 
     Column<O, B> copy();
 
-    default Set<O> getSourceNodes() {
-        return this.getEdges().stream().map(AssignmentGraph.Edge::getSource).collect(toIdentityHashSet());
+    default Iterable<O> getSourceNodes() {
+        return getSourceNodeStream()::iterator;
     }
 
-    default Set<B> getTargetNodes() {
-        return this.getEdges().stream().map(AssignmentGraph.Edge::getTarget).collect(toIdentityHashSet());
+    default Set<O> getSourceNodeSet() {
+        return getSourceNodeStream().collect(toIdentityHashSet());
+    }
+
+    default Stream<O> getSourceNodeStream() {
+        return this.getEdges().stream().map(AssignmentGraph.Edge::getSource);
+    }
+
+    default Iterable<B> getTargetNodes() {
+        return getTargetNodeStream()::iterator;
+    }
+
+    default Set<B> getTargetNodeSet() {
+        return getTargetNodeStream().collect(toIdentityHashSet());
+    }
+
+    default Stream<B> getTargetNodeStream() {
+        return this.getEdges().stream().map(AssignmentGraph.Edge::getTarget);
     }
 
     OccurrenceType getOccurrenceType();
