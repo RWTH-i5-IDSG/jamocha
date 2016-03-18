@@ -12,51 +12,55 @@
  * the specific language governing permissions and limitations under the License.
  */
 
-package org.jamocha.dn.compiler.ecblocks.extendedcollections;
+package org.jamocha.dn.compiler.ecblocks.lazycollections.extend;
 
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.tuple.Pair;
+import org.jamocha.dn.compiler.ecblocks.lazycollections.LazyMap;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-public class MapWrapper<K, V> implements Map<K, V> {
+public class IdentityMapExtender<K, V> extends LazyMap<K, V> {
     private final Map<K, V> wrapped;
-    private final Map.Entry<K, V> additionalEntry;
+    private final Entry<K, V> additionalEntry;
 
     @Getter(lazy = true, value = AccessLevel.PRIVATE)
-    private final SetWrapper<K> keySet = SetWrapper.with(this.wrapped.keySet(), this.additionalEntry.getKey());
+    private final Set<K> keySet = IdentitySetExtender.with(this.wrapped.keySet(), this.additionalEntry.getKey());
     @Getter(lazy = true, value = AccessLevel.PRIVATE)
-    private final CollectionWrapper<V> values =
-            CollectionWrapper.with(this.wrapped.values(), this.additionalEntry.getValue());
+    private final Collection<V> values = CollectionExtender.with(this.wrapped.values(), this.additionalEntry.getValue());
     @Getter(lazy = true, value = AccessLevel.PRIVATE)
-    private final SetWrapper<Map.Entry<K, V>> entrySet = SetWrapper.with(this.wrapped.entrySet(), this.additionalEntry);
+    private final Set<Entry<K, V>> entrySet = IdentitySetExtender.with(this.wrapped.entrySet(), this.additionalEntry);
     @Getter(lazy = true, value = AccessLevel.PRIVATE)
     private final int size = this.wrapped.size() + 1;
 
-    public static <K, V> MapWrapper<K, V> with(final Map<K, V> toWrap, final Entry<K, V> additionalEntry) {
-        return new MapWrapper<>(toWrap, additionalEntry);
+    public static <K, V> IdentityMapExtender<K, V> with(final Map<K, V> toWrap, final Entry<K, V> additionalEntry) {
+        if (toWrap.containsKey(additionalEntry.getKey())) {
+            throw new UnsupportedOperationException(
+                    "Hiding keys of the wrapped map is not supported, since it is too error-prone!");
+        }
+        return new IdentityMapExtender<>(toWrap, additionalEntry);
     }
 
-    public static <K, V> MapWrapper<K, V> with(final Map<K, V> toWrap, final K additionalKey, final V additionalValue) {
+    public static <K, V> IdentityMapExtender<K, V> with(final Map<K, V> toWrap, final K additionalKey,
+            final V additionalValue) {
         return with(toWrap, Pair.of(additionalKey, additionalValue));
     }
 
-    public MapWrapper<K, V> with(final Entry<K, V> additionalEntry) {
+    public IdentityMapExtender<K, V> with(final Entry<K, V> additionalEntry) {
         return with(this, additionalEntry);
     }
 
-    public MapWrapper<K, V> with(final K additionalKey, final V additionalValue) {
+    public IdentityMapExtender<K, V> with(final K additionalKey, final V additionalValue) {
         return with(this, additionalKey, additionalValue);
-    }
-
-    public HashMap<K, V> toHashMap() {
-        return new HashMap<>(this);
     }
 
     @Override
@@ -86,7 +90,7 @@ public class MapWrapper<K, V> implements Map<K, V> {
 
     @Override
     public boolean containsKey(final Object key) {
-        return Objects.equals(this.additionalEntry.getKey(), key) || this.wrapped.containsKey(key);
+        return this.additionalEntry.getKey() == key || this.wrapped.containsKey(key);
     }
 
     @Override
@@ -96,27 +100,7 @@ public class MapWrapper<K, V> implements Map<K, V> {
 
     @Override
     public V get(final Object key) {
-        if (Objects.equals(this.additionalEntry.getKey(), key)) return this.additionalEntry.getValue();
+        if (this.additionalEntry.getKey() == key) return this.additionalEntry.getValue();
         return this.wrapped.get(key);
-    }
-
-    @Override
-    public V put(final K key, final V value) {
-        throw new UnsupportedOperationException("MapWrapper is immutable!");
-    }
-
-    @Override
-    public V remove(final Object key) {
-        throw new UnsupportedOperationException("MapWrapper is immutable!");
-    }
-
-    @Override
-    public void putAll(final Map<? extends K, ? extends V> m) {
-        throw new UnsupportedOperationException("MapWrapper is immutable!");
-    }
-
-    @Override
-    public void clear() {
-        throw new UnsupportedOperationException("MapWrapper is immutable!");
     }
 }
