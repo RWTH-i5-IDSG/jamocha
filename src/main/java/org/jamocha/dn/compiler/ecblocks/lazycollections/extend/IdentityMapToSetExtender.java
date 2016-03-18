@@ -37,7 +37,9 @@ public class IdentityMapToSetExtender<K, V> extends LazyMap<K, Set<V>> {
     private final V additionalValue;
 
     @Getter(lazy = true, value = AccessLevel.PRIVATE)
-    private final Map.Entry<K, Set<V>> entry = Pair.of(this.additionalKey, ImmutableSet.of(this.additionalValue));
+    private final Set<V> valueAsSet = ImmutableSet.of(this.additionalValue);
+    @Getter(lazy = true, value = AccessLevel.PRIVATE)
+    private final Map.Entry<K, Set<V>> entry = Pair.of(this.additionalKey, getValueAsSet());
     @Getter(lazy = true, value = AccessLevel.PRIVATE)
     private final Set<K> keySet = IdentitySetExtender.with(this.wrapped.keySet(), this.additionalKey);
     @Getter(lazy = true, value = AccessLevel.PRIVATE)
@@ -60,7 +62,7 @@ public class IdentityMapToSetExtender<K, V> extends LazyMap<K, Set<V>> {
     private Collection<Set<V>> determineValues() {
         final Set<V> toExtend = this.wrapped.get(this.additionalKey);
         if (null == toExtend) {
-            return CollectionExtender.with(this.wrapped.values(), getEntry().getValue());
+            return CollectionExtender.with(this.wrapped.values(), getValueAsSet());
         }
         final Set<V> extended = IdentitySetExtender.with(toExtend, this.additionalValue);
         return new ReplacingCollection<>(this.wrapped.values(), toExtend, extended, (a, b) -> a == b);
@@ -109,6 +111,6 @@ public class IdentityMapToSetExtender<K, V> extends LazyMap<K, Set<V>> {
         if (null != there) {
             return IdentitySetExtender.with(there, this.additionalValue);
         }
-        return getEntry().getValue();
+        return getValueAsSet();
     }
 }

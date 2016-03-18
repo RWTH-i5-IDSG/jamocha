@@ -24,7 +24,6 @@ import org.jamocha.dn.compiler.ecblocks.lazycollections.ReplacingCollection;
 import org.jamocha.dn.compiler.ecblocks.lazycollections.ReplacingSet;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 

@@ -36,7 +36,8 @@ public class IdentityMapExtender<K, V> extends LazyMap<K, V> {
     @Getter(lazy = true, value = AccessLevel.PRIVATE)
     private final Set<K> keySet = IdentitySetExtender.with(this.wrapped.keySet(), this.additionalEntry.getKey());
     @Getter(lazy = true, value = AccessLevel.PRIVATE)
-    private final Collection<V> values = CollectionExtender.with(this.wrapped.values(), this.additionalEntry.getValue());
+    private final Collection<V> values =
+            CollectionExtender.with(this.wrapped.values(), this.additionalEntry.getValue());
     @Getter(lazy = true, value = AccessLevel.PRIVATE)
     private final Set<Entry<K, V>> entrySet = IdentitySetExtender.with(this.wrapped.entrySet(), this.additionalEntry);
     @Getter(lazy = true, value = AccessLevel.PRIVATE)
