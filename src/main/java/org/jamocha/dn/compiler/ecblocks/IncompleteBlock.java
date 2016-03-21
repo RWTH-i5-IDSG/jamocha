@@ -139,6 +139,11 @@ public class IncompleteBlock implements BlockInterface {
     }
 
     @Override
+    public BindingPartition getBindingPartition() {
+        return this.block.getBindingPartition();
+    }
+
+    @Override
     public FilterPartition getFilterPartition() {
         return this.block.getFilterPartition();
     }

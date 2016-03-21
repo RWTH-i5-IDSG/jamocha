@@ -186,6 +186,7 @@ public class Block implements BlockInterface {
     final Set<Column<ECOccurrenceNode, BindingNode>> columns;
     final Set<SingleFactVariable> factVariablesUsed;
     final TemplateInstancePartition templateInstancePartition;
+    final BindingPartition bindingPartition;
     final FilterPartition filterPartition;
 
     public Block(final AssignmentGraph graph) {
@@ -194,6 +195,7 @@ public class Block implements BlockInterface {
         this.columns = new HashSet<>();
         this.factVariablesUsed = Sets.newIdentityHashSet();
         this.templateInstancePartition = new TemplateInstancePartition();
+        this.bindingPartition = new BindingPartition();
         this.filterPartition = new FilterPartition();
     }
 
@@ -204,6 +206,7 @@ public class Block implements BlockInterface {
         this.factVariablesUsed = Sets.newIdentityHashSet();
         this.factVariablesUsed.addAll(other.getFactVariablesUsed());
         this.templateInstancePartition = new TemplateInstancePartition(other.getTemplateInstancePartition());
+        this.bindingPartition = new BindingPartition(other.getBindingPartition());
         this.filterPartition = new FilterPartition(other.getFilterPartition());
     }
 

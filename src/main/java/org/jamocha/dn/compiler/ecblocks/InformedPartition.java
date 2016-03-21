@@ -14,6 +14,7 @@
 
 package org.jamocha.dn.compiler.ecblocks;
 
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.jamocha.dn.compiler.ecblocks.InformedPartition.InformedSubSet;
 
@@ -30,7 +31,8 @@ import static org.jamocha.util.Lambdas.newIdentityHashSet;
 @RequiredArgsConstructor
 public class InformedPartition<T, I, S extends InformedSubSet<T, I>> extends Partition<T, S> {
     public static class InformedSubSet<T, I> extends Partition.SubSet<T> {
-        final I info;
+        @Getter
+        protected final I info;
 
         public InformedSubSet(final IdentityHashMap<RowIdentifier, T> elements, final I info) {
             super(elements);
@@ -47,26 +49,30 @@ public class InformedPartition<T, I, S extends InformedSubSet<T, I>> extends Par
         }
     }
 
-    final IdentityHashMap<I, Set<InformedSubSet<T, I>>> filterLookup = new IdentityHashMap<>();
+    protected final IdentityHashMap<I, Set<S>> informedLookup = new IdentityHashMap<>();
 
     public InformedPartition(final InformedPartition<T, I, S> copy, final Function<S, S> copyCtor) {
         super(copy, copyCtor);
-        this.filterLookup.putAll(copy.filterLookup);
+        this.informedLookup.putAll(copy.informedLookup);
     }
 
     @Override
     public void add(final S informedSubSet) {
         super.add(informedSubSet);
-        this.filterLookup.computeIfAbsent(informedSubSet.info, newIdentityHashSet()).add(informedSubSet);
+        this.informedLookup.computeIfAbsent(informedSubSet.info, newIdentityHashSet()).add(informedSubSet);
     }
 
     @Override
     public boolean remove(final S informedSubSet) {
         if (!super.remove(informedSubSet)) return false;
-        this.filterLookup.compute(informedSubSet.info, (t, s) -> {
+        this.informedLookup.compute(informedSubSet.info, (t, s) -> {
             s.remove(informedSubSet);
             return s.isEmpty() ? null : s;
         });
         return true;
+    }
+
+    public Set<S> lookupInformed(final I key) {
+        return this.informedLookup.get(key);
     }
 }

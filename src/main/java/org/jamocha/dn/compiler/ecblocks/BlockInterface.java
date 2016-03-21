@@ -36,6 +36,8 @@ public interface BlockInterface {
 
     TemplateInstancePartition getTemplateInstancePartition();
 
+    BindingPartition getBindingPartition();
+
     FilterPartition getFilterPartition();
 
     int getNumberOfRows();

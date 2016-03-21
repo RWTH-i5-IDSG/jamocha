@@ -51,8 +51,8 @@ public class Partition<T, S extends Partition.SubSet<T>> {
         }
     }
 
-    final Set<S> subSets = new HashSet<>();
-    final HashMap<T, S> lookup = new HashMap<>();
+    protected final Set<S> subSets = new HashSet<>();
+    protected final HashMap<T, S> lookup = new HashMap<>();
 
     public Partition(final Partition<T, S> copy, final Function<S, S> copyCtor) {
         copy.subSets.stream().map(copyCtor).forEach(this.subSets::add);
