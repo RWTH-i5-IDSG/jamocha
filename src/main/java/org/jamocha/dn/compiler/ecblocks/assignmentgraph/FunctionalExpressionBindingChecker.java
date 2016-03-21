@@ -17,6 +17,7 @@ package org.jamocha.dn.compiler.ecblocks.assignmentgraph;
 import com.google.common.collect.Sets;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import org.jamocha.dn.compiler.ecblocks.Block;
 import org.jamocha.dn.compiler.ecblocks.assignmentgraph.node.binding.BindingNode;
 import org.jamocha.dn.compiler.ecblocks.assignmentgraph.node.binding.FunctionalExpressionBindingNode;
 import org.jamocha.dn.compiler.ecblocks.assignmentgraph.node.occurrence.ECOccurrenceNode;
@@ -33,16 +34,15 @@ import java.util.Set;
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public class FunctionalExpressionBindingChecker {
     final AssignmentGraph assignmentGraph;
-    final AssignmentGraph.UnrestrictedGraph.SubGraph subgraph;
+    final Block.RowContainer rows;
 
     final Set<FunctionalExpressionBindingNode> seen = Sets.newIdentityHashSet();
     final Set<FunctionalExpressionBindingNode> valid = Sets.newIdentityHashSet();
 
-    public static boolean check(final AssignmentGraph assignmentGraph,
-            final AssignmentGraph.UnrestrictedGraph.SubGraph subgraph,
+    public static boolean check(final AssignmentGraph assignmentGraph, final Block.RowContainer rows,
             final Set<FunctionalExpressionBindingNode> nodes) {
         final FunctionalExpressionBindingChecker functionalExpressionBindingChecker =
-                new FunctionalExpressionBindingChecker(assignmentGraph, subgraph);
+                new FunctionalExpressionBindingChecker(assignmentGraph, rows);
         for (final FunctionalExpressionBindingNode node : nodes) {
             if (!functionalExpressionBindingChecker.check(node)) return false;
         }
@@ -72,7 +72,7 @@ public class FunctionalExpressionBindingChecker {
 
         void check(final FunctionalExpressionOccurrenceNode occurrenceNode) {
             final Set<AssignmentGraph.Edge<ECOccurrenceNode, BindingNode>> edges =
-                    subgraph.outgoingEdgesOf(occurrenceNode);
+                    rows.getRow(occurrenceNode).outgoingEdgesOf(occurrenceNode);
             for (final AssignmentGraph.Edge<ECOccurrenceNode, BindingNode> edge : edges) {
                 final BindingNode target = edge.getTarget();
                 switch (target.getNodeType()) {

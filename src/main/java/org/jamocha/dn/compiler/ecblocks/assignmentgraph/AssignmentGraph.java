@@ -13,6 +13,7 @@
  */
 package org.jamocha.dn.compiler.ecblocks.assignmentgraph;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import lombok.AccessLevel;
@@ -21,12 +22,15 @@ import lombok.RequiredArgsConstructor;
 import lombok.Value;
 import org.jamocha.dn.ConstructCache;
 import org.jamocha.dn.compiler.ecblocks.*;
-import org.jamocha.dn.compiler.ecblocks.assignmentgraph.node.AssignmentGraphNode;
 import org.jamocha.dn.compiler.ecblocks.assignmentgraph.node.binding.*;
 import org.jamocha.dn.compiler.ecblocks.assignmentgraph.node.occurrence.ECOccurrenceNode;
 import org.jamocha.dn.compiler.ecblocks.assignmentgraph.node.occurrence.FilterOccurrenceNode;
 import org.jamocha.dn.compiler.ecblocks.assignmentgraph.node.occurrence.FunctionalExpressionOccurrenceNode;
 import org.jamocha.dn.compiler.ecblocks.assignmentgraph.node.occurrence.ImplicitOccurrenceNode;
+import org.jamocha.dn.compiler.ecblocks.lazycollections.extend.IdentityMapToSetExtender;
+import org.jamocha.dn.compiler.ecblocks.lazycollections.extend.IdentitySetExtender;
+import org.jamocha.dn.compiler.ecblocks.lazycollections.reduce.IdentityMapToSetReducer;
+import org.jamocha.dn.compiler.ecblocks.lazycollections.reduce.IdentitySetReducer;
 import org.jamocha.dn.memory.Template;
 import org.jamocha.filter.ECCollector;
 import org.jamocha.filter.ECFilter;
@@ -38,7 +42,6 @@ import org.jamocha.languages.common.RuleCondition.EquivalenceClass;
 import org.jamocha.languages.common.SingleFactVariable;
 
 import java.util.*;
-import java.util.function.BiFunction;
 
 import static org.jamocha.util.Lambdas.newIdentityHashSet;
 import static org.jamocha.util.Lambdas.toIdentityHashSet;
@@ -91,15 +94,14 @@ public class AssignmentGraph {
         final B target;
     }
 
+    @RequiredArgsConstructor
     public abstract class Graph {
-        final IdentityHashMap<ECOccurrenceNode, Set<Edge<ECOccurrenceNode, BindingNode>>> outgoingEdges =
-                new IdentityHashMap<>();
-        final IdentityHashMap<BindingNode, Set<Edge<ECOccurrenceNode, BindingNode>>> incomingEdges =
-                new IdentityHashMap<>();
-        final Set<Edge<ECOccurrenceNode, BindingNode>> edgeSet = Sets.newIdentityHashSet();
+        final Map<ECOccurrenceNode, Set<Edge<ECOccurrenceNode, BindingNode>>> outgoingEdges;
+        final Map<BindingNode, Set<Edge<ECOccurrenceNode, BindingNode>>> incomingEdges;
+        final Set<Edge<ECOccurrenceNode, BindingNode>> edgeSet;
 
         public Set<Edge<ECOccurrenceNode, BindingNode>> edgeSet() {
-            return ImmutableSet.copyOf(this.edgeSet);
+            return this.edgeSet;
         }
 
         public boolean containsEdge(final Edge<ECOccurrenceNode, BindingNode> edge) {
@@ -120,7 +122,7 @@ public class AssignmentGraph {
         }
 
         public Set<Edge<ECOccurrenceNode, BindingNode>> incomingEdgesOf(final BindingNode target) {
-            return ImmutableSet.copyOf(getIncomingEdges(target));
+            return getIncomingEdges(target);
         }
 
         public int inDegreeOf(final BindingNode target) {
@@ -133,7 +135,7 @@ public class AssignmentGraph {
         }
 
         public Set<Edge<ECOccurrenceNode, BindingNode>> outgoingEdgesOf(final ECOccurrenceNode source) {
-            return ImmutableSet.copyOf(getOutgoingEdges(source));
+            return getOutgoingEdges(source);
         }
 
         public int outDegreeOf(final ECOccurrenceNode source) {
@@ -150,6 +152,10 @@ public class AssignmentGraph {
     }
 
     public class UnrestrictedGraph extends Graph {
+        public UnrestrictedGraph() {
+            super(new IdentityHashMap<>(), new IdentityHashMap<>(), Sets.newIdentityHashSet());
+        }
+
         public boolean addEdge(final ECOccurrenceNode source, final BindingNode target) {
             final Set<Edge<ECOccurrenceNode, BindingNode>> outEdges =
                     this.outgoingEdges.computeIfAbsent(source, newIdentityHashSet());
@@ -163,52 +169,51 @@ public class AssignmentGraph {
             return true;
         }
 
-        public SubGraph newSubGraph() {
-            return new SubGraph();
+        public SubGraph newSubGraph(final Edge<ECOccurrenceNode, BindingNode> edge) {
+            return new SubGraph(edge);
         }
 
-        public SubGraph newSubGraph(final SubGraph subGraph) {
-            return new SubGraph(subGraph);
-        }
-
-        @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
         public class SubGraph extends Graph {
-            public SubGraph(final SubGraph other) {
-                this.outgoingEdges.putAll(other.outgoingEdges);
-                this.incomingEdges.putAll(other.incomingEdges);
-                this.edgeSet.addAll(other.edgeSet);
+            public SubGraph(final Map<ECOccurrenceNode, Set<Edge<ECOccurrenceNode, BindingNode>>> outgoingEdges,
+                    final Map<BindingNode, Set<Edge<ECOccurrenceNode, BindingNode>>> incomingEdges,
+                    final Set<Edge<ECOccurrenceNode, BindingNode>> edgeSet) {
+                super(outgoingEdges, incomingEdges, edgeSet);
             }
 
-            public boolean addEdge(final Edge<ECOccurrenceNode, BindingNode> edge) {
-                assert UnrestrictedGraph.this.edgeSet.contains(edge);
-                final boolean added = this.edgeSet.add(edge);
-                if (!added) return false;
-                this.outgoingEdges.computeIfAbsent(edge.getSource(), newIdentityHashSet()).add(edge);
-                this.incomingEdges.computeIfAbsent(edge.getTarget(), newIdentityHashSet()).add(edge);
-                return true;
+            public SubGraph(final Edge<ECOccurrenceNode, BindingNode> edge) {
+                this(edge.getSource(), edge.getTarget(), ImmutableSet.of(edge));
             }
 
-            public boolean removeEdge(final Edge<ECOccurrenceNode, BindingNode> edge) {
+            private SubGraph(final ECOccurrenceNode source, final BindingNode target,
+                    final ImmutableSet<Edge<ECOccurrenceNode, BindingNode>> singleton) {
+                this(ImmutableMap.of(source, singleton), ImmutableMap.of(target, singleton), singleton);
+                assert 1 == singleton.size();
+            }
+
+            public SubGraph addEdge(final Edge<ECOccurrenceNode, BindingNode> edge) {
                 assert UnrestrictedGraph.this.edgeSet.contains(edge);
-                final boolean removed = this.edgeSet.remove(edge);
-                if (!removed) return false;
-                final BiFunction<AssignmentGraphNode<?>, Set<Edge<ECOccurrenceNode, BindingNode>>,
-                        Set<Edge<ECOccurrenceNode, BindingNode>>>
-                        edgeRemover = (k, set) -> {
-                    set.remove(edge);
-                    return set.isEmpty() ? null : set;
-                };
-                this.outgoingEdges.compute(edge.getSource(), edgeRemover);
-                this.incomingEdges.compute(edge.getTarget(), edgeRemover);
-                return true;
+                final boolean contained = this.edgeSet.contains(edge);
+                if (contained) throw new IllegalArgumentException("Edge already contained!");
+                return new SubGraph(IdentityMapToSetExtender.with(this.outgoingEdges, edge.getSource(), edge),
+                        IdentityMapToSetExtender.with(this.incomingEdges, edge.getTarget(), edge),
+                        IdentitySetExtender.with(this.edgeSet, edge));
+            }
+
+            public SubGraph removeEdge(final Edge<ECOccurrenceNode, BindingNode> edge) {
+                assert UnrestrictedGraph.this.edgeSet.contains(edge);
+                final boolean contained = this.edgeSet.contains(edge);
+                if (!contained) throw new IllegalArgumentException("Edge not contained!");
+                return new SubGraph(IdentityMapToSetReducer.without(this.outgoingEdges, edge.getSource(), edge),
+                        IdentityMapToSetReducer.without(this.incomingEdges, edge.getTarget(), edge),
+                        IdentitySetReducer.without(this.edgeSet, edge));
             }
 
             public Set<ECOccurrenceNode> occurrenceNodeSet() {
-                return ImmutableSet.copyOf(this.outgoingEdges.keySet());
+                return this.outgoingEdges.keySet();
             }
 
             public Set<BindingNode> bindingNodeSet() {
-                return ImmutableSet.copyOf(this.incomingEdges.keySet());
+                return this.incomingEdges.keySet();
             }
         }
     }

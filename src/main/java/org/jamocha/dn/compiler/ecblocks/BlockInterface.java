@@ -28,7 +28,7 @@ import java.util.Set;
 public interface BlockInterface {
     AssignmentGraph getGraph();
 
-    Block.BlockRows getRows();
+    Block.RowContainer getRowContainer();
 
     Set<Column<ECOccurrenceNode, BindingNode>> getColumns();
 

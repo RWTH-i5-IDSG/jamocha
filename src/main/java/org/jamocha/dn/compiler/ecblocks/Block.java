@@ -13,9 +13,13 @@
  */
 package org.jamocha.dn.compiler.ecblocks;
 
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import org.jamocha.dn.compiler.ecblocks.assignmentgraph.AssignmentGraph;
 import org.jamocha.dn.compiler.ecblocks.assignmentgraph.AssignmentGraph.Edge;
 import org.jamocha.dn.compiler.ecblocks.assignmentgraph.ConnectedComponentCounter;
@@ -26,6 +30,8 @@ import org.jamocha.dn.compiler.ecblocks.assignmentgraph.node.binding.*;
 import org.jamocha.dn.compiler.ecblocks.assignmentgraph.node.occurrence.*;
 import org.jamocha.dn.compiler.ecblocks.column.Column;
 import org.jamocha.dn.compiler.ecblocks.exceptions.*;
+import org.jamocha.dn.compiler.ecblocks.lazycollections.extend.MapCombiner;
+import org.jamocha.dn.compiler.ecblocks.lazycollections.reduce.MapSubtractor;
 import org.jamocha.filter.ECFilter;
 import org.jamocha.languages.common.SingleFactVariable;
 import org.paukov.combinatorics.Factory;
@@ -34,7 +40,6 @@ import org.paukov.combinatorics.ICombinatoricsVector;
 
 import java.util.*;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.*;
 import static org.jamocha.util.Lambdas.toHashSet;
@@ -46,62 +51,138 @@ import static org.jamocha.util.Lambdas.toIdentityHashSet;
 @Getter
 public class Block implements BlockInterface {
 
-    @Getter
-    protected class BlockRows {
+    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+    public class RowContainer {
+        @Getter
         final AssignmentGraph assignmentGraph;
-        //        final AssignmentGraph.UnrestrictedGraph.SubGraph subgraph;
-        final Map<AssignmentGraphNode<?>, AssignmentGraph.UnrestrictedGraph.SubGraph> node2Row;
-        final Set<AssignmentGraph.UnrestrictedGraph.SubGraph> rows;
+        final Map<AssignmentGraphNode<?>, RowIdentifier> wNode2Identifier;
+        final BiMap<AssignmentGraph.UnrestrictedGraph.SubGraph, RowIdentifier> row2Identifier;
 
-        BlockRows(final AssignmentGraph assignmentGraph) {
+        RowContainer(final AssignmentGraph assignmentGraph) {
             this.assignmentGraph = assignmentGraph;
-            this.rows = new HashSet<>();
-            this.node2Row = new HashMap<>();
+            this.wNode2Identifier = new HashMap<>();
+            this.row2Identifier = HashBiMap.create();
         }
 
-        BlockRows(final BlockRows other) {
+        RowContainer(final RowContainer other) {
             this.assignmentGraph = other.assignmentGraph;
-            this.rows =
-                    other.rows.stream().map(other.assignmentGraph.getGraph()::newSubGraph).collect(Collectors.toSet());
-            this.node2Row = new HashMap<>(other.node2Row);
+            this.wNode2Identifier = new IdentityHashMap<>(other.wNode2Identifier);
+            this.row2Identifier = HashBiMap.create(other.row2Identifier);
         }
 
-        public void removeRow(final AssignmentGraphNode<?> representative) {
-            removeRow(this.node2Row.get(representative));
+        public AssignmentGraph.UnrestrictedGraph.SubGraph getRow(final AssignmentGraphNode<?> node) {
+            return this.row2Identifier.inverse().get(this.wNode2Identifier.get(node));
         }
 
-        public void removeRow(final AssignmentGraph.UnrestrictedGraph.SubGraph row) {
+        public Set<AssignmentGraph.UnrestrictedGraph.SubGraph> getRows() {
+            return this.row2Identifier.keySet();
+        }
+
+        public RowContainer removeRow(final AssignmentGraphNode<?> representative) {
+            return removeRow(getRow(representative));
+        }
+
+        public RowContainer removeRow(final AssignmentGraph.UnrestrictedGraph.SubGraph row) {
+            final RowIdentifier rowIdentifier = this.row2Identifier.get(row);
+            final Map<AssignmentGraphNode<?>, RowIdentifier> hideNode2Identifier = new IdentityHashMap<>();
             for (final Edge<ECOccurrenceNode, BindingNode> edge : row.edgeSet()) {
-                this.node2Row.remove(edge.getSource());
-                this.node2Row.remove(edge.getTarget());
+                hideNode2Identifier.put(edge.getSource(), rowIdentifier);
+                hideNode2Identifier.put(edge.getTarget(), rowIdentifier);
             }
-            this.rows.remove(row);
+            final Map<AssignmentGraphNode<?>, RowIdentifier> wNode2Identifier =
+                    MapSubtractor.without(this.wNode2Identifier, hideNode2Identifier);
+            final BiMap<AssignmentGraph.UnrestrictedGraph.SubGraph, RowIdentifier> row2Identifier =
+                    HashBiMap.create(this.row2Identifier);
+            row2Identifier.remove(row);
+            return new RowContainer(this.assignmentGraph, wNode2Identifier, row2Identifier);
         }
 
-        public void addColumn(final Iterable<Edge<ECOccurrenceNode, BindingNode>> edges) {
-            if (this.rows.isEmpty()) {
+        public RowContainer addRow(final AssignmentGraphNode<?> representative) {
+            return addRow(getRow(representative));
+        }
+
+        public RowContainer addRow(final AssignmentGraph.UnrestrictedGraph.SubGraph row) {
+            assert row.edgeSet().size() == this.row2Identifier.keySet().iterator().next().edgeSet().size();
+            final RowIdentifier rowIdentifier = new RowIdentifier();
+            final Map<AssignmentGraphNode<?>, RowIdentifier> newNode2Identifier = new IdentityHashMap<>();
+            for (final Edge<ECOccurrenceNode, BindingNode> edge : row.edgeSet()) {
+                newNode2Identifier.put(edge.getSource(), rowIdentifier);
+                newNode2Identifier.put(edge.getTarget(), rowIdentifier);
+            }
+            final Map<AssignmentGraphNode<?>, RowIdentifier> wNode2Identifier =
+                    MapCombiner.with(this.wNode2Identifier, newNode2Identifier);
+            final BiMap<AssignmentGraph.UnrestrictedGraph.SubGraph, RowIdentifier> row2Identifier =
+                    HashBiMap.create(this.row2Identifier);
+            row2Identifier.put(row, rowIdentifier);
+            return new RowContainer(this.assignmentGraph, wNode2Identifier, row2Identifier);
+        }
+
+        public RowContainer removeColumn(final Iterable<Edge<ECOccurrenceNode, BindingNode>> edges) {
+            assert Iterables.size(edges) == getRowCount();
+            final Edge<ECOccurrenceNode, BindingNode> firstEdge = edges.iterator().next();
+            // since the edge has to be in the row, both source and target can be used to determine the row!
+            final AssignmentGraph.UnrestrictedGraph.SubGraph firstRow = getRow(firstEdge.getSource());
+            final boolean sourceIsolated = 1 == firstRow.outDegreeOf(firstEdge.getSource());
+            final boolean targetIsolated = 1 == firstRow.inDegreeOf(firstEdge.getTarget());
+            final BiMap<AssignmentGraph.UnrestrictedGraph.SubGraph, RowIdentifier> row2Identifier =
+                    HashBiMap.create(this.row2Identifier.size());
+            final Map<AssignmentGraphNode<?>, RowIdentifier> hideNode2Identifier = new IdentityHashMap<>();
+            for (final Edge<ECOccurrenceNode, BindingNode> edge : edges) {
+                // since the edge has to be in the row, both source and target can be used to determine the row!
+                final ECOccurrenceNode source = edge.getSource();
+                final AssignmentGraph.UnrestrictedGraph.SubGraph oldRow = getRow(source);
+                final AssignmentGraph.UnrestrictedGraph.SubGraph newRow = oldRow.removeEdge(edge);
+                final RowIdentifier rowIdentifier = this.row2Identifier.get(oldRow);
+                row2Identifier.put(newRow, rowIdentifier);
+                if (sourceIsolated) hideNode2Identifier.put(source, rowIdentifier);
+                if (targetIsolated) hideNode2Identifier.put(edge.getTarget(), rowIdentifier);
+            }
+            final Map<AssignmentGraphNode<?>, RowIdentifier> wNode2Identifier =
+                    MapSubtractor.without(this.wNode2Identifier, hideNode2Identifier);
+            return new RowContainer(this.assignmentGraph, wNode2Identifier, row2Identifier);
+        }
+
+        public RowContainer addColumn(final Iterable<Edge<ECOccurrenceNode, BindingNode>> edges) {
+            if (this.row2Identifier.isEmpty()) {
+                final BiMap<AssignmentGraph.UnrestrictedGraph.SubGraph, RowIdentifier> row2Identifier =
+                        HashBiMap.create();
+                final Map<AssignmentGraphNode<?>, RowIdentifier> wNode2Identifier = new IdentityHashMap<>();
                 for (final Edge<ECOccurrenceNode, BindingNode> edge : edges) {
                     final AssignmentGraph.UnrestrictedGraph.SubGraph subGraph =
-                            this.assignmentGraph.getGraph().newSubGraph();
-                    subGraph.addEdge(edge);
-                    this.rows.add(subGraph);
+                            this.assignmentGraph.getGraph().newSubGraph(edge);
+                    final RowIdentifier rowIdentifier = new RowIdentifier();
+                    row2Identifier.put(subGraph, rowIdentifier);
+                    wNode2Identifier.put(edge.getSource(), rowIdentifier);
+                    wNode2Identifier.put(edge.getTarget(), rowIdentifier);
                 }
-                return;
+                return new RowContainer(this.assignmentGraph, wNode2Identifier, row2Identifier);
             }
-            assert Iterables.size(edges) == this.rows.size();
+            assert Iterables.size(edges) == getRowCount();
             final Edge<ECOccurrenceNode, BindingNode> firstEdge = edges.iterator().next();
             final Function<Edge<ECOccurrenceNode, BindingNode>, AssignmentGraphNode<?>> getter =
-                    this.node2Row.containsKey(firstEdge.getSource()) ? Edge::getSource : Edge::getTarget;
-            edges.forEach(edge -> this.node2Row.get(getter.apply(edge)).addEdge(edge));
+                    this.wNode2Identifier.containsKey(firstEdge.getSource()) ? Edge::getSource : Edge::getTarget;
+            final BiMap<AssignmentGraph.UnrestrictedGraph.SubGraph, RowIdentifier> row2Identifier = HashBiMap.create();
+            final Map<AssignmentGraphNode<?>, RowIdentifier> newNode2Identifier = new IdentityHashMap<>();
+            for (final Edge<ECOccurrenceNode, BindingNode> edge : edges) {
+                final AssignmentGraph.UnrestrictedGraph.SubGraph oldRow = getRow(getter.apply(edge));
+                final AssignmentGraph.UnrestrictedGraph.SubGraph newRow = oldRow.addEdge(edge);
+                final RowIdentifier rowIdentifier = this.row2Identifier.get(oldRow);
+                row2Identifier.put(newRow, rowIdentifier);
+                newNode2Identifier.put(edge.getSource(), rowIdentifier);
+                newNode2Identifier.put(edge.getTarget(), rowIdentifier);
+            }
+            final Map<AssignmentGraphNode<?>, RowIdentifier> wNode2Identifier =
+                    MapCombiner.with(this.wNode2Identifier, newNode2Identifier);
+            return new RowContainer(this.assignmentGraph, wNode2Identifier, row2Identifier);
         }
 
         public int getRowCount() {
-            return this.rows.size();
+            return getRows().size();
         }
     }
 
     final AssignmentGraph graph;
-    final BlockRows rows;
+    final RowContainer rowContainer;
     final Set<Column<ECOccurrenceNode, BindingNode>> columns;
     final Set<SingleFactVariable> factVariablesUsed;
     final TemplateInstancePartition templateInstancePartition;
@@ -109,7 +190,7 @@ public class Block implements BlockInterface {
 
     public Block(final AssignmentGraph graph) {
         this.graph = graph;
-        this.rows = new BlockRows(graph);
+        this.rowContainer = new RowContainer(graph);
         this.columns = new HashSet<>();
         this.factVariablesUsed = Sets.newIdentityHashSet();
         this.templateInstancePartition = new TemplateInstancePartition();
@@ -118,7 +199,7 @@ public class Block implements BlockInterface {
 
     public Block(final BlockInterface other) {
         this.graph = other.getGraph();
-        this.rows = new BlockRows(other.getRows());
+        this.rowContainer = new RowContainer(other.getRowContainer());
         this.columns = other.getColumns().stream().map(Column::copy).collect(toHashSet());
         this.factVariablesUsed = Sets.newIdentityHashSet();
         this.factVariablesUsed.addAll(other.getFactVariablesUsed());
@@ -138,7 +219,7 @@ public class Block implements BlockInterface {
 
     @Override
     public int getNumberOfRows() {
-        return this.rows.getRowCount();
+        return this.rowContainer.getRowCount();
     }
 
     @Override
@@ -184,9 +265,13 @@ public class Block implements BlockInterface {
         \end{itemize}
         */
 
-        final AssignmentGraph.UnrestrictedGraph.SubGraph subgraph = this.rows.getSubgraph();
-        final Set<BindingNode> bindingNodes = subgraph.bindingNodeSet();
-        final Set<ECOccurrenceNode> occurrenceNodes = subgraph.occurrenceNodeSet();
+        final RowContainer rowContainer = this.rowContainer;
+        final Set<BindingNode> bindingNodes =
+                rowContainer.getRows().stream().map(AssignmentGraph.UnrestrictedGraph.SubGraph::getBindingNodes)
+                        .flatMap(Set::stream).collect(toIdentityHashSet());
+        final Set<ECOccurrenceNode> occurrenceNodes =
+                rowContainer.getRows().stream().map(AssignmentGraph.UnrestrictedGraph.SubGraph::getECOccurrenceNodes)
+                        .flatMap(Set::stream).collect(toIdentityHashSet());
 
         final Set<FilterOccurrenceNode> filterOccurrenceNodes = Sets.newIdentityHashSet();
         final Set<FunctionalExpressionOccurrenceNode> functionalExpressionOccurrenceNodes = Sets.newIdentityHashSet();
@@ -196,7 +281,7 @@ public class Block implements BlockInterface {
         final Set<FunctionalExpressionBindingNode> functionalExpressionBindingNodes = Sets.newIdentityHashSet();
 
         for (final BindingNode bindingNode : bindingNodes) {
-            if (subgraph.incomingEdgesOf(bindingNode).isEmpty()) {
+            if (rowContainer.getRow(bindingNode).incomingEdgesOf(bindingNode).isEmpty()) {
                 throw new IllegalNodeDegreeException("A binding node without incoming edges has been detected!");
             }
             switch (bindingNode.getNodeType()) {
@@ -212,7 +297,7 @@ public class Block implements BlockInterface {
             }
         }
         for (final ECOccurrenceNode occurrenceNode : occurrenceNodes) {
-            if (subgraph.outgoingEdgesOf(occurrenceNode).isEmpty()) {
+            if (rowContainer.getRow(occurrenceNode).outgoingEdgesOf(occurrenceNode).isEmpty()) {
                 throw new IllegalNodeDegreeException("An occurrence node without outgoing edges has been detected!");
             }
             switch (occurrenceNode.getNodeType()) {
@@ -298,7 +383,8 @@ public class Block implements BlockInterface {
             for (final BindingNode binding : bindingNodes) {
                 final ImplicitOccurrenceNode implicitOccurrenceNode =
                         this.graph.getBindingNodeToImplicitOccurrence().get(binding);
-                if (subgraph.inDegreeOf(binding) > 1 ^ !subgraph.containsEdge(implicitOccurrenceNode, binding)) {
+                final AssignmentGraph.UnrestrictedGraph.SubGraph row = rowContainer.getRow(binding);
+                if (row.inDegreeOf(binding) > 1 ^ !row.containsEdge(implicitOccurrenceNode, binding)) {
                     throw new IllegalUseOfImplicitOccurrenceException(
                             "Edge to implicit occurrence is contained, but no other edge to that binding!");
                 }
@@ -315,19 +401,20 @@ public class Block implements BlockInterface {
             // if there is such a chain of edges, there has to be an edge from the original occurrence to each of the
             // latter bindings
             for (final BindingNode binding : bindingNodes) {
-                final Set<Edge<ECOccurrenceNode, BindingNode>> edgesToBinding = subgraph.incomingEdgesOf(binding);
+                final AssignmentGraph.UnrestrictedGraph.SubGraph row = rowContainer.getRow(binding);
+                final Set<Edge<ECOccurrenceNode, BindingNode>> edgesToBinding = row.incomingEdgesOf(binding);
                 if (edgesToBinding.size() < 2) continue;
                 final ImplicitOccurrenceNode correspondingOccurrenceNode =
                         this.graph.getBindingNodeToImplicitOccurrence().get(binding);
                 final Edge<ECOccurrenceNode, BindingNode> correspondingEdge =
-                        subgraph.getEdge(correspondingOccurrenceNode, binding);
+                        row.getEdge(correspondingOccurrenceNode, binding);
                 for (final Edge<ECOccurrenceNode, BindingNode> otherEdgeToBinding : edgesToBinding) {
                     if (otherEdgeToBinding == correspondingEdge) {
                         continue;
                     }
                     final ECOccurrenceNode otherOccurrence = otherEdgeToBinding.getSource();
                     final Set<Edge<ECOccurrenceNode, BindingNode>> outgoingEdgesOfOtherOccurrence =
-                            subgraph.outgoingEdgesOf(otherOccurrence);
+                            row.outgoingEdgesOf(otherOccurrence);
                     if (outgoingEdgesOfOtherOccurrence.size() < 2) {
                         continue;
                     }
@@ -337,7 +424,7 @@ public class Block implements BlockInterface {
                             continue;
                         }
                         final BindingNode otherBinding = outgoingEdgeOfOtherOccurrence.getTarget();
-                        if (!subgraph.containsEdge(correspondingOccurrenceNode, otherBinding)) {
+                        if (!row.containsEdge(correspondingOccurrenceNode, otherBinding)) {
                             throw new NoStronglyConnectedSubsetException(
                                     "An edge is missing for a strongly connected equivalence class subset!");
                         }
@@ -349,7 +436,7 @@ public class Block implements BlockInterface {
         {
             // For all occurrences in functional expressions with adjacent edges in $Z$, it holds that there are paths
             // in $Z$ from these occurrences to slot, fact, or constant bindings.
-            if (!FunctionalExpressionBindingChecker.check(this.graph, subgraph, functionalExpressionBindingNodes)) {
+            if (!FunctionalExpressionBindingChecker.check(this.graph, rowContainer, functionalExpressionBindingNodes)) {
                 throw new NoPathToDirectBindingException(
                         "No edge from a functional expression occurrence to a slot, fact, or constant binding!");
             }
@@ -366,18 +453,20 @@ public class Block implements BlockInterface {
             for (final Map.Entry<ECFilter, ExistentialInfo> filterWithExistentialInfo : existentialFilters.entrySet()) {
                 final ExistentialInfo existentialInfo = filterWithExistentialInfo.getValue();
                 final ECFilter filter = filterWithExistentialInfo.getKey();
-                if (!ExistentialSubgraphCompletelyContainedChecker
-                        .check(this.graph, subgraph, filter, existentialInfo)) {
-                    throw new ExistentialSubgraphNotContainedException(
-                            "Existential subgraph not completely contained!");
+                for (final AssignmentGraph.UnrestrictedGraph.SubGraph row : rowContainer.getRows()) {
+                    if (!ExistentialSubgraphCompletelyContainedChecker
+                            .check(this.graph, row, filter, existentialInfo)) {
+                        throw new ExistentialSubgraphNotContainedException(
+                                "Existential subgraph not completely contained!");
+                    }
                 }
             }
         }
 
         // Two block rows are \emph{compatible} iff both block rows are disjoint and no edge in the one block row is
         // adjacent to an edge in the other block row.
-        if (this.rows.getCcCount() != ConnectedComponentCounter
-                .countConnectedComponents(this.graph, this.rows.getSubgraph())) {
+        if (this.rowContainer.getRowCount() != rowContainer.getRows().stream()
+                .mapToInt(row -> ConnectedComponentCounter.countConnectedComponents(this.graph, row)).count()) {
             throw new IllegalStateException(
                     "The cached number of connected components in the row-subgraph of a block is incorrect!");
         }
@@ -613,11 +702,13 @@ public class Block implements BlockInterface {
                 throw new IncompatibleColumnsException("Not all of the columns are of the same height!");
             }
             final int columnHeight = this.columns.iterator().next().getEdges().size();
-            if (this.rows.ccCount != columnHeight) {
+            if (rowContainer.getRowCount() != columnHeight) {
                 throw new ColumnToRowIncompatibilityException("The column height is not equal to the row count!");
             }
-            if (!this.rows.getSubgraph().edgeSet().equals(this.columns.stream().flatMap(col -> col.getEdges().stream())
-                    .collect(toIdentityHashSet()))) {
+            if (!rowContainer.getRows().stream().map(AssignmentGraph.UnrestrictedGraph.SubGraph::edgeSet)
+                    .flatMap(Set::stream).collect(toIdentityHashSet())
+                    .equals(this.columns.stream().flatMap(col -> col.getEdges().stream())
+                            .collect(toIdentityHashSet()))) {
                 throw new ColumnToRowIncompatibilityException(
                         "The set of edges in the columns is not identical to the set of edges in the rows!");
             }
