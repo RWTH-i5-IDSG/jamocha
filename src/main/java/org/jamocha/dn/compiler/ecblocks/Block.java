@@ -429,8 +429,8 @@ public class Block implements BlockInterface {
                     if (outgoingEdgesOfOtherOccurrence.size() < 2) {
                         continue;
                     }
-                    for (final Edge<ECOccurrenceNode, BindingNode> outgoingEdgeOfOtherOccurrence :
-                            outgoingEdgesOfOtherOccurrence) {
+                    for (final Edge<ECOccurrenceNode, BindingNode> outgoingEdgeOfOtherOccurrence
+                            : outgoingEdgesOfOtherOccurrence) {
                         if (outgoingEdgeOfOtherOccurrence == otherEdgeToBinding) {
                             continue;
                         }

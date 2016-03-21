@@ -27,7 +27,7 @@ import java.util.Map;
  */
 @RequiredArgsConstructor
 public class BindingPartition extends InformedPartition<BindingNode, BindingType, BindingSubSet> {
-    public static class BindingSubSet extends InformedSubSet<BindingNode, BindingType> {
+    public static class BindingSubSet extends InformedPartition.InformedSubSet<BindingNode, BindingType> {
         public BindingSubSet(final IdentityHashMap<RowIdentifier, BindingNode> elements, final BindingType info) {
             super(elements, info);
         }
