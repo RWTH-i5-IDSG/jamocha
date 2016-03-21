@@ -242,4 +242,16 @@ public class Lambdas {
         Iterables.addAll(newIdentityHashSet, elements);
         return newIdentityHashSet;
     }
+
+    public static <T, K> Collector<T, ?, ArrayList<ArrayList<T>>> groupingIntoListOfLists(
+            final Function<? super T, ? extends K> classifier) {
+        final Collector<T, ?, Map<K, ArrayList<T>>> groupingBy = groupingBy(classifier, toArrayList());
+        return Collectors.collectingAndThen(groupingBy, map -> new ArrayList<>(map.values()));
+    }
+
+    public static <T, K> Collector<T, ?, ArrayList<Set<T>>> groupingIntoListOfSets(
+            final Function<? super T, ? extends K> classifier) {
+        final Collector<T, ?, Map<K, Set<T>>> groupingBy = groupingBy(classifier, toSet());
+        return Collectors.collectingAndThen(groupingBy, map -> new ArrayList<>(map.values()));
+    }
 }

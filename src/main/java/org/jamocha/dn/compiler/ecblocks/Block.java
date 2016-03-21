@@ -74,6 +74,10 @@ public class Block implements BlockInterface {
             return this.row2Identifier.inverse().get(this.wNode2Identifier.get(node));
         }
 
+        public RowIdentifier getRowIdentifier(final AssignmentGraphNode<?> node) {
+            return this.wNode2Identifier.get(node);
+        }
+
         public Set<AssignmentGraph.UnrestrictedGraph.SubGraph> getRows() {
             return this.row2Identifier.keySet();
         }
@@ -178,6 +182,10 @@ public class Block implements BlockInterface {
 
         public int getRowCount() {
             return getRows().size();
+        }
+
+        public Set<AssignmentGraphNode<?>> getLazyBlockNodeSet() {
+            return this.wNode2Identifier.keySet();
         }
     }
 
