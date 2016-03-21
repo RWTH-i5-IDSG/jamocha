@@ -16,6 +16,7 @@ package org.jamocha.dn.compiler.ecblocks;
 
 import com.google.common.collect.Sets;
 import org.jamocha.dn.compiler.ecblocks.assignmentgraph.AssignmentGraph;
+import org.jamocha.dn.compiler.ecblocks.assignmentgraph.node.AssignmentGraphNode;
 import org.jamocha.dn.compiler.ecblocks.assignmentgraph.node.binding.BindingNode;
 import org.jamocha.dn.compiler.ecblocks.assignmentgraph.node.occurrence.ECOccurrenceNode;
 import org.jamocha.dn.compiler.ecblocks.column.Column;
@@ -43,28 +44,53 @@ public class IncompleteBlock implements BlockInterface {
     }
 
     Set<IncompleteBlock> extendByBindings(final Column<ECOccurrenceNode, BindingNode> column) {
-        final Set<BindingNode> containedBindings = null; // block.getGraph().getDirectBindingNodes()
-        final Set<ECOccurrenceNode> containedOccurrences = null; // block.getGraph().getDirectBindingNodes()
-        assert containedBindings != null;
-        assert containedOccurrences != null;
+
+        final Set<AssignmentGraphNode<?>> blockNodes = this.block.getRowContainer().wNode2Identifier.keySet();
 
         final Set<AssignmentGraph.Edge<ECOccurrenceNode, BindingNode>> relevantEdges =
-                column.getEdges().stream().filter(e -> containedBindings.contains(e.getTarget())).collect(toSet());
+                column.getEdges().stream().filter(e -> blockNodes.contains(e.getTarget())).collect(toSet());
         final Map<Boolean, List<AssignmentGraph.Edge<ECOccurrenceNode, BindingNode>>> partition =
-                relevantEdges.stream().collect(partitioningBy(e -> containedOccurrences.contains(e.getSource())));
+                relevantEdges.stream().collect(partitioningBy(e -> blockNodes.contains(e.getSource())));
 
-        final List<Set<AssignmentGraph.Edge<ECOccurrenceNode, BindingNode>>> edgesByBindingNodeOccContained =
-                partition.get(true).stream().collect(
-                        collectingAndThen(groupingBy(AssignmentGraph.Edge::getTarget, toSet()),
-                                map -> new ArrayList<>(map.values())));
-        final List<Set<AssignmentGraph.Edge<ECOccurrenceNode, BindingNode>>> edgesByBindingNodeOccNotContained =
+        // there are three types of edges to consider:
+        // edge type 1: the block contains only the binding node
+        // edge type 2: both endpoints are contained in the block, but they belong to different rows
+        // edge type 3: both endpoints are contained in the same row
+
+        // the set of edges of type 3 can (and has to) be considered on its own, since if property 3 holds for one
+        // edge of a column, it has to hold for all of them
+
+        // the set of edges of type 1 can be supplemented by subsets of the edges of type 2 such that the enlarged
+        // set is still of type 1
+
+        // type 3 edges can only overlap in binding node, not in occurrence node, otherwise they would not be type 3
+        // before constructing the cartesian product, check:
+        // all binding and occurrence nodes have to belong to the same partition in the block
+        // the resulting set of sets contains sets that don't overlap. choose 1 and add to block
+
+        // type 1 edges should be filtered such that all binding nodes are in the same partition in the block
+
+        // model for maximal matching (no edge can be added, not necessarily max. cardinality)
+        // rows as nodes
+        // if a 'local' edge connects two rows, there is a 'model' edge connecting the corresponding nodes
+        // type 1 edges connect an existing row and an additional row (where the same occurrence node is represented by
+        // the same row-node)
+
+        // randomly choose maximum matching
+
+
+        final List<Set<AssignmentGraph.Edge<ECOccurrenceNode, BindingNode>>> edgesByBindingNodeType1 =
                 partition.get(false).stream().collect(
                         collectingAndThen(groupingBy(AssignmentGraph.Edge::getTarget, toSet()),
                                 map -> new ArrayList<>(map.values())));
-        return Stream.concat(
-                Sets.cartesianProduct(edgesByBindingNodeOccContained).stream().map(  ),
-                Sets.cartesianProduct(edgesByBindingNodeOccNotContained).stream().map(  ))
-            .filter(Objects::nonNull).collect(toSet());
+        final List<Set<AssignmentGraph.Edge<ECOccurrenceNode, BindingNode>>> edgesByBindingNodeType2And3 =
+                partition.get(true).stream().collect(
+                        collectingAndThen(groupingBy(AssignmentGraph.Edge::getTarget, toSet()),
+                                map -> new ArrayList<>(map.values())));
+
+        return Stream.concat(Sets.cartesianProduct(edgesByBindingNodeOccContained).stream().map(),
+                Sets.cartesianProduct(edgesByBindingNodeOccNotContained).stream().map()).filter(Objects::nonNull)
+                .collect(toSet());
     }
 
 
@@ -93,8 +119,8 @@ public class IncompleteBlock implements BlockInterface {
     }
 
     @Override
-    public Block.BlockRows getRows() {
-        return this.block.getRows();
+    public Block.RowContainer getRowContainer() {
+        return this.block.getRowContainer();
     }
 
     @Override
