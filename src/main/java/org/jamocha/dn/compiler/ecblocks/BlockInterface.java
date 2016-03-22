@@ -19,8 +19,7 @@ import org.jamocha.dn.compiler.ecblocks.assignmentgraph.node.binding.BindingNode
 import org.jamocha.dn.compiler.ecblocks.assignmentgraph.node.occurrence.ECOccurrenceNode;
 import org.jamocha.dn.compiler.ecblocks.column.Column;
 import org.jamocha.dn.compiler.ecblocks.partition.BindingPartition;
-import org.jamocha.dn.compiler.ecblocks.partition.FilterPartition;
-import org.jamocha.dn.compiler.ecblocks.partition.TemplateInstancePartition;
+import org.jamocha.dn.compiler.ecblocks.partition.OccurrencePartition;
 import org.jamocha.languages.common.SingleFactVariable;
 
 import java.util.Set;
@@ -37,11 +36,9 @@ public interface BlockInterface {
 
     Set<SingleFactVariable> getFactVariablesUsed();
 
-    TemplateInstancePartition getTemplateInstancePartition();
-
     BindingPartition getBindingPartition();
 
-    FilterPartition getFilterPartition();
+    OccurrencePartition getOccurrencePartition();
 
     int getNumberOfRows();
 

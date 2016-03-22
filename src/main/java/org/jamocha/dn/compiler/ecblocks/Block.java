@@ -13,10 +13,7 @@
  */
 package org.jamocha.dn.compiler.ecblocks;
 
-import com.google.common.collect.BiMap;
-import com.google.common.collect.HashBiMap;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Sets;
+import com.google.common.collect.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -33,8 +30,7 @@ import org.jamocha.dn.compiler.ecblocks.exceptions.*;
 import org.jamocha.dn.compiler.ecblocks.lazycollections.extend.MapCombiner;
 import org.jamocha.dn.compiler.ecblocks.lazycollections.reduce.MapSubtractor;
 import org.jamocha.dn.compiler.ecblocks.partition.BindingPartition;
-import org.jamocha.dn.compiler.ecblocks.partition.FilterPartition;
-import org.jamocha.dn.compiler.ecblocks.partition.TemplateInstancePartition;
+import org.jamocha.dn.compiler.ecblocks.partition.OccurrencePartition;
 import org.jamocha.filter.ECFilter;
 import org.jamocha.languages.common.SingleFactVariable;
 import org.paukov.combinatorics.Factory;
@@ -52,6 +48,7 @@ import static org.jamocha.util.Lambdas.toIdentityHashSet;
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
 @Getter
+@RequiredArgsConstructor
 public class Block implements BlockInterface {
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
@@ -196,18 +193,16 @@ public class Block implements BlockInterface {
     final RowContainer rowContainer;
     final Set<Column<ECOccurrenceNode, BindingNode>> columns;
     final Set<SingleFactVariable> factVariablesUsed;
-    final TemplateInstancePartition templateInstancePartition;
     final BindingPartition bindingPartition;
-    final FilterPartition filterPartition;
+    final OccurrencePartition occurrencePartition;
 
     public Block(final AssignmentGraph graph) {
         this.graph = graph;
         this.rowContainer = new RowContainer(graph);
         this.columns = new HashSet<>();
         this.factVariablesUsed = Sets.newIdentityHashSet();
-        this.templateInstancePartition = new TemplateInstancePartition();
         this.bindingPartition = new BindingPartition();
-        this.filterPartition = new FilterPartition();
+        this.occurrencePartition = new OccurrencePartition();
     }
 
     public Block(final BlockInterface other) {
@@ -216,13 +211,12 @@ public class Block implements BlockInterface {
         this.columns = other.getColumns().stream().map(Column::copy).collect(toHashSet());
         this.factVariablesUsed = Sets.newIdentityHashSet();
         this.factVariablesUsed.addAll(other.getFactVariablesUsed());
-        this.templateInstancePartition = new TemplateInstancePartition(other.getTemplateInstancePartition());
         this.bindingPartition = new BindingPartition(other.getBindingPartition());
-        this.filterPartition = new FilterPartition(other.getFilterPartition());
+        this.occurrencePartition = new OccurrencePartition(other.getOccurrencePartition());
     }
 
     public IncompleteBlock beginExtension() {
-        return new IncompleteBlock(this);
+        return new IncompleteBlock(this, ImmutableSet.of());
     }
 
     @Override

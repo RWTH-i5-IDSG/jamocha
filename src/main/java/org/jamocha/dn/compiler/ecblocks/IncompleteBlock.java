@@ -21,9 +21,9 @@ import org.jamocha.dn.compiler.ecblocks.assignmentgraph.node.AssignmentGraphNode
 import org.jamocha.dn.compiler.ecblocks.assignmentgraph.node.binding.BindingNode;
 import org.jamocha.dn.compiler.ecblocks.assignmentgraph.node.occurrence.ECOccurrenceNode;
 import org.jamocha.dn.compiler.ecblocks.column.Column;
+import org.jamocha.dn.compiler.ecblocks.lazycollections.extend.SetExtender;
 import org.jamocha.dn.compiler.ecblocks.partition.BindingPartition;
-import org.jamocha.dn.compiler.ecblocks.partition.FilterPartition;
-import org.jamocha.dn.compiler.ecblocks.partition.TemplateInstancePartition;
+import org.jamocha.dn.compiler.ecblocks.partition.OccurrencePartition;
 import org.jamocha.languages.common.SingleFactVariable;
 
 import java.util.*;
@@ -40,12 +40,44 @@ public class IncompleteBlock implements BlockInterface {
     final BlockInterface block;
     final Set<ECOccurrence> unboundOccurrences;
 
-    private IncompleteBlock extendByBindings(
-            final List<AssignmentGraph.Edge<ECOccurrenceNode, BindingNode>> edgeCombination) {
-
+    private IncompleteBlock extendByBindingEdges(final Column<ECOccurrenceNode, BindingNode> column,
+            final List<AssignmentGraph.Edge<ECOccurrenceNode, BindingNode>> edges,
+            final OccurrencePartition occurrencePartition, final Set<ECOccurrence> unboundOccurrences) {
+        final Block.RowContainer rowContainer = this.block.getRowContainer().addColumn(edges);
+        // FIXME do we shrink the column?
+        final Set<Column<ECOccurrenceNode, BindingNode>> columns = SetExtender.with(this.block.getColumns(), column);
+        final Set<SingleFactVariable> singleFactVariables = this.block.getFactVariablesUsed();
+        final BindingPartition bindingPartition = this.getBindingPartition();
+        return new IncompleteBlock(
+                new Block(this.block.getGraph(), rowContainer, columns, singleFactVariables, bindingPartition,
+                        occurrencePartition), unboundOccurrences);
     }
 
-    IncompleteBlock extendByBindings(final RandomWrapper random, final Column<ECOccurrenceNode, BindingNode> column) {
+    private IncompleteBlock extendByEffectivelyType1Bindings(final Column<ECOccurrenceNode, BindingNode> column,
+            final List<AssignmentGraph.Edge<ECOccurrenceNode, BindingNode>> type1Edges) {
+        // when adding type 1 edges we know that we produce new unbound occurrences since only the binding node is
+        // already contained in the active part of the block
+        final Map<RowIdentifier, ECOccurrenceNode> newOccurrenceSubSet = type1Edges.stream().collect(
+                toMap(edge -> this.block.getRowContainer().getRowIdentifier(edge.getTarget()),
+                        AssignmentGraph.Edge::getSource, null, IdentityHashMap::new));
+        final OccurrencePartition occurrencePartition =
+                this.getOccurrencePartition().add(new OccurrencePartition.OccurrenceSubSet(newOccurrenceSubSet));
+        final Sets.SetView<ECOccurrence> unboundOccurrences = Sets.union(this.unboundOccurrences,
+                newOccurrenceSubSet.values().stream().map(ECOccurrenceNode::getOccurrence).collect(toSet()));
+        return extendByBindingEdges(column, type1Edges, occurrencePartition, unboundOccurrences);
+    }
+
+    private IncompleteBlock extendByType3BindingEdges(final Column<ECOccurrenceNode, BindingNode> column,
+            final List<AssignmentGraph.Edge<ECOccurrenceNode, BindingNode>> type3Edges) {
+        // when adding type 3 edges we know that we do not produce new unbound occurrences since both endpoints are
+        // already contained in the block
+        final OccurrencePartition occurrencePartition = this.getOccurrencePartition();
+        final Set<ECOccurrence> unboundOccurrences = this.unboundOccurrences;
+        return extendByBindingEdges(column, type3Edges, occurrencePartition, unboundOccurrences);
+    }
+
+    public IncompleteBlock extendByBindings(final RandomWrapper random,
+            final Column<ECOccurrenceNode, BindingNode> column) {
         final Block.RowContainer rowContainer = this.block.getRowContainer();
         final Set<AssignmentGraphNode<?>> blockNodes = rowContainer.getLazyBlockNodeSet();
 
@@ -100,7 +132,7 @@ public class IncompleteBlock implements BlockInterface {
             final ArrayList<AssignmentGraph.Edge<ECOccurrenceNode, BindingNode>> chosenPartition =
                     random.choose(partitionedType3Edges);
             // add to block to get a new incomplete block
-            final IncompleteBlock newIncompleteBlock = extendByBindings(chosenPartition);
+            final IncompleteBlock newIncompleteBlock = extendByType3BindingEdges(column, chosenPartition);
             return newIncompleteBlock;
         } else {
             // consider type 1 and 2 edges
@@ -137,12 +169,13 @@ public class IncompleteBlock implements BlockInterface {
                 maximalMatching.add(edge);
             }
             // add to block to get a new incomplete block
-            final IncompleteBlock newIncompleteBlock = extendByBindings(maximalMatching);
+            final IncompleteBlock newIncompleteBlock = extendByEffectivelyType1Bindings(column, maximalMatching);
             return newIncompleteBlock;
         }
     }
 
-    Set<IncompleteBlock> extendByOccurences(final Column<ECOccurrenceNode, BindingNode> column) {
+    public Set<IncompleteBlock> extendByOccurences(final RandomWrapper random,
+            final Column<ECOccurrenceNode, BindingNode> column) {
 
     }
 
@@ -182,17 +215,12 @@ public class IncompleteBlock implements BlockInterface {
     }
 
     @Override
-    public TemplateInstancePartition getTemplateInstancePartition() {
-        return this.block.getTemplateInstancePartition();
-    }
-
-    @Override
     public BindingPartition getBindingPartition() {
         return this.block.getBindingPartition();
     }
 
     @Override
-    public FilterPartition getFilterPartition() {
-        return this.block.getFilterPartition();
+    public OccurrencePartition getOccurrencePartition() {
+        return this.block.getOccurrencePartition();
     }
 }
