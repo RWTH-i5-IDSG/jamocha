@@ -31,18 +31,16 @@ import java.util.Set;
 public class TemplateInstancePartition
         extends InformedPartition<SingleFactVariable, Template, TemplateInstanceSubSet, TemplateInstancePartition> {
     public static class TemplateInstanceSubSet extends InformedPartition.InformedSubSet<SingleFactVariable, Template> {
+        public TemplateInstanceSubSet(final Map<RowIdentifier, SingleFactVariable> elements, final Template info) {
+            super(elements, info);
+        }
+
+        public TemplateInstanceSubSet(final Map<RowIdentifier, SingleFactVariable> elements) {
+            this(elements, elements.values().iterator().next().getTemplate());
+        }
+
         public TemplateInstanceSubSet(final TemplateInstanceSubSet copy) {
             super(copy);
-        }
-
-        public TemplateInstanceSubSet(final IdentityHashMap<RowIdentifier, SingleFactVariable> elements,
-                final Template info) {
-            super(elements, info);
-        }
-
-        public TemplateInstanceSubSet(final Map<RowIdentifier, ? extends SingleFactVariable> elements,
-                final Template info) {
-            super(elements, info);
         }
     }
 

@@ -30,16 +30,16 @@ import java.util.Set;
 @RequiredArgsConstructor
 public class BindingPartition extends InformedPartition<BindingNode, BindingType, BindingSubSet, BindingPartition> {
     public static class BindingSubSet extends InformedPartition.InformedSubSet<BindingNode, BindingType> {
-        public BindingSubSet(final IdentityHashMap<RowIdentifier, BindingNode> elements, final BindingType info) {
+        public BindingSubSet(final Map<RowIdentifier, BindingNode> elements, final BindingType info) {
             super(elements, info);
+        }
+
+        public BindingSubSet(final Map<RowIdentifier, BindingNode> elements) {
+            this(elements, elements.values().iterator().next().getNodeType());
         }
 
         public BindingSubSet(final BindingSubSet copy) {
             super(copy);
-        }
-
-        public BindingSubSet(final Map<RowIdentifier, ? extends BindingNode> elements, final BindingType info) {
-            super(elements, info);
         }
     }
 

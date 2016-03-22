@@ -37,7 +37,7 @@ public abstract class InformedPartition<T, I, S extends InformedSubSet<T, I>, P 
         @Getter
         protected final I info;
 
-        public InformedSubSet(final IdentityHashMap<RowIdentifier, T> elements, final I info) {
+        public InformedSubSet(final Map<RowIdentifier, T> elements, final I info) {
             super(elements);
             this.info = info;
         }
@@ -45,10 +45,6 @@ public abstract class InformedPartition<T, I, S extends InformedSubSet<T, I>, P 
         public InformedSubSet(final InformedSubSet<T, I> copy) {
             super(copy);
             this.info = copy.info;
-        }
-
-        public InformedSubSet(final Map<RowIdentifier, ? extends T> elements, final I info) {
-            this(new IdentityHashMap<>(elements), info);
         }
     }
 

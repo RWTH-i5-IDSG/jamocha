@@ -32,18 +32,13 @@ public class FilterPartition extends
         InformedPartition<ECFilter, ExistentialInfo.FunctionWithExistentialInfo, FilterSubSet, FilterPartition> {
     public static class FilterSubSet
             extends InformedPartition.InformedSubSet<ECFilter, ExistentialInfo.FunctionWithExistentialInfo> {
-        public FilterSubSet(final IdentityHashMap<RowIdentifier, ECFilter> elements,
+        public FilterSubSet(final Map<RowIdentifier, ECFilter> elements,
                 final ExistentialInfo.FunctionWithExistentialInfo info) {
             super(elements, info);
         }
 
         public FilterSubSet(final FilterSubSet copy) {
             super(copy);
-        }
-
-        public FilterSubSet(final Map<RowIdentifier, ? extends ECFilter> elements,
-                final ExistentialInfo.FunctionWithExistentialInfo info) {
-            super(elements, info);
         }
     }
 
