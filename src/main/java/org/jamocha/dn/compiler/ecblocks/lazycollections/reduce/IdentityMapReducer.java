@@ -12,54 +12,56 @@
  * the specific language governing permissions and limitations under the License.
  */
 
-package org.jamocha.dn.compiler.ecblocks.lazycollections.extend;
+package org.jamocha.dn.compiler.ecblocks.lazycollections.reduce;
 
-import com.google.common.collect.Sets;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.tuple.Pair;
 import org.jamocha.dn.compiler.ecblocks.lazycollections.LazyMap;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-public class MapCombiner<K, V> implements LazyMap<K, V> {
+public class IdentityMapReducer<K, V> implements LazyMap<K, V> {
     private final Map<K, V> wrapped;
-    private final Map<K, V> additionalEntries;
+    private final K reductionKey;
+    private final V reductionValue;
 
     @Getter(lazy = true, value = AccessLevel.PRIVATE)
-    private final Set<K> keySet = Sets.union(this.wrapped.keySet(), this.additionalEntries.keySet());
+    private final Entry<K, V> entry = Pair.of(this.reductionKey, this.reductionValue);
     @Getter(lazy = true, value = AccessLevel.PRIVATE)
-    private final CollectionCombiner<V> values =
-            CollectionCombiner.with(this.wrapped.values(), this.additionalEntries.values());
-    @Getter(lazy = true, value = AccessLevel.PRIVATE)
-    private final Set<Entry<K, V>> entrySet = Sets.union(this.wrapped.entrySet(), this.additionalEntries.entrySet());
-    @Getter(lazy = true, value = AccessLevel.PRIVATE)
-    private final int size = this.wrapped.size() + this.additionalEntries.size();
+    private final Set<K> keySet = IdentitySetReducer.without(this.wrapped.keySet(), this.reductionKey);
 
-    public static <K, V> MapCombiner<K, V> with(final Map<K, V> toWrap, final Map<K, V> additionalEntries) {
-        if (!Collections.disjoint(toWrap.keySet(), additionalEntries.keySet())) {
-            throw new UnsupportedOperationException(
-                    "Hiding keys of the wrapped map is not supported, since it is too error-prone!");
+    @Getter(lazy = true, value = AccessLevel.PRIVATE)
+    private final Collection<V> values = CollectionReducer.without(this.wrapped.values(), this.reductionValue);
+    @Getter(lazy = true, value = AccessLevel.PRIVATE)
+    private final Set<Entry<K, V>> entrySet = IdentitySetReducer.without(this.wrapped.entrySet(), getEntry());
+    @Getter(lazy = true, value = AccessLevel.PRIVATE)
+    private final int size = this.wrapped.size() - 1;
+
+    public static <K, V> IdentityMapReducer<K, V> without(final Map<K, V> toWrap, final K reductionKey) {
+        final V reductionValue = toWrap.get(reductionKey);
+        if (null == reductionValue) {
+            throw new IllegalArgumentException("Wrapped map doesn't contain reduction key!");
         }
-        return new MapCombiner<>(toWrap, additionalEntries);
-    }
-
-    public HashMap<K, V> toHashMap() {
-        return new HashMap<>(this);
-    }
-
-    @Override
-    public boolean isEmpty() {
-        return false;
+        return new IdentityMapReducer<>(toWrap, reductionKey, reductionValue);
     }
 
     @Override
     public int size() {
         return getSize();
+    }
+
+    @Override
+    public boolean isEmpty() {
+        return 0 == getSize();
     }
 
     @Override
@@ -79,18 +81,17 @@ public class MapCombiner<K, V> implements LazyMap<K, V> {
 
     @Override
     public boolean containsKey(final Object key) {
-        return this.additionalEntries.containsKey(key) || this.wrapped.containsKey(key);
+        return !Objects.equals(this.reductionKey, key) && this.wrapped.containsKey(key);
     }
 
     @Override
     public boolean containsValue(final Object value) {
-        return this.additionalEntries.containsValue(value) || this.wrapped.containsValue(value);
+        return !Objects.equals(this.reductionValue, value) && this.wrapped.containsValue(value);
     }
 
     @Override
     public V get(final Object key) {
-        final V v = this.additionalEntries.get(key);
-        if (null != v) return v;
+        if (this.reductionKey == key) return null;
         return this.wrapped.get(key);
     }
 }

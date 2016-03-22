@@ -29,7 +29,7 @@ import java.util.Set;
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-public class MapSubtractor<K, V> extends LazyMap<K, V> {
+public class MapSubtractor<K, V> implements LazyMap<K, V> {
     private final Map<K, V> wrapped;
     private final Map<K, V> reductionEntries;
 

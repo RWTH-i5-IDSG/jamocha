@@ -14,19 +14,21 @@
 
 package org.jamocha.dn.compiler.ecblocks.lazycollections.extend;
 
+import com.google.common.base.Objects;
+
 import java.util.Map;
 import java.util.Set;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
-public final class IdentityMapToSetExtender<K, V> extends AbstractMapToSetExtender<K, V> {
-    private IdentityMapToSetExtender(final Map<K, Set<V>> wrapped, final K additionalKey, final V additionalValue) {
-        super(wrapped, additionalKey, additionalValue, (a, b) -> a == b);
+public final class MapToSetExtender<K, V> extends AbstractMapToSetExtender<K, V> {
+    private MapToSetExtender(final Map<K, Set<V>> wrapped, final K additionalKey, final V additionalValue) {
+        super(wrapped, additionalKey, additionalValue, Objects::equal);
     }
 
-    public static <K, V> IdentityMapToSetExtender<K, V> with(final Map<K, Set<V>> toWrap, final K additionalKey,
+    public static <K, V> MapToSetExtender<K, V> with(final Map<K, Set<V>> toWrap, final K additionalKey,
             final V additionalValue) {
-        return new IdentityMapToSetExtender<>(toWrap, additionalKey, additionalValue);
+        return new MapToSetExtender<>(toWrap, additionalKey, additionalValue);
     }
 }

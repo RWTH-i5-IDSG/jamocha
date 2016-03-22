@@ -14,37 +14,34 @@
 
 package org.jamocha.dn.compiler.ecblocks.lazycollections;
 
-import lombok.RequiredArgsConstructor;
-
 import java.util.Map;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
-@RequiredArgsConstructor
-public abstract class LazyMap<K, V> implements Map<K, V> {
+public interface LazyMap<K, V> extends Map<K, V> {
     @Override
-    public boolean containsValue(final Object value) {
+    default boolean containsValue(final Object value) {
         throw new UnsupportedOperationException("Lazy Maps don't support containsValue!");
     }
 
     @Override
-    public V put(final K key, final V value) {
+    default V put(final K key, final V value) {
         throw new UnsupportedOperationException("Lazy Maps are immutable!");
     }
 
     @Override
-    public V remove(final Object key) {
+    default V remove(final Object key) {
         throw new UnsupportedOperationException("Lazy Maps are immutable!");
     }
 
     @Override
-    public void putAll(final Map<? extends K, ? extends V> m) {
+    default void putAll(final Map<? extends K, ? extends V> m) {
         throw new UnsupportedOperationException("Lazy Maps are immutable!");
     }
 
     @Override
-    public void clear() {
+    default void clear() {
         throw new UnsupportedOperationException("Lazy Maps are immutable!");
     }
 }

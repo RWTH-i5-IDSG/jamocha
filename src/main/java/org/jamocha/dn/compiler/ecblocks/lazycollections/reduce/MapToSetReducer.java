@@ -15,17 +15,18 @@
 package org.jamocha.dn.compiler.ecblocks.lazycollections.reduce;
 
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
-public class IdentityMapToSetReducer<K, V> extends AbstractMapToSetReducer<K, V> {
-    public IdentityMapToSetReducer(final Map<K, Set<V>> wrapped, final K reductionKey, final V reductionValue) {
-        super(wrapped, reductionKey, reductionValue, (a, b) -> a == b);
+public class MapToSetReducer<K, V> extends AbstractMapToSetReducer<K, V> {
+    public MapToSetReducer(final Map<K, Set<V>> wrapped, final K reductionKey, final V reductionValue) {
+        super(wrapped, reductionKey, reductionValue, Objects::equals);
     }
 
-    public static <K, V> IdentityMapToSetReducer<K, V> without(final Map<K, Set<V>> toWrap, final K reductionKey,
+    public static <K, V> MapToSetReducer<K, V> without(final Map<K, Set<V>> toWrap, final K reductionKey,
             final V reductionValue) {
         final Set<V> vs = toWrap.get(reductionKey);
         if (null == vs) {
@@ -34,6 +35,6 @@ public class IdentityMapToSetReducer<K, V> extends AbstractMapToSetReducer<K, V>
         if (!vs.contains(reductionValue)) {
             throw new IllegalArgumentException("Wrapped map entry doesn't contain reduction value!");
         }
-        return new IdentityMapToSetReducer<>(toWrap, reductionKey, reductionValue);
+        return new MapToSetReducer<>(toWrap, reductionKey, reductionValue);
     }
 }
