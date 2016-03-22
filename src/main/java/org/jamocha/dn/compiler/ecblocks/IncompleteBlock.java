@@ -15,11 +15,15 @@
 package org.jamocha.dn.compiler.ecblocks;
 
 import com.google.common.collect.Sets;
+import lombok.RequiredArgsConstructor;
 import org.jamocha.dn.compiler.ecblocks.assignmentgraph.AssignmentGraph;
 import org.jamocha.dn.compiler.ecblocks.assignmentgraph.node.AssignmentGraphNode;
 import org.jamocha.dn.compiler.ecblocks.assignmentgraph.node.binding.BindingNode;
 import org.jamocha.dn.compiler.ecblocks.assignmentgraph.node.occurrence.ECOccurrenceNode;
 import org.jamocha.dn.compiler.ecblocks.column.Column;
+import org.jamocha.dn.compiler.ecblocks.partition.BindingPartition;
+import org.jamocha.dn.compiler.ecblocks.partition.FilterPartition;
+import org.jamocha.dn.compiler.ecblocks.partition.TemplateInstancePartition;
 import org.jamocha.languages.common.SingleFactVariable;
 
 import java.util.*;
@@ -31,13 +35,10 @@ import static org.jamocha.util.Lambdas.groupingIntoListOfLists;
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
+@RequiredArgsConstructor
 public class IncompleteBlock implements BlockInterface {
     final BlockInterface block;
-    final Set<ECOccurrence> unboundOccurrences = new HashSet<>();
-
-    public IncompleteBlock(final BlockInterface block) {
-        this.block = block;
-    }
+    final Set<ECOccurrence> unboundOccurrences;
 
     private IncompleteBlock extendByBindings(
             final List<AssignmentGraph.Edge<ECOccurrenceNode, BindingNode>> edgeCombination) {
