@@ -26,7 +26,7 @@ import java.util.*;
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-public class MapExtender<K, V> extends LazyMap<K, V> {
+public class MapExtender<K, V> implements LazyMap<K, V> {
     private final Map<K, V> wrapped;
     private final Map.Entry<K, V> additionalEntry;
 
