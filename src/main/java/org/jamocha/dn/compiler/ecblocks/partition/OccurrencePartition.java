@@ -30,7 +30,8 @@ import java.util.Set;
 @RequiredArgsConstructor
 public class OccurrencePartition
         extends InformedPartition<ECOccurrenceNode, OccurrenceType, OccurrenceSubSet, OccurrencePartition> {
-    public static class OccurrenceSubSet extends InformedPartition.InformedSubSet<ECOccurrenceNode, OccurrenceType> {
+    public static class OccurrenceSubSet extends
+            InformedPartition.InformedSubSet<ECOccurrenceNode, OccurrenceType, OccurrencePartition.OccurrenceSubSet> {
         public OccurrenceSubSet(final Map<RowIdentifier, ECOccurrenceNode> elements, final OccurrenceType info) {
             super(elements, info);
         }
@@ -41,6 +42,16 @@ public class OccurrencePartition
 
         public OccurrenceSubSet(final OccurrenceSubSet copy) {
             super(copy);
+        }
+
+        @Override
+        public OccurrenceSubSet add(final RowIdentifier key, final ECOccurrenceNode value) {
+            return super.informedAdd(key, value, info -> elements -> new OccurrenceSubSet(elements, info));
+        }
+
+        @Override
+        public OccurrenceSubSet remove(final RowIdentifier key) {
+            return super.informedRemove(key, info -> elements -> new OccurrenceSubSet(elements, info));
         }
     }
 
@@ -57,25 +68,25 @@ public class OccurrencePartition
     @Override
     public OccurrencePartition add(final OccurrenceSubSet newSubSet) {
         return super.informedAdd(newSubSet,
-                (set, map) -> informedLookup -> new OccurrencePartition(set, map, informedLookup));
+                informedLookup -> (set, map) -> new OccurrencePartition(set, map, informedLookup));
     }
 
     @Override
     public OccurrencePartition extend(final RowIdentifier row,
             final IdentityHashMap<OccurrenceSubSet, ECOccurrenceNode> extension) {
-        return super.informedExtend(row, extension, (oldss, map) -> info -> new OccurrenceSubSet(map, info),
-                (set, map) -> informedLookup -> new OccurrencePartition(set, map, informedLookup));
+        return super.informedExtend(row, extension,
+                informedLookup -> (set, map) -> new OccurrencePartition(set, map, informedLookup));
     }
 
     @Override
     public OccurrencePartition remove(final RowIdentifier row) {
-        return super.informedRemove(row, (oldss, map) -> info -> new OccurrenceSubSet(map, info),
-                (set, map) -> informedLookup -> new OccurrencePartition(set, map, informedLookup));
+        return super
+                .informedRemove(row, informedLookup -> (set, map) -> new OccurrencePartition(set, map, informedLookup));
     }
 
     @Override
     public OccurrencePartition remove(final OccurrenceSubSet subSet) {
         return super.informedRemove(subSet,
-                (set, map) -> informedLookup -> new OccurrencePartition(set, map, informedLookup));
+                informedLookup -> (set, map) -> new OccurrencePartition(set, map, informedLookup));
     }
 }

@@ -31,20 +31,31 @@ import java.util.function.Function;
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
 @RequiredArgsConstructor
-public abstract class InformedPartition<T, I, S extends InformedSubSet<T, I>, P extends InformedPartition<T, I, S, P>>
+public abstract class InformedPartition<T, I, S extends InformedSubSet<T, I, S>, P extends InformedPartition<T, I, S,
+        P>>
         extends Partition<T, S, P> {
-    public static class InformedSubSet<T, I> extends Partition.SubSet<T> {
+    abstract static class InformedSubSet<T, I, S extends InformedSubSet<T, I, S>> extends Partition.SubSet<T, S> {
         @Getter
         protected final I info;
 
-        public InformedSubSet(final Map<RowIdentifier, T> elements, final I info) {
+        InformedSubSet(final Map<RowIdentifier, T> elements, final I info) {
             super(elements);
             this.info = info;
         }
 
-        public InformedSubSet(final InformedSubSet<T, I> copy) {
+        InformedSubSet(final InformedSubSet<T, I, S> copy) {
             super(copy);
             this.info = copy.info;
+        }
+
+        protected S informedAdd(final RowIdentifier key, final T value,
+                final Function<I, Function<Map<RowIdentifier, T>, S>> ctor) {
+            return super.add(key, value, ctor.apply(this.info));
+        }
+
+        protected S informedRemove(final RowIdentifier key,
+                final Function<I, Function<Map<RowIdentifier, T>, S>> ctor) {
+            return super.remove(key, ctor.apply(this.info));
         }
     }
 
@@ -60,7 +71,8 @@ public abstract class InformedPartition<T, I, S extends InformedSubSet<T, I>, P 
         this.informedLookup = informedLookup;
     }
 
-    public InformedPartition(final InformedPartition<T, I, S, P> copy, final Function<S, S> copyCtor) {
+    public InformedPartition(final InformedPartition<T, I, S, P> copy,
+            final Function<? super S, ? extends S> copyCtor) {
         super(copy, copyCtor);
         this.informedLookup = new IdentityHashMap<>(copy.informedLookup);
     }
@@ -69,29 +81,21 @@ public abstract class InformedPartition<T, I, S extends InformedSubSet<T, I>, P 
         return this.informedLookup.get(key);
     }
 
-    protected P informedAdd(final S newSubSet,
-            final BiFunction<Set<S>, Map<T, S>, Function<Map<I, Set<S>>, P>> partitionCtor) {
-        return super.add(newSubSet, (set, map) -> partitionCtor.apply(set, map)
-                .apply(MapToSetExtender.with(this.informedLookup, newSubSet.info, newSubSet)));
+    protected P informedAdd(final S newSubSet, final Function<Map<I, Set<S>>, BiFunction<Set<S>, Map<T, S>, P>> ctor) {
+        return super.add(newSubSet, ctor.apply(MapToSetExtender.with(this.informedLookup, newSubSet.info, newSubSet)));
     }
 
     protected P informedExtend(final RowIdentifier row, final IdentityHashMap<S, T> extension,
-            final BiFunction<S, Map<RowIdentifier, T>, Function<I, S>> subsetCtor,
-            final BiFunction<Set<S>, Map<T, S>, Function<Map<I, Set<S>>, P>> partitionCtor) {
-        return super.extend(row, extension, (oldss, map) -> subsetCtor.apply(oldss, map).apply(oldss.info),
-                (set, map) -> partitionCtor.apply(set, map).apply(this.informedLookup));
+            final Function<Map<I, Set<S>>, BiFunction<Set<S>, Map<T, S>, P>> ctor) {
+        return super.extend(row, extension, ctor.apply(this.informedLookup));
     }
 
     protected P informedRemove(final RowIdentifier row,
-            final BiFunction<S, Map<RowIdentifier, T>, Function<I, S>> subsetCtor,
-            final BiFunction<Set<S>, Map<T, S>, Function<Map<I, Set<S>>, P>> partitionCtor) {
-        return super.remove(row, (oldss, map) -> subsetCtor.apply(oldss, map).apply(oldss.info),
-                (set, map) -> partitionCtor.apply(set, map).apply(this.informedLookup));
+            final Function<Map<I, Set<S>>, BiFunction<Set<S>, Map<T, S>, P>> ctor) {
+        return super.remove(row, ctor.apply(this.informedLookup));
     }
 
-    protected P informedRemove(final S s,
-            final BiFunction<Set<S>, Map<T, S>, Function<Map<I, Set<S>>, P>> partitionCtor) {
-        return super.remove(s, (set, map) -> partitionCtor.apply(set, map)
-                .apply(MapToSetReducer.without(this.informedLookup, s.info, s)));
+    protected P informedRemove(final S s, final Function<Map<I, Set<S>>, BiFunction<Set<S>, Map<T, S>, P>> ctor) {
+        return super.remove(s, ctor.apply(MapToSetReducer.without(this.informedLookup, s.info, s)));
     }
 }

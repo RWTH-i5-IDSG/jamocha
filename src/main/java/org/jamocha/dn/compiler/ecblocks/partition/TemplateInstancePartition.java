@@ -30,7 +30,8 @@ import java.util.Set;
 @RequiredArgsConstructor
 public class TemplateInstancePartition
         extends InformedPartition<SingleFactVariable, Template, TemplateInstanceSubSet, TemplateInstancePartition> {
-    public static class TemplateInstanceSubSet extends InformedPartition.InformedSubSet<SingleFactVariable, Template> {
+    public static class TemplateInstanceSubSet
+            extends InformedPartition.InformedSubSet<SingleFactVariable, Template, TemplateInstanceSubSet> {
         public TemplateInstanceSubSet(final Map<RowIdentifier, SingleFactVariable> elements, final Template info) {
             super(elements, info);
         }
@@ -41,6 +42,16 @@ public class TemplateInstancePartition
 
         public TemplateInstanceSubSet(final TemplateInstanceSubSet copy) {
             super(copy);
+        }
+
+        @Override
+        public TemplateInstanceSubSet add(final RowIdentifier key, final SingleFactVariable value) {
+            return super.informedAdd(key, value, info -> elements -> new TemplateInstanceSubSet(elements, info));
+        }
+
+        @Override
+        public TemplateInstanceSubSet remove(final RowIdentifier key) {
+            return super.informedRemove(key, info -> elements -> new TemplateInstanceSubSet(elements, info));
         }
     }
 
@@ -57,25 +68,25 @@ public class TemplateInstancePartition
     @Override
     public TemplateInstancePartition add(final TemplateInstanceSubSet newSubSet) {
         return super.informedAdd(newSubSet,
-                (set, map) -> informedLookup -> new TemplateInstancePartition(set, map, informedLookup));
+                informedLookup -> (set, map) -> new TemplateInstancePartition(set, map, informedLookup));
     }
 
     @Override
     public TemplateInstancePartition extend(final RowIdentifier row,
             final IdentityHashMap<TemplateInstanceSubSet, SingleFactVariable> extension) {
-        return super.informedExtend(row, extension, (oldss, map) -> info -> new TemplateInstanceSubSet(map, info),
-                (set, map) -> informedLookup -> new TemplateInstancePartition(set, map, informedLookup));
+        return super.informedExtend(row, extension,
+                informedLookup -> (set, map) -> new TemplateInstancePartition(set, map, informedLookup));
     }
 
     @Override
     public TemplateInstancePartition remove(final RowIdentifier row) {
-        return super.informedRemove(row, (oldss, map) -> info -> new TemplateInstanceSubSet(map, info),
-                (set, map) -> informedLookup -> new TemplateInstancePartition(set, map, informedLookup));
+        return super.informedRemove(row,
+                informedLookup -> (set, map) -> new TemplateInstancePartition(set, map, informedLookup));
     }
 
     @Override
     public TemplateInstancePartition remove(final TemplateInstanceSubSet templateInstanceSubSet) {
         return super.informedRemove(templateInstanceSubSet,
-                (set, map) -> informedLookup -> new TemplateInstancePartition(set, map, informedLookup));
+                informedLookup -> (set, map) -> new TemplateInstancePartition(set, map, informedLookup));
     }
 }

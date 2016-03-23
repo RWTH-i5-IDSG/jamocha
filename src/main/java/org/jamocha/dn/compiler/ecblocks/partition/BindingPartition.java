@@ -18,7 +18,6 @@ import lombok.RequiredArgsConstructor;
 import org.jamocha.dn.compiler.ecblocks.RowIdentifier;
 import org.jamocha.dn.compiler.ecblocks.assignmentgraph.node.binding.BindingNode;
 import org.jamocha.dn.compiler.ecblocks.assignmentgraph.node.binding.BindingType;
-import org.jamocha.dn.compiler.ecblocks.partition.BindingPartition.BindingSubSet;
 
 import java.util.IdentityHashMap;
 import java.util.Map;
@@ -28,18 +27,30 @@ import java.util.Set;
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
 @RequiredArgsConstructor
-public class BindingPartition extends InformedPartition<BindingNode, BindingType, BindingSubSet, BindingPartition> {
-    public static class BindingSubSet extends InformedPartition.InformedSubSet<BindingNode, BindingType> {
+public class BindingPartition
+        extends InformedPartition<BindingNode, BindingType, BindingPartition.BindingSubSet, BindingPartition> {
+    public static class BindingSubSet
+            extends InformedPartition.InformedSubSet<BindingNode, BindingType, BindingSubSet> {
         public BindingSubSet(final Map<RowIdentifier, BindingNode> elements, final BindingType info) {
             super(elements, info);
+        }
+
+        public BindingSubSet(final InformedSubSet<BindingNode, BindingType, BindingSubSet> copy) {
+            super(copy);
         }
 
         public BindingSubSet(final Map<RowIdentifier, BindingNode> elements) {
             this(elements, elements.values().iterator().next().getNodeType());
         }
 
-        public BindingSubSet(final BindingSubSet copy) {
-            super(copy);
+        @Override
+        public BindingSubSet add(final RowIdentifier key, final BindingNode value) {
+            return super.informedAdd(key, value, info -> elements -> new BindingSubSet(elements, info));
+        }
+
+        @Override
+        public BindingSubSet remove(final RowIdentifier key) {
+            return super.informedRemove(key, info -> elements -> new BindingSubSet(elements, info));
         }
     }
 
@@ -55,25 +66,25 @@ public class BindingPartition extends InformedPartition<BindingNode, BindingType
     @Override
     public BindingPartition add(final BindingSubSet newSubSet) {
         return super.informedAdd(newSubSet,
-                (subsets, lookup) -> infLookup -> new BindingPartition(subsets, lookup, infLookup));
+                infLookup -> (subsets, lookup) -> new BindingPartition(subsets, lookup, infLookup));
     }
 
     @Override
     public BindingPartition extend(final RowIdentifier row,
             final IdentityHashMap<BindingSubSet, BindingNode> extension) {
-        return super.informedExtend(row, extension, (oldss, map) -> info -> new BindingSubSet(map, info),
-                (subsets, lookup) -> infLookup -> new BindingPartition(subsets, lookup, infLookup));
+        return super.informedExtend(row, extension,
+                infLookup -> (subsets, lookup) -> new BindingPartition(subsets, lookup, infLookup));
     }
 
     @Override
     public BindingPartition remove(final RowIdentifier row) {
-        return super.informedRemove(row, (oldss, map) -> info -> new BindingSubSet(map, info),
-                (subsets, lookup) -> infLookup -> new BindingPartition(subsets, lookup, infLookup));
+        return super.informedRemove(row,
+                infLookup -> (subsets, lookup) -> new BindingPartition(subsets, lookup, infLookup));
     }
 
     @Override
     public BindingPartition remove(final BindingSubSet oldSubSet) {
         return super.informedAdd(oldSubSet,
-                (subsets, lookup) -> infLookup -> new BindingPartition(subsets, lookup, infLookup));
+                infLookup -> (subsets, lookup) -> new BindingPartition(subsets, lookup, infLookup));
     }
 }

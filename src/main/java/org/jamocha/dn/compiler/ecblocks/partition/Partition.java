@@ -38,19 +38,31 @@ import static java.util.stream.Collectors.*;
 @RequiredArgsConstructor
 @Getter
 @ToString(of = {"subSets"})
-public abstract class Partition<T, S extends Partition.SubSet<T>, P extends Partition<T, S, P>> {
+public abstract class Partition<T, S extends Partition.SubSet<T, S>, P extends Partition<T, S, P>> {
     @RequiredArgsConstructor
     @Getter
     @ToString
-    static class SubSet<T> {
+    abstract static class SubSet<T, S extends SubSet<T, S>> {
         protected final Map<RowIdentifier, T> elements;
 
-        SubSet(final SubSet<T> copy) {
+        SubSet(final SubSet<T, S> copy) {
             this(new IdentityHashMap<>(copy.elements));
         }
 
         public T get(final RowIdentifier rule) {
             return this.elements.get(rule);
+        }
+
+        public abstract S add(final RowIdentifier key, final T value);
+
+        protected S add(final RowIdentifier key, final T value, final Function<Map<RowIdentifier, T>, S> subsetCtor) {
+            return subsetCtor.apply(IdentityMapExtender.with(this.elements, key, value));
+        }
+
+        public abstract S remove(final RowIdentifier key);
+
+        protected S remove(final RowIdentifier key, final Function<Map<RowIdentifier, T>, S> subsetCtor) {
+            return subsetCtor.apply(IdentityMapReducer.without(this.elements, key));
         }
     }
 
@@ -61,7 +73,7 @@ public abstract class Partition<T, S extends Partition.SubSet<T>, P extends Part
         this(new HashSet<>(), new HashMap<>());
     }
 
-    public Partition(final Partition<T, S, P> copy, final Function<S, S> copyCtor) {
+    public Partition(final Partition<T, S, P> copy, final Function<? super S, ? extends S> copyCtor) {
         this();
         copy.subSets.stream().map(copyCtor).forEach(this.subSets::add);
         for (final S s : this.subSets) {
@@ -73,7 +85,7 @@ public abstract class Partition<T, S extends Partition.SubSet<T>, P extends Part
 
     public abstract P add(final S newSubSet);
 
-    protected P add(final S newSubSet, final BiFunction<Set<S>, Map<T, S>, P> partitionCtor) {
+    protected P add(final S newSubSet, final BiFunction<Set<S>, Map<T, S>, P> ctor) {
         assert !newSubSet.elements.values().contains(null);
         assert this.subSets.stream().allMatch(ss -> ss.getElements().keySet().equals(newSubSet.elements.keySet()));
         assert this.subSets.stream()
@@ -81,14 +93,13 @@ public abstract class Partition<T, S extends Partition.SubSet<T>, P extends Part
         final Set<S> subsets = SetExtender.with(this.subSets, newSubSet);
         final MapCombiner<T, S> lookup =
                 MapCombiner.with(this.lookup, Maps.toMap(newSubSet.elements.values(), x -> newSubSet));
-        return partitionCtor.apply(subsets, lookup);
+        return ctor.apply(subsets, lookup);
     }
 
     public abstract P extend(final RowIdentifier row, final IdentityHashMap<S, T> extension);
 
     protected P extend(final RowIdentifier row, final IdentityHashMap<S, T> extension,
-            final BiFunction<S, Map<RowIdentifier, T>, S> subsetCtor,
-            final BiFunction<Set<S>, Map<T, S>, P> partitionCtor) {
+            final BiFunction<Set<S>, Map<T, S>, P> ctor) {
         assert !extension.containsValue(null);
         for (final S subset : this.subSets) {
             final T newElement = extension.get(subset);
@@ -96,10 +107,10 @@ public abstract class Partition<T, S extends Partition.SubSet<T>, P extends Part
             subset.elements.put(row, newElement);
         }
         assert !this.subSets.stream().map(extension::get).filter(Objects::isNull).findAny().isPresent();
-        final Set<S> subsets = this.subSets.stream().map(subset -> subsetCtor
-                .apply(subset, IdentityMapExtender.with(subset.elements, row, extension.get(subset)))).collect(toSet());
+        final Set<S> subsets =
+                this.subSets.stream().map(subset -> subset.add(row, extension.get(subset))).collect(toSet());
         final Map<T, S> lookup = MapCombiner.with(this.lookup, invert(extension));
-        return partitionCtor.apply(subsets, lookup);
+        return ctor.apply(subsets, lookup);
     }
 
     protected static <K, V> Map<K, V> invert(final Map<V, K> map) {
@@ -108,24 +119,21 @@ public abstract class Partition<T, S extends Partition.SubSet<T>, P extends Part
 
     public abstract P remove(final RowIdentifier row);
 
-    protected P remove(final RowIdentifier row, final BiFunction<S, Map<RowIdentifier, T>, S> subsetCtor,
-            final BiFunction<Set<S>, Map<T, S>, P> partitionCtor) {
+    protected P remove(final RowIdentifier row, final BiFunction<Set<S>, Map<T, S>, P> ctor) {
         assert this.subSets.stream().allMatch(subset -> subset.elements.containsKey(row));
-        final Set<S> subsets = this.subSets.stream()
-                .map(subset -> subsetCtor.apply(subset, IdentityMapReducer.without(subset.elements, row)))
-                .collect(toSet());
+        final Set<S> subsets = this.subSets.stream().map(subset -> subset.remove(row)).collect(toSet());
         final Map<T, S> lookup = MapSubtractor.without(this.lookup,
                 this.subSets.stream().collect(toMap(subset -> subset.get(row), Function.identity())));
-        return partitionCtor.apply(subsets, lookup);
+        return ctor.apply(subsets, lookup);
     }
 
     public abstract P remove(final S s);
 
-    protected P remove(final S s, final BiFunction<Set<S>, Map<T, S>, P> partitionCtor) {
+    protected P remove(final S s, final BiFunction<Set<S>, Map<T, S>, P> ctor) {
         assert this.subSets.contains(s);
         final Set<S> subsets = SetReducer.without(this.subSets, s);
         final MapSubtractor<T, S> lookup = MapSubtractor.without(this.lookup, Maps.toMap(s.elements.values(), x -> s));
-        return partitionCtor.apply(subsets, lookup);
+        return ctor.apply(subsets, lookup);
     }
 
     public S lookup(final T element) {

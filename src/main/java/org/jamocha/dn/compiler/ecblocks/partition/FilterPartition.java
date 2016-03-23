@@ -30,8 +30,8 @@ import java.util.Set;
 @RequiredArgsConstructor
 public class FilterPartition extends
         InformedPartition<ECFilter, ExistentialInfo.FunctionWithExistentialInfo, FilterSubSet, FilterPartition> {
-    public static class FilterSubSet
-            extends InformedPartition.InformedSubSet<ECFilter, ExistentialInfo.FunctionWithExistentialInfo> {
+    public static class FilterSubSet extends
+            InformedPartition.InformedSubSet<ECFilter, ExistentialInfo.FunctionWithExistentialInfo, FilterSubSet> {
         public FilterSubSet(final Map<RowIdentifier, ECFilter> elements,
                 final ExistentialInfo.FunctionWithExistentialInfo info) {
             super(elements, info);
@@ -39,6 +39,16 @@ public class FilterPartition extends
 
         public FilterSubSet(final FilterSubSet copy) {
             super(copy);
+        }
+
+        @Override
+        public FilterSubSet add(final RowIdentifier key, final ECFilter value) {
+            return super.informedAdd(key, value, info -> elements -> new FilterSubSet(elements, info));
+        }
+
+        @Override
+        public FilterSubSet remove(final RowIdentifier key) {
+            return super.informedRemove(key, info -> elements -> new FilterSubSet(elements, info));
         }
     }
 
@@ -54,24 +64,23 @@ public class FilterPartition extends
     @Override
     public FilterPartition add(final FilterSubSet newSubSet) {
         return super
-                .informedAdd(newSubSet, (set, map) -> informedLookup -> new FilterPartition(set, map, informedLookup));
+                .informedAdd(newSubSet, informedLookup -> (set, map) -> new FilterPartition(set, map, informedLookup));
     }
 
     @Override
     public FilterPartition extend(final RowIdentifier row, final IdentityHashMap<FilterSubSet, ECFilter> extension) {
-        return super.informedExtend(row, extension, (oldss, map) -> info -> new FilterSubSet(map, info),
-                (set, map) -> informedLookup -> new FilterPartition(set, map, informedLookup));
+        return super.informedExtend(row, extension,
+                informedLookup -> (set, map) -> new FilterPartition(set, map, informedLookup));
     }
 
     @Override
     public FilterPartition remove(final RowIdentifier row) {
-        return super.informedRemove(row, (oldss, map) -> info -> new FilterSubSet(map, info),
-                (set, map) -> informedLookup -> new FilterPartition(set, map, informedLookup));
+        return super.informedRemove(row, informedLookup -> (set, map) -> new FilterPartition(set, map, informedLookup));
     }
 
     @Override
     public FilterPartition remove(final FilterSubSet filterSubSet) {
         return super.informedRemove(filterSubSet,
-                (set, map) -> informedLookup -> new FilterPartition(set, map, informedLookup));
+                informedLookup -> (set, map) -> new FilterPartition(set, map, informedLookup));
     }
 }
