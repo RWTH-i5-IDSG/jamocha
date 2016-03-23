@@ -14,6 +14,7 @@
 
 package org.jamocha.dn.compiler.ecblocks;
 
+import com.google.common.collect.ImmutableList;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -59,6 +60,22 @@ public class MaximalColumns {
             implicitToFunctionalExpression = new HashMap<>();
     final HashMap<Edge<ImplicitOccurrenceNode, SlotOrFactBindingNode>, ImplicitToTemplateColumn> implicitToTemplate =
             new HashMap<>();
+
+    public Column<? extends ECOccurrenceNode, ? extends BindingNode> searchColumn(
+            final Edge<ECOccurrenceNode, BindingNode> edge) {
+        for (final HashMap<? extends Edge<? extends ECOccurrenceNode, ? extends BindingNode>, ? extends
+                AbstractColumn<? extends ECOccurrenceNode, ? extends BindingNode>> map : ImmutableList
+                .of(this.filterToConstant, this.filterToFunctionalExpression, this.filterToTemplate,
+                        this.functionalExpressionToConstant, this.functionalExpressionToFunctionalExpression,
+                        this.functionalExpressionToTemplate, this.implicitToConstant,
+                        this.implicitToFunctionalExpression, this.implicitToTemplate)) {
+            final Column<? extends ECOccurrenceNode, ? extends BindingNode> column = map.get(edge);
+            if (null != column) {
+                return column;
+            }
+        }
+        return null;
+    }
 
     public MaximalColumns(final AssignmentGraph assignmentGraph) {
         assignmentGraph.getGraph().edgeSet().stream().collect(groupingBy(this::toInfo))
