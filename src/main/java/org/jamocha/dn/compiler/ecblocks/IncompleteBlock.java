@@ -17,6 +17,7 @@ package org.jamocha.dn.compiler.ecblocks;
 import com.google.common.collect.Sets;
 import lombok.RequiredArgsConstructor;
 import org.jamocha.dn.compiler.ecblocks.assignmentgraph.AssignmentGraph;
+import org.jamocha.dn.compiler.ecblocks.assignmentgraph.NodeType;
 import org.jamocha.dn.compiler.ecblocks.assignmentgraph.node.AssignmentGraphNode;
 import org.jamocha.dn.compiler.ecblocks.assignmentgraph.node.binding.BindingNode;
 import org.jamocha.dn.compiler.ecblocks.assignmentgraph.node.occurrence.ECOccurrenceNode;
@@ -24,9 +25,11 @@ import org.jamocha.dn.compiler.ecblocks.column.Column;
 import org.jamocha.dn.compiler.ecblocks.lazycollections.extend.SetExtender;
 import org.jamocha.dn.compiler.ecblocks.partition.BindingPartition;
 import org.jamocha.dn.compiler.ecblocks.partition.OccurrencePartition;
+import org.jamocha.dn.compiler.ecblocks.partition.Partition;
 import org.jamocha.languages.common.SingleFactVariable;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.*;
@@ -76,16 +79,42 @@ public class IncompleteBlock implements BlockInterface {
         return extendByBindingEdges(column, type3Edges, occurrencePartition, unboundOccurrences);
     }
 
+    private enum EdgeType {
+        IRRELEVANT, TYPE1, TYPE2, TYPE3;
+    }
+
+    private static Map<EdgeType, List<AssignmentGraph.Edge<ECOccurrenceNode, BindingNode>>> getEdgeTypes(
+            final Block.RowContainer rowContainer, final Column<ECOccurrenceNode, BindingNode> column,
+            final Function<AssignmentGraph.Edge<ECOccurrenceNode, BindingNode>, AssignmentGraphNode<?>> oldNode,
+            final Function<AssignmentGraph.Edge<ECOccurrenceNode, BindingNode>, AssignmentGraphNode<?>> newNode) {
+        return column.getEdges().stream().filter(edge -> null != rowContainer.getRowIdentifier(oldNode.apply(edge)))
+                .collect(groupingByConcurrent(edge -> {
+                    // here we already know that oldRow is non-null
+                    final RowIdentifier newRow = rowContainer.getRowIdentifier(newNode.apply(edge));
+                    if (null == newRow) {
+                        return EdgeType.TYPE1;
+                    }
+                    final RowIdentifier oldRow = rowContainer.getRowIdentifier(oldNode.apply(edge));
+                    if (newRow == oldRow) {
+                        return EdgeType.TYPE3;
+                    }
+                    return EdgeType.TYPE2;
+                }));
+    }
+
+    private static Map<EdgeType, List<AssignmentGraph.Edge<ECOccurrenceNode, BindingNode>>> getEdgeTypesFromBindingNode(
+            final Block.RowContainer rowContainer, final Column<ECOccurrenceNode, BindingNode> column) {
+        return getEdgeTypes(rowContainer, column, AssignmentGraph.Edge::getTarget, AssignmentGraph.Edge::getSource);
+    }
+
+    private static Map<EdgeType, List<AssignmentGraph.Edge<ECOccurrenceNode, BindingNode>>>
+    getEdgeTypesFromOccurrenceNode(
+            final Block.RowContainer rowContainer, final Column<ECOccurrenceNode, BindingNode> column) {
+        return getEdgeTypes(rowContainer, column, AssignmentGraph.Edge::getSource, AssignmentGraph.Edge::getTarget);
+    }
+
     public IncompleteBlock extendByBindings(final RandomWrapper random,
             final Column<ECOccurrenceNode, BindingNode> column) {
-        final Block.RowContainer rowContainer = this.block.getRowContainer();
-        final Set<AssignmentGraphNode<?>> blockNodes = rowContainer.getLazyBlockNodeSet();
-
-        final Set<AssignmentGraph.Edge<ECOccurrenceNode, BindingNode>> relevantEdges =
-                column.getEdges().stream().filter(e -> blockNodes.contains(e.getTarget())).collect(toSet());
-        final Map<Boolean, List<AssignmentGraph.Edge<ECOccurrenceNode, BindingNode>>> isOccurrenceNodeContained =
-                relevantEdges.stream().collect(partitioningBy(e -> blockNodes.contains(e.getSource())));
-
         // there are three types of edges to consider:
         // edge type 1: the block contains only the binding node
         // edge type 2: both endpoints are contained in the block, but they belong to different rows
@@ -112,71 +141,142 @@ public class IncompleteBlock implements BlockInterface {
 
         // randomly choose maximal matching
 
-        final List<AssignmentGraph.Edge<ECOccurrenceNode, BindingNode>> type1Edges =
-                isOccurrenceNodeContained.get(false);
-        final Map<Boolean, List<AssignmentGraph.Edge<ECOccurrenceNode, BindingNode>>> isOccurrenceNodeInSameRow =
-                isOccurrenceNodeContained.get(true).stream().collect(
-                        partitioningBy(e -> rowContainer.getRow(e.getSource()) == rowContainer.getRow(e.getTarget())));
-        final List<AssignmentGraph.Edge<ECOccurrenceNode, BindingNode>> type2Edges =
-                isOccurrenceNodeInSameRow.get(false);
-        final List<AssignmentGraph.Edge<ECOccurrenceNode, BindingNode>> type3Edges =
-                isOccurrenceNodeInSameRow.get(true);
-
+        final Block.RowContainer rowContainer = this.block.getRowContainer();
+        final Map<EdgeType, List<AssignmentGraph.Edge<ECOccurrenceNode, BindingNode>>> edgeTypes =
+                getEdgeTypesFromBindingNode(rowContainer, column);
         final BindingPartition bindingPartition = this.block.getBindingPartition();
         if (random.decide(50)) {
             // consider type 3 edges
-            // group by binding partition of the block
-            final ArrayList<ArrayList<AssignmentGraph.Edge<ECOccurrenceNode, BindingNode>>> partitionedType3Edges =
-                    type3Edges.stream().collect(groupingIntoListOfLists(e -> bindingPartition.lookup(e.getTarget())));
-            // choose arbitrary set of edges
+            // group edges by binding partition and arbitrarily choose a set of edges
             final ArrayList<AssignmentGraph.Edge<ECOccurrenceNode, BindingNode>> chosenPartition =
-                    random.choose(partitionedType3Edges);
+                    chooseCompatibleEdges(random, bindingPartition, AssignmentGraph.Edge::getTarget,
+                            edgeTypes.get(EdgeType.TYPE3).stream());
             // add to block to get a new incomplete block
             final IncompleteBlock newIncompleteBlock = extendByType3BindingEdges(column, chosenPartition);
             return newIncompleteBlock;
-        } else {
-            // consider type 1 and 2 edges
-            // group type 1 and 2 edges by binding partition of the bock
-            final ArrayList<ArrayList<AssignmentGraph.Edge<ECOccurrenceNode, BindingNode>>> partitionedType1And2Edges =
-                    Stream.concat(type1Edges.stream(), type2Edges.stream())
-                            .collect(groupingIntoListOfLists(e -> bindingPartition.lookup(e.getTarget())));
-            // choose arbitrary set of edges
-            final ArrayList<AssignmentGraph.Edge<ECOccurrenceNode, BindingNode>> chosenPartition =
-                    random.choose(partitionedType1And2Edges);
-            // determine random maximal matching (greedy)
-            // shuffle edges to make the result random when just iterating over it
-            final ArrayList<AssignmentGraph.Edge<ECOccurrenceNode, BindingNode>> shuffledEdges =
-                    random.shuffle(chosenPartition);
-            // helper lookup map from node to row
-            final Map<AssignmentGraphNode<?>, RowIdentifier> node2Row = new IdentityHashMap<>();
-            // helper set of rows already in the matching
-            final Set<RowIdentifier> rowsInMatching = Sets.newIdentityHashSet();
-            // result container
-            final ArrayList<AssignmentGraph.Edge<ECOccurrenceNode, BindingNode>> maximalMatching = new ArrayList<>();
-            for (final AssignmentGraph.Edge<ECOccurrenceNode, BindingNode> edge : shuffledEdges) {
-                final ECOccurrenceNode source = edge.getSource();
-                // determine and cache block row of source node or (if not part of the block) create a new row for it
-                final RowIdentifier sourceRow = node2Row.computeIfAbsent(source,
-                        x -> Optional.ofNullable(rowContainer.getRowIdentifier(source)).orElseGet(RowIdentifier::new));
-                if (rowsInMatching.contains(sourceRow)) continue;
-                final BindingNode target = edge.getTarget();
-                // same as above for target node
-                final RowIdentifier targetRow = node2Row.computeIfAbsent(target,
-                        x -> Optional.ofNullable(rowContainer.getRowIdentifier(target)).orElseGet(RowIdentifier::new));
-                if (rowsInMatching.contains(targetRow)) continue;
-                rowsInMatching.add(sourceRow);
-                rowsInMatching.add(targetRow);
-                maximalMatching.add(edge);
-            }
-            // add to block to get a new incomplete block
-            final IncompleteBlock newIncompleteBlock = extendByEffectivelyType1Bindings(column, maximalMatching);
-            return newIncompleteBlock;
         }
+        // consider type 1 and 2 edges
+        // group edges by binding partition and arbitrarily choose a set of edges
+        final ArrayList<AssignmentGraph.Edge<ECOccurrenceNode, BindingNode>> chosenPartition =
+                chooseCompatibleEdges(random, bindingPartition, AssignmentGraph.Edge::getTarget,
+                        Stream.concat(edgeTypes.get(EdgeType.TYPE1).stream(), edgeTypes.get(EdgeType.TYPE2).stream()));
+        // determine random maximal matching (greedy)
+        // shuffle edges to make the result random when just iterating over it
+        random.shuffle(chosenPartition);
+        // greedily get maximal matching
+        final ArrayList<AssignmentGraph.Edge<ECOccurrenceNode, BindingNode>> maximalMatching =
+                getGreedyMaximalMatching(rowContainer, chosenPartition);
+        // add to block to get a new incomplete block
+        final IncompleteBlock newIncompleteBlock = extendByEffectivelyType1Bindings(column, maximalMatching);
+        return newIncompleteBlock;
     }
 
-    public Set<IncompleteBlock> extendByOccurences(final RandomWrapper random,
-            final Column<ECOccurrenceNode, BindingNode> column) {
+    private <T extends NodeType, N extends AssignmentGraphNode<T>> ArrayList<AssignmentGraph.Edge<ECOccurrenceNode,
+            BindingNode>> chooseCompatibleEdges(
+            final RandomWrapper random, final Partition<N, ?, ?> bindingPartition,
+            final Function<AssignmentGraph.Edge<ECOccurrenceNode, BindingNode>, N> getPartitionedEndpoint,
+            final Stream<AssignmentGraph.Edge<ECOccurrenceNode, BindingNode>> edges) {
+        // group by binding partition of the block
+        final ArrayList<ArrayList<AssignmentGraph.Edge<ECOccurrenceNode, BindingNode>>> partitionedEdges =
+                edges.collect(groupingIntoListOfLists(e -> bindingPartition.lookup(getPartitionedEndpoint.apply(e))));
+        // choose arbitrary set of edges
+        return random.choose(partitionedEdges);
+    }
 
+    private ArrayList<AssignmentGraph.Edge<ECOccurrenceNode, BindingNode>> getGreedyMaximalMatching(
+            final Block.RowContainer rowContainer,
+            final ArrayList<AssignmentGraph.Edge<ECOccurrenceNode, BindingNode>> shuffledEdges) {
+        // helper lookup map from node to row
+        final Map<AssignmentGraphNode<?>, RowIdentifier> node2Row = new IdentityHashMap<>();
+        // helper set of rows already in the matching
+        final Set<RowIdentifier> rowsInMatching = Sets.newIdentityHashSet();
+        // result container
+        final ArrayList<AssignmentGraph.Edge<ECOccurrenceNode, BindingNode>> maximalMatching = new ArrayList<>();
+        for (final AssignmentGraph.Edge<ECOccurrenceNode, BindingNode> edge : shuffledEdges) {
+            final ECOccurrenceNode source = edge.getSource();
+            // determine and cache block row of source node or (if not part of the block) create a new row for it
+            final RowIdentifier sourceRow = node2Row.computeIfAbsent(source,
+                    x -> Optional.ofNullable(rowContainer.getRowIdentifier(source)).orElseGet(RowIdentifier::new));
+            if (rowsInMatching.contains(sourceRow)) continue;
+            final BindingNode target = edge.getTarget();
+            // same as above for target node
+            final RowIdentifier targetRow = node2Row.computeIfAbsent(target,
+                    x -> Optional.ofNullable(rowContainer.getRowIdentifier(target)).orElseGet(RowIdentifier::new));
+            if (rowsInMatching.contains(targetRow)) continue;
+            rowsInMatching.add(sourceRow);
+            rowsInMatching.add(targetRow);
+            maximalMatching.add(edge);
+        }
+        return maximalMatching;
+    }
+
+    public IncompleteBlock extendByOccurrences(final RandomWrapper random,
+            final Column<ECOccurrenceNode, BindingNode> column) {
+        final Block.RowContainer rowContainer = this.block.getRowContainer();
+        final Map<EdgeType, List<AssignmentGraph.Edge<ECOccurrenceNode, BindingNode>>> edgeTypes =
+                getEdgeTypesFromOccurrenceNode(rowContainer, column);
+        final OccurrencePartition occurrencePartition = this.block.getOccurrencePartition();
+        if (random.decide(50)) {
+            // consider type 3 edges
+            // group by binding partition of the block
+            final ArrayList<AssignmentGraph.Edge<ECOccurrenceNode, BindingNode>> chosenPartition =
+                    chooseCompatibleEdges(random, occurrencePartition, AssignmentGraph.Edge::getSource,
+                            edgeTypes.get(EdgeType.TYPE3).stream());
+            // add to block to get a new incomplete block
+            final IncompleteBlock newIncompleteBlock = extendByType3OccurrenceEdges(column, chosenPartition);
+            return newIncompleteBlock;
+        }
+        // consider type 1 and 2 edges
+        // group by binding partition of the block
+        final ArrayList<AssignmentGraph.Edge<ECOccurrenceNode, BindingNode>> chosenPartition =
+                chooseCompatibleEdges(random, occurrencePartition, AssignmentGraph.Edge::getSource,
+                        Stream.concat(edgeTypes.get(EdgeType.TYPE1).stream(), edgeTypes.get(EdgeType.TYPE2).stream()));
+        // determine random maximal matching (greedy)
+        // shuffle edges to make the result random when just iterating over it
+        random.shuffle(chosenPartition);
+        // greedily get maximal matching
+        final ArrayList<AssignmentGraph.Edge<ECOccurrenceNode, BindingNode>> maximalMatching =
+                getGreedyMaximalMatching(rowContainer, chosenPartition);
+        // add to block to get a new incomplete block
+        final IncompleteBlock newIncompleteBlock = extendByEffectivelyType1Occurrences(column, maximalMatching);
+        return newIncompleteBlock;
+    }
+
+    private IncompleteBlock extendByOccurrenceEdges(final Column<ECOccurrenceNode, BindingNode> column,
+            final List<AssignmentGraph.Edge<ECOccurrenceNode, BindingNode>> edges,
+            final BindingPartition bindingPartition, final Set<ECOccurrence> unboundOccurrences) {
+        final Block.RowContainer rowContainer = this.block.getRowContainer().addColumn(edges);
+        // FIXME do we shrink the column?
+        final Set<Column<ECOccurrenceNode, BindingNode>> columns = SetExtender.with(this.block.getColumns(), column);
+        final Set<SingleFactVariable> singleFactVariables = this.block.getFactVariablesUsed();
+        final OccurrencePartition occurrencePartition = this.getOccurrencePartition();
+        return new IncompleteBlock(
+                new Block(this.block.getGraph(), rowContainer, columns, singleFactVariables, bindingPartition,
+                        occurrencePartition), unboundOccurrences);
+    }
+
+    private IncompleteBlock extendByEffectivelyType1Occurrences(final Column<ECOccurrenceNode, BindingNode> column,
+            final List<AssignmentGraph.Edge<ECOccurrenceNode, BindingNode>> type1Edges) {
+        // when adding type 1 edges we know that we produce new unbound occurrences since only the binding node is
+        // already contained in the active part of the block
+        final Map<RowIdentifier, BindingNode> newBindingSubSet = type1Edges.stream().collect(
+                toMap(edge -> this.block.getRowContainer().getRowIdentifier(edge.getTarget()),
+                        AssignmentGraph.Edge::getTarget, null, IdentityHashMap::new));
+        final BindingPartition bindingPartition =
+                this.getBindingPartition().add(new BindingPartition.BindingSubSet(newBindingSubSet));
+        final Sets.SetView<ECOccurrence> unboundOccurrences = Sets.difference(this.unboundOccurrences,
+                type1Edges.stream().map(AssignmentGraph.Edge::getSource).map(ECOccurrenceNode::getOccurrence)
+                        .collect(toSet()));
+        return extendByOccurrenceEdges(column, type1Edges, bindingPartition, unboundOccurrences);
+    }
+
+    private IncompleteBlock extendByType3OccurrenceEdges(final Column<ECOccurrenceNode, BindingNode> column,
+            final List<AssignmentGraph.Edge<ECOccurrenceNode, BindingNode>> type3Edges) {
+        // when adding type 3 edges we know that we do not produce new unbound occurrences since both endpoints are
+        // already contained in the block
+        final BindingPartition bindingPartition = this.getBindingPartition();
+        final Set<ECOccurrence> unboundOccurrences = this.unboundOccurrences;
+        return extendByOccurrenceEdges(column, type3Edges, bindingPartition, unboundOccurrences);
     }
 
     Block finish() {
