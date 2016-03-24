@@ -47,6 +47,10 @@ public class IncompleteBlock implements BlockInterface {
     final BlockInterface block;
     final Set<ECOccurrence> unboundOccurrences;
 
+    public Block masterMind(final RandomWrapper random) {
+        return null;
+    }
+
     private interface Configuration<T extends NodeType, N extends AssignmentGraphNode<T>> {
         N getOldNode(final Edge<ECOccurrenceNode, BindingNode> edge);
 
@@ -173,17 +177,16 @@ public class IncompleteBlock implements BlockInterface {
                 };
     }
 
-    public IncompleteBlock binding(final RandomWrapper random, final Column<ECOccurrenceNode, BindingNode> column) {
+    public Block binding(final RandomWrapper random, final Column<ECOccurrenceNode, BindingNode> column) {
         return extend(random, column, Configuration.BINDING);
     }
 
-    public IncompleteBlock occurrence(final RandomWrapper random, final Column<ECOccurrenceNode, BindingNode> column) {
+    public Block occurrence(final RandomWrapper random, final Column<ECOccurrenceNode, BindingNode> column) {
         return extend(random, column, Configuration.OCCURRENCE);
     }
 
-    private <T extends NodeType, N extends AssignmentGraphNode<T>> IncompleteBlock extend(final RandomWrapper random,
+    private <T extends NodeType, N extends AssignmentGraphNode<T>> Block extend(final RandomWrapper random,
             final Column<ECOccurrenceNode, BindingNode> column, final Configuration<T, N> config) {
-
         // there are three types of edges to consider:
         // edge type 1: the block contains only the binding node
         // edge type 2: both endpoints are contained in the block, but they belong to different rows
@@ -210,7 +213,6 @@ public class IncompleteBlock implements BlockInterface {
 
         // randomly choose maximal matching
 
-
         final Block.RowContainer rowContainer = this.block.getRowContainer();
         // partition edges by edge type
         final Map<EdgeType, List<Edge<ECOccurrenceNode, BindingNode>>> edgesByType =
@@ -221,28 +223,36 @@ public class IncompleteBlock implements BlockInterface {
         // group edges by old-node-partition
         final ArrayList<ArrayList<Edge<ECOccurrenceNode, BindingNode>>> partitionedEdges =
                 partitionEdges(config.getOldNodePartition(this.block), config::getOldNode, edges.stream());
-        // choose arbitrary set of edges
-        final ArrayList<Edge<ECOccurrenceNode, BindingNode>> chosenPartition = random.choose(partitionedEdges);
-        // get compatible set of edges to add to the block
-        final ArrayList<Edge<ECOccurrenceNode, BindingNode>> chosenEdges =
-                edgeType.chooseEdges(random, rowContainer, chosenPartition);
+        for (int i = 0; i < 100; ++i) {
+            // choose arbitrary set of edges
+            final ArrayList<Edge<ECOccurrenceNode, BindingNode>> chosenPartition = random.choose(partitionedEdges);
+            // get compatible set of edges to add to the block
+            final ArrayList<Edge<ECOccurrenceNode, BindingNode>> chosenEdges =
+                    edgeType.chooseEdges(random, rowContainer, chosenPartition);
 
-        final Block.RowContainer newRowContainer = this.block.getRowContainer().addColumn(chosenEdges);
-        // FIXME do we shrink the column?
-        final Set<Column<ECOccurrenceNode, BindingNode>> newColumns = SetExtender.with(this.block.getColumns(), column);
-        final Set<SingleFactVariable> newFactVariablesUsed =
-                edgeType.getFactVariables(config, this.block.getFactVariablesUsed(), chosenEdges);
+            final Block.RowContainer newRowContainer = this.block.getRowContainer().addColumn(chosenEdges);
+            // FIXME do we shrink the column?
+            final Set<Column<ECOccurrenceNode, BindingNode>> newColumns =
+                    SetExtender.with(this.block.getColumns(), column);
+            final Set<SingleFactVariable> newFactVariablesUsed =
+                    edgeType.getFactVariables(config, this.block.getFactVariablesUsed(), chosenEdges);
 
-        final BindingPartition newBindingPartition =
-                edgeType.getBindingPartition(config, rowContainer, this.block.getBindingPartition(), chosenEdges);
-        final OccurrencePartition newOccurrencePartition =
-                edgeType.getOccurrencePartition(config, rowContainer, this.block.getOccurrencePartition(), chosenEdges);
-        final Set<ECOccurrence> newUnboundOccurrences =
-                edgeType.getUnboundOccurrences(config, this.unboundOccurrences, chosenEdges);
-        final IncompleteBlock newIncompleteBlock = new IncompleteBlock(
-                new Block(this.block.getGraph(), newRowContainer, newColumns, newFactVariablesUsed, newBindingPartition,
-                        newOccurrencePartition), newUnboundOccurrences);
-        return newIncompleteBlock;
+            final BindingPartition newBindingPartition =
+                    edgeType.getBindingPartition(config, rowContainer, this.block.getBindingPartition(), chosenEdges);
+            final OccurrencePartition newOccurrencePartition =
+                    edgeType.getOccurrencePartition(config, rowContainer, this.block.getOccurrencePartition(),
+                            chosenEdges);
+            final Set<ECOccurrence> newUnboundOccurrences =
+                    edgeType.getUnboundOccurrences(config, this.unboundOccurrences, chosenEdges);
+            final IncompleteBlock newIncompleteBlock = new IncompleteBlock(
+                    new Block(this.block.getGraph(), newRowContainer, newColumns, newFactVariablesUsed,
+                            newBindingPartition, newOccurrencePartition), newUnboundOccurrences);
+            final Block newBlock = newIncompleteBlock.masterMind(random);
+            if (null != newBlock) {
+                return newBlock;
+            }
+        }
+        return null;
     }
 
     private enum EdgeType {
