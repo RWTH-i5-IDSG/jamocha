@@ -475,8 +475,8 @@ public class RuleConditionProcessor {
                 final EquivalenceClass oldEC, final Consumer<EquivalenceClass> newECConsumer)
                 throws IllegalStateException {
             assert oldEC.getFunctionalExpressions().isEmpty() && (oldEC.getConstantExpressions().isEmpty() || (
-                    oldEC.getFactVariables().isEmpty() && oldEC.getSlotVariables().isEmpty())) :
-                    "This method assumes that the parser leaves the equality tests involving constants and "
+                    oldEC.getFactVariables().isEmpty() && oldEC.getSlotVariables().isEmpty()))
+                    : "This method assumes that the parser leaves the equality tests involving constants and "
                             + "functional expressions explicitly. Thus there should only be slot/fact binding ECs and "
                             + "constant ECs (separately).";
             if (scope == oldEC.getMaximalScope()) {
