@@ -34,9 +34,24 @@ public class RandomWrapper {
         return collection.get(this.random.nextInt(collection.size()));
     }
 
+    public <T> T choose(final T[] array) {
+        return array[this.random.nextInt(array.length)];
+    }
+
     public <T, C extends RandomAccess & List<T>> C shuffle(final C collection) {
         Collections.shuffle(collection, this.random);
         return collection;
+    }
+
+    public <T> T[] shuffle(final T[] array) {
+        // Durstenfeld shuffle https://en.wikipedia.org/wiki/Fisher%E2%80%93Yates_shuffle#The_modern_algorithm
+        for (int i = array.length - 1; i > 0; i--) {
+            final int index = this.random.nextInt(i + 1);
+            final T a = array[index];
+            array[index] = array[i];
+            array[i] = a;
+        }
+        return array;
     }
 
     public <T, C extends Collection<T>> ArrayList<T> shuffledCopy(final C collection) {

@@ -14,7 +14,6 @@
 
 package org.jamocha.dn.compiler.ecblocks;
 
-import com.google.common.collect.ImmutableList;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -61,20 +60,40 @@ public class MaximalColumns {
     final HashMap<Edge<ImplicitOccurrenceNode, SlotOrFactBindingNode>, ImplicitToTemplateColumn> implicitToTemplate =
             new HashMap<>();
 
-    public Column<? extends ECOccurrenceNode, ? extends BindingNode> searchColumn(
+    public Column<? extends ECOccurrenceNode, ? extends BindingNode> getColumn(
             final Edge<ECOccurrenceNode, BindingNode> edge) {
-        for (final HashMap<? extends Edge<? extends ECOccurrenceNode, ? extends BindingNode>, ? extends
-                AbstractColumn<? extends ECOccurrenceNode, ? extends BindingNode>> map : ImmutableList
-                .of(this.filterToConstant, this.filterToFunctionalExpression, this.filterToTemplate,
-                        this.functionalExpressionToConstant, this.functionalExpressionToFunctionalExpression,
-                        this.functionalExpressionToTemplate, this.implicitToConstant,
-                        this.implicitToFunctionalExpression, this.implicitToTemplate)) {
-            final Column<? extends ECOccurrenceNode, ? extends BindingNode> column = map.get(edge);
-            if (null != column) {
-                return column;
+        final OccurrenceType occurrenceType = edge.getSource().getNodeType();
+        final BindingType bindingType = edge.getTarget().getNodeType();
+        switch (occurrenceType) {
+        case IMPLICIT_OCCURRENCE:
+            switch (bindingType) {
+            case SLOT_OR_FACT_BINDING:
+                return this.implicitToTemplate.get(edge);
+            case CONSTANT_EXPRESSION:
+                return this.implicitToConstant.get(edge);
+            case FUNCTIONAL_EXPRESSION:
+                return this.implicitToFunctionalExpression.get(edge);
+            }
+        case FILTER_OCCURRENCE:
+            switch (bindingType) {
+            case SLOT_OR_FACT_BINDING:
+                return this.filterToTemplate.get(edge);
+            case CONSTANT_EXPRESSION:
+                return this.filterToConstant.get(edge);
+            case FUNCTIONAL_EXPRESSION:
+                return this.filterToFunctionalExpression.get(edge);
+            }
+        case FUNCTIONAL_OCCURRENCE:
+            switch (bindingType) {
+            case SLOT_OR_FACT_BINDING:
+                return this.functionalExpressionToTemplate.get(edge);
+            case CONSTANT_EXPRESSION:
+                return this.functionalExpressionToConstant.get(edge);
+            case FUNCTIONAL_EXPRESSION:
+                return this.functionalExpressionToFunctionalExpression.get(edge);
             }
         }
-        return null;
+        throw new IllegalStateException("UNSUPPORTED EDGE TYPE DETECTED!");
     }
 
     public MaximalColumns(final AssignmentGraph assignmentGraph) {
