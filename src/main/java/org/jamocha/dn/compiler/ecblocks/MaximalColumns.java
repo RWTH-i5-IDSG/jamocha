@@ -60,37 +60,41 @@ public class MaximalColumns {
     final HashMap<Edge<ImplicitOccurrenceNode, SlotOrFactBindingNode>, ImplicitToTemplateColumn> implicitToTemplate =
             new HashMap<>();
 
-    public Column<? extends ECOccurrenceNode, ? extends BindingNode> getColumn(
-            final Edge<ECOccurrenceNode, BindingNode> edge) {
+    private static <O extends ECOccurrenceNode, B extends BindingNode> Column<ECOccurrenceNode, BindingNode> get(
+            final Edge<ECOccurrenceNode, BindingNode> edge, final HashMap<Edge<O, B>, ? extends Column<O, B>> map) {
+        return (Column<ECOccurrenceNode, BindingNode>) map.get(edge);
+    }
+
+    public Column<ECOccurrenceNode, BindingNode> getColumn(final Edge<ECOccurrenceNode, BindingNode> edge) {
         final OccurrenceType occurrenceType = edge.getSource().getNodeType();
         final BindingType bindingType = edge.getTarget().getNodeType();
         switch (occurrenceType) {
         case IMPLICIT_OCCURRENCE:
             switch (bindingType) {
             case SLOT_OR_FACT_BINDING:
-                return this.implicitToTemplate.get(edge);
+                return get(edge, this.implicitToTemplate);
             case CONSTANT_EXPRESSION:
-                return this.implicitToConstant.get(edge);
+                return get(edge, this.implicitToConstant);
             case FUNCTIONAL_EXPRESSION:
-                return this.implicitToFunctionalExpression.get(edge);
+                return get(edge, this.implicitToFunctionalExpression);
             }
         case FILTER_OCCURRENCE:
             switch (bindingType) {
             case SLOT_OR_FACT_BINDING:
-                return this.filterToTemplate.get(edge);
+                return get(edge, this.filterToTemplate);
             case CONSTANT_EXPRESSION:
-                return this.filterToConstant.get(edge);
+                return get(edge, this.filterToConstant);
             case FUNCTIONAL_EXPRESSION:
-                return this.filterToFunctionalExpression.get(edge);
+                return get(edge, this.filterToFunctionalExpression);
             }
         case FUNCTIONAL_OCCURRENCE:
             switch (bindingType) {
             case SLOT_OR_FACT_BINDING:
-                return this.functionalExpressionToTemplate.get(edge);
+                return get(edge, this.functionalExpressionToTemplate);
             case CONSTANT_EXPRESSION:
-                return this.functionalExpressionToConstant.get(edge);
+                return get(edge, this.functionalExpressionToConstant);
             case FUNCTIONAL_EXPRESSION:
-                return this.functionalExpressionToFunctionalExpression.get(edge);
+                return get(edge, this.functionalExpressionToFunctionalExpression);
             }
         }
         throw new IllegalStateException("UNSUPPORTED EDGE TYPE DETECTED!");
