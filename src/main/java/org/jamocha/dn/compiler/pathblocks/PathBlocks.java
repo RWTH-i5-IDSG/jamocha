@@ -13,52 +13,10 @@
  */
 package org.jamocha.dn.compiler.pathblocks;
 
-import static java.util.stream.Collectors.groupingBy;
-import static java.util.stream.Collectors.partitioningBy;
-import static java.util.stream.Collectors.toCollection;
-import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toMap;
-import static java.util.stream.Collectors.toSet;
-import static org.jamocha.util.Lambdas.composeToInt;
-import static org.jamocha.util.Lambdas.negate;
-import static org.jamocha.util.Lambdas.newHashMap;
-import static org.jamocha.util.Lambdas.newHashSet;
-import static org.jamocha.util.Lambdas.newLinkedHashSet;
-import static org.jamocha.util.Lambdas.newTreeMap;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.ListIterator;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.NavigableMap;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.OptionalInt;
-import java.util.Set;
-import java.util.Stack;
-import java.util.TreeMap;
-import java.util.function.Function;
-import java.util.stream.Collector;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-import java.util.stream.Stream;
-
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
-
+import com.google.common.collect.*;
+import com.google.common.collect.Sets.SetView;
+import io.atlassian.fugue.Either;
+import lombok.*;
 import lombok.experimental.UtilityClass;
 import org.apache.commons.collections4.iterators.PermutationIterator;
 import org.apache.commons.collections4.list.CursorableLinkedList;
@@ -67,17 +25,11 @@ import org.jamocha.dn.ConstructCache.Defrule.PathRule;
 import org.jamocha.dn.ConstructCache.Defrule.PathSetRule;
 import org.jamocha.dn.compiler.pathblocks.PathBlocks.Filter.FilterInstance;
 import org.jamocha.dn.compiler.pathblocks.PathBlocks.Filter.FilterInstance.Conflict;
-import org.jamocha.filter.Path;
-import org.jamocha.filter.PathFilter;
-import org.jamocha.filter.PathFilterList;
+import org.jamocha.filter.*;
 import org.jamocha.filter.PathFilterList.PathExistentialList;
 import org.jamocha.filter.PathFilterList.PathSharedListWrapper;
 import org.jamocha.filter.PathFilterList.PathSharedListWrapper.PathSharedList;
-import org.jamocha.filter.PathFilterListVisitor;
-import org.jamocha.filter.PathFilterSet;
 import org.jamocha.filter.PathFilterSet.PathExistentialSet;
-import org.jamocha.filter.PathFilterSetVisitor;
-import org.jamocha.filter.PathNodeFilterSet;
 import org.jamocha.function.fwa.FunctionWithArguments;
 import org.jamocha.function.fwa.PathLeaf;
 import org.jamocha.function.fwa.PredicateWithArguments;
@@ -89,14 +41,16 @@ import org.jgrapht.alg.VertexCovers;
 import org.jgrapht.graph.SimpleDirectedGraph;
 import org.jgrapht.graph.SimpleGraph;
 
-import com.atlassian.fugue.Either;
-import com.google.common.collect.BiMap;
-import com.google.common.collect.HashBiMap;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
-import com.google.common.collect.Sets.SetView;
+import java.util.*;
+import java.util.Map.Entry;
+import java.util.function.Function;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
+
+import static java.util.stream.Collectors.*;
+import static org.jamocha.util.Lambdas.*;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
@@ -143,7 +97,7 @@ public class PathBlocks {
         @Getter
         @Setter
         @AllArgsConstructor(access = AccessLevel.PRIVATE)
-        // no EqualsAndHashCode
+                // no EqualsAndHashCode
         class FilterInstance {
             final PathFilter pathFilter;
             final List<Path> parameters;

@@ -13,17 +13,15 @@
  */
 package org.jamocha.function.fwa;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Map.Entry;
-
+import io.atlassian.fugue.Either;
 import lombok.RequiredArgsConstructor;
-
 import org.jamocha.dn.memory.MemoryHandlerTerminal.AssertOrRetract;
 import org.jamocha.dn.nodes.SlotInFactAddress;
 import org.jamocha.languages.common.ScopeStack.Symbol;
 
-import com.atlassian.fugue.Either;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
 
 /**
  * This class stores the values of local variables.

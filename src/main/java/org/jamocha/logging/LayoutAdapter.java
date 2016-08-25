@@ -13,7 +13,7 @@
  */
 package org.jamocha.logging;
 
-import org.apache.commons.io.Charsets;
+import com.google.common.base.Charsets;
 import org.apache.logging.log4j.core.config.Configuration;
 import org.apache.logging.log4j.core.layout.PatternLayout;
 import org.apache.logging.log4j.core.layout.PatternSelector;

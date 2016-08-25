@@ -13,45 +13,29 @@
  */
 package org.jamocha.rating.fraj;
 
-import static java.util.stream.Collectors.toMap;
-import static java.util.stream.Collectors.toSet;
-import static org.jamocha.util.Lambdas.toHashSet;
+import com.google.common.collect.Sets;
+import com.google.common.collect.Sets.SetView;
+import io.atlassian.fugue.Iterables;
+import lombok.AllArgsConstructor;
+import org.apache.commons.lang3.tuple.Pair;
+import org.jamocha.dn.SideEffectFunctionToNetwork;
+import org.jamocha.dn.nodes.Edge;
+import org.jamocha.dn.nodes.Node;
+import org.jamocha.dn.nodes.TerminalNode;
+import org.jamocha.filter.*;
+import org.jamocha.rating.StatisticsProvider;
+import org.jamocha.rating.StatisticsProvider.Data;
+import org.jamocha.util.Lambdas;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.IdentityHashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.function.DoubleBinaryOperator;
 import java.util.function.Function;
 import java.util.stream.DoubleStream;
 import java.util.stream.DoubleStream.Builder;
 import java.util.stream.Stream;
 
-import lombok.AllArgsConstructor;
-
-import org.apache.commons.lang3.tuple.Pair;
-import org.jamocha.dn.SideEffectFunctionToNetwork;
-import org.jamocha.dn.nodes.Edge;
-import org.jamocha.dn.nodes.Node;
-import org.jamocha.dn.nodes.TerminalNode;
-import org.jamocha.filter.Path;
-import org.jamocha.filter.PathCollector;
-import org.jamocha.filter.PathFilter;
-import org.jamocha.filter.PathFilterList;
-import org.jamocha.filter.PathNodeFilterSet;
-import org.jamocha.rating.StatisticsProvider;
-import org.jamocha.rating.StatisticsProvider.Data;
-import org.jamocha.util.Lambdas;
-
-import com.atlassian.fugue.Iterables;
-import com.google.common.collect.Sets;
-import com.google.common.collect.Sets.SetView;
+import static java.util.stream.Collectors.*;
+import static org.jamocha.util.Lambdas.toHashSet;
 
 /**
  * Actual implementation of the Rating algorithm.
