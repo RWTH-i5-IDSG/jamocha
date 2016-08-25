@@ -74,7 +74,8 @@ public class PathFilterConsolidator implements DefaultConditionalElementsVisitor
     private List<Defrule.PathSetRule> translateds = null;
 
     public List<Defrule.PathSetRule> consolidate() {
-        assert this.rule.getCondition().getConditionalElements().size() == 1;
+        assert this.rule.getCondition().getConditionalElements().size() == 1 : this.rule.getCondition()
+                .getConditionalElements();
         return this.rule.getCondition().getConditionalElements().get(0).accept(this).translateds;
     }
 
