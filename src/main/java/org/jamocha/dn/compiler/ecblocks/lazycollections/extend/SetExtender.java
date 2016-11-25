@@ -18,25 +18,44 @@ import com.google.common.collect.Iterators;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.jamocha.dn.compiler.ecblocks.lazycollections.minimal.ImmutableMinimalSet;
+import org.jamocha.dn.compiler.ecblocks.lazycollections.minimal.indexed.IndexedImmutableSet;
 
 import java.util.Iterator;
 import java.util.Objects;
-import java.util.Set;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
-@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-public class SetExtender<T> extends ExtendedCollection<T> implements Set<T> {
-    final Set<T> wrapped;
+@RequiredArgsConstructor(access = AccessLevel.PROTECTED)
+public class SetExtender<T, S extends ImmutableMinimalSet<T>> implements ImmutableMinimalSet<T> {
+    final S wrapped;
     final T additionalElement;
 
     @Getter(lazy = true, value = AccessLevel.PRIVATE)
     private final int size = this.wrapped.size() + 1;
 
-    public static <T> Set<T> with(final Set<T> toWrap, final T additionalElement) {
+    public static <T> ImmutableMinimalSet<T> with(final ImmutableMinimalSet<T> toWrap, final T additionalElement) {
         if (toWrap.contains(additionalElement)) return toWrap;
         return new SetExtender<>(toWrap, additionalElement);
+    }
+
+    protected static class IndexedSetExtender<T> extends SetExtender<T, IndexedImmutableSet<T>>
+            implements IndexedImmutableSet<T> {
+        protected IndexedSetExtender(final IndexedImmutableSet<T> wrapped, final T additionalElement) {
+            super(wrapped, additionalElement);
+        }
+
+        @Override
+        public T get(final int index) {
+            if (index == this.wrapped.size()) return this.additionalElement;
+            return this.wrapped.get(index);
+        }
+    }
+
+    public static <T> IndexedImmutableSet<T> with(final IndexedImmutableSet<T> toWrap, final T additionalElement) {
+        if (toWrap.contains(additionalElement)) return toWrap;
+        return new IndexedSetExtender<>(toWrap, additionalElement);
     }
 
     @Override

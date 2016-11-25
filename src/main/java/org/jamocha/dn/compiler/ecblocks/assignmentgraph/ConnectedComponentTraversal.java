@@ -24,6 +24,7 @@ import org.jamocha.dn.compiler.ecblocks.assignmentgraph.node.occurrence.ECOccurr
 import org.jamocha.dn.compiler.ecblocks.assignmentgraph.node.occurrence.FilterOccurrenceNode;
 import org.jamocha.dn.compiler.ecblocks.assignmentgraph.node.occurrence.FunctionalExpressionOccurrenceNode;
 import org.jamocha.dn.compiler.ecblocks.assignmentgraph.node.occurrence.ImplicitOccurrenceNode;
+import org.jamocha.dn.compiler.ecblocks.lazycollections.minimal.ImmutableMinimalSet;
 import org.jamocha.languages.common.SingleFactVariable;
 
 import java.util.Deque;
@@ -38,7 +39,7 @@ import java.util.Set;
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 public abstract class ConnectedComponentTraversal implements AssignmentGraphNodeVisitor {
     final AssignmentGraph assignmentGraph;
-    final AssignmentGraph.Graph traversedGraph;
+    final AssignmentGraph.Graph<?, ?, ?, ?, ?, ?, ?, ?> traversedGraph;
     final AssignmentGraph.UnrestrictedGraph.SubGraph subgraph;
 
     final Set<AssignmentGraphNode<?>> queued = Sets.newIdentityHashSet();
@@ -52,7 +53,7 @@ public abstract class ConnectedComponentTraversal implements AssignmentGraphNode
 
     protected abstract <T extends AssignmentGraphNode<?>> void handleNode(final T node,
             final Function<AssignmentGraph.Edge<ECOccurrenceNode, BindingNode>, AssignmentGraphNode<?>> getOtherNode,
-            final Function<T, Set<AssignmentGraph.Edge<ECOccurrenceNode, BindingNode>>> getEdges);
+            final Function<T, ImmutableMinimalSet<AssignmentGraph.Edge<ECOccurrenceNode, BindingNode>>> getEdges);
 
     protected void handleBindingNode(final BindingNode node) {
         handleNode(node, AssignmentGraph.Edge::getSource, this.traversedGraph::incomingEdgesOf);

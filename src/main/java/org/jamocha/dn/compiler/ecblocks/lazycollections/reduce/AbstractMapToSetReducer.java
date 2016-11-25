@@ -14,67 +14,57 @@
 
 package org.jamocha.dn.compiler.ecblocks.lazycollections.reduce;
 
-import com.google.common.collect.ImmutableSet;
 import lombok.AccessLevel;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import org.apache.commons.lang3.tuple.Pair;
-import org.jamocha.dn.compiler.ecblocks.lazycollections.LazyMap;
-import org.jamocha.dn.compiler.ecblocks.lazycollections.ReplacingCollection;
-import org.jamocha.dn.compiler.ecblocks.lazycollections.ReplacingSet;
+import org.jamocha.dn.compiler.ecblocks.lazycollections.minimal.ImmutableMinimalMap;
+import org.jamocha.dn.compiler.ecblocks.lazycollections.minimal.ImmutableMinimalSet;
 
-import java.util.Collection;
 import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
 import java.util.function.BiPredicate;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
-@RequiredArgsConstructor(access = AccessLevel.PROTECTED)
-public class AbstractMapToSetReducer<K, V> implements LazyMap<K, Set<V>> {
-    private final Map<K, Set<V>> wrapped;
-    private final K reductionKey;
-    private final V reductionValue;
-    private final BiPredicate<Object, Object> keyEquals;
+public abstract class AbstractMapToSetReducer<K, V, VALUESET extends ImmutableMinimalSet<V>, S extends
+        ImmutableMinimalSet<K>, N extends ImmutableMinimalSet<Map.Entry<K, VALUESET>>>
+        implements ImmutableMinimalMap<K, VALUESET, S, N> {
+    protected final ImmutableMinimalMap<K, VALUESET, S, N> wrapped;
+    protected final K reductionKey;
+    protected final V reductionValue;
+    protected final BiPredicate<Object, Object> keyEquals;
+    protected final CtorStrategy<K, V, VALUESET, S, N> strategy;
 
-    @Getter(lazy = true, value = AccessLevel.PRIVATE)
-    private final Entry<K, Set<V>> entry = Pair.of(this.reductionKey, ImmutableSet.of(this.reductionValue));
-    @Getter(lazy = true, value = AccessLevel.PRIVATE)
-    private final Set<K> keySet = IdentitySetReducer.without(this.wrapped.keySet(), this.reductionKey);
-    @Getter(lazy = true, value = AccessLevel.PRIVATE)
-    private final Collection<Set<V>> values = determineValues();
-    @Getter(lazy = true, value = AccessLevel.PRIVATE)
-    private final Set<Entry<K, Set<V>>> entrySet = determineEntrySet();
-    @Getter(lazy = true, value = AccessLevel.PRIVATE)
-    private final int size = this.wrapped.size() - 1;
-
-    private Set<Entry<K, Set<V>>> determineEntrySet() {
-        final Set<V> toReduce = this.wrapped.get(this.reductionKey);
-        if (1 == toReduce.size()) {
-            // reduced set would be empty, hide the entire entry
-            // can't use identity hash set since getting the original Entry is too cumbersome
-            return SetReducer.without(this.wrapped.entrySet(), Pair.of(this.reductionKey, toReduce));
-        }
-        final Set<V> reduced = IdentitySetReducer.without(toReduce, this.reductionValue);
-        return new ReplacingSet<>(this.wrapped.entrySet(), getEntry(), Pair.of(this.reductionKey, reduced),
-                Objects::equals);
+    protected AbstractMapToSetReducer(final ImmutableMinimalMap<K, VALUESET, S, N> wrapped, final K reductionKey,
+            final V reductionValue, final BiPredicate<Object, Object> keyEquals,
+            final CtorStrategy<K, V, VALUESET, S, N> strategy) {
+        this.wrapped = wrapped;
+        this.reductionKey = reductionKey;
+        this.reductionValue = reductionValue;
+        this.keyEquals = keyEquals;
+        this.strategy = strategy;
     }
 
-    private Collection<Set<V>> determineValues() {
-        final Set<V> toReduce = this.wrapped.get(this.reductionKey);
-        if (1 == toReduce.size()) {
-            // reduced set would be empty, hide the entire value
-            return IdentitySetReducer.without(this.wrapped.values(), toReduce);
-        }
-        final Set<V> reduced = IdentitySetReducer.without(toReduce, this.reductionValue);
-        return new ReplacingCollection<>(this.wrapped.values(), toReduce, reduced, Objects::equals);
-    }
+    @Getter(lazy = true, value = AccessLevel.PROTECTED)
+    private final VALUESET valueAsSet = strategy.getValueAsSet(reductionValue);
+    @Getter(lazy = true, value = AccessLevel.PROTECTED)
+    private final Map.Entry<K, VALUESET> entry = strategy.getEntry(reductionKey, getValueAsSet());
+    @Getter(lazy = true, value = AccessLevel.PROTECTED)
+    private final S keySet = strategy.getKeySet(wrapped, reductionKey);
+    @Getter(lazy = true, value = AccessLevel.PROTECTED)
+    private final N entrySet = strategy.getEntrySet(wrapped, reductionKey, reductionValue, getEntry());
+    @Getter(lazy = true, value = AccessLevel.PROTECTED)
+    private final int size = wrapped.size() - 1;
 
-    @Override
-    public boolean isEmpty() {
-        return 0 == getSize();
+    interface CtorStrategy<K, V, VALUESET extends ImmutableMinimalSet<V>, S extends ImmutableMinimalSet<K>, N extends
+            ImmutableMinimalSet<Map.Entry<K, VALUESET>>> {
+        VALUESET getValueAsSet(final V reductionValue);
+
+        Map.Entry<K, VALUESET> getEntry(final K reductionKey, final VALUESET valueAsSet);
+
+        S getKeySet(final ImmutableMinimalMap<K, VALUESET, S, N> wrapped, final K reductionKey);
+
+        N getEntrySet(final ImmutableMinimalMap<K, VALUESET, S, N> wrapped, final K reductionKey,
+                final V reductionValue, final Map.Entry<K, VALUESET> entry);
     }
 
     @Override
@@ -83,17 +73,12 @@ public class AbstractMapToSetReducer<K, V> implements LazyMap<K, Set<V>> {
     }
 
     @Override
-    public Set<K> keySet() {
+    public S keySet() {
         return getKeySet();
     }
 
     @Override
-    public Collection<Set<V>> values() {
-        return getValues();
-    }
-
-    @Override
-    public Set<Entry<K, Set<V>>> entrySet() {
+    public N entrySet() {
         return getEntrySet();
     }
 
@@ -103,17 +88,19 @@ public class AbstractMapToSetReducer<K, V> implements LazyMap<K, Set<V>> {
     }
 
     @Override
-    public Set<V> get(final Object key) {
+    public VALUESET get(final Object key) {
         final boolean here = this.keyEquals.test(this.reductionKey, key);
-        final Set<V> there = this.wrapped.get(key);
+        final VALUESET there = this.wrapped.get(key);
         if (!here) return there;
         if (null != there) {
             if (1 == there.size()) {
                 // reduced set would be empty, just return null
                 return null;
             }
-            return IdentitySetReducer.without(there, this.reductionValue);
+            return reduceViaIdentitySetReducer(there, this.reductionValue);
         }
         return null;
     }
+
+    protected abstract VALUESET reduceViaIdentitySetReducer(final VALUESET toRecude, final V reductionValue);
 }

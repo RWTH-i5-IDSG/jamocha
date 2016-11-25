@@ -20,34 +20,29 @@ import org.jamocha.dn.compiler.ecblocks.lazycollections.minimal.ImmutableMinimal
 import org.jamocha.dn.compiler.ecblocks.lazycollections.minimal.SimpleImmutableMinimalMap;
 
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
-public class IdentityMapExtender<K, V>
+public class NormalMapExtender<K, V>
         extends AbstractMapExtender<K, V, ImmutableMinimalSet<K>, ImmutableMinimalSet<Map.Entry<K, V>>>
         implements SimpleImmutableMinimalMap<K, V> {
-    protected IdentityMapExtender(
+    protected NormalMapExtender(
             final ImmutableMinimalMap<K, V, ImmutableMinimalSet<K>, ImmutableMinimalSet<Map.Entry<K, V>>> wrapped,
             final K additionalKey, final V additionalValue) {
-        super(wrapped, additionalKey, additionalValue, (a, b) -> a == b,
-                IdentitySetExtender.with(wrapped.keySet(), additionalKey),
+        super(wrapped, additionalKey, additionalValue, Objects::equals,
+                SetExtender.with(wrapped.keySet(), additionalKey),
                 SetExtender.with(wrapped.entrySet(), Pair.of(additionalKey, additionalValue)));
     }
 
-    public static <K, V> IdentityMapExtender<K, V> with(
+    public static <K, V> NormalMapExtender<K, V> with(
             final ImmutableMinimalMap<K, V, ImmutableMinimalSet<K>, ImmutableMinimalSet<Map.Entry<K, V>>> toWrap,
             final K additionalKey, final V additionalValue) {
         if (toWrap.containsKey(additionalKey)) {
             throw new UnsupportedOperationException(
                     "Hiding keys of the wrapped map is not supported, since it is too error-prone!");
         }
-        return new IdentityMapExtender<>(toWrap, additionalKey, additionalValue);
-    }
-
-    public static <K, V> IdentityMapExtender<K, V> with(final SimpleImmutableMinimalMap<K, V> toWrap,
-            final K additionalKey, final V additionalValue) {
-        return with((ImmutableMinimalMap<K, V, ImmutableMinimalSet<K>, ImmutableMinimalSet<Map.Entry<K, V>>>) toWrap,
-                additionalKey, additionalValue);
+        return new NormalMapExtender<>(toWrap, additionalKey, additionalValue);
     }
 }

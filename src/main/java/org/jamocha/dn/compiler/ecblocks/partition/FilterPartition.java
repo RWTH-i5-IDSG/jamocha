@@ -17,11 +17,11 @@ package org.jamocha.dn.compiler.ecblocks.partition;
 import lombok.RequiredArgsConstructor;
 import org.jamocha.dn.compiler.ecblocks.ExistentialInfo;
 import org.jamocha.dn.compiler.ecblocks.RowIdentifier;
+import org.jamocha.dn.compiler.ecblocks.lazycollections.minimal.ImmutableMinimalSet;
+import org.jamocha.dn.compiler.ecblocks.lazycollections.minimal.SimpleImmutableMinimalMap;
 import org.jamocha.dn.compiler.ecblocks.partition.FilterPartition.FilterSubSet;
 import org.jamocha.filter.ECFilter;
 
-import java.util.IdentityHashMap;
-import java.util.Map;
 import java.util.Set;
 
 /**
@@ -32,7 +32,7 @@ public class FilterPartition extends
         InformedPartition<ECFilter, ExistentialInfo.FunctionWithExistentialInfo, FilterSubSet, FilterPartition> {
     public static class FilterSubSet extends
             InformedPartition.InformedSubSet<ECFilter, ExistentialInfo.FunctionWithExistentialInfo, FilterSubSet> {
-        public FilterSubSet(final Map<RowIdentifier, ECFilter> elements,
+        public FilterSubSet(final SimpleImmutableMinimalMap<RowIdentifier, ECFilter> elements,
                 final ExistentialInfo.FunctionWithExistentialInfo info) {
             super(elements, info);
         }
@@ -50,15 +50,27 @@ public class FilterPartition extends
         public FilterSubSet remove(final RowIdentifier key) {
             return super.informedRemove(key, info -> elements -> new FilterSubSet(elements, info));
         }
+
+        @Override
+        public FilterSubSet remove(final Set<RowIdentifier> keys) {
+            return super.informedRemove(keys, info -> elements -> new FilterSubSet(elements, info));
+        }
     }
 
     public FilterPartition(final FilterPartition copy) {
         super(copy, FilterSubSet::new);
     }
 
-    public FilterPartition(final Set<FilterSubSet> subSets, final Map<ECFilter, FilterSubSet> lookup,
-            final Map<ExistentialInfo.FunctionWithExistentialInfo, Set<FilterSubSet>> informedLookup) {
+    public FilterPartition(final ImmutableMinimalSet<FilterSubSet> subSets,
+            final SimpleImmutableMinimalMap<ECFilter, FilterSubSet> lookup,
+            final SimpleImmutableMinimalMap<ExistentialInfo.FunctionWithExistentialInfo,
+                    ImmutableMinimalSet<FilterSubSet>> informedLookup) {
         super(subSets, lookup, informedLookup);
+    }
+
+    @Override
+    protected FilterPartition getCorrectlyTypedThis() {
+        return this;
     }
 
     @Override
@@ -68,7 +80,8 @@ public class FilterPartition extends
     }
 
     @Override
-    public FilterPartition extend(final RowIdentifier row, final IdentityHashMap<FilterSubSet, ECFilter> extension) {
+    public FilterPartition extend(final RowIdentifier row,
+            final SimpleImmutableMinimalMap<FilterSubSet, ECFilter> extension) {
         return super.informedExtend(row, extension,
                 informedLookup -> (set, map) -> new FilterPartition(set, map, informedLookup));
     }
@@ -82,5 +95,11 @@ public class FilterPartition extends
     public FilterPartition remove(final FilterSubSet filterSubSet) {
         return super.informedRemove(filterSubSet,
                 informedLookup -> (set, map) -> new FilterPartition(set, map, informedLookup));
+    }
+
+    @Override
+    public FilterPartition remove(final Set<RowIdentifier> rows) {
+        return super
+                .informedRemove(rows, informedLookup -> (set, map) -> new FilterPartition(set, map, informedLookup));
     }
 }

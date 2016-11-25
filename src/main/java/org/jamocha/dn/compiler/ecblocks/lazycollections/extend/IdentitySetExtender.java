@@ -14,33 +14,15 @@
 
 package org.jamocha.dn.compiler.ecblocks.lazycollections.extend;
 
-import com.google.common.collect.Iterators;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-
-import java.util.Iterator;
-import java.util.Set;
+import org.jamocha.dn.compiler.ecblocks.lazycollections.minimal.ImmutableMinimalSet;
+import org.jamocha.dn.compiler.ecblocks.lazycollections.minimal.indexed.IndexedImmutableSet;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
-@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-public class IdentitySetExtender<T> extends ExtendedCollection<T> implements Set<T> {
-    final Set<T> wrapped;
-    final T additionalElement;
-
-    @Getter(lazy = true, value = AccessLevel.PRIVATE)
-    private final int size = this.wrapped.size() + 1;
-
-    public static <T> Set<T> with(final Set<T> toWrap, final T additionalElement) {
-        if (toWrap.contains(additionalElement)) return toWrap;
-        return new IdentitySetExtender<>(toWrap, additionalElement);
-    }
-
-    @Override
-    public int size() {
-        return getSize();
+public class IdentitySetExtender<T, S extends ImmutableMinimalSet<T>> extends SetExtender<T, S> {
+    protected IdentitySetExtender(final S wrapped, final T additionalElement) {
+        super(wrapped, additionalElement);
     }
 
     @Override
@@ -48,8 +30,26 @@ public class IdentitySetExtender<T> extends ExtendedCollection<T> implements Set
         return o == this.additionalElement || this.wrapped.contains(o);
     }
 
-    @Override
-    public Iterator<T> iterator() {
-        return Iterators.concat(Iterators.singletonIterator(this.additionalElement), this.wrapped.iterator());
+    public static <T> ImmutableMinimalSet<T> with(final ImmutableMinimalSet<T> toWrap, final T additionalElement) {
+        if (toWrap.contains(additionalElement)) return toWrap;
+        return new IdentitySetExtender<>(toWrap, additionalElement);
+    }
+
+    protected static class IndexedIdentitySetExtender<T> extends IdentitySetExtender<T, IndexedImmutableSet<T>>
+            implements IndexedImmutableSet<T> {
+        protected IndexedIdentitySetExtender(final IndexedImmutableSet<T> wrapped, final T additionalElement) {
+            super(wrapped, additionalElement);
+        }
+
+        @Override
+        public T get(final int index) {
+            if (index == this.wrapped.size()) return this.additionalElement;
+            return this.wrapped.get(index);
+        }
+    }
+
+    public static <T> IndexedImmutableSet<T> with(final IndexedImmutableSet<T> toWrap, final T additionalElement) {
+        if (toWrap.contains(additionalElement)) return toWrap;
+        return new IndexedIdentitySetExtender<>(toWrap, additionalElement);
     }
 }

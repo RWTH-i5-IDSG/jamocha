@@ -22,6 +22,7 @@ import org.jamocha.dn.compiler.ecblocks.assignmentgraph.node.binding.BindingNode
 import org.jamocha.dn.compiler.ecblocks.assignmentgraph.node.binding.FunctionalExpressionBindingNode;
 import org.jamocha.dn.compiler.ecblocks.assignmentgraph.node.occurrence.ECOccurrenceNode;
 import org.jamocha.dn.compiler.ecblocks.assignmentgraph.node.occurrence.FunctionalExpressionOccurrenceNode;
+import org.jamocha.dn.compiler.ecblocks.lazycollections.minimal.ImmutableMinimalSet;
 
 import java.util.Set;
 
@@ -50,14 +51,14 @@ public class FunctionalExpressionBindingChecker {
     }
 
     private boolean check(final FunctionalExpressionBindingNode node) {
-        seen.add(node);
-        for (final FunctionalExpressionOccurrenceNode functionalExpressionOccurrenceNode : assignmentGraph
+        this.seen.add(node);
+        for (final FunctionalExpressionOccurrenceNode functionalExpressionOccurrenceNode : this.assignmentGraph
                 .getFunctionalExpressionBindingToOccurrenceNodes().get(node).values()) {
             if (!FunctionalExpressionBindingChecker.this.check(functionalExpressionOccurrenceNode)) {
                 return false;
             }
         }
-        valid.add(node);
+        this.valid.add(node);
         return true;
     }
 
@@ -71,23 +72,23 @@ public class FunctionalExpressionBindingChecker {
         boolean bound = false;
 
         void check(final FunctionalExpressionOccurrenceNode occurrenceNode) {
-            final Set<AssignmentGraph.Edge<ECOccurrenceNode, BindingNode>> edges =
-                    rows.getRow(occurrenceNode).outgoingEdgesOf(occurrenceNode);
+            final ImmutableMinimalSet<AssignmentGraph.Edge<ECOccurrenceNode, BindingNode>> edges =
+                    FunctionalExpressionBindingChecker.this.rows.getRow(occurrenceNode).outgoingEdgesOf(occurrenceNode);
             for (final AssignmentGraph.Edge<ECOccurrenceNode, BindingNode> edge : edges) {
                 final BindingNode target = edge.getTarget();
                 switch (target.getNodeType()) {
                 case FUNCTIONAL_EXPRESSION:
                     final FunctionalExpressionBindingNode node = (FunctionalExpressionBindingNode) target;
-                    if (valid.contains(node)) {
-                        bound = true;
+                    if (FunctionalExpressionBindingChecker.this.valid.contains(node)) {
+                        this.bound = true;
                         return;
                     }
-                    if (seen.contains(node)) continue;
+                    if (FunctionalExpressionBindingChecker.this.seen.contains(node)) continue;
                     if (!FunctionalExpressionBindingChecker.this.check(node)) continue;
                     // FALL THROUGH
                 case SLOT_OR_FACT_BINDING:
                 case CONSTANT_EXPRESSION:
-                    bound = true;
+                    this.bound = true;
                     return;
                 }
             }

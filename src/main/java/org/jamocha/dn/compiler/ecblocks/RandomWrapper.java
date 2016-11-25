@@ -15,6 +15,8 @@
 package org.jamocha.dn.compiler.ecblocks;
 
 import lombok.RequiredArgsConstructor;
+import org.jamocha.dn.compiler.ecblocks.lazycollections.minimal.indexed.IndexedImmutableSet;
+import org.jamocha.dn.compiler.ecblocks.lazycollections.minimal.indexed.IndexedSet;
 
 import java.util.*;
 
@@ -36,6 +38,10 @@ public class RandomWrapper {
 
     public <T> T choose(final T[] array) {
         return array[this.random.nextInt(array.length)];
+    }
+
+    public <T> T choose(final IndexedImmutableSet<T> indexedSet) {
+        return indexedSet.get(this.random);
     }
 
     public <T, C extends RandomAccess & List<T>> C shuffle(final C collection) {

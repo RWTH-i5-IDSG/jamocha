@@ -18,14 +18,20 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.jamocha.dn.compiler.ecblocks.RowIdentifier;
 import org.jamocha.dn.compiler.ecblocks.lazycollections.extend.MapToSetExtender;
+import org.jamocha.dn.compiler.ecblocks.lazycollections.minimal.ImmutableMinimalSet;
+import org.jamocha.dn.compiler.ecblocks.lazycollections.minimal.SimpleImmutableMinimalMap;
+import org.jamocha.dn.compiler.ecblocks.lazycollections.minimal.normal.MinimalSetWrapper;
+import org.jamocha.dn.compiler.ecblocks.lazycollections.minimal.normal.SimpleMinimalIdentityHashMap;
 import org.jamocha.dn.compiler.ecblocks.lazycollections.reduce.MapToSetReducer;
 import org.jamocha.dn.compiler.ecblocks.partition.InformedPartition.InformedSubSet;
 
-import java.util.IdentityHashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.Function;
+import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.*;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
@@ -38,7 +44,7 @@ public abstract class InformedPartition<T, I, S extends InformedSubSet<T, I, S>,
         @Getter
         protected final I info;
 
-        InformedSubSet(final Map<RowIdentifier, T> elements, final I info) {
+        InformedSubSet(final SimpleImmutableMinimalMap<RowIdentifier, T> elements, final I info) {
             super(elements);
             this.info = info;
         }
@@ -49,24 +55,30 @@ public abstract class InformedPartition<T, I, S extends InformedSubSet<T, I, S>,
         }
 
         protected S informedAdd(final RowIdentifier key, final T value,
-                final Function<I, Function<Map<RowIdentifier, T>, S>> ctor) {
+                final Function<I, Function<SimpleImmutableMinimalMap<RowIdentifier, T>, S>> ctor) {
             return super.add(key, value, ctor.apply(this.info));
         }
 
         protected S informedRemove(final RowIdentifier key,
-                final Function<I, Function<Map<RowIdentifier, T>, S>> ctor) {
+                final Function<I, Function<SimpleImmutableMinimalMap<RowIdentifier, T>, S>> ctor) {
             return super.remove(key, ctor.apply(this.info));
+        }
+
+        protected S informedRemove(final Set<RowIdentifier> keys,
+                final Function<I, Function<SimpleImmutableMinimalMap<RowIdentifier, T>, S>> ctor) {
+            return super.remove(keys, ctor.apply(this.info));
         }
     }
 
-    protected final Map<I, Set<S>> informedLookup;
+    protected final SimpleImmutableMinimalMap<I, ImmutableMinimalSet<S>> informedLookup;
 
     public InformedPartition() {
         super();
-        this.informedLookup = new IdentityHashMap<>();
+        this.informedLookup = new SimpleMinimalIdentityHashMap<>();
     }
 
-    public InformedPartition(final Set<S> subSets, final Map<T, S> lookup, final Map<I, Set<S>> informedLookup) {
+    public InformedPartition(final ImmutableMinimalSet<S> subSets, final SimpleImmutableMinimalMap<T, S> lookup,
+            final SimpleImmutableMinimalMap<I, ImmutableMinimalSet<S>> informedLookup) {
         super(subSets, lookup);
         this.informedLookup = informedLookup;
     }
@@ -74,28 +86,44 @@ public abstract class InformedPartition<T, I, S extends InformedSubSet<T, I, S>,
     public InformedPartition(final InformedPartition<T, I, S, P> copy,
             final Function<? super S, ? extends S> copyCtor) {
         super(copy, copyCtor);
-        this.informedLookup = new IdentityHashMap<>(copy.informedLookup);
+        final Map<I, ImmutableMinimalSet<S>> mapOfPendants = copy.informedLookup.entrySet().stream().collect(Collectors
+                .toMap(Map.Entry::getKey, i -> i.getValue().stream()
+                        .map(s -> this.lookup.get(s.elements.entrySet().iterator().next().getValue()))
+                        .collect(toCollection(MinimalSetWrapper::newIdentityHashSet))));
+        this.informedLookup = new SimpleMinimalIdentityHashMap<>(mapOfPendants);
     }
 
-    public Set<S> lookupInformed(final I key) {
+    public ImmutableMinimalSet<S> lookupInformed(final I key) {
         return this.informedLookup.get(key);
     }
 
-    protected P informedAdd(final S newSubSet, final Function<Map<I, Set<S>>, BiFunction<Set<S>, Map<T, S>, P>> ctor) {
+    protected P informedAdd(final S newSubSet,
+            final Function<SimpleImmutableMinimalMap<I, ImmutableMinimalSet<S>>, BiFunction<ImmutableMinimalSet<S>,
+                    SimpleImmutableMinimalMap<T, S>, P>> ctor) {
         return super.add(newSubSet, ctor.apply(MapToSetExtender.with(this.informedLookup, newSubSet.info, newSubSet)));
     }
 
-    protected P informedExtend(final RowIdentifier row, final IdentityHashMap<S, T> extension,
-            final Function<Map<I, Set<S>>, BiFunction<Set<S>, Map<T, S>, P>> ctor) {
+    protected P informedExtend(final RowIdentifier row, final SimpleImmutableMinimalMap<S, T> extension,
+            final Function<SimpleImmutableMinimalMap<I, ImmutableMinimalSet<S>>, BiFunction<ImmutableMinimalSet<S>,
+                    SimpleImmutableMinimalMap<T, S>, P>> ctor) {
         return super.extend(row, extension, ctor.apply(this.informedLookup));
     }
 
     protected P informedRemove(final RowIdentifier row,
-            final Function<Map<I, Set<S>>, BiFunction<Set<S>, Map<T, S>, P>> ctor) {
+            final Function<SimpleImmutableMinimalMap<I, ImmutableMinimalSet<S>>, BiFunction<ImmutableMinimalSet<S>,
+                    SimpleImmutableMinimalMap<T, S>, P>> ctor) {
         return super.remove(row, ctor.apply(this.informedLookup));
     }
 
-    protected P informedRemove(final S s, final Function<Map<I, Set<S>>, BiFunction<Set<S>, Map<T, S>, P>> ctor) {
+    protected P informedRemove(final S s,
+            final Function<SimpleImmutableMinimalMap<I, ImmutableMinimalSet<S>>, BiFunction<ImmutableMinimalSet<S>,
+                    SimpleImmutableMinimalMap<T, S>, P>> ctor) {
         return super.remove(s, ctor.apply(MapToSetReducer.without(this.informedLookup, s.info, s)));
+    }
+
+    protected P informedRemove(final Set<RowIdentifier> rows,
+            final Function<SimpleImmutableMinimalMap<I, ImmutableMinimalSet<S>>, BiFunction<ImmutableMinimalSet<S>,
+                    SimpleImmutableMinimalMap<T, S>, P>> ctor) {
+        return super.remove(rows, ctor.apply(this.informedLookup));
     }
 }

@@ -18,10 +18,10 @@ import lombok.RequiredArgsConstructor;
 import org.jamocha.dn.compiler.ecblocks.RowIdentifier;
 import org.jamocha.dn.compiler.ecblocks.assignmentgraph.node.occurrence.ECOccurrenceNode;
 import org.jamocha.dn.compiler.ecblocks.assignmentgraph.node.occurrence.OccurrenceType;
+import org.jamocha.dn.compiler.ecblocks.lazycollections.minimal.ImmutableMinimalSet;
+import org.jamocha.dn.compiler.ecblocks.lazycollections.minimal.SimpleImmutableMinimalMap;
 import org.jamocha.dn.compiler.ecblocks.partition.OccurrencePartition.OccurrenceSubSet;
 
-import java.util.IdentityHashMap;
-import java.util.Map;
 import java.util.Set;
 
 /**
@@ -32,12 +32,13 @@ public class OccurrencePartition
         extends InformedPartition<ECOccurrenceNode, OccurrenceType, OccurrenceSubSet, OccurrencePartition> {
     public static class OccurrenceSubSet extends
             InformedPartition.InformedSubSet<ECOccurrenceNode, OccurrenceType, OccurrencePartition.OccurrenceSubSet> {
-        public OccurrenceSubSet(final Map<RowIdentifier, ECOccurrenceNode> elements, final OccurrenceType info) {
+        public OccurrenceSubSet(final SimpleImmutableMinimalMap<RowIdentifier, ECOccurrenceNode> elements,
+                final OccurrenceType info) {
             super(elements, info);
         }
 
-        public OccurrenceSubSet(final Map<RowIdentifier, ECOccurrenceNode> elements) {
-            this(elements, elements.values().iterator().next().getNodeType());
+        public OccurrenceSubSet(final SimpleImmutableMinimalMap<RowIdentifier, ECOccurrenceNode> elements) {
+            this(elements, elements.entrySet().iterator().next().getValue().getNodeType());
         }
 
         public OccurrenceSubSet(final OccurrenceSubSet copy) {
@@ -53,16 +54,26 @@ public class OccurrencePartition
         public OccurrenceSubSet remove(final RowIdentifier key) {
             return super.informedRemove(key, info -> elements -> new OccurrenceSubSet(elements, info));
         }
+
+        @Override
+        public OccurrenceSubSet remove(final Set<RowIdentifier> keys) {
+            return super.informedRemove(keys, info -> elements -> new OccurrenceSubSet(elements, info));
+        }
     }
 
     public OccurrencePartition(final OccurrencePartition copy) {
         super(copy, OccurrenceSubSet::new);
     }
 
-    public OccurrencePartition(final Set<OccurrenceSubSet> subSets,
-            final Map<ECOccurrenceNode, OccurrenceSubSet> lookup,
-            final Map<OccurrenceType, Set<OccurrenceSubSet>> informedLookup) {
+    public OccurrencePartition(final ImmutableMinimalSet<OccurrenceSubSet> subSets,
+            final SimpleImmutableMinimalMap<ECOccurrenceNode, OccurrenceSubSet> lookup,
+            final SimpleImmutableMinimalMap<OccurrenceType, ImmutableMinimalSet<OccurrenceSubSet>> informedLookup) {
         super(subSets, lookup, informedLookup);
+    }
+
+    @Override
+    protected OccurrencePartition getCorrectlyTypedThis() {
+        return this;
     }
 
     @Override
@@ -73,7 +84,7 @@ public class OccurrencePartition
 
     @Override
     public OccurrencePartition extend(final RowIdentifier row,
-            final IdentityHashMap<OccurrenceSubSet, ECOccurrenceNode> extension) {
+            final SimpleImmutableMinimalMap<OccurrenceSubSet, ECOccurrenceNode> extension) {
         return super.informedExtend(row, extension,
                 informedLookup -> (set, map) -> new OccurrencePartition(set, map, informedLookup));
     }
@@ -87,6 +98,12 @@ public class OccurrencePartition
     @Override
     public OccurrencePartition remove(final OccurrenceSubSet subSet) {
         return super.informedRemove(subSet,
+                informedLookup -> (set, map) -> new OccurrencePartition(set, map, informedLookup));
+    }
+
+    @Override
+    public OccurrencePartition remove(final Set<RowIdentifier> rows) {
+        return super.informedRemove(rows,
                 informedLookup -> (set, map) -> new OccurrencePartition(set, map, informedLookup));
     }
 }

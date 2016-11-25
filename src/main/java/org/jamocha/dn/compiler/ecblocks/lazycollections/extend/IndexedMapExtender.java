@@ -17,37 +17,31 @@ package org.jamocha.dn.compiler.ecblocks.lazycollections.extend;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jamocha.dn.compiler.ecblocks.lazycollections.minimal.ImmutableMinimalMap;
 import org.jamocha.dn.compiler.ecblocks.lazycollections.minimal.ImmutableMinimalSet;
-import org.jamocha.dn.compiler.ecblocks.lazycollections.minimal.SimpleImmutableMinimalMap;
+import org.jamocha.dn.compiler.ecblocks.lazycollections.minimal.indexed.IndexedImmutableSet;
 
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
-public class IdentityMapExtender<K, V>
-        extends AbstractMapExtender<K, V, ImmutableMinimalSet<K>, ImmutableMinimalSet<Map.Entry<K, V>>>
-        implements SimpleImmutableMinimalMap<K, V> {
-    protected IdentityMapExtender(
-            final ImmutableMinimalMap<K, V, ImmutableMinimalSet<K>, ImmutableMinimalSet<Map.Entry<K, V>>> wrapped,
+public class IndexedMapExtender<K, V>
+        extends AbstractMapExtender<K, V, IndexedImmutableSet<K>, ImmutableMinimalSet<Map.Entry<K, V>>> {
+    protected IndexedMapExtender(
+            final ImmutableMinimalMap<K, V, IndexedImmutableSet<K>, ImmutableMinimalSet<Map.Entry<K, V>>> wrapped,
             final K additionalKey, final V additionalValue) {
-        super(wrapped, additionalKey, additionalValue, (a, b) -> a == b,
-                IdentitySetExtender.with(wrapped.keySet(), additionalKey),
+        super(wrapped, additionalKey, additionalValue, Objects::equals,
+                SetExtender.with(wrapped.keySet(), additionalKey),
                 SetExtender.with(wrapped.entrySet(), Pair.of(additionalKey, additionalValue)));
     }
 
-    public static <K, V> IdentityMapExtender<K, V> with(
-            final ImmutableMinimalMap<K, V, ImmutableMinimalSet<K>, ImmutableMinimalSet<Map.Entry<K, V>>> toWrap,
+    public static <K, V> IndexedMapExtender<K, V> with(
+            final ImmutableMinimalMap<K, V, IndexedImmutableSet<K>, ImmutableMinimalSet<Map.Entry<K, V>>> toWrap,
             final K additionalKey, final V additionalValue) {
         if (toWrap.containsKey(additionalKey)) {
             throw new UnsupportedOperationException(
                     "Hiding keys of the wrapped map is not supported, since it is too error-prone!");
         }
-        return new IdentityMapExtender<>(toWrap, additionalKey, additionalValue);
-    }
-
-    public static <K, V> IdentityMapExtender<K, V> with(final SimpleImmutableMinimalMap<K, V> toWrap,
-            final K additionalKey, final V additionalValue) {
-        return with((ImmutableMinimalMap<K, V, ImmutableMinimalSet<K>, ImmutableMinimalSet<Map.Entry<K, V>>>) toWrap,
-                additionalKey, additionalValue);
+        return new IndexedMapExtender<>(toWrap, additionalKey, additionalValue);
     }
 }

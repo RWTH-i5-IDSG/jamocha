@@ -15,6 +15,7 @@
 package org.jamocha.dn.compiler.ecblocks.lazycollections;
 
 import lombok.RequiredArgsConstructor;
+import org.jamocha.dn.compiler.ecblocks.lazycollections.minimal.ImmutableMinimalSet;
 
 import java.util.Iterator;
 import java.util.Objects;
@@ -25,16 +26,11 @@ import java.util.function.BiPredicate;
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
 @RequiredArgsConstructor
-public class ReplacingSet<T> extends LazyCollection<T> implements Set<T> {
-    final Set<T> wrapped;
+public class ReplacingSet<T> implements ImmutableMinimalSet<T> {
+    final ImmutableMinimalSet<T> wrapped;
     final T toReplace;
     final T replacer;
     final BiPredicate<T, T> equals;
-
-    @Override
-    public boolean isEmpty() {
-        return this.wrapped.isEmpty();
-    }
 
     @Override
     public int size() {

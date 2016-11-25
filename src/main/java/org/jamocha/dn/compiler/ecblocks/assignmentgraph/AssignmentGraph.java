@@ -27,10 +27,16 @@ import org.jamocha.dn.compiler.ecblocks.assignmentgraph.node.occurrence.ECOccurr
 import org.jamocha.dn.compiler.ecblocks.assignmentgraph.node.occurrence.FilterOccurrenceNode;
 import org.jamocha.dn.compiler.ecblocks.assignmentgraph.node.occurrence.FunctionalExpressionOccurrenceNode;
 import org.jamocha.dn.compiler.ecblocks.assignmentgraph.node.occurrence.ImplicitOccurrenceNode;
-import org.jamocha.dn.compiler.ecblocks.lazycollections.extend.IdentityMapToSetExtender;
 import org.jamocha.dn.compiler.ecblocks.lazycollections.extend.IdentitySetExtender;
-import org.jamocha.dn.compiler.ecblocks.lazycollections.reduce.IdentityMapToSetReducer;
+import org.jamocha.dn.compiler.ecblocks.lazycollections.extend.IndexedIdentityMapToSetExtender;
+import org.jamocha.dn.compiler.ecblocks.lazycollections.minimal.*;
+import org.jamocha.dn.compiler.ecblocks.lazycollections.minimal.indexed.IdentityHashMapWithIndexedIdentityKeySet;
+import org.jamocha.dn.compiler.ecblocks.lazycollections.minimal.indexed.IndexedIdentityHashSet;
+import org.jamocha.dn.compiler.ecblocks.lazycollections.minimal.indexed.IndexedImmutableSet;
+import org.jamocha.dn.compiler.ecblocks.lazycollections.minimal.normal.MinimalMapWrapper;
+import org.jamocha.dn.compiler.ecblocks.lazycollections.minimal.normal.MinimalSetWrapper;
 import org.jamocha.dn.compiler.ecblocks.lazycollections.reduce.IdentitySetReducer;
+import org.jamocha.dn.compiler.ecblocks.lazycollections.reduce.IndexedIdentityMapToSetReducer;
 import org.jamocha.dn.memory.Template;
 import org.jamocha.filter.ECCollector;
 import org.jamocha.filter.ECFilter;
@@ -42,6 +48,7 @@ import org.jamocha.languages.common.RuleCondition.EquivalenceClass;
 import org.jamocha.languages.common.SingleFactVariable;
 
 import java.util.*;
+import java.util.function.Supplier;
 
 import static org.jamocha.util.Lambdas.newIdentityHashSet;
 import static org.jamocha.util.Lambdas.toIdentityHashSet;
@@ -95,12 +102,21 @@ public class AssignmentGraph {
     }
 
     @RequiredArgsConstructor
-    public abstract class Graph {
-        final Map<ECOccurrenceNode, Set<Edge<ECOccurrenceNode, BindingNode>>> outgoingEdges;
-        final Map<BindingNode, Set<Edge<ECOccurrenceNode, BindingNode>>> incomingEdges;
-        final Set<Edge<ECOccurrenceNode, BindingNode>> edgeSet;
+    public abstract class Graph<EDGESET extends ImmutableMinimalSet<Edge<ECOccurrenceNode, BindingNode>>,
+            VALUESET extends ImmutableMinimalSet<Edge<ECOccurrenceNode, BindingNode>>,
+            KEYSETOFOUTGOING extends ImmutableMinimalSet<ECOccurrenceNode>,
+            ENTRYSETOFOUTGOING extends ImmutableMinimalSet<Map.Entry<ECOccurrenceNode, VALUESET>>,
+            OUTGOING extends ImmutableMinimalMap<ECOccurrenceNode, VALUESET, KEYSETOFOUTGOING, ENTRYSETOFOUTGOING>,
+            KEYSETOFINCOMING extends ImmutableMinimalSet<BindingNode>,
+            ENTRYSETOFINCOMING extends ImmutableMinimalSet<Map.Entry<BindingNode, VALUESET>>,
+            INCOMING extends ImmutableMinimalMap<BindingNode, VALUESET, KEYSETOFINCOMING, ENTRYSETOFINCOMING>
+            > {
+        final OUTGOING outgoingEdges;
+        final INCOMING incomingEdges;
+        final EDGESET edgeSet;
+        final Supplier<VALUESET> valueSetSupplier;
 
-        public Set<Edge<ECOccurrenceNode, BindingNode>> edgeSet() {
+        public EDGESET edgeSet() {
             return this.edgeSet;
         }
 
@@ -116,12 +132,12 @@ public class AssignmentGraph {
             return this.outgoingEdges.get(source).stream().filter(e -> e.getTarget() == target).findAny().orElse(null);
         }
 
-        protected Set<Edge<ECOccurrenceNode, BindingNode>> getIncomingEdges(final BindingNode target) {
-            final Set<Edge<ECOccurrenceNode, BindingNode>> edges = this.incomingEdges.get(target);
-            return null != edges ? edges : ImmutableSet.of();
+        protected VALUESET getIncomingEdges(final BindingNode target) {
+            final VALUESET edges = this.incomingEdges.get(target);
+            return null != edges ? edges : this.valueSetSupplier.get();
         }
 
-        public Set<Edge<ECOccurrenceNode, BindingNode>> incomingEdgesOf(final BindingNode target) {
+        public VALUESET incomingEdgesOf(final BindingNode target) {
             return getIncomingEdges(target);
         }
 
@@ -129,12 +145,12 @@ public class AssignmentGraph {
             return getIncomingEdges(target).size();
         }
 
-        protected Set<Edge<ECOccurrenceNode, BindingNode>> getOutgoingEdges(final ECOccurrenceNode source) {
-            final Set<Edge<ECOccurrenceNode, BindingNode>> edges = this.outgoingEdges.get(source);
-            return null != edges ? edges : ImmutableSet.of();
+        protected VALUESET getOutgoingEdges(final ECOccurrenceNode source) {
+            final VALUESET edges = this.outgoingEdges.get(source);
+            return null != edges ? edges : this.valueSetSupplier.get();
         }
 
-        public Set<Edge<ECOccurrenceNode, BindingNode>> outgoingEdgesOf(final ECOccurrenceNode source) {
+        public VALUESET outgoingEdgesOf(final ECOccurrenceNode source) {
             return getOutgoingEdges(source);
         }
 
@@ -142,29 +158,43 @@ public class AssignmentGraph {
             return getOutgoingEdges(source).size();
         }
 
-        public Set<ECOccurrenceNode> getECOccurrenceNodes() {
+        public KEYSETOFOUTGOING getECOccurrenceNodes() {
             return this.outgoingEdges.keySet();
         }
 
-        public Set<BindingNode> getBindingNodes() {
+        public KEYSETOFINCOMING getBindingNodes() {
             return this.incomingEdges.keySet();
         }
     }
 
-    public class UnrestrictedGraph extends Graph {
+    public class UnrestrictedGraph extends Graph<
+            SetAsMinimalSet<Edge<ECOccurrenceNode, BindingNode>>,
+            SetAsMinimalSet<Edge<ECOccurrenceNode, BindingNode>>,
+            SetAsMinimalSet<ECOccurrenceNode>,
+            SetAsMinimalSet<Map.Entry<ECOccurrenceNode, SetAsMinimalSet<Edge<ECOccurrenceNode, BindingNode>>>>,
+            MapAsMinimalMap<ECOccurrenceNode, SetAsMinimalSet<Edge<ECOccurrenceNode, BindingNode>>>,
+            SetAsMinimalSet<BindingNode>,
+            SetAsMinimalSet<Map.Entry<BindingNode, SetAsMinimalSet<Edge<ECOccurrenceNode, BindingNode>>>>,
+            MapAsMinimalMap<BindingNode, SetAsMinimalSet<Edge<ECOccurrenceNode, BindingNode>>>
+            > {
         public UnrestrictedGraph() {
-            super(new IdentityHashMap<>(), new IdentityHashMap<>(), Sets.newIdentityHashSet());
+            super(
+                    new MinimalMapWrapper<>(new IdentityHashMap<>()),
+                    new MinimalMapWrapper<>(new IdentityHashMap<>()),
+                    new MinimalSetWrapper<>(Sets.newIdentityHashSet()),
+                    () -> new MinimalSetWrapper<>(Sets.newIdentityHashSet())
+            );
         }
 
         public boolean addEdge(final ECOccurrenceNode source, final BindingNode target) {
             final Set<Edge<ECOccurrenceNode, BindingNode>> outEdges =
-                    this.outgoingEdges.computeIfAbsent(source, newIdentityHashSet());
+                    this.outgoingEdges.computeIfAbsent(source, (x) -> new MinimalSetWrapper<>(Sets.newIdentityHashSet()));
             if (outEdges.stream().anyMatch(e -> e.getTarget() == target)) {
                 return false;
             }
             final Edge<ECOccurrenceNode, BindingNode> edge = new Edge<>(source, target);
             outEdges.add(edge);
-            this.incomingEdges.computeIfAbsent(target, newIdentityHashSet()).add(edge);
+            this.incomingEdges.computeIfAbsent(target, (x) -> new MinimalSetWrapper<>(Sets.newIdentityHashSet())).add(edge);
             this.edgeSet.add(edge);
             return true;
         }
@@ -173,20 +203,41 @@ public class AssignmentGraph {
             return new SubGraph(edge);
         }
 
-        public class SubGraph extends Graph {
-            public SubGraph(final Map<ECOccurrenceNode, Set<Edge<ECOccurrenceNode, BindingNode>>> outgoingEdges,
-                    final Map<BindingNode, Set<Edge<ECOccurrenceNode, BindingNode>>> incomingEdges,
-                    final Set<Edge<ECOccurrenceNode, BindingNode>> edgeSet) {
-                super(outgoingEdges, incomingEdges, edgeSet);
+        public class SubGraph extends Graph<
+                IndexedImmutableSet<Edge<ECOccurrenceNode, BindingNode>>,
+                IndexedImmutableSet<Edge<ECOccurrenceNode, BindingNode>>,
+                IndexedImmutableSet<ECOccurrenceNode>,
+                ImmutableMinimalSet<Map.Entry<ECOccurrenceNode, IndexedImmutableSet<Edge<ECOccurrenceNode, BindingNode>>>>,
+                ImmutableMinimalMap<ECOccurrenceNode, IndexedImmutableSet<Edge<ECOccurrenceNode, BindingNode>>, IndexedImmutableSet<ECOccurrenceNode>, ImmutableMinimalSet<Map.Entry<ECOccurrenceNode, IndexedImmutableSet<Edge<ECOccurrenceNode, BindingNode>>>>>,
+                IndexedImmutableSet<BindingNode>,
+                ImmutableMinimalSet<Map.Entry<BindingNode, IndexedImmutableSet<Edge<ECOccurrenceNode, BindingNode>>>>,
+                ImmutableMinimalMap<BindingNode, IndexedImmutableSet<Edge<ECOccurrenceNode, BindingNode>>, IndexedImmutableSet<BindingNode>, ImmutableMinimalSet<Map.Entry<BindingNode, IndexedImmutableSet<Edge<ECOccurrenceNode, BindingNode>>>>>
+                > {
+            public SubGraph(final ImmutableMinimalMap<ECOccurrenceNode, IndexedImmutableSet<Edge<ECOccurrenceNode, BindingNode>>, IndexedImmutableSet<ECOccurrenceNode>, ImmutableMinimalSet<Map.Entry<ECOccurrenceNode, IndexedImmutableSet<Edge<ECOccurrenceNode, BindingNode>>>>> outgoingEdges,
+                    final ImmutableMinimalMap<BindingNode, IndexedImmutableSet<Edge<ECOccurrenceNode, BindingNode>>, IndexedImmutableSet<BindingNode>, ImmutableMinimalSet<Map.Entry<BindingNode, IndexedImmutableSet<Edge<ECOccurrenceNode, BindingNode>>>>> incomingEdges,
+                    final IndexedImmutableSet<Edge<ECOccurrenceNode, BindingNode>> edgeSet) {
+                super(outgoingEdges, incomingEdges, edgeSet, IndexedIdentityHashSet::new);
             }
 
             public SubGraph(final Edge<ECOccurrenceNode, BindingNode> edge) {
-                this(edge.getSource(), edge.getTarget(), ImmutableSet.of(edge));
+                this(edge.getSource(), edge.getTarget(), new IndexedIdentityHashSet<>(ImmutableSet.of(edge)));
+            }
+
+            public SubGraph(final SubGraph other) {
+                this(
+                        new IdentityHashMapWithIndexedIdentityKeySet<>(other.outgoingEdges),
+                        new IdentityHashMapWithIndexedIdentityKeySet<>(other.incomingEdges),
+                        new IndexedIdentityHashSet<>(other.edgeSet)
+                );
             }
 
             private SubGraph(final ECOccurrenceNode source, final BindingNode target,
-                    final ImmutableSet<Edge<ECOccurrenceNode, BindingNode>> singleton) {
-                this(ImmutableMap.of(source, singleton), ImmutableMap.of(target, singleton), singleton);
+                    final IndexedImmutableSet<Edge<ECOccurrenceNode, BindingNode>> singleton) {
+                this(
+                        new IdentityHashMapWithIndexedIdentityKeySet<>(ImmutableMap.of(source, singleton)),
+                        new IdentityHashMapWithIndexedIdentityKeySet<>(ImmutableMap.of(target, singleton)),
+                        singleton
+                );
                 assert 1 == singleton.size();
             }
 
@@ -194,8 +245,8 @@ public class AssignmentGraph {
                 assert UnrestrictedGraph.this.edgeSet.contains(edge);
                 final boolean contained = this.edgeSet.contains(edge);
                 if (contained) throw new IllegalArgumentException("Edge already contained!");
-                return new SubGraph(IdentityMapToSetExtender.with(this.outgoingEdges, edge.getSource(), edge),
-                        IdentityMapToSetExtender.with(this.incomingEdges, edge.getTarget(), edge),
+                return new SubGraph(IndexedIdentityMapToSetExtender.with(this.outgoingEdges, edge.getSource(), edge),
+                        IndexedIdentityMapToSetExtender.with(this.incomingEdges, edge.getTarget(), edge),
                         IdentitySetExtender.with(this.edgeSet, edge));
             }
 
@@ -203,21 +254,20 @@ public class AssignmentGraph {
                 assert UnrestrictedGraph.this.edgeSet.contains(edge);
                 final boolean contained = this.edgeSet.contains(edge);
                 if (!contained) throw new IllegalArgumentException("Edge not contained!");
-                return new SubGraph(IdentityMapToSetReducer.without(this.outgoingEdges, edge.getSource(), edge),
-                        IdentityMapToSetReducer.without(this.incomingEdges, edge.getTarget(), edge),
+                return new SubGraph(IndexedIdentityMapToSetReducer.without(this.outgoingEdges, edge.getSource(), edge),
+                        IndexedIdentityMapToSetReducer.without(this.incomingEdges, edge.getTarget(), edge),
                         IdentitySetReducer.without(this.edgeSet, edge));
             }
 
-            public Set<ECOccurrenceNode> occurrenceNodeSet() {
+            public IndexedImmutableSet<ECOccurrenceNode> occurrenceNodeSet() {
                 return this.outgoingEdges.keySet();
             }
 
-            public Set<BindingNode> bindingNodeSet() {
+            public IndexedImmutableSet<BindingNode> bindingNodeSet() {
                 return this.incomingEdges.keySet();
             }
         }
     }
-
 
     private void addECs(final Iterable<EquivalenceClass> ecs) {
         // for every equivalence class
@@ -394,8 +444,7 @@ public class AssignmentGraph {
         relevantECs.removeIf(ec -> {
             if (usedECs.contains(ec)) return false;
             if (!usedFVs.containsAll(ec.getFactVariables())) return false;
-            if (!ec.getConstantExpressions().isEmpty() || !ec.getFunctionalExpressions().isEmpty()) return false;
-            return true;
+            return !(!ec.getConstantExpressions().isEmpty() || !ec.getFunctionalExpressions().isEmpty());
         });
         return relevantECs;
     }

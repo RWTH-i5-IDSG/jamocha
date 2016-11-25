@@ -16,12 +16,12 @@ package org.jamocha.dn.compiler.ecblocks.partition;
 
 import lombok.RequiredArgsConstructor;
 import org.jamocha.dn.compiler.ecblocks.RowIdentifier;
+import org.jamocha.dn.compiler.ecblocks.lazycollections.minimal.ImmutableMinimalSet;
+import org.jamocha.dn.compiler.ecblocks.lazycollections.minimal.SimpleImmutableMinimalMap;
 import org.jamocha.dn.compiler.ecblocks.partition.TemplateInstancePartition.TemplateInstanceSubSet;
 import org.jamocha.dn.memory.Template;
 import org.jamocha.languages.common.SingleFactVariable;
 
-import java.util.IdentityHashMap;
-import java.util.Map;
 import java.util.Set;
 
 /**
@@ -32,12 +32,13 @@ public class TemplateInstancePartition
         extends InformedPartition<SingleFactVariable, Template, TemplateInstanceSubSet, TemplateInstancePartition> {
     public static class TemplateInstanceSubSet
             extends InformedPartition.InformedSubSet<SingleFactVariable, Template, TemplateInstanceSubSet> {
-        public TemplateInstanceSubSet(final Map<RowIdentifier, SingleFactVariable> elements, final Template info) {
+        public TemplateInstanceSubSet(final SimpleImmutableMinimalMap<RowIdentifier, SingleFactVariable> elements,
+                final Template info) {
             super(elements, info);
         }
 
-        public TemplateInstanceSubSet(final Map<RowIdentifier, SingleFactVariable> elements) {
-            this(elements, elements.values().iterator().next().getTemplate());
+        public TemplateInstanceSubSet(final SimpleImmutableMinimalMap<RowIdentifier, SingleFactVariable> elements) {
+            this(elements, elements.entrySet().iterator().next().getValue().getTemplate());
         }
 
         public TemplateInstanceSubSet(final TemplateInstanceSubSet copy) {
@@ -53,16 +54,26 @@ public class TemplateInstancePartition
         public TemplateInstanceSubSet remove(final RowIdentifier key) {
             return super.informedRemove(key, info -> elements -> new TemplateInstanceSubSet(elements, info));
         }
+
+        @Override
+        public TemplateInstanceSubSet remove(final Set<RowIdentifier> keys) {
+            return super.informedRemove(keys, info -> elements -> new TemplateInstanceSubSet(elements, info));
+        }
     }
 
     public TemplateInstancePartition(final TemplateInstancePartition copy) {
         super(copy, TemplateInstanceSubSet::new);
     }
 
-    public TemplateInstancePartition(final Set<TemplateInstanceSubSet> subSets,
-            final Map<SingleFactVariable, TemplateInstanceSubSet> lookup,
-            final Map<Template, Set<TemplateInstanceSubSet>> informedLookup) {
+    public TemplateInstancePartition(final ImmutableMinimalSet<TemplateInstanceSubSet> subSets,
+            final SimpleImmutableMinimalMap<SingleFactVariable, TemplateInstanceSubSet> lookup,
+            final SimpleImmutableMinimalMap<Template, ImmutableMinimalSet<TemplateInstanceSubSet>> informedLookup) {
         super(subSets, lookup, informedLookup);
+    }
+
+    @Override
+    protected TemplateInstancePartition getCorrectlyTypedThis() {
+        return this;
     }
 
     @Override
@@ -73,7 +84,7 @@ public class TemplateInstancePartition
 
     @Override
     public TemplateInstancePartition extend(final RowIdentifier row,
-            final IdentityHashMap<TemplateInstanceSubSet, SingleFactVariable> extension) {
+            final SimpleImmutableMinimalMap<TemplateInstanceSubSet, SingleFactVariable> extension) {
         return super.informedExtend(row, extension,
                 informedLookup -> (set, map) -> new TemplateInstancePartition(set, map, informedLookup));
     }
@@ -87,6 +98,12 @@ public class TemplateInstancePartition
     @Override
     public TemplateInstancePartition remove(final TemplateInstanceSubSet templateInstanceSubSet) {
         return super.informedRemove(templateInstanceSubSet,
+                informedLookup -> (set, map) -> new TemplateInstancePartition(set, map, informedLookup));
+    }
+
+    @Override
+    public TemplateInstancePartition remove(final Set<RowIdentifier> rows) {
+        return super.informedRemove(rows,
                 informedLookup -> (set, map) -> new TemplateInstancePartition(set, map, informedLookup));
     }
 }

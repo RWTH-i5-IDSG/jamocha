@@ -18,9 +18,9 @@ import lombok.RequiredArgsConstructor;
 import org.jamocha.dn.compiler.ecblocks.RowIdentifier;
 import org.jamocha.dn.compiler.ecblocks.assignmentgraph.node.binding.BindingNode;
 import org.jamocha.dn.compiler.ecblocks.assignmentgraph.node.binding.BindingType;
+import org.jamocha.dn.compiler.ecblocks.lazycollections.minimal.ImmutableMinimalSet;
+import org.jamocha.dn.compiler.ecblocks.lazycollections.minimal.SimpleImmutableMinimalMap;
 
-import java.util.IdentityHashMap;
-import java.util.Map;
 import java.util.Set;
 
 /**
@@ -31,7 +31,8 @@ public class BindingPartition
         extends InformedPartition<BindingNode, BindingType, BindingPartition.BindingSubSet, BindingPartition> {
     public static class BindingSubSet
             extends InformedPartition.InformedSubSet<BindingNode, BindingType, BindingSubSet> {
-        public BindingSubSet(final Map<RowIdentifier, BindingNode> elements, final BindingType info) {
+        public BindingSubSet(final SimpleImmutableMinimalMap<RowIdentifier, BindingNode> elements,
+                final BindingType info) {
             super(elements, info);
         }
 
@@ -39,8 +40,8 @@ public class BindingPartition
             super(copy);
         }
 
-        public BindingSubSet(final Map<RowIdentifier, BindingNode> elements) {
-            this(elements, elements.values().iterator().next().getNodeType());
+        public BindingSubSet(final SimpleImmutableMinimalMap<RowIdentifier, BindingNode> elements) {
+            this(elements, elements.entrySet().iterator().next().getValue().getNodeType());
         }
 
         @Override
@@ -52,15 +53,26 @@ public class BindingPartition
         public BindingSubSet remove(final RowIdentifier key) {
             return super.informedRemove(key, info -> elements -> new BindingSubSet(elements, info));
         }
+
+        @Override
+        public BindingSubSet remove(final Set<RowIdentifier> keys) {
+            return super.informedRemove(keys, info -> elements -> new BindingSubSet(elements, info));
+        }
     }
 
     public BindingPartition(final BindingPartition copy) {
         super(copy, BindingSubSet::new);
     }
 
-    public BindingPartition(final Set<BindingSubSet> subSets, final Map<BindingNode, BindingSubSet> lookup,
-            final Map<BindingType, Set<BindingSubSet>> informedLookup) {
+    public BindingPartition(final ImmutableMinimalSet<BindingSubSet> subSets,
+            final SimpleImmutableMinimalMap<BindingNode, BindingSubSet> lookup,
+            final SimpleImmutableMinimalMap<BindingType, ImmutableMinimalSet<BindingSubSet>> informedLookup) {
         super(subSets, lookup, informedLookup);
+    }
+
+    @Override
+    protected BindingPartition getCorrectlyTypedThis() {
+        return this;
     }
 
     @Override
@@ -71,7 +83,7 @@ public class BindingPartition
 
     @Override
     public BindingPartition extend(final RowIdentifier row,
-            final IdentityHashMap<BindingSubSet, BindingNode> extension) {
+            final SimpleImmutableMinimalMap<BindingSubSet, BindingNode> extension) {
         return super.informedExtend(row, extension,
                 infLookup -> (subsets, lookup) -> new BindingPartition(subsets, lookup, infLookup));
     }
@@ -85,6 +97,12 @@ public class BindingPartition
     @Override
     public BindingPartition remove(final BindingSubSet oldSubSet) {
         return super.informedAdd(oldSubSet,
+                infLookup -> (subsets, lookup) -> new BindingPartition(subsets, lookup, infLookup));
+    }
+
+    @Override
+    public BindingPartition remove(final Set<RowIdentifier> rows) {
+        return super.informedRemove(rows,
                 infLookup -> (subsets, lookup) -> new BindingPartition(subsets, lookup, infLookup));
     }
 }

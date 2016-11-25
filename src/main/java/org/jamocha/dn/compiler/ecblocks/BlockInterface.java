@@ -18,6 +18,7 @@ import org.jamocha.dn.compiler.ecblocks.assignmentgraph.AssignmentGraph;
 import org.jamocha.dn.compiler.ecblocks.assignmentgraph.node.binding.BindingNode;
 import org.jamocha.dn.compiler.ecblocks.assignmentgraph.node.occurrence.ECOccurrenceNode;
 import org.jamocha.dn.compiler.ecblocks.column.Column;
+import org.jamocha.dn.compiler.ecblocks.lazycollections.minimal.ImmutableMinimalSet;
 import org.jamocha.dn.compiler.ecblocks.partition.BindingPartition;
 import org.jamocha.dn.compiler.ecblocks.partition.OccurrencePartition;
 import org.jamocha.languages.common.SingleFactVariable;
@@ -32,7 +33,7 @@ public interface BlockInterface {
 
     Block.RowContainer getRowContainer();
 
-    Set<Column<ECOccurrenceNode, BindingNode>> getColumns();
+    ImmutableMinimalSet<Column<ECOccurrenceNode, BindingNode>> getColumns();
 
     Set<SingleFactVariable> getFactVariablesUsed();
 
@@ -43,4 +44,8 @@ public interface BlockInterface {
     int getNumberOfRows();
 
     int getNumberOfColumns();
+
+    default boolean isEmpty() {
+        return 0 == getNumberOfRows();
+    }
 }

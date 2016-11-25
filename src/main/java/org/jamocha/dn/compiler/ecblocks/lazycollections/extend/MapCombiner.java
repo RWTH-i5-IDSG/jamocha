@@ -14,42 +14,47 @@
 
 package org.jamocha.dn.compiler.ecblocks.lazycollections.extend;
 
-import com.google.common.collect.Sets;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import org.jamocha.dn.compiler.ecblocks.lazycollections.LazyMap;
+import org.jamocha.dn.compiler.ecblocks.lazycollections.Is;
+import org.jamocha.dn.compiler.ecblocks.lazycollections.minimal.ImmutableMinimalMap;
+import org.jamocha.dn.compiler.ecblocks.lazycollections.minimal.ImmutableMinimalSet;
+import org.jamocha.dn.compiler.ecblocks.lazycollections.minimal.SimpleImmutableMinimalMap;
 
-import java.util.*;
+import java.util.Map;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-public class MapCombiner<K, V> implements LazyMap<K, V> {
-    private final Map<K, V> wrapped;
-    private final Map<K, V> additionalEntries;
+public class MapCombiner<K, V> implements SimpleImmutableMinimalMap<K, V> {
+    private final ImmutableMinimalMap<K, V, ? extends ImmutableMinimalSet<K>, ? extends ImmutableMinimalSet<Map
+            .Entry<K, V>>>
+            wrapped;
+    private final ImmutableMinimalMap<K, V, ? extends ImmutableMinimalSet<K>, ? extends ImmutableMinimalSet<Map
+            .Entry<K, V>>>
+            additionalEntries;
 
     @Getter(lazy = true, value = AccessLevel.PRIVATE)
-    private final Set<K> keySet = Sets.union(this.wrapped.keySet(), this.additionalEntries.keySet());
+    private final ImmutableMinimalSet<K> keySet =
+            SetCombiner.with(this.wrapped.keySet(), this.additionalEntries.keySet());
     @Getter(lazy = true, value = AccessLevel.PRIVATE)
-    private final CollectionCombiner<V> values =
-            CollectionCombiner.with(this.wrapped.values(), this.additionalEntries.values());
-    @Getter(lazy = true, value = AccessLevel.PRIVATE)
-    private final Set<Entry<K, V>> entrySet = Sets.union(this.wrapped.entrySet(), this.additionalEntries.entrySet());
+    private final ImmutableMinimalSet<Map.Entry<K, V>> entrySet =
+            SetCombiner.with(this.wrapped.entrySet(), this.additionalEntries.entrySet());
     @Getter(lazy = true, value = AccessLevel.PRIVATE)
     private final int size = this.wrapped.size() + this.additionalEntries.size();
 
-    public static <K, V> MapCombiner<K, V> with(final Map<K, V> toWrap, final Map<K, V> additionalEntries) {
-        if (!Collections.disjoint(toWrap.keySet(), additionalEntries.keySet())) {
+    public static <K, V> MapCombiner<K, V> with(
+            final ImmutableMinimalMap<K, V, ? extends ImmutableMinimalSet<K>, ? extends ImmutableMinimalSet<Map
+                    .Entry<K, V>>> toWrap,
+            final ImmutableMinimalMap<K, V, ? extends ImmutableMinimalSet<K>, ? extends ImmutableMinimalSet<Map
+                    .Entry<K, V>>> additionalEntries) {
+        if (!Is.disjoint(toWrap.keySet(), additionalEntries.keySet())) {
             throw new UnsupportedOperationException(
                     "Hiding keys of the wrapped map is not supported, since it is too error-prone!");
         }
         return new MapCombiner<>(toWrap, additionalEntries);
-    }
-
-    public HashMap<K, V> toHashMap() {
-        return new HashMap<>(this);
     }
 
     @Override
@@ -63,28 +68,18 @@ public class MapCombiner<K, V> implements LazyMap<K, V> {
     }
 
     @Override
-    public Set<K> keySet() {
+    public ImmutableMinimalSet<K> keySet() {
         return getKeySet();
     }
 
     @Override
-    public Collection<V> values() {
-        return getValues();
-    }
-
-    @Override
-    public Set<Entry<K, V>> entrySet() {
+    public ImmutableMinimalSet<Map.Entry<K, V>> entrySet() {
         return getEntrySet();
     }
 
     @Override
     public boolean containsKey(final Object key) {
         return this.additionalEntries.containsKey(key) || this.wrapped.containsKey(key);
-    }
-
-    @Override
-    public boolean containsValue(final Object value) {
-        return this.additionalEntries.containsValue(value) || this.wrapped.containsValue(value);
     }
 
     @Override
