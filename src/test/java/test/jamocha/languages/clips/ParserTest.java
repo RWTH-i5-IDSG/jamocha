@@ -265,18 +265,27 @@ public class ParserTest {
             assertSame(template, var.getTemplate());
         }
         final List<ConditionalElement<SymbolLeaf>> conditionalElements = condition.getConditionalElements();
-        assertEquals(4, conditionalElements.size());
+        assertEquals(conditionalElements.toString(), 5, conditionalElements.size());
+        assertThat(conditionalElements.get(0), instanceOf(InitialFactConditionalElement.class));
         {
             final ConditionalElement<SymbolLeaf> conditionalElement = conditionalElements.get(1);
+            assertThat(conditionalElement, instanceOf(TemplatePatternConditionalElement.class));
+            final SingleFactVariable factVariable =
+                    ((TemplatePatternConditionalElement<SymbolLeaf>) conditionalElement).getFactVariable();
+            assertSame(factVariable, x.getEqual().getSlotVariables().getFirst().getFactVariable());
+        }
+        {
+            final ConditionalElement<SymbolLeaf> conditionalElement = conditionalElements.get(2);
             assertThat(conditionalElement, instanceOf(TemplatePatternConditionalElement.class));
             final SingleFactVariable factVariable =
                     ((TemplatePatternConditionalElement<SymbolLeaf>) conditionalElement).getFactVariable();
             final LinkedList<SingleFactVariable> factVariables = z.getEqual().getFactVariables();
             assertThat(factVariables, hasSize(1));
             assertSame(factVariables.getFirst(), factVariable);
+            assertSame(factVariable, y.getEqual().getSlotVariables().getFirst().getFactVariable());
         }
         {
-            final ConditionalElement<SymbolLeaf> conditionalElement = conditionalElements.get(2);
+            final ConditionalElement<SymbolLeaf> conditionalElement = conditionalElements.get(3);
             assertThat(conditionalElement, instanceOf(TestConditionalElement.class));
             final FunctionWithArguments<SymbolLeaf> functionCall =
                     ((TestConditionalElement<SymbolLeaf>) conditionalElement).getPredicateWithArguments();
@@ -296,7 +305,7 @@ public class ParserTest {
             assertEquals(2L, ((ConstantLeaf<SymbolLeaf>) secondArg).getValue());
         }
         {
-            final ConditionalElement<SymbolLeaf> conditionalElement = conditionalElements.get(3);
+            final ConditionalElement<SymbolLeaf> conditionalElement = conditionalElements.get(4);
             assertThat(conditionalElement, instanceOf(TestConditionalElement.class));
             final FunctionWithArguments<SymbolLeaf> functionCall =
                     ((TestConditionalElement<SymbolLeaf>) conditionalElement).getPredicateWithArguments();

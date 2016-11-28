@@ -26,8 +26,10 @@ import org.jamocha.languages.clips.parser.generated.ParseException;
 import org.jamocha.languages.clips.parser.generated.SFPParser;
 import org.jamocha.languages.clips.parser.generated.SFPStart;
 import org.jamocha.languages.common.ConditionalElement;
+import org.jamocha.languages.common.ConditionalElement.InitialFactConditionalElement;
 import org.jamocha.languages.common.RuleConditionProcessor;
 import org.jamocha.languages.common.Warning;
+import org.jamocha.util.Lambdas;
 import org.junit.Test;
 import test.jamocha.util.NetworkMockup;
 
@@ -36,6 +38,7 @@ import java.util.List;
 import java.util.Queue;
 import java.util.Set;
 
+import static java.util.stream.Collectors.*;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
 
@@ -69,7 +72,10 @@ public class PathFilterConsolidatorTest {
         final Defrule rule = ptn.getRule("rule1");
         final List<ConditionalElement<SymbolLeaf>> conditionalElements = rule.getCondition().getConditionalElements();
         RuleConditionProcessor.flattenInPlace(conditionalElements);
-        assertThat(conditionalElements, hasSize(1));
+        final List<ConditionalElement<SymbolLeaf>> actualCEs =
+                conditionalElements.stream().filter(Lambdas.negate(ce -> ce instanceof InitialFactConditionalElement))
+                        .collect(toList());
+        assertThat(actualCEs, hasSize(1));
         return new PathFilterConsolidator(ptn.getInitialFactTemplate(), rule).consolidate();
     }
 

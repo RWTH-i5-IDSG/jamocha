@@ -23,6 +23,8 @@ import org.jamocha.languages.clips.parser.generated.ParseException;
 import org.jamocha.languages.clips.parser.generated.SFPParser;
 import org.jamocha.languages.clips.parser.generated.SFPStart;
 import org.jamocha.languages.common.ConditionalElement;
+import org.jamocha.languages.common.ConditionalElement.AndFunctionConditionalElement;
+import org.jamocha.languages.common.ConditionalElement.InitialFactConditionalElement;
 import org.jamocha.languages.common.RuleCondition;
 import org.jamocha.languages.common.RuleCondition.EquivalenceClass;
 import org.jamocha.languages.common.ScopeStack.VariableSymbol;
@@ -94,17 +96,23 @@ public class FactVariableCollectorTest {
         final NetworkMockup ptn = new NetworkMockup();
         final RuleCondition ruleCondition = clipsToCondition(ptn, input);
         final List<ConditionalElement<SymbolLeaf>> conditionalElements = ruleCondition.getConditionalElements();
-        assertEquals(1, conditionalElements.size());
+        assertEquals(2, conditionalElements.size());
+        final ConditionalElement<SymbolLeaf> initialFactCE = conditionalElements.get(0);
+        assertThat(initialFactCE, instanceOf(InitialFactConditionalElement.class));
+        final ConditionalElement<SymbolLeaf> potAndCE = conditionalElements.get(1);
+        assertThat(potAndCE, instanceOf(AndFunctionConditionalElement.class));
         final Map<EquivalenceClass, Path> ec2Path =
-                ShallowFactVariableCollector.generatePaths(ptn.getInitialFactTemplate(), conditionalElements.get(0))
-                        .getRight();
+                ShallowFactVariableCollector.generatePaths(ptn.getInitialFactTemplate(), potAndCE).getRight();
         assertEquals(1, ec2Path.size());
         final Entry<EquivalenceClass, Path> ecAndPath = ec2Path.entrySet().iterator().next();
         final EquivalenceClass ec = ecAndPath.getKey();
         final Path path = ecAndPath.getValue();
         final Set<VariableSymbol> dummySymbols = new SymbolCollector(ruleCondition).getDummySymbols();
-        assertThat(dummySymbols, hasSize(1));
-        final VariableSymbol dummySymbol = dummySymbols.iterator().next();
+        assertThat(dummySymbols, hasSize(2));
+        final EquivalenceClass initialFactEC =
+                ((InitialFactConditionalElement<?>) initialFactCE).getInitialFactVariable().getEqual();
+        final VariableSymbol dummySymbol =
+                dummySymbols.stream().filter(s -> s.getEqual() != initialFactEC).findAny().get();
         assertEquals(dummySymbol.getEqual(), ec);
         assertEquals(templateName, ec.getFactVariables().getFirst().getTemplate().getName());
         assertSame(ec.getFactVariables().getFirst().getTemplate(), path.getTemplate());
@@ -118,10 +126,13 @@ public class FactVariableCollectorTest {
         final NetworkMockup ptn = new NetworkMockup();
         final RuleCondition ruleCondition = clipsToCondition(ptn, input);
         final List<ConditionalElement<SymbolLeaf>> conditionalElements = ruleCondition.getConditionalElements();
-        assertEquals(1, conditionalElements.size());
-        // TBD see above
+        assertEquals(2, conditionalElements.size());
+        final ConditionalElement<SymbolLeaf> initialFactCE = conditionalElements.get(0);
+        assertThat(initialFactCE, instanceOf(InitialFactConditionalElement.class));
+        final ConditionalElement<SymbolLeaf> andCE = conditionalElements.get(1);
+        assertThat(andCE, instanceOf(AndFunctionConditionalElement.class));
         final List<SingleFactVariable> variables =
-                conditionalElements.get(0).accept(new ShallowFactVariableCollector()).getFactVariables();
+                andCE.accept(new ShallowFactVariableCollector<>()).getFactVariables();
         assertEquals(3, variables.size());
         final Set<VariableSymbol> dummySymbols = new SymbolCollector(ruleCondition).getDummySymbols();
         assertThat(dummySymbols.stream().map(VariableSymbol::getEqual).collect(toList()),
