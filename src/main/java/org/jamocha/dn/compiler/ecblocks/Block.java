@@ -84,6 +84,10 @@ public class Block implements BlockInterface {
             }
         }
 
+        public boolean containsNode(final AssignmentGraphNode<?> node) {
+            return this.wNode2Identifier.containsKey(node);
+        }
+
         public AssignmentGraph.UnrestrictedGraph.SubGraph getRow(final AssignmentGraphNode<?> node) {
             return this.row2Identifier.inverse().get(this.wNode2Identifier.get(node));
         }
@@ -176,20 +180,21 @@ public class Block implements BlockInterface {
                         row2Identifier);
             }
             assert Iterables.size(edges) <= getRowCount();
-            final BiMap<AssignmentGraph.UnrestrictedGraph.SubGraph, RowIdentifier> row2Identifier = HashBiMap.create();
+            final BiMap<AssignmentGraph.UnrestrictedGraph.SubGraph, RowIdentifier> newRow2Identifier =
+                    HashBiMap.create();
             final SimpleMinimalIdentityHashMap<AssignmentGraphNode<?>, RowIdentifier> newNode2Identifier =
                     new SimpleMinimalIdentityHashMap<>();
             for (final Edge<ECOccurrenceNode, BindingNode> edge : edges) {
                 final AssignmentGraph.UnrestrictedGraph.SubGraph oldRow = getRow(oldNodeGetter.apply(edge));
                 final AssignmentGraph.UnrestrictedGraph.SubGraph newRow = oldRow.addEdge(edge);
                 final RowIdentifier rowIdentifier = this.row2Identifier.get(oldRow);
-                row2Identifier.put(newRow, rowIdentifier);
+                newRow2Identifier.put(newRow, rowIdentifier);
                 newNode2Identifier.put(edge.getSource(), rowIdentifier);
                 newNode2Identifier.put(edge.getTarget(), rowIdentifier);
             }
             final SimpleImmutableMinimalMap<AssignmentGraphNode<?>, RowIdentifier> wNode2Identifier =
                     MapCombiner.with(this.wNode2Identifier, newNode2Identifier);
-            return new RowContainer(this.assignmentGraph, wNode2Identifier, row2Identifier);
+            return new RowContainer(this.assignmentGraph, wNode2Identifier, newRow2Identifier);
         }
 
         public int getRowCount() {
