@@ -455,16 +455,6 @@ public class IncompleteBlock implements BlockInterface {
     private enum EdgeType {
         TYPE1AND2 {
             @Override
-            <OT extends NodeType, ON extends AssignmentGraphNode<OT>, NT extends NodeType, NN extends
-                    AssignmentGraphNode<NT>> ArrayList<Edge<ECOccurrenceNode, BindingNode>> chooseEdges(
-                    final BlockInterface block, final Configuration<OT, ON, NT, NN> configuration,
-                    final RandomWrapper random, final Block.RowContainer rowContainer,
-                    final ArrayList<Edge<ECOccurrenceNode, BindingNode>> chosenPartition) {
-                return getGreedyMaximalMatching(rowContainer, random.shuffle(chosenPartition),
-                        configuration::getOldNode, configuration::getNewNode, configuration.getNewNodePartition(block));
-            }
-
-            @Override
             Set<SingleFactVariable> getFactVariables(final Configuration<?, ?, ?, ?> configuration,
                     final Set<SingleFactVariable> previousFactVariables,
                     final ArrayList<Edge<ECOccurrenceNode, BindingNode>> edges) {
@@ -500,16 +490,6 @@ public class IncompleteBlock implements BlockInterface {
             }
         }, TYPE3 {
             @Override
-            <OT extends NodeType, ON extends AssignmentGraphNode<OT>, NT extends NodeType, NN extends
-                    AssignmentGraphNode<NT>> ArrayList<Edge<ECOccurrenceNode, BindingNode>> chooseEdges(
-                    final BlockInterface block, final Configuration<OT, ON, NT, NN> configuration,
-                    final RandomWrapper random, final Block.RowContainer rowContainer,
-                    final ArrayList<Edge<ECOccurrenceNode, BindingNode>> chosenPartition) {
-                return getGreedyMaximalMatching(rowContainer, random.shuffle(chosenPartition),
-                        configuration::getOldNode, configuration::getNewNode, configuration.getNewNodePartition(block));
-            }
-
-            @Override
             Set<SingleFactVariable> getFactVariables(final Configuration<?, ?, ?, ?> configuration,
                     final Set<SingleFactVariable> previousFactVariables,
                     final ArrayList<Edge<ECOccurrenceNode, BindingNode>> edges) {
@@ -544,12 +524,6 @@ public class IncompleteBlock implements BlockInterface {
                 return newNodePartition.lookup(newNode);
             }
         };
-
-        abstract <OT extends NodeType, ON extends AssignmentGraphNode<OT>, NT extends NodeType, NN extends
-                AssignmentGraphNode<NT>> ArrayList<Edge<ECOccurrenceNode, BindingNode>> chooseEdges(
-                final BlockInterface block, final Configuration<OT, ON, NT, NN> configuration,
-                final RandomWrapper random, final Block.RowContainer rowContainer,
-                final ArrayList<Edge<ECOccurrenceNode, BindingNode>> chosenPartition);
 
         abstract Set<SingleFactVariable> getFactVariables(final Configuration<?, ?, ?, ?> configuration,
                 final Set<SingleFactVariable> previousFactVariables,
