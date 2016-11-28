@@ -159,7 +159,7 @@ public class Block implements BlockInterface {
         }
 
         public RowContainer addColumn(final Iterable<Edge<ECOccurrenceNode, BindingNode>> edges,
-                final Function<Edge<ECOccurrenceNode, BindingNode>, AssignmentGraphNode<?>> extensionEdgeEndGetter) {
+                final Function<Edge<ECOccurrenceNode, BindingNode>, AssignmentGraphNode<?>> oldNodeGetter) {
             if (this.row2Identifier.isEmpty()) {
                 final BiMap<AssignmentGraph.UnrestrictedGraph.SubGraph, RowIdentifier> row2Identifier =
                         HashBiMap.create();
@@ -180,7 +180,7 @@ public class Block implements BlockInterface {
             final SimpleMinimalIdentityHashMap<AssignmentGraphNode<?>, RowIdentifier> newNode2Identifier =
                     new SimpleMinimalIdentityHashMap<>();
             for (final Edge<ECOccurrenceNode, BindingNode> edge : edges) {
-                final AssignmentGraph.UnrestrictedGraph.SubGraph oldRow = getRow(extensionEdgeEndGetter.apply(edge));
+                final AssignmentGraph.UnrestrictedGraph.SubGraph oldRow = getRow(oldNodeGetter.apply(edge));
                 final AssignmentGraph.UnrestrictedGraph.SubGraph newRow = oldRow.addEdge(edge);
                 final RowIdentifier rowIdentifier = this.row2Identifier.get(oldRow);
                 row2Identifier.put(newRow, rowIdentifier);
@@ -228,8 +228,8 @@ public class Block implements BlockInterface {
         this.occurrencePartition = new OccurrencePartition(other.getOccurrencePartition());
     }
 
-    public IncompleteBlock beginExtension() {
-        return new IncompleteBlock(this, new IndexedIdentityHashSet<>());
+    public Block randomExtension(final MaximalColumns maximalColumns, final RandomWrapper randomWrapper) {
+        return new IncompleteBlock(this, new IndexedIdentityHashSet<>()).randomExtension(maximalColumns, randomWrapper);
     }
 
     @Override

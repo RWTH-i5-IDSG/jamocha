@@ -42,6 +42,7 @@ import org.jamocha.util.Lambdas;
 
 import java.util.*;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.*;
@@ -55,6 +56,7 @@ import static org.jamocha.util.Lambdas.groupingIntoListOfLists;
 @RequiredArgsConstructor
 public class IncompleteBlock implements BlockInterface {
     public static final int EDGE_TYPE_THRESHOLD = 50;
+    public static final int NUM_COLUMN_CHOOSING_TRIES = 100;
     public static final int NUM_EXTENSION_TRIES = 100;
     public static final int NUM_BINDING_TRIES = 100;
 
@@ -90,6 +92,28 @@ public class IncompleteBlock implements BlockInterface {
                 if (null != extended) {
                     return extended;
                 }
+            }
+        }
+        return null;
+    }
+
+    public Block randomExtension(final MaximalColumns maximalColumns, final RandomWrapper randomWrapper) {
+        final ArrayList<AssignmentGraph.UnrestrictedGraph.SubGraph> rows =
+                new ArrayList<>(this.block.getRowContainer().getRows());
+        for (int i = 0; i < NUM_COLUMN_CHOOSING_TRIES; ++i) {
+            final AssignmentGraph.UnrestrictedGraph.SubGraph randomRow = randomWrapper.choose(rows);
+            final IndexedImmutableSet<BindingNode> bindingNodes = randomRow.bindingNodeSet();
+            final BindingNode randomBindingNode = randomWrapper.choose(bindingNodes);
+            final ArrayList<AssignmentGraph.Edge<ECOccurrenceNode, BindingNode>> edges =
+                    randomRow.incomingEdgesOf(randomBindingNode).stream()
+                            .filter(e -> e.getSource().getNodeType() != OccurrenceType.FUNCTIONAL_OCCURRENCE)
+                            .collect(Collectors.toCollection(ArrayList::new));
+            final AssignmentGraph.Edge<ECOccurrenceNode, BindingNode> randomEdge = randomWrapper.choose(edges);
+            final Column<ECOccurrenceNode, BindingNode> column = maximalColumns.getColumn(randomEdge);
+
+            final Block binding = binding(randomWrapper, maximalColumns, column);
+            if (binding != null) {
+                return binding;
             }
         }
         return null;
@@ -367,7 +391,7 @@ public class IncompleteBlock implements BlockInterface {
         }
         final List<Edge<ECOccurrenceNode, BindingNode>> edges =
                 edgesByType.getOrDefault(edgeType, Collections.emptyList());
-        if (edges.isEmpty()) {
+        if (edges.size() <= 1) {
             return null;
         }
         // group edges by old-node-partition
@@ -381,11 +405,9 @@ public class IncompleteBlock implements BlockInterface {
             final ArrayList<Edge<ECOccurrenceNode, BindingNode>> chosenPartition = random.choose(partitionedEdges);
 
             // get compatible set of edges to add to the block
-            // FIXME: make sure that the block will contain more than one row after extension
             final ArrayList<Edge<ECOccurrenceNode, BindingNode>> chosenEdges =
                     getGreedyMaximalMatching(edgeType, oldRowContainer, random.shuffle(chosenPartition),
                             config::getOldNode, config::getNewNode, config.getNewNodePartition(this.block));
-            // edgeType.chooseEdges(this.block, config, random, oldRowContainer, chosenPartition);
             if (chosenEdges.size() <= 1) {
                 continue;
             }
