@@ -16,7 +16,6 @@ package org.jamocha.dn.compiler.ecblocks.assignmentgraph.node.binding;
 
 import lombok.Getter;
 import org.jamocha.dn.compiler.ecblocks.assignmentgraph.AssignmentGraphNodeVisitor;
-import org.jamocha.function.fwa.FunctionWithArguments;
 import org.jamocha.function.fwa.TemplateSlotLeaf;
 import org.jamocha.languages.common.RuleCondition;
 import org.jamocha.languages.common.SingleFactVariable;
@@ -28,8 +27,8 @@ import org.jamocha.languages.common.SingleFactVariable;
 public class FactBindingNode extends SlotOrFactBindingNode {
     final SingleFactVariable groupingFactVariable;
 
-    public FactBindingNode(final RuleCondition.EquivalenceClass equivalenceClass,
-            final FunctionWithArguments<TemplateSlotLeaf> schema, final SingleFactVariable groupingFactVariable) {
+    public FactBindingNode(final RuleCondition.EquivalenceClass equivalenceClass, final TemplateSlotLeaf schema,
+            final SingleFactVariable groupingFactVariable) {
         super(equivalenceClass, schema);
         this.groupingFactVariable = groupingFactVariable;
     }

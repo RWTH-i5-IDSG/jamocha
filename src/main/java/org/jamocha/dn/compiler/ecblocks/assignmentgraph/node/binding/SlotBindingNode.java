@@ -28,7 +28,7 @@ public class SlotBindingNode extends SlotOrFactBindingNode {
     final SingleFactVariable.SingleSlotVariable slotInGroupingFactVariable;
 
     public SlotBindingNode(final RuleCondition.EquivalenceClass equivalenceClass,
-            final FunctionWithArguments<TemplateSlotLeaf> schema,
+            final TemplateSlotLeaf schema,
             final SingleFactVariable.SingleSlotVariable slotInGroupingFactVariable) {
         super(equivalenceClass, schema);
         this.slotInGroupingFactVariable = slotInGroupingFactVariable;

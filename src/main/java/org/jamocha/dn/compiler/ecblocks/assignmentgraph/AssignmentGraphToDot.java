@@ -20,6 +20,7 @@ import org.jamocha.dn.compiler.ecblocks.ECOccurrenceLeaf;
 import org.jamocha.dn.compiler.ecblocks.ExistentialInfo;
 import org.jamocha.dn.compiler.ecblocks.assignmentgraph.node.binding.*;
 import org.jamocha.dn.compiler.ecblocks.assignmentgraph.node.occurrence.*;
+import org.jamocha.dn.memory.SlotAddress;
 import org.jamocha.filter.ECFilter;
 import org.jamocha.function.fwa.FunctionWithArgumentsComposite;
 import org.jamocha.function.fwatransformer.FWAECLeafToTypeLeafTranslator;
@@ -81,8 +82,7 @@ public final class AssignmentGraphToDot {
     private static String toString(final BindingNode bindingNode) {
         switch (bindingNode.getNodeType()) {
         case SLOT_OR_FACT_BINDING:
-            return (bindingNode instanceof FactBindingNode) ? ((FactBindingNode) bindingNode).getGroupingFactVariable()
-                    .getTemplate().getName()
+            return (bindingNode instanceof FactBindingNode) ? "FACT"
                     : ((SlotBindingNode) bindingNode).getSlotInGroupingFactVariable().getSlotName();
         case CONSTANT_EXPRESSION:
             return Objects.toString(((ConstantBindingNode) bindingNode).getConstant().getValue());
@@ -188,10 +188,11 @@ public final class AssignmentGraphToDot {
             }
         }
         // edges between bindings and template instances
-        for (final Map.Entry<SingleFactVariable, Set<SlotOrFactBindingNode>> entry : assignmentGraph
+        for (final Map.Entry<SingleFactVariable, IdentityHashMap<SlotAddress, SlotOrFactBindingNode>> entry :
+                assignmentGraph
                 .getTemplateInstanceToBindingNodes().entrySet()) {
             final SingleFactVariable templateInstance = entry.getKey();
-            for (final SlotOrFactBindingNode bindingNode : entry.getValue()) {
+            for (final SlotOrFactBindingNode bindingNode : entry.getValue().values()) {
                 makeEdge(sb, toString(bindingNode, bindingNodeToString),
                         toString(templateInstance, templateInstanceToString)).append(n);
             }

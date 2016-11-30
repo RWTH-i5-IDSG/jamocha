@@ -16,8 +16,12 @@ package org.jamocha.function.fwatransformer;
 import static org.jamocha.util.ToArray.toArray;
 
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
+import com.google.common.collect.ImmutableList;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -45,15 +49,12 @@ public class FWASymbolToRHSVariableLeafTranslator extends FWATranslator<SymbolLe
         return new FWASymbolToRHSVariableLeafTranslator(this.ec2PathLeaf, this.context);
     }
 
-    @SafeVarargs
-    @SuppressWarnings("unchecked")
-    public static FunctionWithArguments<RHSVariableLeaf>[] translate(
+    public static List<FunctionWithArguments<RHSVariableLeaf>> translate(
             final Map<EquivalenceClass, FunctionWithArguments<PathLeaf>> ec2PathLeaf,
-            final VariableValueContext context, final FunctionWithArguments<SymbolLeaf>... actions) {
+            final VariableValueContext context, final Collection<FunctionWithArguments<SymbolLeaf>> actions) {
         final FWASymbolToRHSVariableLeafTranslator instance =
                 new FWASymbolToRHSVariableLeafTranslator(ec2PathLeaf, context);
-        return toArray(Arrays.stream(actions).map(fwa -> fwa.accept(instance).functionWithArguments),
-                FunctionWithArguments[]::new);
+        return actions.stream().map(fwa -> fwa.accept(instance).functionWithArguments).collect(Collectors.toList());
     }
 
     @Override

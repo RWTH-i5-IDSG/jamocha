@@ -13,10 +13,7 @@
  */
 package org.jamocha.dn;
 
-import com.google.common.collect.BiMap;
-import com.google.common.collect.HashBiMap;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
+import com.google.common.collect.*;
 import lombok.Data;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -38,7 +35,6 @@ import java.util.stream.StreamSupport;
 
 import static java.util.stream.Collectors.*;
 import static org.jamocha.util.Lambdas.toIdentityHashSet;
-import static org.jamocha.util.ToArray.toArray;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
@@ -62,22 +58,22 @@ public class ConstructCache {
         final String description;
         final int salience;
         final RuleCondition condition;
-        final FunctionWithArguments<SymbolLeaf>[] actionList;
+        final ImmutableList<FunctionWithArguments<SymbolLeaf>> actionList;
         final Marker fireMarker;
         final Marker activationMarker;
 
         public Defrule(final String name, final String description, final int salience, final RuleCondition condition,
                 final ArrayList<FunctionWithArguments<SymbolLeaf>> actionList) {
-            this(name, description, salience, condition, toArray(actionList, FunctionWithArguments[]::new));
+            this(name, description, salience, condition, ImmutableList.copyOf(actionList));
         }
 
         public Defrule(final String name, final String description, final int salience, final RuleCondition condition,
-                final FunctionWithArguments<SymbolLeaf>[] actionList) {
+                final Collection<FunctionWithArguments<SymbolLeaf>> actionList) {
             this.name = name;
             this.description = description;
             this.salience = salience;
             this.condition = condition;
-            this.actionList = actionList;
+            this.actionList = ImmutableList.copyOf(actionList);
             this.fireMarker = MarkerType.RULES.createChild(name);
             this.activationMarker = MarkerType.ACTIVATIONS.createChild(name);
         }
@@ -103,9 +99,10 @@ public class ConstructCache {
                 return Defrule.this;
             }
 
-            public ECSetRule newECSetRule(final Set<ECFilterSet> filters, final Set<SingleFactVariable> factVariables,
-                    final Set<EquivalenceClass> equivalenceClasses, final int specificity) {
-                return new ECSetRule(filters, factVariables, equivalenceClasses, this.localECsToConditionECs,
+            public ECSetRule newECSetRule(final Set<ECFilterSet> filters,
+                    final Set<SingleFactVariable> shallowFactVariables, final Set<EquivalenceClass> equivalenceClasses,
+                    final int specificity) {
+                return new ECSetRule(filters, shallowFactVariables, equivalenceClasses, this.localECsToConditionECs,
                         specificity);
             }
         }
@@ -197,7 +194,7 @@ public class ConstructCache {
         // @RequiredArgsConstructor
         public class ECSetRule {
             final Set<ECFilterSet> condition;
-            final Set<SingleFactVariable> factVariables;
+            final Set<SingleFactVariable> shallowFactVariables;
             final Set<EquivalenceClass> equivalenceClasses;
             final BiMap<EquivalenceClass, EquivalenceClass> localECsToConditionECs;
             final int specificity;
@@ -213,16 +210,16 @@ public class ConstructCache {
 
             public ECListRule toECListRule(final ECFilterList condition,
                     final Set<SingleFactVariable> additionalInitialFactVariables) {
-                return new ECListRule(condition, Sets.union(this.factVariables, additionalInitialFactVariables),
+                return new ECListRule(condition, Sets.union(this.shallowFactVariables, additionalInitialFactVariables),
                         this.equivalenceClasses, this.localECsToConditionECs, this.specificity);
             }
 
-            protected ECSetRule(final Set<ECFilterSet> condition, final Set<SingleFactVariable> factVariables,
+            protected ECSetRule(final Set<ECFilterSet> condition, final Set<SingleFactVariable> shallowFactVariables,
                     final Set<EquivalenceClass> equivalenceClasses,
                     final BiMap<EquivalenceClass, EquivalenceClass> localECsToConditionECs, final int specificity) {
                 this.condition = condition;
-                assert !factVariables.isEmpty();
-                this.factVariables = factVariables;
+                assert !shallowFactVariables.isEmpty();
+                this.shallowFactVariables = shallowFactVariables;
                 this.equivalenceClasses = equivalenceClasses;
                 this.localECsToConditionECs = localECsToConditionECs;
                 this.specificity = specificity;
@@ -304,9 +301,9 @@ public class ConstructCache {
 
             public Translated translatePathToAddress() {
                 final VariableValueContext context = new VariableValueContext();
-                return new Translated(this.condition, new AddressesActionList(context,
-                        FWASymbolToRHSVariableLeafTranslator
-                                .translate(this.equivalenceClassToPathLeaf, context, Defrule.this.actionList)),
+                return new Translated(this.condition, new AddressesActionList(context, ImmutableList
+                        .copyOf(FWASymbolToRHSVariableLeafTranslator
+                                .translate(this.equivalenceClassToPathLeaf, context, Defrule.this.actionList))),
                         this.specificity);
             }
         }
@@ -326,7 +323,7 @@ public class ConstructCache {
     @Value
     public static class AddressesActionList {
         final VariableValueContext context;
-        final FunctionWithArguments<RHSVariableLeaf>[] actions;
+        final ImmutableList<FunctionWithArguments<RHSVariableLeaf>> actions;
 
         public void evaluate(final AssertOrRetract<?> token) {
             this.context.initialize(token);

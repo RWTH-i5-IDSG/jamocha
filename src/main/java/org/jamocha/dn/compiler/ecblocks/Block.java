@@ -197,6 +197,36 @@ public class Block implements BlockInterface {
             return new RowContainer(this.assignmentGraph, wNode2Identifier, newRow2Identifier);
         }
 
+        public RowContainer addColumns(
+                final Map<RowIdentifier, ? extends Iterable<Edge<ECOccurrenceNode, BindingNode>>> rowToNewEdges) {
+            if (this.row2Identifier.isEmpty()) {
+                if (rowToNewEdges.isEmpty()) {
+                    return this;
+                }
+                throw new IllegalArgumentException();
+            }
+            assert rowToNewEdges.size() == getRowCount();
+            final BiMap<AssignmentGraph.UnrestrictedGraph.SubGraph, RowIdentifier> newRow2Identifier =
+                    HashBiMap.create();
+            final SimpleMinimalIdentityHashMap<AssignmentGraphNode<?>, RowIdentifier> newNode2Identifier =
+                    new SimpleMinimalIdentityHashMap<>();
+            for (final Map.Entry<RowIdentifier, ? extends Iterable<Edge<ECOccurrenceNode, BindingNode>>> entry :
+                    rowToNewEdges
+                    .entrySet()) {
+                final RowIdentifier rowIdentifier = entry.getKey();
+                AssignmentGraph.UnrestrictedGraph.SubGraph newRow = this.row2Identifier.inverse().get(rowIdentifier);
+                for (final Edge<ECOccurrenceNode, BindingNode> edge : entry.getValue()) {
+                    newRow = newRow.addEdge(edge);
+                    newNode2Identifier.put(edge.getSource(), rowIdentifier);
+                    newNode2Identifier.put(edge.getTarget(), rowIdentifier);
+                }
+                newRow2Identifier.put(newRow, rowIdentifier);
+            }
+            final SimpleImmutableMinimalMap<AssignmentGraphNode<?>, RowIdentifier> wNode2Identifier =
+                    MapCombiner.with(this.wNode2Identifier, newNode2Identifier);
+            return new RowContainer(this.assignmentGraph, wNode2Identifier, newRow2Identifier);
+        }
+
         public int getRowCount() {
             return getRows().size();
         }

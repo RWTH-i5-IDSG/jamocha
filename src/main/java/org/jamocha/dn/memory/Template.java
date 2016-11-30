@@ -13,19 +13,18 @@
  */
 package org.jamocha.dn.memory;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-
 import lombok.Data;
 import lombok.Value;
-
 import org.apache.logging.log4j.Marker;
 import org.jamocha.function.fwa.ConstantLeaf;
 import org.jamocha.function.fwa.ExchangeableLeaf;
 import org.jamocha.function.fwa.FunctionWithArguments;
 import org.jamocha.function.fwa.SymbolLeaf;
+
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 
 /**
  * A Template consists of slots which in turn have a {@link SlotType slot type} and a name. Facts always comply with
@@ -279,11 +278,26 @@ public interface Template {
     Collection<Slot> getSlots();
 
     /**
+     * Returns the slot addresses in the order given at construction time, possibly deviating from the internal
+     * ordering.
+     *
+     * @return the slot addresses in the order given at construction time, possibly deviating from the internal ordering
+     */
+    Collection<? extends SlotAddress> getSlotAddresses();
+
+    /**
      * Returns the slot object corresponding to the slot address given.
      *
      * @return the slot object corresponding to the slot address given
      */
     Slot getSlot(final SlotAddress slotAddress);
+
+    /**
+     * Returns the slot address corresponding to the slot object given.
+     *
+     * @return the slot address corresponding to the slot object given
+     */
+    SlotAddress getSlotAddress(final Slot slot);
 
     /**
      * Gets the {@link SlotType} corresponding to the position specified by the given index.

@@ -15,6 +15,7 @@
 package test.jamocha.util.builder.rule;
 
 import com.google.common.collect.HashBiMap;
+import com.google.common.collect.ImmutableList;
 import lombok.Getter;
 import org.jamocha.dn.ConstructCache;
 import org.jamocha.dn.compiler.ecblocks.CEToECTranslator;
@@ -100,7 +101,7 @@ public class ECSetRuleBuilder extends AbstractConditionProxy {
             equivalenceClasses.add(this.initialFactVariable.getEqual());
         }
         final ConstructCache.Defrule defrule =
-                new ConstructCache.Defrule(this.ruleName, "", 0, null, new FunctionWithArguments[]{});
+                new ConstructCache.Defrule(this.ruleName, "", 0, null, ImmutableList.of());
         final ConstructCache.Defrule.ECSetRule ecSetRule =
                 defrule.newECSetRule(condition, factVariableSet, equivalenceClasses, HashBiMap.create(0), 0);
         return ecSetRule;

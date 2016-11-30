@@ -29,7 +29,10 @@ import org.jamocha.dn.compiler.ecblocks.assignmentgraph.node.occurrence.Function
 import org.jamocha.dn.compiler.ecblocks.assignmentgraph.node.occurrence.ImplicitOccurrenceNode;
 import org.jamocha.dn.compiler.ecblocks.lazycollections.extend.IdentitySetExtender;
 import org.jamocha.dn.compiler.ecblocks.lazycollections.extend.IndexedIdentityMapToSetExtender;
-import org.jamocha.dn.compiler.ecblocks.lazycollections.minimal.*;
+import org.jamocha.dn.compiler.ecblocks.lazycollections.minimal.ImmutableMinimalMap;
+import org.jamocha.dn.compiler.ecblocks.lazycollections.minimal.ImmutableMinimalSet;
+import org.jamocha.dn.compiler.ecblocks.lazycollections.minimal.MapAsMinimalMap;
+import org.jamocha.dn.compiler.ecblocks.lazycollections.minimal.SetAsMinimalSet;
 import org.jamocha.dn.compiler.ecblocks.lazycollections.minimal.indexed.IdentityHashMapWithIndexedIdentityKeySet;
 import org.jamocha.dn.compiler.ecblocks.lazycollections.minimal.indexed.IndexedIdentityHashSet;
 import org.jamocha.dn.compiler.ecblocks.lazycollections.minimal.indexed.IndexedImmutableSet;
@@ -37,21 +40,22 @@ import org.jamocha.dn.compiler.ecblocks.lazycollections.minimal.normal.MinimalMa
 import org.jamocha.dn.compiler.ecblocks.lazycollections.minimal.normal.MinimalSetWrapper;
 import org.jamocha.dn.compiler.ecblocks.lazycollections.reduce.IdentitySetReducer;
 import org.jamocha.dn.compiler.ecblocks.lazycollections.reduce.IndexedIdentityMapToSetReducer;
+import org.jamocha.dn.memory.SlotAddress;
 import org.jamocha.dn.memory.Template;
-import org.jamocha.filter.ECCollector;
 import org.jamocha.filter.ECFilter;
 import org.jamocha.filter.ECFilterSet;
 import org.jamocha.filter.ECFilterSetVisitor;
 import org.jamocha.function.fwa.*;
 import org.jamocha.function.fwatransformer.FWAECLeafToTypeLeafTranslator;
 import org.jamocha.languages.common.RuleCondition.EquivalenceClass;
+import org.jamocha.languages.common.ScopeStack;
 import org.jamocha.languages.common.SingleFactVariable;
 
+import javax.annotation.Nonnull;
 import java.util.*;
 import java.util.function.Supplier;
 
-import static org.jamocha.util.Lambdas.newIdentityHashSet;
-import static org.jamocha.util.Lambdas.toIdentityHashSet;
+import static org.jamocha.util.Lambdas.*;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
@@ -75,8 +79,8 @@ public class AssignmentGraph {
 
     // lookup from template to template instances to the corresponding binding nodes
     final IdentityHashMap<Template, Set<SingleFactVariable>> templateToInstances = new IdentityHashMap<>();
-    final IdentityHashMap<SingleFactVariable, Set<SlotOrFactBindingNode>> templateInstanceToBindingNodes =
-            new IdentityHashMap<>();
+    final IdentityHashMap<SingleFactVariable, IdentityHashMap<SlotAddress, SlotOrFactBindingNode>>
+            templateInstanceToBindingNodes = new IdentityHashMap<>();
 
     // direct bindings (can't use Leaf directly since constants are contained, too)
     // lookup map from abstract 'templated' FWA to set of matching binding nodes
@@ -97,20 +101,20 @@ public class AssignmentGraph {
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
     @Value
     public static class Edge<O extends ECOccurrenceNode, B extends BindingNode> {
+        @Nonnull
         final O source;
+        @Nonnull
         final B target;
     }
 
     @RequiredArgsConstructor
-    public abstract class Graph<EDGESET extends ImmutableMinimalSet<Edge<ECOccurrenceNode, BindingNode>>,
-            VALUESET extends ImmutableMinimalSet<Edge<ECOccurrenceNode, BindingNode>>,
-            KEYSETOFOUTGOING extends ImmutableMinimalSet<ECOccurrenceNode>,
-            ENTRYSETOFOUTGOING extends ImmutableMinimalSet<Map.Entry<ECOccurrenceNode, VALUESET>>,
-            OUTGOING extends ImmutableMinimalMap<ECOccurrenceNode, VALUESET, KEYSETOFOUTGOING, ENTRYSETOFOUTGOING>,
-            KEYSETOFINCOMING extends ImmutableMinimalSet<BindingNode>,
-            ENTRYSETOFINCOMING extends ImmutableMinimalSet<Map.Entry<BindingNode, VALUESET>>,
-            INCOMING extends ImmutableMinimalMap<BindingNode, VALUESET, KEYSETOFINCOMING, ENTRYSETOFINCOMING>
-            > {
+    public abstract class Graph<EDGESET extends ImmutableMinimalSet<Edge<ECOccurrenceNode, BindingNode>>, VALUESET
+            extends ImmutableMinimalSet<Edge<ECOccurrenceNode, BindingNode>>, KEYSETOFOUTGOING extends
+            ImmutableMinimalSet<ECOccurrenceNode>, ENTRYSETOFOUTGOING extends ImmutableMinimalSet<Map
+            .Entry<ECOccurrenceNode, VALUESET>>, OUTGOING extends ImmutableMinimalMap<ECOccurrenceNode, VALUESET,
+            KEYSETOFOUTGOING, ENTRYSETOFOUTGOING>, KEYSETOFINCOMING extends ImmutableMinimalSet<BindingNode>,
+            ENTRYSETOFINCOMING extends ImmutableMinimalSet<Map.Entry<BindingNode, VALUESET>>, INCOMING extends
+            ImmutableMinimalMap<BindingNode, VALUESET, KEYSETOFINCOMING, ENTRYSETOFINCOMING>> {
         final OUTGOING outgoingEdges;
         final INCOMING incomingEdges;
         final EDGESET edgeSet;
@@ -167,34 +171,29 @@ public class AssignmentGraph {
         }
     }
 
-    public class UnrestrictedGraph extends Graph<
-            SetAsMinimalSet<Edge<ECOccurrenceNode, BindingNode>>,
-            SetAsMinimalSet<Edge<ECOccurrenceNode, BindingNode>>,
-            SetAsMinimalSet<ECOccurrenceNode>,
-            SetAsMinimalSet<Map.Entry<ECOccurrenceNode, SetAsMinimalSet<Edge<ECOccurrenceNode, BindingNode>>>>,
-            MapAsMinimalMap<ECOccurrenceNode, SetAsMinimalSet<Edge<ECOccurrenceNode, BindingNode>>>,
-            SetAsMinimalSet<BindingNode>,
-            SetAsMinimalSet<Map.Entry<BindingNode, SetAsMinimalSet<Edge<ECOccurrenceNode, BindingNode>>>>,
-            MapAsMinimalMap<BindingNode, SetAsMinimalSet<Edge<ECOccurrenceNode, BindingNode>>>
-            > {
+    public class UnrestrictedGraph extends
+            Graph<SetAsMinimalSet<Edge<ECOccurrenceNode, BindingNode>>, SetAsMinimalSet<Edge<ECOccurrenceNode,
+                    BindingNode>>, SetAsMinimalSet<ECOccurrenceNode>, SetAsMinimalSet<Map.Entry<ECOccurrenceNode,
+                    SetAsMinimalSet<Edge<ECOccurrenceNode, BindingNode>>>>, MapAsMinimalMap<ECOccurrenceNode,
+                    SetAsMinimalSet<Edge<ECOccurrenceNode, BindingNode>>>, SetAsMinimalSet<BindingNode>,
+                    SetAsMinimalSet<Map.Entry<BindingNode, SetAsMinimalSet<Edge<ECOccurrenceNode, BindingNode>>>>,
+                    MapAsMinimalMap<BindingNode, SetAsMinimalSet<Edge<ECOccurrenceNode, BindingNode>>>> {
         public UnrestrictedGraph() {
-            super(
-                    new MinimalMapWrapper<>(new IdentityHashMap<>()),
-                    new MinimalMapWrapper<>(new IdentityHashMap<>()),
+            super(new MinimalMapWrapper<>(new IdentityHashMap<>()), new MinimalMapWrapper<>(new IdentityHashMap<>()),
                     new MinimalSetWrapper<>(Sets.newIdentityHashSet()),
-                    () -> new MinimalSetWrapper<>(Sets.newIdentityHashSet())
-            );
+                    () -> new MinimalSetWrapper<>(Sets.newIdentityHashSet()));
         }
 
         public boolean addEdge(final ECOccurrenceNode source, final BindingNode target) {
-            final Set<Edge<ECOccurrenceNode, BindingNode>> outEdges =
-                    this.outgoingEdges.computeIfAbsent(source, (x) -> new MinimalSetWrapper<>(Sets.newIdentityHashSet()));
+            final Set<Edge<ECOccurrenceNode, BindingNode>> outEdges = this.outgoingEdges
+                    .computeIfAbsent(source, (x) -> new MinimalSetWrapper<>(Sets.newIdentityHashSet()));
             if (outEdges.stream().anyMatch(e -> e.getTarget() == target)) {
                 return false;
             }
             final Edge<ECOccurrenceNode, BindingNode> edge = new Edge<>(source, target);
             outEdges.add(edge);
-            this.incomingEdges.computeIfAbsent(target, (x) -> new MinimalSetWrapper<>(Sets.newIdentityHashSet())).add(edge);
+            this.incomingEdges.computeIfAbsent(target, (x) -> new MinimalSetWrapper<>(Sets.newIdentityHashSet()))
+                    .add(edge);
             this.edgeSet.add(edge);
             return true;
         }
@@ -203,18 +202,27 @@ public class AssignmentGraph {
             return new SubGraph(edge);
         }
 
-        public class SubGraph extends Graph<
-                IndexedImmutableSet<Edge<ECOccurrenceNode, BindingNode>>,
-                IndexedImmutableSet<Edge<ECOccurrenceNode, BindingNode>>,
-                IndexedImmutableSet<ECOccurrenceNode>,
-                ImmutableMinimalSet<Map.Entry<ECOccurrenceNode, IndexedImmutableSet<Edge<ECOccurrenceNode, BindingNode>>>>,
-                ImmutableMinimalMap<ECOccurrenceNode, IndexedImmutableSet<Edge<ECOccurrenceNode, BindingNode>>, IndexedImmutableSet<ECOccurrenceNode>, ImmutableMinimalSet<Map.Entry<ECOccurrenceNode, IndexedImmutableSet<Edge<ECOccurrenceNode, BindingNode>>>>>,
-                IndexedImmutableSet<BindingNode>,
-                ImmutableMinimalSet<Map.Entry<BindingNode, IndexedImmutableSet<Edge<ECOccurrenceNode, BindingNode>>>>,
-                ImmutableMinimalMap<BindingNode, IndexedImmutableSet<Edge<ECOccurrenceNode, BindingNode>>, IndexedImmutableSet<BindingNode>, ImmutableMinimalSet<Map.Entry<BindingNode, IndexedImmutableSet<Edge<ECOccurrenceNode, BindingNode>>>>>
-                > {
-            public SubGraph(final ImmutableMinimalMap<ECOccurrenceNode, IndexedImmutableSet<Edge<ECOccurrenceNode, BindingNode>>, IndexedImmutableSet<ECOccurrenceNode>, ImmutableMinimalSet<Map.Entry<ECOccurrenceNode, IndexedImmutableSet<Edge<ECOccurrenceNode, BindingNode>>>>> outgoingEdges,
-                    final ImmutableMinimalMap<BindingNode, IndexedImmutableSet<Edge<ECOccurrenceNode, BindingNode>>, IndexedImmutableSet<BindingNode>, ImmutableMinimalSet<Map.Entry<BindingNode, IndexedImmutableSet<Edge<ECOccurrenceNode, BindingNode>>>>> incomingEdges,
+        public class SubGraph extends
+                Graph<IndexedImmutableSet<Edge<ECOccurrenceNode, BindingNode>>,
+                        IndexedImmutableSet<Edge<ECOccurrenceNode, BindingNode>>,
+                        IndexedImmutableSet<ECOccurrenceNode>, ImmutableMinimalSet<Map.Entry<ECOccurrenceNode,
+                        IndexedImmutableSet<Edge<ECOccurrenceNode, BindingNode>>>>,
+                        ImmutableMinimalMap<ECOccurrenceNode, IndexedImmutableSet<Edge<ECOccurrenceNode,
+                                BindingNode>>, IndexedImmutableSet<ECOccurrenceNode>, ImmutableMinimalSet<Map
+                                .Entry<ECOccurrenceNode, IndexedImmutableSet<Edge<ECOccurrenceNode, BindingNode>>>>>,
+                        IndexedImmutableSet<BindingNode>, ImmutableMinimalSet<Map.Entry<BindingNode,
+                        IndexedImmutableSet<Edge<ECOccurrenceNode, BindingNode>>>>, ImmutableMinimalMap<BindingNode,
+                        IndexedImmutableSet<Edge<ECOccurrenceNode, BindingNode>>, IndexedImmutableSet<BindingNode>,
+                        ImmutableMinimalSet<Map.Entry<BindingNode, IndexedImmutableSet<Edge<ECOccurrenceNode,
+                                BindingNode>>>>>> {
+            public SubGraph(
+                    final ImmutableMinimalMap<ECOccurrenceNode, IndexedImmutableSet<Edge<ECOccurrenceNode,
+                            BindingNode>>, IndexedImmutableSet<ECOccurrenceNode>, ImmutableMinimalSet<Map
+                            .Entry<ECOccurrenceNode, IndexedImmutableSet<Edge<ECOccurrenceNode, BindingNode>>>>>
+                            outgoingEdges,
+                    final ImmutableMinimalMap<BindingNode, IndexedImmutableSet<Edge<ECOccurrenceNode, BindingNode>>,
+                            IndexedImmutableSet<BindingNode>, ImmutableMinimalSet<Map.Entry<BindingNode,
+                            IndexedImmutableSet<Edge<ECOccurrenceNode, BindingNode>>>>> incomingEdges,
                     final IndexedImmutableSet<Edge<ECOccurrenceNode, BindingNode>> edgeSet) {
                 super(outgoingEdges, incomingEdges, edgeSet, IndexedIdentityHashSet::new);
             }
@@ -224,20 +232,15 @@ public class AssignmentGraph {
             }
 
             public SubGraph(final SubGraph other) {
-                this(
-                        new IdentityHashMapWithIndexedIdentityKeySet<>(other.outgoingEdges),
+                this(new IdentityHashMapWithIndexedIdentityKeySet<>(other.outgoingEdges),
                         new IdentityHashMapWithIndexedIdentityKeySet<>(other.incomingEdges),
-                        new IndexedIdentityHashSet<>(other.edgeSet)
-                );
+                        new IndexedIdentityHashSet<>(other.edgeSet));
             }
 
             private SubGraph(final ECOccurrenceNode source, final BindingNode target,
                     final IndexedImmutableSet<Edge<ECOccurrenceNode, BindingNode>> singleton) {
-                this(
-                        new IdentityHashMapWithIndexedIdentityKeySet<>(ImmutableMap.of(source, singleton)),
-                        new IdentityHashMapWithIndexedIdentityKeySet<>(ImmutableMap.of(target, singleton)),
-                        singleton
-                );
+                this(new IdentityHashMapWithIndexedIdentityKeySet<>(ImmutableMap.of(source, singleton)),
+                        new IdentityHashMapWithIndexedIdentityKeySet<>(ImmutableMap.of(target, singleton)), singleton);
                 assert 1 == singleton.size();
             }
 
@@ -269,47 +272,73 @@ public class AssignmentGraph {
         }
     }
 
-    private void addECs(final Iterable<EquivalenceClass> ecs) {
-        // for every equivalence class
-        for (final EquivalenceClass ec : ecs) {
-            // gather binding nodes of the EC
-            final List<BindingNode> bindingNodes = new ArrayList<>();
-            // add to lookup map
-            this.ecToElements.put(ec, bindingNodes);
-            // create fact binding nodes
-            final LinkedList<SingleFactVariable> factVariables = ec.getFactVariables();
-            for (final SingleFactVariable factVariable : factVariables) {
-                final TemplateSlotLeaf templateSlotLeaf = new TemplateSlotLeaf(factVariable.getTemplate(), null);
-                final FactBindingNode factBindingNode = new FactBindingNode(ec, templateSlotLeaf, factVariable);
-                bindingNodes.add(factBindingNode);
-                // add to template lookup maps
-                this.templateToInstances.computeIfAbsent(factVariable.getTemplate(), newIdentityHashSet())
-                        .add(factVariable);
-                this.templateInstanceToBindingNodes.computeIfAbsent(factVariable, newIdentityHashSet())
-                        .add(factBindingNode);
-                // add to binding lookup map
-                this.directBindingNodes.computeIfAbsent(templateSlotLeaf, newIdentityHashSet()).add(factBindingNode);
-            }
-            final LinkedList<SingleFactVariable.SingleSlotVariable> slotVariables = ec.getSlotVariables();
-            for (final SingleFactVariable.SingleSlotVariable slotVariable : slotVariables) {
-                final SingleFactVariable factVariable = slotVariable.getFactVariable();
-                final TemplateSlotLeaf templateSlotLeaf =
+    private void addFVs(final Iterable<SingleFactVariable> factVariables) {
+        final ScopeStack scopeStack = new ScopeStack();
+        for (final SingleFactVariable factVariable : factVariables) {
+            final Template template = factVariable.getTemplate();
+            final TemplateSlotLeaf fvTemplateSlotLeaf = new TemplateSlotLeaf(template, null);
+            final EquivalenceClass fvEC = factVariable.getEqual();
+            final FactBindingNode factBindingNode = new FactBindingNode(fvEC, fvTemplateSlotLeaf, factVariable);
+            this.ecToElements.computeIfAbsent(fvEC, newArrayList()).add(factBindingNode);
+            // add to template lookup maps
+            this.templateToInstances.computeIfAbsent(template, newIdentityHashSet()).add(factVariable);
+            this.templateInstanceToBindingNodes.computeIfAbsent(factVariable, newIdentityHashMap())
+                    .put(null, factBindingNode);
+            // add to binding lookup map
+            this.directBindingNodes.computeIfAbsent(fvTemplateSlotLeaf, newIdentityHashSet()).add(factBindingNode);
+
+            final ImplicitOccurrenceNode fvImplicitOccurrenceNode =
+                    new ImplicitOccurrenceNode(new ECOccurrence(fvEC), factBindingNode);
+            // add the binding node and the corresponding implicit occurrence node to the graph
+            this.graph.addEdge(fvImplicitOccurrenceNode, factBindingNode);
+            this.bindingNodeToImplicitOccurrence.put(factBindingNode, fvImplicitOccurrenceNode);
+
+            final Collection<Template.Slot> slots = template.getSlots();
+            final HashMap<SlotAddress, SingleFactVariable.SingleSlotVariable> slotVariableMap = factVariable.getSlots();
+            for (final Template.Slot slot : slots) {
+                final SlotAddress slotAddress = template.getSlotAddress(slot.getName());
+                if (!slotVariableMap.containsKey(slotAddress)) {
+                    scopeStack.createDummySlotVariable(factVariable, slotAddress, null,
+                            ssv -> slotVariableMap.put(slotAddress, ssv));
+                }
+                final SingleFactVariable.SingleSlotVariable slotVariable = slotVariableMap.get(slotAddress);
+
+                final TemplateSlotLeaf svTemplateSlotLeaf =
                         new TemplateSlotLeaf(factVariable.getTemplate(), slotVariable.getSlot());
-                final SlotBindingNode slotBindingNode = new SlotBindingNode(ec, templateSlotLeaf, slotVariable);
-                bindingNodes.add(slotBindingNode);
+                final EquivalenceClass svEC = slotVariable.getEqual();
+                final SlotBindingNode slotBindingNode = new SlotBindingNode(svEC, svTemplateSlotLeaf, slotVariable);
+                this.ecToElements.computeIfAbsent(svEC, newArrayList()).add(slotBindingNode);
                 // add to template lookup map
                 this.templateToInstances.computeIfAbsent(factVariable.getTemplate(), newIdentityHashSet())
                         .add(factVariable);
-                this.templateInstanceToBindingNodes.computeIfAbsent(factVariable, newIdentityHashSet())
-                        .add(slotBindingNode);
+                this.templateInstanceToBindingNodes.computeIfAbsent(factVariable, newIdentityHashMap())
+                        .put(slotAddress, slotBindingNode);
                 // add to binding lookup map
-                this.directBindingNodes.computeIfAbsent(templateSlotLeaf, newIdentityHashSet()).add(slotBindingNode);
+                this.directBindingNodes.computeIfAbsent(svTemplateSlotLeaf, newIdentityHashSet()).add(slotBindingNode);
+
+                final ImplicitOccurrenceNode svImplicitOccurrenceNode =
+                        new ImplicitOccurrenceNode(new ECOccurrence(svEC), slotBindingNode);
+                // add the binding node and the corresponding implicit occurrence node to the graph
+                this.graph.addEdge(svImplicitOccurrenceNode, slotBindingNode);
+                this.bindingNodeToImplicitOccurrence.put(slotBindingNode, svImplicitOccurrenceNode);
             }
+        }
+    }
+
+    private void addECs(final Iterable<EquivalenceClass> ecs) {
+        // FIXME for every FV contained in the result, add a FactBindingNode and for every slot of the template of
+        // every FV add a SlotBindingNode (also stuff not contained in the rule)
+
+        // for every equivalence class
+        for (final EquivalenceClass ec : ecs) {
+            // gather binding nodes of the EC
+            final List<BindingNode> additionalBindingNodes = new ArrayList<>();
+
             final LinkedList<FunctionWithArguments<ECLeaf>> constantExpressions = ec.getConstantExpressions();
             for (final FunctionWithArguments<ECLeaf> constantExpression : constantExpressions) {
                 final ConstantBindingNode constantBindingNode =
                         new ConstantBindingNode(ec, new ConstantLeaf<>(constantExpression));
-                bindingNodes.add(constantBindingNode);
+                additionalBindingNodes.add(constantBindingNode);
                 // add to binding lookup map
                 this.directBindingNodes.computeIfAbsent(constantBindingNode.getConstant(), newIdentityHashSet())
                         .add(constantBindingNode);
@@ -323,7 +352,7 @@ public class AssignmentGraph {
                 final FunctionalExpressionBindingNode functionalExpressionBindingNode =
                         new FunctionalExpressionBindingNode(ec, typeLeafBasedFunctionalExpression,
                                 occurrenceBasedFunctionalExpression);
-                bindingNodes.add(functionalExpressionBindingNode);
+                additionalBindingNodes.add(functionalExpressionBindingNode);
                 // add to template lookup map and create occurrences
                 this.functionalExpressionToBindings
                         .computeIfAbsent(typeLeafBasedFunctionalExpression, newIdentityHashSet())
@@ -339,19 +368,26 @@ public class AssignmentGraph {
             }
 
             // create implicit occurrence nodes for the bindings
-            final List<ImplicitOccurrenceNode> implicitOccurrenceNodes = new ArrayList<>(bindingNodes.size());
-            for (final BindingNode bindingNode : bindingNodes) {
+            for (final BindingNode bindingNode : additionalBindingNodes) {
                 final ImplicitOccurrenceNode implicitOccurrenceNode =
                         new ImplicitOccurrenceNode(new ECOccurrence(ec), bindingNode);
-                implicitOccurrenceNodes.add(implicitOccurrenceNode);
                 // add the binding node and the corresponding implicit occurrence node to the graph
                 this.graph.addEdge(implicitOccurrenceNode, bindingNode);
                 this.bindingNodeToImplicitOccurrence.put(bindingNode, implicitOccurrenceNode);
             }
+
+
+            final List<BindingNode> bindingNodes = this.ecToElements.computeIfAbsent(ec, newArrayList());
+            bindingNodes.addAll(additionalBindingNodes);
+
             // create edges between all implicit occurrence and binding nodes of the EC
-            for (final ImplicitOccurrenceNode implicitOccurrenceNode : implicitOccurrenceNodes) {
+            for (final BindingNode target : bindingNodes) {
                 for (final BindingNode bindingNode : bindingNodes) {
-                    this.graph.addEdge(implicitOccurrenceNode, bindingNode);
+                    if (bindingNode == target) {
+                        continue;
+                    }
+                    final ImplicitOccurrenceNode source = this.bindingNodeToImplicitOccurrence.get(bindingNode);
+                    this.graph.addEdge(source, target);
                 }
             }
         }
@@ -405,8 +441,8 @@ public class AssignmentGraph {
 
         @Override
         public void visit(final ECFilterSet.ECExistentialSet set) {
-            addECs(getRelevantEquivalenceClasses(set.getEquivalenceClasses(),
-                    Sets.union(set.getPurePart(), Collections.singleton(set.getExistentialClosure()))));
+            addFVs(set.getExistentialFactVariables());
+            addECs(set.getEquivalenceClasses());
             add(set.getPurePart());
             addFilter(set.getExistentialClosure(), ExistentialInfo.get(set));
         }
@@ -418,34 +454,9 @@ public class AssignmentGraph {
     }
 
     public void addRule(final ConstructCache.Defrule.ECSetRule rule) {
+        addFVs(rule.getShallowFactVariables());
         final Set<ECFilterSet> filters = rule.getCondition();
-        addECs(getRelevantEquivalenceClasses(rule.getEquivalenceClasses(), filters));
+        addECs(rule.getEquivalenceClasses());
         new ECFilterSetAdder().add(filters);
-    }
-
-    private static Set<EquivalenceClass> getRelevantEquivalenceClasses(final Set<EquivalenceClass> equivalenceClasses,
-            final Set<ECFilterSet> filters) {
-        final Set<EquivalenceClass> relevantECs = newIdentityHashSet(equivalenceClasses);
-        // we only need to represent those equivalence classes that
-        // - are used in filters
-        // - include a fact variable that is not mentioned in any equivalence class used in a filter
-        // - contain more than one element
-        final Set<EquivalenceClass> usedECs = ECCollector.collect(filters);
-        final Set<SingleFactVariable> usedFVs =
-                usedECs.stream().map(EquivalenceClass::getDirectlyDependentFactVariables).flatMap(Set::stream)
-                        .collect(toIdentityHashSet());
-        for (final EquivalenceClass ec : equivalenceClasses) {
-            if (usedECs.contains(ec)) continue;
-            if (ec.hasMoreThanOneElement()) {
-                usedFVs.addAll(ec.getDirectlyDependentFactVariables());
-                usedECs.add(ec);
-            }
-        }
-        relevantECs.removeIf(ec -> {
-            if (usedECs.contains(ec)) return false;
-            if (!usedFVs.containsAll(ec.getFactVariables())) return false;
-            return !(!ec.getConstantExpressions().isEmpty() || !ec.getFunctionalExpressions().isEmpty());
-        });
-        return relevantECs;
     }
 }

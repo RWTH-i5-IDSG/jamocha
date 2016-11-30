@@ -14,9 +14,7 @@
 
 package org.jamocha.dn.compiler.ecblocks;
 
-import com.google.common.collect.BiMap;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Sets;
+import com.google.common.collect.*;
 import lombok.RequiredArgsConstructor;
 import org.jamocha.dn.compiler.ecblocks.assignmentgraph.AssignmentGraph;
 import org.jamocha.dn.compiler.ecblocks.assignmentgraph.AssignmentGraph.Edge;
@@ -36,6 +34,8 @@ import org.jamocha.dn.compiler.ecblocks.lazycollections.minimal.normal.SimpleMin
 import org.jamocha.dn.compiler.ecblocks.partition.BindingPartition;
 import org.jamocha.dn.compiler.ecblocks.partition.OccurrencePartition;
 import org.jamocha.dn.compiler.ecblocks.partition.Partition;
+import org.jamocha.dn.memory.SlotAddress;
+import org.jamocha.dn.memory.Template;
 import org.jamocha.filter.ECFilter;
 import org.jamocha.languages.common.SingleFactVariable;
 import org.jamocha.util.Lambdas;
@@ -60,6 +60,8 @@ public class IncompleteBlock implements BlockInterface {
     public static final int NUM_COLUMN_CHOOSING_TRIES = 100;
     public static final int NUM_EXTENSION_TRIES = 100;
     public static final int NUM_BINDING_TRIES = 100;
+
+    private static final Iterable<? extends SlotAddress> NULL_SLOT_ADDRESS = Collections.singleton(null);
 
     final BlockInterface block;
     final IndexedIdentityHashSet<ECOccurrenceNode> unboundOccurrences;
@@ -96,8 +98,6 @@ public class IncompleteBlock implements BlockInterface {
     }
 
     public Block randomExtension(final MaximalColumns maximalColumns, final RandomWrapper randomWrapper) {
-        // TODO while extending a block starting from a binding, of the implicit occurrence nodes, only consider the
-        // 'corresponding' one
         final Block.RowContainer rowContainer = this.block.getRowContainer();
         final ArrayList<AssignmentGraph.UnrestrictedGraph.SubGraph> rows = new ArrayList<>(rowContainer.getRows());
         for (int i = 0; i < NUM_COLUMN_CHOOSING_TRIES; ++i) {
@@ -151,7 +151,59 @@ public class IncompleteBlock implements BlockInterface {
                 final IndexedIdentityHashSet<ECOccurrenceNode> previouslyUnboundOccurrences,
                 final ArrayList<Edge<ECOccurrenceNode, BindingNode>> chosenEdges);
 
-        IndexedIdentityHashSet<ECOccurrenceNode> EMPTY_ARRAY = new IndexedIdentityHashSet<>();
+        default BindingPartition addSiblingsToBindingPartition(final AssignmentGraph assignmentGraph,
+                final Block.RowContainer rowContainer, final BindingPartition bindingPartition,
+                final ArrayList<Edge<ECOccurrenceNode, BindingNode>> edges,
+                final SlotOrFactBindingNode someBindingNode) {
+            final Template template = someBindingNode.getGroupingFactVariable().getTemplate();
+            final Map<RowIdentifier, SingleFactVariable> map = edges.stream().collect(
+                    toMap(edge -> rowContainer.getRowIdentifier(getNewNode(edge)),
+                            edge -> ((SlotOrFactBindingNode) ((ImplicitOccurrenceNode) edge.getSource())
+                                    .getCorrespondingBindingNode()).getGroupingFactVariable()));
+            final IdentityHashMap<SingleFactVariable, IdentityHashMap<SlotAddress, SlotOrFactBindingNode>> fvToBN =
+                    assignmentGraph.getTemplateInstanceToBindingNodes();
+            return Lambdas.foldl((partition, slotAddress) -> partition.add(new BindingPartition.BindingSubSet(
+                            new SimpleMinimalIdentityHashMap<>(
+                                    Maps.transformValues(map, fv -> fvToBN.get(fv).get(slotAddress))))),
+                    bindingPartition,
+                    Iterables.concat(NULL_SLOT_ADDRESS, template.getSlotAddresses()));
+        }
+
+        default OccurrencePartition addSiblingsToOccurrencePartition(final AssignmentGraph assignmentGraph,
+                final Block.RowContainer rowContainer, final OccurrencePartition occurrencePartition,
+                final ArrayList<Edge<ECOccurrenceNode, BindingNode>> edges,
+                final SlotOrFactBindingNode someBindingNode) {
+            final Template template = someBindingNode.getGroupingFactVariable().getTemplate();
+            final Map<RowIdentifier, SingleFactVariable> map = edges.stream().collect(
+                    toMap(edge -> rowContainer.getRowIdentifier(getNewNode(edge)),
+                            edge -> ((SlotOrFactBindingNode) ((ImplicitOccurrenceNode) edge.getSource())
+                                    .getCorrespondingBindingNode()).getGroupingFactVariable()));
+            final IdentityHashMap<SingleFactVariable, IdentityHashMap<SlotAddress, SlotOrFactBindingNode>> fvToBN =
+                    assignmentGraph.getTemplateInstanceToBindingNodes();
+            final IdentityHashMap<BindingNode, ImplicitOccurrenceNode> bnToImplicit =
+                    assignmentGraph.getBindingNodeToImplicitOccurrence();
+            return Lambdas.foldl((partition, slotAddress) -> partition.add(new OccurrencePartition.OccurrenceSubSet(
+                            new SimpleMinimalIdentityHashMap<>(
+                                    Maps.transformValues(map, fv -> bnToImplicit.get(fvToBN.get(fv).get(slotAddress))
+                                    )))),
+                    occurrencePartition, Iterables.concat(NULL_SLOT_ADDRESS, template.getSlotAddresses()));
+        }
+
+        static OccurrencePartition addFEOccurrences(final AssignmentGraph assignmentGraph,
+                final Block.RowContainer rowContainer, final OccurrencePartition extendedPartition,
+                final FunctionalExpressionBindingNode someCorrespondingBindingNode,
+                final Iterable<FunctionalExpressionBindingNode> bindingNodeStream) {
+            final IdentityHashMap<FunctionalExpressionBindingNode, TreeMap<Integer, FunctionalExpressionOccurrenceNode>>
+                    feToOccs = assignmentGraph.getFunctionalExpressionBindingToOccurrenceNodes();
+            final Set<Integer> parameterPositions = feToOccs.get(someCorrespondingBindingNode).keySet();
+            final ImmutableMap<RowIdentifier, FunctionalExpressionBindingNode> map =
+                    Maps.uniqueIndex(bindingNodeStream, rowContainer.wNode2Identifier::get);
+            return Lambdas.foldl((partition, parameter) -> partition.add(new OccurrencePartition.OccurrenceSubSet(
+                            new SimpleMinimalIdentityHashMap<>(
+                                    Maps.transformValues(map, bn -> feToOccs.get(bn).get(parameter))))),
+                    extendedPartition,
+                    parameterPositions);
+        }
 
         Configuration<BindingType, BindingNode, OccurrenceType, ECOccurrenceNode> BINDING =
                 new Configuration<BindingType, BindingNode, OccurrenceType, ECOccurrenceNode>() {
@@ -198,12 +250,19 @@ public class IncompleteBlock implements BlockInterface {
                         final Edge<ECOccurrenceNode, BindingNode> someEdge = edges.iterator().next();
                         final ECOccurrenceNode someSource = someEdge.getSource();
                         if (someSource.getNodeType() != OccurrenceType.IMPLICIT_OCCURRENCE) return bindingPartition;
-                        final SimpleMinimalIdentityHashMap<RowIdentifier, BindingNode> map = edges.stream().collect(
-                                toMap(edge -> rowContainer.getRowIdentifier(getNewNode(edge)),
-                                        edge -> ((ImplicitOccurrenceNode) edge.getSource())
-                                                .getCorrespondingBindingNode(), null,
-                                        SimpleMinimalIdentityHashMap::new));
-                        return bindingPartition.add(new BindingPartition.BindingSubSet(map));
+                        final BindingNode someCorrespondingBindingNode =
+                                ((ImplicitOccurrenceNode) someSource).getCorrespondingBindingNode();
+                        if (someCorrespondingBindingNode.getNodeType() != BindingType.SLOT_OR_FACT_BINDING) {
+                            final SimpleMinimalIdentityHashMap<RowIdentifier, BindingNode> map = edges.stream().collect(
+                                    toMap(edge -> rowContainer.getRowIdentifier(getNewNode(edge)),
+                                            edge -> ((ImplicitOccurrenceNode) edge.getSource())
+                                                    .getCorrespondingBindingNode(), null,
+                                            SimpleMinimalIdentityHashMap::new));
+                            return bindingPartition.add(new BindingPartition.BindingSubSet(map));
+                        }
+                        // for slot / fact binding nodes, we have to add all siblings, too
+                        return addSiblingsToBindingPartition(assignmentGraph, rowContainer, bindingPartition, edges,
+                                ((SlotOrFactBindingNode) someCorrespondingBindingNode));
                     }
 
                     @Override
@@ -221,11 +280,20 @@ public class IncompleteBlock implements BlockInterface {
                         final Edge<ECOccurrenceNode, BindingNode> someEdge = edges.iterator().next();
                         final ECOccurrenceNode someSource = someEdge.getSource();
                         if (someSource.getNodeType() != OccurrenceType.IMPLICIT_OCCURRENCE) return extendedPartition;
-                        if (((ImplicitOccurrenceNode) someSource).getCorrespondingBindingNode().getNodeType()
-                                != BindingType.FUNCTIONAL_EXPRESSION) return extendedPartition;
-                        final Stream<BindingNode> bindingNodeStream = edges.stream()
-                                .map(edge -> ((ImplicitOccurrenceNode) edge.getSource()).getCorrespondingBindingNode());
-                        return addFEOccurrences(assignmentGraph, rowContainer, extendedPartition, bindingNodeStream);
+                        final BindingNode someCorrespondingBindingNode =
+                                ((ImplicitOccurrenceNode) someSource).getCorrespondingBindingNode();
+                        if (someCorrespondingBindingNode.getNodeType() == BindingType.FUNCTIONAL_EXPRESSION) {
+                            final List<FunctionalExpressionBindingNode> bindingNodes = edges.stream()
+                                    .map(edge -> ((FunctionalExpressionBindingNode) ((ImplicitOccurrenceNode) edge
+                                            .getSource()).getCorrespondingBindingNode())).collect(Collectors.toList());
+                            return addFEOccurrences(assignmentGraph, rowContainer, extendedPartition,
+                                    ((FunctionalExpressionBindingNode) someCorrespondingBindingNode), bindingNodes);
+                        }
+                        if (someCorrespondingBindingNode.getNodeType() == BindingType.SLOT_OR_FACT_BINDING) {
+                            return addSiblingsToOccurrencePartition(assignmentGraph, rowContainer, extendedPartition,
+                                    edges, ((SlotOrFactBindingNode) someCorrespondingBindingNode));
+                        }
+                        return extendedPartition;
                     }
 
                     @Override
@@ -293,22 +361,6 @@ public class IncompleteBlock implements BlockInterface {
                     }
                 };
 
-        static OccurrencePartition addFEOccurrences(final AssignmentGraph assignmentGraph,
-                final Block.RowContainer rowContainer, final OccurrencePartition extendedPartition,
-                final Stream<BindingNode> bindingNodeStream) {
-            final Map<Integer, SimpleMinimalIdentityHashMap<RowIdentifier, ECOccurrenceNode>> map = bindingNodeStream
-                    .flatMap(binding -> assignmentGraph.getFunctionalExpressionBindingToOccurrenceNodes()
-                            .get((FunctionalExpressionBindingNode) binding).values().stream()).collect(
-                            groupingBy(FunctionalExpressionOccurrenceNode::getParameterPosition,
-                                    toMap(node -> rowContainer.getRowIdentifier(node.getGroupingBindingNode()),
-                                            Function.identity(), null, SimpleMinimalIdentityHashMap::new)));
-            OccurrencePartition result = extendedPartition;
-            for (final SimpleMinimalIdentityHashMap<RowIdentifier, ECOccurrenceNode> additionalSubSet : map.values()) {
-                result = result.add(new OccurrencePartition.OccurrenceSubSet(additionalSubSet));
-            }
-            return result;
-        }
-
         Configuration<OccurrenceType, ECOccurrenceNode, BindingType, BindingNode> OCCURRENCE =
                 new Configuration<OccurrenceType, ECOccurrenceNode, BindingType, BindingNode>() {
                     @Override
@@ -346,12 +398,18 @@ public class IncompleteBlock implements BlockInterface {
                     public BindingPartition determineBindingPartition(final AssignmentGraph assignmentGraph,
                             final Block.RowContainer rowContainer, final BindingPartition bindingPartition,
                             final ArrayList<Edge<ECOccurrenceNode, BindingNode>> edges) {
-                        // when adding type 1 edges we know that we produce new unbound bindings since only the
-                        // occurrence node is already contained in the active part of the block
-                        final SimpleMinimalIdentityHashMap<RowIdentifier, BindingNode> newBindingSubSet = edges.stream()
-                                .collect(toMap(edge -> rowContainer.getRowIdentifier(getNewNode(edge)), Edge::getTarget,
-                                        null, SimpleMinimalIdentityHashMap::new));
-                        return bindingPartition.add(new BindingPartition.BindingSubSet(newBindingSubSet));
+                        final Edge<ECOccurrenceNode, BindingNode> someEdge = edges.iterator().next();
+                        final BindingNode someBindingNode = someEdge.getTarget();
+                        if (someBindingNode.getNodeType() != BindingType.SLOT_OR_FACT_BINDING) {
+                            final SimpleMinimalIdentityHashMap<RowIdentifier, BindingNode> newBindingSubSet =
+                                    edges.stream().collect(
+                                            toMap(edge -> rowContainer.getRowIdentifier(getNewNode(edge)),
+                                                    Edge::getTarget, null, SimpleMinimalIdentityHashMap::new));
+                            return bindingPartition.add(new BindingPartition.BindingSubSet(newBindingSubSet));
+                        }
+                        // for slot / fact binding nodes, we have to add all siblings, too
+                        return addSiblingsToBindingPartition(assignmentGraph, rowContainer, bindingPartition, edges,
+                                (SlotOrFactBindingNode) someBindingNode);
                     }
 
                     @Override
@@ -377,11 +435,18 @@ public class IncompleteBlock implements BlockInterface {
                                         SimpleMinimalIdentityHashMap::new));
                         final OccurrencePartition extendedPartition =
                                 occurrencePartition.add(new OccurrencePartition.OccurrenceSubSet(map));
-                        if (someTarget.getNodeType() != BindingType.FUNCTIONAL_EXPRESSION) {
-                            return extendedPartition;
+                        if (someTarget.getNodeType() == BindingType.FUNCTIONAL_EXPRESSION) {
+                            final List<FunctionalExpressionBindingNode> feBindingNodes =
+                                    edges.stream().map(e -> ((FunctionalExpressionBindingNode) e.getTarget()))
+                                            .collect(toList());
+                            return addFEOccurrences(assignmentGraph, rowContainer, extendedPartition,
+                                    ((FunctionalExpressionBindingNode) someTarget), feBindingNodes);
                         }
-                        final Stream<BindingNode> bindingNodeStream = edges.stream().map(Edge::getTarget);
-                        return addFEOccurrences(assignmentGraph, rowContainer, extendedPartition, bindingNodeStream);
+                        if (someTarget.getNodeType() == BindingType.SLOT_OR_FACT_BINDING) {
+                            return addSiblingsToOccurrencePartition(assignmentGraph, rowContainer, extendedPartition,
+                                    edges, ((SlotOrFactBindingNode) someTarget));
+                        }
+                        return extendedPartition;
                     }
 
                     @Override
@@ -506,23 +571,51 @@ public class IncompleteBlock implements BlockInterface {
                 final ECOccurrenceNode source = someEdge.getSource();
                 final BindingNode target = someEdge.getTarget();
                 final AssignmentGraph.UnrestrictedGraph unrestrictedGraph = assignmentGraph.getGraph();
+                final IdentityHashMap<BindingNode, ImplicitOccurrenceNode> implicitLookup =
+                        assignmentGraph.getBindingNodeToImplicitOccurrence();
                 if (source.getNodeType() == OccurrenceType.IMPLICIT_OCCURRENCE && !oldRowContainer
                         .containsNode(source)) {
                     // adding binding node to block (might add unbound occurrences in case of FE binding node)
-                    // since target is part of the block and source wasn't, add the 'corresponding' edge for source
-                    newRowContainer = adjustedRowContainer.addColumn(chosenEdges.stream().map(edge -> unrestrictedGraph
-                            .getEdge(edge.getSource(),
-                                    ((ImplicitOccurrenceNode) edge.getSource()).getCorrespondingBindingNode()))
-                            .collect(toList()), Edge::getSource);
+                    final BindingNode someCorrespondingBindingNode =
+                            ((ImplicitOccurrenceNode) source).getCorrespondingBindingNode();
+                    if (someCorrespondingBindingNode.getNodeType() == BindingType.SLOT_OR_FACT_BINDING) {
+                        // adding new template instance node to the block => we need to add all connected slot / fact
+                        // binding nodes to the block => we need to add all their implicit occurrences to the block
+                        final IdentityHashMap<SingleFactVariable, IdentityHashMap<SlotAddress, SlotOrFactBindingNode>>
+                                fvToBNs = assignmentGraph.getTemplateInstanceToBindingNodes();
+                        final Function<Edge<ECOccurrenceNode, BindingNode>, SlotOrFactBindingNode> bindingNodeGetter =
+                                edge -> ((SlotOrFactBindingNode) ((ImplicitOccurrenceNode) edge.getSource())
+                                        .getCorrespondingBindingNode());
+                        final Map<RowIdentifier, List<Edge<ECOccurrenceNode, BindingNode>>> newEdgeMap =
+                                getMapOfImplicitSiblingEdges(oldRowContainer, chosenEdges, unrestrictedGraph,
+                                        implicitLookup, fvToBNs, bindingNodeGetter);
+                        newRowContainer = adjustedRowContainer.addColumns(newEdgeMap);
+                    } else {
+                        // since target is part of the block and source wasn't, add the 'corresponding' edge for source
+                        newRowContainer = adjustedRowContainer.addColumn(chosenEdges.stream()
+                                .map(edge -> unrestrictedGraph.getEdge(edge.getSource(),
+                                        ((ImplicitOccurrenceNode) edge.getSource()).getCorrespondingBindingNode()))
+                                .collect(toList()), Edge::getSource);
+                    }
                 } else if (!oldRowContainer.containsNode(target)) {
                     // adding implicit occurrence node to block (might add unbound occurrences in case of FE binding
                     // node)
                     // since source is part of the block and target wasn't, add the 'corresponding' edge for source
-                    final IdentityHashMap<BindingNode, ImplicitOccurrenceNode> implicitLookup =
-                            assignmentGraph.getBindingNodeToImplicitOccurrence();
-                    newRowContainer = adjustedRowContainer.addColumn(chosenEdges.stream().map(edge -> unrestrictedGraph
-                                    .getEdge(implicitLookup.get(edge.getTarget()), edge.getTarget())).collect(toList()),
-                            Edge::getTarget);
+                    if (target.getNodeType() == BindingType.SLOT_OR_FACT_BINDING) {
+                        final IdentityHashMap<SingleFactVariable, IdentityHashMap<SlotAddress, SlotOrFactBindingNode>>
+                                fvToBNs = assignmentGraph.getTemplateInstanceToBindingNodes();
+                        final Function<Edge<ECOccurrenceNode, BindingNode>, SlotOrFactBindingNode> bindingNodeGetter =
+                                edge -> ((SlotOrFactBindingNode) edge.getTarget());
+                        final Map<RowIdentifier, List<Edge<ECOccurrenceNode, BindingNode>>> newEdgeMap =
+                                getMapOfImplicitSiblingEdges(oldRowContainer, chosenEdges, unrestrictedGraph,
+                                        implicitLookup, fvToBNs, bindingNodeGetter);
+                        newRowContainer = adjustedRowContainer.addColumns(newEdgeMap);
+                    } else {
+                        newRowContainer = adjustedRowContainer.addColumn(chosenEdges.stream()
+                                .map(edge -> unrestrictedGraph
+                                        .getEdge(implicitLookup.get(edge.getTarget()), edge.getTarget()))
+                                .collect(toList()), Edge::getTarget);
+                    }
                 } else {
                     newRowContainer = adjustedRowContainer;
                 }
@@ -588,6 +681,17 @@ public class IncompleteBlock implements BlockInterface {
             }
         }
         return null;
+    }
+
+    private Map<RowIdentifier, List<Edge<ECOccurrenceNode, BindingNode>>> getMapOfImplicitSiblingEdges(
+            final Block.RowContainer oldRowContainer, final ArrayList<Edge<ECOccurrenceNode, BindingNode>> chosenEdges,
+            final AssignmentGraph.UnrestrictedGraph unrestrictedGraph,
+            final IdentityHashMap<BindingNode, ImplicitOccurrenceNode> implicitLookup,
+            final IdentityHashMap<SingleFactVariable, IdentityHashMap<SlotAddress, SlotOrFactBindingNode>> fvToBNs,
+            final Function<Edge<ECOccurrenceNode, BindingNode>, SlotOrFactBindingNode> bindingNodeGetter) {
+        return chosenEdges.stream().collect(toMap(edge -> oldRowContainer.wNode2Identifier.get(edge.getTarget()),
+                edge -> fvToBNs.get(bindingNodeGetter.apply(edge).getGroupingFactVariable()).values().stream()
+                        .map(bn -> unrestrictedGraph.getEdge(implicitLookup.get(bn), bn)).collect(toList())));
     }
 
     private enum EdgeType {

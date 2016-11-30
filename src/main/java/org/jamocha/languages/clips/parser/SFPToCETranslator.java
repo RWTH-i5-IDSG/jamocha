@@ -967,7 +967,7 @@ public final class SFPToCETranslator implements SelectiveSFPVisitor {
                 SelectiveSFPVisitor.stream(node, 0).forEach(n -> this.constraintVariable = SelectiveSFPVisitor
                         .sendVisitor(new SFPConnectedConstraintElementsVisitor(this.parent, this.constraintAdder,
                                         this.template, this.slotCreator, this.bindingsAllowed, this
-                                .constraintVariable), n,
+                                        .constraintVariable), n,
                                 data).constraintVariable);
                 return data;
             }
@@ -1951,7 +1951,8 @@ public final class SFPToCETranslator implements SelectiveSFPVisitor {
                     .sendVisitor(new SFPExpressionVisitor(null, SymbolToFunctionWithArguments.bySymbol(), true), node,
                             data).expression;
             final FunctionWithArguments<RHSVariableLeaf> translatedExpression = FWASymbolToRHSVariableLeafTranslator
-                    .translate(Collections.emptyMap(), SFPToCETranslator.this.interactiveModeContext, expression)[0];
+                    .translate(Collections.emptyMap(), SFPToCETranslator.this.interactiveModeContext,
+                            ImmutableList.of(expression)).get(0);
             this.value = SFPToCETranslator.this.sideEffectFunctionToNetwork.getLogFormatter()
                     .formatSlotValue(expression.getReturnType(), translatedExpression.evaluate());
             return data;
@@ -1973,7 +1974,8 @@ public final class SFPToCETranslator implements SelectiveSFPVisitor {
                     SFPToCETranslator.this.parserToNetwork.getScope().setOrCreateGlobalVariable(symbol,
                             FWASymbolToRHSVariableLeafTranslator
                                     .translate(Collections.emptyMap(), SFPToCETranslator.this.interactiveModeContext,
-                                            expression)[0].evaluate(), expression.getReturnType());
+                                            ImmutableList.of(expression)).get(0).evaluate(),
+                            expression.getReturnType());
                     return data;
                 }
             };

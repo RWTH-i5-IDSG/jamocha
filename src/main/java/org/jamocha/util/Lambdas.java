@@ -254,4 +254,16 @@ public class Lambdas {
         final Collector<T, ?, Map<K, Set<T>>> groupingBy = groupingBy(classifier, toSet());
         return Collectors.collectingAndThen(groupingBy, map -> new ArrayList<>(map.values()));
     }
+
+    public static <B, A> B foldl(final BiFunction<B, A, B> reducer, final B initialValue, final Iterable<A> iterable) {
+        B result = initialValue;
+        for (final A a : iterable) {
+            result = reducer.apply(result, a);
+        }
+        return result;
+    }
+
+    public static <B, A> B foldl(final BiFunction<B, A, B> reducer, final B initialValue, final Stream<A> stream) {
+        return foldl(reducer, initialValue, iterable(stream));
+    }
 }

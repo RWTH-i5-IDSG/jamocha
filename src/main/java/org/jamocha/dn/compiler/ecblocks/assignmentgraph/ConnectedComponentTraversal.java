@@ -65,7 +65,8 @@ public abstract class ConnectedComponentTraversal implements AssignmentGraphNode
 
     protected void handleSlotOrFactBindingNode(final SlotOrFactBindingNode node) {
         final SingleFactVariable groupingFactVariable = node.getGroupingFactVariable();
-        this.assignmentGraph.getTemplateInstanceToBindingNodes().get(groupingFactVariable).forEach(this::enqueueNode);
+        this.assignmentGraph.getTemplateInstanceToBindingNodes().get(groupingFactVariable).values()
+                .forEach(this::enqueueNode);
     }
 
     @Override

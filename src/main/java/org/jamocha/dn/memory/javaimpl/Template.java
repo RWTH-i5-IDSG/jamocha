@@ -13,19 +13,10 @@
  */
 package org.jamocha.dn.memory.javaimpl;
 
-import static org.jamocha.util.ToArray.toArray;
-
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.OptionalInt;
-import java.util.Set;
-
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
 import lombok.Getter;
 import lombok.ToString;
-
 import org.apache.logging.log4j.Marker;
 import org.jamocha.dn.memory.Fact;
 import org.jamocha.dn.memory.MemoryFact;
@@ -33,6 +24,11 @@ import org.jamocha.dn.memory.SlotType;
 import org.jamocha.function.fwa.ExchangeableLeaf;
 import org.jamocha.function.fwa.FunctionWithArguments;
 import org.jamocha.logging.MarkerType;
+
+import java.util.*;
+import java.util.Map.Entry;
+
+import static org.jamocha.util.ToArray.toArray;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
@@ -44,9 +40,8 @@ public class Template implements org.jamocha.dn.memory.Template {
     final String name;
     @Getter(onMethod = @__(@Override))
     final String description;
-    @Getter(onMethod = @__(@Override))
-    final List<Slot> slots;
     final HashMap<String, SlotAddress> slotNames = new HashMap<>();
+    final BiMap<SlotAddress, Slot> slots;
     final SlotType[] slotTypes;
     @Getter(onMethod = @__(@Override))
     final Marker instanceMarker;
@@ -54,12 +49,15 @@ public class Template implements org.jamocha.dn.memory.Template {
     Template(final String name, final String description, final Slot... slots) {
         this.name = name;
         this.description = description;
-        this.slots = Arrays.asList(slots);
         this.slotTypes = toArray(Arrays.stream(slots).map(s -> s.getSlotType()), SlotType[]::new);
+        this.slots = HashBiMap.create(slots.length);
         for (int i = 0; i < slots.length; ++i) {
-            this.slotNames.put(slots[i].getName(), new SlotAddress(i));
+            final SlotAddress slotAddress = new SlotAddress(i);
+            final Slot slot = slots[i];
+            this.slots.put(slotAddress, slot);
+            this.slotNames.put(slot.getName(), slotAddress);
         }
-        instanceMarker = MarkerType.FACTS.createChild(name);
+        this.instanceMarker = MarkerType.FACTS.createChild(name);
     }
 
     @Override
@@ -78,12 +76,22 @@ public class Template implements org.jamocha.dn.memory.Template {
     }
 
     public String getSlotName(final int index) {
-        for (final Entry<String, SlotAddress> entry : this.slotNames.entrySet()) {
-            if (entry.getValue().getIndex() == index) {
-                return entry.getKey();
-            }
-        }
-        return null;
+        return Optional.ofNullable(getSlot(index)).map(Slot::getName).orElse(null);
+    }
+
+    @Override
+    public Collection<Slot> getSlots() {
+        return this.slots.values();
+    }
+
+    @Override
+    public Collection<SlotAddress> getSlotAddresses() {
+        return this.slots.keySet();
+    }
+
+    @Override
+    public SlotAddress getSlotAddress(final Slot slot) {
+        return this.slots.inverse().get(slot);
     }
 
     @Override
@@ -97,7 +105,12 @@ public class Template implements org.jamocha.dn.memory.Template {
     }
 
     public Slot getSlot(final int index) {
-        return this.slots.get(index);
+        for (final Entry<SlotAddress, Slot> entry : this.slots.entrySet()) {
+            if (entry.getKey().getIndex() == index) {
+                return entry.getValue();
+            }
+        }
+        return null;
     }
 
     @Override

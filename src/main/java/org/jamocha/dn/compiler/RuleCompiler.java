@@ -109,28 +109,25 @@ public enum RuleCompiler {
                     defrules.stream().flatMap(rule -> RuleConditionProcessor.flattenOutOfPlace(rule).stream())
                             .flatMap(rule -> new CEToECTranslator(initialFactTemplate, rule).translate().stream())
                             .collect(toList());
-            final AssignmentGraph assignmentGraph = new AssignmentGraph();
-            consolidatedRules.forEach(assignmentGraph::addRule);
-            AssignmentGraphToDot.toDot(assignmentGraph, "assignmentGraphTest.gv");
-            //Collection<PathRule> transformedRules = ECBlocks.transform(consolidatedRules);
-            //for (final Optimizer optimizer : ImmutableList.of(
-            ///*
-            // * node filter sets using the same paths can be combined
-            // */
-            //SamePathsNodeFilterSetCombiningOptimizer.INSTANCE,
-            ///*
-            // * filters using the same paths can be combined
-            // */
-            //SamePathsFilterCombiningOptimizer.INSTANCE,
-            ///*
-            // * node filter sets using only a subset of the paths of their predecessors can be
-            // * combined
-            // */
-            //SubsetPathsNodeFilterSetCombiningOptimizer.INSTANCE)) {
-            //transformedRules = optimizer.optimize(transformedRules);
-            //}
-            //return transformedRules;
-            return Collections.emptySet();
+            Collection<PathRule> transformedRules = ECBlocks.transform(consolidatedRules);
+
+            for (final Optimizer optimizer : ImmutableList.of(
+            /*
+             * node filter sets using the same paths can be combined
+             */
+            SamePathsNodeFilterSetCombiningOptimizer.INSTANCE,
+            /*
+             * filters using the same paths can be combined
+             */
+            SamePathsFilterCombiningOptimizer.INSTANCE,
+            /*
+             * node filter sets using only a subset of the paths of their predecessors can be
+             * combined
+             */
+            SubsetPathsNodeFilterSetCombiningOptimizer.INSTANCE)) {
+            transformedRules = optimizer.optimize(transformedRules);
+            }
+            return transformedRules;
         }
     };
 
