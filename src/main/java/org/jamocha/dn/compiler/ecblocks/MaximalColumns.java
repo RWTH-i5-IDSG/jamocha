@@ -28,8 +28,11 @@ import org.jamocha.function.fwa.FunctionWithArguments;
 import org.jamocha.function.fwa.TemplateSlotLeaf;
 import org.jamocha.function.fwa.TypeLeaf;
 
+import javax.annotation.Nullable;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 import static java.util.stream.Collectors.*;
@@ -59,6 +62,8 @@ public class MaximalColumns {
             implicitToFunctionalExpression = new HashMap<>();
     final HashMap<Edge<ImplicitOccurrenceNode, SlotOrFactBindingNode>, ImplicitToTemplateColumn> implicitToTemplate =
             new HashMap<>();
+
+    final ArrayList<Column<ECOccurrenceNode, BindingNode>> startingColumns = new ArrayList<>();
 
     private static <O extends ECOccurrenceNode, B extends BindingNode> Column<ECOccurrenceNode, BindingNode> get(
             final Edge<ECOccurrenceNode, BindingNode> edge, final HashMap<Edge<O, B>, ? extends Column<O, B>> map) {
@@ -197,7 +202,8 @@ public class MaximalColumns {
         @Override
         public void disperse(final Set<Edge<ECOccurrenceNode, BindingNode>> edges) {
             MaximalColumns.disperse((Set<Edge<FilterOccurrenceNode, ConstantBindingNode>>) (Set<?>) edges,
-                    FilterToConstantColumn::new, MaximalColumns.this.filterToConstant);
+                    FilterToConstantColumn::new, MaximalColumns.this.filterToConstant,
+                    MaximalColumns.this.startingColumns::add);
         }
     }
 
@@ -211,7 +217,8 @@ public class MaximalColumns {
         @Override
         public void disperse(final Set<Edge<ECOccurrenceNode, BindingNode>> edges) {
             MaximalColumns.disperse((Set<Edge<FilterOccurrenceNode, FunctionalExpressionBindingNode>>) (Set<?>) edges,
-                    FilterToFunctionalExpressionColumn::new, MaximalColumns.this.filterToFunctionalExpression);
+                    FilterToFunctionalExpressionColumn::new, MaximalColumns.this.filterToFunctionalExpression,
+                    MaximalColumns.this.startingColumns::add);
         }
     }
 
@@ -225,7 +232,8 @@ public class MaximalColumns {
         @Override
         public void disperse(final Set<Edge<ECOccurrenceNode, BindingNode>> edges) {
             MaximalColumns.disperse((Set<Edge<FilterOccurrenceNode, SlotOrFactBindingNode>>) (Set<?>) edges,
-                    FilterToTemplateColumn::new, MaximalColumns.this.filterToTemplate);
+                    FilterToTemplateColumn::new, MaximalColumns.this.filterToTemplate,
+                    MaximalColumns.this.startingColumns::add);
         }
     }
 
@@ -239,7 +247,8 @@ public class MaximalColumns {
         @Override
         public void disperse(final Set<Edge<ECOccurrenceNode, BindingNode>> edges) {
             MaximalColumns.disperse((Set<Edge<FunctionalExpressionOccurrenceNode, ConstantBindingNode>>) (Set<?>) edges,
-                    FunctionalExpressionToConstantColumn::new, MaximalColumns.this.functionalExpressionToConstant);
+                    FunctionalExpressionToConstantColumn::new, MaximalColumns.this.functionalExpressionToConstant,
+                    null);
         }
     }
 
@@ -255,7 +264,7 @@ public class MaximalColumns {
             MaximalColumns.disperse(
                     (Set<Edge<FunctionalExpressionOccurrenceNode, FunctionalExpressionBindingNode>>) (Set<?>) edges,
                     FunctionalExpressionToFunctionalExpressionColumn::new,
-                    MaximalColumns.this.functionalExpressionToFunctionalExpression);
+                    MaximalColumns.this.functionalExpressionToFunctionalExpression, null);
         }
     }
 
@@ -271,7 +280,7 @@ public class MaximalColumns {
             MaximalColumns
                     .disperse((Set<Edge<FunctionalExpressionOccurrenceNode, SlotOrFactBindingNode>>) (Set<?>) edges,
                             FunctionalExpressionToTemplateColumn::new,
-                            MaximalColumns.this.functionalExpressionToTemplate);
+                            MaximalColumns.this.functionalExpressionToTemplate, null);
         }
     }
 
@@ -285,7 +294,8 @@ public class MaximalColumns {
         @Override
         public void disperse(final Set<Edge<ECOccurrenceNode, BindingNode>> edges) {
             MaximalColumns.disperse((Set<Edge<ImplicitOccurrenceNode, ConstantBindingNode>>) (Set<?>) edges,
-                    ImplicitToConstantColumn::new, MaximalColumns.this.implicitToConstant);
+                    ImplicitToConstantColumn::new, MaximalColumns.this.implicitToConstant,
+                    ((Boolean) this.occurrenceInfo) ? null : MaximalColumns.this.startingColumns::add);
         }
     }
 
@@ -299,7 +309,8 @@ public class MaximalColumns {
         @Override
         public void disperse(final Set<Edge<ECOccurrenceNode, BindingNode>> edges) {
             MaximalColumns.disperse((Set<Edge<ImplicitOccurrenceNode, FunctionalExpressionBindingNode>>) (Set<?>) edges,
-                    ImplicitToFunctionalExpressionColumn::new, MaximalColumns.this.implicitToFunctionalExpression);
+                    ImplicitToFunctionalExpressionColumn::new, MaximalColumns.this.implicitToFunctionalExpression,
+                    ((Boolean) this.occurrenceInfo) ? null : MaximalColumns.this.startingColumns::add);
         }
     }
 
@@ -313,13 +324,18 @@ public class MaximalColumns {
         @Override
         public void disperse(final Set<Edge<ECOccurrenceNode, BindingNode>> edges) {
             MaximalColumns.disperse((Set<Edge<ImplicitOccurrenceNode, SlotOrFactBindingNode>>) (Set<?>) edges,
-                    ImplicitToTemplateColumn::new, MaximalColumns.this.implicitToTemplate);
+                    ImplicitToTemplateColumn::new, MaximalColumns.this.implicitToTemplate,
+                    ((Boolean) this.occurrenceInfo) ? null : MaximalColumns.this.startingColumns::add);
         }
     }
 
     private static <O extends ECOccurrenceNode, B extends BindingNode, C extends Column<O, B>> void disperse(
-            final Set<Edge<O, B>> edges, final Function<Set<Edge<O, B>>, C> ctor, final HashMap<Edge<O, B>, C> target) {
+            final Set<Edge<O, B>> edges, final Function<Set<Edge<O, B>>, C> ctor, final HashMap<Edge<O, B>, C> target,
+            @Nullable final Consumer<Column<ECOccurrenceNode, BindingNode>> consumer) {
         final C column = ctor.apply(edges);
         edges.forEach(edge -> target.put(edge, column));
+        if (null != consumer) {
+            consumer.accept((Column<ECOccurrenceNode, BindingNode>) column);
+        }
     }
 }
