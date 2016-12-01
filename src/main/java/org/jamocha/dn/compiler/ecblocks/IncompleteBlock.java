@@ -99,6 +99,18 @@ public class IncompleteBlock implements BlockInterface {
 
     public Block randomExtension(final MaximalColumns maximalColumns, final RandomWrapper randomWrapper) {
         final Block.RowContainer rowContainer = this.block.getRowContainer();
+        if (0 == rowContainer.getRowCount()) {
+            // block is empty => we can't just choose an adjacent column
+            for (int i = 0; i < NUM_COLUMN_CHOOSING_TRIES; ++i) {
+                final Column<ECOccurrenceNode, BindingNode> randomColumn =
+                        randomWrapper.choose(maximalColumns.getStartingColumns());
+                final Block potentialBlock = binding(randomWrapper, maximalColumns, randomColumn);
+                if (potentialBlock != null) {
+                    return potentialBlock;
+                }
+            }
+            return null;
+        }
         final ArrayList<AssignmentGraph.UnrestrictedGraph.SubGraph> rows = new ArrayList<>(rowContainer.getRows());
         for (int i = 0; i < NUM_COLUMN_CHOOSING_TRIES; ++i) {
             final AssignmentGraph.UnrestrictedGraph.SubGraph randomRow = randomWrapper.choose(rows);
