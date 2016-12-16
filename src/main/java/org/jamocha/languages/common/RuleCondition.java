@@ -65,7 +65,7 @@ public class RuleCondition {
      */
     @Getter
     @AllArgsConstructor(access = AccessLevel.PRIVATE)
-    // no not implement hashCode (or at least don't include anything that might change)
+    // do not implement hashCode (or at least don't include anything that might change)
     public static class EquivalenceClass {
         final LinkedList<SingleFactVariable> factVariables;
         final LinkedList<SingleSlotVariable> slotVariables;
