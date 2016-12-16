@@ -280,8 +280,11 @@ public class Block implements BlockInterface {
 
     @Override
     public int getNumberOfColumns() {
-        return this.columns.size();
+        return this.rowContainer.row2Identifier.isEmpty() ? 0
+                : this.rowContainer.row2Identifier.keySet().iterator().next().edgeSet().size();
     }
+
+    public static final Comparator<Block> COMPARE_BY_WIDTH = Comparator.comparingInt(Block::getNumberOfColumns);
 
     @SuppressWarnings("checkstyle:methodlength")
     public boolean isConsistentBlock() {
